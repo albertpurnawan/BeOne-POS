@@ -1,0 +1,7 @@
+class RouteConstants {
+  static String home = "home";
+  static String login = "login";
+  static String sales = "sales";
+  static String settings = "settings";
+  static String masters = "masters";
+}

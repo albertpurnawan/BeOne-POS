@@ -1,0 +1,1 @@
+enum CustomAppBarStyle { red, white }
