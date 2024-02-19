@@ -7,6 +7,7 @@ import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
+import 'package:pos_fe/features/auth_bos/presentation/pages/auth_bos.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -46,7 +47,20 @@ class WelcomeScreen extends StatefulWidget {
                     "Forgot Password ● Help Center",
                     // onTap: () =>
                     //     Helpers.navigate(context, ForgotPasswordScreen()),
-                  )
+                  ),
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 400),
+                    child: CustomButton(
+                      child: Text("Fetch Token"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => FetchScreen()),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
