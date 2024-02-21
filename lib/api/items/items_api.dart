@@ -1,23 +1,23 @@
 import 'package:dio/dio.dart';
-import 'package:pos_fe/api/users/users_model.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'dart:developer';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'dart:developer';
 
-class UsersApi {
+class ItemsApi {
   final AppDatabase _appdatabase = AppDatabase();
   final dio = Dio();
   String token = Constant.token;
 
-  Future<List<dynamic>> fetchUsersData() async {
+  Future<List<dynamic>> fetchItemsData() async {
     try {
+      String token = Constant.token;
       int page = 1;
       bool hasMoreData = true;
-      List<dynamic> allUsers = [];
+      List<dynamic> allItems = [];
 
       while (hasMoreData) {
         final response = await dio.get(
-          "http://192.168.1.34:3001/tenant-user?page=$page",
+          "http://192.168.1.34:3001/tenant-item-master?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -25,37 +25,36 @@ class UsersApi {
           ),
         );
 
-        final List<dynamic> usersData = response.data as List<dynamic>;
-        allUsers.addAll(usersData);
+        final List<dynamic> itemsData = response.data as List<dynamic>;
+        allItems.addAll(itemsData);
 
-        if (usersData.isEmpty) {
+        if (itemsData.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      final List<Users> users =
-          allUsers.map((json) => Users.fromJson(json)).toList();
+      final List<Items> items =
+          allItems.map((json) => Items.fromJson(json).toList());
 
-      // log(response.data[0].toString());
-      // log(users[0].toString());
+      // log(items[0].toString());
 
-      for (final user in users) {
-        await _appdatabase.insertUsers(user);
-      }
+      // for (final item in items) {
+      //   await _appdatabase.insertItems(item);
+      // }
 
-      return allUsers;
+      return allItems;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchUserData(String docid) async {
+  Future<List<dynamic>> fetchItemData(String docid) async {
     try {
       final response = await dio.get(
-        "http://192.168.1.34:3001/tenant-user/$docid",
+        "http://192.168.1.34:3001/tenant-item-master/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -63,13 +62,9 @@ class UsersApi {
         ),
       );
 
-      // response.data.forEach((key, value) {
-      //   print('$key: $value');
-      // });
+      final Items item = Items.fromJson(response.data);
 
-      final Users user = Users.fromJson(response.data);
-
-      // print('User: $user');
+      // print('Item: $item');
 
       return [response.data];
     } catch (err) {
