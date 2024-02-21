@@ -95,7 +95,7 @@ CREATE TABLE receiptitems (
       await db.execute("""
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  docid STRING NOT NULL,
+  docid STRING NOT NULL UNIQUE, 
   createdate TEXT,
   updatedate TEXT,
   gtentId INTEGER,
@@ -148,8 +148,51 @@ FOREIGN KEY (gtentId) REFERENCES tennats (id)
         }
       }
 
-      await _database?.insert('users', userMap,
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      await _database?.transaction((txn) async {
+        await txn.rawInsert(
+          '''
+        INSERT OR REPLACE INTO users (
+          docid, createdate, updatedate, gtentId, email, username, password,
+          tohemId, torolId, statusactive, activated, superuser, provider,
+          usertype, trolleyuser
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+        ON CONFLICT(docid) DO UPDATE SET
+        createdate = excluded.createdate,
+        updatedate = excluded.updatedate,
+        gtentId = excluded.gtentId,
+        email = excluded.email,
+        username = excluded.username,
+        password = excluded.password,
+        tohemId = excluded.tohemId,
+        torolId = excluded.torolId,
+        statusactive = excluded.statusactive,
+        activated = excluded.activated,
+        superuser = excluded.superuser,
+        provider = excluded.provider,
+        usertype = excluded.usertype,
+        trolleyuser = excluded.trolleyuser
+        ''',
+          [
+            userMap['docid'],
+            userMap['createdate'],
+            userMap['updatedate'],
+            userMap['gtentId'],
+            userMap['email'],
+            userMap['username'],
+            userMap['password'],
+            userMap['tohemId'],
+            userMap['torolId'],
+            userMap['statusactive'],
+            userMap['activated'],
+            userMap['superuser'],
+            userMap['provider'],
+            userMap['usertype'],
+            userMap['trolleyuser'],
+          ],
+        );
+      });
     } catch (err) {
       print('Error inserting user: $err');
       rethrow;
