@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:pos_fe/api/auth_bos/data/models/auth_token.dart';
 
 class AuthApi {
   final Dio _dio = Dio();
 
-  Future<String?> fetchBosToken(String email, String password) async {
+  Future<AuthToken?> fetchAuthToken(String email, String password) async {
     try {
       final response = await _dio.post(
         "http://192.168.1.34:3001/auth/login",
@@ -12,7 +13,14 @@ class AuthApi {
           "password": password,
         },
       );
-      return response.data['token'];
+
+      final token = response.data['token'];
+
+      if (token != null) {
+        return AuthToken(token);
+      }
+
+      return null;
     } catch (e) {
       print("Error fetching: $e");
       return null;

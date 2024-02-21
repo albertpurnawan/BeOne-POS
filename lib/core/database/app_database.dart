@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:pos_fe/api/users/users_model.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:sqflite/sqflite.dart';
@@ -90,8 +91,68 @@ CREATE TABLE receiptitems (
   FOREIGN KEY (receipt_id) REFERENCES receipt (id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 )""");
+
+      await db.execute("""
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  docid STRING NOT NULL,
+  createdate TEXT,
+  updatedate TEXT,
+  gtentId INTEGER,
+  email STRING,
+  username STRING,
+  password STRING,
+  tohemId INTEGER,
+  torolId INTEGER,
+  statusactive INTEGER,
+  activated INTEGER,
+  superuser INTEGER,
+  provider INTEGER,
+  usertype INTEGER,
+  trolleyuser STRING
+)
+""");
+/*
+FOREIGN KEY (gtentId) REFERENCES tennats (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (tohemId) REFERENCES employees (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (torolId) REFERENCES userroles (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (tostrId) REFERENCES stores (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+*/
     } catch (e) {
       print(e);
+    }
+  }
+
+  //INSERT USERS
+  Future<void> insertUsers(Users users) async {
+    try {
+      _database ??= await _initDB(_databaseName);
+
+      final List<String> excludedFields = [
+        'createby',
+        'updateby',
+        'gtent_id',
+        'torol_id',
+        'tohem_id'
+      ];
+
+      final Map<String, dynamic> userMap = users.toJson();
+
+      for (var field in excludedFields) {
+        if (userMap.containsKey(field)) {
+          userMap.remove(field);
+        }
+      }
+
+      await _database?.insert('users', userMap,
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    } catch (err) {
+      print('Error inserting user: $err');
+      rethrow;
     }
   }
 

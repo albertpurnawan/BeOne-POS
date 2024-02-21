@@ -1,8 +1,11 @@
+import 'package:cron/cron.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pos_fe/api/cron/cron.dart';
+import 'package:pos_fe/api/users/users_api.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -14,6 +17,9 @@ import 'package:pos_fe/injection_container.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
+
+  syncWithBOS();
+
   runApp(const MyApp());
 }
 
