@@ -2,15 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/api/users/users_model.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'dart:developer';
-
 import 'package:pos_fe/core/database/app_database.dart';
 
 class UsersApi {
   final AppDatabase _appdatabase = AppDatabase();
+  final dio = Dio();
+  String token = Constant.token;
+
   Future<List<dynamic>> fetchUsersData() async {
     try {
-      final dio = Dio();
-      String token = Constant.token;
       int page = 1;
       bool hasMoreData = true;
       List<dynamic> allUsers = [];
@@ -54,9 +54,6 @@ class UsersApi {
 
   Future<List<dynamic>> fetchUserData(String docid) async {
     try {
-      final dio = Dio();
-      String token = Constant.token;
-
       final response = await dio.get(
         "http://192.168.1.34:3001/tenant-user/$docid",
         options: Options(
@@ -65,7 +62,6 @@ class UsersApi {
           },
         ),
       );
-      print('Response $response');
 
       // response.data.forEach((key, value) {
       //   print('$key: $value');
@@ -73,7 +69,7 @@ class UsersApi {
 
       final Users user = Users.fromJson(response.data);
 
-      print('User: $user');
+      // print('User: $user');
 
       return [response.data];
     } catch (err) {

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -23,8 +22,30 @@ class _SalesPageState extends State<SalesPage> {
   final ScrollController _scrollControllerReceiptItems = ScrollController();
   final ScrollController _scrollControllerReceiptSummary = ScrollController();
 
-  late final FocusNode _newReceiptItemQuantityFocusNode = FocusNode();
-  late final FocusNode _newReceiptItemCodeFocusNode = FocusNode();
+  late final FocusNode _newReceiptItemQuantityFocusNode = FocusNode(
+      skipTraversal: true,
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+            event.logicalKey == LogicalKeyboardKey.arrowRight ||
+            event.logicalKey == LogicalKeyboardKey.arrowUp ||
+            event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          return KeyEventResult.skipRemainingHandlers;
+        } else {
+          return KeyEventResult.ignored;
+        }
+      });
+  late final FocusNode _newReceiptItemCodeFocusNode = FocusNode(
+      skipTraversal: true,
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+            event.logicalKey == LogicalKeyboardKey.arrowRight ||
+            event.logicalKey == LogicalKeyboardKey.arrowUp ||
+            event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          return KeyEventResult.skipRemainingHandlers;
+        } else {
+          return KeyEventResult.ignored;
+        }
+      });
 
   late final TextEditingController
       _textEditingControllerNewReceiptItemQuantity = TextEditingController()
@@ -34,13 +55,11 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _scrollControllerReceiptItems.dispose();
     _scrollControllerReceiptSummary.dispose();
     _newReceiptItemCodeFocusNode.dispose();
@@ -58,7 +77,7 @@ class _SalesPageState extends State<SalesPage> {
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
       // backgroundColor: Color.fromRGBO(175, 47, 47, 1),
-      backgroundColor: Color.fromRGBO(245, 245, 245, 1),
+      backgroundColor: const Color.fromRGBO(245, 245, 245, 1),
       // backgroundColor: Colors.white,
 
       body: Padding(
@@ -77,7 +96,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       children: [
                         _buttonGroup1(),
-                        SizedBox(
+                        const SizedBox(
                           width: 15,
                         ),
                         _receiptItemForm()
@@ -103,7 +122,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: Column(
                       children: [
                         _transactionSummary(),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         // _buttonGroup2()
@@ -149,7 +168,7 @@ class _SalesPageState extends State<SalesPage> {
             //     width: 4.0),
             borderRadius: BorderRadius.circular(5),
             color: Colors.white,
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
                 spreadRadius: 0.5,
                 blurRadius: 5,
@@ -163,7 +182,7 @@ class _SalesPageState extends State<SalesPage> {
                 // padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                 height: 50,
                 width: double.infinity,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   // border: Border.all(
                   //     color: Color.fromRGBO(195, 53, 53, 1),
                   //     width: 4.0),
@@ -179,8 +198,8 @@ class _SalesPageState extends State<SalesPage> {
                         child: Container(
                             height: 50,
                             width: 160,
-                            padding: EdgeInsets.fromLTRB(20, 15, 10, 16),
-                            decoration: BoxDecoration(
+                            padding: const EdgeInsets.fromLTRB(20, 15, 10, 16),
+                            decoration: const BoxDecoration(
                               color: Color.fromARGB(255, 134, 1, 1),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(5),
@@ -193,42 +212,25 @@ class _SalesPageState extends State<SalesPage> {
                             )),
                       ),
                     ),
-                    Expanded(
+                    const Expanded(
                       flex: 1,
                       child: Center(
-                        child: Container(
-                          // decoration: BoxDecoration(
-                          //   color: Color.fromRGBO(124, 64, 149, 1),
-                          //   border: Border.all(
-                          //       color: Color.fromRGBO(0, 0, 0, 0.1), width: 3),
-                          //   borderRadius: BorderRadius.circular(5),
-                          //   boxShadow: const [
-                          //     BoxShadow(
-                          //       spreadRadius: 0.5,
-                          //       blurRadius: 5,
-                          //       color: Color.fromRGBO(132, 0, 0, 0.608),
-                          //     ),
-                          //   ],
-                          // ),
-                          // padding:
-                          //     EdgeInsets.symmetric(vertical: 1, horizontal: 25),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.receipt_outlined, color: Colors.white),
-                              SizedBox(
-                                width: 5,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.receipt_outlined, color: Colors.white),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "8000818",
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
                               ),
-                              Text(
-                                "8000818",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -248,8 +250,8 @@ class _SalesPageState extends State<SalesPage> {
                         //   //   ),
                         //   // ],
                         // ),
-                        padding: EdgeInsets.only(right: 20),
-                        child: Row(
+                        padding: const EdgeInsets.only(right: 20),
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Icon(Icons.schedule, color: Colors.white),
@@ -280,11 +282,11 @@ class _SalesPageState extends State<SalesPage> {
                       BlocBuilder<ReceiptCubit, ReceiptEntity>(
                         builder: (context, state) {
                           if (state.receiptItems.isEmpty) {
-                            return Expanded(child: EmptyList());
+                            return const Expanded(child: EmptyList());
                           }
                           return Expanded(
                             child: ListView.builder(
-                              padding: EdgeInsets.symmetric(vertical: 0),
+                              padding: const EdgeInsets.symmetric(vertical: 0),
                               controller: _scrollControllerReceiptItems,
                               itemCount: state.receiptItems.length,
                               itemBuilder: (context, index) {
@@ -293,7 +295,7 @@ class _SalesPageState extends State<SalesPage> {
                                 return Column(
                                   children: [
                                     if (index == 0)
-                                      Column(
+                                      const Column(
                                         children: [
                                           Divider(
                                             thickness: 0.5,
@@ -306,7 +308,7 @@ class _SalesPageState extends State<SalesPage> {
                                         ],
                                       ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 20.0),
                                       child: Row(
                                         crossAxisAlignment:
@@ -334,7 +336,7 @@ class _SalesPageState extends State<SalesPage> {
                                                         children: [
                                                           Text(
                                                             e.itemCode,
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontSize: 18,
                                                                 fontWeight:
                                                                     FontWeight
@@ -342,7 +344,7 @@ class _SalesPageState extends State<SalesPage> {
                                                           ),
                                                           Text(
                                                             e.itemName,
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontSize: 18,
                                                                 fontWeight:
                                                                     FontWeight
@@ -356,10 +358,10 @@ class _SalesPageState extends State<SalesPage> {
                                                       child: Column(
                                                         children: [
                                                           Text(
-                                                            "${e.quantity.toInt()} x",
+                                                            "${Helpers.cleanDecimal(e.quantity, 3)} x",
                                                             textAlign:
                                                                 TextAlign.right,
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontSize: 18,
                                                                 fontWeight:
                                                                     FontWeight
@@ -374,7 +376,7 @@ class _SalesPageState extends State<SalesPage> {
                                                         "@${Helpers.parseMoney(e.itemPrice)}",
                                                         textAlign:
                                                             TextAlign.right,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontSize: 18,
                                                             fontWeight:
                                                                 FontWeight
@@ -389,7 +391,7 @@ class _SalesPageState extends State<SalesPage> {
                                                         child: Text(
                                                           Helpers.parseMoney(
                                                               e.subtotal),
-                                                          style: TextStyle(
+                                                          style: const TextStyle(
                                                               fontSize: 18,
                                                               fontWeight:
                                                                   FontWeight
@@ -400,7 +402,7 @@ class _SalesPageState extends State<SalesPage> {
                                                   ],
                                                 ),
                                                 index % 3 == 0
-                                                    ? Row(
+                                                    ? const Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .spaceBetween,
@@ -444,9 +446,9 @@ class _SalesPageState extends State<SalesPage> {
                                                           ),
                                                         ],
                                                       )
-                                                    : SizedBox.shrink(),
+                                                    : const SizedBox.shrink(),
                                                 index % 4 == 0
-                                                    ? Row(
+                                                    ? const Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .spaceBetween,
@@ -490,20 +492,20 @@ class _SalesPageState extends State<SalesPage> {
                                                           ),
                                                         ],
                                                       )
-                                                    : SizedBox.shrink(),
+                                                    : const SizedBox.shrink(),
                                               ],
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 5),
-                                    Divider(
+                                    const SizedBox(height: 5),
+                                    const Divider(
                                       thickness: 0.5,
                                       color: Color.fromARGB(100, 118, 118, 118),
                                     ),
                                     if (index != state.receiptItems.length - 1)
-                                      SizedBox(height: 5),
+                                      const SizedBox(height: 5),
                                   ],
                                 );
                               },
@@ -548,7 +550,7 @@ class _SalesPageState extends State<SalesPage> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
                   color: Color.fromARGB(255, 169, 0, 0),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     Expanded(
                       flex: 2,
@@ -607,15 +609,6 @@ class _SalesPageState extends State<SalesPage> {
                                         // showCursor: false,
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.none,
-                                        inputFormatters: [],
-                                        // onTapOu: () {
-                                        //   setState(() {
-                                        //     isEditingNewReceiptItemQty = false;
-                                        //     _newReceiptItemCodeFocusNode
-                                        //         .unfocus();
-                                        //   });
-                                        // },
-                                        // onTapOutside: ,
                                         style: const TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.w500),
@@ -642,7 +635,7 @@ class _SalesPageState extends State<SalesPage> {
                       child: Align(
                         alignment: Alignment.center,
                         child: Container(
-                          padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                           child: RawKeyboardListener(
                             onKey: (event) => handlePhysicalKeyboard(
                                 event,
@@ -654,6 +647,7 @@ class _SalesPageState extends State<SalesPage> {
                               height: 40,
                               child: TextField(
                                 // "00000001283",
+                                // enabled: false,
                                 autofocus: !isEditingNewReceiptItemQty,
                                 focusNode: _newReceiptItemCodeFocusNode,
                                 controller:
@@ -709,7 +703,8 @@ class _SalesPageState extends State<SalesPage> {
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
-                              backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 169, 0, 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -726,7 +721,7 @@ class _SalesPageState extends State<SalesPage> {
                             //     ),
                             //   ),
                             // ),
-                            child: Text(
+                            child: const Text(
                               "Item Disc %",
                               style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w600),
@@ -734,7 +729,7 @@ class _SalesPageState extends State<SalesPage> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Expanded(
@@ -744,7 +739,8 @@ class _SalesPageState extends State<SalesPage> {
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 169, 0, 0),
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -752,7 +748,7 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                               side: BorderSide.none,
                             ),
-                            child: Text(
+                            child: const Text(
                               "Item Disc \$",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
@@ -762,7 +758,7 @@ class _SalesPageState extends State<SalesPage> {
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 Expanded(
@@ -780,7 +776,8 @@ class _SalesPageState extends State<SalesPage> {
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 169, 0, 0),
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -788,14 +785,14 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                               side: BorderSide.none,
                             ),
-                            child: Text(
+                            child: const Text(
                               "MFR Disc %",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Expanded(
@@ -805,7 +802,8 @@ class _SalesPageState extends State<SalesPage> {
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 169, 0, 0),
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -813,7 +811,7 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                               side: BorderSide.none,
                             ),
-                            child: Text(
+                            child: const Text(
                               "MFR Disc \$",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
@@ -842,7 +840,7 @@ class _SalesPageState extends State<SalesPage> {
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                        backgroundColor: const Color.fromARGB(255, 169, 0, 0),
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -850,14 +848,14 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: Text(
+                      child: const Text(
                         "Clear Orders",
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 Expanded(
@@ -867,7 +865,7 @@ class _SalesPageState extends State<SalesPage> {
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                        backgroundColor: const Color.fromARGB(255, 169, 0, 0),
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -875,7 +873,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: Text(
+                      child: const Text(
                         "Print Validation",
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -917,7 +915,7 @@ class _SalesPageState extends State<SalesPage> {
                 children: [
                   Container(
                     height: 50,
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                     ),
                     width: double.infinity,
@@ -935,7 +933,7 @@ class _SalesPageState extends State<SalesPage> {
                             child: Container(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20)),
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 0),
                               child: const Text(
                                 "Ref. 010083",
@@ -957,7 +955,7 @@ class _SalesPageState extends State<SalesPage> {
                                   // color: Color.fromRGBO(
                                   //     71, 168, 0, 1),
                                   borderRadius: BorderRadius.circular(20)),
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 0),
                               child: const Text(
                                 "024024",
@@ -973,7 +971,7 @@ class _SalesPageState extends State<SalesPage> {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 12,
                   ),
                   Expanded(
@@ -981,7 +979,7 @@ class _SalesPageState extends State<SalesPage> {
                       controller: _scrollControllerReceiptSummary,
                       thumbVisibility: true,
                       child: ListView(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         controller: _scrollControllerReceiptSummary,
                         children: [
                           const SizedBox(height: 10),
@@ -989,20 +987,20 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Sub Total",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 Helpers.parseMoney(state.totalPrice),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
                           const SizedBox(height: 25),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1019,7 +1017,7 @@ class _SalesPageState extends State<SalesPage> {
                             ],
                           ),
                           const SizedBox(height: 5),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1036,7 +1034,7 @@ class _SalesPageState extends State<SalesPage> {
                             ],
                           ),
                           const SizedBox(height: 25),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1052,7 +1050,7 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                             ],
                           ),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1072,7 +1070,7 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   const Padding(
@@ -1084,19 +1082,19 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   const SizedBox(height: 5),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           "Total Amount",
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                         Text(
                           Helpers.parseMoney(state.totalPrice),
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                       ],
@@ -1113,41 +1111,6 @@ class _SalesPageState extends State<SalesPage> {
     // End - Receipt Summary
   }
 
-  Widget _transactionTotalAmount() {
-    return Expanded(
-      flex: 1,
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          // border: Border.all(
-          //     color: Color.fromRGBO(195, 53, 53, 1),
-          //     width: 4.0),
-          borderRadius: BorderRadius.circular(5),
-          color: Colors.white,
-          boxShadow: const [
-            BoxShadow(
-              spreadRadius: 0.5,
-              blurRadius: 5,
-              color: Color.fromRGBO(220, 220, 220, 1),
-            )
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: const Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                "Rp 4.878.520",
-                style: TextStyle(
-                    fontSize: 42,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black),
-              )),
-        ),
-      ),
-    );
-  }
-
   Widget _buttonGroup2() {
     return SizedBox(
         // flex: 1,
@@ -1161,9 +1124,9 @@ class _SalesPageState extends State<SalesPage> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
                     // elevation: 5,
-                    backgroundColor: Color.fromARGB(255, 166, 0, 0),
+                    backgroundColor: const Color.fromARGB(255, 166, 0, 0),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
+                    shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(5),
                         topRight: Radius.circular(5),
@@ -1172,7 +1135,7 @@ class _SalesPageState extends State<SalesPage> {
                     ),
                     side: BorderSide.none,
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.queue_outlined),
@@ -1189,7 +1152,7 @@ class _SalesPageState extends State<SalesPage> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: 5,
             ),
             Expanded(
@@ -1199,10 +1162,10 @@ class _SalesPageState extends State<SalesPage> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
                     // elevation: 5,
-                    backgroundColor: Color.fromARGB(255, 47, 143, 8),
+                    backgroundColor: const Color.fromARGB(255, 47, 143, 8),
                     // 48, 107, 52
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
+                    shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
                         bottomRight: Radius.circular(5),
                         topLeft: Radius.circular(5),
@@ -1211,7 +1174,7 @@ class _SalesPageState extends State<SalesPage> {
                     ),
                     side: BorderSide.none,
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.receipt_long_rounded),
@@ -1245,14 +1208,14 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
                   shadowColor: Colors.black87,
-                  backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                   side: BorderSide.none,
                 ),
-                child: Text(
+                child: const Text(
                   "Suspend",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -1260,7 +1223,7 @@ class _SalesPageState extends State<SalesPage> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Expanded(
@@ -1271,14 +1234,14 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
                   shadowColor: Colors.black87,
-                  backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                   side: BorderSide.none,
                 ),
-                child: Text(
+                child: const Text(
                   "Price Override",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -1286,7 +1249,7 @@ class _SalesPageState extends State<SalesPage> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Expanded(
@@ -1297,14 +1260,14 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
                   shadowColor: Colors.black87,
-                  backgroundColor: Color.fromARGB(255, 169, 0, 0),
+                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                   side: BorderSide.none,
                 ),
-                child: Text(
+                child: const Text(
                   "Check Price",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -1312,7 +1275,7 @@ class _SalesPageState extends State<SalesPage> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Expanded(
@@ -1321,21 +1284,28 @@ class _SalesPageState extends State<SalesPage> {
                 onPressed: () => setState(() {
                   if (isEditingNewReceiptItemQty == false) {
                     isEditingNewReceiptItemQty = true;
+                    _textEditingControllerNewReceiptItemQuantity.text = "";
                     _newReceiptItemCodeFocusNode.unfocus();
                     _newReceiptItemQuantityFocusNode.requestFocus();
                   } else {
                     isEditingNewReceiptItemQty = false;
-                    _textEditingControllerNewReceiptItemQuantity.text =
-                        _textEditingControllerNewReceiptItemQuantity.text == ""
-                            ? "1"
-                            : Helpers.cleanDecimal(
-                                double.parse(
+                    _textEditingControllerNewReceiptItemQuantity
+                        .text = _textEditingControllerNewReceiptItemQuantity
+                                    .text ==
+                                "" ||
+                            double.parse(
                                     _textEditingControllerNewReceiptItemQuantity
-                                        .text),
-                                2);
+                                        .text) <=
+                                0
+                        ? "1"
+                        : Helpers.cleanDecimal(
+                            double.parse(
+                                _textEditingControllerNewReceiptItemQuantity
+                                    .text),
+                            2);
 
-                    _newReceiptItemCodeFocusNode.requestFocus();
                     _newReceiptItemQuantityFocusNode.unfocus();
+                    _newReceiptItemCodeFocusNode.requestFocus();
                   }
                 }),
                 style: OutlinedButton.styleFrom(
@@ -1343,15 +1313,15 @@ class _SalesPageState extends State<SalesPage> {
                   elevation: isEditingNewReceiptItemQty ? 0 : 5,
                   shadowColor: Colors.black87,
                   backgroundColor: isEditingNewReceiptItemQty
-                      ? Color.fromARGB(255, 113, 0, 0)
-                      : Color.fromARGB(255, 169, 0, 0),
+                      ? const Color.fromARGB(255, 113, 0, 0)
+                      : const Color.fromARGB(255, 169, 0, 0),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                   side: BorderSide.none,
                 ),
-                child: Text(
+                child: const Text(
                   "Order Quantity",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -1379,61 +1349,61 @@ class _SalesPageState extends State<SalesPage> {
                   child: Row(
                     children: [
                       _numpadNumButton("7"),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       _numpadNumButton("8"),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       _numpadNumButton("9"),
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Expanded(
                   child: Row(
                     children: [
                       _numpadNumButton("4"),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       _numpadNumButton("5"),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       _numpadNumButton("6")
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Expanded(
                   child: Row(
                     children: [
                       _numpadNumButton("1"),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       _numpadNumButton("2"),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       _numpadNumButton("3")
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Expanded(
                   child: Row(
                     children: [
                       _numpadNumButton("0"),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Expanded(
@@ -1456,10 +1426,11 @@ class _SalesPageState extends State<SalesPage> {
                             },
                             style: FilledButton.styleFrom(
                                 elevation: 5,
-                                backgroundColor: Color.fromRGBO(48, 48, 48, 1),
+                                backgroundColor:
+                                    const Color.fromRGBO(48, 48, 48, 1),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10))),
-                            child: Text(
+                            child: const Text(
                               "00",
                               style: TextStyle(
                                   fontSize: 32, fontWeight: FontWeight.w700),
@@ -1473,7 +1444,7 @@ class _SalesPageState extends State<SalesPage> {
               ],
             ),
           ),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Expanded(
             flex: 1,
             child: Column(
@@ -1497,22 +1468,34 @@ class _SalesPageState extends State<SalesPage> {
                                     _textEditingControllerNewReceiptItemCode
                                         .text
                                         .substring(0, currentLength - 1);
+                              } else if (_newReceiptItemQuantityFocusNode
+                                  .hasPrimaryFocus) {
+                                final currentLength =
+                                    _textEditingControllerNewReceiptItemQuantity
+                                        .text.length;
+                                if (currentLength == 0) return;
+                                _textEditingControllerNewReceiptItemQuantity
+                                        .text =
+                                    _textEditingControllerNewReceiptItemQuantity
+                                        .text
+                                        .substring(0, currentLength - 1);
                               }
                             },
                             style: FilledButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(3, 3, 6, 3),
+                                padding: const EdgeInsets.fromLTRB(3, 3, 6, 3),
                                 elevation: 5,
-                                backgroundColor: Color.fromRGBO(243, 0, 0, 1),
+                                backgroundColor:
+                                    const Color.fromRGBO(243, 0, 0, 1),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10))),
-                            child: Icon(
+                            child: const Icon(
                               Icons.backspace_outlined,
                               size: 36,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       Expanded(
@@ -1524,14 +1507,19 @@ class _SalesPageState extends State<SalesPage> {
                                   .hasPrimaryFocus) {
                                 _textEditingControllerNewReceiptItemCode.text =
                                     "";
+                              } else if (_newReceiptItemQuantityFocusNode
+                                  .hasPrimaryFocus) {
+                                _textEditingControllerNewReceiptItemQuantity
+                                    .text = "";
                               }
                             },
                             style: FilledButton.styleFrom(
                                 elevation: 5,
-                                backgroundColor: Color.fromRGBO(255, 113, 5, 1),
+                                backgroundColor:
+                                    const Color.fromRGBO(255, 113, 5, 1),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10))),
-                            child: Text(
+                            child: const Text(
                               "C",
                               style: TextStyle(
                                   fontSize: 32, fontWeight: FontWeight.w600),
@@ -1542,7 +1530,7 @@ class _SalesPageState extends State<SalesPage> {
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Expanded(
@@ -1552,11 +1540,15 @@ class _SalesPageState extends State<SalesPage> {
                       onPressed: () async {
                         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
                           context.read<ReceiptCubit>().addOrUpdateReceiptItems(
-                              _textEditingControllerNewReceiptItemCode.text, 1);
-
-                          _textEditingControllerNewReceiptItemCode.text = "";
-                          _textEditingControllerNewReceiptItemQuantity.text =
-                              "";
+                              _textEditingControllerNewReceiptItemCode.text,
+                              double.parse(
+                                  _textEditingControllerNewReceiptItemQuantity
+                                      .text));
+                          setState(() {
+                            _textEditingControllerNewReceiptItemCode.text = "";
+                            _textEditingControllerNewReceiptItemQuantity.text =
+                                "1";
+                          });
 
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             final position = _scrollControllerReceiptItems
@@ -1564,7 +1556,7 @@ class _SalesPageState extends State<SalesPage> {
                                 100;
                             _scrollControllerReceiptItems.animateTo(
                               position,
-                              duration: Duration(milliseconds: 500),
+                              duration: const Duration(milliseconds: 500),
                               curve: Curves.easeOut,
                             );
                           });
@@ -1572,6 +1564,21 @@ class _SalesPageState extends State<SalesPage> {
                             .hasPrimaryFocus) {
                           setState(() {
                             isEditingNewReceiptItemQty = false;
+                            _textEditingControllerNewReceiptItemQuantity
+                                .text = _textEditingControllerNewReceiptItemQuantity
+                                            .text ==
+                                        "" ||
+                                    double.parse(
+                                            _textEditingControllerNewReceiptItemQuantity
+                                                .text) <=
+                                        0
+                                ? "1"
+                                : Helpers.cleanDecimal(
+                                    double.parse(
+                                        _textEditingControllerNewReceiptItemQuantity
+                                            .text),
+                                    2);
+
                             _newReceiptItemQuantityFocusNode.unfocus();
                             _newReceiptItemCodeFocusNode.requestFocus();
                           });
@@ -1580,10 +1587,10 @@ class _SalesPageState extends State<SalesPage> {
                       style: FilledButton.styleFrom(
                           padding: const EdgeInsets.all(3),
                           elevation: 5,
-                          backgroundColor: Color.fromRGBO(14, 68, 193, 1),
+                          backgroundColor: const Color.fromRGBO(14, 68, 193, 1),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10))),
-                      child: Text(
+                      child: const Text(
                         "OK",
                         style: TextStyle(
                             fontSize: 32, fontWeight: FontWeight.w600),
@@ -1597,7 +1604,7 @@ class _SalesPageState extends State<SalesPage> {
         ],
       ),
     );
-    // End - Num Only Keypad
+    // End - Num Only Keypad 60 80 40 40
   }
 
   Widget _numpadNumButton(String buttonNumber) {
@@ -1619,7 +1626,7 @@ class _SalesPageState extends State<SalesPage> {
             });
           },
           style: FilledButton.styleFrom(
-              backgroundColor: Color.fromRGBO(48, 48, 48, 1),
+              backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
               elevation: 5,
               shadowColor: Colors.black87,
               shape: RoundedRectangleBorder(
@@ -1642,11 +1649,9 @@ class _SalesPageState extends State<SalesPage> {
       if (event.character != null &&
           RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')
               .hasMatch(event.character!)) {
-        print(1);
         textEditingController.text += event.character!;
       } else if (event.isKeyPressed(LogicalKeyboardKey.enter) ||
           event.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
-        print(2);
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
           context.read<ReceiptCubit>().addOrUpdateReceiptItems(
               _textEditingControllerNewReceiptItemCode.text,
@@ -1662,7 +1667,7 @@ class _SalesPageState extends State<SalesPage> {
                 _scrollControllerReceiptItems.position.maxScrollExtent + 100;
             _scrollControllerReceiptItems.animateTo(
               position,
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
               curve: Curves.easeOut,
             );
           });
@@ -1670,17 +1675,22 @@ class _SalesPageState extends State<SalesPage> {
           setState(() {
             isEditingNewReceiptItemQty = false;
             _textEditingControllerNewReceiptItemQuantity.text =
-                _textEditingControllerNewReceiptItemQuantity.text == ""
+                _textEditingControllerNewReceiptItemQuantity.text == "" ||
+                        double.parse(
+                                _textEditingControllerNewReceiptItemQuantity
+                                    .text) <=
+                            0
                     ? "1"
-                    : double.parse(
-                            _textEditingControllerNewReceiptItemQuantity.text)
-                        .toString();
+                    : Helpers.cleanDecimal(
+                        double.parse(
+                            _textEditingControllerNewReceiptItemQuantity.text),
+                        3);
             _newReceiptItemQuantityFocusNode.unfocus();
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         }
       } else if (!event.isKeyPressed(LogicalKeyboardKey.backspace)) {
-        ;
+        return;
       }
     } else {
       textFieldFocusNode.requestFocus();
