@@ -9,6 +9,7 @@ class ItemsApi {
   final dio = Dio();
   String token = Constant.token;
   String storeId = Constant.storeId;
+  String url = "http://192.168.1.34:3001";
 
   ItemsApi(this.db);
 
@@ -20,7 +21,7 @@ class ItemsApi {
 
       while (hasMoreData) {
         final response = await dio.get(
-          "http://192.168.1.34:3001/tenant-item-by-store/?page=$page&store_id=$storeId",
+          "$url/tenant-item-by-store/?page=$page&store_id=$storeId",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -50,7 +51,7 @@ class ItemsApi {
   Future<List<dynamic>> fetchSingleItem(String docid) async {
     try {
       final response = await dio.get(
-        "http://192.168.1.34:3001/tenant-item-master/$docid",
+        "$url/tenant-item-master/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

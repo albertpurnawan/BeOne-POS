@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
@@ -16,6 +17,7 @@ class AppDatabase {
   late UsersApi usersApi;
   late UsersDao usersDao;
   late UoMApi uomApi;
+  late ItemCategoryApi itemCategoryApi;
 
   Database? _database;
 
@@ -26,6 +28,7 @@ class AppDatabase {
       usersApi = UsersApi(_database!);
       usersDao = UsersDao(_database!);
       uomApi = UoMApi(_database!);
+      itemCategoryApi = ItemCategoryApi(_database!);
     });
   }
 

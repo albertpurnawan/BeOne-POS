@@ -1,25 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:sqflite/sqflite.dart';
 
-class UsersApi {
+class ItemCategoryApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
   String url = "http://192.168.1.34:3001";
 
-  UsersApi(this.db);
+  ItemCategoryApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchUsersData() async {
+  Future<List<Map<String, dynamic>>> fetchItemCategoriesData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allUsers = [];
+      List<Map<String, dynamic>> allItemCategories = [];
 
       while (hasMoreData) {
         final response = await dio.get(
-          "$url/tenant-user?page=$page",
+          "$url/tenant-product-category?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -27,28 +26,28 @@ class UsersApi {
           ),
         );
 
-        final List<Map<String, dynamic>> usersData =
+        final List<Map<String, dynamic>> itemCategoriesData =
             response.data.cast<Map<String, dynamic>>();
-        allUsers.addAll(usersData);
+        allItemCategories.addAll(itemCategoriesData);
 
-        if (usersData.isEmpty) {
+        if (itemCategoriesData.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allUsers;
+      return allItemCategories;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleUser(String docid) async {
+  Future<List<dynamic>> fetchSingleItemCategory(String docid) async {
     try {
       final response = await dio.get(
-        "$url/tenant-user/$docid",
+        "$url/tenant-product-category/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

@@ -6,6 +6,7 @@ class UoMApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
+  String url = "http://192.168.1.34:3001";
 
   UoMApi(this.db);
 
@@ -17,7 +18,7 @@ class UoMApi {
 
       while (hasMoreData) {
         final response = await dio.get(
-          "http://192.168.1.34:3001/tenant-master-unit-of-measurement?page=$page",
+          "$url/tenant-master-unit-of-measurement?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -46,7 +47,7 @@ class UoMApi {
   Future<List<dynamic>> fetchSingleUoM(String docid) async {
     try {
       final response = await dio.get(
-        "http://192.168.1.34:3001/tenant-master-unit-of-measurement/$docid",
+        "$url/tenant-master-unit-of-measurement/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
