@@ -12,7 +12,8 @@ class UsersDao {
       final List<dynamic> usersData = await UsersApi(db).fetchUsersData();
       for (final userData in usersData) {
         final Users user = Users.fromJson(userData);
-        print(user);
+        // print(user);
+
         final List<String> excludedFields = [
           'createby',
           'updateby',

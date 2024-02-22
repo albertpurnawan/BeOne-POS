@@ -38,9 +38,6 @@ class UsersApi {
         }
       }
 
-      final List<Users> users =
-          allUsers.map((json) => Users.fromJson(json)).toList();
-
       // log(response.data[0].toString());
       // log(users[0].toString());
 
@@ -51,7 +48,7 @@ class UsersApi {
     }
   }
 
-  Future<List<dynamic>> fetchUserData(String docid) async {
+  Future<List<dynamic>> fetchSingleUserData(String docid) async {
     try {
       final response = await dio.get(
         "http://192.168.1.34:3001/tenant-user/$docid",
@@ -61,12 +58,9 @@ class UsersApi {
           },
         ),
       );
+      print([response.data]);
 
-      // response.data.forEach((key, value) {
-      //   print('$key: $value');
-      // });
-
-      final Users user = Users.fromJson(response.data);
+      // final Users user = Users.fromJson(response.data);
 
       // print('User: $user');
 

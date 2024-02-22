@@ -51,7 +51,7 @@ class WelcomeScreen extends StatefulWidget {
                   Container(
                     constraints: BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: Text("Fetch Token"),
+                      child: Text("Sync BOS"),
                       onTap: () {
                         Navigator.push(
                           context,

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
-import 'package:sqflite/sqflite.dart';
-// import 'package:pos_fe/core/constants/constants.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -13,10 +12,10 @@ class FetchScreen extends StatefulWidget {
 }
 
 class _FetchScreenState extends State<FetchScreen> {
-  Database? _database;
+  final TextEditingController _docIdController = TextEditingController();
   final AuthApi _authApi = AuthApi();
   String _token = '';
-  List<dynamic> _userData = [];
+  String _singleData = '';
   int _usersCount = 0;
 
   void _fetchToken() async {
@@ -31,15 +30,35 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
-  void _fetchUsers() async {
-    print("Fetching data...");
+  void _fetchData() async {
+    print("Synching data...");
     try {
-      final userData =
+      final data =
           await GetIt.instance<AppDatabase>().usersDao.insertUsersFromApi();
       setState(() {
-        _userData = userData;
-        _usersCount = userData.length;
+        _usersCount = data.length;
       });
+    } catch (error) {
+      print("Error fetching users: $error");
+    }
+  }
+
+  void _fetchSingleData(String docid) async {
+    print("Fetching single data...");
+    try {
+      final data = await GetIt.instance<AppDatabase>()
+          .usersApi
+          .fetchSingleUserData(docid);
+      print(data);
+      if (data[0] == null) {
+        setState(() {
+          _singleData = 'Data not found';
+        });
+      } else {
+        setState(() {
+          _singleData = data[0]['docid'];
+        });
+      }
     } catch (error) {
       print("Error fetching users: $error");
     }
@@ -49,32 +68,53 @@ class _FetchScreenState extends State<FetchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('FetchToken'),
+        title: Text('Fetch Data'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ElevatedButton(
               onPressed: () {
-                // _fetchToken();
-                _fetchUsers();
+                _fetchToken();
+                _fetchData();
               },
-              child: Text('Fetch'),
+              child: Text('Sync'),
             ),
-            // SizedBox(height: 20),
-            // Text(
-            //   'Token: $_token',
-            //   style: TextStyle(fontSize: 18),
-            // ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _docIdController,
+              decoration: InputDecoration(
+                labelText: 'Enter Document ID',
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                _fetchSingleData(_docIdController.text);
+              },
+              child: Text('Search'),
+            ),
             SizedBox(height: 20),
             Text(
-              'User Count: $_usersCount',
+              'Data Fetched: ${_singleData}',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Data Count: $_usersCount',
               style: TextStyle(fontSize: 18),
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _docIdController.dispose();
+    super.dispose();
   }
 }
