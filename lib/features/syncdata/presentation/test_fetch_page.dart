@@ -51,8 +51,8 @@ class _FetchScreenState extends State<FetchScreen> {
     print('Fetching data...');
     try {
       final data = await GetIt.instance<AppDatabase>()
-          .pricelistApi
-          .fetchPricelistsData();
+          .pricelistPeriodApi
+          .fetchPricelistPeriodsData();
 
       setState(() {
         _dataFetched = data.length;
@@ -75,8 +75,8 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final data = await GetIt.instance<AppDatabase>()
-          .pricelistApi
-          .fetchSinglePricelist(docid);
+          .pricelistPeriodApi
+          .fetchSinglePricelistPeriod(docid);
       print(data);
       if (data[0] == null) {
         setState(() {
@@ -89,7 +89,6 @@ class _FetchScreenState extends State<FetchScreen> {
       }
       print("Data Fetched");
     } catch (error) {
-      print('Error $error');
       handleError(error);
       setState(() {
         _statusCode = handleError(error)['statusCode'];

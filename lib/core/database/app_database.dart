@@ -5,6 +5,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_da
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:sqflite/sqflite.dart';
@@ -20,6 +21,7 @@ class AppDatabase {
   late UoMApi uomApi;
   late ItemCategoryApi itemCategoryApi;
   late PricelistApi pricelistApi;
+  late PricelistPeriodApi pricelistPeriodApi;
 
   Database? _database;
 
@@ -32,6 +34,7 @@ class AppDatabase {
       uomApi = UoMApi(_database!);
       itemCategoryApi = ItemCategoryApi(_database!);
       pricelistApi = PricelistApi(_database!);
+      pricelistPeriodApi = PricelistPeriodApi(_database!);
     });
   }
 
