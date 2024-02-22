@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:sqflite/sqflite.dart';
@@ -6,6 +8,7 @@ class ItemsApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
+  String storeId = Constant.storeId;
 
   ItemsApi(this.db);
 
@@ -17,7 +20,7 @@ class ItemsApi {
 
       while (hasMoreData) {
         final response = await dio.get(
-          "http://192.168.1.34:3001/tenant-item-master?page=$page",
+          "http://192.168.1.34:3001/tenant-item-by-store/?page=$page&store_id=$storeId",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -35,9 +38,7 @@ class ItemsApi {
           page++;
         }
       }
-
-      // log(response.data[0].toString());
-      // log(users[0].toString());
+      // log(allItems.toString());
 
       return allItems;
     } catch (err) {
@@ -56,10 +57,7 @@ class ItemsApi {
           },
         ),
       );
-
-      // final Items user = Items.fromJson(response.data);
-
-      // print('User: $user');
+      // log([response.data].toString());
 
       return [response.data];
     } catch (err) {

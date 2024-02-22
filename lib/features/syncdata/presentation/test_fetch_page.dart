@@ -16,7 +16,8 @@ class _FetchScreenState extends State<FetchScreen> {
   final AuthApi _authApi = AuthApi();
   String _token = '';
   String _singleData = '';
-  int _usersCount = 0;
+  int _dataCount = 0;
+  int _dataFetched = 0;
 
   void _fetchToken() async {
     print("Fetching token...");
@@ -30,14 +31,29 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
-  void _fetchData() async {
+  void _syncData() async {
     print("Synching data...");
     try {
       final data =
           await GetIt.instance<AppDatabase>().usersDao.insertUsersFromApi();
       setState(() {
-        _usersCount = data.length;
+        _dataCount = data.length;
       });
+    } catch (error) {
+      print("Error fetching users: $error");
+    }
+  }
+
+  void _fetchData() async {
+    print('Fetchind data...');
+    try {
+      final data =
+          await GetIt.instance<AppDatabase>().itemsApi.fetchItemsData();
+
+      setState(() {
+        _dataFetched = data.length;
+      });
+      print(data);
     } catch (error) {
       print("Error fetching users: $error");
     }
@@ -47,8 +63,8 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final data = await GetIt.instance<AppDatabase>()
-          .usersApi
-          .fetchSingleUserData(docid);
+          .itemsApi
+          .fetchSingleItemData(docid);
       print(data);
       if (data[0] == null) {
         setState(() {
@@ -75,12 +91,30 @@ class _FetchScreenState extends State<FetchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 _fetchToken();
+                _syncData();
+              },
+              child: Text('SYNC'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Data Count: $_dataCount',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
                 _fetchData();
               },
-              child: Text('Sync'),
+              child: Text('FETCH'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Data Fetched: $_dataFetched',
+              style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 20),
             TextField(
@@ -94,16 +128,11 @@ class _FetchScreenState extends State<FetchScreen> {
               onPressed: () {
                 _fetchSingleData(_docIdController.text);
               },
-              child: Text('Search'),
+              child: Text('SEARCH'),
             ),
             SizedBox(height: 20),
             Text(
-              'Data Fetched: ${_singleData}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Data Count: $_usersCount',
+              'Data Found: ${_singleData}',
               style: TextStyle(fontSize: 18),
             ),
           ],

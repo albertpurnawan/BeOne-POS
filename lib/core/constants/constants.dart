@@ -10,4 +10,7 @@ class Constant {
   static String hour = '*';
   static String minute = '*';
   static String second = '*';
+
+  //STOREID
+  static String storeId = '9ce98ccc-e03e-4c76-aae4-d187764816eb';
 }

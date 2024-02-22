@@ -1,6 +1,7 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
 import 'package:sqflite/sqflite.dart';
 // import 'dart:developer';
 
@@ -38,9 +39,6 @@ class UsersApi {
         }
       }
 
-      // log(response.data[0].toString());
-      // log(users[0].toString());
-
       return allUsers;
     } catch (err) {
       print('Error: $err');
@@ -58,11 +56,7 @@ class UsersApi {
           },
         ),
       );
-      print([response.data]);
-
-      // final Users user = Users.fromJson(response.data);
-
-      // print('User: $user');
+      // log([response.data].toString());
 
       return [response.data];
     } catch (err) {
