@@ -50,9 +50,8 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<AppDatabase>()
-          .pricelistPeriodApi
-          .fetchPricelistPeriodsData();
+      final data =
+          await GetIt.instance<AppDatabase>().storeApi.fetchStoresData();
 
       setState(() {
         _dataFetched = data.length;
@@ -74,9 +73,8 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final data = await GetIt.instance<AppDatabase>()
-          .pricelistPeriodApi
-          .fetchSinglePricelistPeriod(docid);
+      final data =
+          await GetIt.instance<AppDatabase>().storeApi.fetchSingleStore(docid);
       print(data);
       if (data[0] == null) {
         setState(() {
