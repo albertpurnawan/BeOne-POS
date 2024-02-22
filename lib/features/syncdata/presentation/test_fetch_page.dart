@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 
@@ -18,6 +19,8 @@ class _FetchScreenState extends State<FetchScreen> {
   String _singleData = '';
   int _dataCount = 0;
   int _dataFetched = 0;
+  int _statusCode = 0;
+  String _errorMessage = '';
 
   void _fetchToken() async {
     print("Fetching token...");
@@ -40,21 +43,29 @@ class _FetchScreenState extends State<FetchScreen> {
         _dataCount = data.length;
       });
     } catch (error) {
-      print("Error fetching users: $error");
+      print("Error synchronizing: $error");
     }
   }
 
   void _fetchData() async {
-    print('Fetchind data...');
+    print('Fetching data...');
     try {
-      final data = await GetIt.instance<AppDatabase>().uomApi.fetchUoMData();
+      final data =
+          await GetIt.instance<AppDatabase>().usersApi.fetchUsersData();
 
       setState(() {
         _dataFetched = data.length;
+        _errorMessage = '';
       });
-      print(data);
+      // print(data);
+      print("Data Fetched");
     } catch (error) {
-      print("Error fetching users: $error");
+      handleError(error);
+      setState(() {
+        _statusCode = handleError(error)['statusCode'];
+        _errorMessage = handleError(error)['message'];
+        _clearErrorMessageAfterDelay();
+      });
     }
   }
 
@@ -62,7 +73,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final data =
-          await GetIt.instance<AppDatabase>().uomApi.fetchSingleUoM(docid);
+          await GetIt.instance<AppDatabase>().usersApi.fetchSingleUser(docid);
       print(data);
       if (data[0] == null) {
         setState(() {
@@ -73,9 +84,24 @@ class _FetchScreenState extends State<FetchScreen> {
           _singleData = data[0]['docid'];
         });
       }
+      print("Data Fetched");
     } catch (error) {
-      print("Error fetching users: $error");
+      handleError(error);
+      setState(() {
+        _statusCode = handleError(error)['statusCode'];
+        _errorMessage = handleError(error)['message'];
+        _clearErrorMessageAfterDelay();
+      });
     }
+  }
+
+  void _clearErrorMessageAfterDelay() {
+    Future.delayed(Duration(seconds: 3), () {
+      setState(() {
+        _statusCode = 0;
+        _errorMessage = '';
+      });
+    });
   }
 
   @override
@@ -133,6 +159,9 @@ class _FetchScreenState extends State<FetchScreen> {
               'Data Found: ${_singleData}',
               style: TextStyle(fontSize: 18),
             ),
+            SizedBox(height: 20),
+            if (_statusCode != 0) Text(_statusCode.toString()),
+            if (_errorMessage.isNotEmpty) Text(_errorMessage),
           ],
         ),
       ),

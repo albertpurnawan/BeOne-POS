@@ -1,9 +1,7 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:sqflite/sqflite.dart';
-// import 'dart:developer';
 
 class UsersApi {
   final Database db;
@@ -17,10 +15,11 @@ class UsersApi {
       int page = 1;
       bool hasMoreData = true;
       List<Map<String, dynamic>> allUsers = [];
+      String url = "http://192.168.1.34:3001";
 
       while (hasMoreData) {
         final response = await dio.get(
-          "http://192.168.1.34:3001/tenant-user?page=$page",
+          "$url/tenant-user?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
