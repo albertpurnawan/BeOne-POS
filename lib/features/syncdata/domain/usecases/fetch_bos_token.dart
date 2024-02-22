@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:pos_fe/api/auth_bos/data/models/auth_token.dart';
 
 class AuthApi {
   final Dio _dio = Dio();
@@ -26,4 +25,10 @@ class AuthApi {
       return null;
     }
   }
+}
+
+class AuthToken {
+  final String token;
+
+  AuthToken(this.token);
 }

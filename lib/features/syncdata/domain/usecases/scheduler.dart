@@ -1,6 +1,7 @@
 import 'package:cron/cron.dart';
-import 'package:pos_fe/api/users/users_api.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
+import 'package:sqflite/sqflite.dart';
 
 void syncWithBOS() {
   final cron = Cron();
@@ -8,9 +9,10 @@ void syncWithBOS() {
       '${Constant.second} ${Constant.minute} ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}';
 
   cron.schedule(Schedule.parse(cronSyntax), () async {
+    Database? database;
     try {
       // USERS
-      final usersApi = UsersApi();
+      final usersApi = UsersApi(database!);
       await usersApi.fetchUsersData();
     } catch (err) {
       print('Error $err');

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pos_fe/api/auth_api.dart';
-import 'package:pos_fe/api/users/users_api.dart';
-import 'package:pos_fe/core/constants/constants.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
+import 'package:sqflite/sqflite.dart';
+// import 'package:pos_fe/core/constants/constants.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -11,8 +13,8 @@ class FetchScreen extends StatefulWidget {
 }
 
 class _FetchScreenState extends State<FetchScreen> {
+  Database? _database;
   final AuthApi _authApi = AuthApi();
-  final UsersApi _userApi = UsersApi();
   String _token = '';
   List<dynamic> _userData = [];
   int _usersCount = 0;
@@ -30,9 +32,10 @@ class _FetchScreenState extends State<FetchScreen> {
   }
 
   void _fetchUsers() async {
-    print("Fetching users...");
+    print("Fetching data...");
     try {
-      final userData = await _userApi.fetchUsersData();
+      final userData =
+          await GetIt.instance<AppDatabase>().usersDao.insertUsersFromApi();
       setState(() {
         _userData = userData;
         _usersCount = userData.length;
@@ -57,7 +60,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 // _fetchToken();
                 _fetchUsers();
               },
-              child: Text('Fetch Users'),
+              child: Text('Fetch'),
             ),
             // SizedBox(height: 20),
             // Text(

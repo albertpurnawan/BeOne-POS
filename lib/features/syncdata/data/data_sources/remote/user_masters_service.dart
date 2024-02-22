@@ -1,19 +1,21 @@
 import 'package:dio/dio.dart';
-import 'package:pos_fe/api/users/users_model.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'dart:developer';
-import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
+import 'package:sqflite/sqflite.dart';
+// import 'dart:developer';
 
 class UsersApi {
-  final AppDatabase _appdatabase = AppDatabase();
+  final Database db;
   final dio = Dio();
   String token = Constant.token;
 
-  Future<List<dynamic>> fetchUsersData() async {
+  UsersApi(this.db);
+
+  Future<List<Map<String, dynamic>>> fetchUsersData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<dynamic> allUsers = [];
+      List<Map<String, dynamic>> allUsers = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -25,7 +27,8 @@ class UsersApi {
           ),
         );
 
-        final List<dynamic> usersData = response.data as List<dynamic>;
+        final List<Map<String, dynamic>> usersData =
+            response.data.cast<Map<String, dynamic>>();
         allUsers.addAll(usersData);
 
         if (usersData.isEmpty) {
@@ -40,10 +43,6 @@ class UsersApi {
 
       // log(response.data[0].toString());
       // log(users[0].toString());
-
-      for (final user in users) {
-        await _appdatabase.insertUsers(user);
-      }
 
       return allUsers;
     } catch (err) {

@@ -7,7 +7,7 @@ import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
-import 'package:pos_fe/api/auth_bos/presentation/pages/auth_page.dart';
+import 'package:pos_fe/features/syncdata/presentation/test_fetch_page.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
