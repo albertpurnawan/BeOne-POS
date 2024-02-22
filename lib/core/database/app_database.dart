@@ -3,6 +3,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -14,6 +15,8 @@ class AppDatabase {
   late ItemsDao itemsDao;
   late UsersApi usersApi;
   late UsersDao usersDao;
+  late UoMApi uomApi;
+
   Database? _database;
 
   AppDatabase() {
@@ -22,6 +25,7 @@ class AppDatabase {
       itemsDao = ItemsDao(_database!);
       usersApi = UsersApi(_database!);
       usersDao = UsersDao(_database!);
+      uomApi = UoMApi(_database!);
     });
   }
 

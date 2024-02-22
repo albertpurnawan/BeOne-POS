@@ -46,7 +46,7 @@ class UsersApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleUserData(String docid) async {
+  Future<List<dynamic>> fetchSingleUser(String docid) async {
     try {
       final response = await dio.get(
         "http://192.168.1.34:3001/tenant-user/$docid",

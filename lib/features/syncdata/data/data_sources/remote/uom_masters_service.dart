@@ -1,26 +1,23 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:sqflite/sqflite.dart';
 
-class ItemsApi {
+class UoMApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
-  String storeId = Constant.storeId;
 
-  ItemsApi(this.db);
+  UoMApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchItemsData() async {
+  Future<List<Map<String, dynamic>>> fetchUoMData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allItems = [];
+      List<Map<String, dynamic>> allUoM = [];
 
       while (hasMoreData) {
         final response = await dio.get(
-          "http://192.168.1.34:3001/tenant-item-by-store/?page=$page&store_id=$storeId",
+          "http://192.168.1.34:3001/tenant-master-unit-of-measurement?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -28,29 +25,28 @@ class ItemsApi {
           ),
         );
 
-        final List<Map<String, dynamic>> itemsData =
+        final List<Map<String, dynamic>> uomData =
             response.data.cast<Map<String, dynamic>>();
-        allItems.addAll(itemsData);
+        allUoM.addAll(uomData);
 
-        if (itemsData.isEmpty) {
+        if (uomData.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
-      // log(allItems.toString());
 
-      return allItems;
+      return allUoM;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleItem(String docid) async {
+  Future<List<dynamic>> fetchSingleUoM(String docid) async {
     try {
       final response = await dio.get(
-        "http://192.168.1.34:3001/tenant-item-master/$docid",
+        "http://192.168.1.34:3001/tenant-master-unit-of-measurement/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
