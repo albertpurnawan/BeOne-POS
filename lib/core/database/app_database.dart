@@ -9,6 +9,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters.se
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:sqflite/sqflite.dart';
@@ -28,6 +29,7 @@ class AppDatabase {
   late StoreApi storeApi;
   late MOPApi mopApi;
   late CashRegisterApi cashRegisterApi;
+  late TaxApi taxApi;
 
   Database? _database;
 
@@ -44,6 +46,7 @@ class AppDatabase {
       storeApi = StoreApi(_database!);
       mopApi = MOPApi(_database!);
       cashRegisterApi = CashRegisterApi(_database!);
+      taxApi = TaxApi(_database!);
     });
   }
 
