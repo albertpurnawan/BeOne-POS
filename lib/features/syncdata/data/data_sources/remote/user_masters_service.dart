@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UsersApi {

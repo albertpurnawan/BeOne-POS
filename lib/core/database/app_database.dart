@@ -2,6 +2,7 @@ import 'package:path/path.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/barcode_item_masters_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
@@ -34,6 +35,7 @@ class AppDatabase {
   late TaxApi taxApi;
   late CustomerGroupApi customerGroupApi;
   late CustomerApi customerApi;
+  late BarcodeItemApi barcodeItemApi;
 
   Database? _database;
 
@@ -53,6 +55,7 @@ class AppDatabase {
       taxApi = TaxApi(_database!);
       customerGroupApi = CustomerGroupApi(_database!);
       customerApi = CustomerApi(_database!);
+      barcodeItemApi = BarcodeItemApi(_database!);
     });
   }
 
