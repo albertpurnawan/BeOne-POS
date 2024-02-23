@@ -3,11 +3,12 @@ import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters.servive.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
@@ -30,6 +31,7 @@ class AppDatabase {
   late MOPApi mopApi;
   late CashRegisterApi cashRegisterApi;
   late TaxApi taxApi;
+  late CustomerGroupApi customerGroupApi;
 
   Database? _database;
 
@@ -47,6 +49,7 @@ class AppDatabase {
       mopApi = MOPApi(_database!);
       cashRegisterApi = CashRegisterApi(_database!);
       taxApi = TaxApi(_database!);
+      customerGroupApi = CustomerGroupApi(_database!);
     });
   }
 

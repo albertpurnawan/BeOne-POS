@@ -50,7 +50,9 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<AppDatabase>().taxApi.fetchTaxesData();
+      final data = await GetIt.instance<AppDatabase>()
+          .customerGroupApi
+          .fetchCustomerGroupsData();
 
       setState(() {
         _dataFetched = data.length;
@@ -72,8 +74,9 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final data =
-          await GetIt.instance<AppDatabase>().taxApi.fetchSingleTax(docid);
+      final data = await GetIt.instance<AppDatabase>()
+          .customerGroupApi
+          .fetchSingleCustomerGroup(docid);
       print(data);
       if (data[0] == null) {
         setState(() {
