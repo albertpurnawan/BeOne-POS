@@ -2,14 +2,16 @@ import 'package:path/path.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/barcode_item_masters_services.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/barcode_item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/closing_store_transactions_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_adjustment_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_adjustment_transactions_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/opening_store_transactions_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_barcode_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
@@ -42,6 +44,8 @@ class AppDatabase {
   late PriceByItemApi priceByItemApi;
   late PriceByItemBarcodeApi priceByItemBarcodeApi;
   late MOPAdjustmentApi mopAdjustmentApi;
+  late OpeningStoreApi openingStoreApi;
+  late ClosingStoreApi closingStoreApi;
 
   Database? _database;
 
@@ -65,6 +69,8 @@ class AppDatabase {
       priceByItemApi = PriceByItemApi(_database!);
       priceByItemBarcodeApi = PriceByItemBarcodeApi(_database!);
       mopAdjustmentApi = MOPAdjustmentApi(_database!);
+      openingStoreApi = OpeningStoreApi(_database!);
+      closingStoreApi = ClosingStoreApi(_database!);
     });
   }
 
