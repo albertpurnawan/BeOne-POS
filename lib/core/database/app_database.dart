@@ -9,6 +9,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_maste
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
@@ -36,6 +37,7 @@ class AppDatabase {
   late CustomerGroupApi customerGroupApi;
   late CustomerApi customerApi;
   late BarcodeItemApi barcodeItemApi;
+  late PriceByItemApi priceByItemApi;
 
   Database? _database;
 
@@ -56,6 +58,7 @@ class AppDatabase {
       customerGroupApi = CustomerGroupApi(_database!);
       customerApi = CustomerApi(_database!);
       barcodeItemApi = BarcodeItemApi(_database!);
+      priceByItemApi = PriceByItemApi(_database!);
     });
   }
 

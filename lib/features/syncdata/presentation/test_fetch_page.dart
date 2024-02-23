@@ -51,7 +51,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print('Fetching data...');
     try {
       final data =
-          await GetIt.instance<AppDatabase>().barcodeItemApi.fetchData();
+          await GetIt.instance<AppDatabase>().priceByItemApi.fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -74,7 +74,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final data = await GetIt.instance<AppDatabase>()
-          .barcodeItemApi
+          .priceByItemApi
           .fetchSingleData(docid);
       print(data);
       if (data[0] == null) {
