@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 
 class FetchScreen extends StatefulWidget {
@@ -51,7 +50,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print('Fetching data...');
     try {
       final data =
-          await GetIt.instance<AppDatabase>().priceByItemBarcodeApi.fetchData();
+          await GetIt.instance<AppDatabase>().mopAdjustmentApi.fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -74,7 +73,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final data = await GetIt.instance<AppDatabase>()
-          .priceByItemBarcodeApi
+          .mopAdjustmentApi
           .fetchSingleData(docid);
       print(data);
       if (data[0] == null) {
