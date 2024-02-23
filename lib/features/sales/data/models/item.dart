@@ -20,15 +20,6 @@ class ItemModel extends ItemEntity {
   const ItemModel({String? code, String? name, int? price, int? id})
       : super(id: id, code: code, name: name, price: price);
 
-  factory ItemModel.fromJson(Map<String, dynamic> map) {
-    return ItemModel(
-      id: map['id'] ?? "",
-      code: map['code'] ?? "",
-      name: map['name'] ?? "",
-      price: map['price'] ?? 0,
-    );
-  }
-
   factory ItemModel.fromMap(Map<String, dynamic> map) {
     return ItemModel(
       id: map['_id'] as int,

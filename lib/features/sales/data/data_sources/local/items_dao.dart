@@ -1,4 +1,3 @@
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:sqflite/sqflite.dart';
 

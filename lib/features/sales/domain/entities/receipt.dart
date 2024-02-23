@@ -30,7 +30,7 @@ class ReceiptEntity {
     return <String, dynamic>{
       'receiptItems': receiptItems.map((x) => x.toMap()).toList(),
       'totalPrice': totalPrice,
-      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'createdAt': createdAt?.toIso8601String(),
     };
   }
 
@@ -42,9 +42,8 @@ class ReceiptEntity {
         ),
       ),
       totalPrice: map['totalPrice'] as int,
-      createdAt: map['createdAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
-          : null,
+      createdAt:
+          map['createdAt'] != null ? DateTime.parse(map['createdAt']) : null,
     );
   }
 
