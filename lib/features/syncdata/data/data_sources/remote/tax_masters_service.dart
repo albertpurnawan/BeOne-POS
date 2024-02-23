@@ -10,11 +10,11 @@ class TaxApi {
 
   TaxApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchTaxesData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allTaxes = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -26,25 +26,25 @@ class TaxApi {
           ),
         );
 
-        final List<Map<String, dynamic>> taxesData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allTaxes.addAll(taxesData);
+        allData.addAll(data);
 
-        if (taxesData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allTaxes;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleTax(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-tax-master/$docid",

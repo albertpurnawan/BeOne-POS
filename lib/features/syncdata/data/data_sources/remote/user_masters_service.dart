@@ -11,11 +11,11 @@ class UsersApi {
 
   UsersApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchUsersData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allUsers = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -27,25 +27,25 @@ class UsersApi {
           ),
         );
 
-        final List<Map<String, dynamic>> usersData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allUsers.addAll(usersData);
+        allData.addAll(data);
 
-        if (usersData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allUsers;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleUser(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-user/$docid",

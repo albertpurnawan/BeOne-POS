@@ -10,11 +10,11 @@ class MOPApi {
 
   MOPApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchMOPData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allMOPs = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -26,25 +26,25 @@ class MOPApi {
           ),
         );
 
-        final List<Map<String, dynamic>> mopsData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allMOPs.addAll(mopsData);
+        allData.addAll(data);
 
-        if (mopsData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allMOPs;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleMOP(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-means-of-payment/docid/$docid",

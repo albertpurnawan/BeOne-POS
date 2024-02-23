@@ -10,11 +10,11 @@ class UoMApi {
 
   UoMApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchUoMData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allUoM = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -26,25 +26,25 @@ class UoMApi {
           ),
         );
 
-        final List<Map<String, dynamic>> uomData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allUoM.addAll(uomData);
+        allData.addAll(data);
 
-        if (uomData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allUoM;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleUoM(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-master-unit-of-measurement/$docid",

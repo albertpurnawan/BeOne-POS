@@ -10,11 +10,11 @@ class StoreApi {
 
   StoreApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchStoresData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allStores = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -26,25 +26,25 @@ class StoreApi {
           ),
         );
 
-        final List<Map<String, dynamic>> storesData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allStores.addAll(storesData);
+        allData.addAll(data);
 
-        if (storesData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allStores;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleStore(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-store-master/$docid",

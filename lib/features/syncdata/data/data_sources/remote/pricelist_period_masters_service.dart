@@ -11,11 +11,11 @@ class PricelistPeriodApi {
 
   PricelistPeriodApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchPricelistPeriodsData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allPricelistPeriods = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -27,25 +27,25 @@ class PricelistPeriodApi {
           ),
         );
 
-        final List<Map<String, dynamic>> pricelistPeriodsData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allPricelistPeriods.addAll(pricelistPeriodsData);
+        allData.addAll(data);
 
-        if (pricelistPeriodsData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allPricelistPeriods;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSinglePricelistPeriod(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-pricelist-period/$docid",

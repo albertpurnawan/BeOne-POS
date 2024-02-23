@@ -9,7 +9,7 @@ class UsersDao {
 
   Future<List<dynamic>> insertUsersFromApi() async {
     try {
-      final List<dynamic> usersData = await UsersApi(db).fetchUsersData();
+      final List<dynamic> usersData = await UsersApi(db).fetchData();
       for (final userData in usersData) {
         final Users user = Users.fromJson(userData);
         // print(user);

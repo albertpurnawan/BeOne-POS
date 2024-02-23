@@ -13,7 +13,7 @@ void syncWithBOS() {
     try {
       // USERS
       final usersApi = UsersApi(database!);
-      await usersApi.fetchUsersData();
+      await usersApi.fetchData();
     } catch (err) {
       print('Error $err');
       rethrow;

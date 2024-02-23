@@ -10,11 +10,11 @@ class CustomerGroupApi {
 
   CustomerGroupApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchCustomerGroupsData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allCustomerGroups = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -26,25 +26,25 @@ class CustomerGroupApi {
           ),
         );
 
-        final List<Map<String, dynamic>> customerGroupsData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allCustomerGroups.addAll(customerGroupsData);
+        allData.addAll(data);
 
-        if (customerGroupsData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allCustomerGroups;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleCustomerGroup(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-customer-group/$docid",

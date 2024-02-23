@@ -10,11 +10,11 @@ class CashRegisterApi {
 
   CashRegisterApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchCashRegistersData() async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allCashRegisters = [];
+      List<Map<String, dynamic>> allData = [];
 
       while (hasMoreData) {
         final response = await dio.get(
@@ -26,25 +26,25 @@ class CashRegisterApi {
           ),
         );
 
-        final List<Map<String, dynamic>> cashRegistersData =
+        final List<Map<String, dynamic>> data =
             response.data.cast<Map<String, dynamic>>();
-        allCashRegisters.addAll(cashRegistersData);
+        allData.addAll(data);
 
-        if (cashRegistersData.isEmpty) {
+        if (data.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allCashRegisters;
+      return allData;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleCashRegister(String docid) async {
+  Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
         "$url/tenant-cash-register/$docid",
