@@ -2,23 +2,23 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:sqflite/sqflite.dart';
 
-class MOPApi {
+class CashRegisterApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
   String url = "http://192.168.1.34:3001";
 
-  MOPApi(this.db);
+  CashRegisterApi(this.db);
 
-  Future<List<Map<String, dynamic>>> fetchMOPData() async {
+  Future<List<Map<String, dynamic>>> fetchCashRegistersData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allMOPs = [];
+      List<Map<String, dynamic>> allCashRegisters = [];
 
       while (hasMoreData) {
         final response = await dio.get(
-          "$url/tenant-means-of-payment/all/?page=$page",
+          "$url/tenant-cash-register?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -26,28 +26,28 @@ class MOPApi {
           ),
         );
 
-        final List<Map<String, dynamic>> mopsData =
+        final List<Map<String, dynamic>> cashRegistersData =
             response.data.cast<Map<String, dynamic>>();
-        allMOPs.addAll(mopsData);
+        allCashRegisters.addAll(cashRegistersData);
 
-        if (mopsData.isEmpty) {
+        if (cashRegistersData.isEmpty) {
           hasMoreData = false;
         } else {
           page++;
         }
       }
 
-      return allMOPs;
+      return allCashRegisters;
     } catch (err) {
       print('Error: $err');
       rethrow;
     }
   }
 
-  Future<List<dynamic>> fetchSingleMOP(String docid) async {
+  Future<List<dynamic>> fetchSingleCashRegister(String docid) async {
     try {
       final response = await dio.get(
-        "$url/tenant-means-of-payment/docid/$docid",
+        "$url/tenant-cash-register/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
