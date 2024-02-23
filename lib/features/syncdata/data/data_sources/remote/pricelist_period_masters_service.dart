@@ -6,7 +6,7 @@ class PricelistPeriodApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
-  String url = "http://192.168.1.34:3001";
+  String url = Constant.url;
   String topln_id = '3d355ebf-ae71-4892-b09c-bdc8ae8f7331';
 
   PricelistPeriodApi(this.db);

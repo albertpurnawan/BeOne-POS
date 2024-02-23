@@ -6,7 +6,7 @@ class PricelistApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
-  String url = "http://192.168.1.34:3001";
+  String url = Constant.url;
 
   PricelistApi(this.db);
 

@@ -13,4 +13,7 @@ class Constant {
 
   //STOREID
   static String storeId = '9ce98ccc-e03e-4c76-aae4-d187764816eb';
+
+  //URL
+  static String url = "http://192.168.1.34:3001";
 }

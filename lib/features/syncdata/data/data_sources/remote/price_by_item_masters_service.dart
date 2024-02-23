@@ -6,7 +6,7 @@ class PriceByItemApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
-  String url = "http://192.168.1.34:3001";
+  String url = Constant.url;
   String tplnId = 'a776b020-b268-4c46-b1cc-59faf90321dc';
 
   PriceByItemApi(this.db);

@@ -6,7 +6,7 @@ class BarcodeItemApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
-  String url = "http://192.168.1.34:3001";
+  String url = Constant.url;
   String toitm_id = '338d765e-38fc-4f9b-b24f-039d407fd66c';
 
   BarcodeItemApi(this.db);

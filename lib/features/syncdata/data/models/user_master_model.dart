@@ -17,9 +17,7 @@ class Users {
   final String? trolleyuser;
 
   Users(
-      {
-      // this.id,
-      required this.docid,
+      {required this.docid,
       required this.createdate,
       this.updatedate,
       this.gtentId,

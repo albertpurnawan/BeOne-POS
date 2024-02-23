@@ -6,8 +6,7 @@ class UsersApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
-  String url = "http://192.168.1.34:3001";
-
+  String url = Constant.url;
   UsersApi(this.db);
 
   Future<List<Map<String, dynamic>>> fetchData() async {

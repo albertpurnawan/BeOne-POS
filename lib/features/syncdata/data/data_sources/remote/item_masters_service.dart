@@ -7,7 +7,7 @@ class ItemsApi {
   final dio = Dio();
   String token = Constant.token;
   String storeId = Constant.storeId;
-  String url = "http://192.168.1.34:3001";
+  String url = Constant.url;
 
   ItemsApi(this.db);
 
