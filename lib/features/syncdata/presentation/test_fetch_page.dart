@@ -18,6 +18,7 @@ class _FetchScreenState extends State<FetchScreen> {
   String _singleData = '';
   int _dataCount = 0;
   int _dataFetched = 0;
+  String _dataExample = '';
   int _statusCode = 0;
   String _errorMessage = '';
 
@@ -50,10 +51,12 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<AppDatabase>().currencyApi.fetchData();
+      final data =
+          await GetIt.instance<AppDatabase>().itemCategoryApi.fetchData();
 
       setState(() {
         _dataFetched = data.length;
+        _dataExample = data[0]['docid'];
         _errorMessage = '';
       });
       print(data);
@@ -73,7 +76,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final data = await GetIt.instance<AppDatabase>()
-          .currencyApi
+          .itemCategoryApi
           .fetchSingleData(docid);
       print(data);
       if (data[0] == null) {
@@ -138,7 +141,7 @@ class _FetchScreenState extends State<FetchScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              'Data Fetched: $_dataFetched',
+              'Data Fetched: [$_dataFetched] $_dataExample',
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 20),

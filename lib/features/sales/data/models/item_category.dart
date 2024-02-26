@@ -46,6 +46,7 @@ class ItemCategoryModel extends ItemCategoryEntity {
   factory ItemCategoryModel.fromMapByDataSource(
       DataSource dataSource, Map<String, dynamic> map) {
     return ItemCategoryModel(
+      // id not returned
       id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
@@ -55,8 +56,10 @@ class ItemCategoryModel extends ItemCategoryEntity {
       catCode: map['catcode'] as String,
       catName: map['catname'] as String,
       catNameFrgn: map['catnamefrgn'] as String,
+      // parentId return docid as parent_id: {docid: 5333e8cd-19e1-4dfc-b54c-876dad39fdfd, catcode: 00, ...}
       parentId: map['parentId'] != null ? map['parentId'] as int : null,
       level: map['level'] as int,
+      // phir1Id return docid as phlir1_id: {docid: 393ae4af-5494-422b-8f33-761d48b4de35, description: Mom & Baby}
       phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
     );
   }
