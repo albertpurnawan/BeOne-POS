@@ -2,15 +2,15 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqlite_api.dart';
+import 'package:sqflite/sqflite.dart';
 
-class ProductHierarchyMasterApi {
+class ProductHierarchyApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
   String url = Constant.url;
 
-  ProductHierarchyMasterApi(this.db);
+  ProductHierarchyApi(this.db);
 
   Future<List<Map<String, dynamic>>> fetchData() async {
     try {
@@ -20,7 +20,7 @@ class ProductHierarchyMasterApi {
 
       while (hasMoreData) {
         final response = await dio.get(
-          "$url/tenant-product-hierarchy-master?page=$page",
+          "$url/tenant-product-hierarchy?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -38,11 +38,12 @@ class ProductHierarchyMasterApi {
           page++;
         }
       }
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     log('$key: ${value.runtimeType} $value');
-      //   });
-      // }
+
+      for (var element in [allData[0]]) {
+        element.forEach((key, value) {
+          log('$key: ${value.runtimeType} $value');
+        });
+      }
 
       return allData;
     } catch (err) {
@@ -54,7 +55,7 @@ class ProductHierarchyMasterApi {
   Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
-        "$url/tenant-product-hierarchy-master/$docid",
+        "$url/tenant-product-hierarchy/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

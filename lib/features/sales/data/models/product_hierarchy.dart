@@ -48,7 +48,7 @@ class ProductHierarchyModel extends ProductHierarchyEntity {
 
   factory ProductHierarchyModel.fromMap(Map<String, dynamic> map) {
     return ProductHierarchyModel(
-      id: map['_id'] as int,
+      id: map['_id'] as int, // id not returned
       docId: map['docid'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int)
           .toLocal(),

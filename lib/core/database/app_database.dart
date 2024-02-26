@@ -19,6 +19,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
@@ -53,6 +54,7 @@ class AppDatabase {
   late ClosingStoreApi closingStoreApi;
   late final CurrencyDao currencyDao;
   late CurrencyApi currencyApi;
+  late ProductHierarchyMasterApi productHierarchyMasterApi;
   late ProductHierarchyApi productHierarchyApi;
 
   AppDatabase() {
@@ -79,6 +81,7 @@ class AppDatabase {
       closingStoreApi = ClosingStoreApi(_database!);
       currencyDao = CurrencyDao(_database!);
       currencyApi = CurrencyApi(_database!);
+      productHierarchyMasterApi = ProductHierarchyMasterApi(_database!);
       productHierarchyApi = ProductHierarchyApi(_database!);
     });
   }
