@@ -51,8 +51,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data =
-          await GetIt.instance<AppDatabase>().productHierarchyApi.fetchData();
+      final data = await GetIt.instance<AppDatabase>().uomApi.fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -75,9 +74,8 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final data = await GetIt.instance<AppDatabase>()
-          .productHierarchyApi
-          .fetchSingleData(docid);
+      final data =
+          await GetIt.instance<AppDatabase>().uomApi.fetchSingleData(docid);
       print(data);
       if (data[0] == null) {
         setState(() {

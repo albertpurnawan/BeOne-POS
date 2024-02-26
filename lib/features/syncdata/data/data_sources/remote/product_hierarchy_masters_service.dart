@@ -38,11 +38,11 @@ class ProductHierarchyApi {
           page++;
         }
       }
-      for (var element in [allData[0]]) {
-        element.forEach((key, value) {
-          log('$key: ${value.runtimeType} $value');
-        });
-      }
+      // for (var element in [allData[0]]) {
+      //   element.forEach((key, value) {
+      //     log('$key: ${value.runtimeType} $value');
+      //   });
+      // }
 
       return allData;
     } catch (err) {

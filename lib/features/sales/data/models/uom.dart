@@ -52,7 +52,7 @@ class UomModel extends UomEntity {
 
   factory UomModel.fromMap(Map<String, dynamic> map) {
     return UomModel(
-      id: map['id'] as int,
+      id: map['id'] as int, // id not returned
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
@@ -60,7 +60,9 @@ class UomModel extends UomEntity {
           : null,
       uomCode: map['uomcode'] as String,
       uomDesc: map['uomdesc'] as String,
+      // statusActive returned int
       statusActive: map['statusactive'] as bool,
+      // activated returned int
       activated: map['activated'] as bool,
     );
   }

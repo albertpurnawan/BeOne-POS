@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:sqflite/sqflite.dart';
@@ -36,6 +38,12 @@ class UoMApi {
           page++;
         }
       }
+
+      // for (var element in [allData[0]]) {
+      //   element.forEach((key, value) {
+      //     log('$key: ${value.runtimeType} $value');
+      //   });
+      // }
 
       return allData;
     } catch (err) {
