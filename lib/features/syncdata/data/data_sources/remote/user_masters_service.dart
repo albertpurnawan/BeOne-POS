@@ -36,6 +36,12 @@ class UsersApi {
         }
       }
 
+      // for (var element in [allData[0]]) {
+      //   element.forEach((key, value) {
+      //     print('$key: ${value.runtimeType} $value');
+      //   });
+      // }
+
       return allData;
     } catch (err) {
       print('Error: $err');
@@ -53,7 +59,11 @@ class UsersApi {
           },
         ),
       );
-      // log([response.data].toString());
+      // for (var element in [response.data]) {
+      //   element.forEach((key, value) {
+      //     print('Type of $key: ${value.runtimeType}');
+      //   });
+      // }
 
       return [response.data];
     } catch (err) {

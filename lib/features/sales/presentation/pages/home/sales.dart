@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -69,8 +71,14 @@ class _SalesPageState extends State<SalesPage> {
     super.dispose();
   }
 
+  Future check() async {
+    print((await GetIt.instance<AppDatabase>().currencyDao.readCurrencies())
+        .toString());
+  }
+
   @override
   Widget build(BuildContext context) {
+    check();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Color.fromARGB(255, 169, 0, 0),
         statusBarBrightness: Brightness.light,

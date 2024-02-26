@@ -41,6 +41,7 @@ class _FetchScreenState extends State<FetchScreen> {
       setState(() {
         _dataCount = data.length;
       });
+      print('Data synched');
     } catch (error) {
       print("Error synchronizing: $error");
     }
@@ -49,7 +50,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<AppDatabase>().usersApi.fetchData();
+      final data = await GetIt.instance<AppDatabase>().itemsApi.fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -72,7 +73,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final data =
-          await GetIt.instance<AppDatabase>().usersApi.fetchSingleData(docid);
+          await GetIt.instance<AppDatabase>().itemsApi.fetchSingleData(docid);
       print(data);
       if (data[0] == null) {
         setState(() {
@@ -117,7 +118,7 @@ class _FetchScreenState extends State<FetchScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _fetchToken();
+                // _fetchToken();
                 _syncData();
               },
               child: Text('SYNC'),
