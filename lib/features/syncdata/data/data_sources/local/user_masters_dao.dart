@@ -1,3 +1,5 @@
+import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -9,7 +11,9 @@ class UsersDao {
 
   Future<List<dynamic>> insertUsersFromApi() async {
     try {
-      final List<dynamic> usersData = await UsersApi(db).fetchData();
+      final List<dynamic> usersData =
+          await GetIt.instance<AppDatabase>().usersApi.fetchData();
+
       for (final userData in usersData) {
         final Users user = Users.fromJson(userData);
         // print(user);
