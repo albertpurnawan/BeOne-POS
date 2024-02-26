@@ -71,7 +71,7 @@ class PricelistModel extends PricelistEntity {
 
   factory PricelistModel.fromMap(Map<String, dynamic> map) {
     return PricelistModel(
-      id: map['_id'] as int,
+      id: map['_id'] as int, // id not returned
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
           .toLocal(),
@@ -83,7 +83,9 @@ class PricelistModel extends PricelistEntity {
       description: map['description'] as String,
       basePrice: map['basePrice'] as int,
       periodPrice: map['periodPrice'] as int,
+      // factor returned int
       factor: map['factor'] as double,
+      //tcurrId returned docid as tcurr_id: {docid: cff4edc0-7612-4681-8d7c-c90e9e97c6dc, curcode: IDR, description: Rupiah}
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as int : null,
       type: map['type'] as int,
       statusactive: map['statusactive'] as int,
