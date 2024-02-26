@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:sqflite/sqflite.dart';
 
-class UsersApi {
+class CurrencyApi {
   final Database db;
   final dio = Dio();
   String token = Constant.token;
   String url = Constant.url;
 
-  UsersApi(this.db);
+  CurrencyApi(this.db);
 
   Future<List<Map<String, dynamic>>> fetchData() async {
     try {
@@ -18,7 +18,7 @@ class UsersApi {
 
       while (hasMoreData) {
         final response = await dio.get(
-          "$url/tenant-user?page=$page",
+          "$url/tenant-master-currency?page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -37,11 +37,11 @@ class UsersApi {
         }
       }
 
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     print('$key: ${value.runtimeType} $value');
-      //   });
-      // }
+      for (var element in [allData[0]]) {
+        element.forEach((key, value) {
+          print('$key: ${value.runtimeType} $value');
+        });
+      }
 
       return allData;
     } catch (err) {
@@ -53,7 +53,7 @@ class UsersApi {
   Future<List<dynamic>> fetchSingleData(String docid) async {
     try {
       final response = await dio.get(
-        "$url/tenant-user/$docid",
+        "$url/tenant-master-currency/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',

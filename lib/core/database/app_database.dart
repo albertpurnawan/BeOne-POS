@@ -6,6 +6,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_da
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/barcode_item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/closing_store_transactions_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
@@ -50,6 +51,7 @@ class AppDatabase {
   late OpeningStoreApi openingStoreApi;
   late ClosingStoreApi closingStoreApi;
   late final CurrencyDao currencyDao;
+  late CurrencyApi currencyApi;
 
   AppDatabase() {
     getDB().then((value) {
@@ -74,6 +76,7 @@ class AppDatabase {
       openingStoreApi = OpeningStoreApi(_database!);
       closingStoreApi = ClosingStoreApi(_database!);
       currencyDao = CurrencyDao(_database!);
+      currencyApi = CurrencyApi(_database!);
     });
   }
 

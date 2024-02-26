@@ -49,6 +49,7 @@ class CurrencyModel extends CurrencyEntity {
   factory CurrencyModel.fromMapByDataSource(
       DataSource dataSource, Map<String, dynamic> map) {
     return CurrencyModel(
+      // id not returned
       id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
