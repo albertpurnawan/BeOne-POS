@@ -47,7 +47,7 @@ class ProductHierarchyMasterModel extends ProductHierarchyMasterEntity {
 
   factory ProductHierarchyMasterModel.fromMap(Map<String, dynamic> map) {
     return ProductHierarchyMasterModel(
-      id: map['_id'] as int,
+      id: map['_id'] as int, // id not returned
       docId: map['docid'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int)
           .toLocal(),
@@ -57,6 +57,7 @@ class ProductHierarchyMasterModel extends ProductHierarchyMasterEntity {
           : null,
       code: map['code'] as String,
       description: map['description'] as String,
+      // thpirid returned docid as tphir_id: {docid: 764a502f-d007-4106-83db-711579a38ee8, description: Division, level: 1}
       tphirId: map['tphirId'] != null ? map['tphirId'] as int : null,
     );
   }
