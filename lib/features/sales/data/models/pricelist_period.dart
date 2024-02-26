@@ -68,7 +68,7 @@ class PricelistPeriodModel extends PricelistPeriodEntity {
 
   factory PricelistPeriodModel.fromMap(Map<String, dynamic> map) {
     return PricelistPeriodModel(
-      id: map['_id'] as int,
+      id: map['_id'] as int, // id not returned
       docId: map['docid'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int)
           .toLocal(),
@@ -76,6 +76,7 @@ class PricelistPeriodModel extends PricelistPeriodEntity {
           ? DateTime.fromMillisecondsSinceEpoch(map['updatedate'] as int)
               .toLocal()
           : null,
+      // toplnId returned docid as topln_id: {docid: 3d355ebf-ae71-4892-b09c-bdc8ae8f7331}
       toplnId: map['toplnId'] != null ? map['toplnId'] as int : null,
       periodFr:
           DateTime.fromMillisecondsSinceEpoch(map['periodfr'] as int).toLocal(),
@@ -83,6 +84,7 @@ class PricelistPeriodModel extends PricelistPeriodEntity {
           DateTime.fromMillisecondsSinceEpoch(map['periodto'] as int).toLocal(),
       basePrice: map['baseprice'] as int,
       periodPrice: map['periodprice'] as int,
+      // factor returned int
       factor: map['factor'] as double,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
