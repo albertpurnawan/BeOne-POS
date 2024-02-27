@@ -2,21 +2,19 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
-import 'package:sqflite/sqflite.dart';
 
 class UsersDao {
-  final Database db;
+  final AppDatabase db;
 
   UsersDao(this.db);
 
-  Future<List<dynamic>> insertUsersFromApi() async {
+  Future<List<UsersModel>> upsertDataFromAPI() async {
     try {
       final List<dynamic> usersData =
-          await GetIt.instance<AppDatabase>().usersApi.fetchData();
+          await GetIt.instance<UsersApi>().fetchData();
 
-      for (final userData in usersData) {
-        final Users user = Users.fromJson(userData);
-        // print(user);
+      for (final UsersModel user in usersData) {
+        final Map<String, dynamic> userMap = user.toJson();
 
         final List<String> excludedFields = [
           'createby',
@@ -26,61 +24,33 @@ class UsersDao {
           'tohem_id'
         ];
 
-        final Map<String, dynamic> userMap = user.toJson();
-
         for (var field in excludedFields) {
           if (userMap.containsKey(field)) {
             userMap.remove(field);
           }
         }
 
-        await db.transaction((txn) async {
-          await txn.rawInsert(
-            '''
-        INSERT OR REPLACE INTO users (
-          docid, createdate, updatedate, gtentId, email, username, password,
-          tohemId, torolId, statusactive, activated, superuser, provider,
-          usertype, trolleyuser
-        ) VALUES (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )
-        ON CONFLICT(docid) DO UPDATE SET
-        createdate = excluded.createdate,
-        updatedate = excluded.updatedate,
-        gtentId = excluded.gtentId,
-        email = excluded.email,
-        username = excluded.username,
-        password = excluded.password,
-        tohemId = excluded.tohemId,
-        torolId = excluded.torolId,
-        statusactive = excluded.statusactive,
-        activated = excluded.activated,
-        superuser = excluded.superuser,
-        provider = excluded.provider,
-        usertype = excluded.usertype,
-        trolleyuser = excluded.trolleyuser
-        ''',
-            [
-              userMap['docid'],
-              userMap['createdate'],
-              userMap['updatedate'],
-              userMap['gtentId'],
-              userMap['email'],
-              userMap['username'],
-              userMap['password'],
-              userMap['tohemId'],
-              userMap['torolId'],
-              userMap['statusactive'],
-              userMap['activated'],
-              userMap['superuser'],
-              userMap['provider'],
-              userMap['usertype'],
-              userMap['trolleyuser'],
-            ],
-          );
-        });
+        List<dynamic> obj = [
+          userMap['docid'],
+          userMap['createdate'],
+          userMap['updatedate'],
+          userMap['gtentId'],
+          userMap['email'],
+          userMap['username'],
+          userMap['password'],
+          userMap['tohemId'],
+          userMap['torolId'],
+          userMap['statusactive'],
+          userMap['activated'],
+          userMap['superuser'],
+          userMap['provider'],
+          userMap['usertype'],
+          userMap['trolleyuser'],
+        ];
+
+        await GetIt.instance<AppDatabase>().upsertUsers(obj);
       }
-      return usersData;
+      return usersData.cast<UsersModel>();
     } catch (err) {
       print('Error $err');
       rethrow;

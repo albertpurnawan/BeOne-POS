@@ -5,7 +5,7 @@ const String tableCurrencies = "tcurr";
 
 class CurrencyFields {
   static const List<String> values = [
-    id,
+    // id,
     docId,
     createDate,
     updateDate,
@@ -14,7 +14,7 @@ class CurrencyFields {
     descriptionFrgn,
   ];
 
-  static const String id = "_id";
+  // static const String id = "_id";
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
@@ -25,7 +25,7 @@ class CurrencyFields {
 
 class CurrencyModel extends CurrencyEntity {
   CurrencyModel({
-    required super.id,
+    // required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -36,7 +36,8 @@ class CurrencyModel extends CurrencyEntity {
 
   Map<String, dynamic> toMapByDataSource(DataSource dataSource) {
     return <String, dynamic>{
-      dataSource == DataSource.local ? '_id' : 'id': id,
+      // dataSource == DataSource.local ?
+      // '_id' : 'id': id,
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
@@ -50,7 +51,7 @@ class CurrencyModel extends CurrencyEntity {
       DataSource dataSource, Map<String, dynamic> map) {
     return CurrencyModel(
       // id not returned
-      id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
+      // id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
@@ -64,7 +65,7 @@ class CurrencyModel extends CurrencyEntity {
 
   factory CurrencyModel.fromEntity(CurrencyEntity entity) {
     return CurrencyModel(
-      id: entity.id,
+      // id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,

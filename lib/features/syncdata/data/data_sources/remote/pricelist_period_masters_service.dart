@@ -1,26 +1,23 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pos_fe/features/sales/data/models/pricelist_period.dart';
 
 class PricelistPeriodApi {
-  final Database db;
-  final dio = Dio();
+  final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
   String topln_id = '3d355ebf-ae71-4892-b09c-bdc8ae8f7331';
 
-  PricelistPeriodApi(this.db);
+  PricelistPeriodApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  Future<List<PricelistPeriodModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+      List<PricelistPeriodModel> allData = [];
 
       while (hasMoreData) {
-        final response = await dio.get(
+        final response = await _dio.get(
           "$url/tenant-pricelist-period?page=$page&topln_id=$topln_id",
           options: Options(
             headers: {
@@ -29,8 +26,9 @@ class PricelistPeriodApi {
           ),
         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
+        final List<PricelistPeriodModel> data = (response.data as List)
+            .map((e) => PricelistPeriodModel.fromMap(e))
+            .toList();
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -39,11 +37,6 @@ class PricelistPeriodApi {
           page++;
         }
       }
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     log('$key: ${value.runtimeType} $value');
-      //   });
-      // }
 
       return allData;
     } catch (err) {
@@ -52,9 +45,9 @@ class PricelistPeriodApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
+  Future<PricelistPeriodModel> fetchSingleData(String docid) async {
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         "$url/tenant-pricelist-period/$docid",
         options: Options(
           headers: {
@@ -64,7 +57,9 @@ class PricelistPeriodApi {
       );
       // log([response.data].toString());
 
-      return [response.data];
+      PricelistPeriodModel datum = PricelistPeriodModel.fromMap(response.data);
+
+      return datum;
     } catch (err) {
       print('Error: $err');
       rethrow;

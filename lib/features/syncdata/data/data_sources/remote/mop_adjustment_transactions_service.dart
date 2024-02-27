@@ -1,65 +1,68 @@
-import 'package:dio/dio.dart';
-import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+// import 'package:dio/dio.dart';
+// import 'package:pos_fe/core/constants/constants.dart';
+// import 'package:sqflite/sqflite.dart';
 
-class MOPAdjustmentApi {
-  final Database db;
-  final dio = Dio();
-  String token = Constant.token;
-  String url = Constant.url;
+// class MOPAdjustmentApi {
+//   final Dio _dio;
+//   String token = Constant.token;
+//   String url = Constant.url;
 
-  MOPAdjustmentApi(this.db);
+//   MOPAdjustmentApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
-    try {
-      int page = 1;
-      bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+//   Future<List<MOPAdjustmentModel>> fetchData() async {
+//     try {
+//       int page = 1;
+//       bool hasMoreData = true;
+//       List<MOPAdjustmentModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await dio.get(
-          "$url/tenant-mop-adjustment/?page=$page",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+//       while (hasMoreData) {
+//         final response = await _dio.get(
+//           "$url/tenant-mop-adjustment/?page=$page",
+//           options: Options(
+//             headers: {
+//               'Authorization': 'Bearer $token',
+//             },
+//           ),
+//         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
-        allData.addAll(data);
+//         final List<MOPAdjustmentModel> data = (response.data as List)
+//             .map((e) => MOPAdjustmentModel.fromMap(e))
+//             .toList();
+//         // log(check.toString());
+//         allData.addAll(data);
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
+//         if (data.isEmpty) {
+//           hasMoreData = false;
+//         } else {
+//           page++;
+//         }
+//       }
 
-      return allData;
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
+//       return allData;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
-    try {
-      final response = await dio.get(
-        "$url/tenant-mop-adjustment/$docid",
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      // log([response.data].toString());
+//   Future<MOPAdjustmentModel> fetchSingleData(String docid) async {
+//     try {
+//       final response = await _dio.get(
+//         "$url/tenant-mop-adjustment/$docid",
+//         options: Options(
+//           headers: {
+//             'Authorization': 'Bearer $token',
+//           },
+//         ),
+//       );
+//       // log([response.data].toString());
 
-      return [response.data];
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
-}
+//       MOPAdjustmentModel datum = MOPAdjustmentModel.fromMap(response.data);
+
+//       return datum;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
+// }

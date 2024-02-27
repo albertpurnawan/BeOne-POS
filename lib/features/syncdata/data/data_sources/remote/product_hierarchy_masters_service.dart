@@ -1,25 +1,22 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqlite_api.dart';
+import 'package:pos_fe/features/sales/data/models/product_hierarchy_master.dart';
 
 class ProductHierarchyMasterApi {
-  final Database db;
-  final dio = Dio();
+  final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  ProductHierarchyMasterApi(this.db);
+  ProductHierarchyMasterApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  Future<List<ProductHierarchyMasterModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+      List<ProductHierarchyMasterModel> allData = [];
 
       while (hasMoreData) {
-        final response = await dio.get(
+        final response = await _dio.get(
           "$url/tenant-product-hierarchy-master?page=$page",
           options: Options(
             headers: {
@@ -28,8 +25,10 @@ class ProductHierarchyMasterApi {
           ),
         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
+        final List<ProductHierarchyMasterModel> data = (response.data as List)
+            .map((e) => ProductHierarchyMasterModel.fromMap(e))
+            .toList();
+        // log(check.toString());
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -38,11 +37,6 @@ class ProductHierarchyMasterApi {
           page++;
         }
       }
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     log('$key: ${value.runtimeType} $value');
-      //   });
-      // }
 
       return allData;
     } catch (err) {
@@ -51,9 +45,9 @@ class ProductHierarchyMasterApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
+  Future<ProductHierarchyMasterModel> fetchSingleData(String docid) async {
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         "$url/tenant-product-hierarchy-master/$docid",
         options: Options(
           headers: {
@@ -63,7 +57,10 @@ class ProductHierarchyMasterApi {
       );
       // log([response.data].toString());
 
-      return [response.data];
+      ProductHierarchyMasterModel datum =
+          ProductHierarchyMasterModel.fromMap(response.data);
+
+      return datum;
     } catch (err) {
       print('Error: $err');
       rethrow;

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 
 class FetchScreen extends StatefulWidget {
@@ -37,8 +40,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _syncData() async {
     print("Synching data...");
     try {
-      final data =
-          await GetIt.instance<AppDatabase>().usersDao.insertUsersFromApi();
+      final data = await GetIt.instance<UsersDao>().upsertDataFromAPI();
       setState(() {
         _dataCount = data.length;
       });
@@ -51,12 +53,11 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data =
-          await GetIt.instance<AppDatabase>().productHierarchyApi.fetchData();
+      final data = await GetIt.instance<ItemCategoryApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
-        _dataExample = data[0]['docid'];
+        _dataExample = data[0].docId;
         _errorMessage = '';
       });
       print(data);
@@ -75,19 +76,12 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final data = await GetIt.instance<AppDatabase>()
-          .productHierarchyApi
-          .fetchSingleData(docid);
-      print(data);
-      if (data[0] == null) {
-        setState(() {
-          _singleData = 'Data not found';
-        });
-      } else {
-        setState(() {
-          _singleData = data[0]['docid'];
-        });
-      }
+      final datum =
+          await GetIt.instance<ItemCategoryApi>().fetchSingleData(docid);
+      print(datum);
+      setState(() {
+        _singleData = datum.docId;
+      });
       print("Data Fetched");
     } catch (error) {
       handleError(error);

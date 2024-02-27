@@ -1,65 +1,68 @@
-import 'package:dio/dio.dart';
-import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+// import 'package:dio/dio.dart';
+// import 'package:pos_fe/core/constants/constants.dart';
+// import 'package:sqflite/sqflite.dart';
 
-class CustomerGroupApi {
-  final Database db;
-  final dio = Dio();
-  String token = Constant.token;
-  String url = Constant.url;
+// class CustomerGroupApi {
+//   final Dio _dio;
+//   String token = Constant.token;
+//   String url = Constant.url;
 
-  CustomerGroupApi(this.db);
+//   CustomerGroupApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
-    try {
-      int page = 1;
-      bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+//   Future<List<CustomerGroupModel>> fetchData() async {
+//     try {
+//       int page = 1;
+//       bool hasMoreData = true;
+//       List<CustomerGroupModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await dio.get(
-          "$url/tenant-customer-group?page=$page",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+//       while (hasMoreData) {
+//         final response = await _dio.get(
+//           "$url/tenant-customer-group?page=$page",
+//           options: Options(
+//             headers: {
+//               'Authorization': 'Bearer $token',
+//             },
+//           ),
+//         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
-        allData.addAll(data);
+//         List<CustomerGroupModel> data = (response.data as List)
+//             .map((e) => CustomerGroupModel.fromMap(e))
+//             .toList();
+//         // log(check.toString());
+//         allData.addAll(data);
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
+//         if (data.isEmpty) {
+//           hasMoreData = false;
+//         } else {
+//           page++;
+//         }
+//       }
 
-      return allData;
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
+//       return allData;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
-    try {
-      final response = await dio.get(
-        "$url/tenant-customer-group/$docid",
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      // log([response.data].toString());
+//   Future<CustomerGroupModel> fetchSingleData(String docid) async {
+//     try {
+//       final response = await _dio.get(
+//         "$url/tenant-customer-group/$docid",
+//         options: Options(
+//           headers: {
+//             'Authorization': 'Bearer $token',
+//           },
+//         ),
+//       );
+//       // log([response.data].toString());
 
-      return [response.data];
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
-}
+//       CustomerGroupModel datum = CustomerGroupModel.fromMap(response.data);
+
+//       return datum;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
+// }

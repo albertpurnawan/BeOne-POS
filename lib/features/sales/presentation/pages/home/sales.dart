@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -72,8 +73,7 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Future check() async {
-    print((await GetIt.instance<AppDatabase>().currencyDao.readCurrencies())
-        .toString());
+    print((await GetIt.instance<CurrencyDao>().readCurrencies()).toString());
   }
 
   @override

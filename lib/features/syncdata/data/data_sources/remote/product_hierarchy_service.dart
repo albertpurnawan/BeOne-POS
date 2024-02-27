@@ -1,25 +1,22 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pos_fe/features/sales/data/models/product_hierarchy.dart';
 
 class ProductHierarchyApi {
-  final Database db;
-  final dio = Dio();
+  final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  ProductHierarchyApi(this.db);
+  ProductHierarchyApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  Future<List<ProductHierarchyModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+      List<ProductHierarchyModel> allData = [];
 
       while (hasMoreData) {
-        final response = await dio.get(
+        final response = await _dio.get(
           "$url/tenant-product-hierarchy?page=$page",
           options: Options(
             headers: {
@@ -28,8 +25,10 @@ class ProductHierarchyApi {
           ),
         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
+        final List<ProductHierarchyModel> data = (response.data as List)
+            .map((e) => ProductHierarchyModel.fromMap(e))
+            .toList();
+        // log(check.toString());
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -39,11 +38,11 @@ class ProductHierarchyApi {
         }
       }
 
-      for (var element in [allData[0]]) {
-        element.forEach((key, value) {
-          log('$key: ${value.runtimeType} $value');
-        });
-      }
+      // for (var element in [allData[0]]) {
+      //   element.forEach((key, value) {
+      //     log('$key: ${value.runtimeType} $value');
+      //   });
+      // }
 
       return allData;
     } catch (err) {
@@ -52,9 +51,9 @@ class ProductHierarchyApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
+  Future<ProductHierarchyModel> fetchSingleData(String docid) async {
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         "$url/tenant-product-hierarchy/$docid",
         options: Options(
           headers: {
@@ -64,7 +63,10 @@ class ProductHierarchyApi {
       );
       // log([response.data].toString());
 
-      return [response.data];
+      ProductHierarchyModel datum =
+          ProductHierarchyModel.fromMap(response.data);
+
+      return datum;
     } catch (err) {
       print('Error: $err');
       rethrow;

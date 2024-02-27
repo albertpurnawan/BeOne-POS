@@ -14,18 +14,18 @@ class CurrencyDao {
   //   return CurrencyModel.fromEntity(itemModel.copyWith(id: id));
   // }
 
-  Future<CurrencyModel> readCurrency(int id) async {
+  Future<CurrencyModel> readCurrency(String docid) async {
     final maps = await db.query(
       tableCurrencies,
       columns: CurrencyFields.values,
-      where: '${CurrencyFields.id} = ?',
-      whereArgs: [id],
+      where: '${CurrencyFields.docId} = ?',
+      whereArgs: [docid],
     );
 
     if (maps.isNotEmpty) {
       return CurrencyModel.fromMapByDataSource(DataSource.local, maps.first);
     } else {
-      throw Exception("ID $id is not found");
+      throw Exception("ID $docid is not found");
     }
   }
 

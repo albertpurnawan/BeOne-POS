@@ -1,25 +1,22 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pos_fe/features/sales/data/models/uom.dart';
 
 class UoMApi {
-  final Database db;
-  final dio = Dio();
+  final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  UoMApi(this.db);
+  UoMApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  Future<List<UomModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+      List<UomModel> allData = [];
 
       while (hasMoreData) {
-        final response = await dio.get(
+        final response = await _dio.get(
           "$url/tenant-master-unit-of-measurement?page=$page",
           options: Options(
             headers: {
@@ -28,8 +25,9 @@ class UoMApi {
           ),
         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
+        List<UomModel> data =
+            (response.data as List).map((e) => UomModel.fromMap(e)).toList();
+        // log(check.toString());
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -39,12 +37,6 @@ class UoMApi {
         }
       }
 
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     log('$key: ${value.runtimeType} $value');
-      //   });
-      // }
-
       return allData;
     } catch (err) {
       print('Error: $err');
@@ -52,9 +44,9 @@ class UoMApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
+  Future<UomModel> fetchSingleData(String docid) async {
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         "$url/tenant-master-unit-of-measurement/$docid",
         options: Options(
           headers: {
@@ -62,9 +54,11 @@ class UoMApi {
           },
         ),
       );
-      // log([response.data].toString());
+      // log(response.data.toString());
 
-      return [response.data];
+      UomModel datum = UomModel.fromMap(response.data);
+
+      return datum;
     } catch (err) {
       print('Error: $err');
       rethrow;

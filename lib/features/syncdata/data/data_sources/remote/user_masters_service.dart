@@ -1,23 +1,24 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
 
 class UsersApi {
-  final Database db;
-  final dio = Dio();
+  final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  UsersApi(this.db);
+  UsersApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  Future<List<UsersModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+      List<UsersModel> allData = [];
 
       while (hasMoreData) {
-        final response = await dio.get(
+        final response = await _dio.get(
           "$url/tenant-user?page=$page",
           options: Options(
             headers: {
@@ -26,8 +27,9 @@ class UsersApi {
           ),
         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
+        List<UsersModel> data =
+            (response.data as List).map((e) => UsersModel.fromJson(e)).toList();
+        // log(check.toString());
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -37,12 +39,6 @@ class UsersApi {
         }
       }
 
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     print('$key: ${value.runtimeType} $value');
-      //   });
-      // }
-
       return allData;
     } catch (err) {
       print('Error: $err');
@@ -50,9 +46,9 @@ class UsersApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
+  Future<UsersModel> fetchSingleData(String docid) async {
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         "$url/tenant-user/$docid",
         options: Options(
           headers: {
@@ -60,13 +56,11 @@ class UsersApi {
           },
         ),
       );
-      // for (var element in [response.data]) {
-      //   element.forEach((key, value) {
-      //     print('Type of $key: ${value.runtimeType}');
-      //   });
-      // }
+      log(response.data.toString());
 
-      return [response.data];
+      UsersModel datum = UsersModel.fromJson(response.data);
+
+      return datum;
     } catch (err) {
       print('Error: $err');
       rethrow;

@@ -1,25 +1,23 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pos_fe/core/resources/data_sources_enum.dart';
+import 'package:pos_fe/features/sales/data/models/item_category.dart';
 
 class ItemCategoryApi {
-  final Database db;
-  final dio = Dio();
+  final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  ItemCategoryApi(this.db);
+  ItemCategoryApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  Future<List<ItemCategoryModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+      List<ItemCategoryModel> allData = [];
 
       while (hasMoreData) {
-        final response = await dio.get(
+        final response = await _dio.get(
           "$url/tenant-product-category?page=$page",
           options: Options(
             headers: {
@@ -28,8 +26,10 @@ class ItemCategoryApi {
           ),
         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
+        List<ItemCategoryModel> data = (response.data as List)
+            .map((e) =>
+                ItemCategoryModel.fromMapByDataSource(DataSource.local, e))
+            .toList();
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -52,9 +52,9 @@ class ItemCategoryApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
+  Future<ItemCategoryModel> fetchSingleData(String docid) async {
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         "$url/tenant-product-category/$docid",
         options: Options(
           headers: {
@@ -64,7 +64,10 @@ class ItemCategoryApi {
       );
       // log([response.data].toString());
 
-      return [response.data];
+      ItemCategoryModel datum = ItemCategoryModel.fromMapByDataSource(
+          DataSource.local, response.data);
+
+      return datum;
     } catch (err) {
       print('Error: $err');
       rethrow;

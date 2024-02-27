@@ -1,65 +1,67 @@
-import 'package:dio/dio.dart';
-import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+// import 'package:dio/dio.dart';
+// import 'package:pos_fe/core/constants/constants.dart';
+// import 'package:sqflite/sqflite.dart';
 
-class MOPApi {
-  final Database db;
-  final dio = Dio();
-  String token = Constant.token;
-  String url = Constant.url;
+// class MOPApi {
+//   final Dio _dio;
+//   String token = Constant.token;
+//   String url = Constant.url;
 
-  MOPApi(this.db);
+//   MOPApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
-    try {
-      int page = 1;
-      bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+//   Future<List<MOPModel>> fetchData() async {
+//     try {
+//       int page = 1;
+//       bool hasMoreData = true;
+//       List<MOPModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await dio.get(
-          "$url/tenant-means-of-payment/all/?page=$page",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+//       while (hasMoreData) {
+//         final response = await _dio.get(
+//           "$url/tenant-means-of-payment/all/?page=$page",
+//           options: Options(
+//             headers: {
+//               'Authorization': 'Bearer $token',
+//             },
+//           ),
+//         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
-        allData.addAll(data);
+//         List<MOPModel> data =
+//             (response.data as List).map((e) => MOPModel.fromMap(e)).toList();
+//         // log(check.toString());
+//         allData.addAll(data);
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
+//         if (data.isEmpty) {
+//           hasMoreData = false;
+//         } else {
+//           page++;
+//         }
+//       }
 
-      return allData;
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
+//       return allData;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
-    try {
-      final response = await dio.get(
-        "$url/tenant-means-of-payment/docid/$docid",
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      // log([response.data].toString());
+//   Future<MOPModel> fetchSingleData(String docid) async {
+//     try {
+//       final response = await _dio.get(
+//         "$url/tenant-means-of-payment/docid/$docid",
+//         options: Options(
+//           headers: {
+//             'Authorization': 'Bearer $token',
+//           },
+//         ),
+//       );
+//       // log([response.data].toString());
 
-      return [response.data];
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
-}
+//       MOPModel datum = MOPModel.fromMap(response.data);
+
+//       return datum;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
+// }

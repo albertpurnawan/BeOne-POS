@@ -1,65 +1,67 @@
-import 'package:dio/dio.dart';
-import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+// import 'package:dio/dio.dart';
+// import 'package:pos_fe/core/constants/constants.dart';
+// import 'package:sqflite/sqflite.dart';
 
-class TaxApi {
-  final Database db;
-  final dio = Dio();
-  String token = Constant.token;
-  String url = Constant.url;
+// class TaxApi {
+//   final Dio _dio;
+//   String token = Constant.token;
+//   String url = Constant.url;
 
-  TaxApi(this.db);
+//   TaxApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
-    try {
-      int page = 1;
-      bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+//   Future<List<TaxModel>> fetchData() async {
+//     try {
+//       int page = 1;
+//       bool hasMoreData = true;
+//       List<TaxModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await dio.get(
-          "$url/tenant-tax-master?page=$page",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+//       while (hasMoreData) {
+//         final response = await _dio.get(
+//           "$url/tenant-tax-master?page=$page",
+//           options: Options(
+//             headers: {
+//               'Authorization': 'Bearer $token',
+//             },
+//           ),
+//         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
-        allData.addAll(data);
+//         final List<TaxModel> data =
+//             (response.data as List).map((e) => TaxModel.fromMap(e)).toList();
+//         // log(check.toString());
+//         allData.addAll(data);
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
+//         if (data.isEmpty) {
+//           hasMoreData = false;
+//         } else {
+//           page++;
+//         }
+//       }
 
-      return allData;
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
+//       return allData;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
-    try {
-      final response = await dio.get(
-        "$url/tenant-tax-master/$docid",
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      // log([response.data].toString());
+//   Future<TaxModel> fetchSingleData(String docid) async {
+//     try {
+//       final response = await _dio.get(
+//         "$url/tenant-tax-master/$docid",
+//         options: Options(
+//           headers: {
+//             'Authorization': 'Bearer $token',
+//           },
+//         ),
+//       );
+//       // log([response.data].toString());
 
-      return [response.data];
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
-}
+//       TaxModel datum = TaxModel.fromMap(response.data);
+
+//       return datum;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
+// }

@@ -4,7 +4,7 @@ const String tableUom = 'touom';
 
 class UomFields {
   static const List<String> values = [
-    id,
+    // id,
     docId,
     createDate,
     updateDate,
@@ -14,7 +14,7 @@ class UomFields {
     activated,
   ];
 
-  static const String id = "_id";
+  // static const String id = "_id";
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
@@ -26,7 +26,7 @@ class UomFields {
 
 class UomModel extends UomEntity {
   UomModel({
-    required super.id,
+    // required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -39,7 +39,7 @@ class UomModel extends UomEntity {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
+      // 'id': id,
       'docId': docId,
       'createDate': createDate.toUtc().toIso8601String(),
       'updateDate': updateDate?.toUtc().toIso8601String(),
@@ -52,7 +52,7 @@ class UomModel extends UomEntity {
 
   factory UomModel.fromMap(Map<String, dynamic> map) {
     return UomModel(
-      id: map['id'] as int, // id not returned
+      // id: map['id'] as int, // id not returned
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
@@ -61,9 +61,22 @@ class UomModel extends UomEntity {
       uomCode: map['uomcode'] as String,
       uomDesc: map['uomdesc'] as String,
       // statusActive returned int
-      statusActive: map['statusactive'] as bool,
+      statusActive: map['statusactive'] as int,
       // activated returned int
-      activated: map['activated'] as bool,
+      activated: map['activated'] as int,
+    );
+  }
+
+  factory UomModel.fromEntity(UomEntity entity) {
+    return UomModel(
+      // id: entity.id,
+      docId: entity.docId,
+      createDate: entity.createDate,
+      updateDate: entity.updateDate,
+      uomCode: entity.uomCode,
+      uomDesc: entity.uomDesc,
+      statusActive: entity.statusActive,
+      activated: entity.activated,
     );
   }
 }

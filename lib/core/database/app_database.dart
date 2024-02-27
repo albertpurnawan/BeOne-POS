@@ -1,29 +1,7 @@
 import 'package:path/path.dart';
-import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/barcode_item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/closing_store_transactions_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_adjustment_transactions_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/opening_store_transactions_services.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_barcode_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
@@ -32,57 +10,13 @@ class AppDatabase {
 
   Database? _database;
 
-  late ItemsApi itemsApi;
+  late ItemsDaoTest itemsDaoTest;
   late ItemsDao itemsDao;
-  late UsersApi usersApi;
-  late UsersDao usersDao;
-  late UoMApi uomApi;
-  late ItemCategoryApi itemCategoryApi;
-  late PricelistApi pricelistApi;
-  late PricelistPeriodApi pricelistPeriodApi;
-  late StoreApi storeApi;
-  late MOPApi mopApi;
-  late CashRegisterApi cashRegisterApi;
-  late TaxApi taxApi;
-  late CustomerGroupApi customerGroupApi;
-  late CustomerApi customerApi;
-  late BarcodeItemApi barcodeItemApi;
-  late PriceByItemApi priceByItemApi;
-  late PriceByItemBarcodeApi priceByItemBarcodeApi;
-  late MOPAdjustmentApi mopAdjustmentApi;
-  late OpeningStoreApi openingStoreApi;
-  late ClosingStoreApi closingStoreApi;
-  late final CurrencyDao currencyDao;
-  late CurrencyApi currencyApi;
-  late ProductHierarchyMasterApi productHierarchyMasterApi;
-  late ProductHierarchyApi productHierarchyApi;
 
   AppDatabase() {
     getDB().then((value) {
-      itemsApi = ItemsApi(_database!);
+      itemsDaoTest = ItemsDaoTest(_database!);
       itemsDao = ItemsDao(_database!);
-      usersApi = UsersApi(_database!);
-      usersDao = UsersDao(_database!);
-      uomApi = UoMApi(_database!);
-      itemCategoryApi = ItemCategoryApi(_database!);
-      pricelistApi = PricelistApi(_database!);
-      pricelistPeriodApi = PricelistPeriodApi(_database!);
-      storeApi = StoreApi(_database!);
-      mopApi = MOPApi(_database!);
-      cashRegisterApi = CashRegisterApi(_database!);
-      taxApi = TaxApi(_database!);
-      customerGroupApi = CustomerGroupApi(_database!);
-      customerApi = CustomerApi(_database!);
-      barcodeItemApi = BarcodeItemApi(_database!);
-      priceByItemApi = PriceByItemApi(_database!);
-      priceByItemBarcodeApi = PriceByItemBarcodeApi(_database!);
-      mopAdjustmentApi = MOPAdjustmentApi(_database!);
-      openingStoreApi = OpeningStoreApi(_database!);
-      closingStoreApi = ClosingStoreApi(_database!);
-      currencyDao = CurrencyDao(_database!);
-      currencyApi = CurrencyApi(_database!);
-      productHierarchyMasterApi = ProductHierarchyMasterApi(_database!);
-      productHierarchyApi = ProductHierarchyApi(_database!);
     });
   }
 
@@ -358,6 +292,41 @@ CREATE TABLE `tpln1` (
       });
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future upsertUsers(List<dynamic> obj) async {
+    try {
+      Database db = await getDB();
+
+      await db.transaction((txn) async {
+        await txn.rawInsert('''
+        INSERT OR REPLACE INTO users (
+          docid, createdate, updatedate, gtentId, email, username, password,
+          tohemId, torolId, statusactive, activated, superuser, provider,
+          usertype, trolleyuser
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+        ON CONFLICT(docid) DO UPDATE SET
+        createdate = excluded.createdate,
+        updatedate = excluded.updatedate,
+        gtentId = excluded.gtentId,
+        email = excluded.email,
+        username = excluded.username,
+        password = excluded.password,
+        tohemId = excluded.tohemId,
+        torolId = excluded.torolId,
+        statusactive = excluded.statusactive,
+        activated = excluded.activated,
+        superuser = excluded.superuser,
+        provider = excluded.provider,
+        usertype = excluded.usertype,
+        trolleyuser = excluded.trolleyuser
+        ''', obj);
+      });
+    } catch (err) {
+      print(err);
     }
   }
 

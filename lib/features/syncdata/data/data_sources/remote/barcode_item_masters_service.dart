@@ -1,66 +1,69 @@
-import 'package:dio/dio.dart';
-import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+// import 'package:dio/dio.dart';
+// import 'package:pos_fe/core/constants/constants.dart';
+// import 'package:sqflite/sqflite.dart';
 
-class BarcodeItemApi {
-  final Database db;
-  final dio = Dio();
-  String token = Constant.token;
-  String url = Constant.url;
-  String toitm_id = '338d765e-38fc-4f9b-b24f-039d407fd66c';
+// class BarcodeItemApi {
+//   final Dio _dio;
+//   String token = Constant.token;
+//   String url = Constant.url;
+//   String toitm_id = '338d765e-38fc-4f9b-b24f-039d407fd66c';
 
-  BarcodeItemApi(this.db);
+//   BarcodeItemApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
-    try {
-      int page = 1;
-      bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+//   Future<List<BarcodeItemModel>> fetchData() async {
+//     try {
+//       int page = 1;
+//       bool hasMoreData = true;
+//       List<BarcodeItemModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await dio.get(
-          "$url/tenant-barcode-item?toitm_id=$toitm_id&page=$page",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+//       while (hasMoreData) {
+//         final response = await _dio.get(
+//           "$url/tenant-barcode-item?toitm_id=$toitm_id&page=$page",
+//           options: Options(
+//             headers: {
+//               'Authorization': 'Bearer $token',
+//             },
+//           ),
+//         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
-        allData.addAll(data);
+//         List<BarcodeItemModel> data = (response.data as List)
+//             .map((e) => BarcodeItemModel.fromMap(e))
+//             .toList();
+//         // log(check.toString());
+//         allData.addAll(data);
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
+//         if (data.isEmpty) {
+//           hasMoreData = false;
+//         } else {
+//           page++;
+//         }
+//       }
 
-      return allData;
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
+//       return allData;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
-    try {
-      final response = await dio.get(
-        "$url/tenant-barcode-item/$docid",
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      // log([response.data].toString());
+//   Future<List<BarcodeItemModel>> fetchSingleData(String docid) async {
+//     try {
+//       final response = await _dio.get(
+//         "$url/tenant-barcode-item/$docid",
+//         options: Options(
+//           headers: {
+//             'Authorization': 'Bearer $token',
+//           },
+//         ),
+//       );
+//       // log([response.data].toString());
 
-      return [response.data];
-    } catch (err) {
-      print('Error: $err');
-      rethrow;
-    }
-  }
-}
+//       BarcodeItemModel datum = BarcodeItemModel.fromMap(response.data);
+
+//       return datum;
+//     } catch (err) {
+//       print('Error: $err');
+//       rethrow;
+//     }
+//   }
+// }

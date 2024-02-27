@@ -1,4 +1,4 @@
-class Users {
+class UsersModel {
   // final int? id;
   final String docid;
   final DateTime createdate;
@@ -16,7 +16,7 @@ class Users {
   final int? usertype;
   final String? trolleyuser;
 
-  Users(
+  UsersModel(
       {required this.docid,
       required this.createdate,
       this.updatedate,
@@ -35,7 +35,7 @@ class Users {
 
   @override
   String toString() {
-    return '''Users{
+    return '''UsersModel{
       docid: $docid,
       createdate: $createdate,
       updatedate: $updatedate,
@@ -54,8 +54,8 @@ class Users {
       }''';
   }
 
-  factory Users.fromJson(Map<String, dynamic> json) {
-    return Users(
+  factory UsersModel.fromJson(Map<String, dynamic> json) {
+    return UsersModel(
       docid: json['docid'],
       createdate: DateTime.parse(json['createdate']),
       updatedate: DateTime.parse(json['updatedate']),

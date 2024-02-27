@@ -1,23 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:pos_fe/core/resources/data_sources_enum.dart';
+import 'package:pos_fe/features/sales/data/models/currency.dart';
 
 class CurrencyApi {
-  final Database db;
-  final dio = Dio();
+  final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  CurrencyApi(this.db);
+  CurrencyApi(this._dio);
 
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  Future<List<CurrencyModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<Map<String, dynamic>> allData = [];
+      List<CurrencyModel> allData = [];
 
       while (hasMoreData) {
-        final response = await dio.get(
+        final response = await _dio.get(
           "$url/tenant-master-currency?page=$page",
           options: Options(
             headers: {
@@ -26,8 +26,10 @@ class CurrencyApi {
           ),
         );
 
-        final List<Map<String, dynamic>> data =
-            response.data.cast<Map<String, dynamic>>();
+        List<CurrencyModel> data = (response.data as List)
+            .map((e) => CurrencyModel.fromMapByDataSource(DataSource.local, e))
+            .toList();
+        // log(check.toString());
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -37,12 +39,6 @@ class CurrencyApi {
         }
       }
 
-      for (var element in [allData[0]]) {
-        element.forEach((key, value) {
-          print('$key: ${value.runtimeType} $value');
-        });
-      }
-
       return allData;
     } catch (err) {
       print('Error: $err');
@@ -50,9 +46,9 @@ class CurrencyApi {
     }
   }
 
-  Future<List<dynamic>> fetchSingleData(String docid) async {
+  Future<CurrencyModel> fetchSingleData(String docid) async {
     try {
-      final response = await dio.get(
+      final response = await _dio.get(
         "$url/tenant-master-currency/$docid",
         options: Options(
           headers: {
@@ -66,7 +62,10 @@ class CurrencyApi {
       //   });
       // }
 
-      return [response.data];
+      CurrencyModel datum =
+          CurrencyModel.fromMapByDataSource(DataSource.local, response.data);
+
+      return datum;
     } catch (err) {
       print('Error: $err');
       rethrow;
