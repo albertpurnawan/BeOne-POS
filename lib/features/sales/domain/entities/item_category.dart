@@ -2,19 +2,19 @@
 import 'dart:convert';
 
 class ItemCategoryEntity {
-  final int id;
+  // final int id;
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
   final String catCode;
   final String catName;
   final String catNameFrgn;
-  final int? parentId;
+  final String? parentId;
   final int level;
-  final int? phir1Id;
+  final String? phir1Id;
 
   ItemCategoryEntity({
-    required this.id,
+    // required this.id,
     required this.docId,
     required this.createDate,
     required this.updateDate,
@@ -27,19 +27,19 @@ class ItemCategoryEntity {
   });
 
   ItemCategoryEntity copyWith({
-    int? id,
+    // int? id,
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
     String? catCode,
     String? catName,
     String? catNameFrgn,
-    int? parentId,
+    String? parentId,
     int? level,
-    int? phir1Id,
+    String? phir1Id,
   }) {
     return ItemCategoryEntity(
-      id: id ?? this.id,
+      // id: id ?? this.id,
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
@@ -54,7 +54,7 @@ class ItemCategoryEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
+      // 'id': id,
       'docId': docId,
       'createDate': createDate.toIso8601String(),
       'updateDate': updateDate?.toIso8601String(),
@@ -69,7 +69,7 @@ class ItemCategoryEntity {
 
   factory ItemCategoryEntity.fromMap(Map<String, dynamic> map) {
     return ItemCategoryEntity(
-      id: map['id'] as int,
+      // id: map['id'] as int,
       docId: map['docId'] as String,
       createDate: DateTime.parse(map['createDate']),
       updateDate:
@@ -77,9 +77,13 @@ class ItemCategoryEntity {
       catCode: map['catCode'] as String,
       catName: map['catName'] as String,
       catNameFrgn: map['catNameFrgn'] as String,
-      parentId: map['parentId'] != null ? map['parentId'] as int : null,
+      parentId: map['parent_id']['docid'] != null
+          ? map['parent_id']['docid'] as String
+          : null,
       level: map['level'] as int,
-      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
+      phir1Id: map['phlir1_id']['docid'] != null
+          ? map['phlir1_id']['docid'] as String
+          : null,
     );
   }
 
@@ -90,36 +94,38 @@ class ItemCategoryEntity {
 
   @override
   String toString() {
-    return 'ItemCategoryEntity(id: $id, docId: $docId, createDate: $createDate, updateDate: $updateDate, catCode: $catCode, catName: $catName, catNameFrgn: $catNameFrgn, parentId: $parentId, level: $level, phir1Id: $phir1Id)';
+    return 'ItemCategoryEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, catCode: $catCode, catName: $catName, catNameFrgn: $catNameFrgn, parentId: $parentId, level: $level, phir1Id: $phir1Id)';
   }
 
   @override
   bool operator ==(covariant ItemCategoryEntity other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
+    return
+        // other.id == id &&
         other.docId == docId &&
-        other.createDate == createDate &&
-        other.updateDate == updateDate &&
-        other.catCode == catCode &&
-        other.catName == catName &&
-        other.catNameFrgn == catNameFrgn &&
-        other.parentId == parentId &&
-        other.level == level &&
-        other.phir1Id == phir1Id;
+            other.createDate == createDate &&
+            other.updateDate == updateDate &&
+            other.catCode == catCode &&
+            other.catName == catName &&
+            other.catNameFrgn == catNameFrgn &&
+            other.parentId == parentId &&
+            other.level == level &&
+            other.phir1Id == phir1Id;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^
+    return
+        // id.hashCode ^
         docId.hashCode ^
-        createDate.hashCode ^
-        updateDate.hashCode ^
-        catCode.hashCode ^
-        catName.hashCode ^
-        catNameFrgn.hashCode ^
-        parentId.hashCode ^
-        level.hashCode ^
-        phir1Id.hashCode;
+            createDate.hashCode ^
+            updateDate.hashCode ^
+            catCode.hashCode ^
+            catName.hashCode ^
+            catNameFrgn.hashCode ^
+            parentId.hashCode ^
+            level.hashCode ^
+            phir1Id.hashCode;
   }
 }

@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/resources/data_sources_enum.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/item_category.dart';
 
 class ItemCategoryApi {
@@ -39,15 +42,10 @@ class ItemCategoryApi {
         }
       }
       // log(allData[0].toString());
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     log('$key: ${value.runtimeType} $value');
-      //   });
-      // }
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -62,14 +60,17 @@ class ItemCategoryApi {
           },
         ),
       );
-      // log([response.data].toString());
+      log(response.data.toString());
+
+      if (response.data == null) throw Exception('Null Data');
 
       ItemCategoryModel datum = ItemCategoryModel.fromMapByDataSource(
           DataSource.local, response.data);
 
+      log(datum.toString());
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
