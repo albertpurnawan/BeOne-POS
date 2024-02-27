@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/resources/data_sources_enum.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 
 class CurrencyApi {
@@ -41,7 +42,7 @@ class CurrencyApi {
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -56,18 +57,15 @@ class CurrencyApi {
           },
         ),
       );
-      // for (var element in [response.data]) {
-      //   element.forEach((key, value) {
-      //     print('Type of $key: ${value.runtimeType}');
-      //   });
-      // }
+
+      if (response.data == null) throw Exception('Null Data');
 
       CurrencyModel datum =
           CurrencyModel.fromMapByDataSource(DataSource.local, response.data);
 
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }

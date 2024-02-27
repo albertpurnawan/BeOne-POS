@@ -39,9 +39,25 @@ Map<String, dynamic> handleError(dynamic error) {
       default:
         resp['statusCode'] = 500;
         resp['message'] = 'Unknown Dio Error';
+        break;
     }
     return resp;
   }
+
+  if (error is Exception) {
+    switch (error.toString()) {
+      case 'Exception: Null Data':
+        resp['statusCode'] = 404;
+        resp['message'] = 'Data not found';
+        break;
+      default:
+        resp['statusCode'] = 500;
+        resp['message'] = 'Something Something Happened';
+        break;
+    }
+    return resp;
+  }
+
   resp['statusCode'] = 500;
   resp['message'] = 'Something Went Wrong';
   return resp;
