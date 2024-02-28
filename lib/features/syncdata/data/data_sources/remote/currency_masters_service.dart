@@ -62,6 +62,7 @@ class CurrencyApi {
       if (response.data == null) throw Exception('Null Data');
 
       CurrencyModel datum = CurrencyModel.fromMap(response.data);
+
       // log(datum.toString());
       return datum;
     } catch (err) {
