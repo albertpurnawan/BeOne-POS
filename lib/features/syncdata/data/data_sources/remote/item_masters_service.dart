@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
@@ -27,7 +29,7 @@ class ItemsApi {
         );
 
         final List<ItemMasterModel> data = (response.data as List)
-            .map((e) => ItemMasterModel.fromMap(e))
+            .map((e) => ItemMasterModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
 
@@ -37,6 +39,7 @@ class ItemsApi {
           page++;
         }
       }
+      log(allData.toString());
 
       return allData;
     } catch (err) {
@@ -57,8 +60,9 @@ class ItemsApi {
       );
       // log([response.data].toString());
 
-      ItemMasterModel datum = ItemMasterModel.fromMap(response.data);
+      ItemMasterModel datum = ItemMasterModel.fromMapRemote(response.data);
 
+      // log(datum.toString());
       return datum;
     } catch (err) {
       print('Error: $err');

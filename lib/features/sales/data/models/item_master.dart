@@ -35,7 +35,7 @@ class ItemMasterFields {
   ];
 
   static const String id = "id";
-  static const String docId = "docId";
+  static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
   static const String itemCode = "itemcode";
@@ -97,55 +97,55 @@ class ItemMasterModel extends ItemMasterEntity {
   factory ItemMasterModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemMasterModel.fromMap({
       ...map,
-      "minStock": map['minStock'].toDouble(),
-      "maxStock": map['maxStock'].toDouble(),
-      "margin": map['margin']?.toDouble(),
-      "tocatId": map['tocatId']?['docid'] != null
-          ? map['tocatId']['docid'] as String
+      "minStock": map['minstock'].toDouble() as double,
+      "maxStock": map['maxstock'].toDouble() as double,
+      "margin": map['margin']?.toDouble() as double,
+      "tocatId": map['tocat_id']?['docid'] != null
+          ? map['tocat_id']['docid'] as String
           : null,
-      "touomId": map['touomId']?['docid'] != null
-          ? map['touomId']['docid'] as String
+      "touomId": map['touom_id']?['docid'] != null
+          ? map['touom_id']['docid'] as String
           : null,
     });
   }
 
   factory ItemMasterModel.fromMap(Map<String, dynamic> map) {
     return ItemMasterModel(
-      docId: map['docId'] as String,
-      createDate: DateTime.parse(map['createDate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
-          ? DateTime.parse(map['updateDate'] as String).toLocal()
+      docId: map['docid'] as String,
+      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
+      updateDate: map['updatedate'] != null
+          ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      itemCode: map['itemCode'] as String,
-      itemName: map['itemName'] as String,
-      invItem: map['invItem'] as int,
-      serialNo: map['serialNo'] as int,
+      itemCode: map['itemcode'] as String,
+      itemName: map['itemname'] as String,
+      invItem: map['invitem'] as int,
+      serialNo: map['serialno'] as int,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       touomId: map['touomId'] != null ? map['touomId'] as String : null,
       minStock: map['minStock'],
       maxStock: map['maxStock'],
-      includeTax: map['includeTax'] as int,
+      includeTax: map['includetax'] as int,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      statusActive: map['statusActive'] as int,
+      statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
-      isBatch: map['isBatch'] as int,
-      internalCode_1: map['internalCode_1'] != null
-          ? map['internalCode_1'] as String
+      isBatch: map['isbatch'] as int,
+      internalCode_1: map['internalcode_1'] != null
+          ? map['internalcode_1'] as String
           : null,
-      internalCode_2: map['internalCode_2'] != null
-          ? map['internalCode_2'] as String
+      internalCode_2: map['internalcode_2'] != null
+          ? map['internalcode_2'] as String
           : null,
-      openPrice: map['openPrice'] as int,
-      popItem: map['popItem'] as int,
+      openPrice: map['openprice'] as int,
+      popItem: map['popitem'] as int,
       bpom: map['bpom'] != null ? map['bpom'] as String : null,
-      expDate: map['expDate'] != null ? map['expDate'] as String : null,
+      expDate: map['expdate'] != null ? map['expdate'] as String : null,
       // margin returned int
       margin: map['margin'] != null ? map['margin'] as double : null,
       memberDiscount:
-          map['memberDiscount'] != null ? map['memberDiscount'] as int : null,
+          map['memberdiscount'] != null ? map['memberdiscount'] as int : null,
       multiplyOrder:
-          map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
-      mergeQuantity: map['mergeQuantity'] as int,
+          map['multiplyorder'] != null ? map['multiplyorder'] as int : null,
+      mergeQuantity: map['mergequantity'] as int,
     );
   }
 
