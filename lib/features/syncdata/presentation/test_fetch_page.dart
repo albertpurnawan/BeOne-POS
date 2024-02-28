@@ -61,8 +61,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data =
-          await GetIt.instance<ProductHierarchyMasterApi>().fetchData();
+      final data = await GetIt.instance<ProductHierarchyApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -85,8 +84,8 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final datum = await GetIt.instance<ProductHierarchyMasterApi>()
-          .fetchSingleData(docid);
+      final datum =
+          await GetIt.instance<ProductHierarchyApi>().fetchSingleData(docid);
       print(datum);
       setState(() {
         _singleData = datum.docId;

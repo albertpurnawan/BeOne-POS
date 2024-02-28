@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/features/sales/data/models/product_hierarchy.dart';
@@ -37,12 +39,7 @@ class ProductHierarchyApi {
           page++;
         }
       }
-
-      // for (var element in [allData[0]]) {
-      //   element.forEach((key, value) {
-      //     log('$key: ${value.runtimeType} $value');
-      //   });
-      // }
+      log(allData[0].toString());
 
       return allData;
     } catch (err) {
@@ -61,11 +58,13 @@ class ProductHierarchyApi {
           },
         ),
       );
-      // log([response.data].toString());
+      log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
       ProductHierarchyModel datum =
           ProductHierarchyModel.fromMap(response.data);
 
+      log(datum.toString());
       return datum;
     } catch (err) {
       print('Error: $err');
