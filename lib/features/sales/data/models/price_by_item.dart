@@ -80,14 +80,39 @@ class PriceByItemModel extends PriceByItemEntity {
   factory PriceByItemModel.fromMapRemote(Map<String, dynamic> map) {
     return PriceByItemModel.fromMap({
       ...map,
-      "tpln1Id": map['tpln1Id']?['docid'] != null
-          ? map['tpln1Id']['docid'] as String
+      "tpln1Id": map['tpln1_id']?['docid'] != null
+          ? map['tpln1_id']['docid'] as String
           : null,
-      "toitmId": map['toitmId']?['docid'] != null
-          ? map['toitmId']['docid'] as String
+      "toitmId": map['toitm_id']?['docid'] != null
+          ? map['toitm_id']['docid'] as String
           : null,
-      "tcurrId": map['tcurrId']?['docid'] != null
-          ? map['tcurrId']['docid'] as String
+      "tcurrId": map['tcurr_id']?['docid'] != null
+          ? map['tcurr_id']['docid'] as String
+          : null,
+      "price": map['price'].toDouble() as double,
+      "purchaseprice": map['purchaseprice'] != null
+          ? map['purchaseprice'].toDouble() as double
+          : null,
+      "calculatedprice": map['calculatedprice'] != null
+          ? map['calculatedprice'].toDouble() as double
+          : null,
+      "marginpercentage": map['marginpercentage'] != null
+          ? map['marginpercentage'].toDouble() as double
+          : null,
+      "marginvalue": map['marginvalue'] != null
+          ? map['marginvalue'].toDouble() as double
+          : null,
+      "costprice": map['costprice'] != null
+          ? map['costprice'].toDouble() as double
+          : null,
+      "afterrounding": map['afterrounding'] != null
+          ? map['afterrounding'].toDouble() as double
+          : null,
+      "beforerounding": map['beforerounding'] != null
+          ? map['beforerounding'].toDouble() as double
+          : null,
+      "roundingdiff": map['roundingdiff'] != null
+          ? map['roundingdiff'].toDouble() as double
           : null,
     });
   }

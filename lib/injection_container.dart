@@ -49,7 +49,7 @@ Future<void> initializeDependencies() async {
   // sl.registerSingleton<MOPApi>(MOPApi(sl()));
   // sl.registerSingleton<OpeningStoreApi>(OpeningStoreApi(sl()));
   sl.registerSingleton<PriceByItemBarcodeApi>(PriceByItemBarcodeApi(sl()));
-  // sl.registerSingleton<PriceByItemApi>(PriceByItemApi(sl()));
+  sl.registerSingleton<PriceByItemApi>(PriceByItemApi(sl()));
   // sl.registerSingleton<StoreApi>(StoreApi(sl()));
   // sl.registerSingleton<TaxApi>(TaxApi(sl()));
   sl.registerSingleton<UsersApi>(UsersApi(sl()));
