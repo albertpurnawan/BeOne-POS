@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/pricelist.dart';
 
 class PricelistApi {
@@ -26,7 +29,7 @@ class PricelistApi {
         );
 
         List<PricelistModel> data = (response.data as List)
-            .map((e) => PricelistModel.fromMap(e))
+            .map((e) => PricelistModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
 
@@ -36,10 +39,11 @@ class PricelistApi {
           page++;
         }
       }
+      log(allData[0].toString());
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -56,11 +60,14 @@ class PricelistApi {
       );
       // log([response.data].toString());
 
-      PricelistModel datum = PricelistModel.fromMap(response.data);
+      if (response.data == null) throw Exception('Null Data');
 
+      PricelistModel datum = PricelistModel.fromMapRemote(response.data);
+
+      // log(datum.toString());
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
