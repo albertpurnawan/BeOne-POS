@@ -39,7 +39,7 @@ class PricelistApi {
           page++;
         }
       }
-      log(allData[0].toString());
+      // log(allData[0].toString());
 
       return allData;
     } catch (err) {
