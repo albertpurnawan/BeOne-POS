@@ -14,6 +14,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/closing_store_
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_adjustment_transactions_service.dart';
@@ -38,6 +39,7 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
   sl.registerSingleton<ItemBarcodeApi>(ItemBarcodeApi(sl()));
+  sl.registerSingleton<ItemByStoreApi>(ItemByStoreApi(sl()));
   // sl.registerSingleton<CashRegisterApi>(CashRegisterApi(sl()));
   // sl.registerSingleton<ClosingStoreApi>(ClosingStoreApi(sl()));
   sl.registerSingleton<CurrencyApi>(CurrencyApi(sl()));

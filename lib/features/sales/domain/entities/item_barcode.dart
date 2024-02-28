@@ -71,7 +71,9 @@ class ItemBarcodeEntity {
     return ItemBarcodeEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       barcode: map['barcode'] as String,
       statusActive: map['statusActive'] as int,
@@ -95,31 +97,30 @@ class ItemBarcodeEntity {
   @override
   bool operator ==(covariant ItemBarcodeEntity other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.docId == docId &&
-      other.createDate == createDate &&
-      other.updateDate == updateDate &&
-      other.toitmId == toitmId &&
-      other.barcode == barcode &&
-      other.statusActive == statusActive &&
-      other.activated == activated &&
-      other.quantity == quantity &&
-      other.touomId == touomId &&
-      other.dflt == dflt;
+
+    return other.docId == docId &&
+        other.createDate == createDate &&
+        other.updateDate == updateDate &&
+        other.toitmId == toitmId &&
+        other.barcode == barcode &&
+        other.statusActive == statusActive &&
+        other.activated == activated &&
+        other.quantity == quantity &&
+        other.touomId == touomId &&
+        other.dflt == dflt;
   }
 
   @override
   int get hashCode {
     return docId.hashCode ^
-      createDate.hashCode ^
-      updateDate.hashCode ^
-      toitmId.hashCode ^
-      barcode.hashCode ^
-      statusActive.hashCode ^
-      activated.hashCode ^
-      quantity.hashCode ^
-      touomId.hashCode ^
-      dflt.hashCode;
+        createDate.hashCode ^
+        updateDate.hashCode ^
+        toitmId.hashCode ^
+        barcode.hashCode ^
+        statusActive.hashCode ^
+        activated.hashCode ^
+        quantity.hashCode ^
+        touomId.hashCode ^
+        dflt.hashCode;
   }
 }

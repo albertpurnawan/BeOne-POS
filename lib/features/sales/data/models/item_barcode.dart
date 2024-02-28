@@ -45,11 +45,11 @@ class ItemBarcodeModel extends ItemBarcodeEntity {
   factory ItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemBarcodeModel.fromMap({
       ...map,
-      "toitmId": map['toitmId']?['docid'] != null
-          ? map['toitmId']['docid'] as String
+      "toitmId": map['toitm_id']?['docid'] != null
+          ? map['toitm_id']['docid'] as String
           : null,
-      "touomId": map['touomId']?['docid'] != null
-          ? map['touomId']['docid'] as String
+      "touomId": map['touom_id']?['docid'] != null
+          ? map['touom_id']['docid'] as String
           : null,
       "quantity": map['quantity'].toDouble() as double,
     });
