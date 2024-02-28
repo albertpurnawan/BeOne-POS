@@ -66,7 +66,6 @@ class ItemMasterFields {
 
 class ItemMasterModel extends ItemMasterEntity {
   ItemMasterModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -95,24 +94,31 @@ class ItemMasterModel extends ItemMasterEntity {
     required super.mergeQuantity,
   });
 
+  factory ItemMasterModel.fromMapRemote(Map<String, dynamic> map) {
+    return ItemMasterModel.fromMap({
+      ...map,
+      "tocatId": map['tocatId']?['docid'] != null ? map['tocatId']['docid'] as String : null,
+      "touomId": map['touomId']?['docid'] != null ? map['touomId']['docid'] as String : null,
+    });
+  }
+
   factory ItemMasterModel.fromMap(Map<String, dynamic> map) {
     return ItemMasterModel(
-      id: map['_id'] as int,
       docId: map['docId'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
+      createDate: DateTime.parse(map['createDate'] as String)
           .toLocal(),
       updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          ? DateTime.parse(map['updateDate'] as String)
               .toLocal()
           : null,
       itemCode: map['itemCode'] as String,
       itemName: map['itemName'] as String,
       invItem: map['invItem'] as int,
       serialNo: map['serialNo'] as int,
-      tocatId: map['tocatId'] != null ? map['tocatId'] as int : null,
-      touomId: map['touomId'] != null ? map['touomId'] as int : null,
-      minStock: map['minStock'] as double,
-      maxStock: map['maxStock'] as double,
+      tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
+      touomId: map['touomId'] != null ? map['touomId'] as String : null,
+      minStock: map['minStock'] as int,
+      maxStock: map['maxStock'] as int,
       includeTax: map['includeTax'] as int,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       statusActive: map['statusActive'] as int,
@@ -128,7 +134,7 @@ class ItemMasterModel extends ItemMasterEntity {
       popItem: map['popItem'] as int,
       bpom: map['bpom'] != null ? map['bpom'] as String : null,
       expDate: map['expDate'] != null ? map['expDate'] as String : null,
-      margin: map['margin'] != null ? map['margin'] as double : null,
+      margin: map['margin'] != null ? map['margin'] as int : null,
       memberDiscount:
           map['memberDiscount'] != null ? map['memberDiscount'] as int : null,
       multiplyOrder:
@@ -140,10 +146,9 @@ class ItemMasterModel extends ItemMasterEntity {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      '_id': id,
       'docid': docId,
-      'createdate': createDate.toUtc().millisecondsSinceEpoch,
-      'updatedate': updateDate?.toUtc().millisecondsSinceEpoch,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'itemcode': itemCode,
       'itemname': itemName,
       'invitem': invItem,
@@ -172,7 +177,6 @@ class ItemMasterModel extends ItemMasterEntity {
 
   factory ItemMasterModel.fromEntity(ItemMasterEntity entity) {
     return ItemMasterModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,

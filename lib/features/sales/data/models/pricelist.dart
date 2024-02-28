@@ -18,7 +18,6 @@ class PricelistFields {
     activated,
   ];
 
-  static const String id = "_id";
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
@@ -35,7 +34,6 @@ class PricelistFields {
 
 class PricelistModel extends PricelistEntity {
   PricelistModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -53,10 +51,9 @@ class PricelistModel extends PricelistEntity {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      '_id': id,
       'docid': docId,
-      'createdate': createDate.toUtc().millisecondsSinceEpoch,
-      'updatedate': updateDate?.toUtc().millisecondsSinceEpoch,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'pricecode': priceCode,
       'description': description,
       'baseprice': basePrice,
@@ -69,22 +66,28 @@ class PricelistModel extends PricelistEntity {
     };
   }
 
+  factory PricelistModel.fromMapRemote(Map<String, dynamic> map) {
+    return PricelistModel.fromMap({
+      ...map,
+      "tcurrId": map['tcurrId']?['docid'] != null
+          ? map['tcurrId']['docid'] as String
+          : null,
+    });
+  }
+
   factory PricelistModel.fromMap(Map<String, dynamic> map) {
     return PricelistModel(
-      id: map['_id'] as int,
-      docId: map['docId'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
-          .toLocal(),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-              .toLocal()
+      docId: map['docid'] as String,
+      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
+      updateDate: map['updatedate'] != null
+          ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      priceCode: map['priceCode'] as String,
+      priceCode: map['pricecode'] as String,
       description: map['description'] as String,
-      basePrice: map['basePrice'] as int,
-      periodPrice: map['periodPrice'] as int,
+      basePrice: map['baseprice'] as int,
+      periodPrice: map['periodprice'] as int,
       factor: map['factor'] as double,
-      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as int : null,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       type: map['type'] as int,
       statusactive: map['statusactive'] as int,
       activated: map['activated'] as int,
@@ -93,7 +96,6 @@ class PricelistModel extends PricelistEntity {
 
   factory PricelistModel.fromEntity(PricelistEntity entity) {
     return PricelistModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,

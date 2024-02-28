@@ -4,9 +4,24 @@ import 'package:pos_fe/features/sales/domain/entities/item_by_store.dart';
 const String tableItemsByStore = "tsitm";
 
 class ItemsByStoreFields {
-  static const List<String> values = [];
+  static const List<String> values = [
+    docId,
+    createDate,
+    updateDate,
+    toitmId,
+    tostrId,
+    statusActive,
+    activated,
+    tovatId,
+    tovatIdPur,
+    maxStock,
+    minStock,
+    marginPercentage,
+    marginPrice,
+    multiplyOrder,
+    price,
+  ];
 
-  static const String id = "_id";
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
@@ -26,8 +41,7 @@ class ItemsByStoreFields {
 
 class ItemByStoreModel extends ItemByStoreEntity {
   ItemByStoreModel(
-      {required super.id,
-      required super.docId,
+      {required super.docId,
       required super.createDate,
       required super.updateDate,
       required super.toitmId,
@@ -43,9 +57,9 @@ class ItemByStoreModel extends ItemByStoreEntity {
       required super.multiplyOrder,
       required super.price});
 
-  Map<String, dynamic> toMapByDataSource(DataSource dataSource) {
+  @override
+  Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      dataSource == DataSource.local ? '_id' : 'id': id,
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
@@ -64,21 +78,38 @@ class ItemByStoreModel extends ItemByStoreEntity {
     };
   }
 
-  factory ItemByStoreModel.fromMapByDataSource(
-      DataSource dataSource, Map<String, dynamic> map) {
+  factory ItemByStoreModel.fromMapRemote(Map<String, dynamic> map) {
+    return ItemByStoreModel.fromMap({
+      ...map,
+      "toitmId": map['toitmId']?['docid'] != null
+          ? map['toitmId']['docid'] as String
+          : null,
+      "tostrId": map['tostrId']?['docid'] != null
+          ? map['tostrId']['docid'] as String
+          : null,
+      "tovatId": map['tovatId']?['docid'] != null
+          ? map['tovatId']['docid'] as String
+          : null,
+      "tovatPurId": map['tovatPurId']?['docid'] != null
+          ? map['tovatPurId']['docid'] as String
+          : null,
+    });
+  }
+
+  factory ItemByStoreModel.fromMap(Map<String, dynamic> map) {
     return ItemByStoreModel(
-      id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      toitmId: map['toitmId'] != null ? map['toitmId'] as int : null,
-      tostrId: map['tostrId'] != null ? map['tostrId'] as int : null,
+      toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
+      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
-      tovatId: map['tovatId'] != null ? map['tovatId'] as int : null,
-      tovatIdPur: map['tovatIdPur'] != null ? map['tovatIdPur'] as int : null,
+      tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
+      tovatIdPur:
+          map['tovatIdPur'] != null ? map['tovatIdPur'] as String : null,
       maxStock: map['maxstock'] != null ? map['maxstock'] as double : null,
       minStock: map['minstock'] != null ? map['minstock'] as double : null,
       marginPercentage: map['marginpercentage'] != null
@@ -94,7 +125,6 @@ class ItemByStoreModel extends ItemByStoreEntity {
 
   factory ItemByStoreModel.fromEntity(ItemByStoreEntity entity) {
     return ItemByStoreModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,

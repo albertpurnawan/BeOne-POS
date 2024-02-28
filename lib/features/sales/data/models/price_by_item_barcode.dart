@@ -1,11 +1,9 @@
-import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/domain/entities/price_by_item_barcode.dart';
 
 const String tablePricesByItemBarcode = "tpln4";
 
 class PriceByItemBarcodeFields {
   static const List<String> values = [
-    id,
     docId,
     createDate,
     updateDate,
@@ -15,7 +13,6 @@ class PriceByItemBarcodeFields {
     price,
   ];
 
-  static const String id = '_id';
   static const String docId = 'docid';
   static const String createDate = 'createdate';
   static const String updateDate = 'updatedate';
@@ -27,7 +24,6 @@ class PriceByItemBarcodeFields {
 
 class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity {
   PriceByItemBarcodeModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -37,9 +33,9 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity {
     required super.price,
   });
 
-  Map<String, dynamic> toMapByDataSource(DataSource dataSource) {
+  @override
+  Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      dataSource == DataSource.local ? '_id' : 'id': id,
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
@@ -50,25 +46,37 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity {
     };
   }
 
-  factory PriceByItemBarcodeModel.fromMapByDataSource(
-      DataSource dataSource, Map<String, dynamic> map) {
+  factory PriceByItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
+    return PriceByItemBarcodeModel.fromMap({
+      ...map,
+      "tpln2Id": map['tpln2Id']?['docid'] != null
+          ? map['tpln2Id']['docid'] as String
+          : null,
+      "tbitmId": map['tbitmId']?['docid'] != null
+          ? map['tbitmId']['docid'] as String
+          : null,
+      "tcurrId": map['tcurrId']?['docid'] != null
+          ? map['tcurrId']['docid'] as String
+          : null,
+    });
+  }
+
+  factory PriceByItemBarcodeModel.fromMap(Map<String, dynamic> map) {
     return PriceByItemBarcodeModel(
-      id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      tpln2Id: map['tpln2Id'] != null ? map['tpln2Id'] as int : null,
-      tbitmId: map['tbitmId'] != null ? map['tbitmId'] as int : null,
-      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as int : null,
+      tpln2Id: map['tpln2Id'] != null ? map['tpln2Id'] as String : null,
+      tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as int,
     );
   }
 
   factory PriceByItemBarcodeModel.fromEntity(PriceByItemBarcodeEntity entity) {
     return PriceByItemBarcodeModel(
-        id: entity.id,
         docId: entity.docId,
         createDate: entity.createDate,
         updateDate: entity.updateDate,

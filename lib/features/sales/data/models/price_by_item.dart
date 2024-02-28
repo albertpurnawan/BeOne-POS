@@ -1,11 +1,9 @@
-import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/domain/entities/price_by_item.dart';
 
 const String tablePricesByItem = "tpln2";
 
 class PriceByItemFields {
   static const List<String> values = [
-    id,
     docId,
     createDate,
     updateDate,
@@ -23,7 +21,6 @@ class PriceByItemFields {
     roundingDiff,
   ];
 
-  static const String id = "_id";
   static const String docId = 'docid';
   static const String createDate = 'createdate';
   static const String updateDate = 'updatedate';
@@ -43,7 +40,6 @@ class PriceByItemFields {
 
 class PriceByItemModel extends PriceByItemEntity {
   PriceByItemModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -61,9 +57,9 @@ class PriceByItemModel extends PriceByItemEntity {
     required super.roundingDiff,
   });
 
-  Map<String, dynamic> toMapByDataSource(DataSource dataSource) {
+  @override
+  Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      dataSource == DataSource.local ? '_id' : 'id': id,
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
@@ -81,18 +77,31 @@ class PriceByItemModel extends PriceByItemEntity {
     };
   }
 
-  factory PriceByItemModel.fromMapByDataSource(
-      DataSource dataSource, Map<String, dynamic> map) {
+  factory PriceByItemModel.fromMapRemote(Map<String, dynamic> map) {
+    return PriceByItemModel.fromMap({
+      ...map,
+      "tpln1Id": map['tpln1Id']?['docid'] != null
+          ? map['tpln1Id']['docid'] as String
+          : null,
+      "toitmId": map['toitmId']?['docid'] != null
+          ? map['toitmId']['docid'] as String
+          : null,
+      "tcurrId": map['tcurrId']?['docid'] != null
+          ? map['tcurrId']['docid'] as String
+          : null,
+    });
+  }
+
+  factory PriceByItemModel.fromMap(Map<String, dynamic> map) {
     return PriceByItemModel(
-      id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      tpln1Id: map['tpln1Id'] != null ? map['tpln1Id'] as int : null,
-      toitmId: map['toitmId'] != null ? map['toitmId'] as int : null,
-      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as int : null,
+      tpln1Id: map['tpln1Id'] != null ? map['tpln1Id'] as String : null,
+      toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
       purchasePrice:
           map['purchaseprice'] != null ? map['purchaseprice'] as double : null,
@@ -117,7 +126,6 @@ class PriceByItemModel extends PriceByItemEntity {
 
   factory PriceByItemModel.fromEntity(PriceByItemEntity entity) {
     return PriceByItemModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,

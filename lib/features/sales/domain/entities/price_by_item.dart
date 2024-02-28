@@ -2,13 +2,12 @@
 import 'dart:convert';
 
 class PriceByItemEntity {
-  final int id;
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
-  final int? tpln1Id;
-  final int? toitmId;
-  final int? tcurrId;
+  final String? tpln1Id;
+  final String? toitmId;
+  final String? tcurrId;
   final double price;
   final double? purchasePrice;
   final double? calculatedPrice;
@@ -20,7 +19,6 @@ class PriceByItemEntity {
   final double? roundingDiff;
 
   PriceByItemEntity({
-    required this.id,
     required this.docId,
     required this.createDate,
     required this.updateDate,
@@ -39,13 +37,12 @@ class PriceByItemEntity {
   });
 
   PriceByItemEntity copyWith({
-    int? id,
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
-    int? tpln1Id,
-    int? toitmId,
-    int? tcurrId,
+    String? tpln1Id,
+    String? toitmId,
+    String? tcurrId,
     double? price,
     double? purchasePrice,
     double? calculatedPrice,
@@ -57,7 +54,6 @@ class PriceByItemEntity {
     double? roundingDiff,
   }) {
     return PriceByItemEntity(
-      id: id ?? this.id,
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
@@ -78,7 +74,6 @@ class PriceByItemEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'docId': docId,
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
@@ -99,15 +94,14 @@ class PriceByItemEntity {
 
   factory PriceByItemEntity.fromMap(Map<String, dynamic> map) {
     return PriceByItemEntity(
-      id: map['id'] as int,
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
-      tpln1Id: map['tpln1Id'] != null ? map['tpln1Id'] as int : null,
-      toitmId: map['toitmId'] != null ? map['toitmId'] as int : null,
-      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as int : null,
+      tpln1Id: map['tpln1Id'] != null ? map['tpln1Id'] as String : null,
+      toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
       purchasePrice:
           map['purchasePrice'] != null ? map['purchasePrice'] as double : null,
@@ -137,15 +131,14 @@ class PriceByItemEntity {
 
   @override
   String toString() {
-    return 'PriceByItemEntity(id: $id, docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln1Id: $tpln1Id, toitmId: $toitmId, tcurrId: $tcurrId, price: $price, purchasePrice: $purchasePrice, calculatedPrice: $calculatedPrice, marginPercentage: $marginPercentage, marginValue: $marginValue, costPrice: $costPrice, afterRounding: $afterRounding, beforeRounding: $beforeRounding, roundingDiff: $roundingDiff)';
+    return 'PriceByItemEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln1Id: $tpln1Id, toitmId: $toitmId, tcurrId: $tcurrId, price: $price, purchasePrice: $purchasePrice, calculatedPrice: $calculatedPrice, marginPercentage: $marginPercentage, marginValue: $marginValue, costPrice: $costPrice, afterRounding: $afterRounding, beforeRounding: $beforeRounding, roundingDiff: $roundingDiff)';
   }
 
   @override
   bool operator ==(covariant PriceByItemEntity other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.docId == docId &&
+    return other.docId == docId &&
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.tpln1Id == tpln1Id &&
@@ -164,8 +157,7 @@ class PriceByItemEntity {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        docId.hashCode ^
+    return docId.hashCode ^
         createDate.hashCode ^
         updateDate.hashCode ^
         tpln1Id.hashCode ^

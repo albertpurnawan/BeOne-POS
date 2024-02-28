@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 class CurrencyEntity {
-  final int id;
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
@@ -11,7 +10,6 @@ class CurrencyEntity {
   final String descriptionFrgn;
 
   CurrencyEntity({
-    required this.id,
     required this.docId,
     required this.createDate,
     required this.updateDate,
@@ -21,7 +19,6 @@ class CurrencyEntity {
   });
 
   CurrencyEntity copyWith({
-    int? id,
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
@@ -30,7 +27,6 @@ class CurrencyEntity {
     String? descriptionFrgn,
   }) {
     return CurrencyEntity(
-      id: id ?? this.id,
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
@@ -42,7 +38,6 @@ class CurrencyEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'docId': docId,
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
@@ -54,12 +49,9 @@ class CurrencyEntity {
 
   factory CurrencyEntity.fromMap(Map<String, dynamic> map) {
     return CurrencyEntity(
-      id: map['id'] as int,
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       curCode: map['curCode'] as String,
       description: map['description'] as String,
       descriptionFrgn: map['descriptionFrgn'] as String,
@@ -68,35 +60,33 @@ class CurrencyEntity {
 
   String toJson() => json.encode(toMap());
 
-  factory CurrencyEntity.fromJson(String source) =>
-      CurrencyEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory CurrencyEntity.fromJson(String source) => CurrencyEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'CurrencyEntity(id: $id, docId: $docId, createDate: $createDate, updateDate: $updateDate, curCode: $curCode, description: $description, descriptionFrgn: $descriptionFrgn)';
+    return 'CurrencyEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, curCode: $curCode, description: $description, descriptionFrgn: $descriptionFrgn)';
   }
 
   @override
   bool operator ==(covariant CurrencyEntity other) {
     if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.docId == docId &&
-        other.createDate == createDate &&
-        other.updateDate == updateDate &&
-        other.curCode == curCode &&
-        other.description == description &&
-        other.descriptionFrgn == descriptionFrgn;
+  
+    return 
+      other.docId == docId &&
+      other.createDate == createDate &&
+      other.updateDate == updateDate &&
+      other.curCode == curCode &&
+      other.description == description &&
+      other.descriptionFrgn == descriptionFrgn;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        docId.hashCode ^
-        createDate.hashCode ^
-        updateDate.hashCode ^
-        curCode.hashCode ^
-        description.hashCode ^
-        descriptionFrgn.hashCode;
+    return docId.hashCode ^
+      createDate.hashCode ^
+      updateDate.hashCode ^
+      curCode.hashCode ^
+      description.hashCode ^
+      descriptionFrgn.hashCode;
   }
 }

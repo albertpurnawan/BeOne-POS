@@ -2,17 +2,15 @@
 import 'dart:convert';
 
 class PriceByItemBarcodeEntity {
-  final int id;
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
-  final int? tpln2Id;
-  final int? tbitmId;
-  final int? tcurrId;
+  final String? tpln2Id;
+  final String? tbitmId;
+  final String? tcurrId;
   final int price;
 
   PriceByItemBarcodeEntity({
-    required this.id,
     required this.docId,
     required this.createDate,
     required this.updateDate,
@@ -23,17 +21,15 @@ class PriceByItemBarcodeEntity {
   });
 
   PriceByItemBarcodeEntity copyWith({
-    int? id,
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
-    int? tpln2Id,
-    int? tbitmId,
-    int? tcurrId,
+    String? tpln2Id,
+    String? tbitmId,
+    String? tcurrId,
     int? price,
   }) {
     return PriceByItemBarcodeEntity(
-      id: id ?? this.id,
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
@@ -46,7 +42,6 @@ class PriceByItemBarcodeEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'docId': docId,
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
@@ -59,15 +54,14 @@ class PriceByItemBarcodeEntity {
 
   factory PriceByItemBarcodeEntity.fromMap(Map<String, dynamic> map) {
     return PriceByItemBarcodeEntity(
-      id: map['id'] as int,
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
-      tpln2Id: map['tpln2Id'] != null ? map['tpln2Id'] as int : null,
-      tbitmId: map['tbitmId'] != null ? map['tbitmId'] as int : null,
-      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as int : null,
+      tpln2Id: map['tpln2Id'] != null ? map['tpln2Id'] as String : null,
+      tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as int,
     );
   }
@@ -80,15 +74,14 @@ class PriceByItemBarcodeEntity {
 
   @override
   String toString() {
-    return 'PriceByItemBarcodeEntity(id: $id, docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln2Id: $tpln2Id, tbitmId: $tbitmId, tcurrId: $tcurrId, price: $price)';
+    return 'PriceByItemBarcodeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln2Id: $tpln2Id, tbitmId: $tbitmId, tcurrId: $tcurrId, price: $price)';
   }
 
   @override
   bool operator ==(covariant PriceByItemBarcodeEntity other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.docId == docId &&
+    return other.docId == docId &&
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.tpln2Id == tpln2Id &&
@@ -99,8 +92,7 @@ class PriceByItemBarcodeEntity {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        docId.hashCode ^
+    return docId.hashCode ^
         createDate.hashCode ^
         updateDate.hashCode ^
         tpln2Id.hashCode ^

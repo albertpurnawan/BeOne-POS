@@ -4,7 +4,6 @@ const String tableProductHierarchies = "tphir";
 
 class ProductHierarchyFields {
   static const List<String> values = [
-    id,
     docId,
     createDate,
     updateDate,
@@ -13,7 +12,6 @@ class ProductHierarchyFields {
     maxChar
   ];
 
-  static const String id = '_id';
   static const String docId = 'docid';
   static const String createDate = 'createdate';
   static const String updateDate = 'updatedate';
@@ -24,7 +22,6 @@ class ProductHierarchyFields {
 
 class ProductHierarchyModel extends ProductHierarchyEntity {
   ProductHierarchyModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -36,10 +33,9 @@ class ProductHierarchyModel extends ProductHierarchyEntity {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      '_id': id,
       'docid': docId,
-      'createdate': createDate.toUtc().millisecondsSinceEpoch,
-      'updatedate': updateDate?.toUtc().millisecondsSinceEpoch,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'description': description,
       'level': level,
       'maxchar': maxChar,
@@ -48,12 +44,11 @@ class ProductHierarchyModel extends ProductHierarchyEntity {
 
   factory ProductHierarchyModel.fromMap(Map<String, dynamic> map) {
     return ProductHierarchyModel(
-      id: map['_id'] as int,
       docId: map['docid'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int)
+      createDate: DateTime.parse(map['createdate'] as String)
           .toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedate'] as int)
+          ? DateTime.parse(map['updatedate'] as String)
               .toLocal()
           : null,
       description: map['description'] as String,
@@ -64,7 +59,6 @@ class ProductHierarchyModel extends ProductHierarchyEntity {
 
   factory ProductHierarchyModel.fromEntity(ProductHierarchyEntity entity) {
     return ProductHierarchyModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,

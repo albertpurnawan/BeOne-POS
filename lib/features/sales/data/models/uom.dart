@@ -4,7 +4,6 @@ const String tableUom = 'touom';
 
 class UomFields {
   static const List<String> values = [
-    id,
     docId,
     createDate,
     updateDate,
@@ -14,7 +13,6 @@ class UomFields {
     activated,
   ];
 
-  static const String id = "_id";
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
@@ -26,7 +24,6 @@ class UomFields {
 
 class UomModel extends UomEntity {
   UomModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -39,7 +36,6 @@ class UomModel extends UomEntity {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'docId': docId,
       'createDate': createDate.toUtc().toIso8601String(),
       'updateDate': updateDate?.toUtc().toIso8601String(),
@@ -52,7 +48,6 @@ class UomModel extends UomEntity {
 
   factory UomModel.fromMap(Map<String, dynamic> map) {
     return UomModel(
-      id: map['id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
@@ -60,8 +55,8 @@ class UomModel extends UomEntity {
           : null,
       uomCode: map['uomcode'] as String,
       uomDesc: map['uomdesc'] as String,
-      statusActive: map['statusactive'] as bool,
-      activated: map['activated'] as bool,
+      statusActive: map['statusactive'] as int,
+      activated: map['activated'] as int,
     );
   }
 }

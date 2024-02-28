@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 class PricelistEntity {
-  final int id;
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
@@ -11,13 +10,12 @@ class PricelistEntity {
   final int basePrice;
   final int periodPrice;
   final double factor;
-  final int? tcurrId;
+  final String? tcurrId;
   final int type;
   final int statusactive;
   final int activated;
 
   PricelistEntity({
-    required this.id,
     required this.docId,
     required this.createDate,
     required this.updateDate,
@@ -33,7 +31,6 @@ class PricelistEntity {
   });
 
   PricelistEntity copyWith({
-    int? id,
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
@@ -42,13 +39,12 @@ class PricelistEntity {
     int? basePrice,
     int? periodPrice,
     double? factor,
-    int? tcurrId,
+    String? tcurrId,
     int? type,
     int? statusactive,
     int? activated,
   }) {
     return PricelistEntity(
-      id: id ?? this.id,
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
@@ -66,7 +62,6 @@ class PricelistEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'docId': docId,
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
@@ -84,7 +79,6 @@ class PricelistEntity {
 
   factory PricelistEntity.fromMap(Map<String, dynamic> map) {
     return PricelistEntity(
-      id: map['id'] as int,
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
       updateDate: map['updateDate'] != null
@@ -95,7 +89,7 @@ class PricelistEntity {
       basePrice: map['basePrice'] as int,
       periodPrice: map['periodPrice'] as int,
       factor: map['factor'] as double,
-      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as int : null,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       type: map['type'] as int,
       statusactive: map['statusactive'] as int,
       activated: map['activated'] as int,
@@ -109,15 +103,14 @@ class PricelistEntity {
 
   @override
   String toString() {
-    return 'PricelistEntity(id: $id, docId: $docId, createDate: $createDate, updateDate: $updateDate, priceCode: $priceCode, description: $description, basePrice: $basePrice, periodPrice: $periodPrice, factor: $factor, tcurrId: $tcurrId, type: $type, statusactive: $statusactive, activated: $activated)';
+    return 'PricelistEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, priceCode: $priceCode, description: $description, basePrice: $basePrice, periodPrice: $periodPrice, factor: $factor, tcurrId: $tcurrId, type: $type, statusactive: $statusactive, activated: $activated)';
   }
 
   @override
   bool operator ==(covariant PricelistEntity other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.docId == docId &&
+    return other.docId == docId &&
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.priceCode == priceCode &&
@@ -133,8 +126,7 @@ class PricelistEntity {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        docId.hashCode ^
+    return docId.hashCode ^
         createDate.hashCode ^
         updateDate.hashCode ^
         priceCode.hashCode ^

@@ -1,11 +1,9 @@
-import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_category.dart';
 
 const String tableItemCategories = "tocat";
 
 class ItemCategoryFields {
   static const List<String> values = [
-    id,
     docId,
     createDate,
     updateDate,
@@ -17,7 +15,6 @@ class ItemCategoryFields {
     phir1Id,
   ];
 
-  static const String id = "_id";
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
@@ -31,7 +28,6 @@ class ItemCategoryFields {
 
 class ItemCategoryModel extends ItemCategoryEntity {
   ItemCategoryModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -43,10 +39,20 @@ class ItemCategoryModel extends ItemCategoryEntity {
     required super.phir1Id,
   });
 
-  factory ItemCategoryModel.fromMapByDataSource(
-      DataSource dataSource, Map<String, dynamic> map) {
+  factory ItemCategoryModel.fromMapRemote(Map<String, dynamic> map) {
+    return ItemCategoryModel.fromMap({
+      ...map,
+      "parentId": map['parentId']?['docid'] != null
+          ? map['parentId']['docid'] as String
+          : null,
+      "phir1Id": map['phir1Id']?['docid'] != null
+          ? map['phir1Id']['docid'] as String
+          : null,
+    });
+  }
+
+  factory ItemCategoryModel.fromMap(Map<String, dynamic> map) {
     return ItemCategoryModel(
-      id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
@@ -55,15 +61,15 @@ class ItemCategoryModel extends ItemCategoryEntity {
       catCode: map['catcode'] as String,
       catName: map['catname'] as String,
       catNameFrgn: map['catnamefrgn'] as String,
-      parentId: map['parentId'] != null ? map['parentId'] as int : null,
+      parentId: map['parentId'] != null ? map['parentId'] as String : null,
       level: map['level'] as int,
-      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
+      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
     );
   }
 
-  Map<String, dynamic> toMapByDataSource(DataSource dataSource) {
+  @override
+  Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      dataSource == DataSource.local ? '_id' : 'id': id,
       'docid': docId,
       'createdate': createDate.toLocal().toIso8601String(),
       'updatedate': updateDate?.toLocal().toIso8601String(),
@@ -78,7 +84,6 @@ class ItemCategoryModel extends ItemCategoryEntity {
 
   factory ItemCategoryModel.fromEntity(ItemCategoryEntity entity) {
     return ItemCategoryModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,

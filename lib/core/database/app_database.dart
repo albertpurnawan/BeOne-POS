@@ -1,7 +1,19 @@
 import 'package:path/path.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
+import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
+import 'package:pos_fe/features/sales/data/models/item_category.dart';
+import 'package:pos_fe/features/sales/data/models/item_master.dart';
+import 'package:pos_fe/features/sales/data/models/price_by_item.dart';
+import 'package:pos_fe/features/sales/data/models/price_by_item_barcode.dart';
+import 'package:pos_fe/features/sales/data/models/pricelist.dart';
+import 'package:pos_fe/features/sales/data/models/pricelist_period.dart';
+import 'package:pos_fe/features/sales/data/models/product_hierarchy.dart';
+import 'package:pos_fe/features/sales/data/models/product_hierarchy_master.dart';
+import 'package:pos_fe/features/sales/data/models/uom.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
@@ -43,6 +55,8 @@ PRAGMA foreign_keys = ON;
   Future _createDB(Database db, int version) async {
     try {
       const idTypeAndConstraints = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+      const uuidDefinition = '`docid` TEXT PRIMARY KEY';
+      const createdAtDefinition = 'createdat TEXT DEFAULT CURRENT_TIMESTAMP';
 
       await db.transaction((txn) async {
         await txn.execute('''
@@ -99,16 +113,14 @@ CREATE TABLE receiptitems (
 )""");
 
         await txn.execute("""
-CREATE TABLE `tcurr` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `curcode` varchar(30) NOT NULL,
-  `description` varchar(100) NOT NULL,
-  `descriptionfrgn` varchar(100) NOT NULL,
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `tcurr_docid_key` UNIQUE (`docid`)
+CREATE TABLE $tableCurrencies (
+  $uuidDefinition,
+  ${CurrencyFields.createDate} datetime NOT NULL,
+  ${CurrencyFields.updateDate} datetime DEFAULT NULL,
+  ${CurrencyFields.curCode} varchar(30) NOT NULL,
+  ${CurrencyFields.description} varchar(100) NOT NULL,
+  ${CurrencyFields.descriptionFrgn} varchar(100) NOT NULL,
+  $createdAtDefinition
 )
 """);
 
@@ -118,143 +130,211 @@ INSERT INTO `tcurr` (docid,createdate,updatedate,curcode,description,description
 """);
 
         await txn.execute("""
-CREATE TABLE `tphir` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `description` varchar(100) NOT NULL,
-  `level` int NOT NULL,
-  `maxchar` int NOT NULL,
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `tphir_docid_key` UNIQUE (`docid`)
+CREATE TABLE `$tableProductHierarchies` (
+  $uuidDefinition,
+  ${ProductHierarchyFields.createDate} datetime NOT NULL,
+  ${ProductHierarchyFields.updateDate} datetime DEFAULT NULL,
+  ${ProductHierarchyFields.description} varchar(100) NOT NULL,
+  ${ProductHierarchyFields.level} int NOT NULL,
+  ${ProductHierarchyFields.maxChar} int NOT NULL,
+  $createdAtDefinition,
 )
 """);
 
         await txn.execute("""
-CREATE TABLE `phir1` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `code` varchar(30) NOT NULL,
-  `description` varchar(100) NOT NULL,
-  `tphirId` bigint DEFAULT NULL,
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `phir1_docid_key` UNIQUE (`docid`),
-  CONSTRAINT `phir1_tphirId_fkey` FOREIGN KEY (`tphirId`) REFERENCES `tphir` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+CREATE TABLE `$tableProductHierarchyMasters` (
+  $uuidDefinition,
+  ${ProductHierarchyMasterFields.createDate} datetime NOT NULL,
+  ${ProductHierarchyMasterFields.updateDate} datetime DEFAULT NULL,
+  ${ProductHierarchyMasterFields.code} varchar(30) NOT NULL,
+  ${ProductHierarchyMasterFields.description} varchar(100) NOT NULL,
+  ${ProductHierarchyMasterFields.tphirId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `phir1_tphirId_fkey` FOREIGN KEY (`tphirId`) REFERENCES `tphir` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE `tocat` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `catcode` varchar(30) NOT NULL,
-  `catname` varchar(100) NOT NULL,
-  `catnamefrgn` varchar(100) NOT NULL,
-  `parentId` bigint DEFAULT NULL,
-  `level` int NOT NULL,
-  `phir1Id` bigint DEFAULT NULL,
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `tocat_docid_key` UNIQUE (`docid`),
-  CONSTRAINT `tocat_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `tocat` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tocat_phir1Id_fkey` FOREIGN KEY (`phir1Id`) REFERENCES `phir1` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+CREATE TABLE $tableItemCategories (
+  $uuidDefinition,
+  ${ItemCategoryFields.createDate} datetime NOT NULL,
+  ${ItemCategoryFields.updateDate} datetime DEFAULT NULL,
+  ${ItemCategoryFields.catCode} varchar(30) NOT NULL,
+  ${ItemCategoryFields.catName} varchar(100) NOT NULL,
+  ${ItemCategoryFields.catNameFrgn} varchar(100) NOT NULL,
+  ${ItemCategoryFields.parentId} text DEFAULT NULL,
+  ${ItemCategoryFields.level} int NOT NULL,
+  ${ItemCategoryFields.level} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tocat_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocat_phir1Id_fkey` FOREIGN KEY (`phir1Id`) REFERENCES `phir1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE `touom` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `uomcode` varchar(30) NOT NULL,
-  `uomdesc` varchar(100) NOT NULL,
-  `statusactive` int NOT NULL,
-  `activated` int NOT NULL,
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `touom_docid_key` UNIQUE (`docid`)
+CREATE TABLE $tableUom (
+  $uuidDefinition,
+  ${UomFields.createDate} datetime NOT NULL,
+  ${UomFields.updateDate} datetime DEFAULT NULL,
+  ${UomFields.uomCode} varchar(30) NOT NULL,
+  ${UomFields.uomDesc} varchar(100) NOT NULL,
+  ${UomFields.statusActive} int NOT NULL,
+  ${UomFields.activated} int NOT NULL,
+  $createdAtDefinition
 ) 
 """);
 
         await txn.execute("""
-CREATE TABLE `toitm` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `itemcode` varchar(30) NOT NULL,
-  `itemname` varchar(100) NOT NULL,
-  `invitem` int NOT NULL,
-  `serialno` int NOT NULL,
-  `tocatId` bigint DEFAULT NULL,
-  `touomId` bigint DEFAULT NULL,
-  `minstock` double NOT NULL,
-  `maxstock` double NOT NULL,
-  `includetax` int NOT NULL,
-  `remarks` text,
-  `statusactive` int NOT NULL,
-  `activated` int NOT NULL,
-  `isbatch` int NOT NULL DEFAULT '0',
-  `internalcode_1` varchar(100) DEFAULT '',
-  `internalcode_2` varchar(100) DEFAULT '',
-  `openprice` int NOT NULL DEFAULT '0',
-  `popitem` int NOT NULL DEFAULT '0',
-  `bpom` varchar(20) DEFAULT '',
-  `expdate` varchar(6) DEFAULT '',
-  `margin` double DEFAULT '0',
-  `memberdiscount` int DEFAULT '1',
-  `multiplyorder` int DEFAULT '1',
-  `synccrm` int NOT NULL DEFAULT '0',
-  `mergequantity` int NOT NULL DEFAULT '0',
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `toitm_docid_key` UNIQUE (`docid`),
-  CONSTRAINT `toitm_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+CREATE TABLE $tableItemMasters (
+  $uuidDefinition,
+  ${ItemMasterFields.createDate} datetime NOT NULL,
+  ${ItemMasterFields.updateDate} datetime DEFAULT NULL,
+  ${ItemMasterFields.itemCode} varchar(30) NOT NULL,
+  ${ItemMasterFields.itemName} varchar(100) NOT NULL,
+  ${ItemMasterFields.invItem} int NOT NULL,
+  ${ItemMasterFields.serialNo} int NOT NULL,
+  ${ItemMasterFields.tocatId} text DEFAULT NULL,
+  ${ItemMasterFields.touomId} text DEFAULT NULL,
+  ${ItemMasterFields.minStock} int NOT NULL,
+  ${ItemMasterFields.maxStock} int NOT NULL,
+  ${ItemMasterFields.includeTax} int NOT NULL,
+  ${ItemMasterFields.remarks} text,
+  ${ItemMasterFields.statusActive} int NOT NULL,
+  ${ItemMasterFields.activated} int NOT NULL,
+  ${ItemMasterFields.isBatch} int NOT NULL DEFAULT '0',
+  ${ItemMasterFields.internalCode_1} varchar(100) DEFAULT '',
+  ${ItemMasterFields.internalCode_2} varchar(100) DEFAULT '',
+  ${ItemMasterFields.openPrice} int NOT NULL DEFAULT '0',
+  ${ItemMasterFields.popItem} int NOT NULL DEFAULT '0',
+  ${ItemMasterFields.bpom} varchar(20) DEFAULT '',
+  ${ItemMasterFields.expDate} varchar(6) DEFAULT '',
+  ${ItemMasterFields.margin} int DEFAULT '0',
+  ${ItemMasterFields.memberDiscount} int DEFAULT '1',
+  ${ItemMasterFields.multiplyOrder} int DEFAULT '1',
+  ${ItemMasterFields.mergeQuantity} int NOT NULL DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `toitm_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toitm_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE `topln` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `pricecode` varchar(30) NOT NULL,
-  `description` varchar(100) NOT NULL,
-  `baseprice` bigint NOT NULL,
-  `periodprice` bigint NOT NULL,
-  `factor` double NOT NULL,
-  `tcurrId` bigint DEFAULT NULL,
-  `type` int NOT NULL,
-  `statusactive` int NOT NULL,
-  `activated` int NOT NULL,
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `topln_docid_key` UNIQUE (`docid`),
-  CONSTRAINT `topln_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+CREATE TABLE $tablePricelists (
+  $uuidDefinition,
+  ${PricelistFields.createDate} datetime NOT NULL,
+  ${PricelistFields.updateDate} datetime DEFAULT NULL,
+  ${PricelistFields.priceCode} varchar(30) NOT NULL,
+  ${PricelistFields.description} varchar(100) NOT NULL,
+  ${PricelistFields.basePrice} bigint NOT NULL,
+  ${PricelistFields.periodPrice} bigint NOT NULL,
+  ${PricelistFields.factor} double NOT NULL,
+  ${PricelistFields.tcurrId} text DEFAULT NULL,
+  ${PricelistFields.type} int NOT NULL,
+  ${PricelistFields.statusactive} int NOT NULL,
+  ${PricelistFields.activated} int NOT NULL,
+  $createdAtDefinition
+  CONSTRAINT `topln_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE `tpln1` (
-  `_id` $idTypeAndConstraints,
-  `docid` varchar(191) NOT NULL,
-  `createdate` datetime NOT NULL,
-  `updatedate` datetime DEFAULT NULL,
-  `toplnId` bigint DEFAULT NULL,
-  `periodfr` date NOT NULL,
-  `periodto` date NOT NULL,
-  `baseprice` bigint NOT NULL,
-  `periodprice` bigint NOT NULL,
-  `factor` double NOT NULL,
-  `statusactive` int NOT NULL,
-  `activated` int NOT NULL,
-  createdat TEXT DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `tpln1_docid_key` UNIQUE (`docid`),
-  CONSTRAINT `tpln1_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+CREATE TABLE $tablePricelistPeriods (
+  $uuidDefinition,
+  ${PricelistPeriodFields.createDate} datetime NOT NULL,
+  ${PricelistPeriodFields.updateDate} datetime DEFAULT NULL,
+  ${PricelistPeriodFields.toplnId} text DEFAULT NULL,
+  ${PricelistPeriodFields.periodFr} datetime NOT NULL,
+  ${PricelistPeriodFields.periodTo} datetime NOT NULL,
+  ${PricelistPeriodFields.basePrice} bigint NOT NULL,
+  ${PricelistPeriodFields.periodPrice} bigint NOT NULL,
+  ${PricelistPeriodFields.factor} double NOT NULL,
+  ${PricelistPeriodFields.statusActive} int NOT NULL,
+  ${PricelistPeriodFields.activated} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpln1_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableItemBarcodes (
+  $uuidDefinition,
+  ${ItemBarcodesFields.createDate} datetime NOT NULL,
+  ${ItemBarcodesFields.updateDate} datetime DEFAULT NULL,
+  ${ItemBarcodesFields.toitmId} text DEFAULT NULL,
+  ${ItemBarcodesFields.barcode} varchar(50) NOT NULL,
+  ${ItemBarcodesFields.statusActive} int NOT NULL,
+  ${ItemBarcodesFields.activated} int NOT NULL,
+  ${ItemBarcodesFields.quantity} double NOT NULL,
+  ${ItemBarcodesFields.touomId} text DEFAULT NULL,
+  ${ItemBarcodesFields.dflt} int DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tbitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tbitm_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableItemsByStore (
+  $uuidDefinition,
+  ${ItemsByStoreFields.createDate} datetime NOT NULL,
+  ${ItemsByStoreFields.updateDate} datetime DEFAULT NULL,
+  ${ItemsByStoreFields.toitmId} text DEFAULT NULL,
+  ${ItemsByStoreFields.tostrId} text DEFAULT NULL,
+  ${ItemsByStoreFields.statusActive} int NOT NULL,
+  ${ItemsByStoreFields.activated} int NOT NULL,
+  ${ItemsByStoreFields.tovatId} text DEFAULT NULL,
+  ${ItemsByStoreFields.tovatIdPur} text DEFAULT NULL,
+  ${ItemsByStoreFields.maxStock} double DEFAULT '0',
+  ${ItemsByStoreFields.minStock} double DEFAULT '0',
+  ${ItemsByStoreFields.marginPercentage} double DEFAULT '0',
+  ${ItemsByStoreFields.marginPrice} double DEFAULT '0',
+  ${ItemsByStoreFields.multiplyOrder} int DEFAULT '1',
+  ${ItemsByStoreFields.price} double DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tsitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tovatIdPur_fkey` FOREIGN KEY (`tovatIdPur`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePricesByItem (
+  $uuidDefinition,
+  ${PriceByItemFields.createDate} datetime NOT NULL,
+  ${PriceByItemFields.updateDate} datetime DEFAULT NULL,
+  ${PriceByItemFields.tpln1Id} text DEFAULT NULL,
+  ${PriceByItemFields.toitmId} text DEFAULT NULL,
+  ${PriceByItemFields.tcurrId} text DEFAULT NULL,
+  ${PriceByItemFields.price} double NOT NULL,
+  ${PriceByItemFields.purchasePrice} double DEFAULT '0',
+  ${PriceByItemFields.calculatedPrice} double DEFAULT '0',
+  ${PriceByItemFields.marginPercentage} double DEFAULT '0',
+  ${PriceByItemFields.marginValue} double DEFAULT '0',
+  ${PriceByItemFields.costPrice} double DEFAULT '0',
+  ${PriceByItemFields.afterRounding} double DEFAULT '0',
+  ${PriceByItemFields.beforeRounding} double DEFAULT '0',
+  ${PriceByItemFields.roundingDiff} double DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tpln2_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpln2_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpln2_tpln1Id_fkey` FOREIGN KEY (`tpln1Id`) REFERENCES `tpln1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePricesByItemBarcode (
+  $uuidDefinition,
+  ${PriceByItemBarcodeFields.createDate} datetime NOT NULL,
+  ${PriceByItemBarcodeFields.updateDate} datetime DEFAULT NULL,
+  ${PriceByItemBarcodeFields.tpln2Id} text DEFAULT NULL,
+  ${PriceByItemBarcodeFields.tbitmId} text DEFAULT NULL,
+  ${PriceByItemBarcodeFields.tcurrId} text DEFAULT NULL,
+  ${PriceByItemBarcodeFields.price} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpln4_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpln4_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpln4_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });

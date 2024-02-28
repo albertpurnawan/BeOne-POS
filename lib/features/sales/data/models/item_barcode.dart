@@ -1,11 +1,9 @@
-import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_barcode.dart';
 
 const String tableItemBarcodes = "tbitm";
 
 class ItemBarcodesFields {
   static const List<String> values = [
-    id,
     docId,
     createDate,
     updateDate,
@@ -18,7 +16,6 @@ class ItemBarcodesFields {
     dflt,
   ];
 
-  static const String id = 'id';
   static const String docId = 'docid';
   static const String createDate = 'createdate';
   static const String updateDate = 'updatedate';
@@ -33,7 +30,6 @@ class ItemBarcodesFields {
 
 class ItemBarcodeModel extends ItemBarcodeEntity {
   ItemBarcodeModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -46,9 +42,21 @@ class ItemBarcodeModel extends ItemBarcodeEntity {
     required super.dflt,
   });
 
-  Map<String, dynamic> toMapByDataSource(DataSource dataSource) {
+  factory ItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
+    return ItemBarcodeModel.fromMap({
+      ...map,
+      "toitmId": map['toitmId']?['docid'] != null
+          ? map['toitmId']['docid'] as String
+          : null,
+      "touomId": map['touomId']?['docid'] != null
+          ? map['touomId']['docid'] as String
+          : null,
+    });
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      dataSource == DataSource.local ? '_id' : 'id': id,
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
@@ -62,28 +70,25 @@ class ItemBarcodeModel extends ItemBarcodeEntity {
     };
   }
 
-  factory ItemBarcodeModel.fromMapByDataSource(
-      DataSource dataSource, Map<String, dynamic> map) {
+  factory ItemBarcodeModel.fromMap(Map<String, dynamic> map) {
     return ItemBarcodeModel(
-      id: map[dataSource == DataSource.local ? '_id' : 'id'] as int,
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      toitmId: map['toitmId'] != null ? map['toitmId'] as int : null,
+      toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       barcode: map['barcode'] as String,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       quantity: map['quantity'] as double,
-      touomId: map['touomId'] != null ? map['touomId'] as int : null,
+      touomId: map['touomId'] != null ? map['touomId'] as String : null,
       dflt: map['dflt'] != null ? map['dflt'] as int : null,
     );
   }
 
   factory ItemBarcodeModel.fromEntity(ItemBarcodeEntity entity) {
     return ItemBarcodeModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,
