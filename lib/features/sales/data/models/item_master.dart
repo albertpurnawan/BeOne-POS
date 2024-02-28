@@ -97,6 +97,9 @@ class ItemMasterModel extends ItemMasterEntity {
   factory ItemMasterModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemMasterModel.fromMap({
       ...map,
+      "minStock": map['minStock'].toDouble(),
+      "maxStock": map['maxStock'].toDouble(),
+      "margin": map['margin']?.toDouble(),
       "tocatId": map['tocatId']?['docid'] != null
           ? map['tocatId']['docid'] as String
           : null,
@@ -119,8 +122,8 @@ class ItemMasterModel extends ItemMasterEntity {
       serialNo: map['serialNo'] as int,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       touomId: map['touomId'] != null ? map['touomId'] as String : null,
-      minStock: map['minStock'] as double,
-      maxStock: map['maxStock'] as double,
+      minStock: map['minStock'],
+      maxStock: map['maxStock'],
       includeTax: map['includeTax'] as int,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       statusActive: map['statusActive'] as int,
