@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/uom.dart';
 
 class UoMApi {
@@ -27,7 +30,6 @@ class UoMApi {
 
         List<UomModel> data =
             (response.data as List).map((e) => UomModel.fromMap(e)).toList();
-        // log(check.toString());
         allData.addAll(data);
 
         if (data.isEmpty) {
@@ -36,10 +38,11 @@ class UoMApi {
           page++;
         }
       }
+      // log(allData[0].toString());
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -55,12 +58,14 @@ class UoMApi {
         ),
       );
       // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
       UomModel datum = UomModel.fromMap(response.data);
 
+      // log(datum.toString());
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }

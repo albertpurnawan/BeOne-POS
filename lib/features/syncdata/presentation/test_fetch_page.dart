@@ -13,6 +13,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_mast
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 
 class FetchScreen extends StatefulWidget {
@@ -61,7 +62,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<ProductHierarchyApi>().fetchData();
+      final data = await GetIt.instance<UoMApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -84,8 +85,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final datum =
-          await GetIt.instance<ProductHierarchyApi>().fetchSingleData(docid);
+      final datum = await GetIt.instance<UoMApi>().fetchSingleData(docid);
       print(datum);
       setState(() {
         _singleData = datum.docId;

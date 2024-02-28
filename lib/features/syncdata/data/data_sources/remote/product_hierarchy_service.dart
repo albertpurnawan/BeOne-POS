@@ -39,7 +39,7 @@ class ProductHierarchyApi {
           page++;
         }
       }
-      log(allData[0].toString());
+      // log(allData[0].toString());
 
       return allData;
     } catch (err) {
@@ -58,13 +58,13 @@ class ProductHierarchyApi {
           },
         ),
       );
-      log(response.data.toString());
+      // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
       ProductHierarchyModel datum =
           ProductHierarchyModel.fromMap(response.data);
 
-      log(datum.toString());
+      // log(datum.toString());
       return datum;
     } catch (err) {
       print('Error: $err');
