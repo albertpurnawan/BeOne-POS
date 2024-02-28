@@ -1151,7 +1151,7 @@ class _SalesPageState extends State<SalesPage> {
                         width: 8,
                       ),
                       Text(
-                        "Keep",
+                        "Suspend",
                         style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 18),
                       ),
@@ -1190,7 +1190,7 @@ class _SalesPageState extends State<SalesPage> {
                         width: 8,
                       ),
                       Text(
-                        "Charge",
+                        "Checkout",
                         style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 18),
                       ),
