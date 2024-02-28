@@ -40,6 +40,7 @@ class ItemCategoryApi {
           page++;
         }
       }
+
       // log(allData[0].toString());
 
       return allData;
@@ -59,13 +60,13 @@ class ItemCategoryApi {
           },
         ),
       );
-      log(response.data.toString());
+      // log(response.data.toString());
 
       if (response.data == null) throw Exception('Null Data');
 
       ItemCategoryModel datum = ItemCategoryModel.fromMapRemote(response.data);
 
-      log(datum.toString());
+      // log(datum.toString());
       return datum;
     } catch (err) {
       handleError(err);

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pos_fe/features/sales/domain/entities/item_by_store.dart';
 
 const String tableItemsByStore = "tsitm";

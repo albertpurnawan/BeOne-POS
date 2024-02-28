@@ -42,11 +42,11 @@ class ItemCategoryModel extends ItemCategoryEntity {
   factory ItemCategoryModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemCategoryModel.fromMap({
       ...map,
-      "parentId": map['parentId']?['docid'] != null
-          ? map['parentId']['docid'] as String
+      "parentId": map['parent_id']?['docid'] != null
+          ? map['parent_id']['docid'] as String
           : null,
-      "phir1Id": map['phir1Id']?['docid'] != null
-          ? map['phir1Id']['docid'] as String
+      "phir1Id": map['phlir1_id']?['docid'] != null
+          ? map['phlir1_id']['docid'] as String
           : null,
     });
   }

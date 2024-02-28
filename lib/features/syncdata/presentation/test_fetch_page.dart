@@ -5,6 +5,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_da
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 
 class FetchScreen extends StatefulWidget {
@@ -53,7 +54,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<ItemByStoreApi>().fetchData();
+      final data = await GetIt.instance<ItemCategoryApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -77,7 +78,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final datum =
-          await GetIt.instance<ItemByStoreApi>().fetchSingleData(docid);
+          await GetIt.instance<ItemCategoryApi>().fetchSingleData(docid);
       print(datum);
       setState(() {
         _singleData = datum.docId;
