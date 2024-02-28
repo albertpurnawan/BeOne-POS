@@ -30,8 +30,7 @@ class ItemCategoryApi {
         );
 
         List<ItemCategoryModel> data = (response.data as List)
-            .map((e) =>
-                ItemCategoryModel.fromMapByDataSource(DataSource.local, e))
+            .map((e) => ItemCategoryModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
 
@@ -64,8 +63,7 @@ class ItemCategoryApi {
 
       if (response.data == null) throw Exception('Null Data');
 
-      ItemCategoryModel datum = ItemCategoryModel.fromMapByDataSource(
-          DataSource.local, response.data);
+      ItemCategoryModel datum = ItemCategoryModel.fromMapRemote(response.data);
 
       log(datum.toString());
       return datum;

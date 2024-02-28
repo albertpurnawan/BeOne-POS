@@ -1,6 +1,4 @@
-import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
-import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CurrencyDao {
@@ -14,27 +12,24 @@ class CurrencyDao {
   //   return CurrencyModel.fromEntity(itemModel.copyWith(id: id));
   // }
 
-  Future<CurrencyModel> readCurrency(String docid) async {
+  Future<CurrencyModel> readCurrency(String docId) async {
     final maps = await db.query(
       tableCurrencies,
       columns: CurrencyFields.values,
       where: '${CurrencyFields.docId} = ?',
-      whereArgs: [docid],
+      whereArgs: [docId],
     );
 
     if (maps.isNotEmpty) {
-      return CurrencyModel.fromMapByDataSource(DataSource.local, maps.first);
+      return CurrencyModel.fromMap(maps.first);
     } else {
-      throw Exception("ID $docid is not found");
+      throw Exception("ID $docId is not found");
     }
   }
 
   Future<List<CurrencyModel>> readCurrencies() async {
     final result = await db.query(tableCurrencies);
 
-    return result
-        .map((itemData) =>
-            CurrencyModel.fromMapByDataSource(DataSource.local, itemData))
-        .toList();
+    return result.map((itemData) => CurrencyModel.fromMap(itemData)).toList();
   }
 }

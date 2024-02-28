@@ -28,7 +28,7 @@ class CurrencyApi {
         );
 
         List<CurrencyModel> data = (response.data as List)
-            .map((e) => CurrencyModel.fromMapByDataSource(DataSource.local, e))
+            .map((e) => CurrencyModel.fromMap(e))
             .toList();
         // log(check.toString());
         allData.addAll(data);
@@ -60,8 +60,7 @@ class CurrencyApi {
 
       if (response.data == null) throw Exception('Null Data');
 
-      CurrencyModel datum =
-          CurrencyModel.fromMapByDataSource(DataSource.local, response.data);
+      CurrencyModel datum = CurrencyModel.fromMap(response.data);
 
       return datum;
     } catch (err) {

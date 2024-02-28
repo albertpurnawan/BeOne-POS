@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 class ItemMasterEntity {
-  final int id;
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
@@ -10,8 +9,8 @@ class ItemMasterEntity {
   final String itemName;
   final int invItem;
   final int serialNo;
-  final int? tocatId;
-  final int? touomId;
+  final String? tocatId;
+  final String? touomId;
   final double minStock;
   final double maxStock;
   final int includeTax;
@@ -30,37 +29,36 @@ class ItemMasterEntity {
   final int? multiplyOrder;
   final int mergeQuantity;
 
-  ItemMasterEntity(
-      {required this.id,
-      required this.docId,
-      required this.createDate,
-      required this.updateDate,
-      required this.itemCode,
-      required this.itemName,
-      required this.invItem,
-      required this.serialNo,
-      required this.tocatId,
-      required this.touomId,
-      required this.minStock,
-      required this.maxStock,
-      required this.includeTax,
-      required this.remarks,
-      required this.statusActive,
-      required this.activated,
-      required this.isBatch,
-      required this.internalCode_1,
-      required this.internalCode_2,
-      required this.openPrice,
-      required this.popItem,
-      required this.bpom,
-      required this.expDate,
-      required this.margin,
-      required this.memberDiscount,
-      required this.multiplyOrder,
-      required this.mergeQuantity});
+  ItemMasterEntity({
+    required this.docId,
+    required this.createDate,
+    required this.updateDate,
+    required this.itemCode,
+    required this.itemName,
+    required this.invItem,
+    required this.serialNo,
+    required this.tocatId,
+    required this.touomId,
+    required this.minStock,
+    required this.maxStock,
+    required this.includeTax,
+    required this.remarks,
+    required this.statusActive,
+    required this.activated,
+    required this.isBatch,
+    required this.internalCode_1,
+    required this.internalCode_2,
+    required this.openPrice,
+    required this.popItem,
+    required this.bpom,
+    required this.expDate,
+    required this.margin,
+    required this.memberDiscount,
+    required this.multiplyOrder,
+    required this.mergeQuantity,
+  });
 
   ItemMasterEntity copyWith({
-    int? id,
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
@@ -68,8 +66,8 @@ class ItemMasterEntity {
     String? itemName,
     int? invItem,
     int? serialNo,
-    int? tocatId,
-    int? touomId,
+    String? tocatId,
+    String? touomId,
     double? minStock,
     double? maxStock,
     int? includeTax,
@@ -89,7 +87,6 @@ class ItemMasterEntity {
     int? mergeQuantity,
   }) {
     return ItemMasterEntity(
-      id: id ?? this.id,
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
@@ -121,7 +118,6 @@ class ItemMasterEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'docId': docId,
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
@@ -153,7 +149,6 @@ class ItemMasterEntity {
 
   factory ItemMasterEntity.fromMap(Map<String, dynamic> map) {
     return ItemMasterEntity(
-      id: map['id'] as int,
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
       updateDate: map['updateDate'] != null
@@ -163,8 +158,8 @@ class ItemMasterEntity {
       itemName: map['itemName'] as String,
       invItem: map['invItem'] as int,
       serialNo: map['serialNo'] as int,
-      tocatId: map['tocatId'] != null ? map['tocatId'] as int : null,
-      touomId: map['touomId'] != null ? map['touomId'] as int : null,
+      tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
+      touomId: map['touomId'] != null ? map['touomId'] as String : null,
       minStock: map['minStock'] as double,
       maxStock: map['maxStock'] as double,
       includeTax: map['includeTax'] as int,
@@ -198,15 +193,14 @@ class ItemMasterEntity {
 
   @override
   String toString() {
-    return 'ItemMasterEntity(id: $id, docId: $docId, createDate: $createDate, updateDate: $updateDate, itemCode: $itemCode, itemName: $itemName, invItem: $invItem, serialNo: $serialNo, tocatId: $tocatId, touomId: $touomId, minStock: $minStock, maxStock: $maxStock, includeTax: $includeTax, remarks: $remarks, statusActive: $statusActive, activated: $activated, isBatch: $isBatch, internalCode_1: $internalCode_1, internalCode_2: $internalCode_2, openPrice: $openPrice, popItem: $popItem, bpom: $bpom, expDate: $expDate, margin: $margin, memberDiscount: $memberDiscount, multiplyOrder: $multiplyOrder, mergeQuantity: $mergeQuantity)';
+    return 'ItemMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, itemCode: $itemCode, itemName: $itemName, invItem: $invItem, serialNo: $serialNo, tocatId: $tocatId, touomId: $touomId, minStock: $minStock, maxStock: $maxStock, includeTax: $includeTax, remarks: $remarks, statusActive: $statusActive, activated: $activated, isBatch: $isBatch, internalCode_1: $internalCode_1, internalCode_2: $internalCode_2, openPrice: $openPrice, popItem: $popItem, bpom: $bpom, expDate: $expDate, margin: $margin, memberDiscount: $memberDiscount, multiplyOrder: $multiplyOrder, mergeQuantity: $mergeQuantity)';
   }
 
   @override
   bool operator ==(covariant ItemMasterEntity other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.docId == docId &&
+    return other.docId == docId &&
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.itemCode == itemCode &&
@@ -236,8 +230,7 @@ class ItemMasterEntity {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        docId.hashCode ^
+    return docId.hashCode ^
         createDate.hashCode ^
         updateDate.hashCode ^
         itemCode.hashCode ^

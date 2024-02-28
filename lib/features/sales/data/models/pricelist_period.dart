@@ -4,7 +4,6 @@ const String tablePricelistPeriods = 'tpln1';
 
 class PricelistPeriodFields {
   static const List<String> values = [
-    id,
     docId,
     createDate,
     updateDate,
@@ -18,7 +17,6 @@ class PricelistPeriodFields {
     activated,
   ];
 
-  static const String id = "_id";
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
@@ -34,7 +32,6 @@ class PricelistPeriodFields {
 
 class PricelistPeriodModel extends PricelistPeriodEntity {
   PricelistPeriodModel({
-    required super.id,
     required super.docId,
     required super.createDate,
     required super.updateDate,
@@ -51,13 +48,12 @@ class PricelistPeriodModel extends PricelistPeriodEntity {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      '_id': id,
       'docid': docId,
-      'createdate': createDate.toUtc().millisecondsSinceEpoch,
-      'updatedate': updateDate?.toUtc().millisecondsSinceEpoch,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'toplnId': toplnId,
-      'periodfr': periodFr.toUtc().millisecondsSinceEpoch,
-      'periodto': periodTo.toUtc().millisecondsSinceEpoch,
+      'periodfr': periodFr.toUtc().toIso8601String(),
+      'periodto': periodTo.toUtc().toIso8601String(),
       'baseprice': basePrice,
       'periodprice': periodPrice,
       'factor': factor,
@@ -66,22 +62,25 @@ class PricelistPeriodModel extends PricelistPeriodEntity {
     };
   }
 
+  factory PricelistPeriodModel.fromMapRemote(Map<String, dynamic> map) {
+    return PricelistPeriodModel.fromMap({
+      ...map,
+      "toplnd": map['toplnd']?['docid'] != null
+          ? map['toplnId']['docid'] as String
+          : null,
+    });
+  }
+
   factory PricelistPeriodModel.fromMap(Map<String, dynamic> map) {
     return PricelistPeriodModel(
-      id: map['_id'] as int, // id not returned
       docId: map['docid'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int)
-          .toLocal(),
+      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedate'] as int)
-              .toLocal()
+          ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      // toplnId returned docid as topln_id: {docid: 3d355ebf-ae71-4892-b09c-bdc8ae8f7331}
-      toplnId: map['toplnId'] != null ? map['toplnId'] as int : null,
-      periodFr:
-          DateTime.fromMillisecondsSinceEpoch(map['periodfr'] as int).toLocal(),
-      periodTo:
-          DateTime.fromMillisecondsSinceEpoch(map['periodto'] as int).toLocal(),
+      toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
+      periodFr: DateTime.parse(map['periodfr'] as String).toLocal(),
+      periodTo: DateTime.parse(map['periodto'] as String).toLocal(),
       basePrice: map['baseprice'] as int,
       periodPrice: map['periodprice'] as int,
       // factor returned int
@@ -93,7 +92,6 @@ class PricelistPeriodModel extends PricelistPeriodEntity {
 
   factory PricelistPeriodModel.fromEntity(PricelistPeriodEntity entity) {
     return PricelistPeriodModel(
-      id: entity.id,
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,
