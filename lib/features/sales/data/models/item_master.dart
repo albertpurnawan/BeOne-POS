@@ -97,19 +97,21 @@ class ItemMasterModel extends ItemMasterEntity {
   factory ItemMasterModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemMasterModel.fromMap({
       ...map,
-      "tocatId": map['tocatId']?['docid'] != null ? map['tocatId']['docid'] as String : null,
-      "touomId": map['touomId']?['docid'] != null ? map['touomId']['docid'] as String : null,
+      "tocatId": map['tocatId']?['docid'] != null
+          ? map['tocatId']['docid'] as String
+          : null,
+      "touomId": map['touomId']?['docid'] != null
+          ? map['touomId']['docid'] as String
+          : null,
     });
   }
 
   factory ItemMasterModel.fromMap(Map<String, dynamic> map) {
     return ItemMasterModel(
       docId: map['docId'] as String,
-      createDate: DateTime.parse(map['createDate'] as String)
-          .toLocal(),
+      createDate: DateTime.parse(map['createDate'] as String).toLocal(),
       updateDate: map['updateDate'] != null
-          ? DateTime.parse(map['updateDate'] as String)
-              .toLocal()
+          ? DateTime.parse(map['updateDate'] as String).toLocal()
           : null,
       itemCode: map['itemCode'] as String,
       itemName: map['itemName'] as String,
@@ -117,8 +119,8 @@ class ItemMasterModel extends ItemMasterEntity {
       serialNo: map['serialNo'] as int,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       touomId: map['touomId'] != null ? map['touomId'] as String : null,
-      minStock: map['minStock'] as int,
-      maxStock: map['maxStock'] as int,
+      minStock: map['minStock'] as double,
+      maxStock: map['maxStock'] as double,
       includeTax: map['includeTax'] as int,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       statusActive: map['statusActive'] as int,
@@ -134,7 +136,7 @@ class ItemMasterModel extends ItemMasterEntity {
       popItem: map['popItem'] as int,
       bpom: map['bpom'] != null ? map['bpom'] as String : null,
       expDate: map['expDate'] != null ? map['expDate'] as String : null,
-      margin: map['margin'] != null ? map['margin'] as int : null,
+      margin: map['margin'] != null ? map['margin'] as double : null,
       memberDiscount:
           map['memberDiscount'] != null ? map['memberDiscount'] as int : null,
       multiplyOrder:
