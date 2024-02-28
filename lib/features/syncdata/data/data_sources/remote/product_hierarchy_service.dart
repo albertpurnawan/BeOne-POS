@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/product_hierarchy.dart';
 
 class ProductHierarchyApi {
@@ -43,7 +44,7 @@ class ProductHierarchyApi {
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -67,7 +68,7 @@ class ProductHierarchyApi {
       // log(datum.toString());
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }

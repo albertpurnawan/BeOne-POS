@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/pricelist_period.dart';
 
 class PricelistPeriodApi {
@@ -43,7 +44,7 @@ class PricelistPeriodApi {
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -66,7 +67,7 @@ class PricelistPeriodApi {
       // log(datum.toString());
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }

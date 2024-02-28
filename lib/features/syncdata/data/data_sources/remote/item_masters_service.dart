@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
 
 class ItemsApi {
@@ -43,7 +44,7 @@ class ItemsApi {
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -65,7 +66,7 @@ class ItemsApi {
       // log(datum.toString());
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }

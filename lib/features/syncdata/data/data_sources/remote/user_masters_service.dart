@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
 
 class UsersApi {
@@ -41,7 +42,7 @@ class UsersApi {
 
       return allData;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }
@@ -62,7 +63,7 @@ class UsersApi {
 
       return datum;
     } catch (err) {
-      print('Error: $err');
+      handleError(err);
       rethrow;
     }
   }

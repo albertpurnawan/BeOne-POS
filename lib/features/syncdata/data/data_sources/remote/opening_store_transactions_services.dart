@@ -1,5 +1,6 @@
 // import 'package:dio/dio.dart';
 // import 'package:pos_fe/core/constants/constants.dart';
+// import 'package:pos_fe/core/usecases/error_handler.dart';
 // import 'package:sqflite/sqflite.dart';
 
 // class OpeningStoreApi {
@@ -40,7 +41,7 @@
 
 //       return allData;
 //     } catch (err) {
-//       print('Error: $err');
+//       handleError(err);
 //       rethrow;
 //     }
 //   }
@@ -61,7 +62,7 @@
 
 //       return datum;
 //     } catch (err) {
-//       print('Error: $err');
+//       handleError(err);
 //       rethrow;
 //     }
 //   }
