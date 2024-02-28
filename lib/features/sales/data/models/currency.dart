@@ -1,4 +1,3 @@
-import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
 
 const String tableCurrencies = "tcurr";

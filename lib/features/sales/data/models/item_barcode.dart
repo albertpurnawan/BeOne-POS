@@ -51,6 +51,7 @@ class ItemBarcodeModel extends ItemBarcodeEntity {
       "touomId": map['touomId']?['docid'] != null
           ? map['touomId']['docid'] as String
           : null,
+      "quantity": map['quantity'].toDouble() as double,
     });
   }
 

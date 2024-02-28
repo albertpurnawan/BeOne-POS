@@ -1,24 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
-import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 
-class CurrencyApi {
+class ItemBarcodeApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
+  String toitm_id = '338d765e-38fc-4f9b-b24f-039d407fd66c';
 
-  CurrencyApi(this._dio);
+  ItemBarcodeApi(this._dio);
 
-  Future<List<CurrencyModel>> fetchData() async {
+  Future<List<ItemBarcodeModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<CurrencyModel> allData = [];
+      List<ItemBarcodeModel> allData = [];
 
       while (hasMoreData) {
         final response = await _dio.get(
-          "$url/tenant-master-currency?page=$page",
+          "$url/tenant-barcode-item?toitm_id=$toitm_id&page=$page",
           options: Options(
             headers: {
               'Authorization': 'Bearer $token',
@@ -26,8 +26,8 @@ class CurrencyApi {
           ),
         );
 
-        List<CurrencyModel> data = (response.data as List)
-            .map((e) => CurrencyModel.fromMap(e))
+        List<ItemBarcodeModel> data = (response.data as List)
+            .map((e) => ItemBarcodeModel.fromMapRemote(e))
             .toList();
         // log(check.toString());
         allData.addAll(data);
@@ -41,29 +41,28 @@ class CurrencyApi {
 
       return allData;
     } catch (err) {
-      handleError(err);
+      print('Error: $err');
       rethrow;
     }
   }
 
-  Future<CurrencyModel> fetchSingleData(String docid) async {
+  Future<ItemBarcodeModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
-        "$url/tenant-master-currency/$docid",
+        "$url/tenant-barcode-item/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
           },
         ),
       );
+      // log([response.data].toString());
 
-      if (response.data == null) throw Exception('Null Data');
-
-      CurrencyModel datum = CurrencyModel.fromMap(response.data);
+      ItemBarcodeModel datum = ItemBarcodeModel.fromMapRemote(response.data);
 
       return datum;
     } catch (err) {
-      handleError(err);
+      print('Error: $err');
       rethrow;
     }
   }

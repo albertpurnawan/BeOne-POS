@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
@@ -54,7 +55,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<ItemCategoryApi>().fetchData();
+      final data = await GetIt.instance<ItemBarcodeApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -78,7 +79,7 @@ class _FetchScreenState extends State<FetchScreen> {
     print("Fetching single data...");
     try {
       final datum =
-          await GetIt.instance<ItemCategoryApi>().fetchSingleData(docid);
+          await GetIt.instance<ItemBarcodeApi>().fetchSingleData(docid);
       print(datum);
       setState(() {
         _singleData = datum.docId;

@@ -8,7 +8,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_items_cubit.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/barcode_item_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/closing_store_transactions_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
@@ -37,7 +37,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<AppDatabase>(AppDatabase());
 
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
-  // sl.registerSingleton<BarcodeItemApi>(BarcodeItemApi(sl()));
+  sl.registerSingleton<ItemBarcodeApi>(ItemBarcodeApi(sl()));
   // sl.registerSingleton<CashRegisterApi>(CashRegisterApi(sl()));
   // sl.registerSingleton<ClosingStoreApi>(ClosingStoreApi(sl()));
   sl.registerSingleton<CurrencyApi>(CurrencyApi(sl()));
