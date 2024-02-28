@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/features/sales/data/models/pricelist_period.dart';
@@ -27,7 +29,7 @@ class PricelistPeriodApi {
         );
 
         final List<PricelistPeriodModel> data = (response.data as List)
-            .map((e) => PricelistPeriodModel.fromMap(e))
+            .map((e) => PricelistPeriodModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
 
@@ -37,6 +39,7 @@ class PricelistPeriodApi {
           page++;
         }
       }
+      // log(allData[0].toString());
 
       return allData;
     } catch (err) {
@@ -55,10 +58,12 @@ class PricelistPeriodApi {
           },
         ),
       );
-      // log([response.data].toString());
+      // log(response.data.toString());
 
-      PricelistPeriodModel datum = PricelistPeriodModel.fromMap(response.data);
+      PricelistPeriodModel datum =
+          PricelistPeriodModel.fromMapRemote(response.data);
 
+      // log(datum.toString());
       return datum;
     } catch (err) {
       print('Error: $err');
