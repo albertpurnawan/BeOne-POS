@@ -4,6 +4,7 @@ import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/pos_paramaeter.dart';
+import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
@@ -536,6 +537,24 @@ CREATE TABLE $tableEmployee (
   CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tohem_tozcId_fkey` FOREIGN KEY (`tozcId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePreferredVendor (
+  $uuidDefinition,
+  ${PreferredVendorFields.createDate} datetime NOT NULL,
+  ${PreferredVendorFields.updateDate} datetime DEFAULT NULL,
+  ${PreferredVendorFields.tsitmId} text DEFAULT NULL,
+  ${PreferredVendorFields.tovenId} text DEFAULT NULL,
+  ${PreferredVendorFields.listing} int NOT NULL,
+  ${PreferredVendorFields.minOrder} double NOT NULL,
+  ${PreferredVendorFields.multipyOrder} double NOT NULL,
+  ${PreferredVendorFields.canOrder} int NOT NULL,
+  ${PreferredVendorFields.dflt} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 )
 """);
       });

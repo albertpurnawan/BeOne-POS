@@ -1,4 +1,3 @@
-import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 
 const String tablePOSParameter = 'topos';
@@ -37,12 +36,26 @@ class POSParameterModel extends POSParameterEntity {
     required super.toplnId,
   });
 
+  @override
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'docid': docId,
+      'createdate': createDate.toLocal().toIso8601String(),
+      'updatedate': updateDate?.toLocal().toIso8601String(),
+      'tostrid': tostrId,
+      'storename': storeName,
+      'tcurrid': tcurrId,
+      'currcode': currCode,
+      'toplnid': toplnId,
+    };
+  }
+
   factory POSParameterModel.fromMap(Map<String, dynamic> map) {
     return POSParameterModel(
       docId: map['docid'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int),
+      createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedate'] as int)
+          ? DateTime.parse(map['createdate']).toLocal()
           : null,
       tostrId: map['tostrid'] as String,
       storeName: map['storename'] as String,
@@ -50,20 +63,6 @@ class POSParameterModel extends POSParameterEntity {
       currCode: map['currcode'] as String,
       toplnId: map['toplnid'] as String,
     );
-  }
-
-  @override
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'docid': docId,
-      'createdate': createDate.millisecondsSinceEpoch,
-      'updatedate': updateDate?.millisecondsSinceEpoch,
-      'tostrid': tostrId,
-      'storename': storeName,
-      'tcurrid': tcurrId,
-      'currcode': currCode,
-      'toplnid': toplnId,
-    };
   }
 
   factory POSParameterModel.fromEntity(POSParameterEntity entity) {

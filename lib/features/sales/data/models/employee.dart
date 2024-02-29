@@ -96,8 +96,8 @@ class EmployeeModel extends EmployeeEntity {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
-      'createdate': createDate.millisecondsSinceEpoch,
-      'updatedate': updateDate?.millisecondsSinceEpoch,
+      'createdate': createDate.toLocal().toIso8601String(),
+      'updatedate': updateDate?.toLocal().toIso8601String(),
       'empcode': empCode,
       'empname': empName,
       'email': email,
@@ -112,10 +112,10 @@ class EmployeeModel extends EmployeeEntity {
       'tozcdid': tozcdId,
       'idcard': idCard,
       'gender': gender,
-      'birthday': birthday.millisecondsSinceEpoch,
+      'birthday': birthday..toLocal().toIso8601String(),
       'photo': photo,
-      'joindate': joinDate.millisecondsSinceEpoch,
-      'resigndate': resignDate.millisecondsSinceEpoch,
+      'joindate': joinDate..toLocal().toIso8601String(),
+      'resigndate': resignDate..toLocal().toIso8601String(),
       'statuscctive': statusActive,
       'activated': activated,
       'empdept': empDept,
@@ -138,9 +138,9 @@ class EmployeeModel extends EmployeeEntity {
   factory EmployeeModel.fromMap(Map<String, dynamic> map) {
     return EmployeeModel(
       docId: map['docid'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int),
+      createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedate'] as int)
+          ? DateTime.parse(map['createdate']).toLocal()
           : null,
       empCode: map['empcode'] as String,
       empName: map['empname'] as String,
@@ -156,10 +156,10 @@ class EmployeeModel extends EmployeeEntity {
       tozcdId: map['tozcdid'] != null ? map['tozcdid'] as String : null,
       idCard: map['idcard'] as String,
       gender: map['gender'] as String,
-      birthday: DateTime.fromMillisecondsSinceEpoch(map['birthday'] as int),
+      birthday: DateTime.parse(map['createdate']).toLocal(),
       photo: map['photo'] as dynamic,
-      joinDate: DateTime.fromMillisecondsSinceEpoch(map['joindate'] as int),
-      resignDate: DateTime.fromMillisecondsSinceEpoch(map['resigndate'] as int),
+      joinDate: DateTime.parse(map['createdate']).toLocal(),
+      resignDate: DateTime.parse(map['createdate']).toLocal(),
       statusActive: map['statuscctive'] as int,
       activated: map['activated'] as int,
       empDept: map['empdept'] as String,
