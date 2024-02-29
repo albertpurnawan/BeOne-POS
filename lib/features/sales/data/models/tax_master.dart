@@ -19,14 +19,14 @@ class TaxMasterFields {
 
   static const String docId = "docId";
   static const String createDate = "createDate";
-  static const String updateDate = "updateDate";
-  static const String taxCode = "taxCode";
+  static const String updateDate = "updatedate";
+  static const String taxCode = "taxcode";
   static const String description = "description";
   static const String rate = "rate";
-  static const String periodFrom = "periodFrom";
-  static const String periodTo = "periodTo";
-  static const String taxType = "taxType";
-  static const String statusActive = "statusActive";
+  static const String periodFrom = "periodfrom";
+  static const String periodTo = "periodto";
+  static const String taxType = "taxtype";
+  static const String statusActive = "statusactive";
   static const String activated = "activated";
 }
 
@@ -47,35 +47,42 @@ class TaxMasterModel extends TaxMasterEntity {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
-      'taxCode': taxCode,
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
+      'taxcode': taxCode,
       'description': description,
       'rate': rate,
-      'periodFrom': periodFrom.toUtc().toIso8601String(),
-      'periodTo': periodTo.toUtc().toIso8601String(),
-      'taxType': taxType,
-      'statusActive': statusActive,
+      'periodfrom': periodFrom.toUtc().toIso8601String(),
+      'periodto': periodTo.toUtc().toIso8601String(),
+      'taxtype': taxType,
+      'statusactive': statusActive,
       'activated': activated,
     };
   }
 
   factory TaxMasterModel.fromMap(Map<String, dynamic> map) {
     return TaxMasterModel(
-      docId: map['docId'] as String,
-      createDate: DateTime.parse(map['createDate'] as String),
-      updateDate: map['updateDate'] != null
+      docId: map['docid'] as String,
+      createDate: DateTime.parse(map['createdate'] as String),
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updateDate'] as String)
           : null,
-      taxCode: map['taxCode'] as String,
+      taxCode: map['taxcode'] as String,
       description: map['description'] as String,
       rate: map['rate'] as double,
-      periodFrom: DateTime.parse(map['periodFrom'] as String),
-      periodTo: DateTime.parse(map['periodTo'] as String),
-      taxType: map['taxType'] as String,
-      statusActive: map['statusActive'] as int,
+      periodFrom: DateTime.parse(map['periodfrom'] as String),
+      periodTo: DateTime.parse(map['periodto'] as String),
+      taxType: map['taxtype'] as String,
+      statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
     );
+  }
+
+  factory TaxMasterModel.fromMapRemote(Map<String, dynamic> map) {
+    return TaxMasterModel.fromMap({
+      ...map,
+      "rate": map['rate'].toDouble() as double,
+    });
   }
 }
