@@ -191,7 +191,7 @@ CREATE TABLE `$tableProductHierarchies` (
   ${ProductHierarchyFields.description} varchar(100) NOT NULL,
   ${ProductHierarchyFields.level} int NOT NULL,
   ${ProductHierarchyFields.maxChar} int NOT NULL,
-  $createdAtDefinition,
+  $createdAtDefinition
 )
 """);
 
@@ -218,7 +218,7 @@ CREATE TABLE $tableItemCategories (
   ${ItemCategoryFields.catNameFrgn} varchar(100) NOT NULL,
   ${ItemCategoryFields.parentId} text DEFAULT NULL,
   ${ItemCategoryFields.level} int NOT NULL,
-  ${ItemCategoryFields.level} text DEFAULT NULL,
+  ${ItemCategoryFields.phir1Id} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tocat_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tocat_phir1Id_fkey` FOREIGN KEY (`phir1Id`) REFERENCES `phir1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -286,7 +286,7 @@ CREATE TABLE $tablePricelists (
   ${PricelistFields.type} int NOT NULL,
   ${PricelistFields.statusactive} int NOT NULL,
   ${PricelistFields.activated} int NOT NULL,
-  $createdAtDefinition
+  $createdAtDefinition,
   CONSTRAINT `topln_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
@@ -415,7 +415,7 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.toplnId} text DEFAULT NULL,
   ${StoreMasterFields.storePic} blob,
   ${StoreMasterFields.tovatId} text DEFAULT NULL,
-  ${StoreMasterFields.storeCode} date NOT NULL,
+  ${StoreMasterFields.storeOpen} date NOT NULL,
   ${StoreMasterFields.statusActive} int NOT NULL,
   ${StoreMasterFields.activated} int NOT NULL,
   ${StoreMasterFields.prefixDoc} varchar(30) DEFAULT '',
