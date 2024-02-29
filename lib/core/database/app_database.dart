@@ -1,5 +1,8 @@
 import 'package:path/path.dart';
+import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
+import 'package:pos_fe/core/database/seeders_data/tocat.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
@@ -25,11 +28,13 @@ class AppDatabase {
 
   late final ItemsDao itemsDao;
   late final CurrencyDao currencyDao;
+  late final ItemCategoryDao itemCategoryDao;
 
   AppDatabase() {
-    getDB().then((value) {
-      itemsDao = ItemsDao(_database!);
-      currencyDao = CurrencyDao(_database!);
+    getDB().then((db) {
+      itemsDao = ItemsDao(db);
+      currencyDao = CurrencyDao(db);
+      itemCategoryDao = ItemCategoryDao(db);
     });
   }
 
@@ -156,7 +161,7 @@ CREATE TABLE `$tableProductHierarchies` (
   ${ProductHierarchyFields.description} varchar(100) NOT NULL,
   ${ProductHierarchyFields.level} int NOT NULL,
   ${ProductHierarchyFields.maxChar} int NOT NULL,
-  $createdAtDefinition,
+  $createdAtDefinition
 )
 """);
 
@@ -181,14 +186,14 @@ CREATE TABLE $tableItemCategories (
   ${ItemCategoryFields.catCode} varchar(30) NOT NULL,
   ${ItemCategoryFields.catName} varchar(100) NOT NULL,
   ${ItemCategoryFields.catNameFrgn} varchar(100) NOT NULL,
-  ${ItemCategoryFields.parentId} text DEFAULT NULL,
+  ${ItemCategoryFields.parentId} int DEFAULT NULL,
   ${ItemCategoryFields.level} int NOT NULL,
-  ${ItemCategoryFields.level} text DEFAULT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `tocat_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tocat_phir1Id_fkey` FOREIGN KEY (`phir1Id`) REFERENCES `phir1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  ${ItemCategoryFields.phir1Id} int DEFAULT NULL,
+  $createdAtDefinition
 )
 """);
+        // CONSTRAINT `tocat_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tocat_phir1Id_fkey` FOREIGN KEY (`phir1Id`) REFERENCES `phir1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableUom (
@@ -200,7 +205,7 @@ CREATE TABLE $tableUom (
   ${UomFields.statusActive} int NOT NULL,
   ${UomFields.activated} int NOT NULL,
   $createdAtDefinition
-) 
+)
 """);
 
         await txn.execute("""
@@ -251,7 +256,7 @@ CREATE TABLE $tablePricelists (
   ${PricelistFields.type} int NOT NULL,
   ${PricelistFields.statusactive} int NOT NULL,
   ${PricelistFields.activated} int NOT NULL,
-  $createdAtDefinition
+  $createdAtDefinition,
   CONSTRAINT `topln_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
@@ -380,7 +385,7 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.toplnId} text DEFAULT NULL,
   ${StoreMasterFields.storePic} blob,
   ${StoreMasterFields.tovatId} text DEFAULT NULL,
-  ${StoreMasterFields.storeCode} date NOT NULL,
+  ${StoreMasterFields.storeOpen} date NOT NULL,
   ${StoreMasterFields.statusActive} int NOT NULL,
   ${StoreMasterFields.activated} int NOT NULL,
   ${StoreMasterFields.prefixDoc} varchar(30) DEFAULT '',
@@ -447,10 +452,10 @@ CREATE TABLE $tableStoreMasters (
   CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tostr_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+        // CONSTRAINT `tostr_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
       });
     } catch (e) {
       print(e);

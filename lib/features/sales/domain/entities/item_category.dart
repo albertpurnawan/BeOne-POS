@@ -8,9 +8,9 @@ class ItemCategoryEntity {
   final String catCode;
   final String catName;
   final String catNameFrgn;
-  final String? parentId;
+  final int? parentId;
   final int level;
-  final String? phir1Id;
+  final int? phir1Id;
 
   ItemCategoryEntity({
     required this.docId,
@@ -31,9 +31,9 @@ class ItemCategoryEntity {
     String? catCode,
     String? catName,
     String? catNameFrgn,
-    String? parentId,
+    int? parentId,
     int? level,
-    String? phir1Id,
+    int? phir1Id,
   }) {
     return ItemCategoryEntity(
       docId: docId ?? this.docId,
@@ -66,13 +66,15 @@ class ItemCategoryEntity {
     return ItemCategoryEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       catCode: map['catCode'] as String,
       catName: map['catName'] as String,
       catNameFrgn: map['catNameFrgn'] as String,
-      parentId: map['parentId'] != null ? map['parentId'] as String : null,
+      parentId: map['parentId'] != null ? map['parentId'] as int : null,
       level: map['level'] as int,
-      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
+      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
     );
   }
 
@@ -89,29 +91,28 @@ class ItemCategoryEntity {
   @override
   bool operator ==(covariant ItemCategoryEntity other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.docId == docId &&
-      other.createDate == createDate &&
-      other.updateDate == updateDate &&
-      other.catCode == catCode &&
-      other.catName == catName &&
-      other.catNameFrgn == catNameFrgn &&
-      other.parentId == parentId &&
-      other.level == level &&
-      other.phir1Id == phir1Id;
+
+    return other.docId == docId &&
+        other.createDate == createDate &&
+        other.updateDate == updateDate &&
+        other.catCode == catCode &&
+        other.catName == catName &&
+        other.catNameFrgn == catNameFrgn &&
+        other.parentId == parentId &&
+        other.level == level &&
+        other.phir1Id == phir1Id;
   }
 
   @override
   int get hashCode {
     return docId.hashCode ^
-      createDate.hashCode ^
-      updateDate.hashCode ^
-      catCode.hashCode ^
-      catName.hashCode ^
-      catNameFrgn.hashCode ^
-      parentId.hashCode ^
-      level.hashCode ^
-      phir1Id.hashCode;
+        createDate.hashCode ^
+        updateDate.hashCode ^
+        catCode.hashCode ^
+        catName.hashCode ^
+        catNameFrgn.hashCode ^
+        parentId.hashCode ^
+        level.hashCode ^
+        phir1Id.hashCode;
   }
 }

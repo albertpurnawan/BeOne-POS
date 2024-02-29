@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_category.dart';
 
 const String tableItemCategories = "tocat";
@@ -26,7 +27,7 @@ class ItemCategoryFields {
   static const String phir1Id = "phir1Id";
 }
 
-class ItemCategoryModel extends ItemCategoryEntity {
+class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
   ItemCategoryModel({
     required super.docId,
     required super.createDate,
@@ -61,9 +62,9 @@ class ItemCategoryModel extends ItemCategoryEntity {
       catCode: map['catcode'] as String,
       catName: map['catname'] as String,
       catNameFrgn: map['catnamefrgn'] as String,
-      parentId: map['parentId'] != null ? map['parentId'] as String : null,
+      parentId: map['parentId'] != null ? map['parentId'] as int : null,
       level: map['level'] as int,
-      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
+      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
     );
   }
 

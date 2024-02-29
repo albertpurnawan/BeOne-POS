@@ -1,3 +1,5 @@
+import 'package:pos_fe/core/resources/base_dao.dart';
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
 
@@ -21,7 +23,7 @@ class CurrencyFields {
   static const String descriptionFrgn = "descriptionfrgn";
 }
 
-class CurrencyModel extends CurrencyEntity {
+class CurrencyModel extends CurrencyEntity implements BaseModel {
   CurrencyModel({
     required super.docId,
     required super.createDate,
