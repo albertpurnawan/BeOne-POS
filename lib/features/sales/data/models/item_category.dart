@@ -40,14 +40,29 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
     required super.phir1Id,
   });
 
+  @override
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'docid': docId,
+      'createdate': createDate.toLocal().toIso8601String(),
+      'updatedate': updateDate?.toLocal().toIso8601String(),
+      'catcode': catCode,
+      'catname': catName,
+      'catnamefrgn': catNameFrgn,
+      'parentId': parentId,
+      'level': level,
+      'phir1Id': phir1Id,
+    };
+  }
+
   factory ItemCategoryModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemCategoryModel.fromMap({
       ...map,
-      "parentId": map['parentId']?['docid'] != null
-          ? map['parentId']['docid'] as String
+      "parentId": map['parent_id']?['docid'] != null
+          ? map['parent_id']['docid'] as String
           : null,
-      "phir1Id": map['phir1Id']?['docid'] != null
-          ? map['phir1Id']['docid'] as String
+      "phir1Id": map['phlir1_id']?['docid'] != null
+          ? map['phlir1_id']['docid'] as String
           : null,
     });
   }
@@ -66,21 +81,6 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
       level: map['level'] as int,
       phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
     );
-  }
-
-  @override
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'docid': docId,
-      'createdate': createDate.toLocal().toIso8601String(),
-      'updatedate': updateDate?.toLocal().toIso8601String(),
-      'catcode': catCode,
-      'catname': catName,
-      'catnamefrgn': catNameFrgn,
-      'parentId': parentId,
-      'level': level,
-      'phir1Id': phir1Id,
-    };
   }
 
   factory ItemCategoryModel.fromEntity(ItemCategoryEntity entity) {

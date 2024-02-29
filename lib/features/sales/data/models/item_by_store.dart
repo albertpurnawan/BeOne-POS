@@ -1,4 +1,3 @@
-import 'package:pos_fe/core/resources/data_sources_enum.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_by_store.dart';
 
 const String tableItemsByStore = "tsitm";
@@ -63,12 +62,12 @@ class ItemByStoreModel extends ItemByStoreEntity {
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
-      'toitmId': toitmId,
-      'tostrId': tostrId,
+      'toitm_id': toitmId,
+      'tostr_id': tostrId,
       'statusactive': statusActive,
       'activated': activated,
       'tovatId': tovatId,
-      'tovatIdPur': tovatIdPur,
+      'tovat_id_pur': tovatIdPur,
       'maxstock': maxStock,
       'minstock': minStock,
       'marginpercentage': marginPercentage,
@@ -81,18 +80,31 @@ class ItemByStoreModel extends ItemByStoreEntity {
   factory ItemByStoreModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemByStoreModel.fromMap({
       ...map,
-      "toitmId": map['toitmId']?['docid'] != null
-          ? map['toitmId']['docid'] as String
+      "toitmId": map['toitm_id']?['docid'] != null
+          ? map['toitm_id']['docid'] as String
           : null,
-      "tostrId": map['tostrId']?['docid'] != null
-          ? map['tostrId']['docid'] as String
+      "tostrId": map['tostr_id']?['docid'] != null
+          ? map['tostr_id']['docid'] as String
           : null,
-      "tovatId": map['tovatId']?['docid'] != null
-          ? map['tovatId']['docid'] as String
+      "tovatId": map['tovat_id']?['docid'] != null
+          ? map['tovat_id']['docid'] as String
           : null,
-      "tovatPurId": map['tovatPurId']?['docid'] != null
-          ? map['tovatPurId']['docid'] as String
+      "tovatIdPur": map['tovat_id_pur']?['docid'] != null
+          ? map['tovat_id_pur']['docid'] as String
           : null,
+      "maxstock": map['toitm_id']['maxstock'] != null
+          ? map['toitm_id']['maxstock'].toDouble() as double
+          : null,
+      "minstock": map['toitm_id']['minstock'] != null
+          ? map['toitm_id']['minstock'].toDouble() as double
+          : null,
+      "marginpercentage": map['marginpercentage'] != null
+          ? map['marginpercentage'].toDouble() as double
+          : null,
+      "marginprice": map['marginprice'] != null
+          ? map['marginprice'].toDouble() as double
+          : null,
+      "price": map['price'] != null ? map['price'].toDouble() as double : null,
     });
   }
 

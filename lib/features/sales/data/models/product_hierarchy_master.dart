@@ -47,8 +47,8 @@ class ProductHierarchyMasterModel extends ProductHierarchyMasterEntity {
   factory ProductHierarchyMasterModel.fromMapRemote(Map<String, dynamic> map) {
     return ProductHierarchyMasterModel.fromMap({
       ...map,
-      "tphirId": map['tphirId']?['docid'] != null
-          ? map['tphirId']['docid'] as String
+      "tphirId": map['tphir_id']?['docid'] != null
+          ? map['tphir_id']['docid'] as String
           : null,
     });
   }

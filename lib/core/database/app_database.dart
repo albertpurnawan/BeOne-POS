@@ -5,7 +5,11 @@ import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart'
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/data/models/pos_paramaeter.dart';
+import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
 import 'package:pos_fe/features/sales/data/models/item_category.dart';
@@ -22,8 +26,9 @@ import 'package:pos_fe/features/sales/data/models/uom.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final databaseVersion = 1;
+  late final databaseVersion = 1;
   final _databaseName = "pos_fe.db";
+
   Database? _database;
 
   late final ItemsDao itemsDao;
@@ -119,6 +124,37 @@ CREATE TABLE receiptitems (
     ON DELETE NO ACTION ON UPDATE NO ACTION
 )""");
 
+        await db.execute("""
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  docid STRING NOT NULL UNIQUE, 
+  createdate TEXT,
+  updatedate TEXT,
+  gtentId INTEGER,
+  email STRING,
+  username STRING,
+  password STRING,
+  tohemId INTEGER,
+  torolId INTEGER,
+  statusactive INTEGER,
+  activated INTEGER,
+  superuser INTEGER,
+  provider INTEGER,
+  usertype INTEGER,
+  trolleyuser STRING
+)
+""");
+/*
+FOREIGN KEY (gtentId) REFERENCES tennats (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (tohemId) REFERENCES employees (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (torolId) REFERENCES userroles (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (tostrId) REFERENCES stores (id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+*/
+
         await txn.execute("""
 CREATE TABLE $tableCurrencies (
   $uuidDefinition,
@@ -161,6 +197,7 @@ CREATE TABLE `$tableProductHierarchies` (
   ${ProductHierarchyFields.description} varchar(100) NOT NULL,
   ${ProductHierarchyFields.level} int NOT NULL,
   ${ProductHierarchyFields.maxChar} int NOT NULL,
+  $createdAtDefinition
   $createdAtDefinition
 )
 """);
@@ -455,10 +492,187 @@ CREATE TABLE $tableStoreMasters (
   CONSTRAINT `tostr_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute("""
+CREATE TABLE $tablePOSParameter (
+  $uuidDefinition,
+  ${POSParameterFields.createDate} datetime NOT NULL,
+  ${POSParameterFields.updateDate} datetime DEFAULT NULL,
+  ${POSParameterFields.tostrId} text NOT NULL,
+  ${POSParameterFields.storeName} text NOT NULL,
+  ${POSParameterFields.tcurrId} text NOT NULL,
+  ${POSParameterFields.currCode} text NOT NULL,
+  ${POSParameterFields.toplnId} text NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableEmployee (
+  $uuidDefinition,
+  ${EmployeeFields.createDate} datetime NOT NULL,
+  ${EmployeeFields.updateDate} datetime DEFAULT NULL,
+  ${EmployeeFields.empCode} text NOT NULL,
+  ${EmployeeFields.empName} text NOT NULL,
+  ${EmployeeFields.email} text NOT NULL,
+  ${EmployeeFields.phone} text NOT NULL,
+  ${EmployeeFields.addr1} text NOT NULL,
+  ${EmployeeFields.addr2} text DEFAULT NULL,
+  ${EmployeeFields.addr3} text DEFAULT NULL,
+  ${EmployeeFields.city} text NOT NULL,
+  ${EmployeeFields.remarks} text DEFAULT NULL,
+  ${EmployeeFields.toprvId} text DEFAULT NULL,
+  ${EmployeeFields.tocryId} text DEFAULT NULL,
+  ${EmployeeFields.tozcdId} text DEFAULT NULL,
+  ${EmployeeFields.idCard} text NOT NULL,
+  ${EmployeeFields.gender} text NOT NULL,
+  ${EmployeeFields.birthday} text NOT NULL,
+  ${EmployeeFields.photo} blob NOT NULL,
+  ${EmployeeFields.joinDate} datetime NOT NULL,
+  ${EmployeeFields.resignDate} datetime NOT NULL,
+  ${EmployeeFields.statusActive} int NOT NULL,
+  ${EmployeeFields.activated} int NOT NULL,
+  ${EmployeeFields.empDept} text NOT NULL,
+  ${EmployeeFields.empTitle} text NOT NULL,
+  ${EmployeeFields.empWorkplace} text NOT NULL,
+  ${EmployeeFields.empdDebt} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tozcId_fkey` FOREIGN KEY (`tozcId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePreferredVendor (
+  $uuidDefinition,
+  ${PreferredVendorFields.createDate} datetime NOT NULL,
+  ${PreferredVendorFields.updateDate} datetime DEFAULT NULL,
+  ${PreferredVendorFields.tsitmId} text DEFAULT NULL,
+  ${PreferredVendorFields.tovenId} text DEFAULT NULL,
+  ${PreferredVendorFields.listing} int NOT NULL,
+  ${PreferredVendorFields.minOrder} double NOT NULL,
+  ${PreferredVendorFields.multipyOrder} double NOT NULL,
+  ${PreferredVendorFields.canOrder} int NOT NULL,
+  ${PreferredVendorFields.dflt} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePOSParameter (
+  $uuidDefinition,
+  ${POSParameterFields.createDate} datetime NOT NULL,
+  ${POSParameterFields.updateDate} datetime DEFAULT NULL,
+  ${POSParameterFields.tostrId} text NOT NULL,
+  ${POSParameterFields.storeName} text NOT NULL,
+  ${POSParameterFields.tcurrId} text NOT NULL,
+  ${POSParameterFields.currCode} text NOT NULL,
+  ${POSParameterFields.toplnId} text NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableEmployee (
+  $uuidDefinition,
+  ${EmployeeFields.createDate} datetime NOT NULL,
+  ${EmployeeFields.updateDate} datetime DEFAULT NULL,
+  ${EmployeeFields.empCode} text NOT NULL,
+  ${EmployeeFields.empName} text NOT NULL,
+  ${EmployeeFields.email} text NOT NULL,
+  ${EmployeeFields.phone} text NOT NULL,
+  ${EmployeeFields.addr1} text NOT NULL,
+  ${EmployeeFields.addr2} text DEFAULT NULL,
+  ${EmployeeFields.addr3} text DEFAULT NULL,
+  ${EmployeeFields.city} text NOT NULL,
+  ${EmployeeFields.remarks} text DEFAULT NULL,
+  ${EmployeeFields.toprvId} text DEFAULT NULL,
+  ${EmployeeFields.tocryId} text DEFAULT NULL,
+  ${EmployeeFields.tozcdId} text DEFAULT NULL,
+  ${EmployeeFields.idCard} text NOT NULL,
+  ${EmployeeFields.gender} text NOT NULL,
+  ${EmployeeFields.birthday} text NOT NULL,
+  ${EmployeeFields.photo} blob NOT NULL,
+  ${EmployeeFields.joinDate} datetime NOT NULL,
+  ${EmployeeFields.resignDate} datetime NOT NULL,
+  ${EmployeeFields.statusActive} int NOT NULL,
+  ${EmployeeFields.activated} int NOT NULL,
+  ${EmployeeFields.empDept} text NOT NULL,
+  ${EmployeeFields.empTitle} text NOT NULL,
+  ${EmployeeFields.empWorkplace} text NOT NULL,
+  ${EmployeeFields.empdDebt} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tozcId_fkey` FOREIGN KEY (`tozcId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePreferredVendor (
+  $uuidDefinition,
+  ${PreferredVendorFields.createDate} datetime NOT NULL,
+  ${PreferredVendorFields.updateDate} datetime DEFAULT NULL,
+  ${PreferredVendorFields.tsitmId} text DEFAULT NULL,
+  ${PreferredVendorFields.tovenId} text DEFAULT NULL,
+  ${PreferredVendorFields.listing} int NOT NULL,
+  ${PreferredVendorFields.minOrder} double NOT NULL,
+  ${PreferredVendorFields.multipyOrder} double NOT NULL,
+  ${PreferredVendorFields.canOrder} int NOT NULL,
+  ${PreferredVendorFields.dflt} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
         // CONSTRAINT `tostr_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
       });
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future upsertUsers(List<dynamic> obj) async {
+    try {
+      Database db = await getDB();
+
+      await db.transaction((txn) async {
+        await txn.rawInsert('''
+        INSERT OR REPLACE INTO users (
+          docid, createdate, updatedate, gtentId, email, username, password,
+          tohemId, torolId, statusactive, activated, superuser, provider,
+          usertype, trolleyuser
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+        ON CONFLICT(docid) DO UPDATE SET
+        createdate = excluded.createdate,
+        updatedate = excluded.updatedate,
+        gtentId = excluded.gtentId,
+        email = excluded.email,
+        username = excluded.username,
+        password = excluded.password,
+        tohemId = excluded.tohemId,
+        torolId = excluded.torolId,
+        statusactive = excluded.statusactive,
+        activated = excluded.activated,
+        superuser = excluded.superuser,
+        provider = excluded.provider,
+        usertype = excluded.usertype,
+        trolleyuser = excluded.trolleyuser
+        ''', obj);
+      });
+    } catch (err) {
+      print(err);
     }
   }
 

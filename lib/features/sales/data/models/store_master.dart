@@ -448,33 +448,45 @@ class StoreMasterModel extends StoreMasterEntity {
   factory StoreMasterModel.fromMapRemote(Map<String, dynamic> map) {
     return StoreMasterModel.fromMap({
       ...map,
-      "toprvId": map['toprvId']?['docid'] != null
-          ? map['toprvId']['docid'] as String
+      "toprvId": map['toprv_id']?['docid'] != null
+          ? map['toprv_id']['docid'] as String
           : null,
-      "tocryId": map['tocryId']?['docid'] != null
-          ? map['tocryId']['docid'] as String
+      "tocryId": map['tocry_id']?['docid'] != null
+          ? map['tocry_id']['docid'] as String
           : null,
-      "tozcdlId": map['tozcdlId']?['docid'] != null
-          ? map['tozcdlId']['docid'] as String
+      "tozcdlId": map['tozcdl_id']?['docid'] != null
+          ? map['tozcdl_id']['docid'] as String
           : null,
-      "tohemId": map['tohemId']?['docid'] != null
-          ? map['tohemId']['docid'] as String
+      "tohemId": map['tohem_id']?['docid'] != null
+          ? map['tohem_id']['docid'] as String
           : null,
-      "tcurrId": map['tcurrId']?['docid'] != null
-          ? map['tcurrId']['docid'] as String
+      "tcurrId": map['tcurr_id']?['docid'] != null
+          ? map['tcurr_id']['docid'] as String
           : null,
-      "toplnId": map['toplnId']?['docid'] != null
-          ? map['toplnId']['docid'] as String
+      "toplnId": map['topln_id']?['docid'] != null
+          ? map['topln_id']['docid'] as String
           : null,
-      "tovatId": map['tovatId']?['docid'] != null
-          ? map['tovatId']['docid'] as String
+      "tovatId": map['tovat_id']?['docid'] != null
+          ? map['tovat_id']['docid'] as String
           : null,
-      "tpmt1Id": map['tpmt1Id']?['docid'] != null
-          ? map['tpmt1Id']['docid'] as String
+      "tpmt1Id": map['tpmt1_id']?['docid'] != null
+          ? map['tpmt1_id']['docid'] as String
           : null,
-      "creditTaxCodeId": map['creditTaxCodeId']?['docid'] != null
-          ? map['creditTaxCodeId']['docid'] as String
+      "creditTaxCodeId": map['credittaxcode_id']?['docid'] != null
+          ? map['credittaxcode_id']['docid'] as String
           : null,
+      "sellingtax": map['sellingtax'] != null
+          ? map['sellingtax'].toDouble() as double
+          : null,
+      "openingbalance": map['openingbalance'] != null
+          ? map['openingbalance'].toDouble() as double
+          : null,
+      "roundingvalue": map['roundingvalue'] != null
+          ? map['roundingvalue'].toDouble() as double
+          : null,
+      "stocklevel": map['stocklevel'].toDouble() as double,
+      "minconst": map['minconst'].toDouble() as double,
+      "maxconst": map['maxconst'].toDouble() as double,
     });
   }
 }

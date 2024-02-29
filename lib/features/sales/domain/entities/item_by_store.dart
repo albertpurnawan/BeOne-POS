@@ -96,18 +96,25 @@ class ItemByStoreEntity {
     return ItemByStoreEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      tovatIdPur: map['tovatIdPur'] != null ? map['tovatIdPur'] as String : null,
+      tovatIdPur:
+          map['tovatIdPur'] != null ? map['tovatIdPur'] as String : null,
       maxStock: map['maxStock'] != null ? map['maxStock'] as double : null,
       minStock: map['minStock'] != null ? map['minStock'] as double : null,
-      marginPercentage: map['marginPercentage'] != null ? map['marginPercentage'] as double : null,
-      marginPrice: map['marginPrice'] != null ? map['marginPrice'] as double : null,
-      multiplyOrder: map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
+      marginPercentage: map['marginPercentage'] != null
+          ? map['marginPercentage'] as double
+          : null,
+      marginPrice:
+          map['marginPrice'] != null ? map['marginPrice'] as double : null,
+      multiplyOrder:
+          map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
       price: map['price'] != null ? map['price'] as double : null,
     );
   }
@@ -125,41 +132,40 @@ class ItemByStoreEntity {
   @override
   bool operator ==(covariant ItemByStoreEntity other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.docId == docId &&
-      other.createDate == createDate &&
-      other.updateDate == updateDate &&
-      other.toitmId == toitmId &&
-      other.tostrId == tostrId &&
-      other.statusActive == statusActive &&
-      other.activated == activated &&
-      other.tovatId == tovatId &&
-      other.tovatIdPur == tovatIdPur &&
-      other.maxStock == maxStock &&
-      other.minStock == minStock &&
-      other.marginPercentage == marginPercentage &&
-      other.marginPrice == marginPrice &&
-      other.multiplyOrder == multiplyOrder &&
-      other.price == price;
+
+    return other.docId == docId &&
+        other.createDate == createDate &&
+        other.updateDate == updateDate &&
+        other.toitmId == toitmId &&
+        other.tostrId == tostrId &&
+        other.statusActive == statusActive &&
+        other.activated == activated &&
+        other.tovatId == tovatId &&
+        other.tovatIdPur == tovatIdPur &&
+        other.maxStock == maxStock &&
+        other.minStock == minStock &&
+        other.marginPercentage == marginPercentage &&
+        other.marginPrice == marginPrice &&
+        other.multiplyOrder == multiplyOrder &&
+        other.price == price;
   }
 
   @override
   int get hashCode {
     return docId.hashCode ^
-      createDate.hashCode ^
-      updateDate.hashCode ^
-      toitmId.hashCode ^
-      tostrId.hashCode ^
-      statusActive.hashCode ^
-      activated.hashCode ^
-      tovatId.hashCode ^
-      tovatIdPur.hashCode ^
-      maxStock.hashCode ^
-      minStock.hashCode ^
-      marginPercentage.hashCode ^
-      marginPrice.hashCode ^
-      multiplyOrder.hashCode ^
-      price.hashCode;
+        createDate.hashCode ^
+        updateDate.hashCode ^
+        toitmId.hashCode ^
+        tostrId.hashCode ^
+        statusActive.hashCode ^
+        activated.hashCode ^
+        tovatId.hashCode ^
+        tovatIdPur.hashCode ^
+        maxStock.hashCode ^
+        minStock.hashCode ^
+        marginPercentage.hashCode ^
+        marginPrice.hashCode ^
+        multiplyOrder.hashCode ^
+        price.hashCode;
   }
 }

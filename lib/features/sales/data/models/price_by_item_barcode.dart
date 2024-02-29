@@ -49,14 +49,14 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity {
   factory PriceByItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
     return PriceByItemBarcodeModel.fromMap({
       ...map,
-      "tpln2Id": map['tpln2Id']?['docid'] != null
-          ? map['tpln2Id']['docid'] as String
+      "tpln2Id": map['tpln2_id']?['docid'] != null
+          ? map['tpln2_id']['docid'] as String
           : null,
-      "tbitmId": map['tbitmId']?['docid'] != null
-          ? map['tbitmId']['docid'] as String
+      "tbitmId": map['tbitm_id']?['docid'] != null
+          ? map['tbitm_id']['docid'] as String
           : null,
-      "tcurrId": map['tcurrId']?['docid'] != null
-          ? map['tcurrId']['docid'] as String
+      "tcurrId": map['tcurr_id']?['docid'] != null
+          ? map['tcurr_id']['docid'] as String
           : null,
     });
   }

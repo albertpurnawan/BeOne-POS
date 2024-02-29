@@ -51,7 +51,9 @@ class CurrencyEntity {
     return CurrencyEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       curCode: map['curCode'] as String,
       description: map['description'] as String,
       descriptionFrgn: map['descriptionFrgn'] as String,
@@ -60,7 +62,8 @@ class CurrencyEntity {
 
   String toJson() => json.encode(toMap());
 
-  factory CurrencyEntity.fromJson(String source) => CurrencyEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory CurrencyEntity.fromJson(String source) =>
+      CurrencyEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -70,23 +73,22 @@ class CurrencyEntity {
   @override
   bool operator ==(covariant CurrencyEntity other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.docId == docId &&
-      other.createDate == createDate &&
-      other.updateDate == updateDate &&
-      other.curCode == curCode &&
-      other.description == description &&
-      other.descriptionFrgn == descriptionFrgn;
+
+    return other.docId == docId &&
+        other.createDate == createDate &&
+        other.updateDate == updateDate &&
+        other.curCode == curCode &&
+        other.description == description &&
+        other.descriptionFrgn == descriptionFrgn;
   }
 
   @override
   int get hashCode {
     return docId.hashCode ^
-      createDate.hashCode ^
-      updateDate.hashCode ^
-      curCode.hashCode ^
-      description.hashCode ^
-      descriptionFrgn.hashCode;
+        createDate.hashCode ^
+        updateDate.hashCode ^
+        curCode.hashCode ^
+        description.hashCode ^
+        descriptionFrgn.hashCode;
   }
 }

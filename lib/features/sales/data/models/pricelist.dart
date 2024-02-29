@@ -69,9 +69,10 @@ class PricelistModel extends PricelistEntity {
   factory PricelistModel.fromMapRemote(Map<String, dynamic> map) {
     return PricelistModel.fromMap({
       ...map,
-      "tcurrId": map['tcurrId']?['docid'] != null
-          ? map['tcurrId']['docid'] as String
+      "tcurrId": map['tcurr_id']?['docid'] != null
+          ? map['tcurr_id']['docid'] as String
           : null,
+      "factor": map['factor'].toDouble() as double,
     });
   }
 
