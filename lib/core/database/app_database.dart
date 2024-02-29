@@ -1,7 +1,10 @@
 import 'package:path/path.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/data/models/pos_paramaeter.dart';
+import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
@@ -13,6 +16,8 @@ import 'package:pos_fe/features/sales/data/models/pricelist.dart';
 import 'package:pos_fe/features/sales/data/models/pricelist_period.dart';
 import 'package:pos_fe/features/sales/data/models/product_hierarchy.dart';
 import 'package:pos_fe/features/sales/data/models/product_hierarchy_master.dart';
+import 'package:pos_fe/features/sales/data/models/store_master.dart';
+import 'package:pos_fe/features/sales/data/models/tax_master.dart';
 import 'package:pos_fe/features/sales/data/models/uom.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -157,6 +162,23 @@ CREATE TABLE $tableCurrencies (
 """);
 
         await txn.execute("""
+CREATE TABLE $tableTaxMasters (
+  $uuidDefinition,
+  ${TaxMasterFields.createDate} datetime NOT NULL,
+  ${TaxMasterFields.updateDate} datetime DEFAULT NULL,
+  ${TaxMasterFields.taxCode} varchar(30) NOT NULL,
+  ${TaxMasterFields.description} varchar(200) NOT NULL,
+  ${TaxMasterFields.rate} double NOT NULL,
+  ${TaxMasterFields.periodFrom} date NOT NULL,
+  ${TaxMasterFields.periodTo} date NOT NULL,
+  ${TaxMasterFields.taxType} varchar(1) NOT NULL,
+  ${TaxMasterFields.statusActive} int NOT NULL,
+  ${TaxMasterFields.activated} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
 INSERT INTO `tcurr` (docid,createdate,updatedate,curcode,description,descriptionfrgn) VALUES
 	 ('cff4edc0-7612-4681-8d7c-c90e9e97c6dc','2023-08-28 04:08:00','2023-08-28 04:08:00','IDR','Rupiah','Rupiah');
 """);
@@ -169,7 +191,7 @@ CREATE TABLE `$tableProductHierarchies` (
   ${ProductHierarchyFields.description} varchar(100) NOT NULL,
   ${ProductHierarchyFields.level} int NOT NULL,
   ${ProductHierarchyFields.maxChar} int NOT NULL,
-  $createdAtDefinition,
+  $createdAtDefinition
 )
 """);
 
@@ -196,7 +218,7 @@ CREATE TABLE $tableItemCategories (
   ${ItemCategoryFields.catNameFrgn} varchar(100) NOT NULL,
   ${ItemCategoryFields.parentId} text DEFAULT NULL,
   ${ItemCategoryFields.level} int NOT NULL,
-  ${ItemCategoryFields.level} text DEFAULT NULL,
+  ${ItemCategoryFields.phir1Id} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tocat_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tocat_phir1Id_fkey` FOREIGN KEY (`phir1Id`) REFERENCES `phir1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -264,7 +286,7 @@ CREATE TABLE $tablePricelists (
   ${PricelistFields.type} int NOT NULL,
   ${PricelistFields.statusactive} int NOT NULL,
   ${PricelistFields.activated} int NOT NULL,
-  $createdAtDefinition
+  $createdAtDefinition,
   CONSTRAINT `topln_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
@@ -367,6 +389,172 @@ CREATE TABLE $tablePricesByItemBarcode (
   CONSTRAINT `tpln4_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln4_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln4_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableStoreMasters (
+  $uuidDefinition,
+  ${StoreMasterFields.createDate} datetime NOT NULL,
+  ${StoreMasterFields.updateDate} datetime DEFAULT NULL,
+  ${StoreMasterFields.storeCode} varchar(30) NOT NULL,
+  ${StoreMasterFields.storeName} varchar(200) NOT NULL,
+  ${StoreMasterFields.email} varchar(100) NOT NULL,
+  ${StoreMasterFields.phone} varchar(20) NOT NULL,
+  ${StoreMasterFields.addr1} varchar(200) NOT NULL,
+  ${StoreMasterFields.addr2} varchar(200) DEFAULT NULL,
+  ${StoreMasterFields.addr3} varchar(200) DEFAULT NULL,
+  ${StoreMasterFields.city} varchar(100) NOT NULL,
+  ${StoreMasterFields.remarks} text,
+  ${StoreMasterFields.toprvId} text DEFAULT NULL,
+  ${StoreMasterFields.tocryId} text DEFAULT NULL,
+  ${StoreMasterFields.tozcdlId} text DEFAULT NULL,
+  ${StoreMasterFields.tohemId} text DEFAULT NULL,
+  ${StoreMasterFields.sqm} double NOT NULL,
+  ${StoreMasterFields.tcurrId} text DEFAULT NULL,
+  ${StoreMasterFields.toplnId} text DEFAULT NULL,
+  ${StoreMasterFields.storePic} blob,
+  ${StoreMasterFields.tovatId} text DEFAULT NULL,
+  ${StoreMasterFields.storeOpen} date NOT NULL,
+  ${StoreMasterFields.statusActive} int NOT NULL,
+  ${StoreMasterFields.activated} int NOT NULL,
+  ${StoreMasterFields.prefixDoc} varchar(30) DEFAULT '',
+  ${StoreMasterFields.header01} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.header02} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.header03} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.header04} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.header05} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.footer01} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.footer02} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.footer03} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.footer04} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.footer05} varchar(48) DEFAULT '-',
+  ${StoreMasterFields.sellingTax} double DEFAULT '0',
+  ${StoreMasterFields.openingBalance} double DEFAULT '0',
+  ${StoreMasterFields.autoRounding} int DEFAULT '1',
+  ${StoreMasterFields.roundingValue} double DEFAULT '0',
+  ${StoreMasterFields.totalMinus} int DEFAULT '0',
+  ${StoreMasterFields.totalZero} int DEFAULT '1',
+  ${StoreMasterFields.holdStruck} int DEFAULT '0',
+  ${StoreMasterFields.holdClose} int DEFAULT '0',
+  ${StoreMasterFields.autoPrintStruk} int DEFAULT '0',
+  ${StoreMasterFields.barcode1} varchar(5) DEFAULT '0',
+  ${StoreMasterFields.barcode2} int DEFAULT '0',
+  ${StoreMasterFields.barcode3} int DEFAULT '0',
+  ${StoreMasterFields.barcode4} int DEFAULT '0',
+  ${StoreMasterFields.connectBack} int DEFAULT '0',
+  ${StoreMasterFields.maxUserKassa} int DEFAULT '2',
+  ${StoreMasterFields.stockLevel} double NOT NULL DEFAULT '1.5',
+  ${StoreMasterFields.minConst} double NOT NULL DEFAULT '0.5',
+  ${StoreMasterFields.maxConst} double NOT NULL DEFAULT '0.75',
+  ${StoreMasterFields.orderCycle} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.taxBy} int NOT NULL,
+  ${StoreMasterFields.tpmt1Id} text DEFAULT NULL,
+  ${StoreMasterFields.mtxline01} varchar(100) DEFAULT '',
+  ${StoreMasterFields.mtxline02} varchar(100) DEFAULT '',
+  ${StoreMasterFields.mtxline03} varchar(100) DEFAULT '',
+  ${StoreMasterFields.mtxline04} varchar(100) DEFAULT '',
+  ${StoreMasterFields.storeEpicPath} text,
+  ${StoreMasterFields.attendaceFp} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.autoDownload} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.autoDownload1} datetime DEFAULT NULL,
+  ${StoreMasterFields.autoDownload2} datetime DEFAULT NULL,
+  ${StoreMasterFields.autoDownload3} datetime DEFAULT NULL,
+  ${StoreMasterFields.autoSync} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.autoUpload} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.checkSellingPrice} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.checkStockMinus} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.creditTaxCodeId} text DEFAULT NULL,
+  ${StoreMasterFields.maxVoidDays} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.qtyMinusValidation} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.roundingRemarks} varchar(10) DEFAULT 'Donasi',
+  ${StoreMasterFields.searchItem} int NOT NULL DEFAULT '1',
+  ${StoreMasterFields.vdfLine1} varchar(20) DEFAULT NULL,
+  ${StoreMasterFields.vdfLine1Off} varchar(20) DEFAULT NULL,
+  ${StoreMasterFields.vdfLine2} varchar(20) DEFAULT NULL,
+  ${StoreMasterFields.vdfLine2Off} varchar(20) DEFAULT NULL,
+  ${StoreMasterFields.isStore} int NOT NULL DEFAULT '1',
+  $createdAtDefinition,
+  CONSTRAINT `tostr_credittaxcodeId_fkey` FOREIGN KEY (`credittaxcodeId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tostr_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePOSParameter (
+  $uuidDefinition,
+  ${POSParameterFields.createDate} datetime NOT NULL,
+  ${POSParameterFields.updateDate} datetime DEFAULT NULL,
+  ${POSParameterFields.tostrId} text NOT NULL,
+  ${POSParameterFields.storeName} text NOT NULL,
+  ${POSParameterFields.tcurrId} text NOT NULL,
+  ${POSParameterFields.currCode} text NOT NULL,
+  ${POSParameterFields.toplnId} text NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableEmployee (
+  $uuidDefinition,
+  ${EmployeeFields.createDate} datetime NOT NULL,
+  ${EmployeeFields.updateDate} datetime DEFAULT NULL,
+  ${EmployeeFields.empCode} text NOT NULL,
+  ${EmployeeFields.empName} text NOT NULL,
+  ${EmployeeFields.email} text NOT NULL,
+  ${EmployeeFields.phone} text NOT NULL,
+  ${EmployeeFields.addr1} text NOT NULL,
+  ${EmployeeFields.addr2} text DEFAULT NULL,
+  ${EmployeeFields.addr3} text DEFAULT NULL,
+  ${EmployeeFields.city} text NOT NULL,
+  ${EmployeeFields.remarks} text DEFAULT NULL,
+  ${EmployeeFields.toprvId} text DEFAULT NULL,
+  ${EmployeeFields.tocryId} text DEFAULT NULL,
+  ${EmployeeFields.tozcdId} text DEFAULT NULL,
+  ${EmployeeFields.idCard} text NOT NULL,
+  ${EmployeeFields.gender} text NOT NULL,
+  ${EmployeeFields.birthday} text NOT NULL,
+  ${EmployeeFields.photo} blob NOT NULL,
+  ${EmployeeFields.joinDate} datetime NOT NULL,
+  ${EmployeeFields.resignDate} datetime NOT NULL,
+  ${EmployeeFields.statusActive} int NOT NULL,
+  ${EmployeeFields.activated} int NOT NULL,
+  ${EmployeeFields.empDept} text NOT NULL,
+  ${EmployeeFields.empTitle} text NOT NULL,
+  ${EmployeeFields.empWorkplace} text NOT NULL,
+  ${EmployeeFields.empdDebt} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tozcId_fkey` FOREIGN KEY (`tozcId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePreferredVendor (
+  $uuidDefinition,
+  ${PreferredVendorFields.createDate} datetime NOT NULL,
+  ${PreferredVendorFields.updateDate} datetime DEFAULT NULL,
+  ${PreferredVendorFields.tsitmId} text DEFAULT NULL,
+  ${PreferredVendorFields.tovenId} text DEFAULT NULL,
+  ${PreferredVendorFields.listing} int NOT NULL,
+  ${PreferredVendorFields.minOrder} double NOT NULL,
+  ${PreferredVendorFields.multipyOrder} double NOT NULL,
+  ${PreferredVendorFields.canOrder} int NOT NULL,
+  ${PreferredVendorFields.dflt} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 )
 """);
       });
