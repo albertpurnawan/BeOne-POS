@@ -14,10 +14,10 @@ import 'package:pos_fe/injection_container.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
-  print((await GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
-  (await GetIt.instance<AppDatabase>()
-      .itemCategoryDao
-      .bulkCreate(tcurr.map((e) => ItemCategoryModel.fromMap(e)).toList()));
+  // print((await GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
+  // (await GetIt.instance<AppDatabase>()
+  //     .itemCategoryDao
+  //     .bulkCreate(tcurr.map((e) => ItemCategoryModel.fromMap(e)).toList()));
 
   runApp(const MyApp());
 }
