@@ -198,7 +198,6 @@ CREATE TABLE `$tableProductHierarchies` (
   ${ProductHierarchyFields.level} int NOT NULL,
   ${ProductHierarchyFields.maxChar} int NOT NULL,
   $createdAtDefinition
-  $createdAtDefinition
 )
 """);
 
