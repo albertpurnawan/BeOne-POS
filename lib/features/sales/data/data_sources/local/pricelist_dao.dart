@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
-import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/pricelist.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -7,8 +6,8 @@ class PricelistDao extends BaseDao<PricelistModel> {
   PricelistDao(Database db)
       : super(
             db: db,
-            tableName: tableCurrencies,
-            modelFields: CurrencyFields.values);
+            tableName: tablePricelists,
+            modelFields: PricelistFields.values);
 
   @override
   Future<PricelistModel?> readByDocId(String docId) async {
