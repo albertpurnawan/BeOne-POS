@@ -53,8 +53,8 @@ class CustomerAddressModel extends CustomerAddressEntity implements BaseModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
-      'createdate': createDate.millisecondsSinceEpoch,
-      'updatedate': updateDate?.millisecondsSinceEpoch,
+      'createdate': createDate.toLocal().toIso8601String(),
+      'updatedate': updateDate?.toLocal().toIso8601String(),
       'tocusId': tocusId,
       'linenum': linenum,
       'addr1': addr1,
@@ -70,9 +70,9 @@ class CustomerAddressModel extends CustomerAddressEntity implements BaseModel {
   factory CustomerAddressModel.fromMap(Map<String, dynamic> map) {
     return CustomerAddressModel(
       docId: map['docid'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int),
+      createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          ? DateTime.parse(map['updatedate']).toLocal()
           : null,
       tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
       linenum: map['linenum'] as int,

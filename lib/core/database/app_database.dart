@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/customer_address.dart';
+import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
@@ -730,6 +731,27 @@ CREATE TABLE $tableCustomerAddress (
   CONSTRAINT `tcus1_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcus1_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcus1_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomerContactPerson (
+  $uuidDefinition,
+  ${CustomerContactPersonFields.createDate} datetime NOT NULL,
+  ${CustomerContactPersonFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerContactPersonFields.tocusId} text DEFAULT NULL,
+  ${CustomerContactPersonFields.linenum} int NOT NULL,
+  ${CustomerContactPersonFields.title} varchar(20) NOT NULL,
+  ${CustomerContactPersonFields.fullname} varchar(200) NOT NULL,
+  ${CustomerContactPersonFields.phone} varchar(20) NOT NULL,
+  ${CustomerContactPersonFields.email} varchar(100) NOT NULL,
+  ${CustomerContactPersonFields.position} varchar(50) NOT NULL,
+  ${CustomerContactPersonFields.idcard} varchar(30) NOT NULL,
+  ${CustomerContactPersonFields.taxno} varchar(50) NOT NULL,
+  ${CustomerContactPersonFields.gender} varchar(1) NOT NULL,
+  ${CustomerContactPersonFields.birthdate} date NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tcus2_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
