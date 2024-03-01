@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
-import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -7,8 +6,8 @@ class ItemBarcodeDao extends BaseDao<ItemBarcodeModel> {
   ItemBarcodeDao(Database db)
       : super(
             db: db,
-            tableName: tableCurrencies,
-            modelFields: CurrencyFields.values);
+            tableName: tableItemBarcodes,
+            modelFields: ItemBarcodesFields.values);
 
   @override
   Future<ItemBarcodeModel?> readByDocId(String docId) async {

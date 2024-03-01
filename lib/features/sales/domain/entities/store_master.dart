@@ -47,9 +47,9 @@ class StoreMasterEntity {
   final int? holdClose;
   final int? autoPrintStruk;
   final String? barcode1;
-  final String? barcode2;
-  final String? barcode3;
-  final String? barcode4;
+  final int? barcode2;
+  final int? barcode3;
+  final int? barcode4;
   final int? connectBack;
   final int? maxUserKassa;
   final double stockLevel;
@@ -212,9 +212,9 @@ class StoreMasterEntity {
     int? holdClose,
     int? autoPrintStruk,
     String? barcode1,
-    String? barcode2,
-    String? barcode3,
-    String? barcode4,
+    int? barcode2,
+    int? barcode3,
+    int? barcode4,
     int? connectBack,
     int? maxUserKassa,
     double? stockLevel,
@@ -472,9 +472,9 @@ class StoreMasterEntity {
       autoPrintStruk:
           map['autoPrintStruk'] != null ? map['autoPrintStruk'] as int : null,
       barcode1: map['barcode1'] != null ? map['barcode1'] as String : null,
-      barcode2: map['barcode2'] != null ? map['barcode2'] as String : null,
-      barcode3: map['barcode3'] != null ? map['barcode3'] as String : null,
-      barcode4: map['barcode4'] != null ? map['barcode4'] as String : null,
+      barcode2: map['barcode2'] != null ? map['barcode2'] as int : null,
+      barcode3: map['barcode3'] != null ? map['barcode3'] as int : null,
+      barcode4: map['barcode4'] != null ? map['barcode4'] as int : null,
       connectBack:
           map['connectBack'] != null ? map['connectBack'] as int : null,
       maxUserKassa:

@@ -23,10 +23,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print((GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
-    GetIt.instance<AppDatabase>()
-        .itemCategoryDao
-        .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+    // print((GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
+    // GetIt.instance<AppDatabase>()
+    //     .itemCategoryDao
+    //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
 
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Color.fromARGB(255, 169, 0, 0),

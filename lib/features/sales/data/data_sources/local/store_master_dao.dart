@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
-import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/store_master.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -7,8 +6,8 @@ class StoreMasterDao extends BaseDao<StoreMasterModel> {
   StoreMasterDao(Database db)
       : super(
             db: db,
-            tableName: tableCurrencies,
-            modelFields: CurrencyFields.values);
+            tableName: tableStoreMasters,
+            modelFields: StoreMasterFields.values);
 
   @override
   Future<StoreMasterModel?> readByDocId(String docId) async {

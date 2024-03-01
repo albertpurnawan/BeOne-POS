@@ -67,7 +67,7 @@ class TaxMasterModel extends TaxMasterEntity implements BaseModel {
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String),
       updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updateDate'] as String)
+          ? DateTime.parse(map['updatedate'] as String)
           : null,
       taxCode: map['taxcode'] as String,
       description: map['description'] as String,

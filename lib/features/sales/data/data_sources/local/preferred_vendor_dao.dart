@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
-import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -7,8 +6,8 @@ class PreferredVendorDao extends BaseDao<PreferredVendorModel> {
   PreferredVendorDao(Database db)
       : super(
             db: db,
-            tableName: tableCurrencies,
-            modelFields: CurrencyFields.values);
+            tableName: tablePreferredVendor,
+            modelFields: PreferredVendorFields.values);
 
   @override
   Future<PreferredVendorModel?> readByDocId(String docId) async {
