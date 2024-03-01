@@ -418,31 +418,6 @@ CREATE TABLE $tableItemBarcodes (
 """);
 
         await txn.execute("""
-CREATE TABLE $tableItemsByStore (
-  $uuidDefinition,
-  ${ItemsByStoreFields.createDate} datetime NOT NULL,
-  ${ItemsByStoreFields.updateDate} datetime DEFAULT NULL,
-  ${ItemsByStoreFields.toitmId} text DEFAULT NULL,
-  ${ItemsByStoreFields.tostrId} text DEFAULT NULL,
-  ${ItemsByStoreFields.statusActive} int NOT NULL,
-  ${ItemsByStoreFields.activated} int NOT NULL,
-  ${ItemsByStoreFields.tovatId} text DEFAULT NULL,
-  ${ItemsByStoreFields.tovatIdPur} text DEFAULT NULL,
-  ${ItemsByStoreFields.maxStock} double DEFAULT '0',
-  ${ItemsByStoreFields.minStock} double DEFAULT '0',
-  ${ItemsByStoreFields.marginPercentage} double DEFAULT '0',
-  ${ItemsByStoreFields.marginPrice} double DEFAULT '0',
-  ${ItemsByStoreFields.multiplyOrder} int DEFAULT '1',
-  ${ItemsByStoreFields.price} double DEFAULT '0',
-  $createdAtDefinition,
-  CONSTRAINT `tsitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tsitm_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tsitm_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tsitm_tovatIdPur_fkey` FOREIGN KEY (`tovatIdPur`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
-)
-""");
-
-        await txn.execute("""
 CREATE TABLE $tablePricesByItem (
   $uuidDefinition,
   ${PriceByItemFields.createDate} datetime NOT NULL,
@@ -479,23 +454,6 @@ CREATE TABLE $tablePricesByItemBarcode (
   CONSTRAINT `tpln4_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln4_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln4_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
-)
-""");
-
-        await txn.execute("""
-CREATE TABLE $tablePOSParameter (
-  $uuidDefinition,
-  ${POSParameterFields.createDate} datetime NOT NULL,
-  ${POSParameterFields.updateDate} datetime DEFAULT NULL,
-  ${POSParameterFields.tostrId} text NOT NULL,
-  ${POSParameterFields.storeName} text NOT NULL,
-  ${POSParameterFields.tcurrId} text NOT NULL,
-  ${POSParameterFields.currCode} text NOT NULL,
-  ${POSParameterFields.toplnId} text NOT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
@@ -805,6 +763,23 @@ CREATE TABLE $tableStoreMasters (
 """);
 
         await txn.execute("""
+CREATE TABLE $tablePOSParameter (
+  $uuidDefinition,
+  ${POSParameterFields.createDate} datetime NOT NULL,
+  ${POSParameterFields.updateDate} datetime DEFAULT NULL,
+  ${POSParameterFields.tostrId} text NOT NULL,
+  ${POSParameterFields.storeName} text NOT NULL,
+  ${POSParameterFields.tcurrId} text NOT NULL,
+  ${POSParameterFields.currCode} text NOT NULL,
+  ${POSParameterFields.toplnId} text NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
 CREATE TABLE $tableMOPByStore (
   $uuidDefinition,
   ${MOPByStoreFields.createDate} datetime NOT NULL,
@@ -829,6 +804,31 @@ CREATE TABLE $tableAPMPS (
   $createdAtDefinition,
   CONSTRAINT `tpln3_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableItemsByStore (
+  $uuidDefinition,
+  ${ItemsByStoreFields.createDate} datetime NOT NULL,
+  ${ItemsByStoreFields.updateDate} datetime DEFAULT NULL,
+  ${ItemsByStoreFields.toitmId} text DEFAULT NULL,
+  ${ItemsByStoreFields.tostrId} text DEFAULT NULL,
+  ${ItemsByStoreFields.statusActive} int NOT NULL,
+  ${ItemsByStoreFields.activated} int NOT NULL,
+  ${ItemsByStoreFields.tovatId} text DEFAULT NULL,
+  ${ItemsByStoreFields.tovatIdPur} text DEFAULT NULL,
+  ${ItemsByStoreFields.maxStock} double DEFAULT '0',
+  ${ItemsByStoreFields.minStock} double DEFAULT '0',
+  ${ItemsByStoreFields.marginPercentage} double DEFAULT '0',
+  ${ItemsByStoreFields.marginPrice} double DEFAULT '0',
+  ${ItemsByStoreFields.multiplyOrder} int DEFAULT '1',
+  ${ItemsByStoreFields.price} double DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tsitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tovatIdPur_fkey` FOREIGN KEY (`tovatIdPur`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
