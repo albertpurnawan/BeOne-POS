@@ -4,6 +4,7 @@ import 'package:pos_fe/core/database/seeders_data/tocat.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
@@ -813,6 +814,21 @@ CREATE TABLE $tableMOPByStore (
   $createdAtDefinition,
   CONSTRAINT `tpmt3_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmt3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableAPMPS (
+  $uuidDefinition,
+  ${AssignPriceMemberPerStoreFields.createDate} datetime NOT NULL,
+  ${AssignPriceMemberPerStoreFields.updateDate} datetime DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.toplnId} bigint DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.tostrId} bigint DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.statusActive} int NOT NULL,
+  ${AssignPriceMemberPerStoreFields.activated} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpln3_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpln3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
