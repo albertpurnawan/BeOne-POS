@@ -12,6 +12,7 @@ import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
+import 'package:pos_fe/features/sales/data/models/payment_term.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
@@ -636,6 +637,21 @@ CREATE TABLE $tablePreferredVendor (
   $createdAtDefinition,
   CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePaymentTerm (
+  $uuidDefinition,
+  ${PaymentTermFields.createDate} datetime NOT NULL,
+  ${PaymentTermFields.updateDate} datetime DEFAULT NULL,
+  ${PaymentTermFields.paymentCode} varchar(30) NOT NULL,
+  ${PaymentTermFields.description} varchar(100) NOT NULL,
+  ${PaymentTermFields.base} varchar(1) NOT NULL,
+  ${PaymentTermFields.dueon} int NOT NULL,
+  ${PaymentTermFields.statusActive} int NOT NULL,
+  ${PaymentTermFields.activated} int NOT NULL,
+  $createdAtDefinition
 )
 """);
 
