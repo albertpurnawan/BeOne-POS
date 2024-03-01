@@ -9,6 +9,7 @@ import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
+import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
@@ -336,6 +337,18 @@ CREATE TABLE $tableItemPicture (
   ${ItemPictureFields.path} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableItemRemarks (
+  $uuidDefinition,
+  ${ItemRemarksFields.createDate} datetime NOT NULL,
+  ${ItemRemarksFields.updateDate} datetime DEFAULT NULL,
+  ${ItemRemarksFields.toitmId} text DEFAULT NULL,
+  ${ItemRemarksFields.remarks} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tritm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
