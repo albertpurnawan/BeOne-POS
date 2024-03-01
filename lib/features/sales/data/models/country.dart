@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/country.dart';
 
 const String tableCountry = "tocry";
@@ -24,7 +25,7 @@ class CountryFields {
   static const String tcurrId = "tcurrId";
 }
 
-class CountryModel extends CountryEntity {
+class CountryModel extends CountryEntity implements BaseModel {
   CountryModel({
     required super.docId,
     required super.createDate,

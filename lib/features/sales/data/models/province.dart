@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/province.dart';
 
 const String tableProvince = "toprv";
@@ -22,7 +23,7 @@ class ProvinceFields {
   static const String tocryId = "tocryId";
 }
 
-class ProvinceModel extends ProvinceEntity {
+class ProvinceModel extends ProvinceEntity implements BaseModel {
   ProvinceModel({
     required super.docId,
     required super.createDate,

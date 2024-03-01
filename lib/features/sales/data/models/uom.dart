@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/uom.dart';
 
 const String tableUom = 'touom';
@@ -22,7 +23,7 @@ class UomFields {
   static const String activated = "activated";
 }
 
-class UomModel extends UomEntity {
+class UomModel extends UomEntity implements BaseModel {
   UomModel({
     required super.docId,
     required super.createDate,

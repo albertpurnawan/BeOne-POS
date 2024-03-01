@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_by_store.dart';
 
 const String tableItemsByStore = "tsitm";
@@ -38,7 +39,7 @@ class ItemsByStoreFields {
   static const String price = "price";
 }
 
-class ItemByStoreModel extends ItemByStoreEntity {
+class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
   ItemByStoreModel(
       {required super.docId,
       required super.createDate,

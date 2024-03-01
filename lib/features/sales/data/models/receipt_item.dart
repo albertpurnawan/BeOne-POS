@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -27,7 +28,7 @@ class ReceiptItemFields {
   static const String receiptId = "receipt_id";
 }
 
-class ReceiptItemModel extends ReceiptItemEntity {
+class ReceiptItemModel extends ReceiptItemEntity implements BaseModel {
   ReceiptItemModel({
     required double quantity,
     int? id,

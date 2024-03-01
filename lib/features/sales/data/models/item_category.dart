@@ -27,7 +27,7 @@ class ItemCategoryFields {
   static const String phir1Id = "phir1Id";
 }
 
-class ItemCategoryModel extends ItemCategoryEntity {
+class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
   ItemCategoryModel({
     required super.docId,
     required super.createDate,

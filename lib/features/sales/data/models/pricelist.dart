@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/pricelist.dart';
 
 const String tablePricelists = "topln";
@@ -32,7 +33,7 @@ class PricelistFields {
   static const String activated = "activated";
 }
 
-class PricelistModel extends PricelistEntity {
+class PricelistModel extends PricelistEntity implements BaseModel {
   PricelistModel({
     required super.docId,
     required super.createDate,

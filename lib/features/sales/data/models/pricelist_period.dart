@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/pricelist_period.dart';
 
 const String tablePricelistPeriods = 'tpln1';
@@ -30,7 +31,7 @@ class PricelistPeriodFields {
   static const String activated = "activated";
 }
 
-class PricelistPeriodModel extends PricelistPeriodEntity {
+class PricelistPeriodModel extends PricelistPeriodEntity implements BaseModel {
   PricelistPeriodModel({
     required super.docId,
     required super.createDate,

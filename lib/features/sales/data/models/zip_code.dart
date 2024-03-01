@@ -1,4 +1,4 @@
-import 'package:pos_fe/features/sales/domain/entities/province.dart';
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/zip_code.dart';
 
 const String tableZipCode = 'tozcd';
@@ -27,7 +27,7 @@ class ZipCodeFields {
   static const String toprvId = "toprvId";
 }
 
-class ZipCodeModel extends ZipCodeEntity {
+class ZipCodeModel extends ZipCodeEntity implements BaseModel {
   ZipCodeModel({
     required super.docId,
     required super.createDate,

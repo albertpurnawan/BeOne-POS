@@ -8,7 +8,7 @@ import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
-import 'package:pos_fe/features/sales/data/models/pos_paramaeter.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
@@ -210,6 +210,7 @@ CREATE TABLE $tableZipCode (
   ${ZipCodeFields.subDistrict} varchar(100) NOT NULL,
   ${ZipCodeFields.toprvId} text DEFAULT NULL,
   $createdAtDefinition,
+  CONSTRAINT `tozcd_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
