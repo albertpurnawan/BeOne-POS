@@ -1,4 +1,3 @@
-import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 
@@ -23,7 +22,7 @@ class EmployeeFields {
     tozcdId,
     idCard,
     gender,
-    birthday,
+    birthdate,
     photo,
     joinDate,
     resignDate,
@@ -51,7 +50,7 @@ class EmployeeFields {
   static const String tozcdId = 'tozcdid';
   static const String idCard = 'idcard';
   static const String gender = 'gender';
-  static const String birthday = 'birthday';
+  static const String birthdate = 'birthdate';
   static const String photo = 'photo';
   static const String joinDate = 'joindate';
   static const String resignDate = 'resigndate';
@@ -82,7 +81,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
     required super.tozcdId,
     required super.idCard,
     required super.gender,
-    required super.birthday,
+    required super.birthdate,
     required super.photo,
     required super.joinDate,
     required super.resignDate,
@@ -114,7 +113,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       'tozcdid': tozcdId,
       'idcard': idCard,
       'gender': gender,
-      'birthday': birthday..toLocal().toIso8601String(),
+      'birthdate': birthdate.toLocal().toIso8601String(),
       'photo': photo,
       'joindate': joinDate..toLocal().toIso8601String(),
       'resigndate': resignDate..toLocal().toIso8601String(),
@@ -158,10 +157,10 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       tozcdId: map['tozcdid'] != null ? map['tozcdid'] as String : null,
       idCard: map['idcard'] as String,
       gender: map['gender'] as String,
-      birthday: DateTime.parse(map['createdate']).toLocal(),
+      birthdate: DateTime.parse(map['birthdate']).toLocal(),
       photo: map['photo'] as dynamic,
-      joinDate: DateTime.parse(map['createdate']).toLocal(),
-      resignDate: DateTime.parse(map['createdate']).toLocal(),
+      joinDate: DateTime.parse(map['joindate']).toLocal(),
+      resignDate: DateTime.parse(map['resigndate']).toLocal(),
       statusActive: map['statuscctive'] as int,
       activated: map['activated'] as int,
       empDept: map['empdept'] as String,
@@ -190,7 +189,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       tozcdId: entity.tozcdId,
       idCard: entity.idCard,
       gender: entity.gender,
-      birthday: entity.birthday,
+      birthdate: entity.birthdate,
       photo: entity.photo,
       joinDate: entity.joinDate,
       resignDate: entity.resignDate,

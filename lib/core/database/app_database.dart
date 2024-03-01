@@ -6,6 +6,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
@@ -603,7 +604,7 @@ CREATE TABLE $tableEmployee (
   ${EmployeeFields.tozcdId} text DEFAULT NULL,
   ${EmployeeFields.idCard} varchar(30) NOT NULL,
   ${EmployeeFields.gender} varchar(1) NOT NULL,
-  ${EmployeeFields.birthday} text NOT NULL,
+  ${EmployeeFields.birthdate} text NOT NULL,
   ${EmployeeFields.photo} blob NOT NULL,
   ${EmployeeFields.joinDate} datetime NOT NULL,
   ${EmployeeFields.resignDate} datetime NOT NULL,
@@ -649,6 +650,47 @@ CREATE TABLE $tableCustomerGroup (
   ${CustomerGroupFields.statusActive} int NOT NULL,
   ${CustomerGroupFields.activated} int NOT NULL,
   $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomer (
+  $uuidDefinition,
+  ${CustomerFields.createDate} datetime NOT NULL,
+  ${CustomerFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerFields.custCode} varchar(191) NOT NULL,
+  ${CustomerFields.custName} varchar(100) NOT NULL,
+  ${CustomerFields.tocrgId} text DEFAULT NULL,
+  ${CustomerFields.idCard} varchar(30) NOT NULL,
+  ${CustomerFields.taxNo} varchar(50) NOT NULL,
+  ${CustomerFields.gender} varchar(1) NOT NULL,
+  ${CustomerFields.birthdate} datetime NOT NULL,
+  ${CustomerFields.addr1} varchar(200) NOT NULL,
+  ${CustomerFields.addr2} varchar(200) DEFAULT NULL,
+  ${CustomerFields.addr3} varchar(200) DEFAULT NULL,
+  ${CustomerFields.city} varchar(100) NOT NULL,
+  ${CustomerFields.toprvId} text DEFAULT NULL,
+  ${CustomerFields.tocryId} text DEFAULT NULL,
+  ${CustomerFields.tozcdId} text DEFAULT NULL,
+  ${CustomerFields.phone} varchar(20) NOT NULL,
+  ${CustomerFields.email} varchar(100) NOT NULL,
+  ${CustomerFields.remarks} text DEFAULT NULL,
+  ${CustomerFields.toptrId} text DEFAULT NULL,
+  ${CustomerFields.toplnId} text DEFAULT NULL,
+  ${CustomerFields.joinDate} datetime DEFAULT NULL,
+  ${CustomerFields.maxDiscount} double NOT NULL,
+  ${CustomerFields.statusActive} int NOT NULL,
+  ${CustomerFields.activated} int NOT NULL,
+  ${CustomerFields.isEmployee} int NOT NULL DEFAULT '0',
+  ${CustomerFields.tohemId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tocus_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_toptrId_fkey` FOREIGN KEY (`toptrId`) REFERENCES `toptr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
