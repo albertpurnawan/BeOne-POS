@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/price_by_item.dart';
 
 const String tablePricesByItem = "tpln2";
@@ -38,7 +39,7 @@ class PriceByItemFields {
   static const String roundingDiff = 'roundingdiff';
 }
 
-class PriceByItemModel extends PriceByItemEntity {
+class PriceByItemModel extends PriceByItemEntity implements BaseModel {
   PriceByItemModel({
     required super.docId,
     required super.createDate,

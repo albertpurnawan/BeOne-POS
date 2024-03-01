@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/preferred_vendor.dart';
 
 const String tablePreferredVendor = "tvitm";
@@ -28,7 +29,7 @@ class PreferredVendorFields {
   static const String dflt = "dflt";
 }
 
-class PreferredVendorModel extends PreferredVendorEntity {
+class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
   PreferredVendorModel({
     required super.docId,
     required super.createDate,

@@ -72,4 +72,6 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<GetItemByBarcodeUseCase>(GetItemByBarcodeUseCase(sl()));
 
   sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
+
+  return;
 }

@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/tax_master.dart';
 
 const String tableTaxMasters = "tovat";
@@ -30,7 +31,7 @@ class TaxMasterFields {
   static const String activated = "activated";
 }
 
-class TaxMasterModel extends TaxMasterEntity {
+class TaxMasterModel extends TaxMasterEntity implements BaseModel {
   TaxMasterModel(
       {required super.docId,
       required super.createDate,

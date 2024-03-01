@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 
 const String tableEmployee = "tohem";
@@ -61,7 +62,7 @@ class EmployeeFields {
   static const String empdDebt = 'empdebt';
 }
 
-class EmployeeModel extends EmployeeEntity {
+class EmployeeModel extends EmployeeEntity implements BaseModel {
   EmployeeModel({
     required super.docId,
     required super.createDate,

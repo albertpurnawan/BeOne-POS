@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 
 const String tableItemMasters = 'toitm';
@@ -64,7 +65,7 @@ class ItemMasterFields {
   static const String mergeQuantity = "mergequantity";
 }
 
-class ItemMasterModel extends ItemMasterEntity {
+class ItemMasterModel extends ItemMasterEntity implements BaseModel {
   ItemMasterModel({
     required super.docId,
     required super.createDate,

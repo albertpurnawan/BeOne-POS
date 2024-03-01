@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/price_by_item_barcode.dart';
 
 const String tablePricesByItemBarcode = "tpln4";
@@ -22,7 +23,8 @@ class PriceByItemBarcodeFields {
   static const String price = 'price';
 }
 
-class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity {
+class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
+    implements BaseModel {
   PriceByItemBarcodeModel({
     required super.docId,
     required super.createDate,

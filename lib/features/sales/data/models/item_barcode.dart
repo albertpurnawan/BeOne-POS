@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_barcode.dart';
 
 const String tableItemBarcodes = "tbitm";
@@ -28,7 +29,7 @@ class ItemBarcodesFields {
   static const String dflt = 'dflt';
 }
 
-class ItemBarcodeModel extends ItemBarcodeEntity {
+class ItemBarcodeModel extends ItemBarcodeEntity implements BaseModel {
   ItemBarcodeModel({
     required super.docId,
     required super.createDate,
