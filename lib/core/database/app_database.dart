@@ -4,6 +4,7 @@ import 'package:pos_fe/core/database/seeders_data/tocat.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
@@ -167,7 +168,20 @@ CREATE TABLE $tableCurrencies (
 )
 """);
 
-//ADD COUNTRY
+        await txn.execute("""
+CREATE TABLE $tableCountry (
+  $uuidDefinition,
+  ${CountryFields.createDate} datetime NOT NULL,
+  ${CountryFields.updateDate} datetime DEFAULT NULL,
+  ${CountryFields.countryCode} varchar(30) NOT NULL,
+  ${CountryFields.description} varchar(30) NOT NULL,
+  ${CountryFields.descriptionFrgn} varchar(30) NOT NULL,
+  ${CountryFields.tcurrId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tocry_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
 //ADD PROVINCE
 //ADD ZIPCODE
 
@@ -589,29 +603,29 @@ CREATE TABLE $tableEmployee (
   $uuidDefinition,
   ${EmployeeFields.createDate} datetime NOT NULL,
   ${EmployeeFields.updateDate} datetime DEFAULT NULL,
-  ${EmployeeFields.empCode} text NOT NULL,
-  ${EmployeeFields.empName} text NOT NULL,
-  ${EmployeeFields.email} text NOT NULL,
-  ${EmployeeFields.phone} text NOT NULL,
-  ${EmployeeFields.addr1} text NOT NULL,
-  ${EmployeeFields.addr2} text DEFAULT NULL,
-  ${EmployeeFields.addr3} text DEFAULT NULL,
+  ${EmployeeFields.empCode} varchar(30) NOT NULL,
+  ${EmployeeFields.empName} varchar(200) NOT NULL,
+  ${EmployeeFields.email} varchar(100) NOT NULL,
+  ${EmployeeFields.phone} varchar(20) NOT NULL,
+  ${EmployeeFields.addr1} varchar(200) NOT NULL,
+  ${EmployeeFields.addr2} varchar(200) DEFAULT NULL,
+  ${EmployeeFields.addr3} varchar(200) DEFAULT NULL,
   ${EmployeeFields.city} text NOT NULL,
   ${EmployeeFields.remarks} text DEFAULT NULL,
   ${EmployeeFields.toprvId} text DEFAULT NULL,
   ${EmployeeFields.tocryId} text DEFAULT NULL,
   ${EmployeeFields.tozcdId} text DEFAULT NULL,
-  ${EmployeeFields.idCard} text NOT NULL,
-  ${EmployeeFields.gender} text NOT NULL,
+  ${EmployeeFields.idCard} varchar(30) NOT NULL,
+  ${EmployeeFields.gender} varchar(1) NOT NULL,
   ${EmployeeFields.birthday} text NOT NULL,
   ${EmployeeFields.photo} blob NOT NULL,
   ${EmployeeFields.joinDate} datetime NOT NULL,
   ${EmployeeFields.resignDate} datetime NOT NULL,
   ${EmployeeFields.statusActive} int NOT NULL,
   ${EmployeeFields.activated} int NOT NULL,
-  ${EmployeeFields.empDept} text NOT NULL,
-  ${EmployeeFields.empTitle} text NOT NULL,
-  ${EmployeeFields.empWorkplace} text NOT NULL,
+  ${EmployeeFields.empDept} varchar(200) NOT NULL,
+  ${EmployeeFields.empTitle} varchar(200) NOT NULL,
+  ${EmployeeFields.empWorkplace} varchar(200) NOT NULL,
   ${EmployeeFields.empdDebt} double NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
