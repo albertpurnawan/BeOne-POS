@@ -79,4 +79,18 @@ class ZipCodeModel extends ZipCodeEntity implements BaseModel {
           : null,
     });
   }
+
+  factory ZipCodeModel.fromEntity(ZipCodeEntity entity) {
+    return ZipCodeModel(
+      docId: entity.docId,
+      createDate: entity.createDate,
+      updateDate: entity.updateDate,
+      zipCode: entity.zipCode,
+      city: entity.city,
+      district: entity.district,
+      urban: entity.urban,
+      subDistrict: entity.subDistrict,
+      toprvId: entity.toprvId,
+    );
+  }
 }
