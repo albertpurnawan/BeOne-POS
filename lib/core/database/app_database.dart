@@ -6,6 +6,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
@@ -634,6 +635,20 @@ CREATE TABLE $tablePreferredVendor (
   $createdAtDefinition,
   CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomerGroup (
+  $uuidDefinition,
+  ${CustomerGroupFields.createDate} datetime NOT NULL,
+  ${CustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerGroupFields.custgroupCode} varchar(30) NOT NULL,
+  ${CustomerGroupFields.description} varchar(100) NOT NULL,
+  ${CustomerGroupFields.maxDiscount} double NOT NULL,
+  ${CustomerGroupFields.statusActive} int NOT NULL,
+  ${CustomerGroupFields.activated} int NOT NULL,
+  $createdAtDefinition
 )
 """);
       });
