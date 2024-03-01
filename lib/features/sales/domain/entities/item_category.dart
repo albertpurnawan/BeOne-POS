@@ -10,7 +10,7 @@ class ItemCategoryEntity {
   final String catNameFrgn;
   final int? parentId;
   final int level;
-  final int? phir1Id;
+  final String? phir1Id;
 
   ItemCategoryEntity({
     required this.docId,
@@ -33,7 +33,7 @@ class ItemCategoryEntity {
     String? catNameFrgn,
     int? parentId,
     int? level,
-    int? phir1Id,
+    String? phir1Id,
   }) {
     return ItemCategoryEntity(
       docId: docId ?? this.docId,
@@ -74,7 +74,7 @@ class ItemCategoryEntity {
       catNameFrgn: map['catNameFrgn'] as String,
       parentId: map['parentId'] != null ? map['parentId'] as int : null,
       level: map['level'] as int,
-      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
+      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
     );
   }
 

@@ -11,6 +11,7 @@ import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/pos_paramaeter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
+import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
@@ -197,7 +198,20 @@ CREATE TABLE $tableProvince (
 )
 """);
 
-//ADD ZIPCODE
+        await txn.execute("""
+CREATE TABLE $tableZipCode (
+  $uuidDefinition,
+  ${ZipCodeFields.createDate} datetime NOT NULL,
+  ${ZipCodeFields.updateDate} datetime DEFAULT NULL,
+  ${ZipCodeFields.zipCode} varchar(30) NOT NULL,
+  ${ZipCodeFields.city} varchar(100) NOT NULL,
+  ${ZipCodeFields.district} varchar(100) NOT NULL,
+  ${ZipCodeFields.urban} varchar(100) NOT NULL,
+  ${ZipCodeFields.subDistrict} varchar(100) NOT NULL,
+  ${ZipCodeFields.toprvId} text DEFAULT NULL,
+  $createdAtDefinition,
+)
+""");
 
         await txn.execute("""
 CREATE TABLE $tableTaxMasters (
