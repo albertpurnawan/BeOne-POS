@@ -161,6 +161,10 @@ CREATE TABLE $tableCurrencies (
 )
 """);
 
+//ADD COUNTRY
+//ADD PROVINCE
+//ADD ZIPCODE
+
         await txn.execute("""
 CREATE TABLE $tableTaxMasters (
   $uuidDefinition,
