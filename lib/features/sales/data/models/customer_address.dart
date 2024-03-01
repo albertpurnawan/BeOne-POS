@@ -22,7 +22,7 @@ class CustomerAddressFields {
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
-  static const String tocusId = "updatedate";
+  static const String tocusId = "tocusId";
   static const String linenum = "linenum";
   static const String addr1 = "addr1";
   static const String addr2 = "addr2";

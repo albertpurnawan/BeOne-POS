@@ -664,7 +664,7 @@ CREATE TABLE $tableCC (
   ${CreditCardFields.cardType} int NOT NULL DEFAULT '0',
   ${CreditCardFields.statusActive} int NOT NULL DEFAULT '0',
   ${CreditCardFields.activated} int NOT NULL DEFAULT '0',
-  $createdAtDefinition,
+  $createdAtDefinition
 )
 """);
 
