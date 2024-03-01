@@ -1,7 +1,8 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
-class ReceiptModel extends ReceiptEntity {
+class ReceiptModel extends ReceiptEntity implements BaseModel {
   ReceiptModel(
       {required super.receiptItems,
       required super.totalPrice,

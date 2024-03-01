@@ -28,11 +28,26 @@ import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_
 import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
+import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
+import 'package:pos_fe/features/sales/data/models/country.dart';
+import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/customer.dart';
+import 'package:pos_fe/features/sales/data/models/customer_address.dart';
+import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
+import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
-import 'package:pos_fe/features/sales/data/models/pos_paramaeter.dart';
+import 'package:pos_fe/features/sales/data/models/item_picture.dart';
+import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
+import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
+import 'package:pos_fe/features/sales/data/models/payment_term.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
+import 'package:pos_fe/features/sales/data/models/province.dart';
+import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
@@ -245,6 +260,50 @@ CREATE TABLE $tableCurrencies (
 """);
 
         await txn.execute("""
+CREATE TABLE $tableCountry (
+  $uuidDefinition,
+  ${CountryFields.createDate} datetime NOT NULL,
+  ${CountryFields.updateDate} datetime DEFAULT NULL,
+  ${CountryFields.countryCode} varchar(30) NOT NULL,
+  ${CountryFields.description} varchar(30) NOT NULL,
+  ${CountryFields.descriptionFrgn} varchar(30) NOT NULL,
+  ${CountryFields.tcurrId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tocry_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableProvince (
+  $uuidDefinition,
+  ${ProvinceFields.createDate} datetime NOT NULL,
+  ${ProvinceFields.updateDate} datetime DEFAULT NULL,
+  ${ProvinceFields.provncCode} varchar(30) NOT NULL,
+  ${ProvinceFields.description} varchar(100) NOT NULL,
+  ${ProvinceFields.descriptionFrgn} varchar(100) NOT NULL,
+  ${ProvinceFields.tocryId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toprv_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableZipCode (
+  $uuidDefinition,
+  ${ZipCodeFields.createDate} datetime NOT NULL,
+  ${ZipCodeFields.updateDate} datetime DEFAULT NULL,
+  ${ZipCodeFields.zipCode} varchar(30) NOT NULL,
+  ${ZipCodeFields.city} varchar(100) NOT NULL,
+  ${ZipCodeFields.district} varchar(100) NOT NULL,
+  ${ZipCodeFields.urban} varchar(100) NOT NULL,
+  ${ZipCodeFields.subDistrict} varchar(100) NOT NULL,
+  ${ZipCodeFields.toprvId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tozcd_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
 CREATE TABLE $tableTaxMasters (
   $uuidDefinition,
   ${TaxMasterFields.createDate} datetime NOT NULL,
@@ -351,6 +410,31 @@ CREATE TABLE $tableItemMasters (
 """);
 
         await txn.execute("""
+CREATE TABLE $tableItemPicture (
+  $uuidDefinition,
+  ${ItemPictureFields.createDate} datetime NOT NULL,
+  ${ItemPictureFields.updateDate} datetime DEFAULT NULL,
+  ${ItemPictureFields.toitmId} text DEFAULT NULL,
+  ${ItemPictureFields.picture} blob NOT NULL,
+  ${ItemPictureFields.path} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableItemRemarks (
+  $uuidDefinition,
+  ${ItemRemarksFields.createDate} datetime NOT NULL,
+  ${ItemRemarksFields.updateDate} datetime DEFAULT NULL,
+  ${ItemRemarksFields.toitmId} text DEFAULT NULL,
+  ${ItemRemarksFields.remarks} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tritm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
 CREATE TABLE $tablePricelists (
   $uuidDefinition,
   ${PricelistFields.createDate} datetime NOT NULL,
@@ -406,31 +490,6 @@ CREATE TABLE $tableItemBarcodes (
 """);
 
         await txn.execute("""
-CREATE TABLE $tableItemsByStore (
-  $uuidDefinition,
-  ${ItemsByStoreFields.createDate} datetime NOT NULL,
-  ${ItemsByStoreFields.updateDate} datetime DEFAULT NULL,
-  ${ItemsByStoreFields.toitmId} text DEFAULT NULL,
-  ${ItemsByStoreFields.tostrId} text DEFAULT NULL,
-  ${ItemsByStoreFields.statusActive} int NOT NULL,
-  ${ItemsByStoreFields.activated} int NOT NULL,
-  ${ItemsByStoreFields.tovatId} text DEFAULT NULL,
-  ${ItemsByStoreFields.tovatIdPur} text DEFAULT NULL,
-  ${ItemsByStoreFields.maxStock} double DEFAULT '0',
-  ${ItemsByStoreFields.minStock} double DEFAULT '0',
-  ${ItemsByStoreFields.marginPercentage} double DEFAULT '0',
-  ${ItemsByStoreFields.marginPrice} double DEFAULT '0',
-  ${ItemsByStoreFields.multiplyOrder} int DEFAULT '1',
-  ${ItemsByStoreFields.price} double DEFAULT '0',
-  $createdAtDefinition,
-  CONSTRAINT `tsitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tsitm_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tsitm_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tsitm_tovatIdPur_fkey` FOREIGN KEY (`tovatIdPur`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
-)
-""");
-
-        await txn.execute("""
 CREATE TABLE $tablePricesByItem (
   $uuidDefinition,
   ${PriceByItemFields.createDate} datetime NOT NULL,
@@ -467,6 +526,217 @@ CREATE TABLE $tablePricesByItemBarcode (
   CONSTRAINT `tpln4_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln4_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln4_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableEmployee (
+  $uuidDefinition,
+  ${EmployeeFields.createDate} datetime NOT NULL,
+  ${EmployeeFields.updateDate} datetime DEFAULT NULL,
+  ${EmployeeFields.empCode} varchar(30) NOT NULL,
+  ${EmployeeFields.empName} varchar(200) NOT NULL,
+  ${EmployeeFields.email} varchar(100) NOT NULL,
+  ${EmployeeFields.phone} varchar(20) NOT NULL,
+  ${EmployeeFields.addr1} varchar(200) NOT NULL,
+  ${EmployeeFields.addr2} varchar(200) DEFAULT NULL,
+  ${EmployeeFields.addr3} varchar(200) DEFAULT NULL,
+  ${EmployeeFields.city} text NOT NULL,
+  ${EmployeeFields.remarks} text DEFAULT NULL,
+  ${EmployeeFields.toprvId} text DEFAULT NULL,
+  ${EmployeeFields.tocryId} text DEFAULT NULL,
+  ${EmployeeFields.tozcdId} text DEFAULT NULL,
+  ${EmployeeFields.idCard} varchar(30) NOT NULL,
+  ${EmployeeFields.gender} varchar(1) NOT NULL,
+  ${EmployeeFields.birthdate} text NOT NULL,
+  ${EmployeeFields.photo} blob NOT NULL,
+  ${EmployeeFields.joinDate} datetime NOT NULL,
+  ${EmployeeFields.resignDate} datetime NOT NULL,
+  ${EmployeeFields.statusActive} int NOT NULL,
+  ${EmployeeFields.activated} int NOT NULL,
+  ${EmployeeFields.empDept} varchar(200) NOT NULL,
+  ${EmployeeFields.empTitle} varchar(200) NOT NULL,
+  ${EmployeeFields.empWorkplace} varchar(200) NOT NULL,
+  ${EmployeeFields.empdDebt} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tohem_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePreferredVendor (
+  $uuidDefinition,
+  ${PreferredVendorFields.createDate} datetime NOT NULL,
+  ${PreferredVendorFields.updateDate} datetime DEFAULT NULL,
+  ${PreferredVendorFields.tsitmId} text DEFAULT NULL,
+  ${PreferredVendorFields.tovenId} text DEFAULT NULL,
+  ${PreferredVendorFields.listing} int NOT NULL,
+  ${PreferredVendorFields.minOrder} double NOT NULL,
+  ${PreferredVendorFields.multipyOrder} double NOT NULL,
+  ${PreferredVendorFields.canOrder} int NOT NULL,
+  ${PreferredVendorFields.dflt} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePaymentTerm (
+  $uuidDefinition,
+  ${PaymentTermFields.createDate} datetime NOT NULL,
+  ${PaymentTermFields.updateDate} datetime DEFAULT NULL,
+  ${PaymentTermFields.paymentCode} varchar(30) NOT NULL,
+  ${PaymentTermFields.description} varchar(100) NOT NULL,
+  ${PaymentTermFields.base} varchar(1) NOT NULL,
+  ${PaymentTermFields.dueon} int NOT NULL,
+  ${PaymentTermFields.statusActive} int NOT NULL,
+  ${PaymentTermFields.activated} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomerGroup (
+  $uuidDefinition,
+  ${CustomerGroupFields.createDate} datetime NOT NULL,
+  ${CustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerGroupFields.custgroupCode} varchar(30) NOT NULL,
+  ${CustomerGroupFields.description} varchar(100) NOT NULL,
+  ${CustomerGroupFields.maxDiscount} double NOT NULL,
+  ${CustomerGroupFields.statusActive} int NOT NULL,
+  ${CustomerGroupFields.activated} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomer (
+  $uuidDefinition,
+  ${CustomerFields.createDate} datetime NOT NULL,
+  ${CustomerFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerFields.custCode} varchar(191) NOT NULL,
+  ${CustomerFields.custName} varchar(100) NOT NULL,
+  ${CustomerFields.tocrgId} text DEFAULT NULL,
+  ${CustomerFields.idCard} varchar(30) NOT NULL,
+  ${CustomerFields.taxNo} varchar(50) NOT NULL,
+  ${CustomerFields.gender} varchar(1) NOT NULL,
+  ${CustomerFields.birthdate} datetime NOT NULL,
+  ${CustomerFields.addr1} varchar(200) NOT NULL,
+  ${CustomerFields.addr2} varchar(200) DEFAULT NULL,
+  ${CustomerFields.addr3} varchar(200) DEFAULT NULL,
+  ${CustomerFields.city} varchar(100) NOT NULL,
+  ${CustomerFields.toprvId} text DEFAULT NULL,
+  ${CustomerFields.tocryId} text DEFAULT NULL,
+  ${CustomerFields.tozcdId} text DEFAULT NULL,
+  ${CustomerFields.phone} varchar(20) NOT NULL,
+  ${CustomerFields.email} varchar(100) NOT NULL,
+  ${CustomerFields.remarks} text DEFAULT NULL,
+  ${CustomerFields.toptrId} text DEFAULT NULL,
+  ${CustomerFields.toplnId} text DEFAULT NULL,
+  ${CustomerFields.joinDate} datetime DEFAULT NULL,
+  ${CustomerFields.maxDiscount} double NOT NULL,
+  ${CustomerFields.statusActive} int NOT NULL,
+  ${CustomerFields.activated} int NOT NULL,
+  ${CustomerFields.isEmployee} int NOT NULL DEFAULT '0',
+  ${CustomerFields.tohemId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tocus_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_toptrId_fkey` FOREIGN KEY (`toptrId`) REFERENCES `toptr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tocus_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomerAddress (
+  $uuidDefinition,
+  ${CustomerAddressFields.createDate} datetime NOT NULL,
+  ${CustomerAddressFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerAddressFields.tocusId} text DEFAULT NULL,
+  ${CustomerAddressFields.linenum} int NOT NULL,
+  ${CustomerAddressFields.addr1} varchar(200) NOT NULL,
+  ${CustomerAddressFields.addr2} varchar(200) DEFAULT NULL,
+  ${CustomerAddressFields.addr3} varchar(200) DEFAULT NULL,
+  ${CustomerAddressFields.city} varchar(100) NOT NULL,
+  ${CustomerAddressFields.toprvId} text DEFAULT NULL,
+  ${CustomerAddressFields.tocryId} text DEFAULT NULL,
+  ${CustomerAddressFields.tozcdId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tcus1_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcus1_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcus1_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcus1_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomerContactPerson (
+  $uuidDefinition,
+  ${CustomerContactPersonFields.createDate} datetime NOT NULL,
+  ${CustomerContactPersonFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerContactPersonFields.tocusId} text DEFAULT NULL,
+  ${CustomerContactPersonFields.linenum} int NOT NULL,
+  ${CustomerContactPersonFields.title} varchar(20) NOT NULL,
+  ${CustomerContactPersonFields.fullname} varchar(200) NOT NULL,
+  ${CustomerContactPersonFields.phone} varchar(20) NOT NULL,
+  ${CustomerContactPersonFields.email} varchar(100) NOT NULL,
+  ${CustomerContactPersonFields.position} varchar(50) NOT NULL,
+  ${CustomerContactPersonFields.idcard} varchar(30) NOT NULL,
+  ${CustomerContactPersonFields.taxno} varchar(50) NOT NULL,
+  ${CustomerContactPersonFields.gender} varchar(1) NOT NULL,
+  ${CustomerContactPersonFields.birthdate} date NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tcus2_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePaymentType (
+  $uuidDefinition,
+  ${PaymentTypeFields.createDate} datetime NOT NULL,
+  ${PaymentTypeFields.updateDate} datetime DEFAULT NULL,
+  ${PaymentTypeFields.payTypeCode} varchar(10) NOT NULL,
+  ${PaymentTypeFields.description} varchar(100) NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableMOP (
+  $uuidDefinition,
+  ${MeansOfPaymentFields.createDate} datetime NOT NULL,
+  ${MeansOfPaymentFields.updateDate} datetime DEFAULT NULL,
+  ${MeansOfPaymentFields.topmtId} text DEFAULT NULL,
+  ${MeansOfPaymentFields.mopCode} varchar(30) NOT NULL,
+  ${MeansOfPaymentFields.description} varchar(100) NOT NULL,
+  ${MeansOfPaymentFields.mopAlias} varchar(100) NOT NULL,
+  ${MeansOfPaymentFields.bankCharge} double NOT NULL,
+  ${MeansOfPaymentFields.consolidation} int NOT NULL,
+  ${MeansOfPaymentFields.credit} int NOT NULL,
+  ${MeansOfPaymentFields.subType} int NOT NULL DEFAULT '0',
+  ${MeansOfPaymentFields.validForEmp} int NOT NULL DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tpmt1_topmtId_fkey` FOREIGN KEY (`topmtId`) REFERENCES `topmt` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCC (
+  $uuidDefinition,
+  ${CreditCardFields.createDate} datetime NOT NULL,
+  ${CreditCardFields.updateDate} datetime DEFAULT NULL,
+  ${CreditCardFields.ccCode} varchar(30) NOT NULL,
+  ${CreditCardFields.description} varchar(100) NOT NULL,
+  ${CreditCardFields.cardType} int NOT NULL DEFAULT '0',
+  ${CreditCardFields.statusActive} int NOT NULL DEFAULT '0',
+  ${CreditCardFields.activated} int NOT NULL DEFAULT '0',
+  $createdAtDefinition
 )
 """);
 
@@ -577,135 +847,62 @@ CREATE TABLE $tablePOSParameter (
   $createdAtDefinition,
   CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE $tableEmployee (
+CREATE TABLE $tableMOPByStore (
   $uuidDefinition,
-  ${EmployeeFields.createDate} datetime NOT NULL,
-  ${EmployeeFields.updateDate} datetime DEFAULT NULL,
-  ${EmployeeFields.empCode} text NOT NULL,
-  ${EmployeeFields.empName} text NOT NULL,
-  ${EmployeeFields.email} text NOT NULL,
-  ${EmployeeFields.phone} text NOT NULL,
-  ${EmployeeFields.addr1} text NOT NULL,
-  ${EmployeeFields.addr2} text DEFAULT NULL,
-  ${EmployeeFields.addr3} text DEFAULT NULL,
-  ${EmployeeFields.city} text NOT NULL,
-  ${EmployeeFields.remarks} text DEFAULT NULL,
-  ${EmployeeFields.toprvId} text DEFAULT NULL,
-  ${EmployeeFields.tocryId} text DEFAULT NULL,
-  ${EmployeeFields.tozcdId} text DEFAULT NULL,
-  ${EmployeeFields.idCard} text NOT NULL,
-  ${EmployeeFields.gender} text NOT NULL,
-  ${EmployeeFields.birthday} text NOT NULL,
-  ${EmployeeFields.photo} blob NOT NULL,
-  ${EmployeeFields.joinDate} datetime NOT NULL,
-  ${EmployeeFields.resignDate} datetime NOT NULL,
-  ${EmployeeFields.statusActive} int NOT NULL,
-  ${EmployeeFields.activated} int NOT NULL,
-  ${EmployeeFields.empDept} text NOT NULL,
-  ${EmployeeFields.empTitle} text NOT NULL,
-  ${EmployeeFields.empWorkplace} text NOT NULL,
-  ${EmployeeFields.empdDebt} double NOT NULL,
+  ${MOPByStoreFields.createDate} datetime NOT NULL,
+  ${MOPByStoreFields.updateDate} datetime DEFAULT NULL,
+  ${MOPByStoreFields.tpmt1id} bigint DEFAULT NULL,
+  ${MOPByStoreFields.tostrId} bigint DEFAULT NULL,
   $createdAtDefinition,
-  CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tohem_tozcId_fkey` FOREIGN KEY (`tozcId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmt3_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmt3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE $tablePreferredVendor (
+CREATE TABLE $tableAPMPS (
   $uuidDefinition,
-  ${PreferredVendorFields.createDate} datetime NOT NULL,
-  ${PreferredVendorFields.updateDate} datetime DEFAULT NULL,
-  ${PreferredVendorFields.tsitmId} text DEFAULT NULL,
-  ${PreferredVendorFields.tovenId} text DEFAULT NULL,
-  ${PreferredVendorFields.listing} int NOT NULL,
-  ${PreferredVendorFields.minOrder} double NOT NULL,
-  ${PreferredVendorFields.multipyOrder} double NOT NULL,
-  ${PreferredVendorFields.canOrder} int NOT NULL,
-  ${PreferredVendorFields.dflt} int NOT NULL,
+  ${AssignPriceMemberPerStoreFields.createDate} datetime NOT NULL,
+  ${AssignPriceMemberPerStoreFields.updateDate} datetime DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.toplnId} bigint DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.tostrId} bigint DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.statusActive} int NOT NULL,
+  ${AssignPriceMemberPerStoreFields.activated} int NOT NULL,
   $createdAtDefinition,
-  CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpln3_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpln3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE $tablePOSParameter (
+CREATE TABLE $tableItemsByStore (
   $uuidDefinition,
-  ${POSParameterFields.createDate} datetime NOT NULL,
-  ${POSParameterFields.updateDate} datetime DEFAULT NULL,
-  ${POSParameterFields.tostrId} text NOT NULL,
-  ${POSParameterFields.storeName} text NOT NULL,
-  ${POSParameterFields.tcurrId} text NOT NULL,
-  ${POSParameterFields.currCode} text NOT NULL,
-  ${POSParameterFields.toplnId} text NOT NULL,
+  ${ItemsByStoreFields.createDate} datetime NOT NULL,
+  ${ItemsByStoreFields.updateDate} datetime DEFAULT NULL,
+  ${ItemsByStoreFields.toitmId} text DEFAULT NULL,
+  ${ItemsByStoreFields.tostrId} text DEFAULT NULL,
+  ${ItemsByStoreFields.statusActive} int NOT NULL,
+  ${ItemsByStoreFields.activated} int NOT NULL,
+  ${ItemsByStoreFields.tovatId} text DEFAULT NULL,
+  ${ItemsByStoreFields.tovatIdPur} text DEFAULT NULL,
+  ${ItemsByStoreFields.maxStock} double DEFAULT '0',
+  ${ItemsByStoreFields.minStock} double DEFAULT '0',
+  ${ItemsByStoreFields.marginPercentage} double DEFAULT '0',
+  ${ItemsByStoreFields.marginPrice} double DEFAULT '0',
+  ${ItemsByStoreFields.multiplyOrder} int DEFAULT '1',
+  ${ItemsByStoreFields.price} double DEFAULT '0',
   $createdAtDefinition,
-  CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tsitm_tovatIdPur_fkey` FOREIGN KEY (`tovatIdPur`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
-
-        await txn.execute("""
-CREATE TABLE $tableEmployee (
-  $uuidDefinition,
-  ${EmployeeFields.createDate} datetime NOT NULL,
-  ${EmployeeFields.updateDate} datetime DEFAULT NULL,
-  ${EmployeeFields.empCode} text NOT NULL,
-  ${EmployeeFields.empName} text NOT NULL,
-  ${EmployeeFields.email} text NOT NULL,
-  ${EmployeeFields.phone} text NOT NULL,
-  ${EmployeeFields.addr1} text NOT NULL,
-  ${EmployeeFields.addr2} text DEFAULT NULL,
-  ${EmployeeFields.addr3} text DEFAULT NULL,
-  ${EmployeeFields.city} text NOT NULL,
-  ${EmployeeFields.remarks} text DEFAULT NULL,
-  ${EmployeeFields.toprvId} text DEFAULT NULL,
-  ${EmployeeFields.tocryId} text DEFAULT NULL,
-  ${EmployeeFields.tozcdId} text DEFAULT NULL,
-  ${EmployeeFields.idCard} text NOT NULL,
-  ${EmployeeFields.gender} text NOT NULL,
-  ${EmployeeFields.birthday} text NOT NULL,
-  ${EmployeeFields.photo} blob NOT NULL,
-  ${EmployeeFields.joinDate} datetime NOT NULL,
-  ${EmployeeFields.resignDate} datetime NOT NULL,
-  ${EmployeeFields.statusActive} int NOT NULL,
-  ${EmployeeFields.activated} int NOT NULL,
-  ${EmployeeFields.empDept} text NOT NULL,
-  ${EmployeeFields.empTitle} text NOT NULL,
-  ${EmployeeFields.empWorkplace} text NOT NULL,
-  ${EmployeeFields.empdDebt} double NOT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tohem_tozcId_fkey` FOREIGN KEY (`tozcId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-)
-""");
-
-        await txn.execute("""
-CREATE TABLE $tablePreferredVendor (
-  $uuidDefinition,
-  ${PreferredVendorFields.createDate} datetime NOT NULL,
-  ${PreferredVendorFields.updateDate} datetime DEFAULT NULL,
-  ${PreferredVendorFields.tsitmId} text DEFAULT NULL,
-  ${PreferredVendorFields.tovenId} text DEFAULT NULL,
-  ${PreferredVendorFields.listing} int NOT NULL,
-  ${PreferredVendorFields.minOrder} double NOT NULL,
-  ${PreferredVendorFields.multipyOrder} double NOT NULL,
-  ${PreferredVendorFields.canOrder} int NOT NULL,
-  ${PreferredVendorFields.dflt} int NOT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `tvitm_tsitmId_fkey` FOREIGN KEY (`tsitmId`) REFERENCES `tsitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tvitm_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-)
-""");
-        // CONSTRAINT `tostr_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
       });
     } catch (e) {
       print(e);

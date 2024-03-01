@@ -78,7 +78,7 @@ class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
+          ? DateTime.parse(map['updatedate']).toLocal()
           : null,
       tsitmId: map['tsitmId'] != null ? map['tsitmId'] as String : null,
       tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
