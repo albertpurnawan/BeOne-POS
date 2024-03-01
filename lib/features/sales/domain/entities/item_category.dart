@@ -8,9 +8,9 @@ class ItemCategoryEntity {
   final String catCode;
   final String catName;
   final String catNameFrgn;
-  final String? parentId;
+  final int? parentId;
   final int level;
-  final String? phir1Id;
+  final int? phir1Id;
 
   ItemCategoryEntity({
     required this.docId,
@@ -31,9 +31,9 @@ class ItemCategoryEntity {
     String? catCode,
     String? catName,
     String? catNameFrgn,
-    String? parentId,
+    int? parentId,
     int? level,
-    String? phir1Id,
+    int? phir1Id,
   }) {
     return ItemCategoryEntity(
       docId: docId ?? this.docId,
@@ -72,9 +72,9 @@ class ItemCategoryEntity {
       catCode: map['catCode'] as String,
       catName: map['catName'] as String,
       catNameFrgn: map['catNameFrgn'] as String,
-      parentId: map['parentId'] != null ? map['parentId'] as String : null,
+      parentId: map['parentId'] != null ? map['parentId'] as int : null,
       level: map['level'] as int,
-      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
+      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
     );
   }
 

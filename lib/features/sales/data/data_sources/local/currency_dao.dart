@@ -1,35 +1,60 @@
+import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:sqflite/sqflite.dart';
 
-class CurrencyDao {
-  final Database db;
+class CurrencyDao extends BaseDao<CurrencyModel> {
+  CurrencyDao(Database db)
+      : super(
+            db: db,
+            tableName: tableCurrencies,
+            modelFields: CurrencyFields.values);
 
-  CurrencyDao(this.db);
-
-  // Future<CurrencyModel> createItem(CurrencyModel itemModel) async {
-  //   final id = await db.insert(tableCurrencies, itemModel.toMap());
-
-  //   return CurrencyModel.fromEntity(itemModel.copyWith(id: id));
-  // }
-
-  Future<CurrencyModel> readCurrency(String docId) async {
-    final maps = await db.query(
-      tableCurrencies,
-      columns: CurrencyFields.values,
-      where: '${CurrencyFields.docId} = ?',
+  @override
+  Future<CurrencyModel?> readByDocId(String docId) async {
+    final res = await db.query(
+      tableName,
+      columns: modelFields,
+      where: 'docid = ?',
       whereArgs: [docId],
     );
 
-    if (maps.isNotEmpty) {
-      return CurrencyModel.fromMap(maps.first);
-    } else {
-      throw Exception("ID $docId is not found");
-    }
+    return res.isNotEmpty ? CurrencyModel.fromMap(res[0]) : null;
   }
 
-  Future<List<CurrencyModel>> readCurrencies() async {
-    final result = await db.query(tableCurrencies);
+  @override
+  Future<List<CurrencyModel>> readAll() async {
+    final result = await db.query(tableName);
 
     return result.map((itemData) => CurrencyModel.fromMap(itemData)).toList();
   }
+
+  // Future<CurrencyModel> create(CurrencyModel currencyModel) async {
+  //   final res = await db.insert(tableName, currencyModel.toMap());
+  //   return currencyModel;
+  // }
+
+  // Future<void> bulkCreate(List<CurrencyModel> data) async {
+  //   await DaoHelper.bulkCreate(db, tableName, data);
+  // }
+
+  // Future<CurrencyModel> readByDocId(String docId) async {
+  //   final maps = await db.query(
+  //     tableName,
+  //     columns: CurrencyFields.values,
+  //     where: '${CurrencyFields.docId} = ?',
+  //     whereArgs: [docId],
+  //   );
+
+  //   if (maps.isNotEmpty) {
+  //     return CurrencyModel.fromMap(maps.first);
+  //   } else {
+  //     throw Exception("ID $docId is not found");
+  //   }
+  // }
+
+  // Future<List<CurrencyModel>> readAll() async {
+  //   final result = await db.query(tableName);
+
+  //   return result.map((itemData) => CurrencyModel.fromMap(itemData)).toList();
+  // }
 }
