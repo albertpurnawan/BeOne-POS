@@ -10,6 +10,7 @@ import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/pos_paramaeter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
+import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
@@ -182,7 +183,20 @@ CREATE TABLE $tableCountry (
 )
 """);
 
-//ADD PROVINCE
+        await txn.execute("""
+CREATE TABLE $tableProvince (
+  $uuidDefinition,
+  ${ProvinceFields.createDate} datetime NOT NULL,
+  ${ProvinceFields.updateDate} datetime DEFAULT NULL,
+  ${ProvinceFields.provncCode} varchar(30) NOT NULL,
+  ${ProvinceFields.description} varchar(100) NOT NULL,
+  ${ProvinceFields.descriptionFrgn} varchar(100) NOT NULL,
+  ${ProvinceFields.tocryId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toprv_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
 //ADD ZIPCODE
 
         await txn.execute("""
