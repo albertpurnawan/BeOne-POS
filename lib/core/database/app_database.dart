@@ -5,6 +5,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart'
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
+import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/customer_address.dart';
@@ -690,6 +691,20 @@ CREATE TABLE $tableMOP (
   ${MeansOfPaymentFields.validForEmp} int NOT NULL DEFAULT '0',
   $createdAtDefinition,
   CONSTRAINT `tpmt1_topmtId_fkey` FOREIGN KEY (`topmtId`) REFERENCES `topmt` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCC (
+  $uuidDefinition,
+  ${CreditCardFields.createDate} datetime NOT NULL,
+  ${CreditCardFields.updateDate} datetime DEFAULT NULL,
+  ${CreditCardFields.ccCode} varchar(30) NOT NULL,
+  ${CreditCardFields.description} varchar(100) NOT NULL,
+  ${CreditCardFields.cardType} int NOT NULL DEFAULT '0',
+  ${CreditCardFields.statusActive} int NOT NULL DEFAULT '0',
+  ${CreditCardFields.activated} int NOT NULL DEFAULT '0',
+  $createdAtDefinition,
 )
 """);
 
