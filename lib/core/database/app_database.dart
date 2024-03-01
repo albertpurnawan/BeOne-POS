@@ -7,6 +7,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
+import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
@@ -707,6 +708,28 @@ CREATE TABLE $tableCustomer (
   CONSTRAINT `tocus_toptrId_fkey` FOREIGN KEY (`toptrId`) REFERENCES `toptr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tocus_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tocus_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCustomerAddress (
+  $uuidDefinition,
+  ${CustomerAddressFields.createDate} datetime NOT NULL,
+  ${CustomerAddressFields.updateDate} datetime DEFAULT NULL,
+  ${CustomerAddressFields.tocusId} text DEFAULT NULL,
+  ${CustomerAddressFields.linenum} int NOT NULL,
+  ${CustomerAddressFields.addr1} varchar(200) NOT NULL,
+  ${CustomerAddressFields.addr2} varchar(200) DEFAULT NULL,
+  ${CustomerAddressFields.addr3} varchar(200) DEFAULT NULL,
+  ${CustomerAddressFields.city} varchar(100) NOT NULL,
+  ${CustomerAddressFields.toprvId} text DEFAULT NULL,
+  ${CustomerAddressFields.tocryId} text DEFAULT NULL,
+  ${CustomerAddressFields.tozcdId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tcus1_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcus1_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcus1_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcus1_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
