@@ -15,6 +15,7 @@ import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
@@ -752,6 +753,17 @@ CREATE TABLE $tableCustomerContactPerson (
   ${CustomerContactPersonFields.birthdate} date NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tcus2_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePaymentType (
+  $uuidDefinition,
+  ${PaymentTypeFields.createDate} datetime NOT NULL,
+  ${PaymentTypeFields.updateDate} bigint NOT NULL,
+  ${PaymentTypeFields.payTypeCode} varchar(10) NOT NULL,
+  ${PaymentTypeFields.description} varchar(100) NOT NULL,
+  $createdAtDefinition,
 )
 """);
       });
