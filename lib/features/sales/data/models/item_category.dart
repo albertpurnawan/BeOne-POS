@@ -77,9 +77,9 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
       catCode: map['catcode'] as String,
       catName: map['catname'] as String,
       catNameFrgn: map['catnamefrgn'] as String,
-      parentId: map['parentId'] != null ? map['parentId'] as int : null,
+      parentId: map['parentId'] != null ? map['parentId'] as String : null,
       level: map['level'] as int,
-      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as int : null,
+      phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
     );
   }
 

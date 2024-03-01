@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/data/models/product_hierarchy.dart';
 import 'package:pos_fe/features/sales/domain/entities/product_hierarchy_master.dart';
 
@@ -21,7 +22,8 @@ class ProductHierarchyMasterFields {
   static const String tphirId = 'tphirId';
 }
 
-class ProductHierarchyMasterModel extends ProductHierarchyMasterEntity {
+class ProductHierarchyMasterModel extends ProductHierarchyMasterEntity
+    implements BaseModel {
   ProductHierarchyMasterModel(
       {required super.docId,
       required super.createDate,

@@ -20,7 +20,8 @@ abstract class BaseDao<T extends BaseModel> {
       batch.insert(tableName, e.toMap());
     }
 
-    await batch.commit(noResult: true);
+    final res = await batch.commit(noResult: true);
+    print(res.toString());
   }
 
   Future<void> create(T data) async {

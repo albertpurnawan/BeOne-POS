@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 
 const String tableStoreMasters = "tostr";
@@ -168,7 +169,7 @@ class StoreMasterFields {
   static const String isStore = 'isstore';
 }
 
-class StoreMasterModel extends StoreMasterEntity {
+class StoreMasterModel extends StoreMasterEntity implements BaseModel {
   StoreMasterModel(
       {required super.docId,
       required super.createDate,

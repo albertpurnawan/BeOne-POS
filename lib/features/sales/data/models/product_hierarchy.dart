@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/product_hierarchy.dart';
 
 const String tableProductHierarchies = "tphir";
@@ -20,7 +21,8 @@ class ProductHierarchyFields {
   static const String maxChar = 'maxchar';
 }
 
-class ProductHierarchyModel extends ProductHierarchyEntity {
+class ProductHierarchyModel extends ProductHierarchyEntity
+    implements BaseModel {
   ProductHierarchyModel({
     required super.docId,
     required super.createDate,

@@ -222,9 +222,9 @@ CREATE TABLE $tableItemCategories (
   ${ItemCategoryFields.catCode} varchar(30) NOT NULL,
   ${ItemCategoryFields.catName} varchar(100) NOT NULL,
   ${ItemCategoryFields.catNameFrgn} varchar(100) NOT NULL,
-  ${ItemCategoryFields.parentId} int DEFAULT NULL,
+  ${ItemCategoryFields.parentId} text DEFAULT NULL,
   ${ItemCategoryFields.level} int NOT NULL,
-  ${ItemCategoryFields.phir1Id} int DEFAULT NULL,
+  ${ItemCategoryFields.phir1Id} text DEFAULT NULL,
   $createdAtDefinition
 )
 """);

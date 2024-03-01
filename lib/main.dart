@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
+import 'package:pos_fe/core/database/seeders_data/tocat.dart';
 import 'package:pos_fe/features/sales/data/models/item_category.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -14,11 +15,6 @@ import 'package:pos_fe/injection_container.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
-  // print((await GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
-  // (await GetIt.instance<AppDatabase>()
-  //     .itemCategoryDao
-  //     .bulkCreate(tcurr.map((e) => ItemCategoryModel.fromMap(e)).toList()));
-
   runApp(const MyApp());
 }
 
@@ -27,6 +23,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print((GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
+    GetIt.instance<AppDatabase>()
+        .itemCategoryDao
+        .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Color.fromARGB(255, 169, 0, 0),
         statusBarBrightness: Brightness.light,
