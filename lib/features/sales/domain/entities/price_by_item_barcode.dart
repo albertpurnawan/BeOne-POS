@@ -8,7 +8,7 @@ class PriceByItemBarcodeEntity {
   final String? tpln2Id;
   final String? tbitmId;
   final String? tcurrId;
-  final int price;
+  final double price;
 
   PriceByItemBarcodeEntity({
     required this.docId,
@@ -27,7 +27,7 @@ class PriceByItemBarcodeEntity {
     String? tpln2Id,
     String? tbitmId,
     String? tcurrId,
-    int? price,
+    double? price,
   }) {
     return PriceByItemBarcodeEntity(
       docId: docId ?? this.docId,
@@ -62,7 +62,7 @@ class PriceByItemBarcodeEntity {
       tpln2Id: map['tpln2Id'] != null ? map['tpln2Id'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
-      price: map['price'] as int,
+      price: map['price'] as double,
     );
   }
 

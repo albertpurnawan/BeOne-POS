@@ -1,0 +1,62 @@
+const touom = [
+  {
+    "id": 1,
+    "docid": "0a5fcead-61e6-449b-a81a-db7e4a716335",
+    "createdate": "2023-09-27 06:20:26",
+    "createby": 2,
+    "updatedate": "2023-11-14 09:55:00",
+    "updateby": 2,
+    "lastchanges": 0,
+    "gtentId": 1,
+    "uomcode": "Pc",
+    "uomdesc": "Pc",
+    "statusactive": 1,
+    "activated": 0,
+    "synccrm": 1
+  },
+  {
+    "id": 2,
+    "docid": "fb1c4034-e29c-4450-8c7a-7beaade52d3d",
+    "createdate": "2023-09-27 06:20:38",
+    "createby": 2,
+    "updatedate": "2023-11-14 09:55:00",
+    "updateby": 2,
+    "lastchanges": 0,
+    "gtentId": 1,
+    "uomcode": "Gr",
+    "uomdesc": "Gr",
+    "statusactive": 1,
+    "activated": 0,
+    "synccrm": 1
+  },
+  {
+    "id": 3,
+    "docid": "1a873b6c-4bc3-4a67-acb5-1fb9c847adee",
+    "createdate": "2023-10-25 10:01:26",
+    "createby": 2,
+    "updatedate": "2023-11-14 09:55:00",
+    "updateby": 2,
+    "lastchanges": 0,
+    "gtentId": 1,
+    "uomcode": "Kg",
+    "uomdesc": "Kg",
+    "statusactive": 1,
+    "activated": 0,
+    "synccrm": 1
+  },
+  {
+    "id": 4,
+    "docid": "7c2a863a-9adb-4edd-ba39-90ba59efb5e3",
+    "createdate": "2023-11-03 12:41:18",
+    "createby": 2,
+    "updatedate": "2023-11-14 09:55:01",
+    "updateby": 2,
+    "lastchanges": 0,
+    "gtentId": 1,
+    "uomcode": "ml",
+    "uomdesc": "ml",
+    "statusactive": 1,
+    "activated": 0,
+    "synccrm": 1
+  }
+];

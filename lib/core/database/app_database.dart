@@ -1,9 +1,33 @@
 import 'package:path/path.dart';
+import 'package:pos_fe/core/database/seeders_data/phir1.dart';
+import 'package:pos_fe/core/database/seeders_data/tbitm.dart';
 import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
 import 'package:pos_fe/core/database/seeders_data/tocat.dart';
+import 'package:pos_fe/core/database/seeders_data/toitm.dart';
+import 'package:pos_fe/core/database/seeders_data/topln.dart';
+import 'package:pos_fe/core/database/seeders_data/tostr.dart';
+import 'package:pos_fe/core/database/seeders_data/touom.dart';
+import 'package:pos_fe/core/database/seeders_data/tovat.dart';
+import 'package:pos_fe/core/database/seeders_data/tphir.dart';
+import 'package:pos_fe/core/database/seeders_data/tpln1.dart';
+import 'package:pos_fe/core/database/seeders_data/tpln2.dart';
+import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
+import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/item_barcode_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/item_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/item_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_barcode_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_period_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
@@ -48,13 +72,66 @@ class AppDatabase {
 
   late final ItemsDao itemsDao;
   late final CurrencyDao currencyDao;
+  late final TaxMasterDao taxMasterDao;
+  late final ProductHierarchyDao productHierarchyDao;
+  late final ProductHierarchyMasterDao productHierarchyMasterDao;
   late final ItemCategoryDao itemCategoryDao;
+  late final UomDao uomDao;
+  late final ItemMasterDao itemMasterDao;
+  late final PricelistDao pricelistDao;
+  late final PricelistPeriodDao pricelistPeriodDao;
+  late final ItemBarcodeDao itemBarcodeDao;
+  late final ItemByStoreDao itemByStoreDao;
+  late final PriceByItemDao priceByItemDao;
+  late final PriceByItemBarcodeDao priceByItemBarcodeDao;
+  late final StoreMasterDao storeMasterDao;
 
   AppDatabase() {
     getDB().then((db) {
       itemsDao = ItemsDao(db);
       currencyDao = CurrencyDao(db);
       itemCategoryDao = ItemCategoryDao(db);
+      taxMasterDao = TaxMasterDao(db);
+      productHierarchyDao = ProductHierarchyDao(db);
+      productHierarchyMasterDao = ProductHierarchyMasterDao(db);
+      uomDao = UomDao(db);
+      itemMasterDao = ItemMasterDao(db);
+      pricelistDao = PricelistDao(db);
+      pricelistPeriodDao = PricelistPeriodDao(db);
+      itemBarcodeDao = ItemBarcodeDao(db);
+      itemByStoreDao = ItemByStoreDao(db);
+      priceByItemDao = PriceByItemDao(db);
+      priceByItemBarcodeDao = PriceByItemBarcodeDao(db);
+      storeMasterDao = StoreMasterDao(db);
+
+      currencyDao
+          .bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
+      itemCategoryDao
+          .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+      taxMasterDao
+          .bulkCreate(tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
+      productHierarchyDao.bulkCreate(
+          tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
+      productHierarchyMasterDao.bulkCreate(
+          phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
+
+      pricelistDao
+          .bulkCreate(topln.map((e) => PricelistModel.fromMap(e)).toList());
+      pricelistPeriodDao.bulkCreate(
+          tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
+      uomDao.bulkCreate(touom.map((e) => UomModel.fromMap(e)).toList());
+      storeMasterDao
+          .bulkCreate(tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
+      itemMasterDao
+          .bulkCreate(toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
+      itemBarcodeDao
+          .bulkCreate(tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
+      itemByStoreDao
+          .bulkCreate(tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
+      priceByItemDao
+          .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
+      priceByItemBarcodeDao.bulkCreate(
+          tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
     });
   }
 
@@ -244,11 +321,6 @@ CREATE TABLE $tableTaxMasters (
 """);
 
         await txn.execute("""
-INSERT INTO `tcurr` (docid,createdate,updatedate,curcode,description,descriptionfrgn) VALUES
-	 ('cff4edc0-7612-4681-8d7c-c90e9e97c6dc','2023-08-28 04:08:00','2023-08-28 04:08:00','IDR','Rupiah','Rupiah');
-""");
-
-        await txn.execute("""
 CREATE TABLE `$tableProductHierarchies` (
   $uuidDefinition,
   ${ProductHierarchyFields.createDate} datetime NOT NULL,
@@ -281,9 +353,9 @@ CREATE TABLE $tableItemCategories (
   ${ItemCategoryFields.catCode} varchar(30) NOT NULL,
   ${ItemCategoryFields.catName} varchar(100) NOT NULL,
   ${ItemCategoryFields.catNameFrgn} varchar(100) NOT NULL,
-  ${ItemCategoryFields.parentId} int DEFAULT NULL,
+  ${ItemCategoryFields.parentId} text DEFAULT NULL,
   ${ItemCategoryFields.level} int NOT NULL,
-  ${ItemCategoryFields.phir1Id} int DEFAULT NULL,
+  ${ItemCategoryFields.phir1Id} text DEFAULT NULL,
   $createdAtDefinition
 )
 """);
@@ -751,16 +823,16 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.vdfLine2Off} varchar(20) DEFAULT NULL,
   ${StoreMasterFields.isStore} int NOT NULL DEFAULT '1',
   $createdAtDefinition,
-  CONSTRAINT `tostr_credittaxcodeId_fkey` FOREIGN KEY (`credittaxcodeId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tostr_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tostr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tostr_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tostr_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tostr_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tostr_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+        // CONSTRAINT `tostr_credittaxcodeId_fkey` FOREIGN KEY (`credittaxcodeId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tostr_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tostr_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+        // CONSTRAINT `tostr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tostr_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 
         await txn.execute("""
 CREATE TABLE $tablePOSParameter (

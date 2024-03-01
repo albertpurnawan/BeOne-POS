@@ -63,12 +63,12 @@ class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
-      'toitm_id': toitmId,
-      'tostr_id': tostrId,
+      'toitmId': toitmId,
+      'tostrId': tostrId,
       'statusactive': statusActive,
       'activated': activated,
       'tovatId': tovatId,
-      'tovat_id_pur': tovatIdPur,
+      'tovatIdPur': tovatIdPur,
       'maxstock': maxStock,
       'minstock': minStock,
       'marginpercentage': marginPercentage,
@@ -81,23 +81,23 @@ class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
   factory ItemByStoreModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemByStoreModel.fromMap({
       ...map,
-      "toitmId": map['toitm_id']?['docid'] != null
-          ? map['toitm_id']['docid'] as String
+      "toitmId": map['toitmId']?['docid'] != null
+          ? map['toitmId']['docid'] as String
           : null,
-      "tostrId": map['tostr_id']?['docid'] != null
-          ? map['tostr_id']['docid'] as String
+      "tostrId": map['tostrId']?['docid'] != null
+          ? map['tostrId']['docid'] as String
           : null,
       "tovatId": map['tovat_id']?['docid'] != null
           ? map['tovat_id']['docid'] as String
           : null,
-      "tovatIdPur": map['tovat_id_pur']?['docid'] != null
-          ? map['tovat_id_pur']['docid'] as String
+      "tovatIdPur": map['tovatIdPur']?['docid'] != null
+          ? map['tovatIdPur']['docid'] as String
           : null,
-      "maxstock": map['toitm_id']['maxstock'] != null
-          ? map['toitm_id']['maxstock'].toDouble() as double
+      "maxstock": map['toitmId']['maxstock'] != null
+          ? map['toitmId']['maxstock'].toDouble() as double
           : null,
-      "minstock": map['toitm_id']['minstock'] != null
-          ? map['toitm_id']['minstock'].toDouble() as double
+      "minstock": map['toitmId']['minstock'] != null
+          ? map['toitmId']['minstock'].toDouble() as double
           : null,
       "marginpercentage": map['marginpercentage'] != null
           ? map['marginpercentage'].toDouble() as double

@@ -27,34 +27,4 @@ class CurrencyDao extends BaseDao<CurrencyModel> {
 
     return result.map((itemData) => CurrencyModel.fromMap(itemData)).toList();
   }
-
-  // Future<CurrencyModel> create(CurrencyModel currencyModel) async {
-  //   final res = await db.insert(tableName, currencyModel.toMap());
-  //   return currencyModel;
-  // }
-
-  // Future<void> bulkCreate(List<CurrencyModel> data) async {
-  //   await DaoHelper.bulkCreate(db, tableName, data);
-  // }
-
-  // Future<CurrencyModel> readByDocId(String docId) async {
-  //   final maps = await db.query(
-  //     tableName,
-  //     columns: CurrencyFields.values,
-  //     where: '${CurrencyFields.docId} = ?',
-  //     whereArgs: [docId],
-  //   );
-
-  //   if (maps.isNotEmpty) {
-  //     return CurrencyModel.fromMap(maps.first);
-  //   } else {
-  //     throw Exception("ID $docId is not found");
-  //   }
-  // }
-
-  // Future<List<CurrencyModel>> readAll() async {
-  //   final result = await db.query(tableName);
-
-  //   return result.map((itemData) => CurrencyModel.fromMap(itemData)).toList();
-  // }
 }

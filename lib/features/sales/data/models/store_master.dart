@@ -393,9 +393,9 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       autoPrintStruk:
           map['autoprintstruk'] != null ? map['autoprintstruk'] as int : null,
       barcode1: map['barcode1'] != null ? map['barcode1'] as String : null,
-      barcode2: map['barcode2'] != null ? map['barcode2'] as String : null,
-      barcode3: map['barcode3'] != null ? map['barcode3'] as String : null,
-      barcode4: map['barcode4'] != null ? map['barcode4'] as String : null,
+      barcode2: map['barcode2'] != null ? map['barcode2'] as int : null,
+      barcode3: map['barcode3'] != null ? map['barcode3'] as int : null,
+      barcode4: map['barcode4'] != null ? map['barcode4'] as int : null,
       connectBack:
           map['connectback'] != null ? map['connectback'] as int : null,
       maxUserKassa:
@@ -425,7 +425,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
           : null,
       autoSync: map['autosync'] as int,
       autoUpload: map['autoupload'] as int,
-      checkSellingPrice: map['checkSellingPrice'] as int,
+      checkSellingPrice: map['checksellingprice'] as int,
       checkStockMinus: map['checkstockminus'] as int,
       creditTaxCodeId: map['creditTaxCodeId'] != null
           ? map['creditTaxCodeId'] as String

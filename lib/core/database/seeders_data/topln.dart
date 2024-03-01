@@ -1,0 +1,40 @@
+const topln = [
+  {
+    "id": 1,
+    "docid": "d81165a4-f3db-4117-865b-a33377612de1",
+    "createdate": "2023-10-03 08:48:39",
+    "createby": 2,
+    "updatedate": "2023-11-06 03:53:15",
+    "updateby": 2,
+    "lastchanges": 0,
+    "gtentId": 1,
+    "pricecode": "PL_SESA_01",
+    "description": "PL_SESA_01",
+    "baseprice": 1,
+    "periodprice": 1,
+    "factor": 1.0,
+    "tcurrId": "cff4edc0-7612-4681-8d7c-c90e9e97c6dc",
+    "type": 1,
+    "statusactive": 0,
+    "activated": 1
+  },
+  {
+    "id": 2,
+    "docid": "3d355ebf-ae71-4892-b09c-bdc8ae8f7331",
+    "createdate": "2023-11-03 11:46:58",
+    "createby": 2,
+    "updatedate": "2024-02-02 02:44:54",
+    "updateby": 2,
+    "lastchanges": 0,
+    "gtentId": 1,
+    "pricecode": "PF_SESA_01",
+    "description": "PF_SESA_01",
+    "baseprice": 1,
+    "periodprice": 1,
+    "factor": 1.0,
+    "tcurrId": "cff4edc0-7612-4681-8d7c-c90e9e97c6dc",
+    "type": 1,
+    "statusactive": 1,
+    "activated": 1
+  }
+];

@@ -8,7 +8,7 @@ class ItemCategoryEntity {
   final String catCode;
   final String catName;
   final String catNameFrgn;
-  final int? parentId;
+  final String? parentId;
   final int level;
   final String? phir1Id;
 
@@ -31,7 +31,7 @@ class ItemCategoryEntity {
     String? catCode,
     String? catName,
     String? catNameFrgn,
-    int? parentId,
+    String? parentId,
     int? level,
     String? phir1Id,
   }) {
@@ -72,7 +72,7 @@ class ItemCategoryEntity {
       catCode: map['catCode'] as String,
       catName: map['catName'] as String,
       catNameFrgn: map['catNameFrgn'] as String,
-      parentId: map['parentId'] != null ? map['parentId'] as int : null,
+      parentId: map['parentId'] != null ? map['parentId'] as String : null,
       level: map['level'] as int,
       phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
     );

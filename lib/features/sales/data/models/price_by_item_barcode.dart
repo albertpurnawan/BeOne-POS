@@ -73,7 +73,7 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
       tpln2Id: map['tpln2Id'] != null ? map['tpln2Id'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
-      price: map['price'] as int,
+      price: map['price'] as double,
     );
   }
 

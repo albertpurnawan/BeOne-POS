@@ -89,40 +89,4 @@ const tovat = [
     "statusactive": 1,
     "activated": 1
   },
-  {
-    "id": 6,
-    "docid": "2288c6d0-fab8-4290-a0fe-e0f3b5de4f6a",
-    "createdate": "2023-08-29 05:31:19",
-    "createby": 2,
-    "updatedate": "2023-08-29 05:31:19",
-    "updateby": 2,
-    "lastchanges": 0,
-    "gtentId": 1,
-    "taxcode": "PPNI0",
-    "description": "PPN Masukan 0%",
-    "rate": 0.0,
-    "periodfrom": "1999-12-31",
-    "periodto": "9998-12-31",
-    "taxtype": "I",
-    "statusactive": 1,
-    "activated": 1
-  },
-  {
-    "id": 7,
-    "docid": "29d8d6fe-b61c-4fb1-a9b2-033efd3f93c0",
-    "createdate": "2023-08-30 02:45:21",
-    "createby": 2,
-    "updatedate": "2023-08-30 02:45:21",
-    "updateby": 2,
-    "lastchanges": 0,
-    "gtentId": 1,
-    "taxcode": "PB1",
-    "description": "PB1",
-    "rate": 10.0,
-    "periodfrom": "1999-12-30",
-    "periodto": "9998-12-30",
-    "taxtype": "O",
-    "statusactive": 1,
-    "activated": 1
-  }
 ];
