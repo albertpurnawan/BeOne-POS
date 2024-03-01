@@ -142,7 +142,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
+          ? DateTime.parse(map['updatedate']).toLocal()
           : null,
       empCode: map['empcode'] as String,
       empName: map['empname'] as String,

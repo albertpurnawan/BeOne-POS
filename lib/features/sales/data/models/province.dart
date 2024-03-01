@@ -37,12 +37,12 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toLocal().toIso8601String(),
-      'updateDate': updateDate?.toLocal().toIso8601String(),
+      'docid': docId,
+      'createdate': createDate.toLocal().toIso8601String(),
+      'updatedate': updateDate?.toLocal().toIso8601String(),
       'provnccode': provncCode,
       'description': description,
-      'descriptionFrgn': descriptionFrgn,
+      'descriptionfrgn': descriptionFrgn,
       'tocryId': tocryId,
     };
   }
@@ -58,10 +58,10 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
 
   factory ProvinceModel.fromMap(Map<String, dynamic> map) {
     return ProvinceModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
-      updateDate: map['updateDate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
+      updateDate: map['updatedate'] != null
+          ? DateTime.parse(map['updatedate']).toLocal()
           : null,
       provncCode: map['provnccode'] as String,
       description: map['description'] as String,

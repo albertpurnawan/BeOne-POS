@@ -56,7 +56,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
+          ? DateTime.parse(map['updatedate']).toLocal()
           : null,
       tostrId: map['tostrid'] as String,
       storeName: map['storename'] as String,

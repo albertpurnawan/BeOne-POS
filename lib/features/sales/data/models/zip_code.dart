@@ -43,30 +43,30 @@ class ZipCodeModel extends ZipCodeEntity implements BaseModel {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toLocal().toIso8601String(),
-      'updateDate': updateDate?.toLocal().toIso8601String(),
-      'zipCode': zipCode,
+      'docid': docId,
+      'createdate': createDate.toLocal().toIso8601String(),
+      'updatedate': updateDate?.toLocal().toIso8601String(),
+      'zipcode': zipCode,
       'city': city,
       'district': district,
       'urban': urban,
-      'subDistrict': subDistrict,
+      'subdistrict': subDistrict,
       'toprvId': toprvId,
     };
   }
 
   factory ZipCodeModel.fromMap(Map<String, dynamic> map) {
     return ZipCodeModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updateDate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
+          ? DateTime.parse(map['updatedate']).toLocal()
           : null,
-      zipCode: map['zipCode'] as String,
+      zipCode: map['zipcode'] as String,
       city: map['city'] as String,
       district: map['district'] as String,
       urban: map['urban'] as String,
-      subDistrict: map['subDistrict'] as String,
+      subDistrict: map['subdistrict'] as String,
       toprvId: map['toprvId'] != null ? map['phir1Id'] as String : null,
     );
   }
