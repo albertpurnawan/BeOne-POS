@@ -44,6 +44,8 @@ import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
+import 'package:pos_fe/features/sales/data/models/holiday.dart';
+import 'package:pos_fe/features/sales/data/models/holiday_detail.dart';
 import 'package:pos_fe/features/sales/data/models/house_bank_account.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
@@ -1105,6 +1107,33 @@ CREATE TABLE $tableBOMLineItem (
   CONSTRAINT `titt1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `titt1_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `titt1_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableHoliday (
+  $uuidDefinition,
+  ${HolidayFields.createDate} datetime NOT NULL,
+  ${HolidayFields.updateDate} datetime DEFAULT NULL,
+  ${HolidayFields.calendarCode} varchar(30) NOT NULL,
+  ${HolidayFields.description} varchar(200) NOT NULL,
+  ${HolidayFields.descriptionFrgn} varchar(200) NOT NULL,
+  ${HolidayFields.fiscalYear} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableHolidayDetail (
+  $uuidDefinition,
+  ${HolidayDetailFields.createDate} datetime NOT NULL,
+  ${HolidayDetailFields.updateDate} datetime DEFAULT NULL,
+  ${HolidayDetailFields.tohldId} text DEFAULT NULL,
+  ${HolidayDetailFields.holidayDate} date NOT NULL,
+  ${HolidayDetailFields.description} varchar(200) NOT NULL,
+  ${HolidayDetailFields.descriptionFrgn} varchar(200) NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `thld1_tohldId_fkey` FOREIGN KEY (`tohldId`) REFERENCES `tohld` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
