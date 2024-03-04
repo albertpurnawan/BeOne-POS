@@ -31,6 +31,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
+import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
@@ -1066,6 +1067,26 @@ CREATE TABLE $tableHouseBankAccount (
   CONSTRAINT `tobnk_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute("""
+CREATE TABLE $tableBillOfMaterial (
+  $uuidDefinition,
+  ${BillOfMaterialFields.createDate} datetime NOT NULL,
+  ${BillOfMaterialFields.updateDate} datetime DEFAULT NULL,
+  ${BillOfMaterialFields.toitmId} text DEFAULT NULL,
+  ${BillOfMaterialFields.quantity} double NOT NULL,
+  ${BillOfMaterialFields.touomId} text DEFAULT NULL,
+  ${BillOfMaterialFields.tipe} int NOT NULL,
+  ${BillOfMaterialFields.tcurrId} text DEFAULT NULL,
+  ${BillOfMaterialFields.price} double NOT NULL,
+  ${BillOfMaterialFields.statusActive} int NOT NULL,
+  ${BillOfMaterialFields.sync} int NOT NULL DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `toitt_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toitt_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toitt_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
       });
     } catch (e) {
       print(e);
@@ -1079,7 +1100,7 @@ CREATE TABLE $tableHouseBankAccount (
       await db.transaction((txn) async {
         await txn.rawInsert('''
         INSERT OR REPLACE INTO users (
-          docid, createdate, updatedate, gtentId, email, username, password,
+          docid, createdate, touomId, gtentId, email, username, password,
           tohemId, torolId, statusactive, activated, superuser, provider,
           usertype, trolleyuser
         ) VALUES (
