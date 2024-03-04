@@ -31,6 +31,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
+import 'package:pos_fe/features/sales/data/models/batch_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
@@ -47,12 +48,15 @@ import 'package:pos_fe/features/sales/data/models/gender.dart';
 import 'package:pos_fe/features/sales/data/models/holiday.dart';
 import 'package:pos_fe/features/sales/data/models/holiday_detail.dart';
 import 'package:pos_fe/features/sales/data/models/house_bank_account.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_payment_other_voucher.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
+import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type_master.dart';
@@ -652,7 +656,6 @@ CREATE TABLE $tableAuthorization (
   $uuidDefinition,
   ${AuthorizationFields.createDate} datetime NOT NULL,
   ${AuthorizationFields.updateDate} datetime DEFAULT NULL,
-  
   ${AuthorizationFields.tousrId} text DEFAULT NULL,
   ${AuthorizationFields.authorization} int NOT NULL,
   ${AuthorizationFields.setBy} int NOT NULL,
@@ -929,11 +932,11 @@ CREATE TABLE $tablePOSParameter (
   $uuidDefinition,
   ${POSParameterFields.createDate} datetime NOT NULL,
   ${POSParameterFields.updateDate} datetime DEFAULT NULL,
-  ${POSParameterFields.tostrId} text NOT NULL,
+  ${POSParameterFields.tostrId} text DEFAULT NULL,
   ${POSParameterFields.storeName} text NOT NULL,
-  ${POSParameterFields.tcurrId} text NOT NULL,
-  ${POSParameterFields.currCode} text NOT NULL,
-  ${POSParameterFields.toplnId} text NOT NULL,
+  ${POSParameterFields.tcurrId} text DEFAULT NULL,
+  ${POSParameterFields.currCode} text DEFAULT NULL,
+  ${POSParameterFields.toplnId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -946,8 +949,8 @@ CREATE TABLE $tableMOPByStore (
   $uuidDefinition,
   ${MOPByStoreFields.createDate} datetime NOT NULL,
   ${MOPByStoreFields.updateDate} datetime DEFAULT NULL,
-  ${MOPByStoreFields.tpmt1id} bigint DEFAULT NULL,
-  ${MOPByStoreFields.tostrId} bigint DEFAULT NULL,
+  ${MOPByStoreFields.tpmt1id} text DEFAULT NULL,
+  ${MOPByStoreFields.tostrId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmt3_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmt3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -959,8 +962,8 @@ CREATE TABLE $tableAPMPS (
   $uuidDefinition,
   ${AssignPriceMemberPerStoreFields.createDate} datetime NOT NULL,
   ${AssignPriceMemberPerStoreFields.updateDate} datetime DEFAULT NULL,
-  ${AssignPriceMemberPerStoreFields.toplnId} bigint DEFAULT NULL,
-  ${AssignPriceMemberPerStoreFields.tostrId} bigint DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.toplnId} text DEFAULT NULL,
+  ${AssignPriceMemberPerStoreFields.tostrId} text DEFAULT NULL,
   ${AssignPriceMemberPerStoreFields.statusActive} int NOT NULL,
   ${AssignPriceMemberPerStoreFields.activated} int NOT NULL,
   $createdAtDefinition,
@@ -1176,6 +1179,92 @@ CREATE TABLE $tableInvoiceHeader (
   CONSTRAINT `toinv_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toinv_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toinv_toinvTohemId_fkey` FOREIGN KEY (`toinvTohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableInvoiceDetail (
+  $uuidDefinition,
+  ${InvoiceDetailFields.createDate} datetime NOT NULL,
+  ${InvoiceDetailFields.updateDate} datetime DEFAULT NULL,
+  ${InvoiceDetailFields.toinvId} text DEFAULT NULL,
+  ${InvoiceDetailFields.lineNum} int NOT NULL,
+  ${InvoiceDetailFields.docNum} varchar(30) NOT NULL,
+  ${InvoiceDetailFields.idNumber} int NOT NULL,
+  ${InvoiceDetailFields.toitmId} text DEFAULT NULL,
+  ${InvoiceDetailFields.quantity} double NOT NULL,
+  ${InvoiceDetailFields.sellingPrice} double NOT NULL,
+  ${InvoiceDetailFields.discPrctg} double NOT NULL,
+  ${InvoiceDetailFields.discAmount} double NOT NULL,
+  ${InvoiceDetailFields.totalAmount} double NOT NULL,
+  ${InvoiceDetailFields.taxPrctg} double NOT NULL,
+  ${InvoiceDetailFields.promotionType} varchar(20) NOT NULL,
+  ${InvoiceDetailFields.promotionId} varchar(191) NOT NULL,
+  ${InvoiceDetailFields.remarks} text,
+  ${InvoiceDetailFields.editTime} datetime NOT NULL,
+  ${InvoiceDetailFields.cogs} double NOT NULL,
+  ${InvoiceDetailFields.tovatId} text DEFAULT NULL,
+  ${InvoiceDetailFields.promotionTingkat} varchar(191) DEFAULT NULL,
+  ${InvoiceDetailFields.promoVoucherNo} varchar(191) DEFAULT NULL,
+  ${InvoiceDetailFields.baseDocId} varchar(191) DEFAULT NULL,
+  ${InvoiceDetailFields.baseLineDocId} varchar(191) DEFAULT NULL,
+  ${InvoiceDetailFields.includeTax} int NOT NULL,
+  ${InvoiceDetailFields.tovenId} text DEFAULT NULL,
+  ${InvoiceDetailFields.tbitmId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tinv1_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv1_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv1_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePayMeans (
+  $uuidDefinition,
+  ${PayMeansFields.createDate} datetime NOT NULL,
+  ${PayMeansFields.updateDate} datetime DEFAULT NULL,
+  ${PayMeansFields.toinvId} text DEFAULT NULL,
+  ${PayMeansFields.lineNum} int NOT NULL,
+  ${PayMeansFields.tpmt3Id} text DEFAULT NULL,
+  ${PayMeansFields.amount} double NOT NULL,
+  ${PayMeansFields.tpmt2Id} text DEFAULT NULL,
+  ${PayMeansFields.cardNo} varchar(20) DEFAULT NULL,
+  ${PayMeansFields.cardHolder} varchar(20) DEFAULT NULL,
+  ${PayMeansFields.sisaVoucher} double DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tinv2_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `tinv2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `tinv2_tpmt2Id_fkey` FOREIGN KEY (`tpmt2Id`) REFERENCES `tpmt2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableBatchInvoice (
+  $uuidDefinition,
+  ${BatchInvoiceFields.createDate} datetime NOT NULL,
+  ${BatchInvoiceFields.updateDate} datetime DEFAULT NULL,
+  ${BatchInvoiceFields.tinv1Docid} text DEFAULT NULL,
+  ${BatchInvoiceFields.toitmId} text DEFAULT NULL,
+  ${BatchInvoiceFields.batchNo} varchar(10) NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tinv3_tinv1Docid_fkey` FOREIGN KEY (`tinv1Docid`) REFERENCES `tinv1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv3_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableIPOV (
+  $uuidDefinition,
+  ${IPOVFields.createDate} datetime NOT NULL,
+  ${IPOVFields.updateDate} datetime DEFAULT NULL,
+  ${IPOVFields.toinvId} text DEFAULT NULL,
+  ${IPOVFields.type} int NOT NULL,
+  ${IPOVFields.serialNo} varchar(50) NOT NULL,
+  ${IPOVFields.amount} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tinv4_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
