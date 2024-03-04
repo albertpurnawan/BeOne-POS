@@ -47,6 +47,7 @@ import 'package:pos_fe/features/sales/data/models/gender.dart';
 import 'package:pos_fe/features/sales/data/models/holiday.dart';
 import 'package:pos_fe/features/sales/data/models/holiday_detail.dart';
 import 'package:pos_fe/features/sales/data/models/house_bank_account.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
@@ -1134,6 +1135,47 @@ CREATE TABLE $tableHolidayDetail (
   ${HolidayDetailFields.descriptionFrgn} varchar(200) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `thld1_tohldId_fkey` FOREIGN KEY (`tohldId`) REFERENCES `tohld` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableInvoiceHeader (
+  $uuidDefinition,
+  ${InvoiceHeaderFields.createDate} datetime NOT NULL,
+  ${InvoiceHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${InvoiceHeaderFields.tostrId} text DEFAULT NULL,
+  ${InvoiceHeaderFields.docnum} varchar(30) NOT NULL,
+  ${InvoiceHeaderFields.orderNo} int NOT NULL,
+  ${InvoiceHeaderFields.tocusId} text DEFAULT NULL,
+  ${InvoiceHeaderFields.tohemId} text DEFAULT NULL,
+  ${InvoiceHeaderFields.transDate} date NOT NULL,
+  ${InvoiceHeaderFields.transTime} time NOT NULL,
+  ${InvoiceHeaderFields.timezone} varchar(200) NOT NULL,
+  ${InvoiceHeaderFields.remarks} text,
+  ${InvoiceHeaderFields.subTotal} double NOT NULL,
+  ${InvoiceHeaderFields.discPrctg} double NOT NULL,
+  ${InvoiceHeaderFields.discAmount} double NOT NULL,
+  ${InvoiceHeaderFields.discountCard} double NOT NULL,
+  ${InvoiceHeaderFields.coupon} varchar(30) NOT NULL,
+  ${InvoiceHeaderFields.discountCoupun} double NOT NULL,
+  ${InvoiceHeaderFields.taxPrctg} double NOT NULL,
+  ${InvoiceHeaderFields.taxAmount} double NOT NULL,
+  ${InvoiceHeaderFields.addCost} double NOT NULL,
+  ${InvoiceHeaderFields.rounding} double NOT NULL,
+  ${InvoiceHeaderFields.grandTotal} double NOT NULL,
+  ${InvoiceHeaderFields.changed} double NOT NULL,
+  ${InvoiceHeaderFields.totalPayment} double NOT NULL,
+  ${InvoiceHeaderFields.tocsrId} text DEFAULT NULL,
+  ${InvoiceHeaderFields.docStatus} int NOT NULL DEFAULT '0',
+  ${InvoiceHeaderFields.sync} int NOT NULL DEFAULT '0',
+  ${InvoiceHeaderFields.syncCRM} int NOT NULL DEFAULT '0',
+  ${InvoiceHeaderFields.toinvTohemId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toinv_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toinv_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toinv_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toinv_toinvTohemId_fkey` FOREIGN KEY (`toinvTohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
