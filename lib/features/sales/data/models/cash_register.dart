@@ -67,49 +67,49 @@ class CashRegisterModel extends CashRegisterEntity implements BaseModel {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'tostrId': tostrId,
       'hwkey': hwkey,
       'token': token,
       'email': email,
-      'statusActive': statusActive,
+      'statusactive': statusActive,
       'activated': activated,
       'description': description,
-      'ipKassa': ipKassa,
-      'idKassa': idKassa,
-      'printerCode': printerCode,
-      'printerLogo': printerLogo,
-      'strukType': strukType,
-      'bigHeader': bigHeader,
-      'syncCloud': syncCloud,
+      'ipkassa': ipKassa,
+      'idkassa': idKassa,
+      'printercode': printerCode,
+      'printerlogo': printerLogo,
+      'struktype': strukType,
+      'bigheader': bigHeader,
+      'synccloud': syncCloud,
     };
   }
 
   factory CashRegisterModel.fromMap(Map<String, dynamic> map) {
     return CashRegisterModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       hwkey: map['hwkey'] as String,
       token: map['token'] as String,
       email: map['email'] as String,
-      statusActive: map['statusActive'] as int,
+      statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       description: map['description'] as String,
-      ipKassa: map['ipKassa'] != null ? map['ipKassa'] as String : null,
-      idKassa: map['idKassa'] != null ? map['idKassa'] as String : null,
+      ipKassa: map['ipkassa'] != null ? map['ipkassa'] as String : null,
+      idKassa: map['idkassa'] != null ? map['idkassa'] as String : null,
       printerCode:
-          map['printerCode'] != null ? map['printerCode'] as String : null,
+          map['printercode'] != null ? map['printercode'] as String : null,
       printerLogo:
-          map['printerLogo'] != null ? map['printerLogo'] as int : null,
-      strukType: map['strukType'] != null ? map['strukType'] as int : null,
-      bigHeader: map['bigHeader'] != null ? map['bigHeader'] as int : null,
-      syncCloud: map['syncCloud'] != null ? map['syncCloud'] as int : null,
+          map['printerlogo'] != null ? map['printerlogo'] as int : null,
+      strukType: map['struktype'] != null ? map['struktype'] as int : null,
+      bigHeader: map['bigheader'] != null ? map['bigheader'] as int : null,
+      syncCloud: map['synccloud'] != null ? map['synccloud'] as int : null,
     );
   }
 

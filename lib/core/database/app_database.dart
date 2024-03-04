@@ -30,6 +30,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dar
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
+import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
@@ -910,7 +911,7 @@ CREATE TABLE $tableCashRegister (
   $uuidDefinition,
   ${CashRegisterFields.createDate} datetime NOT NULL,
   ${CashRegisterFields.updateDate} datetime DEFAULT NULL,
-  ${CashRegisterFields.tostrId} bigint DEFAULT NULL,
+  ${CashRegisterFields.tostrId} text DEFAULT NULL,
   ${CashRegisterFields.hwkey} varchar(100) NOT NULL,
   ${CashRegisterFields.token} varchar(100) NOT NULL,
   ${CashRegisterFields.email} varchar(100) NOT NULL,
@@ -926,6 +927,35 @@ CREATE TABLE $tableCashRegister (
   ${CashRegisterFields.syncCloud} int DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tocsr_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCashierBalanceTransaction (
+  $uuidDefinition,
+  ${CashierBalanceTransactionFields.createDate} datetime NOT NULL,
+  ${CashierBalanceTransactionFields.updateDate} datetime DEFAULT NULL,
+  ${CashierBalanceTransactionFields.tocsrId} text DEFAULT NULL,
+  ${CashierBalanceTransactionFields.tousrId} text DEFAULT NULL,
+  ${CashierBalanceTransactionFields.docNum} varchar(30) NOT NULL,
+  ${CashierBalanceTransactionFields.openDate} date NOT NULL,
+  ${CashierBalanceTransactionFields.openTime} time NOT NULL,
+  ${CashierBalanceTransactionFields.calcDate} date NOT NULL,
+  ${CashierBalanceTransactionFields.calcTime} time NOT NULL,
+  ${CashierBalanceTransactionFields.closeDate} date NOT NULL,
+  ${CashierBalanceTransactionFields.closeTime} time NOT NULL,
+  ${CashierBalanceTransactionFields.timezone} varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  ${CashierBalanceTransactionFields.openValue} double NOT NULL,
+  ${CashierBalanceTransactionFields.calcValue} double NOT NULL,
+  ${CashierBalanceTransactionFields.cashValue} double NOT NULL,
+  ${CashierBalanceTransactionFields.closeValue} double NOT NULL,
+  ${CashierBalanceTransactionFields.openedbyId} bigint DEFAULT NULL,
+  ${CashierBalanceTransactionFields.closedbyId} bigint DEFAULT NULL,
+  CONSTRAINT `tcsr1_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcsr1_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tcsr1_openedbyId_fkey` FOREIGN KEY (`openedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcsr1_closedbyId_fkey` FOREIGN KEY (`closedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  $createdAtDefinition,
 )
 """);
       });
