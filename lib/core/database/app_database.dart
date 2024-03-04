@@ -32,6 +32,7 @@ import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
+import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
@@ -1085,6 +1086,25 @@ CREATE TABLE $tableBillOfMaterial (
   CONSTRAINT `toitt_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toitt_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toitt_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableBOMLineItem (
+  $uuidDefinition,
+  ${BillOfMaterialLineItemFields.createDate} datetime NOT NULL,
+  ${BillOfMaterialLineItemFields.updateDate} datetime DEFAULT NULL,
+  ${BillOfMaterialLineItemFields.toittId} text DEFAULT NULL,
+  ${BillOfMaterialLineItemFields.toitmId} text DEFAULT NULL,
+  ${BillOfMaterialLineItemFields.quantity} double NOT NULL,
+  ${BillOfMaterialLineItemFields.touomId} text DEFAULT NULL,
+  ${BillOfMaterialLineItemFields.tcurrId} text DEFAULT NULL,
+  ${BillOfMaterialLineItemFields.price} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `titt1_toittId_fkey` FOREIGN KEY (`toittId`) REFERENCES `toitt` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `titt1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `titt1_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `titt1_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
