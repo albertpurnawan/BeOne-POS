@@ -50,8 +50,8 @@ import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/data/models/user_role.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
 import 'package:pos_fe/features/sales/data/models/item_category.dart';
@@ -597,6 +597,19 @@ CREATE TABLE $tablePaymentTerm (
   ${PaymentTermFields.dueon} int NOT NULL,
   ${PaymentTermFields.statusActive} int NOT NULL,
   ${PaymentTermFields.activated} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableUserRole (
+  $uuidDefinition,
+  ${UserRoleFields.createDate} datetime NOT NULL,
+  ${UserRoleFields.updateDate} datetime DEFAULT NULL,
+  ${UserRoleFields.roleCode} varchar(30) NOT NULL,
+  ${UserRoleFields.roleName} varchar(100) NOT NULL,
+  ${UserRoleFields.statusActive} int NOT NULL,
+  ${UserRoleFields.activated} int NOT NULL,
   $createdAtDefinition
 )
 """);
