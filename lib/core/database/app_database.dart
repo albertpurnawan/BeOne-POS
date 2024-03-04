@@ -41,6 +41,7 @@ import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
+import 'package:pos_fe/features/sales/data/models/gender.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
@@ -1025,6 +1026,17 @@ CREATE TABLE $tableCashierBalanceTransaction (
   CONSTRAINT `tcsr1_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcsr1_openedbyId_fkey` FOREIGN KEY (`openedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcsr1_closedbyId_fkey` FOREIGN KEY (`closedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableGender (
+  $uuidDefinition,
+  ${GenderFields.createDate} datetime NOT NULL,
+  ${GenderFields.updateDate} datetime DEFAULT NULL,
+  ${GenderFields.genderCode} varchar(1) NOT NULL,
+  ${GenderFields.description} varchar(100) NOT NULL,
+  $createdAtDefinition
 )
 """);
       });
