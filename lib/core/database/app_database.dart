@@ -29,6 +29,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.d
 import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
+import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
@@ -636,6 +637,25 @@ CREATE TABLE $tableUser (
   CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute("""
+CREATE TABLE $tableAuthorization (
+  $uuidDefinition,
+  ${AuthorizationFields.createDate} datetime NOT NULL,
+  ${AuthorizationFields.updateDate} datetime DEFAULT NULL,
+  
+  ${AuthorizationFields.tousrId} text DEFAULT NULL,
+  ${AuthorizationFields.authorization} int NOT NULL,
+  ${AuthorizationFields.setBy} int NOT NULL,
+  ${AuthorizationFields.canView} int DEFAULT NULL,
+  ${AuthorizationFields.canCreate} int DEFAULT NULL,
+  ${AuthorizationFields.canUpdate} int DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toaut_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+        // ${AuthorizationFields.tformId} text DEFAULT NULL,
+        //CONSTRAINT `toaut_tformId_fkey` FOREIGN KEY (`tformId`) REFERENCES `tform` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
 
         await txn.execute("""
 CREATE TABLE $tableCustomerGroup (
