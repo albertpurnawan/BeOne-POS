@@ -29,7 +29,7 @@ class CashierBalanceTransactionFields {
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
-  static const String tocsrId = "tostrId";
+  static const String tocsrId = "tocsrId";
   static const String tousrId = "tousrId";
   static const String docNum = "docnum";
   static const String openDate = "opendate";

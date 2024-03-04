@@ -30,6 +30,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dar
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
+import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
@@ -672,6 +673,17 @@ CREATE TABLE $tableCustomerGroup (
 """);
 
         await txn.execute("""
+CREATE TABLE $tableBasePayTerm (
+  $uuidDefinition,
+  ${BasePayTermFields.createDate} datetime NOT NULL,
+  ${BasePayTermFields.updateDate} datetime DEFAULT NULL,
+  ${BasePayTermFields.baseCode} varchar(1) NOT NULL,
+  ${BasePayTermFields.description} varchar(100) NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
 CREATE TABLE $tableCustomer (
   $uuidDefinition,
   ${CustomerFields.createDate} datetime NOT NULL,
@@ -1001,18 +1013,18 @@ CREATE TABLE $tableCashierBalanceTransaction (
   ${CashierBalanceTransactionFields.calcTime} time NOT NULL,
   ${CashierBalanceTransactionFields.closeDate} date NOT NULL,
   ${CashierBalanceTransactionFields.closeTime} time NOT NULL,
-  ${CashierBalanceTransactionFields.timezone} varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  ${CashierBalanceTransactionFields.timezone} varchar(200) NOT NULL,
   ${CashierBalanceTransactionFields.openValue} double NOT NULL,
   ${CashierBalanceTransactionFields.calcValue} double NOT NULL,
   ${CashierBalanceTransactionFields.cashValue} double NOT NULL,
   ${CashierBalanceTransactionFields.closeValue} double NOT NULL,
   ${CashierBalanceTransactionFields.openedbyId} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.closedbyId} text DEFAULT NULL,
+  $createdAtDefinition,
   CONSTRAINT `tcsr1_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcsr1_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcsr1_openedbyId_fkey` FOREIGN KEY (`openedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcsr1_closedbyId_fkey` FOREIGN KEY (`closedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-  $createdAtDefinition,
 )
 """);
       });
