@@ -84,8 +84,8 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       "tpln1Id": map['tpln1_id']?['docid'] != null
           ? map['tpln1_id']['docid'] as String
           : null,
-      "toitmId": map['toitmId']?['docid'] != null
-          ? map['toitmId']['docid'] as String
+      "toitmId": map['toitm_id']?['docid'] != null
+          ? map['toitm_id']['docid'] as String
           : null,
       "tcurrId": map['tcurr_id']?['docid'] != null
           ? map['tcurr_id']['docid'] as String

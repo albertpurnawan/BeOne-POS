@@ -49,6 +49,7 @@ import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
+import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/item_masters_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
@@ -601,6 +602,29 @@ CREATE TABLE $tablePaymentTerm (
 """);
 
         await txn.execute("""
+CREATE TABLE $tableUser (
+  $uuidDefinition,
+  ${UserFields.createDate} datetime NOT NULL,
+  ${UserFields.updateDate} datetime DEFAULT NULL,
+  ${UserFields.email} varchar(100) NOT NULL,
+  ${UserFields.username} varchar(100) NOT NULL,
+  ${UserFields.password} varchar(100) NOT NULL,
+  ${UserFields.tohemId} text DEFAULT NULL,
+  ${UserFields.torolId} text DEFAULT NULL,
+  ${UserFields.statusActive} int NOT NULL,
+  ${UserFields.activated} int NOT NULL,
+  ${UserFields.superUser} int NOT NULL,
+  ${UserFields.provider} int NOT NULL,
+  ${UserFields.userType} int DEFAULT NULL,
+  ${UserFields.trolleyUser} varchar(20) DEFAULT NULL,
+  ${UserFields.trolleyPass} varchar(100) DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
 CREATE TABLE $tableCustomerGroup (
   $uuidDefinition,
   ${CustomerGroupFields.createDate} datetime NOT NULL,
@@ -949,12 +973,12 @@ CREATE TABLE $tableCashierBalanceTransaction (
   ${CashierBalanceTransactionFields.calcValue} double NOT NULL,
   ${CashierBalanceTransactionFields.cashValue} double NOT NULL,
   ${CashierBalanceTransactionFields.closeValue} double NOT NULL,
-  ${CashierBalanceTransactionFields.openedbyId} bigint DEFAULT NULL,
-  ${CashierBalanceTransactionFields.closedbyId} bigint DEFAULT NULL,
+  ${CashierBalanceTransactionFields.openedbyId} text DEFAULT NULL,
+  ${CashierBalanceTransactionFields.closedbyId} text DEFAULT NULL,
   CONSTRAINT `tcsr1_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tcsr1_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tcsr1_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tcsr1_openedbyId_fkey` FOREIGN KEY (`openedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tcsr1_closedbyId_fkey` FOREIGN KEY (`closedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tcsr1_closedbyId_fkey` FOREIGN KEY (`closedbyId`) REFERENCES `tousr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
   $createdAtDefinition,
 )
 """);
