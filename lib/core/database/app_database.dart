@@ -29,6 +29,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.d
 import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
+import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
@@ -901,6 +902,30 @@ CREATE TABLE $tableItemsByStore (
   CONSTRAINT `tsitm_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tsitm_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tsitm_tovatIdPur_fkey` FOREIGN KEY (`tovatIdPur`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCashRegister (
+  $uuidDefinition,
+  ${CashRegisterFields.createDate} datetime NOT NULL,
+  ${CashRegisterFields.updateDate} datetime DEFAULT NULL,
+  ${CashRegisterFields.tostrId} bigint DEFAULT NULL,
+  ${CashRegisterFields.hwkey} varchar(100) NOT NULL,
+  ${CashRegisterFields.token} varchar(100) NOT NULL,
+  ${CashRegisterFields.email} varchar(100) NOT NULL,
+  ${CashRegisterFields.statusActive} int NOT NULL,
+  ${CashRegisterFields.activated} int NOT NULL,
+  ${CashRegisterFields.description} varchar(100) NOT NULL,
+  ${CashRegisterFields.ipKassa} varchar(15) DEFAULT NULL,
+  ${CashRegisterFields.idKassa} varchar(50) DEFAULT NULL,
+  ${CashRegisterFields.printerCode} varchar(20) DEFAULT NULL,
+  ${CashRegisterFields.printerLogo} int DEFAULT NULL,
+  ${CashRegisterFields.strukType} int DEFAULT NULL,
+  ${CashRegisterFields.bigHeader} int DEFAULT NULL,
+  ${CashRegisterFields.syncCloud} int DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tocsr_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
