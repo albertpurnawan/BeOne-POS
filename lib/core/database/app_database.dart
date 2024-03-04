@@ -42,6 +42,7 @@ import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
+import 'package:pos_fe/features/sales/data/models/house_bank_account.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
@@ -49,6 +50,7 @@ import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type_master.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
@@ -769,6 +771,17 @@ CREATE TABLE $tableCustomerContactPerson (
 """);
 
         await txn.execute("""
+CREATE TABLE $tablePaymentTypeMaster (
+  $uuidDefinition,
+  ${PaymentTypeMasterFields.createDate} datetime NOT NULL,
+  ${PaymentTypeMasterFields.updateDate} datetime DEFAULT NULL,
+  ${PaymentTypeMasterFields.payTypeCode} varchar(10) NOT NULL,
+  ${PaymentTypeMasterFields.description} varchar(100) NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
 CREATE TABLE $tablePaymentType (
   $uuidDefinition,
   ${PaymentTypeFields.createDate} datetime NOT NULL,
@@ -1037,6 +1050,20 @@ CREATE TABLE $tableGender (
   ${GenderFields.genderCode} varchar(1) NOT NULL,
   ${GenderFields.description} varchar(100) NOT NULL,
   $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableHouseBankAccount (
+  $uuidDefinition,
+  ${HouseBankAccountFields.createDate} datetime NOT NULL,
+  ${HouseBankAccountFields.updateDate} datetime DEFAULT NULL,
+  ${HouseBankAccountFields.accountNo} varchar(30) NOT NULL,
+  ${HouseBankAccountFields.accountName} varchar(200) NOT NULL,
+  ${HouseBankAccountFields.bank} varchar(100) NOT NULL,
+  ${HouseBankAccountFields.tostrId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tobnk_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
