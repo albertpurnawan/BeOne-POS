@@ -69,6 +69,13 @@ import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type_master.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bertingkat.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bertingkat_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bertingkat_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_price_level.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/data/models/user_logs.dart';
@@ -1444,6 +1451,116 @@ CREATE TABLE $tableItemProperty (
   ${ItemPropertyFields.code} varchar(30) NOT NULL,
   ${ItemPropertyFields.description} varchar(100) NOT NULL,
   $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBertingkat (
+  $uuidDefinition,
+  ${PromoBertingkatFields.createDate} datetime NOT NULL,
+  ${PromoBertingkatFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBertingkatFields.promoCode} varchar(30) NOT NULL,
+  ${PromoBertingkatFields.description} varchar(200) NOT NULL,
+  ${PromoBertingkatFields.startDate} date NOT NULL,
+  ${PromoBertingkatFields.endDate} date NOT NULL,
+  ${PromoBertingkatFields.startTime} time NOT NULL,
+  ${PromoBertingkatFields.endTime} time NOT NULL,
+  ${PromoBertingkatFields.remarks} text,
+  ${PromoBertingkatFields.statusActive} int NOT NULL,
+  ${PromoBertingkatFields.toplnId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toprp_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBertingkatDetail (
+  $uuidDefinition,
+  ${PromoBertingkatDetailFields.createDate} datetime NOT NULL,
+  ${PromoBertingkatDetailFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBertingkatDetailFields.toprpId} text DEFAULT NULL,
+  ${PromoBertingkatDetailFields.toitmId} text DEFAULT NULL,
+  ${PromoBertingkatDetailFields.promoType} varchar(1) NOT NULL,
+  ${PromoBertingkatDetailFields.minQuantity} double NOT NULL,
+  ${PromoBertingkatDetailFields.promoValue} double NOT NULL,
+  ${PromoBertingkatDetailFields.itemPrice} double DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tprp1_toprpId_fkey` FOREIGN KEY (`toprpId`) REFERENCES `toprp` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprp1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBertingkatAssignStore (
+  $uuidDefinition,
+  ${PromoBertingkatAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoBertingkatAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBertingkatAssignStoreFields.toprpId} text DEFAULT NULL,
+  ${PromoBertingkatAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoBertingkatAssignStoreFields.holiday} int NOT NULL,
+  ${PromoBertingkatAssignStoreFields.day1} int NOT NULL,
+  ${PromoBertingkatAssignStoreFields.day2} int NOT NULL,
+  ${PromoBertingkatAssignStoreFields.day3} int NOT NULL,
+  ${PromoBertingkatAssignStoreFields.day4} int NOT NULL,
+  ${PromoBertingkatAssignStoreFields.day5} int NOT NULL,
+  ${PromoBertingkatAssignStoreFields.day6} int NOT NULL,
+  ${PromoBertingkatAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprp2_toprpId_fkey` FOREIGN KEY (`toprpId`) REFERENCES `toprp` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprp2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBertingkatValidDays (
+  $uuidDefinition,
+  ${PromoBertingkatValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoBertingkatValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBertingkatValidDaysFields.tprp2Id} text DEFAULT NULL,
+  ${PromoBertingkatValidDaysFields.day} int NOT NULL,
+  ${PromoBertingkatValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprp3_tprp2Id_fkey` FOREIGN KEY (`tprp2Id`) REFERENCES `tprp2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBertingkatCustomerGroup (
+  $uuidDefinition,
+  ${PromoBertingkatCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoBertingkatCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBertingkatCustomerGroupFields.toprpId} text DEFAULT NULL,
+  ${PromoBertingkatCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprp4_toprpId_fkey` FOREIGN KEY (`toprpId`) REFERENCES `toprp` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprp4_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBertingkatDefaultPriceLevel (
+  $uuidDefinition,
+  ${PromoBertingkatDefaultPriceLevelFields.createDate} datetime NOT NULL,
+  ${PromoBertingkatDefaultPriceLevelFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBertingkatDefaultPriceLevelFields.toprpId} text DEFAULT NULL,
+  ${PromoBertingkatDefaultPriceLevelFields.promoType} varchar(1) NOT NULL,
+  ${PromoBertingkatDefaultPriceLevelFields.minQuantity} double NOT NULL,
+  ${PromoBertingkatDefaultPriceLevelFields.promoValue} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprp8_toprpId_fkey` FOREIGN KEY (`toprpId`) REFERENCES `toprp` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBertingkatDefaulValidDays (
+  $uuidDefinition,
+  ${PromoBertingkatDefaultValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoBertingkatDefaultValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBertingkatDefaultValidDaysFields.toprpId} text DEFAULT NULL,
+  ${PromoBertingkatDefaultValidDaysFields.day} int NOT NULL,
+  ${PromoBertingkatDefaultValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprp9_toprpId_fkey` FOREIGN KEY (`toprpId`) REFERENCES `toprp` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
