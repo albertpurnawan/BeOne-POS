@@ -76,6 +76,9 @@ import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_price
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_customer_group.dart';
@@ -1660,6 +1663,67 @@ CREATE TABLE $tablePromoCreditCardDefaultValidDays (
   ${PromoCreditCardDefaultValidDaysFields.status} int NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprc9_toprcId_fkey` FOREIGN KEY (`toprcId`) REFERENCES `toprc` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBuyXGetYHeader (
+  $uuidDefinition,
+  ${PromoBuyXGetYHeaderFields.createDate} datetime NOT NULL,
+  ${PromoBuyXGetYHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBuyXGetYHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoBuyXGetYHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoBuyXGetYHeaderFields.startDate} date NOT NULL,
+  ${PromoBuyXGetYHeaderFields.endDate} date NOT NULL,
+  ${PromoBuyXGetYHeaderFields.startTime} time NOT NULL,
+  ${PromoBuyXGetYHeaderFields.endTime} time NOT NULL,
+  ${PromoBuyXGetYHeaderFields.remarks} text,
+  ${PromoBuyXGetYHeaderFields.minPurchase} double NOT NULL,
+  ${PromoBuyXGetYHeaderFields.buyCondition} int NOT NULL,
+  ${PromoBuyXGetYHeaderFields.minBuy} double NOT NULL,
+  ${PromoBuyXGetYHeaderFields.maxMultiply} double NOT NULL,
+  ${PromoBuyXGetYHeaderFields.getCondition} int NOT NULL,
+  ${PromoBuyXGetYHeaderFields.maxGet} double NOT NULL,
+  ${PromoBuyXGetYHeaderFields.statusActive} int NOT NULL,
+  ${PromoBuyXGetYHeaderFields.toplnId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toprb_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBuyXGetYBuyCondition (
+  $uuidDefinition,
+  ${PromoBuyXGetYBuyConditionFields.createDate} datetime NOT NULL,
+  ${PromoBuyXGetYBuyConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBuyXGetYBuyConditionFields.toprbId} text DEFAULT NULL,
+  ${PromoBuyXGetYBuyConditionFields.toitmId} text DEFAULT NULL,
+  ${PromoBuyXGetYBuyConditionFields.quantity} double NOT NULL,
+  ${PromoBuyXGetYBuyConditionFields.itemPrice} double DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tprb1_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprb1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBuyXGetYAssignStore (
+  $uuidDefinition,
+  ${PromoBuyXGetYAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBuyXGetYAssignStoreFields.toprbId} text DEFAULT NULL,
+  ${PromoBuyXGetYAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoBuyXGetYAssignStoreFields.holiday} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.day1} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.day2} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.day3} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.day4} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.day5} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.day6} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprb2_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprb2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
