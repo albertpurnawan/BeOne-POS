@@ -57,8 +57,11 @@ import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_payment_other_voucher.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
+import 'package:pos_fe/features/sales/data/models/item_property.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
+import 'package:pos_fe/features/sales/data/models/mop_adjustment_detail.dart';
+import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
@@ -68,6 +71,7 @@ import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/data/models/user_logs.dart';
 import 'package:pos_fe/features/sales/data/models/user_role.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
@@ -1382,6 +1386,64 @@ CREATE TABLE $tableBatchCreditMemo (
   $createdAtDefinition,
   CONSTRAINT `trin3_trin1Docid_fkey` FOREIGN KEY (`trin1Docid`) REFERENCES `trin1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `trin3_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableUserLogs (
+  $uuidDefinition,
+  ${UserLogsFields.createDate} datetime NOT NULL,
+  ${UserLogsFields.updateDate} datetime DEFAULT NULL,
+  ${UserLogsFields.remarks} text,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableMOPAdjustmentHeader (
+  $uuidDefinition,
+  ${MOPAdjustmentHeaderFields.createDate} datetime NOT NULL,
+  ${MOPAdjustmentHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${MOPAdjustmentHeaderFields.docNum} varchar(30) NOT NULL,
+  ${MOPAdjustmentHeaderFields.docDate} date NOT NULL,
+  ${MOPAdjustmentHeaderFields.docTime} time NOT NULL,
+  ${MOPAdjustmentHeaderFields.timezone} varchar(200) NOT NULL,
+  ${MOPAdjustmentHeaderFields.posted} int NOT NULL,
+  ${MOPAdjustmentHeaderFields.postDate} date NOT NULL,
+  ${MOPAdjustmentHeaderFields.postTime} time NOT NULL,
+  ${MOPAdjustmentHeaderFields.remarks} text,
+  ${MOPAdjustmentHeaderFields.tostrId} text DEFAULT NULL,
+  ${MOPAdjustmentHeaderFields.sync} int NOT NULL DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tmpad_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableMOPAdjustmentDetail (
+  $uuidDefinition,
+  ${MOPAdjustmentDetailFields.createDate} datetime NOT NULL,
+  ${MOPAdjustmentDetailFields.updateDate} datetime DEFAULT NULL,
+  ${MOPAdjustmentDetailFields.tmpadId} text DEFAULT NULL,
+  ${MOPAdjustmentDetailFields.tpmt1Id} text DEFAULT NULL,
+  ${MOPAdjustmentDetailFields.amount} double NOT NULL,
+  ${MOPAdjustmentDetailFields.tpmt3Id} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `mpad1_tmpadId_fkey` FOREIGN KEY (`tmpadId`) REFERENCES `tmpad` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `mpad1_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `mpad1_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableItemProperty (
+  $uuidDefinition,
+  ${ItemPropertyFields.createDate} datetime NOT NULL,
+  ${ItemPropertyFields.updateDate} datetime DEFAULT NULL,
+  ${ItemPropertyFields.properties} varchar(30) NOT NULL,
+  ${ItemPropertyFields.code} varchar(30) NOT NULL,
+  ${ItemPropertyFields.description} varchar(100) NOT NULL,
+  $createdAtDefinition
 )
 """);
       });
