@@ -31,6 +31,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
+import 'package:pos_fe/features/sales/data/models/batch_credit_memo.dart';
 import 'package:pos_fe/features/sales/data/models/batch_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
@@ -38,6 +39,9 @@ import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
+import 'package:pos_fe/features/sales/data/models/credit_memo_detail.dart';
+import 'package:pos_fe/features/sales/data/models/credit_memo_header.dart';
+import 'package:pos_fe/features/sales/data/models/credit_memo_pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/customer_address.dart';
@@ -53,8 +57,11 @@ import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_payment_other_voucher.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
+import 'package:pos_fe/features/sales/data/models/item_property.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
+import 'package:pos_fe/features/sales/data/models/mop_adjustment_detail.dart';
+import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
@@ -64,6 +71,7 @@ import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/data/models/user_logs.dart';
 import 'package:pos_fe/features/sales/data/models/user_role.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
@@ -1265,6 +1273,177 @@ CREATE TABLE $tableIPOV (
   ${IPOVFields.amount} double NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv4_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCreditMemoHeader (
+  $uuidDefinition,
+  ${CreditMemoHeaderFields.createDate} datetime NOT NULL,
+  ${CreditMemoHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${CreditMemoHeaderFields.tostrId} text DEFAULT NULL,
+  ${CreditMemoHeaderFields.docNum} varchar(30) NOT NULL,
+  ${CreditMemoHeaderFields.orderNo} int NOT NULL,
+  ${CreditMemoHeaderFields.tocusId} text DEFAULT NULL,
+  ${CreditMemoHeaderFields.tohemId} text DEFAULT NULL,
+  ${CreditMemoHeaderFields.transDate} date NOT NULL,
+  ${CreditMemoHeaderFields.transTime} time NOT NULL,
+  ${CreditMemoHeaderFields.timezone} varchar(200) NOT NULL,
+  ${CreditMemoHeaderFields.remarks} text DEFAULT NULL,
+  ${CreditMemoHeaderFields.subTotal} double NOT NULL,
+  ${CreditMemoHeaderFields.discPrctg} double NOT NULL,
+  ${CreditMemoHeaderFields.discAmount} double NOT NULL,
+  ${CreditMemoHeaderFields.discountCard} double NOT NULL,
+  ${CreditMemoHeaderFields.coupon} varchar(20) NOT NULL,
+  ${CreditMemoHeaderFields.discountCoupun} double NOT NULL,
+  ${CreditMemoHeaderFields.taxPrctg} double NOT NULL,
+  ${CreditMemoHeaderFields.taxAmount} double NOT NULL,
+  ${CreditMemoHeaderFields.addCost} double NOT NULL,
+  ${CreditMemoHeaderFields.rounding} double NOT NULL,
+  ${CreditMemoHeaderFields.grandTotal} double NOT NULL,
+  ${CreditMemoHeaderFields.changed} double NOT NULL,
+  ${CreditMemoHeaderFields.totalPayment} double NOT NULL,
+  ${CreditMemoHeaderFields.tocsrId} text DEFAULT NULL,
+  ${CreditMemoHeaderFields.docStatus} int NOT NULL DEFAULT '0',
+  ${CreditMemoHeaderFields.sync} int NOT NULL DEFAULT '0',
+  ${CreditMemoHeaderFields.syncCRM} int NOT NULL DEFAULT '0',
+  ${CreditMemoHeaderFields.torinTohemId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `torin_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `torin_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `torin_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `torin_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `torin_torinTohemId_fkey` FOREIGN KEY (`torinTohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCreditMemoDetail (
+  $uuidDefinition,
+  ${CreditMemoDetailFields.createDate} datetime NOT NULL,
+  ${CreditMemoDetailFields.updateDate} datetime DEFAULT NULL,
+  ${CreditMemoDetailFields.torinId} text DEFAULT NULL,
+  ${CreditMemoDetailFields.lineNum} int NOT NULL,
+  ${CreditMemoDetailFields.docNum} varchar(30) NOT NULL,
+  ${CreditMemoDetailFields.idNumber} int NOT NULL,
+  ${CreditMemoDetailFields.toitmId} text DEFAULT NULL,
+  ${CreditMemoDetailFields.quantity} double NOT NULL,
+  ${CreditMemoDetailFields.sellingPrice} double NOT NULL,
+  ${CreditMemoDetailFields.discPrctg} double NOT NULL,
+  ${CreditMemoDetailFields.discAmount} double NOT NULL,
+  ${CreditMemoDetailFields.totalAmount} double NOT NULL,
+  ${CreditMemoDetailFields.taxPrctg} double NOT NULL,
+  ${CreditMemoDetailFields.promotionType} varchar(20) NOT NULL,
+  ${CreditMemoDetailFields.promotionId} varchar(191) NOT NULL,
+  ${CreditMemoDetailFields.remarks} text,
+  ${CreditMemoDetailFields.editTime} datetime NOT NULL,
+  ${CreditMemoDetailFields.cogs} double NOT NULL,
+  ${CreditMemoDetailFields.tovatId} text DEFAULT NULL,
+  ${CreditMemoDetailFields.promotionTingkat} varchar(191) DEFAULT NULL,
+  ${CreditMemoDetailFields.promoVoucherNo} varchar(191) DEFAULT NULL,
+  ${CreditMemoDetailFields.baseDocId} varchar(191) DEFAULT NULL,
+  ${CreditMemoDetailFields.baseLineDocId} varchar(191) DEFAULT NULL,
+  ${CreditMemoDetailFields.includeTax} int NOT NULL,
+  ${CreditMemoDetailFields.tovenId} text DEFAULT NULL,
+  ${CreditMemoDetailFields.tbitmId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `trin1_torinId_fkey` FOREIGN KEY (`torinId`) REFERENCES `torin` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `trin1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `trin1_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `trin1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `trin1_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCreditMemoPayMeans (
+  $uuidDefinition,
+  ${CreditMemoPayMeansFields.createDate} datetime NOT NULL,
+  ${CreditMemoPayMeansFields.updateDate} datetime DEFAULT NULL,
+  ${CreditMemoPayMeansFields.torinId} text DEFAULT NULL,
+  ${CreditMemoPayMeansFields.lineNum} int NOT NULL,
+  ${CreditMemoPayMeansFields.tpmt3Id} text DEFAULT NULL,
+  ${CreditMemoPayMeansFields.amount} bigint NOT NULL,
+  ${CreditMemoPayMeansFields.tpmt2Id} text DEFAULT NULL,
+  ${CreditMemoPayMeansFields.cardNo} varchar(20) DEFAULT NULL,
+  ${CreditMemoPayMeansFields.cardHolder} varchar(20) DEFAULT NULL,
+  ${CreditMemoPayMeansFields.sisaVoucher} double DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `trin2_torinId_fkey` FOREIGN KEY (`torinId`) REFERENCES `torin` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `trin2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `trin2_tpmt2Id_fkey` FOREIGN KEY (`tpmt2Id`) REFERENCES `tpmt2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableBatchCreditMemo (
+  $uuidDefinition,
+  ${BatchCreditMemoFields.createDate} datetime NOT NULL,
+  ${BatchCreditMemoFields.updateDate} datetime DEFAULT NULL,
+  ${BatchCreditMemoFields.trin1Docid} varchar(191) DEFAULT NULL,
+  ${BatchCreditMemoFields.toitmId} text DEFAULT NULL,
+  ${BatchCreditMemoFields.batchNo} varchar(10) NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `trin3_trin1Docid_fkey` FOREIGN KEY (`trin1Docid`) REFERENCES `trin1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `trin3_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableUserLogs (
+  $uuidDefinition,
+  ${UserLogsFields.createDate} datetime NOT NULL,
+  ${UserLogsFields.updateDate} datetime DEFAULT NULL,
+  ${UserLogsFields.remarks} text,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableMOPAdjustmentHeader (
+  $uuidDefinition,
+  ${MOPAdjustmentHeaderFields.createDate} datetime NOT NULL,
+  ${MOPAdjustmentHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${MOPAdjustmentHeaderFields.docNum} varchar(30) NOT NULL,
+  ${MOPAdjustmentHeaderFields.docDate} date NOT NULL,
+  ${MOPAdjustmentHeaderFields.docTime} time NOT NULL,
+  ${MOPAdjustmentHeaderFields.timezone} varchar(200) NOT NULL,
+  ${MOPAdjustmentHeaderFields.posted} int NOT NULL,
+  ${MOPAdjustmentHeaderFields.postDate} date NOT NULL,
+  ${MOPAdjustmentHeaderFields.postTime} time NOT NULL,
+  ${MOPAdjustmentHeaderFields.remarks} text,
+  ${MOPAdjustmentHeaderFields.tostrId} text DEFAULT NULL,
+  ${MOPAdjustmentHeaderFields.sync} int NOT NULL DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tmpad_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableMOPAdjustmentDetail (
+  $uuidDefinition,
+  ${MOPAdjustmentDetailFields.createDate} datetime NOT NULL,
+  ${MOPAdjustmentDetailFields.updateDate} datetime DEFAULT NULL,
+  ${MOPAdjustmentDetailFields.tmpadId} text DEFAULT NULL,
+  ${MOPAdjustmentDetailFields.tpmt1Id} text DEFAULT NULL,
+  ${MOPAdjustmentDetailFields.amount} double NOT NULL,
+  ${MOPAdjustmentDetailFields.tpmt3Id} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `mpad1_tmpadId_fkey` FOREIGN KEY (`tmpadId`) REFERENCES `tmpad` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `mpad1_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `mpad1_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableItemProperty (
+  $uuidDefinition,
+  ${ItemPropertyFields.createDate} datetime NOT NULL,
+  ${ItemPropertyFields.updateDate} datetime DEFAULT NULL,
+  ${ItemPropertyFields.properties} varchar(30) NOT NULL,
+  ${ItemPropertyFields.code} varchar(30) NOT NULL,
+  ${ItemPropertyFields.description} varchar(100) NOT NULL,
+  $createdAtDefinition
 )
 """);
       });
