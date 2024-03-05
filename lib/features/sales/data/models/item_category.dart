@@ -55,18 +55,6 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
     };
   }
 
-  factory ItemCategoryModel.fromMapRemote(Map<String, dynamic> map) {
-    return ItemCategoryModel.fromMap({
-      ...map,
-      "parentId": map['parent_id']?['docid'] != null
-          ? map['parent_id']['docid'] as String
-          : null,
-      "phir1Id": map['phlir1_id']?['docid'] != null
-          ? map['phlir1_id']['docid'] as String
-          : null,
-    });
-  }
-
   factory ItemCategoryModel.fromMap(Map<String, dynamic> map) {
     return ItemCategoryModel(
       docId: map['docid'] as String,
@@ -81,6 +69,18 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
       level: map['level'] as int,
       phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
     );
+  }
+
+  factory ItemCategoryModel.fromMapRemote(Map<String, dynamic> map) {
+    return ItemCategoryModel.fromMap({
+      ...map,
+      "parentId": map['parent_id']?['docid'] != null
+          ? map['parent_id']['docid'] as String
+          : null,
+      "phir1Id": map['phlir1_id']?['docid'] != null
+          ? map['phlir1_id']['docid'] as String
+          : null,
+    });
   }
 
   factory ItemCategoryModel.fromEntity(ItemCategoryEntity entity) {

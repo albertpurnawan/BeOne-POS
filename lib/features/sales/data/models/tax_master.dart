@@ -19,7 +19,7 @@ class TaxMasterFields {
   ];
 
   static const String docId = "docId";
-  static const String createDate = "createDate";
+  static const String createDate = "createdate";
   static const String updateDate = "updatedate";
   static const String taxCode = "taxcode";
   static const String description = "description";

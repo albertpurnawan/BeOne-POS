@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 
 const String tablePOSParameter = 'topos';
@@ -24,7 +25,7 @@ class POSParameterFields {
   static const String toplnId = 'toplnid';
 }
 
-class POSParameterModel extends POSParameterEntity {
+class POSParameterModel extends POSParameterEntity implements BaseModel {
   POSParameterModel({
     required super.docId,
     required super.createDate,
@@ -55,7 +56,7 @@ class POSParameterModel extends POSParameterEntity {
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
+          ? DateTime.parse(map['updatedate']).toLocal()
           : null,
       tostrId: map['tostrid'] as String,
       storeName: map['storename'] as String,

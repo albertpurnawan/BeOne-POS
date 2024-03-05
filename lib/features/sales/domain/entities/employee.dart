@@ -19,7 +19,7 @@ class EmployeeEntity {
   final String? tozcdId;
   final String idCard;
   final String gender;
-  final DateTime birthday;
+  final DateTime birthdate;
   final dynamic photo;
   final DateTime joinDate;
   final DateTime resignDate;
@@ -48,7 +48,7 @@ class EmployeeEntity {
     required this.tozcdId,
     required this.idCard,
     required this.gender,
-    required this.birthday,
+    required this.birthdate,
     required this.photo,
     required this.joinDate,
     required this.resignDate,
@@ -78,8 +78,8 @@ class EmployeeEntity {
     String? tozcdId,
     String? idCard,
     String? gender,
-    DateTime? birthday,
-    dynamic? photo,
+    DateTime? birthdate,
+    dynamic photo,
     DateTime? joinDate,
     DateTime? resignDate,
     int? statusActive,
@@ -107,7 +107,7 @@ class EmployeeEntity {
       tozcdId: tozcdId ?? this.tozcdId,
       idCard: idCard ?? this.idCard,
       gender: gender ?? this.gender,
-      birthday: birthday ?? this.birthday,
+      birthdate: birthdate ?? this.birthdate,
       photo: photo ?? this.photo,
       joinDate: joinDate ?? this.joinDate,
       resignDate: resignDate ?? this.resignDate,
@@ -139,7 +139,7 @@ class EmployeeEntity {
       'tozcdId': tozcdId,
       'idCard': idCard,
       'gender': gender,
-      'birthday': birthday.millisecondsSinceEpoch,
+      'birthdate': birthdate.millisecondsSinceEpoch,
       'photo': photo,
       'joinDate': joinDate.millisecondsSinceEpoch,
       'resignDate': resignDate.millisecondsSinceEpoch,
@@ -173,7 +173,7 @@ class EmployeeEntity {
       tozcdId: map['tozcdId'] != null ? map['tozcdId'] as String : null,
       idCard: map['idCard'] as String,
       gender: map['gender'] as String,
-      birthday: DateTime.fromMillisecondsSinceEpoch(map['birthday'] as int),
+      birthdate: DateTime.fromMillisecondsSinceEpoch(map['birthdate'] as int),
       photo: map['photo'] as dynamic,
       joinDate: DateTime.fromMillisecondsSinceEpoch(map['joinDate'] as int),
       resignDate: DateTime.fromMillisecondsSinceEpoch(map['resignDate'] as int),
@@ -193,7 +193,7 @@ class EmployeeEntity {
 
   @override
   String toString() {
-    return 'EmployeeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, empCode: $empCode, empName: $empName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, idCard: $idCard, gender: $gender, birthday: $birthday, photo: $photo, joinDate: $joinDate, resignDate: $resignDate, statusActive: $statusActive, activated: $activated, empDept: $empDept, empTitle: $empTitle, empWorkplace: $empWorkplace, empdDebt: $empdDebt)';
+    return 'EmployeeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, empCode: $empCode, empName: $empName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, idCard: $idCard, gender: $gender, birthdate: $birthdate, photo: $photo, joinDate: $joinDate, resignDate: $resignDate, statusActive: $statusActive, activated: $activated, empDept: $empDept, empTitle: $empTitle, empWorkplace: $empWorkplace, empdDebt: $empdDebt)';
   }
 
   @override
@@ -217,7 +217,7 @@ class EmployeeEntity {
         other.tozcdId == tozcdId &&
         other.idCard == idCard &&
         other.gender == gender &&
-        other.birthday == birthday &&
+        other.birthdate == birthdate &&
         other.photo == photo &&
         other.joinDate == joinDate &&
         other.resignDate == resignDate &&
@@ -248,7 +248,7 @@ class EmployeeEntity {
         tozcdId.hashCode ^
         idCard.hashCode ^
         gender.hashCode ^
-        birthday.hashCode ^
+        birthdate.hashCode ^
         photo.hashCode ^
         joinDate.hashCode ^
         resignDate.hashCode ^

@@ -476,6 +476,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "creditTaxCodeId": map['credittaxcode_id']?['docid'] != null
           ? map['credittaxcode_id']['docid'] as String
           : null,
+      "sqm": map['sqm'].toDouble() as double,
       "sellingtax": map['sellingtax'] != null
           ? map['sellingtax'].toDouble() as double
           : null,
