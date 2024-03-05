@@ -35,9 +35,7 @@ class AppRouter {
         path: "/sales",
         pageBuilder: (context, state) {
           return MaterialPage(
-            child: Scaffold(
-              body: SalesPage(),
-            ),
+            child: SalesPage(),
           );
         },
       ),

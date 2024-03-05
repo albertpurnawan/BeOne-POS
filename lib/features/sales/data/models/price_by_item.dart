@@ -64,6 +64,7 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
+      'tpln1Id': tpln1Id,
       'toitmId': toitmId,
       'tcurrId': tcurrId,
       'price': price,

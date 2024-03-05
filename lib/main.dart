@@ -15,6 +15,7 @@ import 'package:pos_fe/injection_container.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
+  await GetIt.instance.allReady();
   runApp(const MyApp());
 }
 
@@ -100,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),

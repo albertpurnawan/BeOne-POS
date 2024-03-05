@@ -38,7 +38,7 @@ final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   sl.registerSingleton<Dio>(Dio());
-  sl.registerSingleton<AppDatabase>(AppDatabase());
+  sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
 
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
   sl.registerSingleton<ItemBarcodeApi>(ItemBarcodeApi(sl()));
@@ -56,7 +56,8 @@ Future<void> initializeDependencies() async {
   // sl.registerSingleton<StoreApi>(StoreApi(sl()));
   // sl.registerSingleton<TaxApi>(TaxApi(sl()));
   sl.registerSingleton<UsersApi>(UsersApi(sl()));
-  sl.registerSingleton<UsersDao>(UsersDao(sl()));
+  sl.registerSingletonWithDependencies<UsersDao>(() => UsersDao(sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingleton<ItemCategoryApi>(ItemCategoryApi(sl()));
   sl.registerSingleton<ItemsApi>(ItemsApi(sl()));
   sl.registerSingleton<PricelistApi>(PricelistApi(sl()));
@@ -65,13 +66,21 @@ Future<void> initializeDependencies() async {
       ProductHierarchyMasterApi(sl()));
   sl.registerSingleton<ProductHierarchyApi>(ProductHierarchyApi(sl()));
 
-  sl.registerSingleton<ItemRepository>(ItemRepositoryImpl(sl()));
+  sl.registerSingletonWithDependencies<ItemRepository>(
+      () => ItemRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
-  sl.registerSingleton<GetItemsUseCase>(GetItemsUseCase(sl()));
-  sl.registerSingleton<GetItemUseCase>(GetItemUseCase(sl()));
-  sl.registerSingleton<GetItemByBarcodeUseCase>(GetItemByBarcodeUseCase(sl()));
+  sl.registerSingletonWithDependencies<GetItemsUseCase>(
+      () => GetItemsUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetItemUseCase>(
+      () => GetItemUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetItemByBarcodeUseCase>(
+      () => GetItemByBarcodeUseCase(sl()),
+      dependsOn: [AppDatabase]);
 
-  sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
+  // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 
   return;
 }
