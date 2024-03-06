@@ -101,6 +101,11 @@ import 'package:pos_fe/features/sales/data/models/promo_package_customer_group.d
 import 'package:pos_fe/features/sales/data/models/promo_package_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_voucher_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_voucher_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_voucher_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_voucher_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/data/models/user_logs.dart';
@@ -1985,11 +1990,97 @@ CREATE TABLE $tablePromoGWPDefaultValidDays (
   $uuidDefinition,
   ${PromoGWPDefaultValidDaysFields.createDate} datetime NOT NULL,
   ${PromoGWPDefaultValidDaysFields.updateDate} datetime DEFAULT NULL,
-  ${PromoGWPDefaultValidDaysFields.toprgId} bigint DEFAULT NULL,
+  ${PromoGWPDefaultValidDaysFields.toprgId} text DEFAULT NULL,
   ${PromoGWPDefaultValidDaysFields.day} int NOT NULL,
   ${PromoGWPDefaultValidDaysFields.status} int NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprg9_toprgId_fkey` FOREIGN KEY (`toprgId`) REFERENCES `toprg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoVoucherHeader (
+  $uuidDefinition,
+  ${PromoVoucherHeaderFields.createDate} datetime NOT NULL,
+  ${PromoVoucherHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoVoucherHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoVoucherHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoVoucherHeaderFields.startDate} date NOT NULL,
+  ${PromoVoucherHeaderFields.endDate} date NOT NULL,
+  ${PromoVoucherHeaderFields.startTime} time NOT NULL,
+  ${PromoVoucherHeaderFields.endTime} time NOT NULL,
+  ${PromoVoucherHeaderFields.remarks} text,
+  ${PromoVoucherHeaderFields.validDays} int NOT NULL,
+  ${PromoVoucherHeaderFields.minPurchase} double NOT NULL,
+  ${PromoVoucherHeaderFields.minNextPurchase} double NOT NULL,
+  ${PromoVoucherHeaderFields.minNextPurchasex} int NOT NULL,
+  ${PromoVoucherHeaderFields.voucherType} varchar(20) NOT NULL,
+  ${PromoVoucherHeaderFields.voucherValue} double NOT NULL,
+  ${PromoVoucherHeaderFields.voucherPct} double NOT NULL,
+  ${PromoVoucherHeaderFields.statusActive} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoVoucherAssignStore (
+  $uuidDefinition,
+  ${PromoVoucherAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoVoucherAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoVoucherAssignStoreFields.toprrId} text DEFAULT NULL,
+  ${PromoVoucherAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoVoucherAssignStoreFields.holiday} int NOT NULL,
+  ${PromoVoucherAssignStoreFields.day1} int NOT NULL,
+  ${PromoVoucherAssignStoreFields.day2} int NOT NULL,
+  ${PromoVoucherAssignStoreFields.day3} int NOT NULL,
+  ${PromoVoucherAssignStoreFields.day4} int NOT NULL,
+  ${PromoVoucherAssignStoreFields.day5} int NOT NULL,
+  ${PromoVoucherAssignStoreFields.day6} int NOT NULL,
+  ${PromoVoucherAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprr2_toprrId_fkey` FOREIGN KEY (`toprrId`) REFERENCES `toprr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprr2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoVoucherValidDays (
+  $uuidDefinition,
+  ${PromoVoucherValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoVoucherValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoVoucherValidDaysFields.tprr2Id} text DEFAULT NULL,
+  ${PromoVoucherValidDaysFields.day} int NOT NULL,
+  ${PromoVoucherValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprr3_tprr2Id_fkey` FOREIGN KEY (`tprr2Id`) REFERENCES `tprr2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoVoucherCustomerGroup (
+  $uuidDefinition,
+  ${PromoVoucherCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoVoucherCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoVoucherCustomerGroupFields.toprrId} text DEFAULT NULL,
+  ${PromoVoucherCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprr4_toprrId_fkey` FOREIGN KEY (`toprrId`) REFERENCES `toprr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprr4_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoVoucherDefaultValidDays (
+  $uuidDefinition,
+  ${PromoVoucherDefaultValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoVoucherDefaultValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoVoucherDefaultValidDaysFields.toprrId} bigint DEFAULT NULL,
+  ${PromoVoucherDefaultValidDaysFields.day} int NOT NULL,
+  ${PromoVoucherDefaultValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprr9_toprrId_fkey` FOREIGN KEY (`toprrId`) REFERENCES `toprr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
