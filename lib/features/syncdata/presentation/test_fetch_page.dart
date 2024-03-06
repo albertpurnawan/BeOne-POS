@@ -2,17 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_barcode_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 

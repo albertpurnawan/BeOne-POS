@@ -1,10 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
-import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
-import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 
