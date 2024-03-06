@@ -89,6 +89,12 @@ import 'package:pos_fe/features/sales/data/models/promo_credit_card_customer_gro
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_gwp_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_gwp_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_gwp_default_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_gwp_detail.dart';
+import 'package:pos_fe/features/sales/data/models/promo_gwp_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_gwp_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_buy.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_customer_group.dart';
@@ -1881,11 +1887,109 @@ CREATE TABLE $tablePromoPackageDefaultValidDays (
   $uuidDefinition,
   ${PromoPackageDefaultValidDaysFields.createDate} datetime NOT NULL,
   ${PromoPackageDefaultValidDaysFields.updateDate} datetime DEFAULT NULL,
-  ${PromoPackageDefaultValidDaysFields.toprkId} bigint DEFAULT NULL,
+  ${PromoPackageDefaultValidDaysFields.toprkId} text DEFAULT NULL,
   ${PromoPackageDefaultValidDaysFields.day} int NOT NULL,
   ${PromoPackageDefaultValidDaysFields.status} int NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprk9_toprkId_fkey` FOREIGN KEY (`toprkId`) REFERENCES `toprk` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoGWPHeader (
+  $uuidDefinition,
+  ${PromoGWPHeaderFields.createDate} datetime NOT NULL,
+  ${PromoGWPHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoGWPHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoGWPHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoGWPHeaderFields.startDate} date NOT NULL,
+  ${PromoGWPHeaderFields.endDate} date NOT NULL,
+  ${PromoGWPHeaderFields.startTime} time NOT NULL,
+  ${PromoGWPHeaderFields.endTime} time NOT NULL,
+  ${PromoGWPHeaderFields.remarks} text,
+  ${PromoGWPHeaderFields.priority} int NOT NULL,
+  ${PromoGWPHeaderFields.priorityNo} int NOT NULL,
+  ${PromoGWPHeaderFields.minPurchase} double NOT NULL,
+  ${PromoGWPHeaderFields.maxGet} double NOT NULL,
+  ${PromoGWPHeaderFields.getCondition} varchar(10) NOT NULL,
+  ${PromoGWPHeaderFields.statusActive} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoGWPDetail (
+  $uuidDefinition,
+  ${PromoGWPDetailFields.createDate} datetime NOT NULL,
+  ${PromoGWPDetailFields.updateDate} datetime DEFAULT NULL,
+  ${PromoGWPDetailFields.toprgId} text DEFAULT NULL,
+  ${PromoGWPDetailFields.toitmId} text DEFAULT NULL,
+  ${PromoGWPDetailFields.quantity} double NOT NULL,
+  ${PromoGWPDetailFields.sellingPrice} double NOT NULL,
+  ${PromoGWPDetailFields.itemPrice} double DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `tprg1_toprgId_fkey` FOREIGN KEY (`toprgId`) REFERENCES `toprg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprg1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoGWPAssignStore (
+  $uuidDefinition,
+  ${PromoGWPAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoGWPAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoGWPAssignStoreFields.toprgId} text DEFAULT NULL,
+  ${PromoGWPAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoGWPAssignStoreFields.holiday} int NOT NULL,
+  ${PromoGWPAssignStoreFields.day1} int NOT NULL,
+  ${PromoGWPAssignStoreFields.day2} int NOT NULL,
+  ${PromoGWPAssignStoreFields.day3} int NOT NULL,
+  ${PromoGWPAssignStoreFields.day4} int NOT NULL,
+  ${PromoGWPAssignStoreFields.day5} int NOT NULL,
+  ${PromoGWPAssignStoreFields.day6} int NOT NULL,
+  ${PromoGWPAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprg2_toprgId_fkey` FOREIGN KEY (`toprgId`) REFERENCES `toprg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprg2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoGWPValidDays (
+  $uuidDefinition,
+  ${PromoGWPValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoGWPValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoGWPValidDaysFields.tprg2Id} text DEFAULT NULL,
+  ${PromoGWPValidDaysFields.day} int NOT NULL,
+  ${PromoGWPValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprg3_tprg2Id_fkey` FOREIGN KEY (`tprg2Id`) REFERENCES `tprg2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoGWPCustomerGroup (
+  $uuidDefinition,
+  ${PromoGWPCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoGWPCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoGWPCustomerGroupFields.toprgId} text DEFAULT NULL,
+  ${PromoGWPCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprg4_toprgId_fkey` FOREIGN KEY (`toprgId`) REFERENCES `toprg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprg4_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoGWPDefaultValidDays (
+  $uuidDefinition,
+  ${PromoGWPDefaultValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoGWPDefaultValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoGWPDefaultValidDaysFields.toprgId} bigint DEFAULT NULL,
+  ${PromoGWPDefaultValidDaysFields.day} int NOT NULL,
+  ${PromoGWPDefaultValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprg9_toprgId_fkey` FOREIGN KEY (`toprgId`) REFERENCES `toprg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
