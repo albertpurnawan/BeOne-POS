@@ -78,7 +78,11 @@ import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_default_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_get_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_customer_group.dart';
@@ -1724,6 +1728,60 @@ CREATE TABLE $tablePromoBuyXGetYAssignStore (
   $createdAtDefinition,
   CONSTRAINT `tprb2_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tprb2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBuyXGetYValidDays (
+  $uuidDefinition,
+  ${PromoBuyXGetYValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoBuyXGetYValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBuyXGetYValidDaysFields.tprb2Id} text DEFAULT NULL,
+  ${PromoBuyXGetYValidDaysFields.day} int NOT NULL,
+  ${PromoBuyXGetYValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprb3_tprb2Id_fkey` FOREIGN KEY (`tprb2Id`) REFERENCES `tprb2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBuyXGetYGetCondition (
+  $uuidDefinition,
+  ${PromoBuyXGetYGetConditionFields.createDate} datetime NOT NULL,
+  ${PromoBuyXGetYGetConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBuyXGetYGetConditionFields.toprbId} text DEFAULT NULL,
+  ${PromoBuyXGetYGetConditionFields.toitmId} text DEFAULT NULL,
+  ${PromoBuyXGetYGetConditionFields.quantity} double NOT NULL,
+  ${PromoBuyXGetYGetConditionFields.sellingPrice} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprb4_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprb4_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBuyXGetYCustomerGroup (
+  $uuidDefinition,
+  ${PromoBuyXGetYCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoBuyXGetYCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBuyXGetYCustomerGroupFields.toprbId} text DEFAULT NULL,
+  ${PromoBuyXGetYCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprb5_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tprb5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBuyXGetYDefaultValidDays (
+  $uuidDefinition,
+  ${PromoBuyXGetYDefaultValidDaysFields.createDate} datetime NOT NULL,
+  ${PromoBuyXGetYDefaultValidDaysFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBuyXGetYDefaultValidDaysFields.toprbId} bigint DEFAULT NULL,
+  ${PromoBuyXGetYDefaultValidDaysFields.day} int NOT NULL,
+  ${PromoBuyXGetYDefaultValidDaysFields.status} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tprb9_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
