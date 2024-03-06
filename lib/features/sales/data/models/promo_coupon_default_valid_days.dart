@@ -1,14 +1,14 @@
 import 'package:pos_fe/core/resources/base_model.dart';
-import 'package:pos_fe/features/sales/domain/entities/promo_voucher_default_valid_days.dart';
+import 'package:pos_fe/features/sales/domain/entities/promo_coupon_default_valid_days.dart';
 
-const String tablePromoVoucherDefaultValidDays = "tprr9";
+const String tablePromoCouponDefaultValidDays = "tprn9";
 
-class PromoVoucherDefaultValidDaysFields {
+class PromoCouponDefaultValidDaysFields {
   static const List<String> values = [
     docId,
     createDate,
     updateDate,
-    toprrId,
+    toprnId,
     day,
     status,
   ];
@@ -16,18 +16,18 @@ class PromoVoucherDefaultValidDaysFields {
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
-  static const String toprrId = "toprrId";
+  static const String toprnId = "toprnId";
   static const String day = "day";
   static const String status = "status";
 }
 
-class PromoVoucherDefaultValidDaysModel
-    extends PromoVoucherDefaultValidDaysEntity implements BaseModel {
-  PromoVoucherDefaultValidDaysModel({
+class PromoCouponDefaultValidDaysModel extends PromoCouponDefaultValidDaysEntity
+    implements BaseModel {
+  PromoCouponDefaultValidDaysModel({
     required super.docId,
     required super.createDate,
     required super.updateDate,
-    required super.toprrId,
+    required super.toprnId,
     required super.day,
     required super.status,
   });
@@ -38,42 +38,42 @@ class PromoVoucherDefaultValidDaysModel
       'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
-      'toprrId': toprrId,
+      'toprnId': toprnId,
       'day': day,
       'status': status,
     };
   }
 
-  factory PromoVoucherDefaultValidDaysModel.fromMap(Map<String, dynamic> map) {
-    return PromoVoucherDefaultValidDaysModel(
+  factory PromoCouponDefaultValidDaysModel.fromMap(Map<String, dynamic> map) {
+    return PromoCouponDefaultValidDaysModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      toprrId: map['toprrId'] != null ? map['toprrId'] as String : null,
+      toprnId: map['toprnId'] != null ? map['toprnId'] as String : null,
       day: map['day'] as int,
       status: map['status'] as int,
     );
   }
 
-  factory PromoVoucherDefaultValidDaysModel.fromMapRemote(
+  factory PromoCouponDefaultValidDaysModel.fromMapRemote(
       Map<String, dynamic> map) {
-    return PromoVoucherDefaultValidDaysModel.fromMap({
+    return PromoCouponDefaultValidDaysModel.fromMap({
       ...map,
-      "toprrId": map['toprr_id']?['docid'] != null
-          ? map['toprr_id']['docid'] as String
+      "toprnId": map['toprn_id']?['docid'] != null
+          ? map['toprn_id']['docid'] as String
           : null,
     });
   }
 
-  factory PromoVoucherDefaultValidDaysModel.fromEntity(
-      PromoVoucherDefaultValidDaysEntity entity) {
-    return PromoVoucherDefaultValidDaysModel(
+  factory PromoCouponDefaultValidDaysModel.fromEntity(
+      PromoCouponDefaultValidDaysEntity entity) {
+    return PromoCouponDefaultValidDaysModel(
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,
-      toprrId: entity.toprrId,
+      toprnId: entity.toprnId,
       day: entity.day,
       status: entity.status,
     );

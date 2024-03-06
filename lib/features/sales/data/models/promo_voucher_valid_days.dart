@@ -35,9 +35,9 @@ class PromoVoucherValidDaysModel extends PromoVoucherValidDaysEntity
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'tprr2Id': tprr2Id,
       'day': day,
       'status': status,
@@ -46,9 +46,9 @@ class PromoVoucherValidDaysModel extends PromoVoucherValidDaysEntity
 
   factory PromoVoucherValidDaysModel.fromMap(Map<String, dynamic> map) {
     return PromoVoucherValidDaysModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
       tprr2Id: map['tprr2Id'] != null ? map['tprr2Id'] as String : null,
