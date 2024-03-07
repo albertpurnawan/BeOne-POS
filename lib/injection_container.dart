@@ -4,8 +4,11 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
+import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
@@ -69,6 +72,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CustomerRepository>(
+      () => CustomerRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -78,6 +84,10 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetItemByBarcodeUseCase>(
       () => GetItemByBarcodeUseCase(sl()),
+      dependsOn: [AppDatabase]);
+
+  sl.registerSingletonWithDependencies<GetCustomersUseCase>(
+      () => GetCustomersUseCase(sl()),
       dependsOn: [AppDatabase]);
 
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));

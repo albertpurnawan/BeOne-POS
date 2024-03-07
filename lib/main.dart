@@ -8,7 +8,9 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
 import 'package:pos_fe/core/database/seeders_data/tocat.dart';
 import 'package:pos_fe/features/sales/data/models/item_category.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/injection_container.dart';
 
@@ -42,9 +44,15 @@ class MyApp extends StatelessWidget {
             currentFocus.unfocus();
           }
         },
-        child: BlocProvider(
-          create: (context) =>
-              ReceiptCubit(GetIt.instance<GetItemByBarcodeUseCase>()),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<ReceiptCubit>(
+                create: (context) =>
+                    ReceiptCubit(GetIt.instance<GetItemByBarcodeUseCase>())),
+            BlocProvider<CustomersCubit>(
+                create: (context) =>
+                    CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
+          ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {
                 return "ABC";

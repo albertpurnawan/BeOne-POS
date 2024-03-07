@@ -5,6 +5,8 @@ import 'package:pos_fe/core/database/seeders_data/phir1.dart';
 import 'package:pos_fe/core/database/seeders_data/tbitm.dart';
 import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
 import 'package:pos_fe/core/database/seeders_data/tocat.dart';
+import 'package:pos_fe/core/database/seeders_data/tocrg.dart';
+import 'package:pos_fe/core/database/seeders_data/tocus.dart';
 import 'package:pos_fe/core/database/seeders_data/toitm.dart';
 import 'package:pos_fe/core/database/seeders_data/topln.dart';
 import 'package:pos_fe/core/database/seeders_data/tostr.dart';
@@ -16,6 +18,8 @@ import 'package:pos_fe/core/database/seeders_data/tpln2.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
 import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_barcode_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
@@ -128,6 +132,8 @@ class AppDatabase {
   late final PriceByItemDao priceByItemDao;
   late final PriceByItemBarcodeDao priceByItemBarcodeDao;
   late final StoreMasterDao storeMasterDao;
+  late final CustomerGroupDao customerGroupDao;
+  late final CustomerDao customerDao;
 
   AppDatabase._init();
 
@@ -168,6 +174,8 @@ PRAGMA foreign_keys = ON;
     priceByItemDao = PriceByItemDao(_database!);
     priceByItemBarcodeDao = PriceByItemBarcodeDao(_database!);
     storeMasterDao = StoreMasterDao(_database!);
+    customerGroupDao = CustomerGroupDao(_database!);
+    customerDao = CustomerDao(_database!);
 
     currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
     itemCategoryDao
@@ -196,6 +204,9 @@ PRAGMA foreign_keys = ON;
         .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
     priceByItemBarcodeDao.bulkCreate(
         tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
+    customerGroupDao
+        .bulkCreate(tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
+    customerDao.bulkCreate(tocus.map((e) => CustomerModel.fromMap(e)).toList());
   }
 
   Future<void> _refreshItemsTable() async {

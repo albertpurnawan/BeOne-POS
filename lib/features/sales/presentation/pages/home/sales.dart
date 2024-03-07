@@ -8,9 +8,13 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/sales/data/models/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 
 class SalesPage extends StatefulWidget {
   const SalesPage({super.key});
@@ -25,7 +29,8 @@ class _SalesPageState extends State<SalesPage> {
   List<int> indexIsSelect = [-1, 0];
   bool isUpdatingReceiptItemQty = false;
   bool isEditingReceiptItemQty = false;
-  int? radioValue;
+  CustomerEntity? radioValue;
+  CustomerEntity? selectedCustomer;
 
   final ScrollController _scrollControllerReceiptItems = ScrollController();
   final ScrollController _scrollControllerReceiptSummary = ScrollController();
@@ -271,15 +276,17 @@ class _SalesPageState extends State<SalesPage> {
                         //   // ],
                         // ),
                         padding: const EdgeInsets.only(right: 20),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Icon(Icons.stars, color: Colors.white),
                             SizedBox(
                               width: 5,
                             ),
-                            const Text(
-                              "Ronaldo",
+                            Text(
+                              selectedCustomer != null
+                                  ? selectedCustomer!.custName
+                                  : " - ",
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w500,
@@ -302,7 +309,12 @@ class _SalesPageState extends State<SalesPage> {
                       BlocBuilder<ReceiptCubit, ReceiptEntity>(
                         builder: (context, state) {
                           if (state.receiptItems.isEmpty) {
-                            return const Expanded(child: EmptyList());
+                            return const Expanded(
+                                child: EmptyList(
+                              imagePath: "assets/images/empty-item.svg",
+                              sentence:
+                                  "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
+                            ));
                           }
                           return Expanded(
                             child: ListView.builder(
@@ -1320,7 +1332,12 @@ class _SalesPageState extends State<SalesPage> {
             Expanded(
               child: SizedBox.expand(
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => CheckoutDialog());
+                  },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
                     // elevation: 5,
@@ -1384,7 +1401,7 @@ class _SalesPageState extends State<SalesPage> {
                           ),
                           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: const Text(
-                            'Add Customer',
+                            'Select Customer',
                             style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
@@ -1414,6 +1431,13 @@ class _SalesPageState extends State<SalesPage> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 15),
                                     child: TextField(
+                                      onSubmitted: (value) {
+                                        print(value);
+                                        context
+                                            .read<CustomersCubit>()
+                                            .getCustomers(searchKeyword: value);
+                                        _customerInputFocusNode.requestFocus();
+                                      },
                                       autofocus: true,
                                       focusNode: _customerInputFocusNode,
                                       decoration: const InputDecoration(
@@ -1440,37 +1464,58 @@ class _SalesPageState extends State<SalesPage> {
                                   //   textAlign: TextAlign.left,
                                   // ),
                                   Expanded(
-                                    child: ListView.builder(
-                                        padding: EdgeInsets.all(0),
-                                        itemCount: 5,
-                                        itemBuilder: ((context, index) {
-                                          return RadioListTile<int>(
-                                              activeColor:
-                                                  ProjectColors.primary,
-                                              hoverColor: ProjectColors.primary,
-                                              // selected: index == radioValue,
-                                              selectedTileColor:
-                                                  ProjectColors.primary,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                horizontal: 15,
-                                              ),
-                                              controlAffinity:
-                                                  ListTileControlAffinity
-                                                      .trailing,
-                                              value: index,
-                                              groupValue: radioValue,
-                                              title: Text("Jatmiko"),
-                                              subtitle: Text("0912830918203"),
-                                              // shape: RoundedRectangleBorder(
-                                              //     borderRadius:
-                                              //         BorderRadius.circular(5)),
-                                              onChanged: (val) {
-                                                setState(() {
-                                                  radioValue = val;
-                                                });
-                                              });
-                                        })),
+                                    child: BlocBuilder<CustomersCubit,
+                                        List<CustomerEntity>>(
+                                      builder: (context, state) {
+                                        if (state.length == 0) {
+                                          return const Expanded(
+                                              child: EmptyList(
+                                            imagePath:
+                                                "assets/images/empty-search.svg",
+                                            sentence:
+                                                "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                                          ));
+                                        }
+                                        return ListView.builder(
+                                            padding: EdgeInsets.all(0),
+                                            itemCount: state.length,
+                                            itemBuilder: ((context, index) {
+                                              final CustomerEntity
+                                                  customerEntity = state[index];
+
+                                              return RadioListTile<
+                                                      CustomerEntity>(
+                                                  activeColor:
+                                                      ProjectColors.primary,
+                                                  hoverColor:
+                                                      ProjectColors.primary,
+                                                  // selected: index == radioValue,
+                                                  selectedTileColor:
+                                                      ProjectColors.primary,
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                    horizontal: 15,
+                                                  ),
+                                                  controlAffinity:
+                                                      ListTileControlAffinity
+                                                          .trailing,
+                                                  value: state[index],
+                                                  groupValue: radioValue,
+                                                  title: Text(
+                                                      customerEntity.custName),
+                                                  subtitle: Text(
+                                                      customerEntity.phone),
+                                                  // shape: RoundedRectangleBorder(
+                                                  //     borderRadius:
+                                                  //         BorderRadius.circular(5)),
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      radioValue = val;
+                                                    });
+                                                  });
+                                            }));
+                                      },
+                                    ),
                                   )
                                 ],
                               ),
@@ -1531,7 +1576,15 @@ class _SalesPageState extends State<SalesPage> {
                                         MaterialStateColor.resolveWith(
                                             (states) =>
                                                 Colors.white.withOpacity(.2))),
-                                onPressed: () async {
+                                onPressed: () {
+                                  setState(() {
+                                    selectedCustomer = radioValue;
+                                    Navigator.of(context).pop();
+                                    Future.delayed(
+                                        const Duration(milliseconds: 200),
+                                        () => _newReceiptItemCodeFocusNode
+                                            .requestFocus());
+                                  });
                                   // try {
                                   //   final response = await api.trading
                                   //       .deleteTradingPost(tradingPost.id)
@@ -1557,7 +1610,7 @@ class _SalesPageState extends State<SalesPage> {
                                 },
                                 child: const Center(
                                     child: Text(
-                                  "Add",
+                                  "Select",
                                   style: TextStyle(color: Colors.white),
                                 )),
                               )),
@@ -1568,7 +1621,10 @@ class _SalesPageState extends State<SalesPage> {
                             const EdgeInsets.fromLTRB(20, 10, 20, 10),
                       );
                     },
-                  );
+                  ).then((value) => setState(() {
+                        radioValue = null;
+                        context.read<CustomersCubit>().clearCustomers();
+                      }));
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(7),
@@ -1582,7 +1638,7 @@ class _SalesPageState extends State<SalesPage> {
                   side: BorderSide.none,
                 ),
                 child: const Text(
-                  "Add Cust.",
+                  "Select Cust.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),

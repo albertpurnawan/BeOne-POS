@@ -100,14 +100,14 @@ class CustomerModel extends CustomerEntity implements BaseModel {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toLocal().toIso8601String(),
-      'updateDate': updateDate?.toLocal().toIso8601String(),
-      'custCode': custCode,
-      'custName': custName,
+      'docid': docId,
+      'createdate': createDate.toLocal().toIso8601String(),
+      'updatedate': updateDate?.toLocal().toIso8601String(),
+      'custcode': custCode,
+      'custname': custName,
       'tocrgId': tocrgId,
-      'idCard': idCard,
-      'taxNo': taxNo,
+      'idcard': idCard,
+      'taxno': taxNo,
       'gender': gender,
       'birthdate': birthdate.toLocal().toIso8601String(),
       'addr1': addr1,
@@ -122,27 +122,27 @@ class CustomerModel extends CustomerEntity implements BaseModel {
       'remarks': remarks,
       'toptrId': toptrId,
       'toplnId': toplnId,
-      'joinDate': joinDate?.toLocal().toIso8601String(),
-      'maxDiscount': maxDiscount,
-      'statusActive': statusActive,
+      'joindate': joinDate?.toLocal().toIso8601String(),
+      'maxdiscount': maxDiscount,
+      'statusactive': statusActive,
       'activated': activated,
-      'isEmployee': isEmployee,
+      'isemployee': isEmployee,
       'tohemId': tohemId,
     };
   }
 
   factory CustomerModel.fromMap(Map<String, dynamic> map) {
     return CustomerModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate']).toLocal()
           : null,
-      custCode: map['custCode'] as String,
-      custName: map['custName'] as String,
+      custCode: map['custcode'] as String,
+      custName: map['custname'] as String,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
-      idCard: map['idCard'] as String,
-      taxNo: map['taxNo'] as String,
+      idCard: map['idcard'] as String,
+      taxNo: map['taxno'] as String,
       gender: map['gender'] as String,
       birthdate: DateTime.parse(map['birthdate']).toLocal(),
       addr1: map['addr1'] as String,
@@ -157,13 +157,13 @@ class CustomerModel extends CustomerEntity implements BaseModel {
       remarks: map['remarks'] as String,
       toptrId: map['toptrId'] != null ? map['toptrId'] as String : null,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      joinDate: map['joinDate'] != null
+      joinDate: map['joindate'] != null
           ? DateTime.parse(map['joindate']).toLocal()
           : null,
-      maxDiscount: map['maxDiscount'] as double,
-      statusActive: map['statusActive'] as int,
+      maxDiscount: map['maxdiscount'].toDouble(),
+      statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
-      isEmployee: map['isEmployee'] as int,
+      isEmployee: map['isemployee'] as int,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
     );
   }
