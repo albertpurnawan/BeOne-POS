@@ -1,4 +1,3 @@
-import 'package:pos_fe/core/resources/data_state.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 
 abstract class ItemRepository {

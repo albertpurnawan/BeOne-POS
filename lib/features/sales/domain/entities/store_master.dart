@@ -186,7 +186,7 @@ class StoreMasterEntity {
     double? sqm,
     String? tcurrId,
     String? toplnId,
-    dynamic? storePic,
+    dynamic storePic,
     String? tovatId,
     DateTime? storeOpen,
     int? statusActive,
