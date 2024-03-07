@@ -4,7 +4,7 @@ import 'package:pos_fe/features/sales/domain/entities/promo_voucher_valid_days.d
 const String tablePromoVoucherValidDays = "tprr3";
 
 class PromoVoucherValidDaysFields {
-  static const List<String> voucher = [
+  static const List<String> values = [
     docId,
     createDate,
     updateDate,
