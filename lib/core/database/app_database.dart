@@ -12,6 +12,7 @@ import 'package:pos_fe/core/database/seeders_data/topln.dart';
 import 'package:pos_fe/core/database/seeders_data/topmt.dart';
 import 'package:pos_fe/core/database/seeders_data/tostr.dart';
 import 'package:pos_fe/core/database/seeders_data/touom.dart';
+import 'package:pos_fe/core/database/seeders_data/tousr.dart';
 import 'package:pos_fe/core/database/seeders_data/tovat.dart';
 import 'package:pos_fe/core/database/seeders_data/tphir.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln1.dart';
@@ -20,6 +21,7 @@ import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
 import 'package:pos_fe/core/database/seeders_data/tpmt1.dart';
 import 'package:pos_fe/core/database/seeders_data/tpmt3.dart';
 import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
+import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
@@ -40,6 +42,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_
 import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/user_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
@@ -149,6 +152,7 @@ class AppDatabase {
 
   Database? _database;
 
+  late final UserAuthDao userAuthDao;
   late final ItemsDao itemsDao;
   late final CurrencyDao currencyDao;
   late final TaxMasterDao taxMasterDao;
@@ -169,6 +173,7 @@ class AppDatabase {
   late final PaymentTypeDao paymentTypeDao;
   late final MeansOfPaymentDao meansOfPaymentDao;
   late final MOPByStoreDao mopByStoreDao;
+  late final UserDao userDao;
 
   AppDatabase._init();
 
@@ -194,6 +199,7 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> _injectDao() async {
+    userAuthDao = UserAuthDao(_database!);
     itemsDao = ItemsDao(_database!);
     currencyDao = CurrencyDao(_database!);
     itemCategoryDao = ItemCategoryDao(_database!);
@@ -214,6 +220,7 @@ PRAGMA foreign_keys = ON;
     paymentTypeDao = PaymentTypeDao(_database!);
     meansOfPaymentDao = MeansOfPaymentDao(_database!);
     mopByStoreDao = MOPByStoreDao(_database!);
+    userDao = UserDao(_database!);
 
     currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
     itemCategoryDao
@@ -242,15 +249,7 @@ PRAGMA foreign_keys = ON;
         .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
     priceByItemBarcodeDao.bulkCreate(
         tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
-    customerGroupDao
-        .bulkCreate(tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
-    customerDao.bulkCreate(tocus.map((e) => CustomerModel.fromMap(e)).toList());
-    paymentTypeDao
-        .bulkCreate(topmt.map((e) => PaymentTypeModel.fromMap(e)).toList());
-    meansOfPaymentDao
-        .bulkCreate(tpmt1.map((e) => MeansOfPaymentModel.fromMap(e)).toList());
-    mopByStoreDao
-        .bulkCreate(tpmt3.map((e) => MOPByStoreModel.fromMap(e)).toList());
+    userDao.bulkCreate(tousr.map((e) => UserModel.fromMap(e)).toList());
   }
 
   Future<void> _refreshItemsTable() async {
@@ -261,9 +260,8 @@ DELETE FROM items
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id)
 SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id
 FROM (
-SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
-FROM topln AS pl
-   
+  SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
+  FROM topln AS pl
    INNER JOIN
     (
     SELECT docid AS tpln1Id, toplnId, createdate AS tpln1createdate
@@ -282,29 +280,24 @@ FROM topln AS pl
   WHERE pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc'
   GROUP BY pr.toitmId
 ) as p
-
 INNER JOIN 
   (SELECT tbitmId, price, tpln2Id
   FROM tpln4) as b
 ON p.tpln2Id = b.tpln2Id
-
 INNER JOIN
  (SELECT docid, barcode
  FROM tbitm) as bc
  ON bc.docid = b.tbitmId
-
 INNER JOIN (
-SELECT docid, itemcode, itemname, touomId
-FROM toitm
+  SELECT docid, itemcode, itemname, touomId
+  FROM toitm
 ) as i
 ON i.docid = p.toitmId
-
 INNER JOIN (
-SELECT docid AS touomId, uomcode
-FROM touom
+  SELECT docid AS touomId, uomcode
+  FROM touom
 ) as u
 ON u.touomId = i.touomId
-
 """);
   }
 
@@ -736,11 +729,11 @@ CREATE TABLE $tableUser (
   ${UserFields.userType} int DEFAULT NULL,
   ${UserFields.trolleyUser} varchar(20) DEFAULT NULL,
   ${UserFields.trolleyPass} varchar(100) DEFAULT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  $createdAtDefinition
 )
 """);
+        // CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableAuthorization (
