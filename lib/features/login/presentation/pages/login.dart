@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -6,6 +8,7 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/login/domain/repository/authentication.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -49,6 +52,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   late TextEditingController usernameController, passwordController;
+  final AuthRepository _authRepository = AuthRepository();
 
   @override
   void initState() {
@@ -103,12 +107,29 @@ class _LoginFormState extends State<LoginForm> {
             child: CustomButton(
                 child: const Text("Login"),
                 onTap: () async {
+                  log("Before >>>>>>>>>");
                   if (!formKey.currentState!.validate()) return;
                   // context.pushNamed(RouteConstants.sales);
-                  Helpers.navigate(context, SalesPage());
+                  final loginSuccess = await _authRepository.login(
+                      usernameController.text, passwordController.text);
+                  // Helpers.navigate(context, SalesPage());
                   // final login = await Api.of(context).auth.login(
                   //     usernameController.value.text, passwordController.value.text);
-
+                  if (loginSuccess) {
+                    // Check if user is logged in before navigating
+                    final isLoggedIn = await _authRepository.isLoggedIn();
+                    if (isLoggedIn) {
+                      Helpers.navigate(context, SalesPage());
+                      log("Logged <<<<<<<<<<<<<");
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Login failed. Please try again.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
                   // if (login) api.refresh();
                 }),
           ),

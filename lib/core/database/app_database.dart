@@ -7,12 +7,14 @@ import 'package:pos_fe/core/database/seeders_data/toitm.dart';
 import 'package:pos_fe/core/database/seeders_data/topln.dart';
 import 'package:pos_fe/core/database/seeders_data/tostr.dart';
 import 'package:pos_fe/core/database/seeders_data/touom.dart';
+import 'package:pos_fe/core/database/seeders_data/tousr.dart';
 import 'package:pos_fe/core/database/seeders_data/tovat.dart';
 import 'package:pos_fe/core/database/seeders_data/tphir.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln1.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln2.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
 import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
+import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_barcode_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_by_store_dao.dart';
@@ -28,6 +30,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_
 import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/user_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
@@ -137,6 +140,7 @@ class AppDatabase {
 
   Database? _database;
 
+  late final UserAuthDao userAuthDao;
   late final ItemsDao itemsDao;
   late final CurrencyDao currencyDao;
   late final TaxMasterDao taxMasterDao;
@@ -152,55 +156,58 @@ class AppDatabase {
   late final PriceByItemDao priceByItemDao;
   late final PriceByItemBarcodeDao priceByItemBarcodeDao;
   late final StoreMasterDao storeMasterDao;
+  late final UserDao userDao;
 
-  AppDatabase() {
-    getDB().then((db) {
-      itemsDao = ItemsDao(db);
-      currencyDao = CurrencyDao(db);
-      itemCategoryDao = ItemCategoryDao(db);
-      taxMasterDao = TaxMasterDao(db);
-      productHierarchyDao = ProductHierarchyDao(db);
-      productHierarchyMasterDao = ProductHierarchyMasterDao(db);
-      uomDao = UomDao(db);
-      itemMasterDao = ItemMasterDao(db);
-      pricelistDao = PricelistDao(db);
-      pricelistPeriodDao = PricelistPeriodDao(db);
-      itemBarcodeDao = ItemBarcodeDao(db);
-      itemByStoreDao = ItemByStoreDao(db);
-      priceByItemDao = PriceByItemDao(db);
-      priceByItemBarcodeDao = PriceByItemBarcodeDao(db);
-      storeMasterDao = StoreMasterDao(db);
+  // AppDatabase() {
+  //   getDB().then((db) {
+  //     itemsDao = ItemsDao(db);
+  //     currencyDao = CurrencyDao(db);
+  //     itemCategoryDao = ItemCategoryDao(db);
+  //     taxMasterDao = TaxMasterDao(db);
+  //     productHierarchyDao = ProductHierarchyDao(db);
+  //     productHierarchyMasterDao = ProductHierarchyMasterDao(db);
+  //     uomDao = UomDao(db);
+  //     itemMasterDao = ItemMasterDao(db);
+  //     pricelistDao = PricelistDao(db);
+  //     pricelistPeriodDao = PricelistPeriodDao(db);
+  //     itemBarcodeDao = ItemBarcodeDao(db);
+  //     itemByStoreDao = ItemByStoreDao(db);
+  //     priceByItemDao = PriceByItemDao(db);
+  //     priceByItemBarcodeDao = PriceByItemBarcodeDao(db);
+  //     storeMasterDao = StoreMasterDao(db);
+  //     userDao = UserDao(db);
 
-      currencyDao
-          .bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
-      itemCategoryDao
-          .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
-      taxMasterDao
-          .bulkCreate(tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
-      productHierarchyDao.bulkCreate(
-          tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
-      productHierarchyMasterDao.bulkCreate(
-          phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
+  //     currencyDao
+  //         .bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
+  //     itemCategoryDao
+  //         .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+  //     taxMasterDao
+  //         .bulkCreate(tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
+  //     productHierarchyDao.bulkCreate(
+  //         tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
+  //     productHierarchyMasterDao.bulkCreate(
+  //         phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
 
-      pricelistDao
-          .bulkCreate(topln.map((e) => PricelistModel.fromMap(e)).toList());
-      pricelistPeriodDao.bulkCreate(
-          tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
-      uomDao.bulkCreate(touom.map((e) => UomModel.fromMap(e)).toList());
-      storeMasterDao
-          .bulkCreate(tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
-      itemMasterDao
-          .bulkCreate(toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
-      itemBarcodeDao
-          .bulkCreate(tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
-      itemByStoreDao
-          .bulkCreate(tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
-      priceByItemDao
-          .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
-      priceByItemBarcodeDao.bulkCreate(
-          tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
-    });
-  }
+  //     pricelistDao
+  //         .bulkCreate(topln.map((e) => PricelistModel.fromMap(e)).toList());
+  //     pricelistPeriodDao.bulkCreate(
+  //         tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
+  //     uomDao.bulkCreate(touom.map((e) => UomModel.fromMap(e)).toList());
+  //     storeMasterDao
+  //         .bulkCreate(tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
+  //     itemMasterDao
+  //         .bulkCreate(toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
+  //     itemBarcodeDao
+  //         .bulkCreate(tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
+  //     itemByStoreDao
+  //         .bulkCreate(tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
+  //     priceByItemDao
+  //         .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
+  //     priceByItemBarcodeDao.bulkCreate(
+  //         tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
+  //     userDao.bulkCreate(tousr.map((e) => UserModel.fromMap(e)).toList());
+  //   });
+  // }
 
   Future<Database> getDB() async {
     if (_database != null) return _database!;
@@ -695,11 +702,11 @@ CREATE TABLE $tableUser (
   ${UserFields.userType} int DEFAULT NULL,
   ${UserFields.trolleyUser} varchar(20) DEFAULT NULL,
   ${UserFields.trolleyPass} varchar(100) DEFAULT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  $createdAtDefinition
 )
 """);
+        // CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableAuthorization (
