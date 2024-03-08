@@ -31,10 +31,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     int totalPrice = 0;
     bool isNewReceiptItem = true;
     for (final currentReceiptItem in state.receiptItems) {
-      if (currentReceiptItem.itemCode == itemBarcode) {
+      if (currentReceiptItem.itemEntity.barcode == itemBarcode) {
         currentReceiptItem.quantity += quantity;
         currentReceiptItem.subtotal =
-            (currentReceiptItem.quantity * itemEntity.price!).toInt();
+            (currentReceiptItem.quantity * itemEntity.price).toInt();
         isNewReceiptItem = false;
         newReceiptItems.add(currentReceiptItem);
       } else {
@@ -44,15 +44,39 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     if (isNewReceiptItem) {
-      final int subtotal = (quantity * itemEntity.price!).toInt();
+      final int subtotal = (quantity * itemEntity.price).toInt();
       newReceiptItems.add(ReceiptItemEntity(
-          quantity: quantity,
-          subtotal: subtotal,
-          itemId: itemEntity.id!,
-          itemName: itemEntity.name!,
-          itemCode: itemEntity.code!,
-          itemPrice: itemEntity.price!));
+        quantity: quantity,
+        subtotal: subtotal,
+        itemEntity: itemEntity,
+        id: null,
+        createdAt: null,
+        receiptId: null,
+      ));
       totalPrice += subtotal;
+    }
+
+    final ReceiptEntity newState =
+        ReceiptEntity(receiptItems: newReceiptItems, totalPrice: totalPrice);
+    emit(newState);
+  }
+
+  void updateQuantity(ReceiptItemEntity receiptItemEntity, double quantity) {
+    List<ReceiptItemEntity> newReceiptItems = [];
+    int totalPrice = 0;
+
+    for (final currentReceiptItem in state.receiptItems) {
+      if (currentReceiptItem.itemEntity.barcode ==
+          receiptItemEntity.itemEntity.barcode) {
+        currentReceiptItem.quantity += quantity;
+        currentReceiptItem.subtotal =
+            (currentReceiptItem.quantity * receiptItemEntity.itemEntity.price)
+                .toInt();
+        newReceiptItems.add(currentReceiptItem);
+      } else {
+        newReceiptItems.add(currentReceiptItem);
+      }
+      totalPrice += currentReceiptItem.subtotal;
     }
 
     final ReceiptEntity newState =

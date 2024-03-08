@@ -5,10 +5,9 @@ import 'package:sqflite/sqflite.dart';
 class CustomerDao extends BaseDao<CustomerModel> {
   CustomerDao(Database db)
       : super(
-          db: db,
-          tableName: tableCustomer,
-          modelFields: CustomerFields.values,
-        );
+            db: db,
+            tableName: tableCustomer,
+            modelFields: CustomerFields.values);
 
   @override
   Future<CustomerModel?> readByDocId(String docId) async {
@@ -23,8 +22,11 @@ class CustomerDao extends BaseDao<CustomerModel> {
   }
 
   @override
-  Future<List<CustomerModel>> readAll() async {
-    final result = await db.query(tableName);
+  Future<List<CustomerModel>> readAll({String? searchKeyword}) async {
+    final result = await db.query(tableName,
+        where:
+            "${CustomerFields.custName} LIKE ? OR ${CustomerFields.phone} LIKE ?",
+        whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
 
     return result.map((itemData) => CustomerModel.fromMap(itemData)).toList();
   }

@@ -1,15 +1,15 @@
+import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:sqflite/sqflite.dart';
 
-class ItemsDao {
-  final Database db;
-
-  ItemsDao(this.db);
+class ItemsDao extends BaseDao<ItemModel> {
+  ItemsDao(Database db)
+      : super(db: db, tableName: tableItems, modelFields: ItemFields.values);
 
   Future<ItemModel?> readItemByBarcode(String barcode) async {
     final maps = await db.query(tableItems,
         columns: ItemFields.values,
-        where: '${ItemFields.code} = ?',
+        where: '${ItemFields.barcode} = ?',
         whereArgs: [barcode]);
 
     if (maps.isNotEmpty) {
@@ -45,5 +45,17 @@ class ItemsDao {
     final result = await db.query(tableItems, orderBy: orderBy);
 
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
+  }
+
+  @override
+  Future<List<ItemModel>> readAll() {
+    // TODO: implement readAll
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ItemModel?> readByDocId(String docId) {
+    // TODO: implement readByDocId
+    throw UnimplementedError();
   }
 }

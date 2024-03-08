@@ -1,12 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/sales/data/models/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 
 class SalesPage extends StatefulWidget {
   const SalesPage({super.key});
@@ -18,6 +26,11 @@ class SalesPage extends StatefulWidget {
 class _SalesPageState extends State<SalesPage> {
   ReceiptItemEntity? activeReceiptItem;
   bool isEditingNewReceiptItemQty = false;
+  List<int> indexIsSelect = [-1, 0];
+  bool isUpdatingReceiptItemQty = false;
+  bool isEditingReceiptItemQty = false;
+  CustomerEntity? radioValue;
+  CustomerEntity? selectedCustomer;
 
   final ScrollController _scrollControllerReceiptItems = ScrollController();
   final ScrollController _scrollControllerReceiptSummary = ScrollController();
@@ -46,6 +59,7 @@ class _SalesPageState extends State<SalesPage> {
           return KeyEventResult.ignored;
         }
       });
+  late final FocusNode _customerInputFocusNode = FocusNode();
 
   late final TextEditingController
       _textEditingControllerNewReceiptItemQuantity = TextEditingController()
@@ -66,11 +80,17 @@ class _SalesPageState extends State<SalesPage> {
     _newReceiptItemQuantityFocusNode.dispose();
     _textEditingControllerNewReceiptItemCode.dispose();
     _textEditingControllerNewReceiptItemQuantity.dispose();
+    _customerInputFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
+    print(isUpdatingReceiptItemQty.toString());
+    isEditingReceiptItemQty =
+        isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Color.fromARGB(255, 169, 0, 0),
         statusBarBrightness: Brightness.light,
@@ -79,79 +99,84 @@ class _SalesPageState extends State<SalesPage> {
       // backgroundColor: Color.fromRGBO(175, 47, 47, 1),
       backgroundColor: const Color.fromRGBO(245, 245, 245, 1),
       // backgroundColor: Colors.white,
-
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(38, 38, 38, 20),
-        child: Row(
-          children: [
-            // Start - Column 1
-            Expanded(
-              flex: 2,
-              child: Column(
-                children: [
-                  _receiptItemsList(),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        _buttonGroup1(),
-                        const SizedBox(
-                          width: 15,
+      // resizeToAvoidBottomInset: false,
+      body: ScrollWidget(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(38, 38, 38, 20),
+            child: Row(
+              children: [
+                // Start - Column 1
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      _receiptItemsList(),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        flex: 2,
+                        child: Row(
+                          children: [
+                            _buttonGroup1(),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            _receiptItemForm()
+                          ],
                         ),
-                        _receiptItemForm()
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            // End - Column 1
+                ),
+                // End - Column 1
 
-            const SizedBox(
-              width: 20,
-            ),
+                const SizedBox(
+                  width: 20,
+                ),
 
-            // Start - Column 2
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 12,
-                    child: Column(
-                      children: [
-                        _transactionSummary(),
-                        const SizedBox(
-                          height: 10,
+                // Start - Column 2
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 12,
+                        child: Column(
+                          children: [
+                            _transactionSummary(),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            // _buttonGroup2()
+                          ],
                         ),
-                        // _buttonGroup2()
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
 
-                  // Start - Numpad & ButtonGroup 2
-                  Expanded(
-                    flex: 8,
-                    child: Row(
-                      children: [
-                        _numpad(),
-                        const SizedBox(
-                          width: 15,
+                      // Start - Numpad & ButtonGroup 2
+                      Expanded(
+                        flex: 8,
+                        child: Row(
+                          children: [
+                            _numpad(),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            _buttonGroup3()
+                          ],
                         ),
-                        _buttonGroup3()
-                      ],
-                    ),
-                  )
-                  // End - Numeric Keypad & ButtonGroup 2
-                ],
-              ),
+                      )
+                      // End - Numeric Keypad & ButtonGroup 2
+                    ],
+                  ),
+                ),
+                // End - Column 2
+              ],
             ),
-            // End - Column 2
-          ],
+          ),
         ),
       ),
     );
@@ -251,15 +276,17 @@ class _SalesPageState extends State<SalesPage> {
                         //   // ],
                         // ),
                         padding: const EdgeInsets.only(right: 20),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(Icons.schedule, color: Colors.white),
+                            Icon(Icons.stars, color: Colors.white),
                             SizedBox(
                               width: 5,
                             ),
                             Text(
-                              "16:39:21",
+                              selectedCustomer != null
+                                  ? selectedCustomer!.custName
+                                  : " - ",
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w500,
@@ -282,7 +309,12 @@ class _SalesPageState extends State<SalesPage> {
                       BlocBuilder<ReceiptCubit, ReceiptEntity>(
                         builder: (context, state) {
                           if (state.receiptItems.isEmpty) {
-                            return const Expanded(child: EmptyList());
+                            return const Expanded(
+                                child: EmptyList(
+                              imagePath: "assets/images/empty-item.svg",
+                              sentence:
+                                  "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
+                            ));
                           }
                           return Expanded(
                             child: ListView.builder(
@@ -292,221 +324,311 @@ class _SalesPageState extends State<SalesPage> {
                               itemBuilder: (context, index) {
                                 final e = state.receiptItems[index];
 
-                                return Column(
-                                  children: [
-                                    if (index == 0)
-                                      const Column(
-                                        children: [
-                                          Divider(
-                                            thickness: 0.5,
-                                            color: Color.fromARGB(
-                                                100, 118, 118, 118),
-                                          ),
-                                          SizedBox(
-                                            height: 5,
-                                          )
-                                        ],
-                                      ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20.0),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            flex: 6,
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  // mainAxisAlignment:
-                                                  //     MainAxisAlignment
-                                                  //         .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                return GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => setState(() {
+                                    if (indexIsSelect[0] == index) {
+                                      indexIsSelect = [-1, 0];
+                                      _textEditingControllerNewReceiptItemQuantity
+                                          .text = "1";
+                                      _textEditingControllerNewReceiptItemCode
+                                          .text = "";
+                                      _newReceiptItemQuantityFocusNode
+                                          .unfocus();
+                                      _newReceiptItemCodeFocusNode
+                                          .requestFocus();
+                                    } else {
+                                      indexIsSelect = [index, 1];
+                                      _textEditingControllerNewReceiptItemQuantity
+                                          .text = "";
+                                      // Helpers.cleanDecimal(e.quantity, 3);
+                                      _textEditingControllerNewReceiptItemCode
+                                          .text = e.itemEntity.barcode;
+                                      _newReceiptItemCodeFocusNode.unfocus();
+                                      _newReceiptItemQuantityFocusNode
+                                          .requestFocus();
+                                    }
+                                  }),
+                                  child: Column(
+                                    children: [
+                                      if (index == 0)
+                                        const Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Divider(
+                                              height: 1,
+                                              thickness: 0.5,
+                                              color: Color.fromARGB(
+                                                  100, 118, 118, 118),
+                                            ),
+                                          ],
+                                        ),
+                                      Container(
+                                        padding: EdgeInsets.all(0),
+                                        color: index == indexIsSelect[0] &&
+                                                indexIsSelect[1] == 1
+                                            ? const Color.fromARGB(
+                                                20, 169, 0, 0)
+                                            : null,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              20, 10, 20, 10),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                flex: 6,
+                                                child: Column(
                                                   children: [
-                                                    Expanded(
-                                                      flex: 3,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            e.itemCode,
-                                                            style: const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
+                                                    Row(
+                                                      // mainAxisAlignment:
+                                                      //     MainAxisAlignment
+                                                      //         .spaceBetween,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Expanded(
+                                                          flex: 3,
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              SizedBox(
+                                                                height: 25,
+                                                                child: Row(
+                                                                  children: [
+                                                                    SvgPicture
+                                                                        .asset(
+                                                                      "assets/images/inventory.svg",
+                                                                      height:
+                                                                          18,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 5,
+                                                                    ),
+                                                                    Text(
+                                                                      e.itemEntity
+                                                                          .itemCode,
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        fontSize:
+                                                                            18,
+                                                                        fontWeight:
+                                                                            FontWeight.w500,
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 15,
+                                                                    ),
+                                                                    SvgPicture
+                                                                        .asset(
+                                                                      "assets/images/barcode.svg",
+                                                                      height:
+                                                                          20,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 5,
+                                                                    ),
+                                                                    Text(
+                                                                      e.itemEntity
+                                                                          .barcode,
+                                                                      style:
+                                                                          const TextStyle(
+                                                                        fontSize:
+                                                                            18,
+                                                                        fontWeight:
+                                                                            FontWeight.w500,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                e.itemEntity
+                                                                    .itemName,
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500),
+                                                              ),
+                                                            ],
                                                           ),
-                                                          Text(
-                                                            e.itemName,
-                                                            style: const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 1,
-                                                      child: Column(
-                                                        children: [
-                                                          Text(
-                                                            "${Helpers.cleanDecimal(e.quantity, 3)} x",
-                                                            textAlign:
-                                                                TextAlign.right,
-                                                            style: const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 1,
-                                                      child: Text(
-                                                        "@${Helpers.parseMoney(e.itemPrice)}",
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: const TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w500),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 1,
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerRight,
-                                                        child: Text(
-                                                          Helpers.parseMoney(
-                                                              e.subtotal),
-                                                          style: const TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500),
                                                         ),
-                                                      ),
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Column(
+                                                            children: [
+                                                              Text(
+                                                                "${Helpers.cleanDecimal(e.quantity, 3)} x",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Column(
+                                                            children: [
+                                                              Text(
+                                                                "@ ${Helpers.parseMoney(e.itemEntity.price)}",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Align(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: Column(
+                                                              children: [
+                                                                Text(
+                                                                  Helpers.parseMoney(
+                                                                      e.subtotal),
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
+                                                    index % 3 == 0
+                                                        ? const Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                "Aeon card disc",
+                                                                style: TextStyle(
+                                                                    // color: Color
+                                                                    //     .fromARGB(
+                                                                    //         255,
+                                                                    //         243,
+                                                                    //         109,
+                                                                    //         0),
+                                                                    fontSize: 16,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w500),
+                                                              ),
+                                                              Text(
+                                                                "-26,568",
+                                                                style: TextStyle(
+                                                                    // color: Color
+                                                                    //     .fromARGB(
+                                                                    //         255,
+                                                                    //         243,
+                                                                    //         109,
+                                                                    //         0),
+                                                                    fontSize: 16,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w500),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        : const SizedBox
+                                                            .shrink(),
+                                                    index % 4 == 0
+                                                        ? const Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                "PROMO LEBARAN",
+                                                                style: TextStyle(
+                                                                    // color: Color
+                                                                    //     .fromRGBO(
+                                                                    //         14,
+                                                                    //         68,
+                                                                    //         193,
+                                                                    //         1),
+                                                                    fontSize: 16,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w500),
+                                                              ),
+                                                              Text(
+                                                                "-32,568",
+                                                                style: TextStyle(
+                                                                    // color: Color
+                                                                    //     .fromRGBO(
+                                                                    //         14,
+                                                                    //         68,
+                                                                    //         193,
+                                                                    //         1),
+                                                                    fontSize: 16,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w500),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        : const SizedBox
+                                                            .shrink(),
                                                   ],
                                                 ),
-                                                index % 3 == 0
-                                                    ? const Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Aeon card disc",
-                                                            style: TextStyle(
-                                                                // color: Color
-                                                                //     .fromARGB(
-                                                                //         255,
-                                                                //         243,
-                                                                //         109,
-                                                                //         0),
-                                                                fontSize: 16,
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .italic,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                          Text(
-                                                            "-26,568",
-                                                            style: TextStyle(
-                                                                // color: Color
-                                                                //     .fromARGB(
-                                                                //         255,
-                                                                //         243,
-                                                                //         109,
-                                                                //         0),
-                                                                fontSize: 16,
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .italic,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : const SizedBox.shrink(),
-                                                index % 4 == 0
-                                                    ? const Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "PROMO LEBARAN",
-                                                            style: TextStyle(
-                                                                // color: Color
-                                                                //     .fromRGBO(
-                                                                //         14,
-                                                                //         68,
-                                                                //         193,
-                                                                //         1),
-                                                                fontSize: 16,
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .italic,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                          Text(
-                                                            "-32,568",
-                                                            style: TextStyle(
-                                                                // color: Color
-                                                                //     .fromRGBO(
-                                                                //         14,
-                                                                //         68,
-                                                                //         193,
-                                                                //         1),
-                                                                fontSize: 16,
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .italic,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : const SizedBox.shrink(),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    const Divider(
-                                      thickness: 0.5,
-                                      color: Color.fromARGB(100, 118, 118, 118),
-                                    ),
-                                    if (index != state.receiptItems.length - 1)
-                                      const SizedBox(height: 5),
-                                  ],
+                                      // index == indexIsSelect[0] - 1 ||
+                                      //         index == indexIsSelect[0] &&
+                                      //             indexIsSelect[1] == 1
+                                      //     ? const Divider(
+                                      //         height: 1,
+                                      //         thickness: 0.5,
+                                      //         color: Color.fromARGB(
+                                      //             0, 118, 118, 118),
+                                      //       )
+                                      const Divider(
+                                        height: 1,
+                                        thickness: 0.5,
+                                        color:
+                                            Color.fromARGB(100, 118, 118, 118),
+                                      ),
+                                      // if (index !=
+                                      //     state.receiptItems.length - 1)
+                                      //   const SizedBox(height: 5),
+                                    ],
+                                  ),
                                 );
                               },
                             ),
@@ -528,7 +650,9 @@ class _SalesPageState extends State<SalesPage> {
       flex: 4,
       child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: indexIsSelect[1] == 1
+                ? const Color.fromARGB(20, 169, 0, 0)
+                : Colors.white,
             borderRadius: BorderRadius.circular(5),
             boxShadow: const [
               BoxShadow(
@@ -588,9 +712,16 @@ class _SalesPageState extends State<SalesPage> {
                         flex: 2,
                         child: Container(
                           padding: EdgeInsets.fromLTRB(
-                              20, 0, 20, isEditingNewReceiptItemQty ? 10 : 0),
+                              20,
+                              0,
+                              20,
+                              (isEditingNewReceiptItemQty ||
+                                      isUpdatingReceiptItemQty)
+                                  ? 10
+                                  : 0),
                           child: Center(
-                            child: isEditingNewReceiptItemQty
+                            child: (isEditingNewReceiptItemQty ||
+                                    isUpdatingReceiptItemQty)
                                 ? SizedBox(
                                     height: 40,
                                     child: RawKeyboardListener(
@@ -599,8 +730,10 @@ class _SalesPageState extends State<SalesPage> {
                                           _textEditingControllerNewReceiptItemQuantity,
                                           _newReceiptItemQuantityFocusNode,
                                           true),
-                                      focusNode: FocusNode(),
+                                      focusNode:
+                                          FocusNode(canRequestFocus: false),
                                       child: TextField(
+                                        // readOnly: !isEditingReceiptItemQty,
                                         focusNode:
                                             _newReceiptItemQuantityFocusNode,
                                         controller:
@@ -636,40 +769,62 @@ class _SalesPageState extends State<SalesPage> {
                         alignment: Alignment.center,
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                          child: RawKeyboardListener(
-                            onKey: (event) => handlePhysicalKeyboard(
-                                event,
-                                _textEditingControllerNewReceiptItemCode,
-                                _newReceiptItemCodeFocusNode,
-                                false),
-                            focusNode: FocusNode(),
-                            child: SizedBox(
-                              height: 40,
-                              child: TextField(
-                                // "00000001283",
-                                // enabled: false,
-                                autofocus: !isEditingNewReceiptItemQty,
-                                focusNode: _newReceiptItemCodeFocusNode,
-                                controller:
-                                    _textEditingControllerNewReceiptItemCode,
-                                enableInteractiveSelection: false,
-                                // showCursor: false,
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.none,
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.w500),
-                                decoration: const InputDecoration(
-                                    hintText: "Scan or Type an Item Barcode",
-                                    hintStyle: TextStyle(
-                                      fontSize: 18,
-                                      fontStyle: FontStyle.italic,
+                          child: !(isEditingNewReceiptItemQty ||
+                                  isUpdatingReceiptItemQty)
+                              ? RawKeyboardListener(
+                                  onKey: (event) => handlePhysicalKeyboard(
+                                      event,
+                                      _textEditingControllerNewReceiptItemCode,
+                                      _newReceiptItemCodeFocusNode,
+                                      false),
+                                  focusNode: FocusNode(canRequestFocus: false),
+                                  child: SizedBox(
+                                    height: 40,
+                                    child: TextField(
+                                      // "00000001283",
+                                      // enabled: !isEditingReceiptItemQty,
+                                      // readOnly: isEditingReceiptItemQty,
+
+                                      autofocus: true,
+                                      focusNode: _newReceiptItemCodeFocusNode,
+                                      controller:
+                                          _textEditingControllerNewReceiptItemCode,
+                                      enableInteractiveSelection: false,
+                                      // showCursor: false,
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.none,
+                                      style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500),
+                                      decoration: const InputDecoration(
+                                          hintText:
+                                              "Scan or Type an Item Barcode",
+                                          hintStyle: TextStyle(
+                                            fontSize: 18,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                          isCollapsed: true,
+                                          contentPadding:
+                                              EdgeInsets.fromLTRB(0, 0, 0, 10)),
                                     ),
-                                    isCollapsed: true,
-                                    contentPadding:
-                                        EdgeInsets.fromLTRB(0, 0, 0, 10)),
-                              ),
-                            ),
-                          ),
+                                  ),
+                                )
+                              : SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: _textEditingControllerNewReceiptItemCode
+                                          .text.isEmpty
+                                      ? const Text(
+                                          "Scan or Type an Item Barcode",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontStyle: FontStyle.italic))
+                                      : Text(
+                                          _textEditingControllerNewReceiptItemCode
+                                              .text,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(fontSize: 24)),
+                                ),
                         ),
                       ),
                     ),
@@ -935,13 +1090,23 @@ class _SalesPageState extends State<SalesPage> {
                                   borderRadius: BorderRadius.circular(20)),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 0),
-                              child: const Text(
-                                "Ref. 010083",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.assignment_ind_outlined,
+                                      color: Colors.white),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    "rachman01",
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -957,13 +1122,22 @@ class _SalesPageState extends State<SalesPage> {
                                   borderRadius: BorderRadius.circular(20)),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 0),
-                              child: const Text(
-                                "024024",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(Icons.schedule, color: Colors.white),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    "16:39:21",
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -1158,7 +1332,12 @@ class _SalesPageState extends State<SalesPage> {
             Expanded(
               child: SizedBox.expand(
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => CheckoutDialog());
+                  },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
                     // elevation: 5,
@@ -1203,7 +1382,250 @@ class _SalesPageState extends State<SalesPage> {
           Expanded(
             child: SizedBox.expand(
               child: OutlinedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  return showDialog<void>(
+                    context: context,
+                    barrierDismissible: false, // user must tap button!
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Colors.white,
+                        surfaceTintColor: Colors.transparent,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0))),
+                        title: Container(
+                          decoration: const BoxDecoration(
+                            color: ProjectColors.primary,
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(5.0)),
+                          ),
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          child: const Text(
+                            'Select Customer',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          ),
+                        ),
+                        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        contentPadding: EdgeInsets.all(0),
+                        content: Theme(
+                          data: ThemeData(
+                            splashColor: const Color.fromARGB(40, 169, 0, 0),
+                            highlightColor: const Color.fromARGB(40, 169, 0, 0),
+                            colorScheme:
+                                ColorScheme.fromSeed(seedColor: Colors.red),
+                            fontFamily: 'Roboto',
+                            useMaterial3: true,
+                          ),
+                          child: StatefulBuilder(builder: (context, setState) {
+                            return SizedBox(
+                              width: 350,
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15),
+                                    child: TextField(
+                                      onSubmitted: (value) {
+                                        print(value);
+                                        context
+                                            .read<CustomersCubit>()
+                                            .getCustomers(searchKeyword: value);
+                                        _customerInputFocusNode.requestFocus();
+                                      },
+                                      autofocus: true,
+                                      focusNode: _customerInputFocusNode,
+                                      decoration: const InputDecoration(
+                                        suffixIcon: Icon(
+                                          Icons.search,
+                                          size: 16,
+                                        ),
+                                        hintText: "Enter customer's name",
+                                        hintStyle: TextStyle(
+                                          fontSize: 16,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                        // isCollapsed: true,
+                                        // contentPadding:
+                                        //     EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  // Text(
+                                  //   "Name",
+                                  //   textAlign: TextAlign.left,
+                                  // ),
+                                  Expanded(
+                                    child: BlocBuilder<CustomersCubit,
+                                        List<CustomerEntity>>(
+                                      builder: (context, state) {
+                                        if (state.length == 0) {
+                                          return const Expanded(
+                                              child: EmptyList(
+                                            imagePath:
+                                                "assets/images/empty-search.svg",
+                                            sentence:
+                                                "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                                          ));
+                                        }
+                                        return ListView.builder(
+                                            padding: EdgeInsets.all(0),
+                                            itemCount: state.length,
+                                            itemBuilder: ((context, index) {
+                                              final CustomerEntity
+                                                  customerEntity = state[index];
+
+                                              return RadioListTile<
+                                                      CustomerEntity>(
+                                                  activeColor:
+                                                      ProjectColors.primary,
+                                                  hoverColor:
+                                                      ProjectColors.primary,
+                                                  // selected: index == radioValue,
+                                                  selectedTileColor:
+                                                      ProjectColors.primary,
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                    horizontal: 15,
+                                                  ),
+                                                  controlAffinity:
+                                                      ListTileControlAffinity
+                                                          .trailing,
+                                                  value: state[index],
+                                                  groupValue: radioValue,
+                                                  title: Text(
+                                                      customerEntity.custName),
+                                                  subtitle: Text(
+                                                      customerEntity.phone),
+                                                  // shape: RoundedRectangleBorder(
+                                                  //     borderRadius:
+                                                  //         BorderRadius.circular(5)),
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      radioValue = val;
+                                                    });
+                                                  });
+                                            }));
+                                      },
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                        // contentPadding: const EdgeInsets.symmetric(
+                        //     horizontal: 20, vertical: 5),
+                        actions: <Widget>[
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: TextButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary))),
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => Colors.white),
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) =>
+                                                Colors.black.withOpacity(.2))),
+                                onPressed: () {
+                                  setState(() {
+                                    Navigator.of(context).pop();
+                                    Future.delayed(
+                                        const Duration(milliseconds: 200),
+                                        () => _newReceiptItemCodeFocusNode
+                                            .requestFocus());
+                                  });
+                                },
+                                child: const Center(
+                                    child: Text(
+                                  "Cancel",
+                                  style:
+                                      TextStyle(color: ProjectColors.primary),
+                                )),
+                              )),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                  child: TextButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5))),
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => ProjectColors.primary),
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) =>
+                                                Colors.white.withOpacity(.2))),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedCustomer = radioValue;
+                                    Navigator.of(context).pop();
+                                    Future.delayed(
+                                        const Duration(milliseconds: 200),
+                                        () => _newReceiptItemCodeFocusNode
+                                            .requestFocus());
+                                  });
+                                  // try {
+                                  //   final response = await api.trading
+                                  //       .deleteTradingPost(tradingPost.id)
+                                  //       .timeout(const Duration(seconds: 10));
+                                  //   if (response.response.success) {
+                                  //     Helpers.showSnackbar(context,
+                                  //         content:
+                                  //             const Text("Delete success"));
+                                  //   } else {
+                                  //     Helpers.showSnackbar(context,
+                                  //         content: const Text("Delete failed"));
+                                  //   }
+                                  //   Navigator.of(context).pop();
+                                  //   refresh();
+                                  // } catch (e) {
+                                  //   Navigator.of(context).pop();
+                                  //   Navigator.of(context).pop();
+                                  //   Helpers.showSnackbar(context,
+                                  //       content:
+                                  //           const Text("Connection timed out"));
+                                  //   // refresh();
+                                  // }
+                                },
+                                child: const Center(
+                                    child: Text(
+                                  "Select",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                              )),
+                            ],
+                          ),
+                        ],
+                        actionsPadding:
+                            const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      );
+                    },
+                  ).then((value) => setState(() {
+                        radioValue = null;
+                        context.read<CustomersCubit>().clearCustomers();
+                      }));
+                },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
@@ -1216,33 +1638,7 @@ class _SalesPageState extends State<SalesPage> {
                   side: BorderSide.none,
                 ),
                 child: const Text(
-                  "Suspend",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: SizedBox.expand(
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(7),
-                  elevation: 5,
-                  shadowColor: Colors.black87,
-                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  side: BorderSide.none,
-                ),
-                child: const Text(
-                  "Price Override",
+                  "Select Cust.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
@@ -1281,11 +1677,37 @@ class _SalesPageState extends State<SalesPage> {
           Expanded(
             child: SizedBox.expand(
               child: OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(7),
+                  elevation: 5,
+                  shadowColor: Colors.black87,
+                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  side: BorderSide.none,
+                ),
+                child: const Text(
+                  "Remove Item",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
+            child: SizedBox.expand(
+              child: OutlinedButton(
                 onPressed: () => setState(() {
                   if (isEditingNewReceiptItemQty == false) {
                     isEditingNewReceiptItemQty = true;
                     _textEditingControllerNewReceiptItemQuantity.text = "";
-                    _newReceiptItemCodeFocusNode.unfocus();
+                    // _newReceiptItemCodeFocusNode.unfocus();
                     _newReceiptItemQuantityFocusNode.requestFocus();
                   } else {
                     isEditingNewReceiptItemQty = false;
@@ -1302,9 +1724,9 @@ class _SalesPageState extends State<SalesPage> {
                             double.parse(
                                 _textEditingControllerNewReceiptItemQuantity
                                     .text),
-                            2);
+                            3);
 
-                    _newReceiptItemQuantityFocusNode.unfocus();
+                    // _newReceiptItemQuantityFocusNode.unfocus();
                     _newReceiptItemCodeFocusNode.requestFocus();
                   }
                 }),
@@ -1560,6 +1982,37 @@ class _SalesPageState extends State<SalesPage> {
                               curve: Curves.easeOut,
                             );
                           });
+                        } else if (isUpdatingReceiptItemQty) {
+                          context.read<ReceiptCubit>().updateQuantity(
+                              context
+                                  .read<ReceiptCubit>()
+                                  .state
+                                  .receiptItems[indexIsSelect[0]],
+                              double.parse(
+                                  _textEditingControllerNewReceiptItemQuantity
+                                      .text));
+
+                          setState(() {
+                            indexIsSelect = [-1, 0];
+                            _textEditingControllerNewReceiptItemQuantity.text =
+                                "1";
+                            _textEditingControllerNewReceiptItemCode.text = "";
+                            _newReceiptItemQuantityFocusNode.unfocus();
+                            _newReceiptItemCodeFocusNode.requestFocus();
+                          });
+
+                          // setState(() {
+                          //   isUpdatingReceiptItemQty = false;
+                          //   indexIsSelect = [-1, 0];
+
+                          //   _textEditingControllerNewReceiptItemCode.text = "";
+                          //   _textEditingControllerNewReceiptItemQuantity.text =
+                          //       "1";
+
+                          //   _newReceiptItemQuantityFocusNode.unfocus();
+                          //   _newReceiptItemCodeFocusNode.requestFocus();
+                          // }
+                          // );
                         } else if (_newReceiptItemQuantityFocusNode
                             .hasPrimaryFocus) {
                           setState(() {
@@ -1577,7 +2030,7 @@ class _SalesPageState extends State<SalesPage> {
                                     double.parse(
                                         _textEditingControllerNewReceiptItemQuantity
                                             .text),
-                                    2);
+                                    3);
 
                             _newReceiptItemQuantityFocusNode.unfocus();
                             _newReceiptItemCodeFocusNode.requestFocus();
@@ -1614,12 +2067,14 @@ class _SalesPageState extends State<SalesPage> {
           onPressed: () {
             setState(() {
               if (!_newReceiptItemCodeFocusNode.hasPrimaryFocus &&
-                  !isEditingNewReceiptItemQty) {
+                  !isEditingNewReceiptItemQty &&
+                  !isUpdatingReceiptItemQty) {
                 _newReceiptItemCodeFocusNode.requestFocus();
                 _textEditingControllerNewReceiptItemCode.text = buttonNumber;
               } else if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
                 _textEditingControllerNewReceiptItemCode.text += buttonNumber;
-              } else if (isEditingNewReceiptItemQty) {
+              } else if (isEditingNewReceiptItemQty ||
+                  isUpdatingReceiptItemQty) {
                 _textEditingControllerNewReceiptItemQuantity.text +=
                     buttonNumber;
               }
@@ -1671,6 +2126,18 @@ class _SalesPageState extends State<SalesPage> {
               curve: Curves.easeOut,
             );
           });
+        } else if (isUpdatingReceiptItemQty) {
+          context.read<ReceiptCubit>().updateQuantity(
+              context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]],
+              double.parse(_textEditingControllerNewReceiptItemQuantity.text));
+
+          setState(() {
+            indexIsSelect = [-1, 0];
+            _textEditingControllerNewReceiptItemQuantity.text = "1";
+            _textEditingControllerNewReceiptItemCode.text = "";
+            _newReceiptItemQuantityFocusNode.unfocus();
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
         } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
           setState(() {
             isEditingNewReceiptItemQty = false;
@@ -1685,7 +2152,7 @@ class _SalesPageState extends State<SalesPage> {
                         double.parse(
                             _textEditingControllerNewReceiptItemQuantity.text),
                         3);
-            _newReceiptItemQuantityFocusNode.unfocus();
+            // _newReceiptItemQuantityFocusNode.unfocus();
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         }

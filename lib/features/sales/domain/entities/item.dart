@@ -3,46 +3,70 @@ import 'dart:convert';
 
 class ItemEntity {
   final int? id;
-  final String? code;
-  final String? name;
-  final int? price;
+  final String itemName;
+  final String itemCode;
+  final String barcode;
+  final double price;
+  final String toitmId;
+  final String tbitmId;
+  final String tpln2Id;
 
-  const ItemEntity({
-    this.id,
-    this.code,
-    this.name,
-    this.price,
+  ItemEntity({
+    required this.id,
+    required this.itemName,
+    required this.itemCode,
+    required this.barcode,
+    required this.price,
+    required this.toitmId,
+    required this.tbitmId,
+    required this.tpln2Id,
   });
 
   ItemEntity copyWith({
     int? id,
-    String? code,
-    String? name,
-    int? price,
+    String? itemName,
+    String? itemCode,
+    String? barcode,
+    double? price,
+    String? toitmId,
+    String? tbitmId,
+    String? tpln2Id,
   }) {
     return ItemEntity(
       id: id ?? this.id,
-      code: code ?? this.code,
-      name: name ?? this.name,
+      itemName: itemName ?? this.itemName,
+      itemCode: itemCode ?? this.itemCode,
+      barcode: barcode ?? this.barcode,
       price: price ?? this.price,
+      toitmId: toitmId ?? this.toitmId,
+      tbitmId: tbitmId ?? this.tbitmId,
+      tpln2Id: tpln2Id ?? this.tpln2Id,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'code': code,
-      'name': name,
+      'itemName': itemName,
+      'itemCode': itemCode,
+      'barcode': barcode,
       'price': price,
+      'toitmId': toitmId,
+      'tbitmId': tbitmId,
+      'tpln2Id': tpln2Id,
     };
   }
 
   factory ItemEntity.fromMap(Map<String, dynamic> map) {
     return ItemEntity(
-      id: map['id'] as int,
-      code: map['code'] != null ? map['code'] as String : null,
-      name: map['name'] != null ? map['name'] as String : null,
-      price: map['price'] != null ? map['price'] as int : null,
+      id: map['id'] != null ? map['id'] as int : null,
+      itemName: map['itemName'] as String,
+      itemCode: map['itemCode'] as String,
+      barcode: map['barcode'] as String,
+      price: map['price'] as double,
+      toitmId: map['toitmId'] as String,
+      tbitmId: map['tbitmId'] as String,
+      tpln2Id: map['tpln2Id'] as String,
     );
   }
 
@@ -53,7 +77,7 @@ class ItemEntity {
 
   @override
   String toString() {
-    return 'ItemEntity(id: $id, code: $code, name: $name, price: $price)';
+    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id)';
   }
 
   @override
@@ -61,13 +85,24 @@ class ItemEntity {
     if (identical(this, other)) return true;
 
     return other.id == id &&
-        other.code == code &&
-        other.name == name &&
-        other.price == price;
+        other.itemName == itemName &&
+        other.itemCode == itemCode &&
+        other.barcode == barcode &&
+        other.price == price &&
+        other.toitmId == toitmId &&
+        other.tbitmId == tbitmId &&
+        other.tpln2Id == tpln2Id;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ code.hashCode ^ name.hashCode ^ price.hashCode;
+    return id.hashCode ^
+        itemName.hashCode ^
+        itemCode.hashCode ^
+        barcode.hashCode ^
+        price.hashCode ^
+        toitmId.hashCode ^
+        tbitmId.hashCode ^
+        tpln2Id.hashCode;
   }
 }

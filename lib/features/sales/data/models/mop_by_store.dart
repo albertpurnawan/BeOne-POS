@@ -8,14 +8,14 @@ class MOPByStoreFields {
     docId,
     createDate,
     updateDate,
-    tpmt1id,
+    tpmt1Id,
     tostrId,
   ];
 
   static const String docId = "docid";
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
-  static const String tpmt1id = "tpmt1Id";
+  static const String tpmt1Id = "tpmt1Id";
   static const String tostrId = "tostrId";
 }
 
@@ -24,7 +24,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
     required super.docId,
     required super.createDate,
     required super.updateDate,
-    required super.tpmt1id,
+    required super.tpmt1Id,
     required super.tostrId,
   });
 
@@ -34,7 +34,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
       'docid': docId,
       'createdate': createDate.toLocal().toIso8601String(),
       'updatedate': updateDate?.toLocal().toIso8601String(),
-      'tpmt1id': tpmt1id,
+      'tpmt1Id': tpmt1Id,
       'tostrId': tostrId,
     };
   }
@@ -46,7 +46,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate']).toLocal()
           : null,
-      tpmt1id: map['tpmt1id'] != null ? map['tpmt1id'] as String : null,
+      tpmt1Id: map['tpmt1Id'] != null ? map['tpmt1Id'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
     );
   }
@@ -68,7 +68,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
       docId: entity.docId,
       createDate: entity.createDate,
       updateDate: entity.updateDate,
-      tpmt1id: entity.tpmt1id,
+      tpmt1Id: entity.tpmt1Id,
       tostrId: entity.tostrId,
     );
   }

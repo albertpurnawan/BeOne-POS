@@ -60,7 +60,7 @@ class CustomerGroupModel extends CustomerGroupEntity implements BaseModel {
           : null,
       custgroupCode: map['custgroupcode'] as String,
       description: map['description'] as String,
-      maxDiscount: map['maxdiscount'] as double,
+      maxDiscount: map['maxdiscount'].toDouble(),
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
     );
