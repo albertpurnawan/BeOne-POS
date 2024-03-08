@@ -53,8 +53,8 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
-      'createdate': createDate.toLocal().toIso8601String(),
-      'updatedate': updateDate?.toLocal().toIso8601String(),
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'topmtId': topmtId,
       'mopcode': mopCode,
       'description': description,
@@ -70,9 +70,9 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
   factory MeansOfPaymentModel.fromMap(Map<String, dynamic> map) {
     return MeansOfPaymentModel(
       docId: map['docid'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int),
+      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedate'] as int)
+          ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
       topmtId: map['topmtId'] != null ? map['topmtId'] as String : null,
       mopCode: map['mopcode'] as String,

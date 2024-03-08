@@ -329,4 +329,26 @@ const tpln2 = [
     "beforerounding": 0.0,
     "roundingdiff": 0.0
   },
+  {
+    "id": 16,
+    "docid": "xf63c8a4-2e3d-4e98-92fa-01379bf5d942",
+    "createdate": "2023-10-03 08:48:40",
+    "createby": 2,
+    "updatedate": "2023-11-06 03:53:15",
+    "updateby": 2,
+    "lastchanges": 0,
+    "gtentId": 1,
+    "tpln1Id": "x619b901-714d-43d5-84ee-4577b2489f35",
+    "toitmId": "228d02a2-599f-4210-acee-6f86ad44c30f",
+    "tcurrId": "cff4edc0-7612-4681-8d7c-c90e9e97c6dc",
+    "price": 425000.0,
+    "purchaseprice": 0.0,
+    "calculatedprice": 0.0,
+    "marginpercentage": 0.0,
+    "marginvalue": 0.0,
+    "costprice": 0.0,
+    "afterrounding": 0.0,
+    "beforerounding": 0.0,
+    "roundingdiff": 0.0
+  },
 ];

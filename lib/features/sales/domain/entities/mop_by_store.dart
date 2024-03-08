@@ -5,14 +5,14 @@ class MOPByStoreEntity {
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
-  final String? tpmt1id;
+  final String? tpmt1Id;
   final String? tostrId;
 
   MOPByStoreEntity({
     required this.docId,
     required this.createDate,
     required this.updateDate,
-    required this.tpmt1id,
+    required this.tpmt1Id,
     required this.tostrId,
   });
 
@@ -20,14 +20,14 @@ class MOPByStoreEntity {
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
-    String? tpmt1id,
+    String? tpmt1Id,
     String? tostrId,
   }) {
     return MOPByStoreEntity(
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
-      tpmt1id: tpmt1id ?? this.tpmt1id,
+      tpmt1Id: tpmt1Id ?? this.tpmt1Id,
       tostrId: tostrId ?? this.tostrId,
     );
   }
@@ -37,7 +37,7 @@ class MOPByStoreEntity {
       'docId': docId,
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
-      'tpmt1id': tpmt1id,
+      'tpmt1Id': tpmt1Id,
       'tostrId': tostrId,
     };
   }
@@ -49,7 +49,7 @@ class MOPByStoreEntity {
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
-      tpmt1id: map['tpmt1id'] != null ? map['tpmt1id'] as String : null,
+      tpmt1Id: map['tpmt1Id'] != null ? map['tpmt1Id'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
     );
   }
@@ -61,7 +61,7 @@ class MOPByStoreEntity {
 
   @override
   String toString() {
-    return 'MOPByStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpmt1id: $tpmt1id, tostrId: $tostrId)';
+    return 'MOPByStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpmt1Id: $tpmt1Id, tostrId: $tostrId)';
   }
 
   @override
@@ -71,7 +71,7 @@ class MOPByStoreEntity {
     return other.docId == docId &&
         other.createDate == createDate &&
         other.updateDate == updateDate &&
-        other.tpmt1id == tpmt1id &&
+        other.tpmt1Id == tpmt1Id &&
         other.tostrId == tostrId;
   }
 
@@ -80,7 +80,7 @@ class MOPByStoreEntity {
     return docId.hashCode ^
         createDate.hashCode ^
         updateDate.hashCode ^
-        tpmt1id.hashCode ^
+        tpmt1Id.hashCode ^
         tostrId.hashCode;
   }
 }

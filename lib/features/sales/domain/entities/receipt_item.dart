@@ -1,27 +1,23 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:pos_fe/features/sales/domain/entities/item.dart';
+
 class ReceiptItemEntity {
   int? id;
   double quantity;
   int subtotal;
   DateTime? createdAt;
-  int itemId;
-  String itemName;
-  String itemCode;
-  int itemPrice;
+  ItemEntity itemEntity;
   int? receiptId;
 
   ReceiptItemEntity({
-    this.id,
+    required this.id,
     required this.quantity,
     required this.subtotal,
-    this.createdAt,
-    required this.itemId,
-    required this.itemName,
-    required this.itemCode,
-    required this.itemPrice,
-    this.receiptId,
+    required this.createdAt,
+    required this.itemEntity,
+    required this.receiptId,
   });
 
   ReceiptItemEntity copyWith({
@@ -29,10 +25,7 @@ class ReceiptItemEntity {
     double? quantity,
     int? subtotal,
     DateTime? createdAt,
-    int? itemId,
-    String? itemName,
-    String? itemCode,
-    int? itemPrice,
+    ItemEntity? itemEntity,
     int? receiptId,
   }) {
     return ReceiptItemEntity(
@@ -40,10 +33,7 @@ class ReceiptItemEntity {
       quantity: quantity ?? this.quantity,
       subtotal: subtotal ?? this.subtotal,
       createdAt: createdAt ?? this.createdAt,
-      itemId: itemId ?? this.itemId,
-      itemName: itemName ?? this.itemName,
-      itemCode: itemCode ?? this.itemCode,
-      itemPrice: itemPrice ?? this.itemPrice,
+      itemEntity: itemEntity ?? this.itemEntity,
       receiptId: receiptId ?? this.receiptId,
     );
   }
@@ -53,11 +43,8 @@ class ReceiptItemEntity {
       'id': id,
       'quantity': quantity,
       'subtotal': subtotal,
-      'createdAt': createdAt?.toIso8601String(),
-      'itemId': itemId,
-      'itemName': itemName,
-      'itemCode': itemCode,
-      'itemPrice': itemPrice,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'itemEntity': itemEntity.toMap(),
       'receiptId': receiptId,
     };
   }
@@ -67,12 +54,10 @@ class ReceiptItemEntity {
       id: map['id'] != null ? map['id'] as int : null,
       quantity: map['quantity'] as double,
       subtotal: map['subtotal'] as int,
-      createdAt:
-          map['createdAt'] != null ? DateTime.parse(map['createdAt']) : null,
-      itemId: map['itemId'] as int,
-      itemName: map['itemName'] as String,
-      itemCode: map['itemCode'] as String,
-      itemPrice: map['itemPrice'] as int,
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+          : null,
+      itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
       receiptId: map['receiptId'] != null ? map['receiptId'] as int : null,
     );
   }
@@ -84,7 +69,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(id: $id, quantity: $quantity, subtotal: $subtotal, createdAt: $createdAt, itemId: $itemId, itemName: $itemName, itemCode: $itemCode, itemPrice: $itemPrice, receiptId: $receiptId)';
+    return 'ReceiptItemEntity(id: $id, quantity: $quantity, subtotal: $subtotal, createdAt: $createdAt, itemEntity: $itemEntity, receiptId: $receiptId)';
   }
 
   @override
@@ -95,10 +80,7 @@ class ReceiptItemEntity {
         other.quantity == quantity &&
         other.subtotal == subtotal &&
         other.createdAt == createdAt &&
-        other.itemId == itemId &&
-        other.itemName == itemName &&
-        other.itemCode == itemCode &&
-        other.itemPrice == itemPrice &&
+        other.itemEntity == itemEntity &&
         other.receiptId == receiptId;
   }
 
@@ -108,10 +90,7 @@ class ReceiptItemEntity {
         quantity.hashCode ^
         subtotal.hashCode ^
         createdAt.hashCode ^
-        itemId.hashCode ^
-        itemName.hashCode ^
-        itemCode.hashCode ^
-        itemPrice.hashCode ^
+        itemEntity.hashCode ^
         receiptId.hashCode;
   }
 }

@@ -4,11 +4,17 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
+import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_items_cubit.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
@@ -38,7 +44,7 @@ final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   sl.registerSingleton<Dio>(Dio());
-  sl.registerSingleton<AppDatabase>(AppDatabase());
+  sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
 
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
   sl.registerSingleton<ItemBarcodeApi>(ItemBarcodeApi(sl()));
@@ -56,7 +62,8 @@ Future<void> initializeDependencies() async {
   // sl.registerSingleton<StoreApi>(StoreApi(sl()));
   // sl.registerSingleton<TaxApi>(TaxApi(sl()));
   sl.registerSingleton<UsersApi>(UsersApi(sl()));
-  sl.registerSingleton<UsersDao>(UsersDao(sl()));
+  sl.registerSingletonWithDependencies<UsersDao>(() => UsersDao(sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingleton<ItemCategoryApi>(ItemCategoryApi(sl()));
   sl.registerSingleton<ItemsApi>(ItemsApi(sl()));
   sl.registerSingleton<PricelistApi>(PricelistApi(sl()));
@@ -65,13 +72,32 @@ Future<void> initializeDependencies() async {
       ProductHierarchyMasterApi(sl()));
   sl.registerSingleton<ProductHierarchyApi>(ProductHierarchyApi(sl()));
 
-  sl.registerSingleton<ItemRepository>(ItemRepositoryImpl(sl()));
+  sl.registerSingletonWithDependencies<ItemRepository>(
+      () => ItemRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CustomerRepository>(
+      () => CustomerRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<MopSelectionRepository>(
+      () => MopSelectionRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
-  sl.registerSingleton<GetItemsUseCase>(GetItemsUseCase(sl()));
-  sl.registerSingleton<GetItemUseCase>(GetItemUseCase(sl()));
-  sl.registerSingleton<GetItemByBarcodeUseCase>(GetItemByBarcodeUseCase(sl()));
-
-  sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
+  sl.registerSingletonWithDependencies<GetItemsUseCase>(
+      () => GetItemsUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetItemUseCase>(
+      () => GetItemUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetItemByBarcodeUseCase>(
+      () => GetItemByBarcodeUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetCustomersUseCase>(
+      () => GetCustomersUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetMopSelectionsUseCase>(
+      () => GetMopSelectionsUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 
   return;
 }

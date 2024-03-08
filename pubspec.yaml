@@ -74,6 +74,10 @@ flutter:
     - assets/logo/maroon.svg
     - assets/logo/white.svg
     - assets/images/empty-item.svg
+    - assets/images/empty-search.svg
+    - assets/images/barcode-scanner.svg
+    - assets/images/barcode.svg
+    - assets/images/inventory.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

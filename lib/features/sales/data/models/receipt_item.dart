@@ -1,4 +1,5 @@
 import 'package:pos_fe/core/resources/base_model.dart';
+import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
 const String tableReceiptItems = 'receiptitems';
@@ -26,57 +27,37 @@ class ReceiptItemFields {
   static const String receiptId = "receipt_id";
 }
 
-class ReceiptItemModel extends ReceiptItemEntity implements BaseModel {
-  ReceiptItemModel({
-    required double quantity,
-    int? id,
-    required int subtotal,
-    DateTime? createdAt,
-    required int itemId,
-    required String itemName,
-    required String itemCode,
-    required int itemPrice,
-    int? receiptId,
-  }) : super(
-          id: id,
-          quantity: quantity,
-          subtotal: subtotal,
-          createdAt: createdAt,
-          itemId: itemId,
-          itemName: itemName,
-          itemCode: itemCode,
-          itemPrice: itemPrice,
-          receiptId: receiptId,
-        );
-
-  factory ReceiptItemModel.fromMap(Map<String, dynamic> map) {
-    return ReceiptItemModel(
-      id: map['_id'] != null ? map['_id'] as int : null,
-      quantity: map['quantity'] as double,
-      subtotal: map['subtotal'] as int,
-      createdAt: map['createdat'] != null
-          ? DateTime.parse(map['createdat']).toLocal()
-          : null,
-      itemId: map['moitm_id'] as int,
-      itemName: map['itemname'] as String,
-      itemCode: map['itemcode'] as String,
-      itemPrice: map['itemprice'] as int,
-      receiptId: map['receipt_id'] != null ? map['receipt_id'] as int : null,
-    );
-  }
+class ReceiptItemModel extends ReceiptItemEntity {
+  ReceiptItemModel(
+      {required super.id,
+      required super.quantity,
+      required super.subtotal,
+      required super.itemEntity,
+      required super.createdAt,
+      required super.receiptId});
 
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      '_id': id,
+      'id': id,
       'quantity': quantity,
       'subtotal': subtotal,
-      'createdat': createdAt?.toUtc().toIso8601String(),
-      'moitm_id': itemId,
-      'itemname': itemName,
-      'itemcode': itemCode,
-      'itemprice': itemPrice,
-      'receipt_id': receiptId,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'itemEntity': itemEntity.toMap(),
+      'receiptId': receiptId,
     };
+  }
+
+  factory ReceiptItemModel.fromMap(Map<String, dynamic> map) {
+    return ReceiptItemModel(
+      id: map['id'] != null ? map['id'] as int : null,
+      quantity: map['quantity'] as double,
+      subtotal: map['subtotal'] as int,
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+          : null,
+      itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
+      receiptId: map['receiptId'] != null ? map['receiptId'] as int : null,
+    );
   }
 }

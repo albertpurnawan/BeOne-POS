@@ -6,7 +6,12 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 class EmptyList extends StatelessWidget {
   const EmptyList({
     Key? key,
+    required this.imagePath,
+    required this.sentence,
   }) : super(key: key);
+
+  final String imagePath;
+  final String sentence;
 
   @override
   Widget build(BuildContext context) {
@@ -20,29 +25,29 @@ class EmptyList extends StatelessWidget {
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(5)),
         color: Colors.white,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (kIsWeb)
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: ProjectColors.primary.withOpacity(.1),
-                  shape: BoxShape.circle),
-              padding: const EdgeInsets.all(30),
-              child:
-                  SvgPicture.asset("assets/images/empty-item.svg", height: 120),
-            )
-          else
-            SvgPicture.asset("assets/images/empty-item.svg", height: 150),
-          const SizedBox(height: kIsWeb ? 20 : 10),
-          Text(
-              "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  height: 1.4, color: ProjectColors.lightBlack)),
-          if (kIsWeb) const SizedBox(height: 100)
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (kIsWeb)
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: ProjectColors.primary.withOpacity(.1),
+                    shape: BoxShape.circle),
+                padding: const EdgeInsets.all(30),
+                child: SvgPicture.asset(imagePath, height: 120),
+              )
+            else
+              SvgPicture.asset(imagePath, height: 150),
+            const SizedBox(height: kIsWeb ? 20 : 10),
+            Text(sentence,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    height: 1.4, color: ProjectColors.lightBlack)),
+            if (kIsWeb) const SizedBox(height: 100)
+          ],
+        ),
       ),
     );
   }
