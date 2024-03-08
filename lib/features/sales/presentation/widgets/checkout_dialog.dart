@@ -42,12 +42,12 @@ class CheckoutDialog extends StatelessWidget {
         child: const Text(
           'Checkout',
           style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      contentPadding: EdgeInsets.all(0),
-      content: CheckoutDialogContent(),
+      contentPadding: const EdgeInsets.all(0),
+      content: const CheckoutDialogContent(),
 
       // contentPadding: const EdgeInsets.symmetric(
       //     horizontal: 20, vertical: 5),
@@ -212,21 +212,22 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                   Container(
                     width: double.infinity,
                     height: 180,
-                    // color: Color.fromARGB(255, 238, 255, 239), // almost white
+                    // color: Color.fromARGB(255, 237, 237, 237), // almost white
                     // color: Color.fromARGB(255, 43, 144, 49), // ijo
                     // color: const Color.fromARGB(255, 186, 61, 61),
                     // color: Color.fromARGB(255, 184, 102, 102),
                     // color: Color.fromARGB(255, 121, 168, 124), // ijo muda
                     // color: Color.fromARGB(255, 126, 126, 126),
                     color: const Color.fromARGB(255, 134, 1, 1),
+                    // color: ProjectColors.primary,
 
                     // decoration: BoxDecoration(
                     //   boxShadow: [
                     //     const BoxShadow(
-                    //       color: Color.fromARGB(255, 233, 233, 233),
+                    //       color: Color.fromARGB(255, 101, 0, 0),
                     //     ),
                     //     const BoxShadow(
-                    //       color: Color.fromARGB(255, 242, 242, 242),
+                    //       color: const Color.fromARGB(255, 134, 1, 1),
                     //       spreadRadius: -8.0,
                     //       blurRadius: 15.0,
                     //     ),
@@ -236,53 +237,57 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 2),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40),
+                              borderRadius: BorderRadius.circular(60),
                               // color: Color.fromARGB(255, 89, 0, 0),
-
-                              // color: ProjectColors.primary,
+                              boxShadow: const [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 5,
+                                  color: Color.fromRGBO(0, 0, 0, 0.097),
+                                ),
+                              ],
+                              color: ProjectColors.primary,
                               // color: Color.fromARGB(255, 31, 104, 36), // ijo
                               // color: Color.fromARGB(255, 40, 40, 40),
                             ),
-                            child: Text(
+                            child: const Text(
                               "Total Amount",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
+                                // color: Colors.black,
                               ),
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Text(
-                            "Rp " +
-                                Helpers.parseMoney(context
-                                    .read<ReceiptCubit>()
-                                    .state
-                                    .totalPrice),
-                            style: TextStyle(
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPrice)}",
+                            style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.w700,
                               // color: const Color.fromARGB(255, 33, 33, 33),
                               color: Colors.white,
+                              // color: Colors.black,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 30,
                           )
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   Container(
@@ -315,12 +320,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                 children: [
                                   Text(
                                     mopType.name,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 15,
                                   ),
                                   SizedBox(
@@ -341,11 +346,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                               .toInt()),
                                       inputFormatters: [MoneyInputFormatter()],
                                       keyboardType:
-                                          TextInputType.numberWithOptions(
+                                          const TextInputType.numberWithOptions(
                                               signed: false, decimal: false),
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(fontSize: 24),
-                                      decoration: InputDecoration(
+                                      style: const TextStyle(fontSize: 24),
+                                      decoration: const InputDecoration(
                                           contentPadding: EdgeInsets.all(10),
                                           hintText: "Cash Amount",
                                           hintStyle: TextStyle(
@@ -358,7 +363,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                           )),
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   Wrap(
@@ -368,7 +373,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       cashAmountSuggestions.length,
                                       (int index) {
                                         return ChoiceChip(
-                                          side: BorderSide(
+                                          side: const BorderSide(
                                               color: ProjectColors.primary,
                                               width: 1.5),
                                           padding: EdgeInsets.all(20),
@@ -394,7 +399,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       },
                                     ).toList(),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 40,
                                   ),
                                 ],
@@ -409,12 +414,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                               children: [
                                 Text(
                                   mopType.name,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 15,
                                 ),
                                 Wrap(
@@ -425,7 +430,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                     (int index) {
                                       final mop = mopsByType[index];
                                       return ChoiceChip(
-                                        side: BorderSide(
+                                        side: const BorderSide(
                                             color: ProjectColors.primary,
                                             width: 1.5),
                                         padding: EdgeInsets.all(20),
@@ -446,7 +451,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                     },
                                   ).toList(),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 40,
                                 ),
                               ],
@@ -456,7 +461,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
                 ],

@@ -84,7 +84,6 @@ class _SalesPageState extends State<SalesPage> {
   @override
   Widget build(BuildContext context) {
     isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
-    print(isUpdatingReceiptItemQty.toString());
     isEditingReceiptItemQty =
         isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
 
@@ -276,15 +275,15 @@ class _SalesPageState extends State<SalesPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(Icons.stars, color: Colors.white),
-                            SizedBox(
+                            const Icon(Icons.stars, color: Colors.white),
+                            const SizedBox(
                               width: 5,
                             ),
                             Text(
                               selectedCustomer != null
                                   ? selectedCustomer!.custName
                                   : " - ",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
@@ -363,7 +362,7 @@ class _SalesPageState extends State<SalesPage> {
                                           ],
                                         ),
                                       Container(
-                                        padding: EdgeInsets.all(0),
+                                        padding: const EdgeInsets.all(0),
                                         color: index == indexIsSelect[0] &&
                                                 indexIsSelect[1] == 1
                                             ? const Color.fromARGB(
@@ -1333,7 +1332,7 @@ class _SalesPageState extends State<SalesPage> {
                     showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (context) => CheckoutDialog());
+                        builder: (context) => const CheckoutDialog());
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
@@ -1400,7 +1399,7 @@ class _SalesPageState extends State<SalesPage> {
                           child: const Text(
                             'Select Customer',
                             style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 22,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white),
                           ),
@@ -1421,7 +1420,7 @@ class _SalesPageState extends State<SalesPage> {
                               width: 350,
                               child: Column(
                                 children: [
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 15,
                                   ),
                                   Padding(
@@ -1429,7 +1428,6 @@ class _SalesPageState extends State<SalesPage> {
                                         horizontal: 15),
                                     child: TextField(
                                       onSubmitted: (value) {
-                                        print(value);
                                         context
                                             .read<CustomersCubit>()
                                             .getCustomers(searchKeyword: value);
@@ -1453,7 +1451,7 @@ class _SalesPageState extends State<SalesPage> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 15,
                                   ),
                                   // Text(
@@ -1490,7 +1488,8 @@ class _SalesPageState extends State<SalesPage> {
                                                   selectedTileColor:
                                                       ProjectColors.primary,
                                                   contentPadding:
-                                                      EdgeInsets.symmetric(
+                                                      const EdgeInsets
+                                                          .symmetric(
                                                     horizontal: 15,
                                                   ),
                                                   controlAffinity:
