@@ -6,7 +6,9 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/injection_container.dart';
 
@@ -48,6 +50,9 @@ class MyApp extends StatelessWidget {
             BlocProvider<CustomersCubit>(
                 create: (context) =>
                     CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
+            BlocProvider<MopSelectionsCubit>(
+                create: (context) => MopSelectionsCubit(
+                    GetIt.instance<GetMopSelectionsUseCase>())),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {

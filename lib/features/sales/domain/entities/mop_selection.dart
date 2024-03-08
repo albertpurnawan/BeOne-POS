@@ -6,12 +6,16 @@ class MopSelectionEntity {
   final String tpmt1Id;
   final String mopAlias;
   final double? bankCharge;
+  final String? payTypeCode;
+  final String description;
 
   MopSelectionEntity({
     required this.tpmt3Id,
     required this.tpmt1Id,
     required this.mopAlias,
     required this.bankCharge,
+    required this.payTypeCode,
+    required this.description,
   });
 
   MopSelectionEntity copyWith({
@@ -19,12 +23,16 @@ class MopSelectionEntity {
     String? tpmt1Id,
     String? mopAlias,
     double? bankCharge,
+    String? payTypeCode,
+    String? description,
   }) {
     return MopSelectionEntity(
       tpmt3Id: tpmt3Id ?? this.tpmt3Id,
       tpmt1Id: tpmt1Id ?? this.tpmt1Id,
       mopAlias: mopAlias ?? this.mopAlias,
       bankCharge: bankCharge ?? this.bankCharge,
+      payTypeCode: payTypeCode ?? this.payTypeCode,
+      description: description ?? this.description,
     );
   }
 
@@ -34,6 +42,8 @@ class MopSelectionEntity {
       'tpmt1Id': tpmt1Id,
       'mopAlias': mopAlias,
       'bankCharge': bankCharge,
+      'payTypeCode': payTypeCode,
+      'description': description,
     };
   }
 
@@ -44,6 +54,9 @@ class MopSelectionEntity {
       mopAlias: map['mopAlias'] as String,
       bankCharge:
           map['bankCharge'] != null ? map['bankCharge'] as double : null,
+      payTypeCode:
+          map['payTypeCode'] != null ? map['payTypeCode'] as String : null,
+      description: map['description'] as String,
     );
   }
 
@@ -54,7 +67,7 @@ class MopSelectionEntity {
 
   @override
   String toString() {
-    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge)';
+    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description)';
   }
 
   @override
@@ -64,7 +77,9 @@ class MopSelectionEntity {
     return other.tpmt3Id == tpmt3Id &&
         other.tpmt1Id == tpmt1Id &&
         other.mopAlias == mopAlias &&
-        other.bankCharge == bankCharge;
+        other.bankCharge == bankCharge &&
+        other.payTypeCode == payTypeCode &&
+        other.description == description;
   }
 
   @override
@@ -72,6 +87,8 @@ class MopSelectionEntity {
     return tpmt3Id.hashCode ^
         tpmt1Id.hashCode ^
         mopAlias.hashCode ^
-        bankCharge.hashCode;
+        bankCharge.hashCode ^
+        payTypeCode.hashCode ^
+        description.hashCode;
   }
 }

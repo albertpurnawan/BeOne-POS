@@ -9,6 +9,7 @@ import 'package:pos_fe/core/database/seeders_data/tocrg.dart';
 import 'package:pos_fe/core/database/seeders_data/tocus.dart';
 import 'package:pos_fe/core/database/seeders_data/toitm.dart';
 import 'package:pos_fe/core/database/seeders_data/topln.dart';
+import 'package:pos_fe/core/database/seeders_data/topmt.dart';
 import 'package:pos_fe/core/database/seeders_data/tostr.dart';
 import 'package:pos_fe/core/database/seeders_data/touom.dart';
 import 'package:pos_fe/core/database/seeders_data/tovat.dart';
@@ -16,6 +17,8 @@ import 'package:pos_fe/core/database/seeders_data/tphir.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln1.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln2.dart';
 import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
+import 'package:pos_fe/core/database/seeders_data/tpmt1.dart';
+import 'package:pos_fe/core/database/seeders_data/tpmt3.dart';
 import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
@@ -25,6 +28,9 @@ import 'package:pos_fe/features/sales/data/data_sources/local/item_by_store_dao.
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/means_of_payment_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/payment_type_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_barcode_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart';
@@ -160,6 +166,9 @@ class AppDatabase {
   late final StoreMasterDao storeMasterDao;
   late final CustomerGroupDao customerGroupDao;
   late final CustomerDao customerDao;
+  late final PaymentTypeDao paymentTypeDao;
+  late final MeansOfPaymentDao meansOfPaymentDao;
+  late final MOPByStoreDao mopByStoreDao;
 
   AppDatabase._init();
 
@@ -202,6 +211,9 @@ PRAGMA foreign_keys = ON;
     storeMasterDao = StoreMasterDao(_database!);
     customerGroupDao = CustomerGroupDao(_database!);
     customerDao = CustomerDao(_database!);
+    paymentTypeDao = PaymentTypeDao(_database!);
+    meansOfPaymentDao = MeansOfPaymentDao(_database!);
+    mopByStoreDao = MOPByStoreDao(_database!);
 
     currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
     itemCategoryDao
@@ -233,6 +245,12 @@ PRAGMA foreign_keys = ON;
     customerGroupDao
         .bulkCreate(tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
     customerDao.bulkCreate(tocus.map((e) => CustomerModel.fromMap(e)).toList());
+    paymentTypeDao
+        .bulkCreate(topmt.map((e) => PaymentTypeModel.fromMap(e)).toList());
+    meansOfPaymentDao
+        .bulkCreate(tpmt1.map((e) => MeansOfPaymentModel.fromMap(e)).toList());
+    mopByStoreDao
+        .bulkCreate(tpmt3.map((e) => MOPByStoreModel.fromMap(e)).toList());
   }
 
   Future<void> _refreshItemsTable() async {
@@ -1068,11 +1086,11 @@ CREATE TABLE $tableMOPByStore (
   $uuidDefinition,
   ${MOPByStoreFields.createDate} datetime NOT NULL,
   ${MOPByStoreFields.updateDate} datetime DEFAULT NULL,
-  ${MOPByStoreFields.tpmt1id} text DEFAULT NULL,
+  ${MOPByStoreFields.tpmt1Id} text DEFAULT NULL,
   ${MOPByStoreFields.tostrId} text DEFAULT NULL,
   $createdAtDefinition,
-  CONSTRAINT `tpmt3_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tpmt3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tpmt3_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmt3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 

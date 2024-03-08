@@ -1,5 +1,5 @@
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
 
 class MopSelectionRepositoryImpl implements MopSelectionRepository {
@@ -7,8 +7,8 @@ class MopSelectionRepositoryImpl implements MopSelectionRepository {
   MopSelectionRepositoryImpl(this._appDatabase);
 
   @override
-  Future<List<MopSelectionEntity>> getMopSelections() {
+  Future<List<MopSelectionModel>> getMopSelections() async {
     // TODO: implement getMopSelections
-    throw UnimplementedError();
+    return await _appDatabase.mopByStoreDao.readAllIncludeRelations();
   }
 }

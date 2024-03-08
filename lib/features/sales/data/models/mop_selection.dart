@@ -5,14 +5,18 @@ class MopSelectionModel extends MopSelectionEntity {
       {required super.tpmt3Id,
       required super.tpmt1Id,
       required super.mopAlias,
-      required super.bankCharge});
+      required super.bankCharge,
+      required super.payTypeCode,
+      required super.description});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'tpmt3Id': tpmt3Id,
       'tpmt1Id': tpmt1Id,
-      'mopAlias': mopAlias,
-      'bankCharge': bankCharge,
+      'mopalias': mopAlias,
+      'bankcharge': bankCharge,
+      'paytypecode': payTypeCode,
+      'description': description,
     };
   }
 
@@ -20,9 +24,12 @@ class MopSelectionModel extends MopSelectionEntity {
     return MopSelectionModel(
       tpmt3Id: map['tpmt3Id'] as String,
       tpmt1Id: map['tpmt1Id'] as String,
-      mopAlias: map['mopAlias'] as String,
+      mopAlias: map['mopalias'] as String,
       bankCharge:
-          map['bankCharge'] != null ? map['bankCharge'] as double : null,
+          map['bankcharge'] != null ? map['bankcharge'] as double : null,
+      payTypeCode:
+          map['paytypecode'] != null ? map['paytypecode'] as String : null,
+      description: map['description'] as String,
     );
   }
 }
