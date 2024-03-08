@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -15,6 +18,7 @@ class FetchScreen extends StatefulWidget {
 class _FetchScreenState extends State<FetchScreen> {
   final TextEditingController _docIdController = TextEditingController();
   final AuthApi _authApi = AuthApi();
+  final prefs = SharedPreferences.getInstance();
   String _token = '';
   String _singleData = '';
   int _dataCount = 0;

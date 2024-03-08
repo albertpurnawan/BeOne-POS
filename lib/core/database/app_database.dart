@@ -173,6 +173,7 @@ class AppDatabase {
   late final PaymentTypeDao paymentTypeDao;
   late final MeansOfPaymentDao meansOfPaymentDao;
   late final MOPByStoreDao mopByStoreDao;
+  late final UserDao userDao;
 
   AppDatabase._init();
 
@@ -198,6 +199,7 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> _injectDao() async {
+    userAuthDao = UserAuthDao(_database!);
     itemsDao = ItemsDao(_database!);
     currencyDao = CurrencyDao(_database!);
     itemCategoryDao = ItemCategoryDao(_database!);
@@ -218,6 +220,7 @@ PRAGMA foreign_keys = ON;
     paymentTypeDao = PaymentTypeDao(_database!);
     meansOfPaymentDao = MeansOfPaymentDao(_database!);
     mopByStoreDao = MOPByStoreDao(_database!);
+    userDao = UserDao(_database!);
 
     currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
     itemCategoryDao
@@ -246,6 +249,7 @@ PRAGMA foreign_keys = ON;
         .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
     priceByItemBarcodeDao.bulkCreate(
         tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
+    userDao.bulkCreate(tousr.map((e) => UserModel.fromMap(e)).toList());
   }
 
   Future<void> _refreshItemsTable() async {
@@ -256,9 +260,8 @@ DELETE FROM items
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id)
 SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id
 FROM (
-SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
-FROM topln AS pl
-   
+  SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
+  FROM topln AS pl
    INNER JOIN
     (
     SELECT docid AS tpln1Id, toplnId, createdate AS tpln1createdate
@@ -277,29 +280,24 @@ FROM topln AS pl
   WHERE pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc'
   GROUP BY pr.toitmId
 ) as p
-
 INNER JOIN 
   (SELECT tbitmId, price, tpln2Id
   FROM tpln4) as b
 ON p.tpln2Id = b.tpln2Id
-
 INNER JOIN
  (SELECT docid, barcode
  FROM tbitm) as bc
  ON bc.docid = b.tbitmId
-
 INNER JOIN (
-SELECT docid, itemcode, itemname, touomId
-FROM toitm
+  SELECT docid, itemcode, itemname, touomId
+  FROM toitm
 ) as i
 ON i.docid = p.toitmId
-
 INNER JOIN (
-SELECT docid AS touomId, uomcode
-FROM touom
+  SELECT docid AS touomId, uomcode
+  FROM touom
 ) as u
 ON u.touomId = i.touomId
-
 """);
   }
 

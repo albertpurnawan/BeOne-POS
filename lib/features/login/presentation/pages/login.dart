@@ -1,14 +1,14 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/login/domain/repository/authentication.dart';
+import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -52,7 +52,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   late TextEditingController usernameController, passwordController;
-  final AuthRepository _authRepository = AuthRepository();
+  final UserAuthDao authDao = GetIt.instance<AppDatabase>().userAuthDao;
 
   @override
   void initState() {
@@ -107,20 +107,15 @@ class _LoginFormState extends State<LoginForm> {
             child: CustomButton(
                 child: const Text("Login"),
                 onTap: () async {
-                  log("Before >>>>>>>>>");
                   if (!formKey.currentState!.validate()) return;
                   // context.pushNamed(RouteConstants.sales);
-                  final loginSuccess = await _authRepository.login(
+                  final loginSuccess = await authDao.login(
                       usernameController.text, passwordController.text);
-                  // Helpers.navigate(context, SalesPage());
-                  // final login = await Api.of(context).auth.login(
-                  //     usernameController.value.text, passwordController.value.text);
                   if (loginSuccess) {
                     // Check if user is logged in before navigating
-                    final isLoggedIn = await _authRepository.isLoggedIn();
+                    final isLoggedIn = await authDao.isLoggedIn();
                     if (isLoggedIn) {
                       Helpers.navigate(context, SalesPage());
-                      log("Logged <<<<<<<<<<<<<");
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -134,16 +129,6 @@ class _LoginFormState extends State<LoginForm> {
                 }),
           ),
           const SizedBox(height: 15),
-          // Text.rich(TextSpan(children: [
-          //   const TextSpan(text: "Have no account?"),
-          //   TextSpan(
-          //       text: " Register",
-          //       recognizer: TapGestureRecognizer()
-          //         ..onTap =
-          //             () => Helpers.navigate(context, const RegisterScreen()),
-          //       style: const TextStyle(
-          //           color: ProjectColors.swatch, fontWeight: FontWeight.bold)),
-          // ]))
         ]),
       ),
     );
