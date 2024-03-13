@@ -59,24 +59,23 @@ class ZipCodeModel extends ZipCodeEntity implements BaseModel {
     return ZipCodeModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate']).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate']).toLocal()
           : null,
       zipCode: map['zipcode'] as String,
       city: map['city'] as String,
       district: map['district'] as String,
       urban: map['urban'] as String,
-      subDistrict: map['subdistrict'] as String,
-      toprvId: map['toprvId'] != null ? map['phir1Id'] as String : null,
+      subDistrict:
+          map['subdistrict'] != null ? map['subdistrict'] as String : "",
+      toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
     );
   }
 
   factory ZipCodeModel.fromMapRemote(Map<String, dynamic> map) {
     return ZipCodeModel.fromMap({
       ...map,
-      "toprvId": map['toprv_id']['docid'] != null
-          ? map['toprv_id']['docid'] as String
-          : null,
+      "toprvId": map['toprvdocid'] != null ? map['toprvdocid'] as String : null,
     });
   }
 

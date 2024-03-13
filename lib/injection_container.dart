@@ -18,6 +18,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_items_cubit.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/closing_store_transactions_service.dart';
@@ -36,10 +37,12 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_mast
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 
 final sl = GetIt.instance;
 
@@ -53,6 +56,9 @@ Future<void> initializeDependencies() async {
   // sl.registerSingleton<CashRegisterApi>(CashRegisterApi(sl()));
   // sl.registerSingleton<ClosingStoreApi>(ClosingStoreApi(sl()));
   sl.registerSingleton<CurrencyApi>(CurrencyApi(sl()));
+  sl.registerSingleton<CountryApi>(CountryApi(sl()));
+  sl.registerSingleton<ProvinceApi>(ProvinceApi(sl()));
+  sl.registerSingleton<ZipcodeApi>(ZipcodeApi(sl()));
   // sl.registerSingleton<CustomerGroupApi>(CustomerGroupApi(sl()));
   // sl.registerSingleton<CustomerApi>(CustomerApi(sl()));
   // sl.registerSingleton<MOPAdjustmentApi>(MOPAdjustmentApi(sl()));

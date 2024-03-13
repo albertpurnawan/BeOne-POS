@@ -33,25 +33,30 @@ class UserAuthDao extends BaseDao<UserModel> {
     return result.map((itemData) => UserModel.fromMap(itemData)).toList();
   }
 
-  Future<UserModel?> readByUsername(String email) async {
+  Future<UserModel?> readByUsernameOrEmail(String identifier) async {
     final res = await db.query(
       tableName,
       columns: modelFields,
-      where: 'email = ?',
-      whereArgs: [email],
+      where: 'email = ? OR username = ?',
+      whereArgs: [identifier],
     );
 
     return res.isNotEmpty ? UserModel.fromMap(res[0]) : null;
   }
 
-  Future<bool> login(String username, String password) async {
-    bool isLoggedIn = true;
+  Future<bool> login(String identifier, String password) async {
+    bool isLoggedIn = false;
 
-    final UserModel? user = await readByUsername(username);
+    final UserModel? user = await readByUsernameOrEmail(identifier);
 
     if (user != null && password == user.password) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_loggedInKey, true);
+      await prefs.setString('identifier', identifier);
+      final bool? check = prefs.getBool(_loggedInKey);
+      log(check.toString());
+      final String? checkStr = prefs.getString("identifier");
+      log(checkStr.toString());
       isLoggedIn = true;
     }
 
