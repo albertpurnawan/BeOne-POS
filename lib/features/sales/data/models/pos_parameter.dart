@@ -13,6 +13,8 @@ class POSParameterFields {
     tcurrId,
     currCode,
     toplnId,
+    tocsrId,
+    tovatId,
   ];
 
   static const String docId = 'docid';
@@ -23,6 +25,8 @@ class POSParameterFields {
   static const String tcurrId = 'tcurrid';
   static const String currCode = 'currcode';
   static const String toplnId = 'toplnid';
+  static const String tocsrId = "tocsrId";
+  static const String tovatId = "tovatId";
 }
 
 class POSParameterModel extends POSParameterEntity implements BaseModel {
@@ -35,6 +39,8 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
     required super.tcurrId,
     required super.currCode,
     required super.toplnId,
+    required super.tocsrId,
+    required super.tovatId,
   });
 
   @override
@@ -48,6 +54,8 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       'tcurrid': tcurrId,
       'currcode': currCode,
       'toplnid': toplnId,
+      'tocsrId': tocsrId,
+      'tovatId': tovatId,
     };
   }
 
@@ -63,6 +71,8 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       tcurrId: map['tcurrid'] as String,
       currCode: map['currcode'] as String,
       toplnId: map['toplnid'] as String,
+      tocsrId: map['tocsrId'] as String,
+      tovatId: map['tovatId'] as String,
     );
   }
 
@@ -76,6 +86,8 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       tcurrId: entity.tcurrId,
       currCode: entity.currCode,
       toplnId: entity.toplnId,
+      tocsrId: entity.tocsrId,
+      tovatId: entity.tovatId,
     );
   }
 }

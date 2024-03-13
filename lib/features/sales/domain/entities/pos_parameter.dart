@@ -5,21 +5,25 @@ class POSParameterEntity {
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
-  final String tostrId;
+  final String? tostrId;
   final String storeName;
-  final String tcurrId;
+  final String? tcurrId;
   final String currCode;
-  final String toplnId;
+  final String? toplnId;
+  final String? tocsrId;
+  final String? tovatId;
 
   POSParameterEntity({
     required this.docId,
     required this.createDate,
-    this.updateDate,
+    required this.updateDate,
     required this.tostrId,
     required this.storeName,
     required this.tcurrId,
     required this.currCode,
     required this.toplnId,
+    required this.tocsrId,
+    required this.tovatId,
   });
 
   POSParameterEntity copyWith({
@@ -31,6 +35,8 @@ class POSParameterEntity {
     String? tcurrId,
     String? currCode,
     String? toplnId,
+    String? tocsrId,
+    String? tovatId,
   }) {
     return POSParameterEntity(
       docId: docId ?? this.docId,
@@ -41,6 +47,8 @@ class POSParameterEntity {
       tcurrId: tcurrId ?? this.tcurrId,
       currCode: currCode ?? this.currCode,
       toplnId: toplnId ?? this.toplnId,
+      tocsrId: tocsrId ?? this.tocsrId,
+      tovatId: tovatId ?? this.tovatId,
     );
   }
 
@@ -54,6 +62,8 @@ class POSParameterEntity {
       'tcurrId': tcurrId,
       'currCode': currCode,
       'toplnId': toplnId,
+      'tocsrId': tocsrId,
+      'tovatId': tovatId,
     };
   }
 
@@ -64,11 +74,13 @@ class POSParameterEntity {
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
-      tostrId: map['tostrId'] as String,
+      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       storeName: map['storeName'] as String,
-      tcurrId: map['tcurrId'] as String,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       currCode: map['currCode'] as String,
-      toplnId: map['toplnId'] as String,
+      toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
+      tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
+      tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
     );
   }
 
@@ -79,7 +91,7 @@ class POSParameterEntity {
 
   @override
   String toString() {
-    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, storeName: $storeName, tcurrId: $tcurrId, currCode: $currCode, toplnId: $toplnId)';
+    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, storeName: $storeName, tcurrId: $tcurrId, currCode: $currCode, toplnId: $toplnId, tocsrId: $tocsrId, tovatId: $tovatId)';
   }
 
   @override
@@ -93,7 +105,9 @@ class POSParameterEntity {
         other.storeName == storeName &&
         other.tcurrId == tcurrId &&
         other.currCode == currCode &&
-        other.toplnId == toplnId;
+        other.toplnId == toplnId &&
+        other.tocsrId == tocsrId &&
+        other.tovatId == tovatId;
   }
 
   @override
@@ -105,6 +119,8 @@ class POSParameterEntity {
         storeName.hashCode ^
         tcurrId.hashCode ^
         currCode.hashCode ^
-        toplnId.hashCode;
+        toplnId.hashCode ^
+        tocsrId.hashCode ^
+        tovatId.hashCode;
   }
 }

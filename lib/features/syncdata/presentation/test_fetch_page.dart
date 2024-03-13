@@ -12,6 +12,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_servi
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
+import 'package:pos_fe/injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FetchScreen extends StatefulWidget {
@@ -48,16 +49,23 @@ class _FetchScreenState extends State<FetchScreen> {
   void _syncData() async {
     print("Synching data...");
     try {
+      await GetIt.instance<AppDatabase>().emptyDb();
+      print("DB Opened");
       final currencies = await GetIt.instance<CurrencyApi>().fetchData();
       await GetIt.instance<AppDatabase>().currencyDao.bulkCreate(currencies);
       final countries = await GetIt.instance<CountryApi>().fetchData();
       await GetIt.instance<AppDatabase>().countryDao.bulkCreate(countries);
       final provinces = await GetIt.instance<ProvinceApi>().fetchData();
       await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(provinces);
-      final fetched = await GetIt.instance<ZipcodeApi>().fetchData();
-      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(fetched);
+      final zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
+      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(zipcodes);
+
+      var fetched = currencies.length +
+          countries.length +
+          provinces.length +
+          zipcodes.length;
       setState(() {
-        _dataCount = fetched.length;
+        _dataCount = fetched;
       });
       print('Data synched');
     } catch (error) {
