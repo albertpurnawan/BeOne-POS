@@ -54,9 +54,7 @@ class CountryModel extends CountryEntity implements BaseModel {
   factory CountryModel.fromMapRemote(Map<String, dynamic> map) {
     return CountryModel.fromMap({
       ...map,
-      "tcurrId": map['tcurr_id']['docid'] != null
-          ? map['tcurr_id']['docid'] as String
-          : null,
+      "tcurrId": map['tcurrdocid'] != null ? map['tcurrdocid'] as String : null,
     });
   }
 

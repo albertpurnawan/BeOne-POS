@@ -22,6 +22,7 @@ import 'package:pos_fe/core/database/seeders_data/tpmt1.dart';
 import 'package:pos_fe/core/database/seeders_data/tpmt3.dart';
 import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/country_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
@@ -39,10 +40,12 @@ import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_period_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/province_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/user_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/zipcode_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
@@ -155,6 +158,9 @@ class AppDatabase {
   late final UserAuthDao userAuthDao;
   late final ItemsDao itemsDao;
   late final CurrencyDao currencyDao;
+  late final CountryDao countryDao;
+  late final ProvinceDao provinceDao;
+  late final ZipcodeDao zipcodeDao;
   late final TaxMasterDao taxMasterDao;
   late final ProductHierarchyDao productHierarchyDao;
   late final ProductHierarchyMasterDao productHierarchyMasterDao;
@@ -202,6 +208,9 @@ PRAGMA foreign_keys = ON;
     userAuthDao = UserAuthDao(_database!);
     itemsDao = ItemsDao(_database!);
     currencyDao = CurrencyDao(_database!);
+    countryDao = CountryDao(_database!);
+    provinceDao = ProvinceDao(_database!);
+    zipcodeDao = ZipcodeDao(_database!);
     itemCategoryDao = ItemCategoryDao(_database!);
     taxMasterDao = TaxMasterDao(_database!);
     productHierarchyDao = ProductHierarchyDao(_database!);
@@ -222,34 +231,34 @@ PRAGMA foreign_keys = ON;
     mopByStoreDao = MOPByStoreDao(_database!);
     userDao = UserDao(_database!);
 
-    currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
-    itemCategoryDao
-        .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
-    taxMasterDao
-        .bulkCreate(tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
-    productHierarchyDao.bulkCreate(
-        tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
-    productHierarchyMasterDao.bulkCreate(
-        phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
+    // currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
+    // itemCategoryDao
+    //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+    // taxMasterDao
+    //     .bulkCreate(tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
+    // productHierarchyDao.bulkCreate(
+    //     tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
+    // productHierarchyMasterDao.bulkCreate(
+    //     phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
 
-    pricelistDao
-        .bulkCreate(topln.map((e) => PricelistModel.fromMap(e)).toList());
-    pricelistPeriodDao
-        .bulkCreate(tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
-    uomDao.bulkCreate(touom.map((e) => UomModel.fromMap(e)).toList());
-    storeMasterDao
-        .bulkCreate(tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
-    itemMasterDao
-        .bulkCreate(toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
-    itemBarcodeDao
-        .bulkCreate(tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
-    itemByStoreDao
-        .bulkCreate(tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
-    priceByItemDao
-        .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
-    priceByItemBarcodeDao.bulkCreate(
-        tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
-    userDao.bulkCreate(tousr.map((e) => UserModel.fromMap(e)).toList());
+    // pricelistDao
+    //     .bulkCreate(topln.map((e) => PricelistModel.fromMap(e)).toList());
+    // pricelistPeriodDao
+    //     .bulkCreate(tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
+    // uomDao.bulkCreate(touom.map((e) => UomModel.fromMap(e)).toList());
+    // storeMasterDao
+    //     .bulkCreate(tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
+    // itemMasterDao
+    //     .bulkCreate(toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
+    // itemBarcodeDao
+    //     .bulkCreate(tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
+    // itemByStoreDao
+    //     .bulkCreate(tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
+    // priceByItemDao
+    //     .bulkCreate(tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
+    // priceByItemBarcodeDao.bulkCreate(
+    //     tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
+    // userDao.bulkCreate(tousr.map((e) => UserModel.fromMap(e)).toList());
   }
 
   Future<void> _refreshItemsTable() async {
@@ -368,6 +377,7 @@ CREATE TABLE $tableCountry (
   ${CountryFields.countryCode} varchar(30) NOT NULL,
   ${CountryFields.description} varchar(30) NOT NULL,
   ${CountryFields.descriptionFrgn} varchar(30) NOT NULL,
+  ${CountryFields.phoneCode} varchar(5) NOT NULL,
   ${CountryFields.tcurrId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tocry_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -396,7 +406,7 @@ CREATE TABLE $tableZipCode (
   ${ZipCodeFields.zipCode} varchar(30) NOT NULL,
   ${ZipCodeFields.city} varchar(100) NOT NULL,
   ${ZipCodeFields.district} varchar(100) NOT NULL,
-  ${ZipCodeFields.urban} varchar(100) NOT NULL,
+  ${ZipCodeFields.urban} varchar(100) DEFAULT NULL,
   ${ZipCodeFields.subDistrict} varchar(100) NOT NULL,
   ${ZipCodeFields.toprvId} text DEFAULT NULL,
   $createdAtDefinition,

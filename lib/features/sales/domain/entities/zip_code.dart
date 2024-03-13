@@ -8,7 +8,7 @@ class ZipCodeEntity {
   final String zipCode;
   final String city;
   final String district;
-  final String urban;
+  final String? urban;
   final String subDistrict;
   final String? toprvId;
 
@@ -73,7 +73,8 @@ class ZipCodeEntity {
       city: map['city'] as String,
       district: map['district'] as String,
       urban: map['urban'] as String,
-      subDistrict: map['subDistrict'] as String,
+      subDistrict:
+          map['subDistrict'] != null ? map['subDistrict'] as String : "",
       toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
     );
   }

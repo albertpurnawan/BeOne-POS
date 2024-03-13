@@ -105,28 +105,35 @@ class _LoginFormState extends State<LoginForm> {
           Container(
             constraints: BoxConstraints(maxWidth: 400),
             child: CustomButton(
-                child: const Text("Login"),
-                onTap: () async {
-                  if (!formKey.currentState!.validate()) return;
-                  // context.pushNamed(RouteConstants.sales);
-                  final loginSuccess = await authDao.login(
-                      usernameController.text, passwordController.text);
-                  if (loginSuccess) {
-                    // Check if user is logged in before navigating
-                    final isLoggedIn = await authDao.isLoggedIn();
-                    if (isLoggedIn) {
-                      Helpers.navigate(context, SalesPage());
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Login failed. Please try again.'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
+              child: const Text("Login"),
+              onTap: () async {
+                if (!formKey.currentState!.validate()) return;
+                final loginSuccess = await authDao.login(
+                    usernameController.text, passwordController.text);
+                if (loginSuccess) {
+                  final isLoggedIn = await authDao.isLoggedIn();
+                  if (isLoggedIn) {
+                    Helpers.navigate(context, SalesPage());
+                  } else {
+                    // Show snackbar for successful login but failed to persist the login status
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Login failed. Please try again.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
-                  // if (login) api.refresh();
-                }),
+                } else {
+                  // Show snackbar for failed login attempt
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Invalid username or password.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
           ),
           const SizedBox(height: 15),
         ]),

@@ -48,7 +48,7 @@ class ProvinceEntity {
       'provncCode': provncCode,
       'description': description,
       'descriptionFrgn': descriptionFrgn,
-      'tocryId': tocryId,
+      'tocrydocid': tocryId,
     };
   }
 
@@ -62,7 +62,7 @@ class ProvinceEntity {
       provncCode: map['provncCode'] as String,
       description: map['description'] as String,
       descriptionFrgn: map['descriptionFrgn'] as String,
-      tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
+      tocryId: map['tocrydocid'] != null ? map['tocrydocid'] as String : null,
     );
   }
 
@@ -73,7 +73,7 @@ class ProvinceEntity {
 
   @override
   String toString() {
-    return 'ProvinceEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, provncCode: $provncCode, description: $description, descriptionFrgn: $descriptionFrgn, tocryId: $tocryId)';
+    return 'ProvinceEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, provncCode: $provncCode, description: $description, descriptionFrgn: $descriptionFrgn, tocryid: $tocryId)';
   }
 
   @override

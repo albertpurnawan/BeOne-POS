@@ -2,9 +2,15 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +24,7 @@ class FetchScreen extends StatefulWidget {
 class _FetchScreenState extends State<FetchScreen> {
   final TextEditingController _docIdController = TextEditingController();
   final AuthApi _authApi = AuthApi();
-  final prefs = SharedPreferences.getInstance();
+
   String _token = '';
   String _singleData = '';
   int _dataCount = 0;
@@ -42,9 +48,16 @@ class _FetchScreenState extends State<FetchScreen> {
   void _syncData() async {
     print("Synching data...");
     try {
-      final data = await GetIt.instance<UsersDao>().upsertDataFromAPI();
+      final currencies = await GetIt.instance<CurrencyApi>().fetchData();
+      await GetIt.instance<AppDatabase>().currencyDao.bulkCreate(currencies);
+      final countries = await GetIt.instance<CountryApi>().fetchData();
+      await GetIt.instance<AppDatabase>().countryDao.bulkCreate(countries);
+      final provinces = await GetIt.instance<ProvinceApi>().fetchData();
+      await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(provinces);
+      final fetched = await GetIt.instance<ZipcodeApi>().fetchData();
+      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(fetched);
       setState(() {
-        _dataCount = data.length;
+        _dataCount = fetched.length;
       });
       print('Data synched');
     } catch (error) {
@@ -55,7 +68,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<UoMApi>().fetchData();
+      final data = await GetIt.instance<ProvinceApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
