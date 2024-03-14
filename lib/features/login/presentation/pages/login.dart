@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -49,6 +52,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   late TextEditingController usernameController, passwordController;
+  final UserAuthDao authDao = GetIt.instance<AppDatabase>().userAuthDao;
 
   @override
   void initState() {
@@ -101,28 +105,37 @@ class _LoginFormState extends State<LoginForm> {
           Container(
             constraints: BoxConstraints(maxWidth: 400),
             child: CustomButton(
-                child: const Text("Login"),
-                onTap: () async {
-                  if (!formKey.currentState!.validate()) return;
-                  // context.pushNamed(RouteConstants.sales);
-                  Helpers.navigate(context, SalesPage());
-                  // final login = await Api.of(context).auth.login(
-                  //     usernameController.value.text, passwordController.value.text);
-
-                  // if (login) api.refresh();
-                }),
+              child: const Text("Login"),
+              onTap: () async {
+                if (!formKey.currentState!.validate()) return;
+                final loginSuccess = await authDao.login(
+                    usernameController.text, passwordController.text);
+                if (loginSuccess) {
+                  final isLoggedIn = await authDao.isLoggedIn();
+                  if (isLoggedIn) {
+                    Helpers.navigate(context, SalesPage());
+                  } else {
+                    // Show snackbar for successful login but failed to persist the login status
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Login failed. Please try again.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } else {
+                  // Show snackbar for failed login attempt
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Invalid username or password.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
           ),
           const SizedBox(height: 15),
-          // Text.rich(TextSpan(children: [
-          //   const TextSpan(text: "Have no account?"),
-          //   TextSpan(
-          //       text: " Register",
-          //       recognizer: TapGestureRecognizer()
-          //         ..onTap =
-          //             () => Helpers.navigate(context, const RegisterScreen()),
-          //       style: const TextStyle(
-          //           color: ProjectColors.swatch, fontWeight: FontWeight.bold)),
-          // ]))
         ]),
       ),
     );

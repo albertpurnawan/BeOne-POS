@@ -19,7 +19,7 @@ class ProvinceFields {
   static const String updateDate = "updatedate";
   static const String provncCode = "provnccode";
   static const String description = "description";
-  static const String descriptionFrgn = "descriptionFrgn";
+  static const String descriptionFrgn = "descriptionfrgn";
   static const String tocryId = "tocryId";
 }
 
@@ -50,9 +50,7 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
   factory ProvinceModel.fromMapRemote(Map<String, dynamic> map) {
     return ProvinceModel.fromMap({
       ...map,
-      "tocryId": map['tocry_id']['docid'] != null
-          ? map['tocry_id']['docid'] as String
-          : null,
+      "tocryId": map['tocrydocid'] != null ? map['tocrydocid'] as String : null,
     });
   }
 
@@ -65,7 +63,7 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
           : null,
       provncCode: map['provnccode'] as String,
       description: map['description'] as String,
-      descriptionFrgn: map['descriptionFrgn'] as String,
+      descriptionFrgn: map['descriptionfrgn'] as String,
       tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
     );
   }

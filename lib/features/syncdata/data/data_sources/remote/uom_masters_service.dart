@@ -2,15 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/uom.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UoMApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
+  final prefs = SharedPreferences.getInstance();
 
   UoMApi(this._dio);
 
   Future<List<UomModel>> fetchData() async {
+    // ('_loggedInKey');
     try {
       int page = 1;
       bool hasMoreData = true;
