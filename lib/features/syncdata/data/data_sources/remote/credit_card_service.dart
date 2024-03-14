@@ -3,20 +3,21 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/uom.dart';
+import 'package:pos_fe/features/sales/data/models/credit_card.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 
-class UoMApi {
+class CreditCardApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  UoMApi(this._dio);
+  CreditCardApi(this._dio);
 
-  Future<List<UomModel>> fetchData() async {
+  Future<List<CreditCardModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<UomModel> allData = [];
+      List<CreditCardModel> allData = [];
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -26,10 +27,7 @@ class UoMApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[0]['docid'],
-        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
-      };
+      final exeData = {"docid": response.data[13]['docid'], "parameter": []};
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
@@ -37,10 +35,11 @@ class UoMApi {
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      // log(resp.data['data'].toString());
+      log(resp.data['data'].toString());
 
-      List<UomModel> data =
-          (resp.data['data'] as List).map((e) => UomModel.fromMap(e)).toList();
+      List<CreditCardModel> data = (resp.data['data'] as List)
+          .map((e) => CreditCardModel.fromMap(e))
+          .toList();
       allData.addAll(data);
 
       return allData;
@@ -50,7 +49,7 @@ class UoMApi {
     }
   }
 
-  Future<UomModel> fetchSingleData(String docid) async {
+  Future<CreditCardModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
         "$url/tenant-master-currency/$docid",
@@ -63,7 +62,7 @@ class UoMApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      UomModel datum = UomModel.fromMap(response.data);
+      CreditCardModel datum = CreditCardModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

@@ -23,9 +23,11 @@ import 'package:pos_fe/core/database/seeders_data/tpmt3.dart';
 import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/country_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/credit_card_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/employee_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_barcode_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
@@ -163,7 +165,9 @@ class AppDatabase {
   late final CountryDao countryDao;
   late final ProvinceDao provinceDao;
   late final ZipcodeDao zipcodeDao;
+  late final EmployeeDao employeeDao;
   late final TaxMasterDao taxMasterDao;
+  late final CreditCardDao creditCardDao;
   late final ProductHierarchyDao productHierarchyDao;
   late final ProductHierarchyMasterDao productHierarchyMasterDao;
   late final ItemCategoryDao itemCategoryDao;
@@ -227,8 +231,10 @@ PRAGMA foreign_keys = ON;
     countryDao = CountryDao(_database!);
     provinceDao = ProvinceDao(_database!);
     zipcodeDao = ZipcodeDao(_database!);
+    employeeDao = EmployeeDao(_database!);
     itemCategoryDao = ItemCategoryDao(_database!);
     taxMasterDao = TaxMasterDao(_database!);
+    creditCardDao = CreditCardDao(_database!);
     productHierarchyDao = ProductHierarchyDao(_database!);
     productHierarchyMasterDao = ProductHierarchyMasterDao(_database!);
     uomDao = UomDao(_database!);
@@ -668,23 +674,23 @@ CREATE TABLE $tableEmployee (
   ${EmployeeFields.addr1} varchar(200) NOT NULL,
   ${EmployeeFields.addr2} varchar(200) DEFAULT NULL,
   ${EmployeeFields.addr3} varchar(200) DEFAULT NULL,
-  ${EmployeeFields.city} text NOT NULL,
-  ${EmployeeFields.remarks} text DEFAULT NULL,
+  ${EmployeeFields.city} varchar(100) NOT NULL,
+  ${EmployeeFields.remarks} text,
   ${EmployeeFields.toprvId} text DEFAULT NULL,
   ${EmployeeFields.tocryId} text DEFAULT NULL,
   ${EmployeeFields.tozcdId} text DEFAULT NULL,
   ${EmployeeFields.idCard} varchar(30) NOT NULL,
   ${EmployeeFields.gender} varchar(1) NOT NULL,
-  ${EmployeeFields.birthdate} text NOT NULL,
-  ${EmployeeFields.photo} blob NOT NULL,
-  ${EmployeeFields.joinDate} datetime NOT NULL,
-  ${EmployeeFields.resignDate} datetime NOT NULL,
+  ${EmployeeFields.birthdate} date NOT NULL,
+  ${EmployeeFields.photo} blob,
+  ${EmployeeFields.joinDate} date NOT NULL,
+  ${EmployeeFields.resignDate} date DEFAULT NULL,
   ${EmployeeFields.statusActive} int NOT NULL,
   ${EmployeeFields.activated} int NOT NULL,
   ${EmployeeFields.empDept} varchar(200) NOT NULL,
   ${EmployeeFields.empTitle} varchar(200) NOT NULL,
   ${EmployeeFields.empWorkplace} varchar(200) NOT NULL,
-  ${EmployeeFields.empdDebt} double NOT NULL,
+  ${EmployeeFields.empDebt} double NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tohem_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tohem_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -802,7 +808,7 @@ CREATE TABLE $tableVendorGroup (
   ${VendorGroupFields.description} varchar(100) NOT NULL,
   ${VendorGroupFields.maxDiscount} double NOT NULL,
   ${VendorGroupFields.statusActive} int NOT NULL,
-  `${VendorGroupFields.activated} int NOT NULL,
+  ${VendorGroupFields.activated} int NOT NULL,
   ${VendorGroupFields.sync} int NOT NULL DEFAULT '0',
   $createdAtDefinition
 )
@@ -1021,7 +1027,7 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.toplnId} text DEFAULT NULL,
   ${StoreMasterFields.storePic} blob,
   ${StoreMasterFields.tovatId} text DEFAULT NULL,
-  ${StoreMasterFields.storeOpen} date NOT NULL,
+  ${StoreMasterFields.storeOpening} date NOT NULL,
   ${StoreMasterFields.statusActive} int NOT NULL,
   ${StoreMasterFields.activated} int NOT NULL,
   ${StoreMasterFields.prefixDoc} varchar(30) DEFAULT '',
@@ -1060,37 +1066,17 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.mtxline02} varchar(100) DEFAULT '',
   ${StoreMasterFields.mtxline03} varchar(100) DEFAULT '',
   ${StoreMasterFields.mtxline04} varchar(100) DEFAULT '',
-  ${StoreMasterFields.storeEpicPath} text,
-  ${StoreMasterFields.attendaceFp} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.autoDownload} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.autoDownload1} datetime DEFAULT NULL,
-  ${StoreMasterFields.autoDownload2} datetime DEFAULT NULL,
-  ${StoreMasterFields.autoDownload3} datetime DEFAULT NULL,
-  ${StoreMasterFields.autoSync} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.autoUpload} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.checkSellingPrice} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.checkStockMinus} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.creditTaxCodeId} text DEFAULT NULL,
-  ${StoreMasterFields.maxVoidDays} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.qtyMinusValidation} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.roundingRemarks} varchar(10) DEFAULT 'Donasi',
-  ${StoreMasterFields.searchItem} int NOT NULL DEFAULT '1',
-  ${StoreMasterFields.vdfLine1} varchar(20) DEFAULT NULL,
-  ${StoreMasterFields.vdfLine1Off} varchar(20) DEFAULT NULL,
-  ${StoreMasterFields.vdfLine2} varchar(20) DEFAULT NULL,
-  ${StoreMasterFields.vdfLine2Off} varchar(20) DEFAULT NULL,
-  ${StoreMasterFields.isStore} int NOT NULL DEFAULT '1',
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tostr_credittaxcodeId_fkey` FOREIGN KEY (`credittaxcodeId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_tpmt1Id_fkey` FOREIGN KEY (`tpmt1Id`) REFERENCES `tpmt1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+// CONSTRAINT `tostr_credittaxcodeId_fkey` FOREIGN KEY (`credittaxcodeId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 
         await txn.execute('''
 CREATE TABLE $tableItems (

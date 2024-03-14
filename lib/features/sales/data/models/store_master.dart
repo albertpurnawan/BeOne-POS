@@ -26,7 +26,7 @@ class StoreMasterFields {
     toplnId,
     storePic,
     tovatId,
-    storeOpen,
+    storeOpening,
     statusActive,
     activated,
     prefixDoc,
@@ -65,26 +65,6 @@ class StoreMasterFields {
     mtxline02,
     mtxline03,
     mtxline04,
-    storeEpicPath,
-    attendaceFp,
-    autoDownload,
-    autoDownload1,
-    autoDownload2,
-    autoDownload3,
-    autoSync,
-    autoUpload,
-    checkSellingPrice,
-    checkStockMinus,
-    creditTaxCodeId,
-    maxVoidDays,
-    qtyMinusValidation,
-    roundingRemarks,
-    searchItem,
-    vdfLine1,
-    vdfLine1Off,
-    vdfLine2,
-    vdfLine2Off,
-    isStore,
   ];
 
   static const String docId = 'docid';
@@ -108,7 +88,7 @@ class StoreMasterFields {
   static const String toplnId = 'toplnId';
   static const String storePic = 'storepic';
   static const String tovatId = 'tovatId';
-  static const String storeOpen = 'storeopen';
+  static const String storeOpening = 'storeOpening';
   static const String statusActive = 'statusactive';
   static const String activated = 'activated';
   static const String prefixDoc = 'prefixdoc';
@@ -147,110 +127,71 @@ class StoreMasterFields {
   static const String mtxline02 = 'mtxline02';
   static const String mtxline03 = 'mtxline03';
   static const String mtxline04 = 'mtxline04';
-  static const String storeEpicPath = 'storeepicpath';
-  static const String attendaceFp = 'attendacefp';
-  static const String autoDownload = 'autodownload';
-  static const String autoDownload1 = 'autodownload1';
-  static const String autoDownload2 = 'autodownload2';
-  static const String autoDownload3 = 'autodownload3';
-  static const String autoSync = 'autosync';
-  static const String autoUpload = 'autoupload';
-  static const String checkSellingPrice = 'checksellingprice';
-  static const String checkStockMinus = 'checkstockminus';
-  static const String creditTaxCodeId = 'creditTaxCodeId';
-  static const String maxVoidDays = 'maxvoiddays';
-  static const String qtyMinusValidation = 'qtyminusvalidation';
-  static const String roundingRemarks = 'roundingremarks';
-  static const String searchItem = 'searchitem';
-  static const String vdfLine1 = 'vdfline1';
-  static const String vdfLine1Off = 'vdfline1off';
-  static const String vdfLine2 = 'vdfline2';
-  static const String vdfLine2Off = 'vdfline2off';
-  static const String isStore = 'isstore';
 }
 
 class StoreMasterModel extends StoreMasterEntity implements BaseModel {
-  StoreMasterModel(
-      {required super.docId,
-      required super.createDate,
-      required super.updateDate,
-      required super.storeCode,
-      required super.storeName,
-      required super.email,
-      required super.phone,
-      required super.addr1,
-      required super.addr2,
-      required super.addr3,
-      required super.city,
-      required super.remarks,
-      required super.toprvId,
-      required super.tocryId,
-      required super.tozcdlId,
-      required super.tohemId,
-      required super.sqm,
-      required super.tcurrId,
-      required super.toplnId,
-      required super.storePic,
-      required super.tovatId,
-      required super.storeOpen,
-      required super.statusActive,
-      required super.activated,
-      required super.prefixDoc,
-      required super.header01,
-      required super.header02,
-      required super.header03,
-      required super.header04,
-      required super.header05,
-      required super.footer01,
-      required super.footer02,
-      required super.footer03,
-      required super.footer04,
-      required super.footer05,
-      required super.sellingTax,
-      required super.openingBalance,
-      required super.autoRounding,
-      required super.roundingValue,
-      required super.totalMinus,
-      required super.totalZero,
-      required super.holdStruck,
-      required super.holdClose,
-      required super.autoPrintStruk,
-      required super.barcode1,
-      required super.barcode2,
-      required super.barcode3,
-      required super.barcode4,
-      required super.connectBack,
-      required super.maxUserKassa,
-      required super.stockLevel,
-      required super.minConst,
-      required super.maxConst,
-      required super.orderCycle,
-      required super.taxBy,
-      required super.tpmt1Id,
-      required super.mtxline01,
-      required super.mtxline02,
-      required super.mtxline03,
-      required super.mtxline04,
-      required super.storeEpicPath,
-      required super.attendaceFp,
-      required super.autoDownload,
-      required super.autoDownload1,
-      required super.autoDownload2,
-      required super.autoDownload3,
-      required super.autoSync,
-      required super.autoUpload,
-      required super.checkSellingPrice,
-      required super.checkStockMinus,
-      required super.creditTaxCodeId,
-      required super.maxVoidDays,
-      required super.qtyMinusValidation,
-      required super.roundingRemarks,
-      required super.searchItem,
-      required super.vdfLine1,
-      required super.vdfLine1Off,
-      required super.vdfLine2,
-      required super.vdfLine2Off,
-      required super.isStore});
+  StoreMasterModel({
+    required super.docId,
+    required super.createDate,
+    required super.updateDate,
+    required super.storeCode,
+    required super.storeName,
+    required super.email,
+    required super.phone,
+    required super.addr1,
+    required super.addr2,
+    required super.addr3,
+    required super.city,
+    required super.remarks,
+    required super.toprvId,
+    required super.tocryId,
+    required super.tozcdlId,
+    required super.tohemId,
+    required super.sqm,
+    required super.tcurrId,
+    required super.toplnId,
+    required super.storePic,
+    required super.tovatId,
+    required super.storeOpening,
+    required super.statusActive,
+    required super.activated,
+    required super.prefixDoc,
+    required super.header01,
+    required super.header02,
+    required super.header03,
+    required super.header04,
+    required super.header05,
+    required super.footer01,
+    required super.footer02,
+    required super.footer03,
+    required super.footer04,
+    required super.footer05,
+    required super.sellingTax,
+    required super.openingBalance,
+    required super.autoRounding,
+    required super.roundingValue,
+    required super.totalMinus,
+    required super.totalZero,
+    required super.holdStruck,
+    required super.holdClose,
+    required super.autoPrintStruk,
+    required super.barcode1,
+    required super.barcode2,
+    required super.barcode3,
+    required super.barcode4,
+    required super.connectBack,
+    required super.maxUserKassa,
+    required super.stockLevel,
+    required super.minConst,
+    required super.maxConst,
+    required super.orderCycle,
+    required super.taxBy,
+    required super.tpmt1Id,
+    required super.mtxline01,
+    required super.mtxline02,
+    required super.mtxline03,
+    required super.mtxline04,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -276,7 +217,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'toplnId': toplnId,
       'storepic': storePic,
       'tovatId': tovatId,
-      'storeopen': storeOpen.toUtc().toIso8601String(),
+      'storeOpening': storeOpening.toUtc().toIso8601String(),
       'statusactive': statusActive,
       'activated': activated,
       'prefixdoc': prefixDoc,
@@ -315,26 +256,6 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'mtxline02': mtxline02,
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
-      'storeepicpath': storeEpicPath,
-      'attendacefp': attendaceFp,
-      'autodownload': autoDownload,
-      'autodownload1': autoDownload1?.toUtc().toIso8601String(),
-      'autodownload2': autoDownload2?.toUtc().toIso8601String(),
-      'autodownload3': autoDownload3?.toUtc().toIso8601String(),
-      'autosync': autoSync,
-      'autoupload': autoUpload,
-      'checksellingprice': checkSellingPrice,
-      'checkstockminus': checkStockMinus,
-      'creditTaxCodeId': creditTaxCodeId,
-      'maxvoiddays': maxVoidDays,
-      'qtyminusvalidation': qtyMinusValidation,
-      'roundingremarks': roundingRemarks,
-      'searchitem': searchItem,
-      'vdfline1': vdfLine1,
-      'vdfline1off': vdfLine1Off,
-      'vdfline2': vdfLine2,
-      'vdfline2off': vdfLine2Off,
-      'isstore': isStore,
     };
   }
 
@@ -363,7 +284,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
       storePic: map['storepic'] as dynamic,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      storeOpen: DateTime.parse(map['storeopen'] as String),
+      storeOpening: DateTime.parse(map['storeOpening'] as String),
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       prefixDoc: map['prefixdoc'] != null ? map['prefixdoc'] as String : null,
@@ -410,39 +331,6 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       mtxline02: map['mtxline02'] != null ? map['mtxline02'] as String : null,
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
-      storeEpicPath:
-          map['storeepicpath'] != null ? map['storeepicpath'] as String : null,
-      attendaceFp: map['attendacefp'] as int,
-      autoDownload: map['autodownload'] as int,
-      autoDownload1: map['autodownload1'] != null
-          ? DateTime.parse(map['autodownload1'] as String)
-          : null,
-      autoDownload2: map['autodownload2'] != null
-          ? DateTime.parse(map['autodownload2'] as String)
-          : null,
-      autoDownload3: map['autodownload3'] != null
-          ? DateTime.parse(map['autodownload3'] as String)
-          : null,
-      autoSync: map['autosync'] as int,
-      autoUpload: map['autoupload'] as int,
-      checkSellingPrice: map['checksellingprice'] as int,
-      checkStockMinus: map['checkstockminus'] as int,
-      creditTaxCodeId: map['creditTaxCodeId'] != null
-          ? map['creditTaxCodeId'] as String
-          : null,
-      maxVoidDays: map['maxvoiddays'] as int,
-      qtyMinusValidation: map['qtyminusvalidation'] as int,
-      roundingRemarks: map['roundingremarks'] != null
-          ? map['roundingremarks'] as String
-          : null,
-      searchItem: map['searchitem'] as int,
-      vdfLine1: map['vdfline1'] != null ? map['vdfline1'] as String : null,
-      vdfLine1Off:
-          map['vdfline1off'] != null ? map['vdfline1off'] as String : null,
-      vdfLine2: map['vdfline2'] != null ? map['vdfline2'] as String : null,
-      vdfLine2Off:
-          map['vdfline2off'] != null ? map['vdfline2off'] as String : null,
-      isStore: map['isstore'] as int,
     );
   }
 
@@ -490,5 +378,70 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "minconst": map['minconst'].toDouble() as double,
       "maxconst": map['maxconst'].toDouble() as double,
     });
+  }
+
+  factory StoreMasterModel.fromEntity(StoreMasterEntity entity) {
+    return StoreMasterModel(
+      docId: entity.docId,
+      createDate: entity.createDate,
+      updateDate: entity.updateDate,
+      storeCode: entity.storeCode,
+      storeName: entity.storeName,
+      email: entity.email,
+      phone: entity.phone,
+      addr1: entity.addr1,
+      addr2: entity.addr2,
+      addr3: entity.addr3,
+      city: entity.city,
+      remarks: entity.remarks,
+      toprvId: entity.toprvId,
+      tocryId: entity.tocryId,
+      tozcdlId: entity.tozcdlId,
+      tohemId: entity.tohemId,
+      sqm: entity.sqm,
+      tcurrId: entity.tcurrId,
+      toplnId: entity.toplnId,
+      storePic: entity.storePic,
+      tovatId: entity.tovatId,
+      storeOpening: entity.storeOpening,
+      statusActive: entity.statusActive,
+      activated: entity.activated,
+      prefixDoc: entity.prefixDoc,
+      header01: entity.header01,
+      header02: entity.header02,
+      header03: entity.header03,
+      header04: entity.header04,
+      header05: entity.header05,
+      footer01: entity.footer01,
+      footer02: entity.footer02,
+      footer03: entity.footer03,
+      footer04: entity.footer04,
+      footer05: entity.footer05,
+      sellingTax: entity.sellingTax,
+      openingBalance: entity.openingBalance,
+      autoRounding: entity.autoRounding,
+      roundingValue: entity.roundingValue,
+      totalMinus: entity.totalMinus,
+      totalZero: entity.totalZero,
+      holdStruck: entity.holdStruck,
+      holdClose: entity.holdClose,
+      autoPrintStruk: entity.autoPrintStruk,
+      barcode1: entity.barcode1,
+      barcode2: entity.barcode2,
+      barcode3: entity.barcode3,
+      barcode4: entity.barcode4,
+      connectBack: entity.connectBack,
+      maxUserKassa: entity.maxUserKassa,
+      stockLevel: entity.stockLevel,
+      minConst: entity.minConst,
+      maxConst: entity.maxConst,
+      orderCycle: entity.orderCycle,
+      taxBy: entity.taxBy,
+      tpmt1Id: entity.tpmt1Id,
+      mtxline01: entity.mtxline01,
+      mtxline02: entity.mtxline02,
+      mtxline03: entity.mtxline03,
+      mtxline04: entity.mtxline04,
+    );
   }
 }

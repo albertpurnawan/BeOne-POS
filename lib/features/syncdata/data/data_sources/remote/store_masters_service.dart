@@ -1,68 +1,76 @@
-// import 'package:dio/dio.dart';
-// import 'package:pos_fe/core/constants/constants.dart';
-// import 'package:pos_fe/core/usecases/error_handler.dart';
-// import 'package:sqflite/sqflite.dart';
+import 'dart:developer';
 
-// class StoreApi {
-//   final Dio _dio;
-//   String token = Constant.token;
-//   String url = Constant.url;
+import 'package:dio/dio.dart';
+import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/store_master.dart';
 
-//   StoreApi(this._dio);
+class StoreMasterApi {
+  final Dio _dio;
+  String token = Constant.token;
+  String url = Constant.url;
 
-//   Future<List<StoreModel>> fetchData() async {
-//     try {
-//       int page = 1;
-//       bool hasMoreData = true;
-//       List<StoreModel> allData = [];
+  StoreMasterApi(this._dio);
 
-//       while (hasMoreData) {
-//         final response = await _dio.get(
-//           "$url/tenant-store-master?page=$page",
-//           options: Options(
-//             headers: {
-//               'Authorization': 'Bearer $token',
-//             },
-//           ),
-//         );
+  Future<List<StoreMasterModel>> fetchData() async {
+    try {
+      int page = 1;
+      bool hasMoreData = true;
+      List<StoreMasterModel> allData = [];
 
-//         final List<StoreModel> data =
-//             (response.data as List).map((e) => StoreModel.fromMap(e)).toList();
-//         // log(check.toString());
-//         allData.addAll(data);
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {
+        "docid": response.data[0]['docid'],
+        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
+      };
+      // log(exeData.toString());
 
-//         if (data.isEmpty) {
-//           hasMoreData = false;
-//         } else {
-//           page++;
-//         }
-//       }
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      // log(resp.data['data'].toString());
 
-//       return allData;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
+      List<StoreMasterModel> data = (resp.data['data'] as List)
+          .map((e) => StoreMasterModel.fromMapRemote(e))
+          .toList();
+      allData.addAll(data);
 
-//   Future<StoreModel> fetchSingleData(String docid) async {
-//     try {
-//       final response = await _dio.get(
-//         "$url/tenant-store-master/$docid",
-//         options: Options(
-//           headers: {
-//             'Authorization': 'Bearer $token',
-//           },
-//         ),
-//       );
-//       // log([response.data].toString());
+      return allData;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
 
-//       StoreModel datum = StoreModel.fromMap(response.data);
+  Future<StoreMasterModel> fetchSingleData(String docid) async {
+    try {
+      final response = await _dio.get(
+        "$url/tenant-master-currency/$docid",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
-//       return datum;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
-// }
+      StoreMasterModel datum = StoreMasterModel.fromMap(response.data);
+
+      // log(datum.toString());
+      return datum;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
+}
