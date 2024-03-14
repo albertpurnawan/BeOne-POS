@@ -20,15 +20,15 @@ class EmployeeEntity {
   final String idCard;
   final String gender;
   final DateTime birthdate;
-  final dynamic photo;
+  final dynamic? photo;
   final DateTime joinDate;
-  final DateTime resignDate;
+  final DateTime? resignDate;
   final int statusActive;
   final int activated;
   final String empDept;
   final String empTitle;
   final String empWorkplace;
-  final double empdDebt;
+  final double empDebt;
 
   EmployeeEntity({
     required this.docId,
@@ -57,7 +57,7 @@ class EmployeeEntity {
     required this.empDept,
     required this.empTitle,
     required this.empWorkplace,
-    required this.empdDebt,
+    required this.empDebt,
   });
 
   EmployeeEntity copyWith({
@@ -79,7 +79,7 @@ class EmployeeEntity {
     String? idCard,
     String? gender,
     DateTime? birthdate,
-    dynamic photo,
+    dynamic? photo,
     DateTime? joinDate,
     DateTime? resignDate,
     int? statusActive,
@@ -87,7 +87,7 @@ class EmployeeEntity {
     String? empDept,
     String? empTitle,
     String? empWorkplace,
-    double? empdDebt,
+    double? empDebt,
   }) {
     return EmployeeEntity(
       docId: docId ?? this.docId,
@@ -116,7 +116,7 @@ class EmployeeEntity {
       empDept: empDept ?? this.empDept,
       empTitle: empTitle ?? this.empTitle,
       empWorkplace: empWorkplace ?? this.empWorkplace,
-      empdDebt: empdDebt ?? this.empdDebt,
+      empDebt: empDebt ?? this.empDebt,
     );
   }
 
@@ -142,13 +142,13 @@ class EmployeeEntity {
       'birthdate': birthdate.millisecondsSinceEpoch,
       'photo': photo,
       'joinDate': joinDate.millisecondsSinceEpoch,
-      'resignDate': resignDate.millisecondsSinceEpoch,
+      'resignDate': resignDate?.millisecondsSinceEpoch,
       'statusActive': statusActive,
       'activated': activated,
       'empDept': empDept,
       'empTitle': empTitle,
       'empWorkplace': empWorkplace,
-      'empdDebt': empdDebt,
+      'empDebt': empDebt,
     };
   }
 
@@ -174,15 +174,17 @@ class EmployeeEntity {
       idCard: map['idCard'] as String,
       gender: map['gender'] as String,
       birthdate: DateTime.fromMillisecondsSinceEpoch(map['birthdate'] as int),
-      photo: map['photo'] as dynamic,
+      photo: map['photo'] != null ? map['photo'] as dynamic : null,
       joinDate: DateTime.fromMillisecondsSinceEpoch(map['joinDate'] as int),
-      resignDate: DateTime.fromMillisecondsSinceEpoch(map['resignDate'] as int),
+      resignDate: map['resignDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['resignDate'] as int)
+          : null,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
       empDept: map['empDept'] as String,
       empTitle: map['empTitle'] as String,
       empWorkplace: map['empWorkplace'] as String,
-      empdDebt: map['empdDebt'] as double,
+      empDebt: map['empDebt'] as double,
     );
   }
 
@@ -193,7 +195,7 @@ class EmployeeEntity {
 
   @override
   String toString() {
-    return 'EmployeeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, empCode: $empCode, empName: $empName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, idCard: $idCard, gender: $gender, birthdate: $birthdate, photo: $photo, joinDate: $joinDate, resignDate: $resignDate, statusActive: $statusActive, activated: $activated, empDept: $empDept, empTitle: $empTitle, empWorkplace: $empWorkplace, empdDebt: $empdDebt)';
+    return 'EmployeeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, empCode: $empCode, empName: $empName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, idCard: $idCard, gender: $gender, birthdate: $birthdate, photo: $photo, joinDate: $joinDate, resignDate: $resignDate, statusActive: $statusActive, activated: $activated, empDept: $empDept, empTitle: $empTitle, empWorkplace: $empWorkplace, empDebt: $empDebt)';
   }
 
   @override
@@ -226,7 +228,7 @@ class EmployeeEntity {
         other.empDept == empDept &&
         other.empTitle == empTitle &&
         other.empWorkplace == empWorkplace &&
-        other.empdDebt == empdDebt;
+        other.empDebt == empDebt;
   }
 
   @override
@@ -257,6 +259,6 @@ class EmployeeEntity {
         empDept.hashCode ^
         empTitle.hashCode ^
         empWorkplace.hashCode ^
-        empdDebt.hashCode;
+        empDebt.hashCode;
   }
 }

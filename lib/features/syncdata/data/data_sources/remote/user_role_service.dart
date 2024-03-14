@@ -3,20 +3,20 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/uom.dart';
+import 'package:pos_fe/features/sales/data/models/user_role.dart';
 
-class UoMApi {
+class UserRoleApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  UoMApi(this._dio);
+  UserRoleApi(this._dio);
 
-  Future<List<UomModel>> fetchData() async {
+  Future<List<UserRoleModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<UomModel> allData = [];
+      List<UserRoleModel> allData = [];
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -39,8 +39,9 @@ class UoMApi {
           }));
       // log(resp.data['data'].toString());
 
-      List<UomModel> data =
-          (resp.data['data'] as List).map((e) => UomModel.fromMap(e)).toList();
+      List<UserRoleModel> data = (resp.data['data'] as List)
+          .map((e) => UserRoleModel.fromMap(e))
+          .toList();
       allData.addAll(data);
 
       return allData;
@@ -50,7 +51,7 @@ class UoMApi {
     }
   }
 
-  Future<UomModel> fetchSingleData(String docid) async {
+  Future<UserRoleModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
         "$url/tenant-master-currency/$docid",
@@ -63,7 +64,7 @@ class UoMApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      UomModel datum = UomModel.fromMap(response.data);
+      UserRoleModel datum = UserRoleModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;
