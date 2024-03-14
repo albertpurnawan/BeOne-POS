@@ -3,20 +3,21 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/data/models/tax_master.dart';
 
-class TaxMasterApi {
+class PaymentTypeApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  TaxMasterApi(this._dio);
+  PaymentTypeApi(this._dio);
 
-  Future<List<TaxMasterModel>> fetchData() async {
+  Future<List<PaymentTypeModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<TaxMasterModel> allData = [];
+      List<PaymentTypeModel> allData = [];
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -26,7 +27,7 @@ class TaxMasterApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[10]['docid'], "parameter": []};
+      final exeData = {"docid": response.data[11]['docid'], "parameter": []};
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
@@ -36,8 +37,8 @@ class TaxMasterApi {
           }));
       log(resp.data['data'].toString());
 
-      List<TaxMasterModel> data = (resp.data['data'] as List)
-          .map((e) => TaxMasterModel.fromMapRemote(e))
+      List<PaymentTypeModel> data = (resp.data['data'] as List)
+          .map((e) => PaymentTypeModel.fromMap(e))
           .toList();
       allData.addAll(data);
 
@@ -48,7 +49,7 @@ class TaxMasterApi {
     }
   }
 
-  Future<TaxMasterModel> fetchSingleData(String docid) async {
+  Future<PaymentTypeModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
         "$url/tenant-master-currency/$docid",
@@ -61,7 +62,7 @@ class TaxMasterApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      TaxMasterModel datum = TaxMasterModel.fromMap(response.data);
+      PaymentTypeModel datum = PaymentTypeModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

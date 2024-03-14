@@ -7,9 +7,13 @@ import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/credit_card_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/payment_type_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
@@ -61,8 +65,18 @@ class _FetchScreenState extends State<FetchScreen> {
       // await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(provinces);
       // final zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
       // await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(zipcodes);
-      final employees = await GetIt.instance<EmployeeApi>().fetchData();
-      await GetIt.instance<AppDatabase>().employeeDao.bulkCreate(employees);
+      // final employees = await GetIt.instance<EmployeeApi>().fetchData();
+      // await GetIt.instance<AppDatabase>().employeeDao.bulkCreate(employees);
+      // final taxes = await GetIt.instance<TaxMasterApi>().fetchData();
+      // await GetIt.instance<AppDatabase>().taxMasterDao.bulkCreate(taxes);
+      // final paymentTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
+      // await GetIt.instance<AppDatabase>()
+      //     .paymentTypeDao
+      //     .bulkCreate(paymentTypes);
+      // final mops = await GetIt.instance<MOPApi>().fetchData();
+      // await GetIt.instance<AppDatabase>().meansOfPaymentDao.bulkCreate(mops);
+      final ccs = await GetIt.instance<CreditCardApi>().fetchData();
+      await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(ccs);
 
       // var fetched = currencies.length +
       //     countries.length +
@@ -71,7 +85,7 @@ class _FetchScreenState extends State<FetchScreen> {
       //     employees.length;
 
       setState(() {
-        _dataCount = employees.length;
+        _dataCount = ccs.length;
       });
       print('Data synched');
     } catch (error) {
