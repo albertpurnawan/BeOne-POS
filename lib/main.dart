@@ -7,6 +7,7 @@ import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -45,8 +46,9 @@ class MyApp extends StatelessWidget {
         child: MultiBlocProvider(
           providers: [
             BlocProvider<ReceiptCubit>(
-                create: (context) =>
-                    ReceiptCubit(GetIt.instance<GetItemByBarcodeUseCase>())),
+                create: (context) => ReceiptCubit(
+                    GetIt.instance<GetItemByBarcodeUseCase>(),
+                    GetIt.instance<SaveReceiptUseCase>())),
             BlocProvider<CustomersCubit>(
                 create: (context) =>
                     CustomersCubit(GetIt.instance<GetCustomersUseCase>())),

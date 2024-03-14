@@ -213,7 +213,7 @@ class _SalesPageState extends State<SalesPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Container(
@@ -233,8 +233,8 @@ class _SalesPageState extends State<SalesPage> {
                             )),
                       ),
                     ),
-                    const Expanded(
-                      flex: 1,
+                    Expanded(
+                      flex: 3,
                       child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -244,7 +244,7 @@ class _SalesPageState extends State<SalesPage> {
                               width: 5,
                             ),
                             Text(
-                              "8000818",
+                              context.read<ReceiptCubit>().state.docNum,
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w500,
@@ -256,7 +256,7 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: Container(
                         // decoration: BoxDecoration(
                         //   color: Color.fromRGBO(71, 168, 0, 1),
@@ -1575,6 +1575,9 @@ class _SalesPageState extends State<SalesPage> {
                                 onPressed: () {
                                   setState(() {
                                     selectedCustomer = radioValue;
+                                    context
+                                        .read<ReceiptCubit>()
+                                        .updateCustomer(selectedCustomer!);
                                     Navigator.of(context).pop();
                                     Future.delayed(
                                         const Duration(milliseconds: 200),
@@ -2102,7 +2105,8 @@ class _SalesPageState extends State<SalesPage> {
               .hasMatch(event.character!)) {
         textEditingController.text += event.character!;
       } else if (event.isKeyPressed(LogicalKeyboardKey.enter) ||
-          event.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
+          event.isKeyPressed(LogicalKeyboardKey.numpadEnter) ||
+          event.isKeyPressed(LogicalKeyboardKey.tab)) {
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
           context.read<ReceiptCubit>().addOrUpdateReceiptItems(
               _textEditingControllerNewReceiptItemCode.text,
@@ -2111,6 +2115,7 @@ class _SalesPageState extends State<SalesPage> {
           setState(() {
             _textEditingControllerNewReceiptItemCode.text = "";
             _textEditingControllerNewReceiptItemQuantity.text = "1";
+            _newReceiptItemCodeFocusNode.requestFocus();
           });
 
           WidgetsBinding.instance.addPostFrameCallback((_) {

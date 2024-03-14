@@ -98,7 +98,7 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
-      'createdate': createDate.toUtc().toIso8601String(),
+      'createdate': createDate?.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'toinvId': toinvId,
       'linenum': lineNum,
@@ -130,7 +130,9 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
   factory InvoiceDetailModel.fromMap(Map<String, dynamic> map) {
     return InvoiceDetailModel(
       docId: map['docid'] as String,
-      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
+      createDate: map['createdate'] != null
+          ? DateTime.parse(map['createdate'] as String).toLocal()
+          : null,
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,

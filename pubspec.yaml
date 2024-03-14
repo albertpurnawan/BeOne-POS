@@ -45,6 +45,7 @@ dependencies:
   equatable: ^2.0.5
   path: ^1.8.3
   cron: ^0.6.0
+  uuid: ^4.3.2
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +79,7 @@ flutter:
     - assets/images/barcode-scanner.svg
     - assets/images/barcode.svg
     - assets/images/inventory.svg
+    - assets/images/icon-success.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

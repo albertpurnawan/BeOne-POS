@@ -23,6 +23,8 @@ import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/invoice_detail_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/invoice_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_barcode_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_category_dao.dart';
@@ -31,6 +33,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/means_of_payment_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/payment_type_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/pos_parameter_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_barcode_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart';
@@ -169,6 +172,9 @@ class AppDatabase {
   late final PaymentTypeDao paymentTypeDao;
   late final MeansOfPaymentDao meansOfPaymentDao;
   late final MOPByStoreDao mopByStoreDao;
+  late final InvoiceHeaderDao invoiceHeaderDao;
+  late final InvoiceDetailDao invoiceDetailDao;
+  late final POSParameterDao posParameterDao;
 
   AppDatabase._init();
 
@@ -214,6 +220,9 @@ PRAGMA foreign_keys = ON;
     paymentTypeDao = PaymentTypeDao(_database!);
     meansOfPaymentDao = MeansOfPaymentDao(_database!);
     mopByStoreDao = MOPByStoreDao(_database!);
+    invoiceHeaderDao = InvoiceHeaderDao(_database!);
+    invoiceDetailDao = InvoiceDetailDao(_database!);
+    posParameterDao = POSParameterDao(_database!);
 
     currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
     itemCategoryDao
@@ -1281,15 +1290,15 @@ CREATE TABLE $tableHolidayDetail (
         await txn.execute("""
 CREATE TABLE $tableInvoiceHeader (
   $uuidDefinition,
-  ${InvoiceHeaderFields.createDate} datetime NOT NULL,
+  ${InvoiceHeaderFields.createDate} datetime DEFAULT NULL,
   ${InvoiceHeaderFields.updateDate} datetime DEFAULT NULL,
   ${InvoiceHeaderFields.tostrId} text DEFAULT NULL,
   ${InvoiceHeaderFields.docnum} varchar(30) NOT NULL,
   ${InvoiceHeaderFields.orderNo} int NOT NULL,
   ${InvoiceHeaderFields.tocusId} text DEFAULT NULL,
   ${InvoiceHeaderFields.tohemId} text DEFAULT NULL,
-  ${InvoiceHeaderFields.transDate} date NOT NULL,
-  ${InvoiceHeaderFields.transTime} time NOT NULL,
+  ${InvoiceHeaderFields.transDate} date DEFAULT CURRENT_TIMESTAMP,
+  ${InvoiceHeaderFields.transTime} time DEFAULT CURRENT_TIMESTAMP,
   ${InvoiceHeaderFields.timezone} varchar(200) NOT NULL,
   ${InvoiceHeaderFields.remarks} text,
   ${InvoiceHeaderFields.subTotal} double NOT NULL,
@@ -1322,7 +1331,7 @@ CREATE TABLE $tableInvoiceHeader (
         await txn.execute("""
 CREATE TABLE $tableInvoiceDetail (
   $uuidDefinition,
-  ${InvoiceDetailFields.createDate} datetime NOT NULL,
+  ${InvoiceDetailFields.createDate} datetime DEFAULT NULL,
   ${InvoiceDetailFields.updateDate} datetime DEFAULT NULL,
   ${InvoiceDetailFields.toinvId} text DEFAULT NULL,
   ${InvoiceDetailFields.lineNum} int NOT NULL,

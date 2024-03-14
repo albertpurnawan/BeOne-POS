@@ -2,16 +2,16 @@
 import 'dart:convert';
 
 class InvoiceHeaderEntity {
-  final String docId;
-  final DateTime createDate;
+  final String? docId;
+  final DateTime? createDate;
   final DateTime? updateDate;
   final String? tostrId;
   final String docnum;
   final int orderNo;
   final String? tocusId;
   final String? tohemId;
-  final DateTime transDate;
-  final DateTime transTime;
+  final DateTime? transDate;
+  final DateTime? transTime;
   final String timezone;
   final String? remarks;
   final double subTotal;
@@ -135,15 +135,15 @@ class InvoiceHeaderEntity {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docId': docId,
-      'createDate': createDate.millisecondsSinceEpoch,
+      'createDate': createDate?.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'tostrId': tostrId,
       'docnum': docnum,
       'orderNo': orderNo,
       'tocusId': tocusId,
       'tohemId': tohemId,
-      'transDate': transDate.millisecondsSinceEpoch,
-      'transTime': transTime.millisecondsSinceEpoch,
+      'transDate': transDate?.millisecondsSinceEpoch,
+      'transTime': transTime?.millisecondsSinceEpoch,
       'timezone': timezone,
       'remarks': remarks,
       'subTotal': subTotal,
@@ -169,8 +169,10 @@ class InvoiceHeaderEntity {
 
   factory InvoiceHeaderEntity.fromMap(Map<String, dynamic> map) {
     return InvoiceHeaderEntity(
-      docId: map['docId'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
+      docId: map['docId'] != null ? map['docId'] as String : null,
+      createDate: map['createDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
+          : null,
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
@@ -179,8 +181,12 @@ class InvoiceHeaderEntity {
       orderNo: map['orderNo'] as int,
       tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      transDate: DateTime.fromMillisecondsSinceEpoch(map['transDate'] as int),
-      transTime: DateTime.fromMillisecondsSinceEpoch(map['transTime'] as int),
+      transDate: map['transDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['transDate'] as int)
+          : null,
+      transTime: map['transTime'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['transTime'] as int)
+          : null,
       timezone: map['timezone'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       subTotal: map['subTotal'] as double,

@@ -6,7 +6,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
   ReceiptModel(
       {required super.receiptItems,
       required super.totalPrice,
-      super.createdAt});
+      super.createdAt,
+      required super.docNum});
 
   factory ReceiptModel.fromMap(Map<String, dynamic> map) {
     return ReceiptModel(
@@ -19,6 +20,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       createdAt: map['createdat'] != null
           ? DateTime.parse(map['createdAt']).toLocal()
           : null,
+      docNum: map['docNum'],
     );
   }
 
@@ -28,6 +30,14 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       'receiptItems': receiptItems.map((x) => x.toMap()).toList(),
       'totalPrice': totalPrice,
       'createdAt': createdAt?.toUtc().toIso8601String(),
+      'docNum': docNum
     };
+  }
+
+  factory ReceiptModel.fromEntity(ReceiptEntity entity) {
+    return ReceiptModel(
+        docNum: entity.docNum,
+        receiptItems: entity.receiptItems,
+        totalPrice: entity.totalPrice);
   }
 }

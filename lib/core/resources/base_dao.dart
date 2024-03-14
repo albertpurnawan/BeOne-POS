@@ -14,14 +14,21 @@ abstract class BaseDao<T extends BaseModel> {
   });
 
   Future<void> bulkCreate(List<T> data) async {
-    final batch = db.batch();
+    await db.transaction((txn) async {
+      try {
+        final batch = txn.batch();
 
-    for (final e in data) {
-      batch.insert(tableName, e.toMap());
-    }
+        for (final e in data) {
+          batch.insert(tableName, e.toMap());
+        }
 
-    final res = await batch.commit(noResult: true);
-    print(res.toString());
+        final res = await batch.commit(noResult: true);
+        print(res.toString());
+      } catch (e) {
+        print(e);
+        rethrow;
+      }
+    });
   }
 
   Future<void> create(T data) async {

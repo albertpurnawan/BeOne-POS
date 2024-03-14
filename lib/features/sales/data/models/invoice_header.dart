@@ -107,15 +107,15 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
-      'createdate': createDate.toUtc().toIso8601String(),
+      'createdate': createDate?.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'tostrId': tostrId,
       'docnum': docnum,
       'orderno': orderNo,
       'tocusId': tocusId,
       'tohemId': tohemId,
-      'transdate': transDate.toUtc().toIso8601String(),
-      'transtime': transTime.toUtc().toIso8601String(),
+      'transdate': transDate?.toUtc().toIso8601String(),
+      'transtime': transTime?.toUtc().toIso8601String(),
       'timezone': timezone,
       'remarks': remarks,
       'subtotal': subTotal,
@@ -142,7 +142,9 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
   factory InvoiceHeaderModel.fromMap(Map<String, dynamic> map) {
     return InvoiceHeaderModel(
       docId: map['docid'] as String,
-      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
+      createDate: map['createdate'] != null
+          ? DateTime.parse(map['createdate'] as String).toLocal()
+          : null,
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
@@ -151,8 +153,12 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       orderNo: map['orderno'] as int,
       tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      transDate: DateTime.parse(map['transdate'] as String).toLocal(),
-      transTime: DateTime.parse(map['transtime'] as String).toLocal(),
+      transDate: map['transdate'] != null
+          ? DateTime.parse(map['transdate'] as String).toLocal()
+          : null,
+      transTime: map['transtime'] != null
+          ? DateTime.parse(map['transtime'] as String).toLocal()
+          : null,
       timezone: map['timezone'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       subTotal: map['subtotal'] as double,
