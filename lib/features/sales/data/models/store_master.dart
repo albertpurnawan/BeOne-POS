@@ -19,7 +19,7 @@ class StoreMasterFields {
     remarks,
     toprvId,
     tocryId,
-    tozcdlId,
+    tozcdId,
     tohemId,
     sqm,
     tcurrId,
@@ -81,14 +81,14 @@ class StoreMasterFields {
   static const String remarks = 'remarks';
   static const String toprvId = 'toprvId';
   static const String tocryId = 'tocryId';
-  static const String tozcdlId = 'tozcdlId';
+  static const String tozcdId = 'tozcdId';
   static const String tohemId = 'tohemId';
   static const String sqm = 'sqm';
   static const String tcurrId = 'tcurrId';
   static const String toplnId = 'toplnId';
   static const String storePic = 'storepic';
   static const String tovatId = 'tovatId';
-  static const String storeOpening = 'storeOpening';
+  static const String storeOpening = 'storeopen';
   static const String statusActive = 'statusactive';
   static const String activated = 'activated';
   static const String prefixDoc = 'prefixdoc';
@@ -145,7 +145,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     required super.remarks,
     required super.toprvId,
     required super.tocryId,
-    required super.tozcdlId,
+    required super.tozcdId,
     required super.tohemId,
     required super.sqm,
     required super.tcurrId,
@@ -210,14 +210,14 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'remarks': remarks,
       'toprvId': toprvId,
       'tocryId': tocryId,
-      'tozcdlId': tozcdlId,
+      'tozcdId': tozcdId,
       'tohemId': tohemId,
       'sqm': sqm,
       'tcurrId': tcurrId,
       'toplnId': toplnId,
       'storepic': storePic,
       'tovatId': tovatId,
-      'storeOpening': storeOpening.toUtc().toIso8601String(),
+      'storeopen': storeOpening.toUtc().toIso8601String(),
       'statusactive': statusActive,
       'activated': activated,
       'prefixdoc': prefixDoc,
@@ -262,29 +262,29 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
   factory StoreMasterModel.fromMap(Map<String, dynamic> map) {
     return StoreMasterModel(
       docId: map['docid'] as String,
-      createDate: DateTime.parse(map['createdate'] as String),
+      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String)
+          ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
       storeCode: map['storecode'] as String,
       storeName: map['storename'] as String,
       email: map['email'] as String,
       phone: map['phone'] as String,
-      addr1: map['addr1'] as String,
+      addr1: map['addr1'] != null ? map['addr1'] as String : null,
       addr2: map['addr2'] != null ? map['addr2'] as String : null,
       addr3: map['addr3'] != null ? map['addr3'] as String : null,
       city: map['city'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
       tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
-      tozcdlId: map['tozcdlId'] != null ? map['tozcdlId'] as String : null,
+      tozcdId: map['tozcdId'] != null ? map['tozcdId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       sqm: map['sqm'] as double,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      storePic: map['storepic'] as dynamic,
+      storePic: map['storepic'] != null ? map['storepic'] as dynamic : null,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      storeOpening: DateTime.parse(map['storeOpening'] as String),
+      storeOpening: DateTime.parse(map['storeopen'] as String).toLocal(),
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       prefixDoc: map['prefixdoc'] != null ? map['prefixdoc'] as String : null,
@@ -337,34 +337,14 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
   factory StoreMasterModel.fromMapRemote(Map<String, dynamic> map) {
     return StoreMasterModel.fromMap({
       ...map,
-      "toprvId": map['toprv_id']?['docid'] != null
-          ? map['toprv_id']['docid'] as String
-          : null,
-      "tocryId": map['tocry_id']?['docid'] != null
-          ? map['tocry_id']['docid'] as String
-          : null,
-      "tozcdlId": map['tozcdl_id']?['docid'] != null
-          ? map['tozcdl_id']['docid'] as String
-          : null,
-      "tohemId": map['tohem_id']?['docid'] != null
-          ? map['tohem_id']['docid'] as String
-          : null,
-      "tcurrId": map['tcurr_id']?['docid'] != null
-          ? map['tcurr_id']['docid'] as String
-          : null,
-      "toplnId": map['topln_id']?['docid'] != null
-          ? map['topln_id']['docid'] as String
-          : null,
-      "tovatId": map['tovat_id']?['docid'] != null
-          ? map['tovat_id']['docid'] as String
-          : null,
-      "tpmt1Id": map['tpmt1_id']?['docid'] != null
-          ? map['tpmt1_id']['docid'] as String
-          : null,
-      "creditTaxCodeId": map['credittaxcode_id']?['docid'] != null
-          ? map['credittaxcode_id']['docid'] as String
-          : null,
+      "toprvId": map['toprvdocid'] != null ? map['toprvdocid'] as String : null,
+      "tocryId": map['tocrydocid'] != null ? map['tocrydocid'] as String : null,
+      "tozcdId": map['tozcddocid'] != null ? map['tozcddocid'] as String : null,
+      "tohemId": map['tohemdocid'] != null ? map['tohemdocid'] as String : null,
       "sqm": map['sqm'].toDouble() as double,
+      "tcurrId": map['tcurrdocid'] != null ? map['tcurrdocid'] as String : null,
+      "toplnId": map['toplndocid'] != null ? map['toplndocid'] as String : null,
+      "tovatId": map['tovatdocid'] != null ? map['tovatdocid'] as String : null,
       "sellingtax": map['sellingtax'] != null
           ? map['sellingtax'].toDouble() as double
           : null,
@@ -377,6 +357,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "stocklevel": map['stocklevel'].toDouble() as double,
       "minconst": map['minconst'].toDouble() as double,
       "maxconst": map['maxconst'].toDouble() as double,
+      "tpmt1Id": map['tpmt1docid'] != null ? map['tpmt1docid'] as String : null,
     });
   }
 
@@ -396,7 +377,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       remarks: entity.remarks,
       toprvId: entity.toprvId,
       tocryId: entity.tocryId,
-      tozcdlId: entity.tozcdlId,
+      tozcdId: entity.tozcdId,
       tohemId: entity.tohemId,
       sqm: entity.sqm,
       tcurrId: entity.tcurrId,

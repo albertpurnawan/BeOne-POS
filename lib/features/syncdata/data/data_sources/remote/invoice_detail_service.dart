@@ -3,20 +3,21 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 
-class UserApi {
+class InvoiceDetailApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  UserApi(this._dio);
+  InvoiceDetailApi(this._dio);
 
-  Future<List<UserModel>> fetchData() async {
+  Future<List<InvoiceDetailModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<UserModel> allData = [];
+      List<InvoiceDetailModel> allData = [];
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -26,7 +27,7 @@ class UserApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[20]['docid'], "parameter": []};
+      final exeData = {"docid": response.data[1]['docid'], "parameter": []};
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
@@ -36,8 +37,9 @@ class UserApi {
           }));
       log(resp.data['data'].toString());
 
-      List<UserModel> data =
-          (resp.data['data'] as List).map((e) => UserModel.fromMap(e)).toList();
+      List<InvoiceDetailModel> data = (resp.data['data'] as List)
+          .map((e) => InvoiceDetailModel.fromMap(e))
+          .toList();
       allData.addAll(data);
 
       return allData;
@@ -47,7 +49,7 @@ class UserApi {
     }
   }
 
-  Future<UserModel> fetchSingleData(String docid) async {
+  Future<InvoiceDetailModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
         "$url/tenant-master-currency/$docid",
@@ -60,7 +62,7 @@ class UserApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      UserModel datum = UserModel.fromMap(response.data);
+      InvoiceDetailModel datum = InvoiceDetailModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

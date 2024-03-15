@@ -14,10 +14,15 @@ abstract class BaseDao<T extends BaseModel> {
   });
 
   Future<void> bulkCreate(List<T> data) async {
+    await db.delete(tableName);
+
     final batch = db.batch();
 
     for (final e in data) {
-      batch.insert(tableName, e.toMap());
+      batch.insert(
+        tableName,
+        e.toMap(),
+      );
     }
 
     final res = await batch.commit(noResult: true);
@@ -32,6 +37,10 @@ abstract class BaseDao<T extends BaseModel> {
   Future<T?> readByDocId(String docId);
 
   Future<List<T>> readAll();
+
+  Future<void> deleteAll() async {
+    await db.delete(tableName);
+  }
 
   // Future<T?> readByDocId(
   //     String docId, T Function(Map<String, dynamic> data) fromMap) async {

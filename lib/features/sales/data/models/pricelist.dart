@@ -11,7 +11,7 @@ class PricelistFields {
     priceCode,
     description,
     basePrice,
-    periodPrice,
+    // periodPrice,
     factor,
     tcurrId,
     type,
@@ -25,7 +25,7 @@ class PricelistFields {
   static const String priceCode = "pricecode";
   static const String description = "description";
   static const String basePrice = "baseprice";
-  static const String periodPrice = "periodprice";
+  // static const String periodPrice = "periodprice";
   static const String factor = "factor";
   static const String tcurrId = "tcurrId";
   static const String type = "type";
@@ -41,7 +41,7 @@ class PricelistModel extends PricelistEntity implements BaseModel {
     required super.priceCode,
     required super.description,
     required super.basePrice,
-    required super.periodPrice,
+    // required super.periodPrice,
     required super.factor,
     required super.tcurrId,
     required super.type,
@@ -58,7 +58,7 @@ class PricelistModel extends PricelistEntity implements BaseModel {
       'pricecode': priceCode,
       'description': description,
       'baseprice': basePrice,
-      'periodprice': periodPrice,
+      // 'periodprice': periodPrice,
       'factor': factor,
       'tcurrId': tcurrId,
       'type': type,
@@ -70,9 +70,7 @@ class PricelistModel extends PricelistEntity implements BaseModel {
   factory PricelistModel.fromMapRemote(Map<String, dynamic> map) {
     return PricelistModel.fromMap({
       ...map,
-      "tcurrId": map['tcurr_id']?['docid'] != null
-          ? map['tcurr_id']['docid'] as String
-          : null,
+      "tcurrId": map['tcurrdocid'] != null ? map['tcurrdocid'] as String : null,
       "factor": map['factor'].toDouble() as double,
     });
   }
@@ -87,7 +85,7 @@ class PricelistModel extends PricelistEntity implements BaseModel {
       priceCode: map['pricecode'] as String,
       description: map['description'] as String,
       basePrice: map['baseprice'] as int,
-      periodPrice: map['periodprice'] as int,
+      // periodPrice: map['periodprice'] as int,
       factor: map['factor'] as double,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       type: map['type'] as int,
@@ -104,7 +102,7 @@ class PricelistModel extends PricelistEntity implements BaseModel {
       priceCode: entity.priceCode,
       description: entity.description,
       basePrice: entity.basePrice,
-      periodPrice: entity.periodPrice,
+      // periodPrice: entity.periodPrice,
       factor: entity.factor,
       tcurrId: entity.tcurrId,
       type: entity.type,

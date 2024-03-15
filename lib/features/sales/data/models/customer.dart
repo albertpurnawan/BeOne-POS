@@ -171,27 +171,13 @@ class CustomerModel extends CustomerEntity implements BaseModel {
   factory CustomerModel.fromMapRemote(Map<String, dynamic> map) {
     return CustomerModel.fromMap({
       ...map,
-      "tocrgId": map['tocrg_id']['docid'] != null
-          ? map['tocrg_id']['docid'] as String
-          : null,
-      "toprvId": map['toprv_id']['docid'] != null
-          ? map['toprv_id']['docid'] as String
-          : null,
-      "tocryId": map['tocry_id']['docid'] != null
-          ? map['tocry_id']['docid'] as String
-          : null,
-      "tozcdId": map['tozcd_id']['docid'] != null
-          ? map['tozcd_id']['docid'] as String
-          : null,
-      "toptrId": map['toptr_id']['docid'] != null
-          ? map['toptr_id']['docid'] as String
-          : null,
-      "toplnId": map['topln_id']['docid'] != null
-          ? map['topln_id']['docid'] as String
-          : null,
-      "tohemId": map['tohem_id']['docid'] != null
-          ? map['tohem_id']['docid'] as String
-          : null,
+      "tocrgId": map['tocrgdocid'] != null ? map['tocrgdocid'] as String : null,
+      "toprvId": map['toprvdocid'] != null ? map['toprvdocid'] as String : null,
+      "tocryId": map['tocrydocid'] != null ? map['tocrydocid'] as String : null,
+      "tozcdId": map['tozcddocid'] != null ? map['tozcddocid'] as String : null,
+      "toptrId": map['toptrdocid'] != null ? map['toptrdocid'] as String : null,
+      "toplnId": map['toplndocid'] != null ? map['toplndocid'] as String : null,
+      "tohemId": map['tohemdocid'] != null ? map['tohemdocid'] as String : null,
     });
   }
 

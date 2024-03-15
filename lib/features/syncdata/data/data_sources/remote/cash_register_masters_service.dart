@@ -1,69 +1,76 @@
-// import 'package:dio/dio.dart';
-// import 'package:pos_fe/core/constants/constants.dart';
-// import 'package:pos_fe/core/usecases/error_handler.dart';
-// import 'package:sqflite/sqflite.dart';
+import 'dart:developer';
 
-// class CashRegisterApi {
-//   final Dio _dio;
-//   String token = Constant.token;
-//   String url = Constant.url;
+import 'package:dio/dio.dart';
+import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 
-//   CashRegisterApi(this._dio);
+class CashRegisterApi {
+  final Dio _dio;
+  String token = Constant.token;
+  String url = Constant.url;
 
-//   Future<List<CashRegisterModel>> fetchData() async {
-//     try {
-//       int page = 1;
-//       bool hasMoreData = true;
-//       List<CashRegisterModel> allData = [];
+  CashRegisterApi(this._dio);
 
-//       while (hasMoreData) {
-//         final response = await _dio.get(
-//           "$url/tenant-cash-register?page=$page",
-//           options: Options(
-//             headers: {
-//               'Authorization': 'Bearer $token',
-//             },
-//           ),
-//         );
+  Future<List<CashRegisterModel>> fetchData() async {
+    try {
+      int page = 1;
+      bool hasMoreData = true;
+      List<CashRegisterModel> allData = [];
 
-//         List<CashRegisterModel> data = (response.data as List)
-//             .map((e) => CashRegisterModel.fromMap(e))
-//             .toList();
-//         // log(check.toString());
-//         allData.addAll(data);
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {
+        "docid": response.data[17]['docid'],
+        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+      };
+      // log(exeData.toString());
 
-//         if (data.isEmpty) {
-//           hasMoreData = false;
-//         } else {
-//           page++;
-//         }
-//       }
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      log(resp.data['data'].toString());
 
-//       return allData;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
+      List<CashRegisterModel> data = (resp.data['data'] as List)
+          .map((e) => CashRegisterModel.fromMapRemote(e))
+          .toList();
+      allData.addAll(data);
 
-//   Future<CashRegisterModel> fetchSingleData(String docid) async {
-//     try {
-//       final response = await _dio.get(
-//         "$url/tenant-cash-register/$docid",
-//         options: Options(
-//           headers: {
-//             'Authorization': 'Bearer $token',
-//           },
-//         ),
-//       );
-//       // log([response.data].toString());
+      return allData;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
 
-//       CashRegisterModel datum = CashRegisterModel.fromMap(response.data);
+  Future<CashRegisterModel> fetchSingleData(String docid) async {
+    try {
+      final response = await _dio.get(
+        "$url/tenant-master-currency/$docid",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
-//       return datum;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
-// }
+      CashRegisterModel datum = CashRegisterModel.fromMap(response.data);
+
+      // log(datum.toString());
+      return datum;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
+}

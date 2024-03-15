@@ -24,7 +24,7 @@ class PreferredVendorFields {
   static const String tovenId = "tovenId";
   static const String listing = "listing";
   static const String minOrder = "minorder";
-  static const String multipyOrder = "multiplyorder";
+  static const String multipyOrder = "multipyorder";
   static const String canOrder = "canorder";
   static const String dflt = "dflt";
 }
@@ -62,12 +62,8 @@ class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
   factory PreferredVendorModel.fromMapRemote(Map<String, dynamic> map) {
     return PreferredVendorModel.fromMap({
       ...map,
-      "tsitmId": map['tsitm_id']["docid"] != null
-          ? map['tsitm_id']["docid"] as String
-          : null,
-      "tovenId": map['toven_id']["docid"] != null
-          ? map['toven_id']["docid"] as String
-          : null,
+      "tsitmId": map['tsitmdocid'] != null ? map['tsitmdocid'] as String : null,
+      "tovenId": map['tovendocid'] != null ? map['tovendocid'] as String : null,
       "minorder": map['minorder'].toDouble() as double,
       "multipyorder": map['multipyorder'].toDouble() as double,
     });

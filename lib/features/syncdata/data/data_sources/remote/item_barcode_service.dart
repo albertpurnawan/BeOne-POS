@@ -9,7 +9,6 @@ class ItemBarcodeApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
-  String toitm_id = '338d765e-38fc-4f9b-b24f-039d407fd66c';
 
   ItemBarcodeApi(this._dio);
 
@@ -19,28 +18,32 @@ class ItemBarcodeApi {
       bool hasMoreData = true;
       List<ItemBarcodeModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await _dio.get(
-          "$url/tenant-barcode-item?toitm_id=$toitm_id&page=$page",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {
+        "docid": response.data[25]['docid'],
+        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+      };
+      // log(exeData.toString());
 
-        List<ItemBarcodeModel> data = (response.data as List)
-            .map((e) => ItemBarcodeModel.fromMapRemote(e))
-            .toList();
-        allData.addAll(data);
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      log(resp.data['data'][0].toString());
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
-      log(allData[0].toString());
+      List<ItemBarcodeModel> data = (resp.data['data'] as List)
+          .map((e) => ItemBarcodeModel.fromMapRemote(e))
+          .toList();
+      allData.addAll(data);
+
       return allData;
     } catch (err) {
       handleError(err);
@@ -51,17 +54,19 @@ class ItemBarcodeApi {
   Future<ItemBarcodeModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
-        "$url/tenant-barcode-item/$docid",
+        "$url/tenant-master-currency/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
           },
         ),
       );
-      log([response.data].toString());
+      // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
-      ItemBarcodeModel datum = ItemBarcodeModel.fromMapRemote(response.data);
-      log(datum.toString());
+      ItemBarcodeModel datum = ItemBarcodeModel.fromMap(response.data);
+
+      // log(datum.toString());
       return datum;
     } catch (err) {
       handleError(err);

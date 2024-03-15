@@ -26,10 +26,7 @@ class StoreMasterApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[0]['docid'],
-        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
-      };
+      final exeData = {"docid": response.data[15]['docid'], "parameter": []};
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
@@ -37,7 +34,7 @@ class StoreMasterApi {
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      // log(resp.data['data'].toString());
+      log(resp.data['data'].toString());
 
       List<StoreMasterModel> data = (resp.data['data'] as List)
           .map((e) => StoreMasterModel.fromMapRemote(e))

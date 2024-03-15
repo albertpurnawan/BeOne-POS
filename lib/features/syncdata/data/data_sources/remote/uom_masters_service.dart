@@ -26,10 +26,7 @@ class UoMApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[0]['docid'],
-        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
-      };
+      final exeData = {"docid": response.data[18]['docid'], "parameter": []};
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",

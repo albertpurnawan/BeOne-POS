@@ -8,7 +8,7 @@ class PricelistEntity {
   final String priceCode;
   final String description;
   final int basePrice;
-  final int periodPrice;
+  // final int periodPrice;
   final double factor;
   final String? tcurrId;
   final int type;
@@ -22,7 +22,7 @@ class PricelistEntity {
     required this.priceCode,
     required this.description,
     required this.basePrice,
-    required this.periodPrice,
+    // required this.periodPrice,
     required this.factor,
     required this.tcurrId,
     required this.type,
@@ -37,7 +37,7 @@ class PricelistEntity {
     String? priceCode,
     String? description,
     int? basePrice,
-    int? periodPrice,
+    // int? periodPrice,
     double? factor,
     String? tcurrId,
     int? type,
@@ -51,7 +51,7 @@ class PricelistEntity {
       priceCode: priceCode ?? this.priceCode,
       description: description ?? this.description,
       basePrice: basePrice ?? this.basePrice,
-      periodPrice: periodPrice ?? this.periodPrice,
+      // periodPrice: periodPrice ?? this.periodPrice,
       factor: factor ?? this.factor,
       tcurrId: tcurrId ?? this.tcurrId,
       type: type ?? this.type,
@@ -68,7 +68,7 @@ class PricelistEntity {
       'priceCode': priceCode,
       'description': description,
       'basePrice': basePrice,
-      'periodPrice': periodPrice,
+      // 'periodPrice': periodPrice,
       'factor': factor,
       'tcurrId': tcurrId,
       'type': type,
@@ -87,7 +87,7 @@ class PricelistEntity {
       priceCode: map['priceCode'] as String,
       description: map['description'] as String,
       basePrice: map['basePrice'] as int,
-      periodPrice: map['periodPrice'] as int,
+      // periodPrice: map['periodPrice'] as int,
       factor: map['factor'] as double,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       type: map['type'] as int,
@@ -103,7 +103,7 @@ class PricelistEntity {
 
   @override
   String toString() {
-    return 'PricelistEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, priceCode: $priceCode, description: $description, basePrice: $basePrice, periodPrice: $periodPrice, factor: $factor, tcurrId: $tcurrId, type: $type, statusactive: $statusactive, activated: $activated)';
+    return 'PricelistEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, priceCode: $priceCode, description: $description, basePrice: $basePrice, periodPrice: , factor: $factor, tcurrId: $tcurrId, type: $type, statusactive: $statusactive, activated: $activated)';
   }
 
   @override
@@ -116,7 +116,7 @@ class PricelistEntity {
         other.priceCode == priceCode &&
         other.description == description &&
         other.basePrice == basePrice &&
-        other.periodPrice == periodPrice &&
+        // other.periodPrice == periodPrice &&
         other.factor == factor &&
         other.tcurrId == tcurrId &&
         other.type == type &&
@@ -132,7 +132,7 @@ class PricelistEntity {
         priceCode.hashCode ^
         description.hashCode ^
         basePrice.hashCode ^
-        periodPrice.hashCode ^
+        // periodPrice.hashCode ^
         factor.hashCode ^
         tcurrId.hashCode ^
         type.hashCode ^

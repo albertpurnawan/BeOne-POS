@@ -12,14 +12,14 @@ class PriceByItemFields {
     toitmId,
     tcurrId,
     price,
-    purchasePrice,
-    calculatedPrice,
-    marginPercentage,
-    marginValue,
-    costPrice,
-    afterRounding,
-    beforeRounding,
-    roundingDiff,
+    // purchasePrice,
+    // calculatedPrice,
+    // marginPercentage,
+    // marginValue,
+    // costPrice,
+    // afterRounding,
+    // beforeRounding,
+    // roundingDiff,
   ];
 
   static const String docId = 'docid';
@@ -29,14 +29,14 @@ class PriceByItemFields {
   static const String toitmId = 'toitmId';
   static const String tcurrId = 'tcurrId';
   static const String price = 'price';
-  static const String purchasePrice = 'purchaseprice';
-  static const String calculatedPrice = 'calculatedprice';
-  static const String marginPercentage = 'marginpercentage';
-  static const String marginValue = 'marginvalue';
-  static const String costPrice = 'costprice';
-  static const String afterRounding = 'afterrounding';
-  static const String beforeRounding = 'beforerounding';
-  static const String roundingDiff = 'roundingdiff';
+  // static const String purchasePrice = 'purchaseprice';
+  // static const String calculatedPrice = 'calculatedprice';
+  // static const String marginPercentage = 'marginpercentage';
+  // static const String marginValue = 'marginvalue';
+  // static const String costPrice = 'costprice';
+  // static const String afterRounding = 'afterrounding';
+  // static const String beforeRounding = 'beforerounding';
+  // static const String roundingDiff = 'roundingdiff';
 }
 
 class PriceByItemModel extends PriceByItemEntity implements BaseModel {
@@ -48,14 +48,14 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
     required super.toitmId,
     required super.tcurrId,
     required super.price,
-    required super.purchasePrice,
-    required super.calculatedPrice,
-    required super.marginPercentage,
-    required super.marginValue,
-    required super.costPrice,
-    required super.afterRounding,
-    required super.beforeRounding,
-    required super.roundingDiff,
+    // required super.purchasePrice,
+    // required super.calculatedPrice,
+    // required super.marginPercentage,
+    // required super.marginValue,
+    // required super.costPrice,
+    // required super.afterRounding,
+    // required super.beforeRounding,
+    // required super.roundingDiff,
   });
 
   @override
@@ -68,55 +68,15 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       'toitmId': toitmId,
       'tcurrId': tcurrId,
       'price': price,
-      'purchaseprice': purchasePrice,
-      'calculatedprice': calculatedPrice,
-      'marginpercentage': marginPercentage,
-      'marginvalue': marginValue,
-      'costprice': costPrice,
-      'afterrounding': afterRounding,
-      'beforerounding': beforeRounding,
-      'roundingdiff': roundingDiff,
+      // 'purchaseprice': purchasePrice,
+      // 'calculatedprice': calculatedPrice,
+      // 'marginpercentage': marginPercentage,
+      // 'marginvalue': marginValue,
+      // 'costprice': costPrice,
+      // 'afterrounding': afterRounding,
+      // 'beforerounding': beforeRounding,
+      // 'roundingdiff': roundingDiff,
     };
-  }
-
-  factory PriceByItemModel.fromMapRemote(Map<String, dynamic> map) {
-    return PriceByItemModel.fromMap({
-      ...map,
-      "tpln1Id": map['tpln1_id']?['docid'] != null
-          ? map['tpln1_id']['docid'] as String
-          : null,
-      "toitmId": map['toitm_id']?['docid'] != null
-          ? map['toitm_id']['docid'] as String
-          : null,
-      "tcurrId": map['tcurr_id']?['docid'] != null
-          ? map['tcurr_id']['docid'] as String
-          : null,
-      "price": map['price'].toDouble() as double,
-      "purchaseprice": map['purchaseprice'] != null
-          ? map['purchaseprice'].toDouble() as double
-          : null,
-      "calculatedprice": map['calculatedprice'] != null
-          ? map['calculatedprice'].toDouble() as double
-          : null,
-      "marginpercentage": map['marginpercentage'] != null
-          ? map['marginpercentage'].toDouble() as double
-          : null,
-      "marginvalue": map['marginvalue'] != null
-          ? map['marginvalue'].toDouble() as double
-          : null,
-      "costprice": map['costprice'] != null
-          ? map['costprice'].toDouble() as double
-          : null,
-      "afterrounding": map['afterrounding'] != null
-          ? map['afterrounding'].toDouble() as double
-          : null,
-      "beforerounding": map['beforerounding'] != null
-          ? map['beforerounding'].toDouble() as double
-          : null,
-      "roundingdiff": map['roundingdiff'] != null
-          ? map['roundingdiff'].toDouble() as double
-          : null,
-    });
   }
 
   factory PriceByItemModel.fromMap(Map<String, dynamic> map) {
@@ -130,25 +90,59 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
-      purchasePrice:
-          map['purchaseprice'] != null ? map['purchaseprice'] as double : null,
-      calculatedPrice: map['calculatedprice'] != null
-          ? map['calculatedprice'] as double
-          : null,
-      marginPercentage: map['marginpercentage'] != null
-          ? map['marginpercentage'] as double
-          : null,
-      marginValue:
-          map['marginvalue'] != null ? map['marginvalue'] as double : null,
-      costPrice: map['costprice'] != null ? map['costprice'] as double : null,
-      afterRounding:
-          map['afterrounding'] != null ? map['afterrounding'] as double : null,
-      beforeRounding: map['beforerounding'] != null
-          ? map['beforerounding'] as double
-          : null,
-      roundingDiff:
-          map['roundingdiff'] != null ? map['roundingdiff'] as double : null,
+      // purchasePrice:
+      //     map['purchaseprice'] != null ? map['purchaseprice'] as double : null,
+      // calculatedPrice: map['calculatedprice'] != null
+      //     ? map['calculatedprice'] as double
+      //     : null,
+      // marginPercentage: map['marginpercentage'] != null
+      //     ? map['marginpercentage'] as double
+      //     : null,
+      // marginValue:
+      //     map['marginvalue'] != null ? map['marginvalue'] as double : null,
+      // costPrice: map['costprice'] != null ? map['costprice'] as double : null,
+      // afterRounding:
+      //     map['afterrounding'] != null ? map['afterrounding'] as double : null,
+      // beforeRounding: map['beforerounding'] != null
+      //     ? map['beforerounding'] as double
+      //     : null,
+      // roundingDiff:
+      //     map['roundingdiff'] != null ? map['roundingdiff'] as double : null,
     );
+  }
+
+  factory PriceByItemModel.fromMapRemote(Map<String, dynamic> map) {
+    return PriceByItemModel.fromMap({
+      ...map,
+      "tpln1Id": map['tpln1docid'] != null ? map['tpln1docid'] as String : null,
+      "toitmId": map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+      "tcurrId": map['tcurrdocid'] != null ? map['tcurrdocid'] as String : null,
+      "price": map['price'].toDouble() as double,
+      // "purchaseprice": map['purchaseprice'] != null
+      //     ? map['purchaseprice'].toDouble() as double
+      //     : null,
+      // "calculatedprice": map['calculatedprice'] != null
+      //     ? map['calculatedprice'].toDouble() as double
+      //     : null,
+      // "marginpercentage": map['marginpercentage'] != null
+      //     ? map['marginpercentage'].toDouble() as double
+      //     : null,
+      // "marginvalue": map['marginvalue'] != null
+      //     ? map['marginvalue'].toDouble() as double
+      //     : null,
+      // "costprice": map['costprice'] != null
+      //     ? map['costprice'].toDouble() as double
+      //     : null,
+      // "afterrounding": map['afterrounding'] != null
+      //     ? map['afterrounding'].toDouble() as double
+      //     : null,
+      // "beforerounding": map['beforerounding'] != null
+      //     ? map['beforerounding'].toDouble() as double
+      //     : null,
+      // "roundingdiff": map['roundingdiff'] != null
+      //     ? map['roundingdiff'].toDouble() as double
+      //     : null,
+    });
   }
 
   factory PriceByItemModel.fromEntity(PriceByItemEntity entity) {
@@ -160,14 +154,14 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       toitmId: entity.toitmId,
       tcurrId: entity.tcurrId,
       price: entity.price,
-      purchasePrice: entity.purchasePrice,
-      calculatedPrice: entity.calculatedPrice,
-      marginPercentage: entity.marginPercentage,
-      marginValue: entity.marginValue,
-      costPrice: entity.costPrice,
-      afterRounding: entity.afterRounding,
-      beforeRounding: entity.beforeRounding,
-      roundingDiff: entity.roundingDiff,
+      // purchasePrice: entity.purchasePrice,
+      // calculatedPrice: entity.calculatedPrice,
+      // marginPercentage: entity.marginPercentage,
+      // marginValue: entity.marginValue,
+      // costPrice: entity.costPrice,
+      // afterRounding: entity.afterRounding,
+      // beforeRounding: entity.beforeRounding,
+      // roundingDiff: entity.roundingDiff,
     );
   }
 }

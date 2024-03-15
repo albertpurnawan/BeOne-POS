@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/uom.dart';
 import 'package:pos_fe/features/sales/data/models/user_role.dart';
 
 class UserRoleApi {
@@ -26,10 +27,7 @@ class UserRoleApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[0]['docid'],
-        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
-      };
+      final exeData = {"docid": response.data[19]['docid'], "parameter": []};
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",

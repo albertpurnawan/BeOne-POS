@@ -48,21 +48,6 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
     };
   }
 
-  factory PriceByItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
-    return PriceByItemBarcodeModel.fromMap({
-      ...map,
-      "tpln2Id": map['tpln2_id']?['docid'] != null
-          ? map['tpln2_id']['docid'] as String
-          : null,
-      "tbitmId": map['tbitm_id']?['docid'] != null
-          ? map['tbitm_id']['docid'] as String
-          : null,
-      "tcurrId": map['tcurr_id']?['docid'] != null
-          ? map['tcurr_id']['docid'] as String
-          : null,
-    });
-  }
-
   factory PriceByItemBarcodeModel.fromMap(Map<String, dynamic> map) {
     return PriceByItemBarcodeModel(
       docId: map['docid'] as String,
@@ -75,6 +60,16 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
     );
+  }
+
+  factory PriceByItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
+    return PriceByItemBarcodeModel.fromMap({
+      ...map,
+      "tpln2Id": map['tpln2docid'] != null ? map['tpln2docid'] as String : null,
+      "tbitmId": map['tbitmdocid'] != null ? map['tbitmdocid'] as String : null,
+      "tcurrId": map['tcurrdocid'] != null ? map['tcurrdocid'] as String : null,
+      "price": map['price'].toDouble() as double,
+    });
   }
 
   factory PriceByItemBarcodeModel.fromEntity(PriceByItemBarcodeEntity entity) {

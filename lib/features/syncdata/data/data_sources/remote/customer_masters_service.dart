@@ -1,68 +1,76 @@
-// import 'package:dio/dio.dart';
-// import 'package:pos_fe/core/constants/constants.dart';
-// import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'dart:developer';
 
-// class CustomerApi {
-//   final Dio _dio;
-//   String token = Constant.token;
-//   String url = Constant.url;
+import 'package:dio/dio.dart';
+import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 
-//   CustomerApi(this._dio);
+class CustomerApi {
+  final Dio _dio;
+  String token = Constant.token;
+  String url = Constant.url;
 
-//   Future<List<CustomerModel>> fetchData() async {
-//     try {
-//       int page = 1;
-//       bool hasMoreData = true;
-//       List<CustomerModel> allData = [];
+  CustomerApi(this._dio);
 
-//       while (hasMoreData) {
-//         final response = await _dio.get(
-//           "$url/tenant-customer?page=$page",
-//           options: Options(
-//             headers: {
-//               'Authorization': 'Bearer $token',
-//             },
-//           ),
-//         );
+  Future<List<CustomerCstModel>> fetchData() async {
+    try {
+      int page = 1;
+      bool hasMoreData = true;
+      List<CustomerCstModel> allData = [];
 
-//         List<CustomerModel> data = (response.data as List)
-//             .map((e) => CustomerModel.fromMap(e))
-//             .toList();
-//         // log(check.toString());
-//         allData.addAll(data);
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {"docid": response.data[31]['docid'], "parameter": []};
+      // log(exeData.toString());
 
-//         if (data.isEmpty) {
-//           hasMoreData = false;
-//         } else {
-//           page++;
-//         }
-//       }
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
 
-//       return allData;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
+      if (resp.data['data'].isNotEmpty) {
+        log(resp.data['data'][0].toString());
 
-//   Future<CustomerModel> fetchSingleData(String docid) async {
-//     try {
-//       final response = await _dio.get(
-//         "$url/tenant-customer/$docid",
-//         options: Options(
-//           headers: {
-//             'Authorization': 'Bearer $token',
-//           },
-//         ),
-//       );
-//       // log([response.data].toString());
+        List<CustomerCstModel> data = (resp.data['data'] as List)
+            .map((e) => CustomerCstModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
-//       CustomerModel datum = CustomerModel.fromMap(response.data);
+      return allData;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
 
-//       return datum;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
-// }
+  Future<CustomerCstModel> fetchSingleData(String docid) async {
+    try {
+      final response = await _dio.get(
+        "$url/tenant-master-currency/$docid",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
+
+      CustomerCstModel datum = CustomerCstModel.fromMap(response.data);
+
+      // log(datum.toString());
+      return datum;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
+}
