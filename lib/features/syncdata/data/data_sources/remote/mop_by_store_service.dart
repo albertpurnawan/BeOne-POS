@@ -3,20 +3,20 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
 
-class UserApi {
+class MOPByStoreApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  UserApi(this._dio);
+  MOPByStoreApi(this._dio);
 
-  Future<List<UserModel>> fetchData() async {
+  Future<List<MOPByStoreModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<UserModel> allData = [];
+      List<MOPByStoreModel> allData = [];
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -26,7 +26,10 @@ class UserApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[20]['docid'], "parameter": []};
+      final exeData = {
+        "docid": response.data[16]['docid'],
+        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+      };
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
@@ -36,8 +39,9 @@ class UserApi {
           }));
       log(resp.data['data'].toString());
 
-      List<UserModel> data =
-          (resp.data['data'] as List).map((e) => UserModel.fromMap(e)).toList();
+      List<MOPByStoreModel> data = (resp.data['data'] as List)
+          .map((e) => MOPByStoreModel.fromMapRemote(e))
+          .toList();
       allData.addAll(data);
 
       return allData;
@@ -47,7 +51,7 @@ class UserApi {
     }
   }
 
-  Future<UserModel> fetchSingleData(String docid) async {
+  Future<MOPByStoreModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
         "$url/tenant-master-currency/$docid",
@@ -60,7 +64,7 @@ class UserApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      UserModel datum = UserModel.fromMap(response.data);
+      MOPByStoreModel datum = MOPByStoreModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

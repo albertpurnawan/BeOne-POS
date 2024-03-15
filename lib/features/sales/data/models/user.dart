@@ -16,10 +16,8 @@ class UserFields {
     statusActive,
     activated,
     superUser,
-    provider,
     userType,
-    trolleyUser,
-    trolleyPass,
+    tostrId,
   ];
 
   static const String docId = "docid";
@@ -33,10 +31,8 @@ class UserFields {
   static const String statusActive = "statusactive";
   static const String activated = "activated";
   static const String superUser = "superuser";
-  static const String provider = "provider";
   static const String userType = "usertype";
-  static const String trolleyUser = "trolleyuser";
-  static const String trolleyPass = "trolleypass";
+  static const String tostrId = "tostrId";
 }
 
 class UserModel extends UserEntity implements BaseModel {
@@ -52,10 +48,8 @@ class UserModel extends UserEntity implements BaseModel {
     required super.statusActive,
     required super.activated,
     required super.superUser,
-    required super.provider,
     required super.userType,
-    required super.trolleyUser,
-    required super.trolleyPass,
+    required super.tostrId,
   });
 
   @override
@@ -72,10 +66,8 @@ class UserModel extends UserEntity implements BaseModel {
       'statusactive': statusActive,
       'activated': activated,
       'superuser': superUser,
-      'provider': provider,
       'usertype': userType,
-      'trolleyuser': trolleyUser,
-      'trolleypass': trolleyPass,
+      'tostrId': tostrId,
     };
   }
 
@@ -94,24 +86,17 @@ class UserModel extends UserEntity implements BaseModel {
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       superUser: map['superuser'] as int,
-      provider: map['provider'] as int,
       userType: map['usertype'] != null ? map['usertype'] as int : null,
-      trolleyUser:
-          map['trolleyuser'] != null ? map['trolleyuser'] as String : null,
-      trolleyPass:
-          map['trolleypass'] != null ? map['trolleypass'] as String : null,
+      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
     );
   }
 
   factory UserModel.fromMapRemote(Map<String, dynamic> map) {
     return UserModel.fromMap({
       ...map,
-      "tohemId": map['tohem_id']?['docid'] != null
-          ? map['tohem_id']['docid'] as String
-          : null,
-      "torolId": map['torol_id']?['docid'] != null
-          ? map['torol_id']['docid'] as String
-          : null,
+      "tohemId": map['tohemdocid'] != null ? map['tohemdocid'] as String : null,
+      "torolId": map['toroldocid'] != null ? map['toroldocid'] as String : null,
+      "tostrId": map['tostrdocid'] != null ? map['tostrdocid'] as String : null,
     });
   }
 
@@ -128,10 +113,8 @@ class UserModel extends UserEntity implements BaseModel {
       statusActive: entity.statusActive,
       activated: entity.activated,
       superUser: entity.superUser,
-      provider: entity.provider,
       userType: entity.userType,
-      trolleyUser: entity.trolleyUser,
-      trolleyPass: entity.trolleyPass,
+      tostrId: entity.tostrId,
     );
   }
 }

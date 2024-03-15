@@ -8,7 +8,6 @@ import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
 class ItemByStoreApi {
   final Dio _dio;
   String token = Constant.token;
-  String storeId = Constant.storeId;
   String url = Constant.url;
 
   ItemByStoreApi(this._dio);
@@ -19,28 +18,32 @@ class ItemByStoreApi {
       bool hasMoreData = true;
       List<ItemByStoreModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await _dio.get(
-          "$url/tenant-item-by-store/?page=$page&store_id=$storeId",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {
+        "docid": response.data[24]['docid'],
+        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+      };
+      // log(exeData.toString());
 
-        List<ItemByStoreModel> data = (response.data as List)
-            .map((e) => ItemByStoreModel.fromMapRemote(e))
-            .toList();
-        allData.addAll(data);
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      log(resp.data['data'][0].toString());
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
-      log(allData[0].toString());
+      List<ItemByStoreModel> data = (resp.data['data'] as List)
+          .map((e) => ItemByStoreModel.fromMapRemote(e))
+          .toList();
+      allData.addAll(data);
+
       return allData;
     } catch (err) {
       handleError(err);
@@ -51,22 +54,19 @@ class ItemByStoreApi {
   Future<ItemByStoreModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
-        "$url/tenant-item-by-store/$docid",
+        "$url/tenant-master-currency/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
           },
         ),
       );
-
-      // response.data.forEach((key, value) {
-      //   log('$key: ${value.runtimeType} $value');
-      // });
-
+      // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      ItemByStoreModel datum = ItemByStoreModel.fromMapRemote(response.data);
-      log(datum.toString());
+      ItemByStoreModel datum = ItemByStoreModel.fromMap(response.data);
+
+      // log(datum.toString());
       return datum;
     } catch (err) {
       handleError(err);

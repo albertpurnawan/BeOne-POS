@@ -54,12 +54,8 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
   factory MOPByStoreModel.fromMapRemote(Map<String, dynamic> map) {
     return MOPByStoreModel.fromMap({
       ...map,
-      "tpmt1Id": map['tpmt1_id']['docid'] != null
-          ? map['tpmt1_id']['docid'] as String
-          : null,
-      "tostrId": map['tostr_id']['docid'] != null
-          ? map['tostr_id']['docid'] as String
-          : null,
+      "tpmt1Id": map['tpmt1docid'] != null ? map['tpmt1docid'] as String : null,
+      "tostrId": map['tostrdocid'] != null ? map['tostrdocid'] as String : null,
     });
   }
 

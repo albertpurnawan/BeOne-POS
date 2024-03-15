@@ -66,12 +66,8 @@ class AssignPriceMemberPerStoreModel extends AssignPriceMemberPerStoreEntity
       Map<String, dynamic> map) {
     return AssignPriceMemberPerStoreModel.fromMap({
       ...map,
-      "toplnId": map['topln_id']['docid'] != null
-          ? map['topln_id']['docid'] as String
-          : null,
-      "tostrId": map['tostr_id']['docid'] != null
-          ? map['tostr_id']['docid'] as String
-          : null,
+      "toplnId": map['toplndocid'] != null ? map['toplndocid'] as String : null,
+      "tostrId": map['tostrdocid'] != null ? map['tostrdocid'] as String : null,
     });
   }
 

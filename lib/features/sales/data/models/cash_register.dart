@@ -116,9 +116,7 @@ class CashRegisterModel extends CashRegisterEntity implements BaseModel {
   factory CashRegisterModel.fromMapRemote(Map<String, dynamic> map) {
     return CashRegisterModel.fromMap({
       ...map,
-      "tostrId": map['tostr_id']?['docid'] != null
-          ? map['tostr_id']['docid'] as String
-          : null,
+      "tostrId": map['tostrdocid'] != null ? map['tostrdocid'] as String : null,
     });
   }
 

@@ -9,19 +9,19 @@ class StoreMasterEntity {
   final String storeName;
   final String email;
   final String phone;
-  final String addr1;
+  final String? addr1;
   final String? addr2;
   final String? addr3;
   final String city;
   final String? remarks;
   final String? toprvId;
   final String? tocryId;
-  final String? tozcdlId;
+  final String? tozcdId;
   final String? tohemId;
   final double sqm;
   final String? tcurrId;
   final String? toplnId;
-  final dynamic storePic;
+  final dynamic? storePic;
   final String? tovatId;
   final DateTime storeOpening;
   final int statusActive;
@@ -78,7 +78,7 @@ class StoreMasterEntity {
     required this.remarks,
     required this.toprvId,
     required this.tocryId,
-    required this.tozcdlId,
+    required this.tozcdId,
     required this.tohemId,
     required this.sqm,
     required this.tcurrId,
@@ -141,12 +141,12 @@ class StoreMasterEntity {
     String? remarks,
     String? toprvId,
     String? tocryId,
-    String? tozcdlId,
+    String? tozcdId,
     String? tohemId,
     double? sqm,
     String? tcurrId,
     String? toplnId,
-    dynamic storePic,
+    dynamic? storePic,
     String? tovatId,
     DateTime? storeOpening,
     int? statusActive,
@@ -203,7 +203,7 @@ class StoreMasterEntity {
       remarks: remarks ?? this.remarks,
       toprvId: toprvId ?? this.toprvId,
       tocryId: tocryId ?? this.tocryId,
-      tozcdlId: tozcdlId ?? this.tozcdlId,
+      tozcdId: tozcdId ?? this.tozcdId,
       tohemId: tohemId ?? this.tohemId,
       sqm: sqm ?? this.sqm,
       tcurrId: tcurrId ?? this.tcurrId,
@@ -268,7 +268,7 @@ class StoreMasterEntity {
       'remarks': remarks,
       'toprvId': toprvId,
       'tocryId': tocryId,
-      'tozcdlId': tozcdlId,
+      'tozcdId': tozcdId,
       'tohemId': tohemId,
       'sqm': sqm,
       'tcurrId': tcurrId,
@@ -328,19 +328,19 @@ class StoreMasterEntity {
       storeName: map['storeName'] as String,
       email: map['email'] as String,
       phone: map['phone'] as String,
-      addr1: map['addr1'] as String,
+      addr1: map['addr1'] != null ? map['addr1'] as String : null,
       addr2: map['addr2'] != null ? map['addr2'] as String : null,
       addr3: map['addr3'] != null ? map['addr3'] as String : null,
       city: map['city'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
       tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
-      tozcdlId: map['tozcdlId'] != null ? map['tozcdlId'] as String : null,
+      tozcdId: map['tozcdId'] != null ? map['tozcdId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       sqm: map['sqm'] as double,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      storePic: map['storePic'] as dynamic,
+      storePic: map['storePic'] != null ? map['storePic'] as dynamic : null,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
       storeOpening:
           DateTime.fromMillisecondsSinceEpoch(map['storeOpening'] as int),
@@ -400,7 +400,7 @@ class StoreMasterEntity {
 
   @override
   String toString() {
-    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdlId: $tozcdlId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04)';
+    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04)';
   }
 
   @override
@@ -421,7 +421,7 @@ class StoreMasterEntity {
         other.remarks == remarks &&
         other.toprvId == toprvId &&
         other.tocryId == tocryId &&
-        other.tozcdlId == tozcdlId &&
+        other.tozcdId == tozcdId &&
         other.tohemId == tohemId &&
         other.sqm == sqm &&
         other.tcurrId == tcurrId &&
@@ -485,7 +485,7 @@ class StoreMasterEntity {
         remarks.hashCode ^
         toprvId.hashCode ^
         tocryId.hashCode ^
-        tozcdlId.hashCode ^
+        tozcdId.hashCode ^
         tohemId.hashCode ^
         sqm.hashCode ^
         tcurrId.hashCode ^

@@ -3,20 +3,20 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 
-class UserApi {
+class APMPSApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
 
-  UserApi(this._dio);
+  APMPSApi(this._dio);
 
-  Future<List<UserModel>> fetchData() async {
+  Future<List<AssignPriceMemberPerStoreModel>> fetchData() async {
     try {
       int page = 1;
       bool hasMoreData = true;
-      List<UserModel> allData = [];
+      List<AssignPriceMemberPerStoreModel> allData = [];
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -26,7 +26,7 @@ class UserApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[20]['docid'], "parameter": []};
+      final exeData = {"docid": response.data[33]['docid'], "parameter": []};
       // log(exeData.toString());
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
@@ -34,11 +34,15 @@ class UserApi {
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'].toString());
 
-      List<UserModel> data =
-          (resp.data['data'] as List).map((e) => UserModel.fromMap(e)).toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log(resp.data['data'][0].toString());
+
+        List<AssignPriceMemberPerStoreModel> data = (resp.data['data'] as List)
+            .map((e) => AssignPriceMemberPerStoreModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {
@@ -47,7 +51,7 @@ class UserApi {
     }
   }
 
-  Future<UserModel> fetchSingleData(String docid) async {
+  Future<AssignPriceMemberPerStoreModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
         "$url/tenant-master-currency/$docid",
@@ -60,7 +64,8 @@ class UserApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      UserModel datum = UserModel.fromMap(response.data);
+      AssignPriceMemberPerStoreModel datum =
+          AssignPriceMemberPerStoreModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

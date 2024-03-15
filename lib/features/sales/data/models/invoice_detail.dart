@@ -32,6 +32,7 @@ class InvoiceDetailFields {
     includeTax,
     tovenId,
     tbitmId,
+    //maybe need more to send to bos
   ];
 
   static const String docId = "docid";

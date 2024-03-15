@@ -9,14 +9,14 @@ class PriceByItemEntity {
   final String? toitmId;
   final String? tcurrId;
   final double price;
-  final double? purchasePrice;
-  final double? calculatedPrice;
-  final double? marginPercentage;
-  final double? marginValue;
-  final double? costPrice;
-  final double? afterRounding;
-  final double? beforeRounding;
-  final double? roundingDiff;
+  // final double? purchasePrice;
+  // final double? calculatedPrice;
+  // final double? marginPercentage;
+  // final double? marginValue;
+  // final double? costPrice;
+  // final double? afterRounding;
+  // final double? beforeRounding;
+  // final double? roundingDiff;
 
   PriceByItemEntity({
     required this.docId,
@@ -26,14 +26,14 @@ class PriceByItemEntity {
     required this.toitmId,
     required this.tcurrId,
     required this.price,
-    required this.purchasePrice,
-    required this.calculatedPrice,
-    required this.marginPercentage,
-    required this.marginValue,
-    required this.costPrice,
-    required this.afterRounding,
-    required this.beforeRounding,
-    required this.roundingDiff,
+    // required this.purchasePrice,
+    // required this.calculatedPrice,
+    // required this.marginPercentage,
+    // required this.marginValue,
+    // required this.costPrice,
+    // required this.afterRounding,
+    // required this.beforeRounding,
+    // required this.roundingDiff,
   });
 
   PriceByItemEntity copyWith({
@@ -44,14 +44,14 @@ class PriceByItemEntity {
     String? toitmId,
     String? tcurrId,
     double? price,
-    double? purchasePrice,
-    double? calculatedPrice,
-    double? marginPercentage,
-    double? marginValue,
-    double? costPrice,
-    double? afterRounding,
-    double? beforeRounding,
-    double? roundingDiff,
+    // double? purchasePrice,
+    // double? calculatedPrice,
+    // double? marginPercentage,
+    // double? marginValue,
+    // double? costPrice,
+    // double? afterRounding,
+    // double? beforeRounding,
+    // double? roundingDiff,
   }) {
     return PriceByItemEntity(
       docId: docId ?? this.docId,
@@ -61,14 +61,14 @@ class PriceByItemEntity {
       toitmId: toitmId ?? this.toitmId,
       tcurrId: tcurrId ?? this.tcurrId,
       price: price ?? this.price,
-      purchasePrice: purchasePrice ?? this.purchasePrice,
-      calculatedPrice: calculatedPrice ?? this.calculatedPrice,
-      marginPercentage: marginPercentage ?? this.marginPercentage,
-      marginValue: marginValue ?? this.marginValue,
-      costPrice: costPrice ?? this.costPrice,
-      afterRounding: afterRounding ?? this.afterRounding,
-      beforeRounding: beforeRounding ?? this.beforeRounding,
-      roundingDiff: roundingDiff ?? this.roundingDiff,
+      // purchasePrice: purchasePrice ?? this.purchasePrice,
+      // calculatedPrice: calculatedPrice ?? this.calculatedPrice,
+      // marginPercentage: marginPercentage ?? this.marginPercentage,
+      // marginValue: marginValue ?? this.marginValue,
+      // costPrice: costPrice ?? this.costPrice,
+      // afterRounding: afterRounding ?? this.afterRounding,
+      // beforeRounding: beforeRounding ?? this.beforeRounding,
+      // roundingDiff: roundingDiff ?? this.roundingDiff,
     );
   }
 
@@ -81,14 +81,14 @@ class PriceByItemEntity {
       'toitmId': toitmId,
       'tcurrId': tcurrId,
       'price': price,
-      'purchasePrice': purchasePrice,
-      'calculatedPrice': calculatedPrice,
-      'marginPercentage': marginPercentage,
-      'marginValue': marginValue,
-      'costPrice': costPrice,
-      'afterRounding': afterRounding,
-      'beforeRounding': beforeRounding,
-      'roundingDiff': roundingDiff,
+      // 'purchasePrice': purchasePrice,
+      // 'calculatedPrice': calculatedPrice,
+      // 'marginPercentage': marginPercentage,
+      // 'marginValue': marginValue,
+      // 'costPrice': costPrice,
+      // 'afterRounding': afterRounding,
+      // 'beforeRounding': beforeRounding,
+      // 'roundingDiff': roundingDiff,
     };
   }
 
@@ -103,24 +103,24 @@ class PriceByItemEntity {
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
-      purchasePrice:
-          map['purchasePrice'] != null ? map['purchasePrice'] as double : null,
-      calculatedPrice: map['calculatedPrice'] != null
-          ? map['calculatedPrice'] as double
-          : null,
-      marginPercentage: map['marginPercentage'] != null
-          ? map['marginPercentage'] as double
-          : null,
-      marginValue:
-          map['marginValue'] != null ? map['marginValue'] as double : null,
-      costPrice: map['costPrice'] != null ? map['costPrice'] as double : null,
-      afterRounding:
-          map['afterRounding'] != null ? map['afterRounding'] as double : null,
-      beforeRounding: map['beforeRounding'] != null
-          ? map['beforeRounding'] as double
-          : null,
-      roundingDiff:
-          map['roundingDiff'] != null ? map['roundingDiff'] as double : null,
+      // purchasePrice:
+      //     map['purchasePrice'] != null ? map['purchasePrice'] as double : null,
+      // calculatedPrice: map['calculatedPrice'] != null
+      //     ? map['calculatedPrice'] as double
+      //     : null,
+      // marginPercentage: map['marginPercentage'] != null
+      //     ? map['marginPercentage'] as double
+      //     : null,
+      // marginValue:
+      //     map['marginValue'] != null ? map['marginValue'] as double : null,
+      // costPrice: map['costPrice'] != null ? map['costPrice'] as double : null,
+      // afterRounding:
+      //     map['afterRounding'] != null ? map['afterRounding'] as double : null,
+      // beforeRounding: map['beforeRounding'] != null
+      //     ? map['beforeRounding'] as double
+      //     : null,
+      // roundingDiff:
+      //     map['roundingDiff'] != null ? map['roundingDiff'] as double : null,
     );
   }
 
@@ -131,7 +131,7 @@ class PriceByItemEntity {
 
   @override
   String toString() {
-    return 'PriceByItemEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln1Id: $tpln1Id, toitmId: $toitmId, tcurrId: $tcurrId, price: $price, purchasePrice: $purchasePrice, calculatedPrice: $calculatedPrice, marginPercentage: $marginPercentage, marginValue: $marginValue, costPrice: $costPrice, afterRounding: $afterRounding, beforeRounding: $beforeRounding, roundingDiff: $roundingDiff)';
+    return 'PriceByItemEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln1Id: $tpln1Id, toitmId: $toitmId, tcurrId: $tcurrId, price: $price, )'; //purchasePrice: $purchasePrice, calculatedPrice: $calculatedPrice, marginPercentage: $marginPercentage, marginValue: $marginValue, costPrice: $costPrice, afterRounding: $afterRounding, beforeRounding: $beforeRounding, roundingDiff: $roundingDiff
   }
 
   @override
@@ -144,15 +144,15 @@ class PriceByItemEntity {
         other.tpln1Id == tpln1Id &&
         other.toitmId == toitmId &&
         other.tcurrId == tcurrId &&
-        other.price == price &&
-        other.purchasePrice == purchasePrice &&
-        other.calculatedPrice == calculatedPrice &&
-        other.marginPercentage == marginPercentage &&
-        other.marginValue == marginValue &&
-        other.costPrice == costPrice &&
-        other.afterRounding == afterRounding &&
-        other.beforeRounding == beforeRounding &&
-        other.roundingDiff == roundingDiff;
+        other.price == price;
+    // other.purchasePrice == purchasePrice &&
+    // other.calculatedPrice == calculatedPrice &&
+    // other.marginPercentage == marginPercentage &&
+    // other.marginValue == marginValue &&
+    // other.costPrice == costPrice &&
+    // other.afterRounding == afterRounding &&
+    // other.beforeRounding == beforeRounding &&
+    // other.roundingDiff == roundingDiff;
   }
 
   @override
@@ -163,14 +163,14 @@ class PriceByItemEntity {
         tpln1Id.hashCode ^
         toitmId.hashCode ^
         tcurrId.hashCode ^
-        price.hashCode ^
-        purchasePrice.hashCode ^
-        calculatedPrice.hashCode ^
-        marginPercentage.hashCode ^
-        marginValue.hashCode ^
-        costPrice.hashCode ^
-        afterRounding.hashCode ^
-        beforeRounding.hashCode ^
-        roundingDiff.hashCode;
+        price.hashCode;
+    // purchasePrice.hashCode ^
+    // calculatedPrice.hashCode ^
+    // marginPercentage.hashCode ^
+    // marginValue.hashCode ^
+    // costPrice.hashCode ^
+    // afterRounding.hashCode ^
+    // beforeRounding.hashCode ^
+    // roundingDiff.hashCode;
   }
 }

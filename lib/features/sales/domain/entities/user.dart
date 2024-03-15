@@ -13,10 +13,8 @@ class UserEntity {
   final int statusActive;
   final int activated;
   final int superUser;
-  final int provider;
   final int? userType;
-  final String? trolleyUser;
-  final String? trolleyPass;
+  final String? tostrId;
 
   UserEntity({
     required this.docId,
@@ -30,10 +28,8 @@ class UserEntity {
     required this.statusActive,
     required this.activated,
     required this.superUser,
-    required this.provider,
     required this.userType,
-    required this.trolleyUser,
-    required this.trolleyPass,
+    required this.tostrId,
   });
 
   UserEntity copyWith({
@@ -48,10 +44,8 @@ class UserEntity {
     int? statusActive,
     int? activated,
     int? superUser,
-    int? provider,
     int? userType,
-    String? trolleyUser,
-    String? trolleyPass,
+    String? tostrId,
   }) {
     return UserEntity(
       docId: docId ?? this.docId,
@@ -65,10 +59,8 @@ class UserEntity {
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
       superUser: superUser ?? this.superUser,
-      provider: provider ?? this.provider,
       userType: userType ?? this.userType,
-      trolleyUser: trolleyUser ?? this.trolleyUser,
-      trolleyPass: trolleyPass ?? this.trolleyPass,
+      tostrId: tostrId ?? this.tostrId,
     );
   }
 
@@ -85,10 +77,8 @@ class UserEntity {
       'statusActive': statusActive,
       'activated': activated,
       'superUser': superUser,
-      'provider': provider,
       'userType': userType,
-      'trolleyUser': trolleyUser,
-      'trolleyPass': trolleyPass,
+      'tostrId': tostrId,
     };
   }
 
@@ -107,12 +97,8 @@ class UserEntity {
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
       superUser: map['superUser'] as int,
-      provider: map['provider'] as int,
       userType: map['userType'] != null ? map['userType'] as int : null,
-      trolleyUser:
-          map['trolleyUser'] != null ? map['trolleyUser'] as String : null,
-      trolleyPass:
-          map['trolleyPass'] != null ? map['trolleyPass'] as String : null,
+      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
     );
   }
 
@@ -123,7 +109,7 @@ class UserEntity {
 
   @override
   String toString() {
-    return 'UserEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, email: $email, username: $username, password: $password, tohemId: $tohemId, torolId: $torolId, statusActive: $statusActive, activated: $activated, superUser: $superUser, provider: $provider, userType: $userType, trolleyUser: $trolleyUser, trolleyPass: $trolleyPass)';
+    return 'UserEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, email: $email, username: $username, password: $password, tohemId: $tohemId, torolId: $torolId, statusActive: $statusActive, activated: $activated, superUser: $superUser, userType: $userType, tostrId: $tostrId)';
   }
 
   @override
@@ -141,10 +127,8 @@ class UserEntity {
         other.statusActive == statusActive &&
         other.activated == activated &&
         other.superUser == superUser &&
-        other.provider == provider &&
         other.userType == userType &&
-        other.trolleyUser == trolleyUser &&
-        other.trolleyPass == trolleyPass;
+        other.tostrId == tostrId;
   }
 
   @override
@@ -160,9 +144,7 @@ class UserEntity {
         statusActive.hashCode ^
         activated.hashCode ^
         superUser.hashCode ^
-        provider.hashCode ^
         userType.hashCode ^
-        trolleyUser.hashCode ^
-        trolleyPass.hashCode;
+        tostrId.hashCode;
   }
 }

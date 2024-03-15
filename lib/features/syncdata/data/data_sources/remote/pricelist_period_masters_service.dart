@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
@@ -7,7 +9,6 @@ class PricelistPeriodApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
-  String topln_id = '3d355ebf-ae71-4892-b09c-bdc8ae8f7331';
 
   PricelistPeriodApi(this._dio);
 
@@ -17,28 +18,28 @@ class PricelistPeriodApi {
       bool hasMoreData = true;
       List<PricelistPeriodModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await _dio.get(
-          "$url/tenant-pricelist-period?page=$page&topln_id=$topln_id",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {"docid": response.data[21]['docid'], "parameter": []};
+      // log(exeData.toString());
 
-        final List<PricelistPeriodModel> data = (response.data as List)
-            .map((e) => PricelistPeriodModel.fromMapRemote(e))
-            .toList();
-        allData.addAll(data);
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      log(resp.data['data'].toString());
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
-      // log(allData[0].toString());
+      List<PricelistPeriodModel> data = (resp.data['data'] as List)
+          .map((e) => PricelistPeriodModel.fromMapRemote(e))
+          .toList();
+      allData.addAll(data);
 
       return allData;
     } catch (err) {
@@ -50,7 +51,7 @@ class PricelistPeriodApi {
   Future<PricelistPeriodModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
-        "$url/tenant-pricelist-period/$docid",
+        "$url/tenant-master-currency/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -58,9 +59,9 @@ class PricelistPeriodApi {
         ),
       );
       // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
-      PricelistPeriodModel datum =
-          PricelistPeriodModel.fromMapRemote(response.data);
+      PricelistPeriodModel datum = PricelistPeriodModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

@@ -81,31 +81,22 @@ class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
   factory ItemByStoreModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemByStoreModel.fromMap({
       ...map,
-      "toitmId": map['toitmId']?['docid'] != null
-          ? map['toitmId']['docid'] as String
-          : null,
-      "tostrId": map['tostrId']?['docid'] != null
-          ? map['tostrId']['docid'] as String
-          : null,
-      "tovatId": map['tovat_id']?['docid'] != null
-          ? map['tovat_id']['docid'] as String
-          : null,
-      "tovatIdPur": map['tovatIdPur']?['docid'] != null
-          ? map['tovatIdPur']['docid'] as String
-          : null,
-      "maxstock": map['toitmId']['maxstock'] != null
-          ? map['toitmId']['maxstock'].toDouble() as double
-          : null,
-      "minstock": map['toitmId']['minstock'] != null
-          ? map['toitmId']['minstock'].toDouble() as double
-          : null,
+      "toitmId": map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+      "tostrId": map['tostrdocid'] != null ? map['tostrdocid'] as String : null,
+      "tovatId": map['tovatdocid'] != null ? map['tovatdocid'] as String : null,
+      "tovatIdPur":
+          map['tovatdocidPur'] != null ? map['tovatdocidPur'] as String : null,
+      "maxstock":
+          map['maxstock'] != null ? map['maxstock'].toDouble() as double : null,
+      "minstock":
+          map['minstock'] != null ? map['minstock'].toDouble() as double : null,
+      "price": map['price'] != null ? map['price'].toDouble() as double : null,
       "marginpercentage": map['marginpercentage'] != null
           ? map['marginpercentage'].toDouble() as double
           : null,
       "marginprice": map['marginprice'] != null
           ? map['marginprice'].toDouble() as double
           : null,
-      "price": map['price'] != null ? map['price'].toDouble() as double : null,
     });
   }
 
