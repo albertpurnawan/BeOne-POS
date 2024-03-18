@@ -4,14 +4,17 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/receipt_repository_impl.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
@@ -50,12 +53,14 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_serv
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
+import 'package:uuid/uuid.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   sl.registerSingleton<Dio>(Dio());
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
+  sl.registerSingleton<Uuid>(const Uuid());
 
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
   sl.registerSingleton<AuthorizationApi>(AuthorizationApi(sl()));
@@ -107,6 +112,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<MopSelectionRepository>(
       () => MopSelectionRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<ReceiptRepository>(
+      () => ReceiptRepositoryImpl(sl(), sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -122,6 +130,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetMopSelectionsUseCase>(
       () => GetMopSelectionsUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<SaveReceiptUseCase>(
+      () => SaveReceiptUseCase(sl()),
       dependsOn: [AppDatabase]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 

@@ -20,11 +20,11 @@ class POSParameterFields {
   static const String docId = 'docid';
   static const String createDate = 'createdate';
   static const String updateDate = 'updatedate';
-  static const String tostrId = 'tostrid';
+  static const String tostrId = 'tostrId';
   static const String storeName = 'storename';
-  static const String tcurrId = 'tcurrid';
+  static const String tcurrId = 'tcurrId';
   static const String currCode = 'currcode';
-  static const String toplnId = 'toplnid';
+  static const String toplnId = 'toplnId';
   static const String tocsrId = "tocsrId";
   static const String tovatId = "tovatId";
 }
@@ -49,11 +49,11 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       'docid': docId,
       'createdate': createDate.toLocal().toIso8601String(),
       'updatedate': updateDate?.toLocal().toIso8601String(),
-      'tostrid': tostrId,
+      'tostrId': tostrId,
       'storename': storeName,
-      'tcurrid': tcurrId,
+      'tcurrId': tcurrId,
       'currcode': currCode,
-      'toplnid': toplnId,
+      'toplnId': toplnId,
       'tocsrId': tocsrId,
       'tovatId': tovatId,
     };
@@ -66,11 +66,11 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate']).toLocal()
           : null,
-      tostrId: map['tostrid'] as String,
+      tostrId: map['tostrId'] as String,
       storeName: map['storename'] as String,
-      tcurrId: map['tcurrid'] as String,
+      tcurrId: map['tcurrId'] as String,
       currCode: map['currcode'] as String,
-      toplnId: map['toplnid'] as String,
+      toplnId: map['toplnId'] as String,
       tocsrId: map['tocsrId'] as String,
       tovatId: map['tovatId'] as String,
     );

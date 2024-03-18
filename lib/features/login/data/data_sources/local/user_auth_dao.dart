@@ -38,7 +38,7 @@ class UserAuthDao extends BaseDao<UserModel> {
       tableName,
       columns: modelFields,
       where: 'email = ? OR username = ?',
-      whereArgs: [identifier],
+      whereArgs: [identifier, identifier],
     );
 
     return res.isNotEmpty ? UserModel.fromMap(res[0]) : null;

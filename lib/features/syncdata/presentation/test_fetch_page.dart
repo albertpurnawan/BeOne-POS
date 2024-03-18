@@ -80,97 +80,117 @@ class _FetchScreenState extends State<FetchScreen> {
       });
 
       final currencies = await GetIt.instance<CurrencyApi>().fetchData();
-      await GetIt.instance<AppDatabase>().currencyDao.bulkCreate(currencies);
+      await GetIt.instance<AppDatabase>()
+          .currencyDao
+          .bulkCreate(data: currencies);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final countries = await GetIt.instance<CountryApi>().fetchData();
-      await GetIt.instance<AppDatabase>().countryDao.bulkCreate(countries);
+      await GetIt.instance<AppDatabase>()
+          .countryDao
+          .bulkCreate(data: countries);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final provinces = await GetIt.instance<ProvinceApi>().fetchData();
-      await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(provinces);
+      await GetIt.instance<AppDatabase>()
+          .provinceDao
+          .bulkCreate(data: provinces);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
-      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(zipcodes);
+      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(data: zipcodes);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final employees = await GetIt.instance<EmployeeApi>().fetchData();
-      await GetIt.instance<AppDatabase>().employeeDao.bulkCreate(employees);
+      await GetIt.instance<AppDatabase>()
+          .employeeDao
+          .bulkCreate(data: employees);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final taxes = await GetIt.instance<TaxMasterApi>().fetchData();
-      await GetIt.instance<AppDatabase>().taxMasterDao.bulkCreate(taxes);
+      await GetIt.instance<AppDatabase>().taxMasterDao.bulkCreate(data: taxes);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
-      await GetIt.instance<AppDatabase>().paymentTypeDao.bulkCreate(payTypes);
+      await GetIt.instance<AppDatabase>()
+          .paymentTypeDao
+          .bulkCreate(data: payTypes);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final mops = await GetIt.instance<MOPApi>().fetchData();
-      await GetIt.instance<AppDatabase>().meansOfPaymentDao.bulkCreate(mops);
+      await GetIt.instance<AppDatabase>()
+          .meansOfPaymentDao
+          .bulkCreate(data: mops);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final ccs = await GetIt.instance<CreditCardApi>().fetchData();
-      await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(ccs);
+      await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(data: ccs);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final pricelists = await GetIt.instance<PricelistApi>().fetchData();
-      await GetIt.instance<AppDatabase>().pricelistDao.bulkCreate(pricelists);
+      await GetIt.instance<AppDatabase>()
+          .pricelistDao
+          .bulkCreate(data: pricelists);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final stores = await GetIt.instance<StoreMasterApi>().fetchData();
-      await GetIt.instance<AppDatabase>().storeMasterDao.bulkCreate(stores);
+      await GetIt.instance<AppDatabase>()
+          .storeMasterDao
+          .bulkCreate(data: stores);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final mopStores = await GetIt.instance<MOPByStoreApi>().fetchData();
-      await GetIt.instance<AppDatabase>().mopByStoreDao.bulkCreate(mopStores);
+      await GetIt.instance<AppDatabase>()
+          .mopByStoreDao
+          .bulkCreate(data: mopStores);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
-      await GetIt.instance<AppDatabase>().cashRegisterDao.bulkCreate(cashiers);
+      await GetIt.instance<AppDatabase>()
+          .cashRegisterDao
+          .bulkCreate(data: cashiers);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final uoms = await GetIt.instance<UoMApi>().fetchData();
-      await GetIt.instance<AppDatabase>().uomDao.bulkCreate(uoms);
+      await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: uoms);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final roles = await GetIt.instance<UserRoleApi>().fetchData();
-      await GetIt.instance<AppDatabase>().userRoleDao.bulkCreate(roles);
+      await GetIt.instance<AppDatabase>().userRoleDao.bulkCreate(data: roles);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final users = await GetIt.instance<UserApi>().fetchData();
-      await GetIt.instance<AppDatabase>().userDao.bulkCreate(users);
+      await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: users);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -179,19 +199,21 @@ class _FetchScreenState extends State<FetchScreen> {
           await GetIt.instance<PricelistPeriodApi>().fetchData();
       await GetIt.instance<AppDatabase>()
           .pricelistPeriodDao
-          .bulkCreate(pricelistPeriod);
+          .bulkCreate(data: pricelistPeriod);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
-      await GetIt.instance<AppDatabase>().itemCategoryDao.bulkCreate(itemCat);
+      await GetIt.instance<AppDatabase>()
+          .itemCategoryDao
+          .bulkCreate(data: itemCat);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final items = await GetIt.instance<ItemMasterApi>().fetchData();
-      await GetIt.instance<AppDatabase>().itemMasterDao.bulkCreate(items);
+      await GetIt.instance<AppDatabase>().itemMasterDao.bulkCreate(data: items);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -199,7 +221,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
       await GetIt.instance<AppDatabase>()
           .itemByStoreDao
-          .bulkCreate(itemsStores);
+          .bulkCreate(data: itemsStores);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -207,25 +229,29 @@ class _FetchScreenState extends State<FetchScreen> {
       final itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
       await GetIt.instance<AppDatabase>()
           .itemBarcodeDao
-          .bulkCreate(itemBarcodes);
+          .bulkCreate(data: itemBarcodes);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
       // // ---
       final itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
-      await GetIt.instance<AppDatabase>().itemRemarkDao.bulkCreate(itemRemarks);
+      await GetIt.instance<AppDatabase>()
+          .itemRemarkDao
+          .bulkCreate(data: itemRemarks);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
-      await GetIt.instance<AppDatabase>().vendorGroupDao.bulkCreate(venGroups);
+      await GetIt.instance<AppDatabase>()
+          .vendorGroupDao
+          .bulkCreate(data: venGroups);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final vendor = await GetIt.instance<VendorApi>().fetchData();
-      await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(vendor);
+      await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(data: vendor);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -240,13 +266,17 @@ class _FetchScreenState extends State<FetchScreen> {
       // // ---
 
       final cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
-      await GetIt.instance<AppDatabase>().customerGroupDao.bulkCreate(cusGroup);
+      await GetIt.instance<AppDatabase>()
+          .customerGroupDao
+          .bulkCreate(data: cusGroup);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
 
       final cusCst = await GetIt.instance<CustomerApi>().fetchData();
-      await GetIt.instance<AppDatabase>().customerCstDao.bulkCreate(cusCst);
+      await GetIt.instance<AppDatabase>()
+          .customerCstDao
+          .bulkCreate(data: cusCst);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -254,7 +284,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
       await GetIt.instance<AppDatabase>()
           .priceByItemDao
-          .bulkCreate(priceByItem);
+          .bulkCreate(data: priceByItem);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -262,7 +292,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final apmps = await GetIt.instance<APMPSApi>().fetchData();
       await GetIt.instance<AppDatabase>()
           .assignPriceMemberPerStoreDao
-          .bulkCreate(apmps);
+          .bulkCreate(data: apmps);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -271,7 +301,7 @@ class _FetchScreenState extends State<FetchScreen> {
           await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
       await GetIt.instance<AppDatabase>()
           .priceByItemBarcodeDao
-          .bulkCreate(priceItemBarcode);
+          .bulkCreate(data: priceItemBarcode);
       setState(() {
         _syncProgress += 1 / totalTable;
       });

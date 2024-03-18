@@ -13,25 +13,43 @@ abstract class BaseDao<T extends BaseModel> {
     required this.modelFields,
   });
 
-  Future<void> bulkCreate(List<T> data) async {
-    await db.delete(tableName);
+  Future<void> bulkCreate({required List<T> data, Transaction? txn}) async {
+    if (txn != null) {
+      final batch = txn.batch();
 
-    final batch = db.batch();
+      for (final e in data) {
+        batch.insert(tableName, e.toMap());
+      }
 
-    for (final e in data) {
-      batch.insert(
-        tableName,
-        e.toMap(),
-      );
+      final res = await batch.commit(noResult: true);
+      print(res.toString());
+    } else {
+      await db.transaction((txn) async {
+        try {
+          final batch = txn.batch();
+
+          for (final e in data) {
+            batch.insert(tableName, e.toMap());
+          }
+
+          final res = await batch.commit(noResult: true);
+          print(res.toString());
+        } catch (e) {
+          print(e);
+          rethrow;
+        }
+      });
     }
-
-    final res = await batch.commit(noResult: true);
-    print(res.toString());
   }
 
-  Future<void> create(T data) async {
-    final res = await db.insert(tableName, data.toMap());
-    print(res.toString());
+  Future<void> create({required T data, Transaction? txn}) async {
+    if (txn != null) {
+      final res = await txn.insert(tableName, data.toMap());
+      print(res.toString());
+    } else {
+      final res = await db.insert(tableName, data.toMap());
+      print(res.toString());
+    }
   }
 
   Future<T?> readByDocId(String docId);

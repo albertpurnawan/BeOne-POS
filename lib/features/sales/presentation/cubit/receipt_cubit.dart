@@ -1,17 +1,28 @@
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
+import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 
 part 'receipt_state.dart';
 
 class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetItemByBarcodeUseCase _getItemByBarcodeUseCase;
+  final SaveReceiptUseCase _saveReceiptUseCase;
 
-  ReceiptCubit(this._getItemByBarcodeUseCase)
-      : super(ReceiptEntity(receiptItems: [], totalPrice: 0));
+  ReceiptCubit(this._getItemByBarcodeUseCase, this._saveReceiptUseCase)
+      : super(ReceiptEntity(
+            docNum:
+                "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+            receiptItems: [],
+            totalPrice: 0));
 
   void addOrUpdateReceiptItems(String itemBarcode, double quantity) async {
     if (quantity <= 0) {
@@ -57,7 +68,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     final ReceiptEntity newState =
-        ReceiptEntity(receiptItems: newReceiptItems, totalPrice: totalPrice);
+        state.copyWith(receiptItems: newReceiptItems, totalPrice: totalPrice);
     emit(newState);
   }
 
@@ -80,11 +91,39 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     final ReceiptEntity newState =
-        ReceiptEntity(receiptItems: newReceiptItems, totalPrice: totalPrice);
+        state.copyWith(receiptItems: newReceiptItems, totalPrice: totalPrice);
     emit(newState);
   }
 
   void clearReceiptItems() {
-    emit(ReceiptEntity(receiptItems: [], totalPrice: 0));
+    emit(state.copyWith(receiptItems: [], totalPrice: 0));
+  }
+
+  void updateMopSelection(
+      {required MopSelectionEntity mopSelectionEntity,
+      required int amountReceived}) {
+    final newState = state.copyWith(
+        mopSelection: mopSelectionEntity, amountReceived: amountReceived);
+    emit(newState);
+  }
+
+  void updateCustomer(CustomerEntity customerEntity) {
+    emit(state.copyWith(customerEntity: customerEntity));
+  }
+
+  // void generateDocNum() {
+  //   return "S0001-${DateFormat('yymmdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1";
+  // }
+
+  void resetReceipt() {
+    emit(ReceiptEntity(
+        docNum:
+            "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+        receiptItems: [],
+        totalPrice: 0));
+  }
+
+  void saveReceipt() async {
+    return await _saveReceiptUseCase(params: state);
   }
 }
