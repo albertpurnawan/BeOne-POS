@@ -14,8 +14,8 @@ class CashRegisterApi {
 
   Future<List<CashRegisterModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-CASHIER";
+      Map<String, dynamic> exeData = {};
       List<CashRegisterModel> allData = [];
 
       final response = await _dio.get(
@@ -26,23 +26,31 @@ class CashRegisterApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[17]['docid'],
-        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
-      };
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {
+            "docid": api["docid"],
+            "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+          };
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'].toString());
 
-      List<CashRegisterModel> data = (resp.data['data'] as List)
-          .map((e) => CashRegisterModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Cash Register ---");
+        log(resp.data['data'].toString());
+
+        List<CashRegisterModel> data = (resp.data['data'] as List)
+            .map((e) => CashRegisterModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

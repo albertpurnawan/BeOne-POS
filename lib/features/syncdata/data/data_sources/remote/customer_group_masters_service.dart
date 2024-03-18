@@ -14,8 +14,8 @@ class CustomerGroupApi {
 
   Future<List<CustomerGroupModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-CUSTGROUP";
+      Map<String, dynamic> exeData = {};
       List<CustomerGroupModel> allData = [];
 
       final response = await _dio.get(
@@ -26,8 +26,12 @@ class CustomerGroupApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[30]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -36,6 +40,7 @@ class CustomerGroupApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
+        log("--- Customer Group ---");
         log(resp.data['data'][0].toString());
 
         List<CustomerGroupModel> data = (resp.data['data'] as List)

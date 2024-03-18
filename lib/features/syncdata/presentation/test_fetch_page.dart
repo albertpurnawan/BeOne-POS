@@ -326,7 +326,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<PreferredVendorApi>().fetchData();
+      final data = await GetIt.instance<CurrencyApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;

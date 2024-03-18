@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
-import 'package:pos_fe/features/sales/data/models/tax_master.dart';
 
 class PaymentTypeApi {
   final Dio _dio;
@@ -15,8 +14,8 @@ class PaymentTypeApi {
 
   Future<List<PaymentTypeModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-PAYMENTTYPE";
+      Map<String, dynamic> exeData = {};
       List<PaymentTypeModel> allData = [];
 
       final response = await _dio.get(
@@ -27,20 +26,28 @@ class PaymentTypeApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[11]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'].toString());
 
-      List<PaymentTypeModel> data = (resp.data['data'] as List)
-          .map((e) => PaymentTypeModel.fromMap(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Currency ---");
+        log(resp.data['data'][0].toString());
+
+        List<PaymentTypeModel> data = (resp.data['data'] as List)
+            .map((e) => PaymentTypeModel.fromMap(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

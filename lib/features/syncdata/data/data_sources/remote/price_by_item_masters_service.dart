@@ -14,8 +14,8 @@ class PriceByItemApi {
 
   Future<List<PriceByItemModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-PRICEBYITEM";
+      Map<String, dynamic> exeData = {};
       List<PriceByItemModel> allData = [];
 
       final response = await _dio.get(
@@ -26,8 +26,12 @@ class PriceByItemApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[32]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -36,6 +40,7 @@ class PriceByItemApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
+        log("--- Price By Item ---");
         log(resp.data['data'][0].toString());
 
         List<PriceByItemModel> data = (resp.data['data'] as List)

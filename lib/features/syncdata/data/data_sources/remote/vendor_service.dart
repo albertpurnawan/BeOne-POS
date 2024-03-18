@@ -14,8 +14,8 @@ class VendorApi {
 
   Future<List<VendorModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-VENDOR";
+      Map<String, dynamic> exeData = {};
       List<VendorModel> allData = [];
 
       final response = await _dio.get(
@@ -26,8 +26,12 @@ class VendorApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[28]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -36,6 +40,7 @@ class VendorApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
+        log("--- Vendor ---");
         log(resp.data['data'][0].toString());
 
         List<VendorModel> data = (resp.data['data'] as List)

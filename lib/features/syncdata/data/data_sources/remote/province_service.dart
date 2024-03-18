@@ -14,8 +14,8 @@ class ProvinceApi {
 
   Future<List<ProvinceModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-PROVINCE";
+      Map<String, dynamic> exeData = {};
       List<ProvinceModel> allData = [];
 
       final response = await _dio.get(
@@ -26,23 +26,31 @@ class ProvinceApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[7]['docid'],
-        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
-      };
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {
+            "docid": api["docid"],
+            "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
+          };
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      // log(resp.data['data'].toString());
 
-      List<ProvinceModel> data = (resp.data['data'] as List)
-          .map((e) => ProvinceModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Province ---");
+        log(resp.data['data'][0].toString());
+
+        List<ProvinceModel> data = (resp.data['data'] as List)
+            .map((e) => ProvinceModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

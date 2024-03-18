@@ -14,8 +14,8 @@ class ItemCategoryApi {
 
   Future<List<ItemCategoryModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-PRODCATEGORY";
+      Map<String, dynamic> exeData = {};
       List<ItemCategoryModel> allData = [];
 
       final response = await _dio.get(
@@ -26,20 +26,28 @@ class ItemCategoryApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[22]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'].toString());
 
-      List<ItemCategoryModel> data = (resp.data['data'] as List)
-          .map((e) => ItemCategoryModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Item Category ---");
+        log(resp.data['data'][0].toString());
+
+        List<ItemCategoryModel> data = (resp.data['data'] as List)
+            .map((e) => ItemCategoryModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

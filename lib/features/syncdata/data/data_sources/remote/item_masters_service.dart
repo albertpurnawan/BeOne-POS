@@ -14,8 +14,8 @@ class ItemMasterApi {
 
   Future<List<ItemMasterModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-ITEMMASTER";
+      Map<String, dynamic> exeData = {};
       List<ItemMasterModel> allData = [];
 
       final response = await _dio.get(
@@ -26,23 +26,31 @@ class ItemMasterApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[23]['docid'],
-        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
-      };
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {
+            "docid": api["docid"],
+            "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+          };
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'][0].toString());
 
-      List<ItemMasterModel> data = (resp.data['data'] as List)
-          .map((e) => ItemMasterModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Item Master ---");
+        log(resp.data['data'][0].toString());
+
+        List<ItemMasterModel> data = (resp.data['data'] as List)
+            .map((e) => ItemMasterModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

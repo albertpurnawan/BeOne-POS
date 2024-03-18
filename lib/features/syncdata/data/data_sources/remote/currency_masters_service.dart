@@ -14,8 +14,8 @@ class CurrencyApi {
 
   Future<List<CurrencyModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-CURRENCY";
+      Map<String, dynamic> exeData = {};
       List<CurrencyModel> allData = [];
 
       final response = await _dio.get(
@@ -26,10 +26,15 @@ class CurrencyApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[5]['docid'],
-        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
-      };
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {
+            "docid": api["docid"],
+            "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
+          };
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -37,10 +42,15 @@ class CurrencyApi {
             'Authorization': 'Bearer $token',
           }));
 
-      List<CurrencyModel> data = (resp.data['data'] as List)
-          .map((e) => CurrencyModel.fromMap(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Currency ---");
+        log(resp.data['data'][0].toString());
+
+        List<CurrencyModel> data = (resp.data['data'] as List)
+            .map((e) => CurrencyModel.fromMap(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

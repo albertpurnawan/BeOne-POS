@@ -14,8 +14,8 @@ class APMPSApi {
 
   Future<List<AssignPriceMemberPerStoreModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-PRICEMEMBERBSTORE";
+      Map<String, dynamic> exeData = {};
       List<AssignPriceMemberPerStoreModel> allData = [];
 
       final response = await _dio.get(
@@ -26,8 +26,12 @@ class APMPSApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[33]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -36,6 +40,7 @@ class APMPSApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
+        log("--- APMPS ---");
         log(resp.data['data'][0].toString());
 
         List<AssignPriceMemberPerStoreModel> data = (resp.data['data'] as List)

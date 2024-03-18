@@ -14,8 +14,8 @@ class MOPByStoreApi {
 
   Future<List<MOPByStoreModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-MOPBYSTORE";
+      Map<String, dynamic> exeData = {};
       List<MOPByStoreModel> allData = [];
 
       final response = await _dio.get(
@@ -26,23 +26,31 @@ class MOPByStoreApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[16]['docid'],
-        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
-      };
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {
+            "docid": api["docid"],
+            "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+          };
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'].toString());
 
-      List<MOPByStoreModel> data = (resp.data['data'] as List)
-          .map((e) => MOPByStoreModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- MOP BY STORE ---");
+        log(resp.data['data'][0].toString());
+
+        List<MOPByStoreModel> data = (resp.data['data'] as List)
+            .map((e) => MOPByStoreModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

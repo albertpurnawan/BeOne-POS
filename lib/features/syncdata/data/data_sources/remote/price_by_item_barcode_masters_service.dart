@@ -15,8 +15,8 @@ class PriceByItemBarcodeApi {
 
   Future<List<PriceByItemBarcodeModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-PRICEBARCODE";
+      Map<String, dynamic> exeData = {};
       List<PriceByItemBarcodeModel> allData = [];
 
       final response = await _dio.get(
@@ -27,8 +27,12 @@ class PriceByItemBarcodeApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[34]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -37,6 +41,7 @@ class PriceByItemBarcodeApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
+        log("--- Price By Item Barcode ---");
         log(resp.data['data'][0].toString());
 
         List<PriceByItemBarcodeModel> data = (resp.data['data'] as List)
