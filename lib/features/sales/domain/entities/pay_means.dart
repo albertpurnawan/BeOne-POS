@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class PayMeantEntity {
   final String docId;
-  final DateTime createDate;
+  final DateTime? createDate;
   final DateTime? updateDate;
   final String? toinvId;
   final int lineNum;
@@ -59,7 +59,7 @@ class PayMeantEntity {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docId': docId,
-      'createDate': createDate.millisecondsSinceEpoch,
+      'createDate': createDate?.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'toinvId': toinvId,
       'lineNum': lineNum,
@@ -75,7 +75,9 @@ class PayMeantEntity {
   factory PayMeantEntity.fromMap(Map<String, dynamic> map) {
     return PayMeantEntity(
       docId: map['docId'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
+      createDate: map['createDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
+          : null,
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,

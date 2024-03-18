@@ -50,7 +50,7 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
-      'createdate': createDate.toUtc().toIso8601String(),
+      'createdate': createDate?.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'toinvId': toinvId,
       'linenum': lineNum,
@@ -66,7 +66,9 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
   factory PayMeansModel.fromMap(Map<String, dynamic> map) {
     return PayMeansModel(
       docId: map['docid'] as String,
-      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
+      createDate: map['updatedate'] != null
+          ? DateTime.parse(map['createdate'] as String).toLocal()
+          : null,
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,

@@ -1,6 +1,28 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
+import 'package:pos_fe/core/database/seeders_data/phir1.dart';
+import 'package:pos_fe/core/database/seeders_data/tbitm.dart';
+import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
+import 'package:pos_fe/core/database/seeders_data/tocat.dart';
+import 'package:pos_fe/core/database/seeders_data/tocrg.dart';
+import 'package:pos_fe/core/database/seeders_data/tocsr.dart';
+import 'package:pos_fe/core/database/seeders_data/tocus.dart';
+import 'package:pos_fe/core/database/seeders_data/toitm.dart';
+import 'package:pos_fe/core/database/seeders_data/topln.dart';
+import 'package:pos_fe/core/database/seeders_data/topmt.dart';
+import 'package:pos_fe/core/database/seeders_data/topos.dart';
+import 'package:pos_fe/core/database/seeders_data/tostr.dart';
+import 'package:pos_fe/core/database/seeders_data/touom.dart';
+import 'package:pos_fe/core/database/seeders_data/tousr.dart';
+import 'package:pos_fe/core/database/seeders_data/tovat.dart';
+import 'package:pos_fe/core/database/seeders_data/tphir.dart';
+import 'package:pos_fe/core/database/seeders_data/tpln1.dart';
+import 'package:pos_fe/core/database/seeders_data/tpln2.dart';
+import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
+import 'package:pos_fe/core/database/seeders_data/tpmt1.dart';
+import 'package:pos_fe/core/database/seeders_data/tpmt3.dart';
+import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/authorization_dao.dart';
@@ -25,6 +47,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/means_of_payment_d
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pay_means_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/payment_type_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/pos_parameter_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/preferred_vendor_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_barcode_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/price_by_item_dao.dart';
@@ -186,9 +209,10 @@ class AppDatabase {
   late final MeansOfPaymentDao meansOfPaymentDao;
   late final MOPByStoreDao mopByStoreDao;
   late final UserRoleDao userRoleDao;
-  late final UserDao userDao;
   late final InvoiceHeaderDao invoiceHeaderDao;
   late final InvoiceDetailDao invoiceDetailDao;
+  late final POSParameterDao posParameterDao;
+  late final UserDao userDao;
   late final PayMeansDao payMeansDao;
   late final VendorGroupDao vendorGroupDao;
   late final VendorDao vendorDao;
@@ -206,7 +230,6 @@ class AppDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
     return await openDatabase(path,
         version: 1, onCreate: _createDB, onConfigure: _onConfigure);
   }
@@ -265,73 +288,114 @@ PRAGMA foreign_keys = ON;
     paymentTypeDao = PaymentTypeDao(_database!);
     meansOfPaymentDao = MeansOfPaymentDao(_database!);
     mopByStoreDao = MOPByStoreDao(_database!);
-    userDao = UserDao(_database!);
     invoiceHeaderDao = InvoiceHeaderDao(_database!);
     invoiceDetailDao = InvoiceDetailDao(_database!);
+    userDao = UserDao(_database!);
+    posParameterDao = POSParameterDao(_database!);
     payMeansDao = PayMeansDao(_database!);
     vendorGroupDao = VendorGroupDao(_database!);
     vendorDao = VendorDao(_database!);
     preferredVendorDao = PreferredVendorDao(_database!);
 
-    // currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
-    // itemCategoryDao
-    //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+    currencyDao.bulkCreate(
+        data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
+    itemCategoryDao.bulkCreate(
+        data: tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+    taxMasterDao.bulkCreate(
+        data: tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
+    productHierarchyDao.bulkCreate(
+        data: tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
+    productHierarchyMasterDao.bulkCreate(
+        data:
+            phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
+    pricelistDao.bulkCreate(
+        data: topln.map((e) => PricelistModel.fromMap(e)).toList());
+    pricelistPeriodDao.bulkCreate(
+        data: tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
+    uomDao.bulkCreate(data: touom.map((e) => UomModel.fromMap(e)).toList());
+    storeMasterDao.bulkCreate(
+        data: tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
+    itemMasterDao.bulkCreate(
+        data: toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
+    itemBarcodeDao.bulkCreate(
+        data: tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
+    itemByStoreDao.bulkCreate(
+        data: tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
+    priceByItemDao.bulkCreate(
+        data: tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
+    priceByItemBarcodeDao.bulkCreate(
+        data: tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
+    customerGroupDao.bulkCreate(
+        data: tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
+    customerDao.bulkCreate(
+        data: tocus.map((e) => CustomerModel.fromMap(e)).toList());
+    paymentTypeDao.bulkCreate(
+        data: topmt.map((e) => PaymentTypeModel.fromMap(e)).toList());
+    meansOfPaymentDao.bulkCreate(
+        data: tpmt1.map((e) => MeansOfPaymentModel.fromMap(e)).toList());
+    mopByStoreDao.bulkCreate(
+        data: tpmt3.map((e) => MOPByStoreModel.fromMap(e)).toList());
+    userDao.bulkCreate(data: tousr.map((e) => UserModel.fromMap(e)).toList());
+    cashRegisterDao.bulkCreate(
+        data: tocsr.map((e) => CashRegisterModel.fromMap(e)).toList());
+    posParameterDao.bulkCreate(
+        data: topos.map((e) => POSParameterModel.fromMap(e)).toList());
   }
 
-//   Future<void> _refreshItemsTable() async {
-//     await _database!.execute("""
-// DELETE FROM items
-// """);
-//     await _database!.execute("""
-// INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id)
-// SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id
-// FROM (
-//   SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
-//   FROM topln AS pl
-//    INNER JOIN
-//     (
-//     SELECT docid AS tpln1Id, toplnId, createdate AS tpln1createdate
-//     FROM tpln1
-//     WHERE DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
-//     ) AS pp
-//    ON pl.docid = pp.toplnId
-
-//    INNER JOIN
-//    (
-//       SELECT docid AS tpln2Id, tpln1Id, toitmId
-//       FROM tpln2
-//    ) AS pr
-//    ON pr.tpln1Id = pp.tpln1Id
-
-//   WHERE pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc'
-//   GROUP BY pr.toitmId
-// ) as p
-// INNER JOIN
-//   (SELECT tbitmId, price, tpln2Id
-//   FROM tpln4) as b
-// ON p.tpln2Id = b.tpln2Id
-// INNER JOIN
-//  (SELECT docid, barcode
-//  FROM tbitm) as bc
-//  ON bc.docid = b.tbitmId
-// INNER JOIN (
-//   SELECT docid, itemcode, itemname, touomId
-//   FROM toitm
-// ) as i
-// ON i.docid = p.toitmId
-// INNER JOIN (
-//   SELECT docid AS touomId, uomcode
-//   FROM touom
-// ) as u
-// ON u.touomId = i.touomId
-// """);
-//   }
+  Future<void> _refreshItemsTable() async {
+    await _database!.execute("""
+DELETE FROM items
+""");
+    await _database!.execute("""
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id)
+SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id
+FROM (
+  SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
+  FROM topln AS pl
+   INNER JOIN
+    (
+    SELECT docid AS tpln1Id, toplnId, createdate AS tpln1createdate
+    FROM tpln1
+    WHERE DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
+    ) AS pp
+   ON pl.docid = pp.toplnId
+   
+   INNER JOIN
+   (
+      SELECT docid AS tpln2Id, tpln1Id, toitmId
+      FROM tpln2
+   ) AS pr
+   ON pr.tpln1Id = pp.tpln1Id
+  
+  WHERE pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc'
+  GROUP BY pr.toitmId
+) as p
+INNER JOIN 
+  (SELECT tbitmId, price, tpln2Id
+  FROM tpln4) as b
+ON p.tpln2Id = b.tpln2Id
+INNER JOIN
+ (SELECT docid, barcode
+ FROM tbitm) as bc
+ ON bc.docid = b.tbitmId
+INNER JOIN (
+  SELECT docid, itemcode, itemname, touomId
+  FROM toitm
+) as i
+ON i.docid = p.toitmId
+INNER JOIN (
+  SELECT docid AS touomId, uomcode
+  FROM touom
+) as u
+ON u.touomId = i.touomId
+""");
+  }
 
   static Future<AppDatabase> init() async {
     final appDatabase = AppDatabase._init();
     await appDatabase.getDB();
     await appDatabase._injectDao();
-    // await appDatabase._refreshItemsTable();
+    await appDatabase._refreshItemsTable();
 
     return appDatabase;
   }
@@ -1084,11 +1148,11 @@ CREATE TABLE $tableUser (
   ${UserFields.userType} int DEFAULT NULL,
   ${UserFields.tostrId} text DEFAULT NULL,
   $createdAtDefinition,
-  CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tousr_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+        // CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 
         await txn.execute('''
 CREATE TABLE $tableItems (
@@ -1209,6 +1273,7 @@ CREATE TABLE $tableCashRegister (
   ${CashRegisterFields.bigHeader} int DEFAULT NULL,
   ${CashRegisterFields.syncCloud} int DEFAULT NULL,
   $createdAtDefinition,
+  CONSTRAINT `tocsr_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
   CONSTRAINT `tocsr_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
@@ -1336,15 +1401,15 @@ CREATE TABLE $tableHolidayDetail (
         await txn.execute("""
 CREATE TABLE $tableInvoiceHeader (
   $uuidDefinition,
-  ${InvoiceHeaderFields.createDate} datetime NOT NULL,
+  ${InvoiceHeaderFields.createDate} datetime DEFAULT NULL,
   ${InvoiceHeaderFields.updateDate} datetime DEFAULT NULL,
   ${InvoiceHeaderFields.tostrId} text DEFAULT NULL,
   ${InvoiceHeaderFields.docnum} varchar(30) NOT NULL,
   ${InvoiceHeaderFields.orderNo} int NOT NULL,
   ${InvoiceHeaderFields.tocusId} text DEFAULT NULL,
   ${InvoiceHeaderFields.tohemId} text DEFAULT NULL,
-  ${InvoiceHeaderFields.transDate} date NOT NULL,
-  ${InvoiceHeaderFields.transTime} time NOT NULL,
+  ${InvoiceHeaderFields.transDate} text DEFAULT CURRENT_TIMESTAMP,
+  ${InvoiceHeaderFields.transTime} text DEFAULT CURRENT_TIMESTAMP,
   ${InvoiceHeaderFields.timezone} varchar(200) NOT NULL,
   ${InvoiceHeaderFields.remarks} text,
   ${InvoiceHeaderFields.subTotal} double NOT NULL,
@@ -1368,16 +1433,16 @@ CREATE TABLE $tableInvoiceHeader (
   $createdAtDefinition,
   CONSTRAINT `toinv_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toinv_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toinv_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toinv_toinvTohemId_fkey` FOREIGN KEY (`toinvTohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `toinv_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+        // CONSTRAINT `toinv_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `toinv_toinvTohemId_fkey` FOREIGN KEY (`toinvTohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableInvoiceDetail (
   $uuidDefinition,
-  ${InvoiceDetailFields.createDate} datetime NOT NULL,
+  ${InvoiceDetailFields.createDate} datetime DEFAULT NULL,
   ${InvoiceDetailFields.updateDate} datetime DEFAULT NULL,
   ${InvoiceDetailFields.toinvId} text DEFAULT NULL,
   ${InvoiceDetailFields.lineNum} int NOT NULL,
@@ -1407,15 +1472,15 @@ CREATE TABLE $tableInvoiceDetail (
   CONSTRAINT `tinv1_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tinv1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tinv1_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tinv1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tinv1_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+        // CONSTRAINT `tinv1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
 
         await txn.execute("""
 CREATE TABLE $tablePayMeans (
   $uuidDefinition,
-  ${PayMeansFields.createDate} datetime NOT NULL,
+  ${PayMeansFields.createDate} datetime DEFAULT NULL,
   ${PayMeansFields.updateDate} datetime DEFAULT NULL,
   ${PayMeansFields.toinvId} text DEFAULT NULL,
   ${PayMeansFields.lineNum} int NOT NULL,
@@ -1427,10 +1492,10 @@ CREATE TABLE $tablePayMeans (
   ${PayMeansFields.sisaVoucher} double DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv2_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `tinv2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `tinv2_tpmt2Id_fkey` FOREIGN KEY (`tpmt2Id`) REFERENCES `tpmt2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tinv2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE
 )
 """);
+        // CONSTRAINT `tinv2_tpmt2Id_fkey` FOREIGN KEY (`tpmt2Id`) REFERENCES `tpmt2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableBatchInvoice (
@@ -2318,7 +2383,7 @@ CREATE TABLE $tablePOSParameter (
   $createdAtDefinition,
   CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )

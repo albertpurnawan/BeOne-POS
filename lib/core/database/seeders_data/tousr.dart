@@ -3,9 +3,9 @@ const tousr = [
     "docid": "e59c938c-520a-4eff-a713-689ef180bd9b",
     "createdate": "2023-08-28T04:08:00.000Z",
     "updatedate": "2023-12-21T02:46:16.000Z",
-    "email": "admin@sesa.com",
+    "email": "asd",
     "username": "admin",
-    "password": "75dd6fb87c1c218786aab5d5a20e64a0",
+    "password": "asd",
     "tohemId": null,
     "torolId": "3b4d12c1-b3f6-4844-8e31-197a3587837c",
     "statusactive": 1,
@@ -13,6 +13,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 1,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": null,
     "trolleypass": null
   },
@@ -30,6 +31,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 1,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": null,
     "trolleypass": null
   },
@@ -47,6 +49,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 1,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": null,
     "trolleypass": null
   },
@@ -64,6 +67,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 0,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": "99",
     "trolleypass": "99"
   },
@@ -81,6 +85,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 0,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": "88",
     "trolleypass": "88"
   }

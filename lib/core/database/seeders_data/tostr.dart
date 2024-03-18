@@ -9,7 +9,7 @@ const tostr = [
     "lastchanges": 0,
     "gtentId": 1,
     "storecode": "S0001",
-    "storename": "SESA Store 01",
+    "storename": "Test Store 01",
     "email": "CS@SESA.COM",
     "phone": "021",
     "addr1": "",

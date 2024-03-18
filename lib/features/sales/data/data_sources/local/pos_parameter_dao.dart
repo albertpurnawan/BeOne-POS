@@ -23,11 +23,19 @@ class POSParameterDao extends BaseDao<POSParameterModel> {
   }
 
   @override
-  Future<List<POSParameterModel>> readAll() async {
-    final result = await db.query(tableName);
+  Future<List<POSParameterModel>> readAll({Transaction? txn}) async {
+    if (txn != null) {
+      final result = await txn.query(tableName);
 
-    return result
-        .map((itemData) => POSParameterModel.fromMap(itemData))
-        .toList();
+      return result
+          .map((itemData) => POSParameterModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(tableName);
+
+      return result
+          .map((itemData) => POSParameterModel.fromMap(itemData))
+          .toList();
+    }
   }
 }

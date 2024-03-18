@@ -7,12 +7,20 @@ import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/injection_container.dart';
+import 'dart:io';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
+  if (Platform.isWindows || Platform.isLinux) {
+    // Initialize FFI
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
   await GetIt.instance.allReady();
@@ -45,8 +53,9 @@ class MyApp extends StatelessWidget {
         child: MultiBlocProvider(
           providers: [
             BlocProvider<ReceiptCubit>(
-                create: (context) =>
-                    ReceiptCubit(GetIt.instance<GetItemByBarcodeUseCase>())),
+                create: (context) => ReceiptCubit(
+                    GetIt.instance<GetItemByBarcodeUseCase>(),
+                    GetIt.instance<SaveReceiptUseCase>())),
             BlocProvider<CustomersCubit>(
                 create: (context) =>
                     CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
