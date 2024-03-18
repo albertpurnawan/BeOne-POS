@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/constants/constants.dart';
@@ -16,6 +18,7 @@ class InvoiceApi {
   Future<void> sendInvoice() async {
     try {
       final invHead = await GetIt.instance<InvoiceHeaderApi>().fetchData();
+      log(invHead.toString());
       final invDet = await GetIt.instance<InvoiceDetailApi>().fetchData();
       final payMean = await GetIt.instance<PayMeansApi>().fetchData();
 
@@ -102,7 +105,7 @@ class InvoiceApi {
       };
 
       await _dio.post(
-        "asdasdsa/tenant-invoice/",
+        "http://192.168.1.34:3001/tenant-invoice/",
         data: dataToSend,
         options: Options(
           headers: {

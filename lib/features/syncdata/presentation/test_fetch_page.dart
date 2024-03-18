@@ -13,6 +13,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_maste
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
@@ -57,7 +58,7 @@ class _FetchScreenState extends State<FetchScreen> {
   int _statusCode = 0;
   String _errorMessage = '';
   double _syncProgress = 0.0;
-  int totalTable = 29;
+  int totalTable = 30;
   int fetched = 0;
 
   void _fetchToken() async {
@@ -230,13 +231,13 @@ class _FetchScreenState extends State<FetchScreen> {
         _syncProgress += 1 / totalTable;
       });
 
-      // final prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
-      // await GetIt.instance<AppDatabase>()
-      //     .preferredVendorDao
-      //     .bulkCreate(prefVendor);
-      // setState(() {
-      //   _syncProgress += 1 / totalTable;
-      // });
+      final prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
+      await GetIt.instance<AppDatabase>()
+          .preferredVendorDao
+          .bulkCreate(prefVendor);
+      setState(() {
+        _syncProgress += 1 / totalTable;
+      });
       // // ---
 
       final cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
@@ -289,6 +290,7 @@ class _FetchScreenState extends State<FetchScreen> {
           taxes.length +
           payTypes.length +
           mops.length +
+          ccs.length +
           pricelists.length +
           stores.length +
           mopStores.length +
@@ -304,6 +306,7 @@ class _FetchScreenState extends State<FetchScreen> {
           itemRemarks.length +
           venGroups.length +
           vendor.length +
+          prefVendor.length +
           cusGroup.length +
           cusCst.length +
           priceByItem.length +
@@ -323,7 +326,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<ProvinceApi>().fetchData();
+      final data = await GetIt.instance<PreferredVendorApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -346,7 +349,8 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final datum = await GetIt.instance<UoMApi>().fetchSingleData(docid);
+      final datum =
+          await GetIt.instance<InvoiceHeaderApi>().fetchSingleData(docid);
       print(datum);
       setState(() {
         _singleData = datum.docId;

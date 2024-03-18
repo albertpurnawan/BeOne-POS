@@ -54,14 +54,14 @@ class InvoiceHeaderFields {
   static const String discAmount = "discamount";
   static const String discountCard = "discountcard";
   static const String coupon = "coupon";
-  static const String discountCoupun = "discountCoupun";
+  static const String discountCoupun = "discountcoupun";
   static const String taxPrctg = "taxprctg";
-  static const String taxAmount = "taxAmount";
+  static const String taxAmount = "taxamount";
   static const String addCost = "addcost";
   static const String rounding = "rounding";
   static const String grandTotal = "grandtotal";
   static const String changed = "changed";
-  static const String totalPayment = "totalPayment";
+  static const String totalPayment = "totalpayment";
   static const String tocsrId = "tocsrId";
   static const String docStatus = "docstatus";
   static const String sync = "sync";
@@ -123,7 +123,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'discamount': discAmount,
       'discountcard': discountCard,
       'coupon': coupon,
-      'discountCoupun': discountCoupun,
+      'discountcoupun': discountCoupun,
       'taxprctg': taxPrctg,
       'taxamount': taxAmount,
       'addcost': addCost,
@@ -160,7 +160,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       discAmount: map['discamount'] as double,
       discountCard: map['discountcard'] as double,
       coupon: map['coupon'] as String,
-      discountCoupun: map['discountCoupun'] as double,
+      discountCoupun: map['discountcoupun'] as double,
       taxPrctg: map['taxprctg'] as double,
       taxAmount: map['taxamount'] as double,
       addCost: map['addcost'] as double,
@@ -193,7 +193,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       "discprctg": map['discprctg'].toDouble() as double,
       "discamount": map['discamount'].toDouble() as double,
       "discountcard": map['discountcard'].toDouble() as double,
-      "discountCoupun": map['discountCoupun'].toDouble() as double,
+      "discountcoupun": map['discountcoupun'].toDouble() as double,
       "taxprctg": map['taxprctg'].toDouble() as double,
       "taxamount": map['taxamount'].toDouble() as double,
       "addcost": map['addcost'].toDouble() as double,

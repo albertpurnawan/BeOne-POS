@@ -26,6 +26,7 @@ class VendorGroupApi {
           },
         ),
       );
+
       final exeData = {"docid": response.data[27]['docid'], "parameter": []};
       // log(exeData.toString());
 
@@ -39,7 +40,7 @@ class VendorGroupApi {
         log(resp.data['data'][0].toString());
 
         List<VendorGroupModel> data = (resp.data['data'] as List)
-            .map((e) => VendorGroupModel.fromMap(e))
+            .map((e) => VendorGroupModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
       }
