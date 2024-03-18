@@ -213,10 +213,6 @@ class AppDatabase {
   late final InvoiceDetailDao invoiceDetailDao;
   late final POSParameterDao posParameterDao;
   late final UserDao userDao;
-  late final CashRegisterDao cashRegisterDao;
-  late final PayMeansDao payMeansDao;
-  late final InvoiceHeaderDao invoiceHeaderDao;
-  late final InvoiceDetailDao invoiceDetailDao;
   late final PayMeansDao payMeansDao;
   late final VendorGroupDao vendorGroupDao;
   late final VendorDao vendorDao;
@@ -298,6 +294,9 @@ PRAGMA foreign_keys = ON;
     cashRegisterDao = CashRegisterDao(_database!);
     posParameterDao = POSParameterDao(_database!);
     payMeansDao = PayMeansDao(_database!);
+    vendorGroupDao = VendorGroupDao(_database!);
+    vendorDao = VendorDao(_database!);
+    preferredVendorDao = PreferredVendorDao(_database!);
 
     currencyDao.bulkCreate(
         data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
@@ -392,72 +391,12 @@ INNER JOIN (
 ON u.touomId = i.touomId
 """);
   }
-    invoiceHeaderDao = InvoiceHeaderDao(_database!);
-    invoiceDetailDao = InvoiceDetailDao(_database!);
-    payMeansDao = PayMeansDao(_database!);
-    vendorGroupDao = VendorGroupDao(_database!);
-    vendorDao = VendorDao(_database!);
-    preferredVendorDao = PreferredVendorDao(_database!);
-
-    // currencyDao.bulkCreate(tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
-    // itemCategoryDao
-    //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
-  }
-
-//   Future<void> _refreshItemsTable() async {
-//     await _database!.execute("""
-// DELETE FROM items
-// """);
-//     await _database!.execute("""
-// INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id)
-// SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id
-// FROM (
-//   SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
-//   FROM topln AS pl
-//    INNER JOIN
-//     (
-//     SELECT docid AS tpln1Id, toplnId, createdate AS tpln1createdate
-//     FROM tpln1
-//     WHERE DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
-//     ) AS pp
-//    ON pl.docid = pp.toplnId
-
-//    INNER JOIN
-//    (
-//       SELECT docid AS tpln2Id, tpln1Id, toitmId
-//       FROM tpln2
-//    ) AS pr
-//    ON pr.tpln1Id = pp.tpln1Id
-
-//   WHERE pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc'
-//   GROUP BY pr.toitmId
-// ) as p
-// INNER JOIN
-//   (SELECT tbitmId, price, tpln2Id
-//   FROM tpln4) as b
-// ON p.tpln2Id = b.tpln2Id
-// INNER JOIN
-//  (SELECT docid, barcode
-//  FROM tbitm) as bc
-//  ON bc.docid = b.tbitmId
-// INNER JOIN (
-//   SELECT docid, itemcode, itemname, touomId
-//   FROM toitm
-// ) as i
-// ON i.docid = p.toitmId
-// INNER JOIN (
-//   SELECT docid AS touomId, uomcode
-//   FROM touom
-// ) as u
-// ON u.touomId = i.touomId
-// """);
-//   }
 
   static Future<AppDatabase> init() async {
     final appDatabase = AppDatabase._init();
     await appDatabase.getDB();
     await appDatabase._injectDao();
-    // await appDatabase._refreshItemsTable();
+    await appDatabase._refreshItemsTable();
 
     return appDatabase;
   }
