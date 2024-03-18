@@ -291,7 +291,6 @@ PRAGMA foreign_keys = ON;
     invoiceHeaderDao = InvoiceHeaderDao(_database!);
     invoiceDetailDao = InvoiceDetailDao(_database!);
     userDao = UserDao(_database!);
-    cashRegisterDao = CashRegisterDao(_database!);
     posParameterDao = POSParameterDao(_database!);
     payMeansDao = PayMeansDao(_database!);
     vendorGroupDao = VendorGroupDao(_database!);
@@ -1148,11 +1147,11 @@ CREATE TABLE $tableUser (
   ${UserFields.userType} int DEFAULT NULL,
   ${UserFields.tostrId} text DEFAULT NULL,
   $createdAtDefinition,
-  CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tousr_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+        // CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 
         await txn.execute('''
 CREATE TABLE $tableItems (

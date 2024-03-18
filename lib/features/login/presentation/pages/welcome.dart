@@ -543,9 +543,10 @@ class _MyAppState extends State<MyApp> {
                             onPressed: selectedPrinter == null || !_isConnected
                                 ? null
                                 : () {
-                                    if (selectedPrinter != null)
+                                    if (selectedPrinter != null) {
                                       printerManager.disconnect(
                                           type: selectedPrinter!.typePrinter);
+                                    }
                                     setState(() {
                                       _isConnected = false;
                                     });
@@ -736,8 +737,9 @@ class _MyAppState extends State<MyApp> {
                       padding: const EdgeInsets.only(top: 10.0),
                       child: OutlinedButton(
                         onPressed: () async {
-                          if (_ipController.text.isNotEmpty)
+                          if (_ipController.text.isNotEmpty) {
                             setIpAddress(_ipController.text);
+                          }
                           _printReceiveTest();
                         },
                         child: const Padding(

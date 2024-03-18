@@ -13,6 +13,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 1,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": null,
     "trolleypass": null
   },
@@ -30,6 +31,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 1,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": null,
     "trolleypass": null
   },
@@ -47,6 +49,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 1,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": null,
     "trolleypass": null
   },
@@ -64,6 +67,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 0,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": "99",
     "trolleypass": "99"
   },
@@ -81,6 +85,7 @@ const tousr = [
     "superuser": 1,
     "provider": 0,
     "usertype": 0,
+    "tostrId": "878694e6-fdf4-49a7-82e3-d0facb685741",
     "trolleyuser": "88",
     "trolleypass": "88"
   }

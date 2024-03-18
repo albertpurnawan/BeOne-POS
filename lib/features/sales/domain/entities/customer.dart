@@ -8,28 +8,17 @@ class CustomerEntity {
   final String custCode;
   final String custName;
   final String? tocrgId;
-  final String idCard;
-  final String taxNo;
-  final String gender;
-  final DateTime birthdate;
-  final String addr1;
-  final String? addr2;
-  final String? addr3;
-  final String city;
-  final String? toprvId;
-  final String? tocryId;
-  final String? tozcdId;
   final String phone;
   final String email;
-  final String remarks;
-  final String? toptrId;
+  final String taxNo;
+  final double maxDiscount;
   final String? toplnId;
   final DateTime? joinDate;
-  final double maxDiscount;
-  final int statusActive;
-  final int activated;
   final int isEmployee;
   final String? tohemId;
+  final String? docid_crm;
+  final int statusActive;
+  final int activated;
 
   CustomerEntity({
     required this.docId,
@@ -38,28 +27,17 @@ class CustomerEntity {
     required this.custCode,
     required this.custName,
     required this.tocrgId,
-    required this.idCard,
-    required this.taxNo,
-    required this.gender,
-    required this.birthdate,
-    required this.addr1,
-    required this.addr2,
-    required this.addr3,
-    required this.city,
-    required this.toprvId,
-    required this.tocryId,
-    required this.tozcdId,
     required this.phone,
     required this.email,
-    required this.remarks,
-    required this.toptrId,
+    required this.taxNo,
+    required this.maxDiscount,
     required this.toplnId,
     required this.joinDate,
-    required this.maxDiscount,
-    required this.statusActive,
-    required this.activated,
     required this.isEmployee,
     required this.tohemId,
+    required this.docid_crm,
+    required this.statusActive,
+    required this.activated,
   });
 
   CustomerEntity copyWith({
@@ -69,28 +47,17 @@ class CustomerEntity {
     String? custCode,
     String? custName,
     String? tocrgId,
-    String? idCard,
-    String? taxNo,
-    String? gender,
-    DateTime? birthdate,
-    String? addr1,
-    String? addr2,
-    String? addr3,
-    String? city,
-    String? toprvId,
-    String? tocryId,
-    String? tozcdId,
     String? phone,
     String? email,
-    String? remarks,
-    String? toptrId,
+    String? taxNo,
+    double? maxDiscount,
     String? toplnId,
     DateTime? joinDate,
-    double? maxDiscount,
-    int? statusActive,
-    int? activated,
     int? isEmployee,
     String? tohemId,
+    String? docid_crm,
+    int? statusActive,
+    int? activated,
   }) {
     return CustomerEntity(
       docId: docId ?? this.docId,
@@ -99,28 +66,17 @@ class CustomerEntity {
       custCode: custCode ?? this.custCode,
       custName: custName ?? this.custName,
       tocrgId: tocrgId ?? this.tocrgId,
-      idCard: idCard ?? this.idCard,
-      taxNo: taxNo ?? this.taxNo,
-      gender: gender ?? this.gender,
-      birthdate: birthdate ?? this.birthdate,
-      addr1: addr1 ?? this.addr1,
-      addr2: addr2 ?? this.addr2,
-      addr3: addr3 ?? this.addr3,
-      city: city ?? this.city,
-      toprvId: toprvId ?? this.toprvId,
-      tocryId: tocryId ?? this.tocryId,
-      tozcdId: tozcdId ?? this.tozcdId,
       phone: phone ?? this.phone,
       email: email ?? this.email,
-      remarks: remarks ?? this.remarks,
-      toptrId: toptrId ?? this.toptrId,
+      taxNo: taxNo ?? this.taxNo,
+      maxDiscount: maxDiscount ?? this.maxDiscount,
       toplnId: toplnId ?? this.toplnId,
       joinDate: joinDate ?? this.joinDate,
-      maxDiscount: maxDiscount ?? this.maxDiscount,
-      statusActive: statusActive ?? this.statusActive,
-      activated: activated ?? this.activated,
       isEmployee: isEmployee ?? this.isEmployee,
       tohemId: tohemId ?? this.tohemId,
+      docid_crm: docid_crm ?? this.docid_crm,
+      statusActive: statusActive ?? this.statusActive,
+      activated: activated ?? this.activated,
     );
   }
 
@@ -132,28 +88,17 @@ class CustomerEntity {
       'custCode': custCode,
       'custName': custName,
       'tocrgId': tocrgId,
-      'idCard': idCard,
-      'taxNo': taxNo,
-      'gender': gender,
-      'birthdate': birthdate.millisecondsSinceEpoch,
-      'addr1': addr1,
-      'addr2': addr2,
-      'addr3': addr3,
-      'city': city,
-      'toprvId': toprvId,
-      'tocryId': tocryId,
-      'tozcdId': tozcdId,
       'phone': phone,
       'email': email,
-      'remarks': remarks,
-      'toptrId': toptrId,
+      'taxNo': taxNo,
+      'maxDiscount': maxDiscount,
       'toplnId': toplnId,
       'joinDate': joinDate?.millisecondsSinceEpoch,
-      'maxDiscount': maxDiscount,
-      'statusActive': statusActive,
-      'activated': activated,
       'isEmployee': isEmployee,
       'tohemId': tohemId,
+      'docid_crm': docid_crm,
+      'statusActive': statusActive,
+      'activated': activated,
     };
   }
 
@@ -167,30 +112,19 @@ class CustomerEntity {
       custCode: map['custCode'] as String,
       custName: map['custName'] as String,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
-      idCard: map['idCard'] as String,
-      taxNo: map['taxNo'] as String,
-      gender: map['gender'] as String,
-      birthdate: DateTime.fromMillisecondsSinceEpoch(map['birthdate'] as int),
-      addr1: map['addr1'] as String,
-      addr2: map['addr2'] != null ? map['addr2'] as String : null,
-      addr3: map['addr3'] != null ? map['addr3'] as String : null,
-      city: map['city'] as String,
-      toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
-      tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
-      tozcdId: map['tozcdId'] != null ? map['tozcdId'] as String : null,
       phone: map['phone'] as String,
       email: map['email'] as String,
-      remarks: map['remarks'] as String,
-      toptrId: map['toptrId'] != null ? map['toptrId'] as String : null,
+      taxNo: map['taxNo'] as String,
+      maxDiscount: map['maxDiscount'] as double,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
       joinDate: map['joinDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['joinDate'] as int)
           : null,
-      maxDiscount: map['maxDiscount'] as double,
-      statusActive: map['statusActive'] as int,
-      activated: map['activated'] as int,
       isEmployee: map['isEmployee'] as int,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
+      docid_crm: map['docid_crm'] != null ? map['docid_crm'] as String : null,
+      statusActive: map['statusActive'] as int,
+      activated: map['activated'] as int,
     );
   }
 
@@ -201,7 +135,7 @@ class CustomerEntity {
 
   @override
   String toString() {
-    return 'CustomerEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, custCode: $custCode, custName: $custName, tocrgId: $tocrgId, idCard: $idCard, taxNo: $taxNo, gender: $gender, birthdate: $birthdate, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, phone: $phone, email: $email, remarks: $remarks, toptrId: $toptrId, toplnId: $toplnId, joinDate: $joinDate, maxDiscount: $maxDiscount, statusActive: $statusActive, activated: $activated, isEmployee: $isEmployee, tohemId: $tohemId)';
+    return 'CustomerEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, custCode: $custCode, custName: $custName, tocrgId: $tocrgId, phone: $phone, email: $email, taxNo: $taxNo, maxDiscount: $maxDiscount, toplnId: $toplnId, joinDate: $joinDate, isEmployee: $isEmployee, tohemId: $tohemId, docid_crm: $docid_crm, statusActive: $statusActive, activated: $activated)';
   }
 
   @override
@@ -214,28 +148,17 @@ class CustomerEntity {
         other.custCode == custCode &&
         other.custName == custName &&
         other.tocrgId == tocrgId &&
-        other.idCard == idCard &&
-        other.taxNo == taxNo &&
-        other.gender == gender &&
-        other.birthdate == birthdate &&
-        other.addr1 == addr1 &&
-        other.addr2 == addr2 &&
-        other.addr3 == addr3 &&
-        other.city == city &&
-        other.toprvId == toprvId &&
-        other.tocryId == tocryId &&
-        other.tozcdId == tozcdId &&
         other.phone == phone &&
         other.email == email &&
-        other.remarks == remarks &&
-        other.toptrId == toptrId &&
+        other.taxNo == taxNo &&
+        other.maxDiscount == maxDiscount &&
         other.toplnId == toplnId &&
         other.joinDate == joinDate &&
-        other.maxDiscount == maxDiscount &&
-        other.statusActive == statusActive &&
-        other.activated == activated &&
         other.isEmployee == isEmployee &&
-        other.tohemId == tohemId;
+        other.tohemId == tohemId &&
+        other.docid_crm == docid_crm &&
+        other.statusActive == statusActive &&
+        other.activated == activated;
   }
 
   @override
@@ -246,27 +169,16 @@ class CustomerEntity {
         custCode.hashCode ^
         custName.hashCode ^
         tocrgId.hashCode ^
-        idCard.hashCode ^
-        taxNo.hashCode ^
-        gender.hashCode ^
-        birthdate.hashCode ^
-        addr1.hashCode ^
-        addr2.hashCode ^
-        addr3.hashCode ^
-        city.hashCode ^
-        toprvId.hashCode ^
-        tocryId.hashCode ^
-        tozcdId.hashCode ^
         phone.hashCode ^
         email.hashCode ^
-        remarks.hashCode ^
-        toptrId.hashCode ^
+        taxNo.hashCode ^
+        maxDiscount.hashCode ^
         toplnId.hashCode ^
         joinDate.hashCode ^
-        maxDiscount.hashCode ^
-        statusActive.hashCode ^
-        activated.hashCode ^
         isEmployee.hashCode ^
-        tohemId.hashCode;
+        tohemId.hashCode ^
+        docid_crm.hashCode ^
+        statusActive.hashCode ^
+        activated.hashCode;
   }
 }
