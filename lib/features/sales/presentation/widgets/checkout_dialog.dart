@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
@@ -115,6 +117,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                       )),
                     ],
                   ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   TextButton(
                     style: ButtonStyle(
                         shape: MaterialStatePropertyAll(RoundedRectangleBorder(
@@ -172,7 +177,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             (states) => ProjectColors.primary),
                         overlayColor: MaterialStateColor.resolveWith(
                             (states) => Colors.white.withOpacity(.2))),
-                    onPressed: () {
+                    onPressed: () async {
+                      await GetIt.instance<SaveReceiptUseCase>()
+                          .call(params: context.read<ReceiptCubit>().state);
                       setState(() {
                         isCharged = true;
                       });

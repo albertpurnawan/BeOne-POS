@@ -105,7 +105,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
 
   @override
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    Map<String, dynamic> map = {
       'docid': docId,
       'createdate': createDate?.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
@@ -114,8 +114,6 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'orderno': orderNo,
       'tocusId': tocusId,
       'tohemId': tohemId,
-      'transdate': transDate?.toUtc().toIso8601String(),
-      'transtime': transTime?.toUtc().toIso8601String(),
       'timezone': timezone,
       'remarks': remarks,
       'subtotal': subTotal,
@@ -137,6 +135,15 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'synccrm': syncCRM,
       'toinvTohemId': toinvTohemId,
     };
+    if (transDate == null && transTime == null) {
+      return map;
+    } else {
+      return {
+        ...map,
+        'transdate': transDate?.toUtc().toIso8601String(),
+        'transtime': transTime?.toUtc().toIso8601String(),
+      };
+    }
   }
 
   factory InvoiceHeaderModel.fromMap(Map<String, dynamic> map) {

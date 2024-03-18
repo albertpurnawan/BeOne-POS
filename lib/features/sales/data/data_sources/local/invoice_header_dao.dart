@@ -1,5 +1,6 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:sqflite/sqflite.dart';
 
 class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
@@ -30,4 +31,6 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
         .map((itemData) => InvoiceHeaderModel.fromMap(itemData))
         .toList();
   }
+
+  Future<void> createWithRelations(ReceiptModel receiptModel) async {}
 }

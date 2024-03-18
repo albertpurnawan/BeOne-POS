@@ -52,13 +52,19 @@ class _FetchScreenState extends State<FetchScreen> {
       await GetIt.instance<AppDatabase>().emptyDb();
       print("DB Opened");
       final currencies = await GetIt.instance<CurrencyApi>().fetchData();
-      await GetIt.instance<AppDatabase>().currencyDao.bulkCreate(currencies);
+      await GetIt.instance<AppDatabase>()
+          .currencyDao
+          .bulkCreate(data: currencies);
       final countries = await GetIt.instance<CountryApi>().fetchData();
-      await GetIt.instance<AppDatabase>().countryDao.bulkCreate(countries);
+      await GetIt.instance<AppDatabase>()
+          .countryDao
+          .bulkCreate(data: countries);
       final provinces = await GetIt.instance<ProvinceApi>().fetchData();
-      await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(provinces);
+      await GetIt.instance<AppDatabase>()
+          .provinceDao
+          .bulkCreate(data: provinces);
       final zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
-      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(zipcodes);
+      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(data: zipcodes);
 
       var fetched = currencies.length +
           countries.length +

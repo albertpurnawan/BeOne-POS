@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +26,7 @@ class _SalesPageState extends State<SalesPage> {
   ReceiptItemEntity? activeReceiptItem;
   bool isEditingNewReceiptItemQty = false;
   List<int> indexIsSelect = [-1, 0];
+  bool isEditingNewReceiptItemCode = true;
   bool isUpdatingReceiptItemQty = false;
   bool isEditingReceiptItemQty = false;
   CustomerEntity? radioValue;
@@ -331,6 +334,8 @@ class _SalesPageState extends State<SalesPage> {
                                           .text = "";
                                       _newReceiptItemQuantityFocusNode
                                           .unfocus();
+                                      isUpdatingReceiptItemQty = false;
+                                      isEditingNewReceiptItemCode = true;
                                       _newReceiptItemCodeFocusNode
                                           .requestFocus();
                                     } else {
@@ -341,6 +346,8 @@ class _SalesPageState extends State<SalesPage> {
                                       _textEditingControllerNewReceiptItemCode
                                           .text = e.itemEntity.barcode;
                                       _newReceiptItemCodeFocusNode.unfocus();
+                                      isUpdatingReceiptItemQty = true;
+                                      isEditingNewReceiptItemCode = false;
                                       _newReceiptItemQuantityFocusNode
                                           .requestFocus();
                                     }
@@ -642,6 +649,8 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Widget _receiptItemForm() {
+    print(isEditingNewReceiptItemQty);
+    print(isUpdatingReceiptItemQty);
     return Expanded(
       flex: 4,
       child: Container(
@@ -728,23 +737,29 @@ class _SalesPageState extends State<SalesPage> {
                                           true),
                                       focusNode:
                                           FocusNode(canRequestFocus: false),
-                                      child: TextField(
-                                        // readOnly: !isEditingReceiptItemQty,
-                                        focusNode:
-                                            _newReceiptItemQuantityFocusNode,
-                                        controller:
-                                            _textEditingControllerNewReceiptItemQuantity,
-                                        enableInteractiveSelection: false,
-                                        // showCursor: false,
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.none,
-                                        style: const TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w500),
-                                        decoration: const InputDecoration(
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.fromLTRB(
-                                                0, 0, 0, 10)),
+                                      child: Focus(
+                                        onFocusChange: (value) =>
+                                            _newReceiptItemQuantityFocusNode
+                                                .requestFocus(),
+                                        child: TextField(
+                                          // readOnly: !isEditingReceiptItemQty,
+                                          focusNode:
+                                              _newReceiptItemQuantityFocusNode,
+                                          controller:
+                                              _textEditingControllerNewReceiptItemQuantity,
+                                          enableInteractiveSelection: false,
+                                          // showCursor: false,
+                                          textAlign: TextAlign.center,
+                                          keyboardType: TextInputType.none,
+                                          style: const TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w500),
+                                          decoration: const InputDecoration(
+                                              isCollapsed: true,
+                                              contentPadding:
+                                                  EdgeInsets.fromLTRB(
+                                                      0, 0, 0, 10)),
+                                        ),
                                       ),
                                     ),
                                   )
@@ -765,8 +780,7 @@ class _SalesPageState extends State<SalesPage> {
                         alignment: Alignment.center,
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                          child: !(isEditingNewReceiptItemQty ||
-                                  isUpdatingReceiptItemQty)
+                          child: isEditingNewReceiptItemCode
                               ? RawKeyboardListener(
                                   onKey: (event) => handlePhysicalKeyboard(
                                       event,
@@ -776,32 +790,38 @@ class _SalesPageState extends State<SalesPage> {
                                   focusNode: FocusNode(canRequestFocus: false),
                                   child: SizedBox(
                                     height: 40,
-                                    child: TextField(
-                                      // "00000001283",
-                                      // enabled: !isEditingReceiptItemQty,
-                                      // readOnly: isEditingReceiptItemQty,
+                                    child: Focus(
+                                      onFocusChange: (value) {
+                                        _newReceiptItemCodeFocusNode
+                                            .requestFocus();
+                                      },
+                                      child: TextField(
+                                        // "00000001283",
+                                        // enabled: !isEditingReceiptItemQty,
+                                        // readOnly: isEditingReceiptItemQty,
 
-                                      autofocus: true,
-                                      focusNode: _newReceiptItemCodeFocusNode,
-                                      controller:
-                                          _textEditingControllerNewReceiptItemCode,
-                                      enableInteractiveSelection: false,
-                                      // showCursor: false,
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.none,
-                                      style: const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w500),
-                                      decoration: const InputDecoration(
-                                          hintText:
-                                              "Scan or Type an Item Barcode",
-                                          hintStyle: TextStyle(
-                                            fontSize: 18,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                          isCollapsed: true,
-                                          contentPadding:
-                                              EdgeInsets.fromLTRB(0, 0, 0, 10)),
+                                        autofocus: true,
+                                        focusNode: _newReceiptItemCodeFocusNode,
+                                        controller:
+                                            _textEditingControllerNewReceiptItemCode,
+                                        enableInteractiveSelection: false,
+                                        // showCursor: false,
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.none,
+                                        style: const TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w500),
+                                        decoration: const InputDecoration(
+                                            hintText:
+                                                "Scan or Type an Item Barcode",
+                                            hintStyle: TextStyle(
+                                              fontSize: 18,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.fromLTRB(
+                                                0, 0, 0, 10)),
+                                      ),
                                     ),
                                   ),
                                 )
@@ -918,7 +938,7 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               final strdt =
                                   DateTime.now().toUtc().toIso8601String();
                               print(strdt);
@@ -1329,10 +1349,19 @@ class _SalesPageState extends State<SalesPage> {
               child: SizedBox.expand(
                 child: OutlinedButton(
                   onPressed: () {
+                    setState(() {
+                      isEditingNewReceiptItemCode = false;
+                      isEditingNewReceiptItemQty = false;
+                      isUpdatingReceiptItemQty = false;
+                    });
                     showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => const CheckoutDialog());
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const CheckoutDialog())
+                        .then((value) => setState(() {
+                              isEditingNewReceiptItemCode = true;
+                              _newReceiptItemCodeFocusNode.requestFocus();
+                            }));
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
@@ -1379,6 +1408,11 @@ class _SalesPageState extends State<SalesPage> {
             child: SizedBox.expand(
               child: OutlinedButton(
                 onPressed: () async {
+                  setState(() {
+                    isEditingNewReceiptItemCode = false;
+                    isEditingNewReceiptItemQty = false;
+                    isUpdatingReceiptItemQty = false;
+                  });
                   return showDialog<void>(
                     context: context,
                     barrierDismissible: false, // user must tap button!
@@ -1623,6 +1657,8 @@ class _SalesPageState extends State<SalesPage> {
                   ).then((value) => setState(() {
                         radioValue = null;
                         context.read<CustomersCubit>().clearCustomers();
+                        isEditingNewReceiptItemCode = true;
+                        _newReceiptItemCodeFocusNode.requestFocus();
                       }));
                 },
                 style: OutlinedButton.styleFrom(
@@ -1705,11 +1741,13 @@ class _SalesPageState extends State<SalesPage> {
                 onPressed: () => setState(() {
                   if (isEditingNewReceiptItemQty == false) {
                     isEditingNewReceiptItemQty = true;
+                    isEditingNewReceiptItemCode = false;
                     _textEditingControllerNewReceiptItemQuantity.text = "";
                     // _newReceiptItemCodeFocusNode.unfocus();
                     _newReceiptItemQuantityFocusNode.requestFocus();
                   } else {
                     isEditingNewReceiptItemQty = false;
+                    isEditingNewReceiptItemCode = true;
                     _textEditingControllerNewReceiptItemQuantity
                         .text = _textEditingControllerNewReceiptItemQuantity
                                     .text ==
@@ -1960,6 +1998,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: FilledButton(
                       onPressed: () async {
                         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                          print(1);
                           context.read<ReceiptCubit>().addOrUpdateReceiptItems(
                               _textEditingControllerNewReceiptItemCode.text,
                               double.parse(
@@ -1997,6 +2036,8 @@ class _SalesPageState extends State<SalesPage> {
                                 "1";
                             _textEditingControllerNewReceiptItemCode.text = "";
                             _newReceiptItemQuantityFocusNode.unfocus();
+                            isUpdatingReceiptItemQty = false;
+                            isEditingNewReceiptItemCode = true;
                             _newReceiptItemCodeFocusNode.requestFocus();
                           });
 
@@ -2014,8 +2055,8 @@ class _SalesPageState extends State<SalesPage> {
                           // );
                         } else if (_newReceiptItemQuantityFocusNode
                             .hasPrimaryFocus) {
+                          print(3);
                           setState(() {
-                            isEditingNewReceiptItemQty = false;
                             _textEditingControllerNewReceiptItemQuantity
                                 .text = _textEditingControllerNewReceiptItemQuantity
                                             .text ==
@@ -2032,9 +2073,12 @@ class _SalesPageState extends State<SalesPage> {
                                     3);
 
                             _newReceiptItemQuantityFocusNode.unfocus();
+                            isEditingNewReceiptItemQty = false;
+                            isEditingNewReceiptItemCode = true;
                             _newReceiptItemCodeFocusNode.requestFocus();
                           });
                         }
+                        print(4);
                       },
                       style: FilledButton.styleFrom(
                           padding: const EdgeInsets.all(3),
@@ -2100,13 +2144,14 @@ class _SalesPageState extends State<SalesPage> {
       FocusNode textFieldFocusNode,
       bool isNumOnly) {
     if (textFieldFocusNode.hasPrimaryFocus) {
+      print("h1");
       if (event.character != null &&
           RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')
               .hasMatch(event.character!)) {
+        if (Platform.isWindows) return;
         textEditingController.text += event.character!;
       } else if (event.isKeyPressed(LogicalKeyboardKey.enter) ||
-          event.isKeyPressed(LogicalKeyboardKey.numpadEnter) ||
-          event.isKeyPressed(LogicalKeyboardKey.tab)) {
+          event.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
           context.read<ReceiptCubit>().addOrUpdateReceiptItems(
               _textEditingControllerNewReceiptItemCode.text,
@@ -2137,11 +2182,12 @@ class _SalesPageState extends State<SalesPage> {
             _textEditingControllerNewReceiptItemQuantity.text = "1";
             _textEditingControllerNewReceiptItemCode.text = "";
             _newReceiptItemQuantityFocusNode.unfocus();
+            isUpdatingReceiptItemQty = false;
+            isEditingNewReceiptItemCode = true;
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
           setState(() {
-            isEditingNewReceiptItemQty = false;
             _textEditingControllerNewReceiptItemQuantity.text =
                 _textEditingControllerNewReceiptItemQuantity.text == "" ||
                         double.parse(
@@ -2154,6 +2200,9 @@ class _SalesPageState extends State<SalesPage> {
                             _textEditingControllerNewReceiptItemQuantity.text),
                         3);
             // _newReceiptItemQuantityFocusNode.unfocus();
+            isEditingNewReceiptItemQty = false;
+            isEditingNewReceiptItemCode = true;
+
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         }
@@ -2161,6 +2210,7 @@ class _SalesPageState extends State<SalesPage> {
         return;
       }
     } else {
+      print("h2");
       textFieldFocusNode.requestFocus();
       if (event.character != null &&
           RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')

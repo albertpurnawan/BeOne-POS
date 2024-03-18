@@ -20,7 +20,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   ReceiptCubit(this._getItemByBarcodeUseCase, this._saveReceiptUseCase)
       : super(ReceiptEntity(
             docNum:
-                "S0001-${DateFormat('yymmdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+                "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
             receiptItems: [],
             totalPrice: 0));
 
@@ -118,7 +118,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   void resetReceipt() {
     emit(ReceiptEntity(
         docNum:
-            "S0001-${DateFormat('yymmdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+            "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
         receiptItems: [],
         totalPrice: 0));
   }
