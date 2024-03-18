@@ -82,9 +82,7 @@ class AuthorizationModel extends AuthorizationEntity implements BaseModel {
       // "tformId": map['tform_id']?['docid'] != null
       //     ? map['tform_id']['docid'] as String
       //     : null,
-      "tousrId": map['tousr_id']?['docid'] != null
-          ? map['tousr_id']['docid'] as String
-          : null,
+      "tousrId": map['tousrdocid'] != null ? map['tousrdocid'] as String : null,
     });
   }
 

@@ -66,9 +66,7 @@ class PricelistPeriodModel extends PricelistPeriodEntity implements BaseModel {
   factory PricelistPeriodModel.fromMapRemote(Map<String, dynamic> map) {
     return PricelistPeriodModel.fromMap({
       ...map,
-      "toplnId": map['topln_id']?['docid'] != null
-          ? map['topln_id']['docid'] as String
-          : null,
+      "toplnId": map['toplndocid'] != null ? map['toplndocid'] as String : null,
       "factor": map['factor'].toDouble() as double,
     });
   }

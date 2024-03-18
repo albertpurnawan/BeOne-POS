@@ -8,7 +8,7 @@ class ItemMasterEntity {
   final String itemCode;
   final String itemName;
   final int invItem;
-  final int serialNo;
+  // final int serialNo;
   final String? tocatId;
   final String? touomId;
   final double minStock;
@@ -18,8 +18,19 @@ class ItemMasterEntity {
   final int statusActive;
   final int activated;
   final int isBatch;
+  final int sync;
   final String? internalCode_1;
   final String? internalCode_2;
+  final String? property1;
+  final String? property2;
+  final String? property3;
+  final String? property4;
+  final String? property5;
+  final String? property6;
+  final String? property7;
+  final String? property8;
+  final String? property9;
+  final String? property10;
   final int openPrice;
   final int popItem;
   final String? bpom;
@@ -27,6 +38,7 @@ class ItemMasterEntity {
   final double? margin;
   final int? memberDiscount;
   final int? multiplyOrder;
+  final int syncCRM;
   final int mergeQuantity;
 
   ItemMasterEntity({
@@ -36,7 +48,7 @@ class ItemMasterEntity {
     required this.itemCode,
     required this.itemName,
     required this.invItem,
-    required this.serialNo,
+    // required this.serialNo,
     required this.tocatId,
     required this.touomId,
     required this.minStock,
@@ -46,8 +58,19 @@ class ItemMasterEntity {
     required this.statusActive,
     required this.activated,
     required this.isBatch,
+    required this.sync,
     required this.internalCode_1,
     required this.internalCode_2,
+    required this.property1,
+    required this.property2,
+    required this.property3,
+    required this.property4,
+    required this.property5,
+    required this.property6,
+    required this.property7,
+    required this.property8,
+    required this.property9,
+    required this.property10,
     required this.openPrice,
     required this.popItem,
     required this.bpom,
@@ -55,6 +78,7 @@ class ItemMasterEntity {
     required this.margin,
     required this.memberDiscount,
     required this.multiplyOrder,
+    required this.syncCRM,
     required this.mergeQuantity,
   });
 
@@ -65,7 +89,7 @@ class ItemMasterEntity {
     String? itemCode,
     String? itemName,
     int? invItem,
-    int? serialNo,
+    // int? serialNo,
     String? tocatId,
     String? touomId,
     double? minStock,
@@ -75,8 +99,19 @@ class ItemMasterEntity {
     int? statusActive,
     int? activated,
     int? isBatch,
+    int? sync,
     String? internalCode_1,
     String? internalCode_2,
+    String? property1,
+    String? property2,
+    String? property3,
+    String? property4,
+    String? property5,
+    String? property6,
+    String? property7,
+    String? property8,
+    String? property9,
+    String? property10,
     int? openPrice,
     int? popItem,
     String? bpom,
@@ -84,6 +119,7 @@ class ItemMasterEntity {
     double? margin,
     int? memberDiscount,
     int? multiplyOrder,
+    int? syncCRM,
     int? mergeQuantity,
   }) {
     return ItemMasterEntity(
@@ -93,7 +129,7 @@ class ItemMasterEntity {
       itemCode: itemCode ?? this.itemCode,
       itemName: itemName ?? this.itemName,
       invItem: invItem ?? this.invItem,
-      serialNo: serialNo ?? this.serialNo,
+      // serialNo: serialNo ?? this.serialNo,
       tocatId: tocatId ?? this.tocatId,
       touomId: touomId ?? this.touomId,
       minStock: minStock ?? this.minStock,
@@ -103,8 +139,19 @@ class ItemMasterEntity {
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
       isBatch: isBatch ?? this.isBatch,
+      sync: sync ?? this.sync,
       internalCode_1: internalCode_1 ?? this.internalCode_1,
       internalCode_2: internalCode_2 ?? this.internalCode_2,
+      property1: property1 ?? this.property1,
+      property2: property2 ?? this.property2,
+      property3: property3 ?? this.property3,
+      property4: property4 ?? this.property4,
+      property5: property5 ?? this.property5,
+      property6: property6 ?? this.property6,
+      property7: property7 ?? this.property7,
+      property8: property8 ?? this.property8,
+      property9: property9 ?? this.property9,
+      property10: property10 ?? this.property10,
       openPrice: openPrice ?? this.openPrice,
       popItem: popItem ?? this.popItem,
       bpom: bpom ?? this.bpom,
@@ -112,6 +159,7 @@ class ItemMasterEntity {
       margin: margin ?? this.margin,
       memberDiscount: memberDiscount ?? this.memberDiscount,
       multiplyOrder: multiplyOrder ?? this.multiplyOrder,
+      syncCRM: syncCRM ?? this.syncCRM,
       mergeQuantity: mergeQuantity ?? this.mergeQuantity,
     );
   }
@@ -124,7 +172,7 @@ class ItemMasterEntity {
       'itemCode': itemCode,
       'itemName': itemName,
       'invItem': invItem,
-      'serialNo': serialNo,
+      // 'serialNo': serialNo,
       'tocatId': tocatId,
       'touomId': touomId,
       'minStock': minStock,
@@ -134,8 +182,19 @@ class ItemMasterEntity {
       'statusActive': statusActive,
       'activated': activated,
       'isBatch': isBatch,
+      'sync': sync,
       'internalCode_1': internalCode_1,
       'internalCode_2': internalCode_2,
+      'property1': property1,
+      'property2': property2,
+      'property3': property3,
+      'property4': property4,
+      'property5': property5,
+      'property6': property6,
+      'property7': property7,
+      'property8': property8,
+      'property9': property9,
+      'property10': property10,
       'openPrice': openPrice,
       'popItem': popItem,
       'bpom': bpom,
@@ -143,6 +202,7 @@ class ItemMasterEntity {
       'margin': margin,
       'memberDiscount': memberDiscount,
       'multiplyOrder': multiplyOrder,
+      'syncCRM': syncCRM,
       'mergeQuantity': mergeQuantity,
     };
   }
@@ -157,7 +217,7 @@ class ItemMasterEntity {
       itemCode: map['itemCode'] as String,
       itemName: map['itemName'] as String,
       invItem: map['invItem'] as int,
-      serialNo: map['serialNo'] as int,
+      // serialNo: map['serialNo'] as int,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       touomId: map['touomId'] != null ? map['touomId'] as String : null,
       minStock: map['minStock'] as double,
@@ -167,12 +227,24 @@ class ItemMasterEntity {
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
       isBatch: map['isBatch'] as int,
+      sync: map['sync'] as int,
       internalCode_1: map['internalCode_1'] != null
           ? map['internalCode_1'] as String
           : null,
       internalCode_2: map['internalCode_2'] != null
           ? map['internalCode_2'] as String
           : null,
+      property1: map['property1'] != null ? map['property1'] as String : null,
+      property2: map['property2'] != null ? map['property2'] as String : null,
+      property3: map['property3'] != null ? map['property3'] as String : null,
+      property4: map['property4'] != null ? map['property4'] as String : null,
+      property5: map['property5'] != null ? map['property5'] as String : null,
+      property6: map['property6'] != null ? map['property6'] as String : null,
+      property7: map['property7'] != null ? map['property7'] as String : null,
+      property8: map['property8'] != null ? map['property8'] as String : null,
+      property9: map['property9'] != null ? map['property9'] as String : null,
+      property10:
+          map['property10'] != null ? map['property10'] as String : null,
       openPrice: map['openPrice'] as int,
       popItem: map['popItem'] as int,
       bpom: map['bpom'] != null ? map['bpom'] as String : null,
@@ -182,6 +254,7 @@ class ItemMasterEntity {
           map['memberDiscount'] != null ? map['memberDiscount'] as int : null,
       multiplyOrder:
           map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
+      syncCRM: map['syncCRM'] as int,
       mergeQuantity: map['mergeQuantity'] as int,
     );
   }
@@ -193,7 +266,7 @@ class ItemMasterEntity {
 
   @override
   String toString() {
-    return 'ItemMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, itemCode: $itemCode, itemName: $itemName, invItem: $invItem, serialNo: $serialNo, tocatId: $tocatId, touomId: $touomId, minStock: $minStock, maxStock: $maxStock, includeTax: $includeTax, remarks: $remarks, statusActive: $statusActive, activated: $activated, isBatch: $isBatch, internalCode_1: $internalCode_1, internalCode_2: $internalCode_2, openPrice: $openPrice, popItem: $popItem, bpom: $bpom, expDate: $expDate, margin: $margin, memberDiscount: $memberDiscount, multiplyOrder: $multiplyOrder, mergeQuantity: $mergeQuantity)';
+    return 'ItemMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, itemCode: $itemCode, itemName: $itemName, invItem: $invItem, serialNo: , tocatId: $tocatId, touomId: $touomId, minStock: $minStock, maxStock: $maxStock, includeTax: $includeTax, remarks: $remarks, statusActive: $statusActive, activated: $activated, isBatch: $isBatch, sync: $sync, internalCode_1: $internalCode_1, internalCode_2: $internalCode_2, property1: $property1, property2: $property2, property3: $property3, property4: $property4, property5: $property5, property6: $property6, property7: $property7, property8: $property8, property9: $property9, property10: $property10, openPrice: $openPrice, popItem: $popItem, bpom: $bpom, expDate: $expDate, margin: $margin, memberDiscount: $memberDiscount, multiplyOrder: $multiplyOrder, syncCRM: $syncCRM, mergeQuantity: $mergeQuantity)';
   }
 
   @override
@@ -206,7 +279,7 @@ class ItemMasterEntity {
         other.itemCode == itemCode &&
         other.itemName == itemName &&
         other.invItem == invItem &&
-        other.serialNo == serialNo &&
+        // other.serialNo == serialNo &&
         other.tocatId == tocatId &&
         other.touomId == touomId &&
         other.minStock == minStock &&
@@ -216,8 +289,19 @@ class ItemMasterEntity {
         other.statusActive == statusActive &&
         other.activated == activated &&
         other.isBatch == isBatch &&
+        other.sync == sync &&
         other.internalCode_1 == internalCode_1 &&
         other.internalCode_2 == internalCode_2 &&
+        other.property1 == property1 &&
+        other.property2 == property2 &&
+        other.property3 == property3 &&
+        other.property4 == property4 &&
+        other.property5 == property5 &&
+        other.property6 == property6 &&
+        other.property7 == property7 &&
+        other.property8 == property8 &&
+        other.property9 == property9 &&
+        other.property10 == property10 &&
         other.openPrice == openPrice &&
         other.popItem == popItem &&
         other.bpom == bpom &&
@@ -225,6 +309,7 @@ class ItemMasterEntity {
         other.margin == margin &&
         other.memberDiscount == memberDiscount &&
         other.multiplyOrder == multiplyOrder &&
+        other.syncCRM == syncCRM &&
         other.mergeQuantity == mergeQuantity;
   }
 
@@ -236,7 +321,7 @@ class ItemMasterEntity {
         itemCode.hashCode ^
         itemName.hashCode ^
         invItem.hashCode ^
-        serialNo.hashCode ^
+        // serialNo.hashCode ^
         tocatId.hashCode ^
         touomId.hashCode ^
         minStock.hashCode ^
@@ -246,8 +331,19 @@ class ItemMasterEntity {
         statusActive.hashCode ^
         activated.hashCode ^
         isBatch.hashCode ^
+        sync.hashCode ^
         internalCode_1.hashCode ^
         internalCode_2.hashCode ^
+        property1.hashCode ^
+        property2.hashCode ^
+        property3.hashCode ^
+        property4.hashCode ^
+        property5.hashCode ^
+        property6.hashCode ^
+        property7.hashCode ^
+        property8.hashCode ^
+        property9.hashCode ^
+        property10.hashCode ^
         openPrice.hashCode ^
         popItem.hashCode ^
         bpom.hashCode ^
@@ -255,6 +351,7 @@ class ItemMasterEntity {
         margin.hashCode ^
         memberDiscount.hashCode ^
         multiplyOrder.hashCode ^
+        syncCRM.hashCode ^
         mergeQuantity.hashCode;
   }
 }

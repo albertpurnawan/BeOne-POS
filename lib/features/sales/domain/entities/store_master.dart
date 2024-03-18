@@ -9,21 +9,21 @@ class StoreMasterEntity {
   final String storeName;
   final String email;
   final String phone;
-  final String addr1;
+  final String? addr1;
   final String? addr2;
   final String? addr3;
   final String city;
   final String? remarks;
   final String? toprvId;
   final String? tocryId;
-  final String? tozcdlId;
+  final String? tozcdId;
   final String? tohemId;
   final double sqm;
   final String? tcurrId;
   final String? toplnId;
-  final dynamic storePic;
+  final dynamic? storePic;
   final String? tovatId;
-  final DateTime storeOpen;
+  final DateTime storeOpening;
   final int statusActive;
   final int activated;
   final String? prefixDoc;
@@ -62,26 +62,6 @@ class StoreMasterEntity {
   final String? mtxline02;
   final String? mtxline03;
   final String? mtxline04;
-  final String? storeEpicPath;
-  final int attendaceFp;
-  final int autoDownload;
-  final DateTime? autoDownload1;
-  final DateTime? autoDownload2;
-  final DateTime? autoDownload3;
-  final int autoSync;
-  final int autoUpload;
-  final int checkSellingPrice;
-  final int checkStockMinus;
-  final String? creditTaxCodeId;
-  final int maxVoidDays;
-  final int qtyMinusValidation;
-  final String? roundingRemarks;
-  final int searchItem;
-  final String? vdfLine1;
-  final String? vdfLine1Off;
-  final String? vdfLine2;
-  final String? vdfLine2Off;
-  final int isStore;
 
   StoreMasterEntity({
     required this.docId,
@@ -98,14 +78,14 @@ class StoreMasterEntity {
     required this.remarks,
     required this.toprvId,
     required this.tocryId,
-    required this.tozcdlId,
+    required this.tozcdId,
     required this.tohemId,
     required this.sqm,
     required this.tcurrId,
     required this.toplnId,
     required this.storePic,
     required this.tovatId,
-    required this.storeOpen,
+    required this.storeOpening,
     required this.statusActive,
     required this.activated,
     required this.prefixDoc,
@@ -144,26 +124,6 @@ class StoreMasterEntity {
     required this.mtxline02,
     required this.mtxline03,
     required this.mtxline04,
-    required this.storeEpicPath,
-    required this.attendaceFp,
-    required this.autoDownload,
-    required this.autoDownload1,
-    required this.autoDownload2,
-    required this.autoDownload3,
-    required this.autoSync,
-    required this.autoUpload,
-    required this.checkSellingPrice,
-    required this.checkStockMinus,
-    required this.creditTaxCodeId,
-    required this.maxVoidDays,
-    required this.qtyMinusValidation,
-    required this.roundingRemarks,
-    required this.searchItem,
-    required this.vdfLine1,
-    required this.vdfLine1Off,
-    required this.vdfLine2,
-    required this.vdfLine2Off,
-    required this.isStore,
   });
 
   StoreMasterEntity copyWith({
@@ -181,14 +141,14 @@ class StoreMasterEntity {
     String? remarks,
     String? toprvId,
     String? tocryId,
-    String? tozcdlId,
+    String? tozcdId,
     String? tohemId,
     double? sqm,
     String? tcurrId,
     String? toplnId,
-    dynamic storePic,
+    dynamic? storePic,
     String? tovatId,
-    DateTime? storeOpen,
+    DateTime? storeOpening,
     int? statusActive,
     int? activated,
     String? prefixDoc,
@@ -227,26 +187,6 @@ class StoreMasterEntity {
     String? mtxline02,
     String? mtxline03,
     String? mtxline04,
-    String? storeEpicPath,
-    int? attendaceFp,
-    int? autoDownload,
-    DateTime? autoDownload1,
-    DateTime? autoDownload2,
-    DateTime? autoDownload3,
-    int? autoSync,
-    int? autoUpload,
-    int? checkSellingPrice,
-    int? checkStockMinus,
-    String? creditTaxCodeId,
-    int? maxVoidDays,
-    int? qtyMinusValidation,
-    String? roundingRemarks,
-    int? searchItem,
-    String? vdfLine1,
-    String? vdfLine1Off,
-    String? vdfLine2,
-    String? vdfLine2Off,
-    int? isStore,
   }) {
     return StoreMasterEntity(
       docId: docId ?? this.docId,
@@ -263,14 +203,14 @@ class StoreMasterEntity {
       remarks: remarks ?? this.remarks,
       toprvId: toprvId ?? this.toprvId,
       tocryId: tocryId ?? this.tocryId,
-      tozcdlId: tozcdlId ?? this.tozcdlId,
+      tozcdId: tozcdId ?? this.tozcdId,
       tohemId: tohemId ?? this.tohemId,
       sqm: sqm ?? this.sqm,
       tcurrId: tcurrId ?? this.tcurrId,
       toplnId: toplnId ?? this.toplnId,
       storePic: storePic ?? this.storePic,
       tovatId: tovatId ?? this.tovatId,
-      storeOpen: storeOpen ?? this.storeOpen,
+      storeOpening: storeOpening ?? this.storeOpening,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
       prefixDoc: prefixDoc ?? this.prefixDoc,
@@ -309,26 +249,6 @@ class StoreMasterEntity {
       mtxline02: mtxline02 ?? this.mtxline02,
       mtxline03: mtxline03 ?? this.mtxline03,
       mtxline04: mtxline04 ?? this.mtxline04,
-      storeEpicPath: storeEpicPath ?? this.storeEpicPath,
-      attendaceFp: attendaceFp ?? this.attendaceFp,
-      autoDownload: autoDownload ?? this.autoDownload,
-      autoDownload1: autoDownload1 ?? this.autoDownload1,
-      autoDownload2: autoDownload2 ?? this.autoDownload2,
-      autoDownload3: autoDownload3 ?? this.autoDownload3,
-      autoSync: autoSync ?? this.autoSync,
-      autoUpload: autoUpload ?? this.autoUpload,
-      checkSellingPrice: checkSellingPrice ?? this.checkSellingPrice,
-      checkStockMinus: checkStockMinus ?? this.checkStockMinus,
-      creditTaxCodeId: creditTaxCodeId ?? this.creditTaxCodeId,
-      maxVoidDays: maxVoidDays ?? this.maxVoidDays,
-      qtyMinusValidation: qtyMinusValidation ?? this.qtyMinusValidation,
-      roundingRemarks: roundingRemarks ?? this.roundingRemarks,
-      searchItem: searchItem ?? this.searchItem,
-      vdfLine1: vdfLine1 ?? this.vdfLine1,
-      vdfLine1Off: vdfLine1Off ?? this.vdfLine1Off,
-      vdfLine2: vdfLine2 ?? this.vdfLine2,
-      vdfLine2Off: vdfLine2Off ?? this.vdfLine2Off,
-      isStore: isStore ?? this.isStore,
     );
   }
 
@@ -348,14 +268,14 @@ class StoreMasterEntity {
       'remarks': remarks,
       'toprvId': toprvId,
       'tocryId': tocryId,
-      'tozcdlId': tozcdlId,
+      'tozcdId': tozcdId,
       'tohemId': tohemId,
       'sqm': sqm,
       'tcurrId': tcurrId,
       'toplnId': toplnId,
       'storePic': storePic,
       'tovatId': tovatId,
-      'storeOpen': storeOpen.millisecondsSinceEpoch,
+      'storeOpening': storeOpening.millisecondsSinceEpoch,
       'statusActive': statusActive,
       'activated': activated,
       'prefixDoc': prefixDoc,
@@ -394,26 +314,6 @@ class StoreMasterEntity {
       'mtxline02': mtxline02,
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
-      'storeEpicPath': storeEpicPath,
-      'attendaceFp': attendaceFp,
-      'autoDownload': autoDownload,
-      'autoDownload1': autoDownload1?.millisecondsSinceEpoch,
-      'autoDownload2': autoDownload2?.millisecondsSinceEpoch,
-      'autoDownload3': autoDownload3?.millisecondsSinceEpoch,
-      'autoSync': autoSync,
-      'autoUpload': autoUpload,
-      'checkSellingPrice': checkSellingPrice,
-      'checkStockMinus': checkStockMinus,
-      'creditTaxCodeId': creditTaxCodeId,
-      'maxVoidDays': maxVoidDays,
-      'qtyMinusValidation': qtyMinusValidation,
-      'roundingRemarks': roundingRemarks,
-      'searchItem': searchItem,
-      'vdfLine1': vdfLine1,
-      'vdfLine1Off': vdfLine1Off,
-      'vdfLine2': vdfLine2,
-      'vdfLine2Off': vdfLine2Off,
-      'isStore': isStore,
     };
   }
 
@@ -428,21 +328,22 @@ class StoreMasterEntity {
       storeName: map['storeName'] as String,
       email: map['email'] as String,
       phone: map['phone'] as String,
-      addr1: map['addr1'] as String,
+      addr1: map['addr1'] != null ? map['addr1'] as String : null,
       addr2: map['addr2'] != null ? map['addr2'] as String : null,
       addr3: map['addr3'] != null ? map['addr3'] as String : null,
       city: map['city'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
       tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
-      tozcdlId: map['tozcdlId'] != null ? map['tozcdlId'] as String : null,
+      tozcdId: map['tozcdId'] != null ? map['tozcdId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       sqm: map['sqm'] as double,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      storePic: map['storePic'] as dynamic,
+      storePic: map['storePic'] != null ? map['storePic'] as dynamic : null,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      storeOpen: DateTime.fromMillisecondsSinceEpoch(map['storeOpen'] as int),
+      storeOpening:
+          DateTime.fromMillisecondsSinceEpoch(map['storeOpening'] as int),
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
       prefixDoc: map['prefixDoc'] != null ? map['prefixDoc'] as String : null,
@@ -489,39 +390,6 @@ class StoreMasterEntity {
       mtxline02: map['mtxline02'] != null ? map['mtxline02'] as String : null,
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
-      storeEpicPath:
-          map['storeEpicPath'] != null ? map['storeEpicPath'] as String : null,
-      attendaceFp: map['attendaceFp'] as int,
-      autoDownload: map['autoDownload'] as int,
-      autoDownload1: map['autoDownload1'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['autoDownload1'] as int)
-          : null,
-      autoDownload2: map['autoDownload2'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['autoDownload2'] as int)
-          : null,
-      autoDownload3: map['autoDownload3'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['autoDownload3'] as int)
-          : null,
-      autoSync: map['autoSync'] as int,
-      autoUpload: map['autoUpload'] as int,
-      checkSellingPrice: map['checkSellingPrice'] as int,
-      checkStockMinus: map['checkStockMinus'] as int,
-      creditTaxCodeId: map['creditTaxCodeId'] != null
-          ? map['creditTaxCodeId'] as String
-          : null,
-      maxVoidDays: map['maxVoidDays'] as int,
-      qtyMinusValidation: map['qtyMinusValidation'] as int,
-      roundingRemarks: map['roundingRemarks'] != null
-          ? map['roundingRemarks'] as String
-          : null,
-      searchItem: map['searchItem'] as int,
-      vdfLine1: map['vdfLine1'] != null ? map['vdfLine1'] as String : null,
-      vdfLine1Off:
-          map['vdfLine1Off'] != null ? map['vdfLine1Off'] as String : null,
-      vdfLine2: map['vdfLine2'] != null ? map['vdfLine2'] as String : null,
-      vdfLine2Off:
-          map['vdfLine2Off'] != null ? map['vdfLine2Off'] as String : null,
-      isStore: map['isStore'] as int,
     );
   }
 
@@ -532,7 +400,7 @@ class StoreMasterEntity {
 
   @override
   String toString() {
-    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdlId: $tozcdlId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpen: $storeOpen, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, storeEpicPath: $storeEpicPath, attendaceFp: $attendaceFp, autoDownload: $autoDownload, autoDownload1: $autoDownload1, autoDownload2: $autoDownload2, autoDownload3: $autoDownload3, autoSync: $autoSync, autoUpload: $autoUpload, checkSellingPrice: $checkSellingPrice, checkStockMinus: $checkStockMinus, creditTaxCodeId: $creditTaxCodeId, maxVoidDays: $maxVoidDays, qtyMinusValidation: $qtyMinusValidation, roundingRemarks: $roundingRemarks, searchItem: $searchItem, vdfLine1: $vdfLine1, vdfLine1Off: $vdfLine1Off, vdfLine2: $vdfLine2, vdfLine2Off: $vdfLine2Off, isStore: $isStore)';
+    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04)';
   }
 
   @override
@@ -553,14 +421,14 @@ class StoreMasterEntity {
         other.remarks == remarks &&
         other.toprvId == toprvId &&
         other.tocryId == tocryId &&
-        other.tozcdlId == tozcdlId &&
+        other.tozcdId == tozcdId &&
         other.tohemId == tohemId &&
         other.sqm == sqm &&
         other.tcurrId == tcurrId &&
         other.toplnId == toplnId &&
         other.storePic == storePic &&
         other.tovatId == tovatId &&
-        other.storeOpen == storeOpen &&
+        other.storeOpening == storeOpening &&
         other.statusActive == statusActive &&
         other.activated == activated &&
         other.prefixDoc == prefixDoc &&
@@ -598,27 +466,7 @@ class StoreMasterEntity {
         other.mtxline01 == mtxline01 &&
         other.mtxline02 == mtxline02 &&
         other.mtxline03 == mtxline03 &&
-        other.mtxline04 == mtxline04 &&
-        other.storeEpicPath == storeEpicPath &&
-        other.attendaceFp == attendaceFp &&
-        other.autoDownload == autoDownload &&
-        other.autoDownload1 == autoDownload1 &&
-        other.autoDownload2 == autoDownload2 &&
-        other.autoDownload3 == autoDownload3 &&
-        other.autoSync == autoSync &&
-        other.autoUpload == autoUpload &&
-        other.checkSellingPrice == checkSellingPrice &&
-        other.checkStockMinus == checkStockMinus &&
-        other.creditTaxCodeId == creditTaxCodeId &&
-        other.maxVoidDays == maxVoidDays &&
-        other.qtyMinusValidation == qtyMinusValidation &&
-        other.roundingRemarks == roundingRemarks &&
-        other.searchItem == searchItem &&
-        other.vdfLine1 == vdfLine1 &&
-        other.vdfLine1Off == vdfLine1Off &&
-        other.vdfLine2 == vdfLine2 &&
-        other.vdfLine2Off == vdfLine2Off &&
-        other.isStore == isStore;
+        other.mtxline04 == mtxline04;
   }
 
   @override
@@ -637,14 +485,14 @@ class StoreMasterEntity {
         remarks.hashCode ^
         toprvId.hashCode ^
         tocryId.hashCode ^
-        tozcdlId.hashCode ^
+        tozcdId.hashCode ^
         tohemId.hashCode ^
         sqm.hashCode ^
         tcurrId.hashCode ^
         toplnId.hashCode ^
         storePic.hashCode ^
         tovatId.hashCode ^
-        storeOpen.hashCode ^
+        storeOpening.hashCode ^
         statusActive.hashCode ^
         activated.hashCode ^
         prefixDoc.hashCode ^
@@ -682,26 +530,6 @@ class StoreMasterEntity {
         mtxline01.hashCode ^
         mtxline02.hashCode ^
         mtxline03.hashCode ^
-        mtxline04.hashCode ^
-        storeEpicPath.hashCode ^
-        attendaceFp.hashCode ^
-        autoDownload.hashCode ^
-        autoDownload1.hashCode ^
-        autoDownload2.hashCode ^
-        autoDownload3.hashCode ^
-        autoSync.hashCode ^
-        autoUpload.hashCode ^
-        checkSellingPrice.hashCode ^
-        checkStockMinus.hashCode ^
-        creditTaxCodeId.hashCode ^
-        maxVoidDays.hashCode ^
-        qtyMinusValidation.hashCode ^
-        roundingRemarks.hashCode ^
-        searchItem.hashCode ^
-        vdfLine1.hashCode ^
-        vdfLine1Off.hashCode ^
-        vdfLine2.hashCode ^
-        vdfLine2Off.hashCode ^
-        isStore.hashCode;
+        mtxline04.hashCode;
   }
 }

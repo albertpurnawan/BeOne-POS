@@ -46,12 +46,8 @@ class ItemBarcodeModel extends ItemBarcodeEntity implements BaseModel {
   factory ItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemBarcodeModel.fromMap({
       ...map,
-      "toitmId": map['toitmId']?['docid'] != null
-          ? map['toitmId']['docid'] as String
-          : null,
-      "touomId": map['touom_id']?['docid'] != null
-          ? map['touom_id']['docid'] as String
-          : null,
+      "toitmId": map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+      "touomId": map['touomdocid'] != null ? map['touomdocid'] as String : null,
       "quantity": map['quantity'].toDouble() as double,
     });
   }

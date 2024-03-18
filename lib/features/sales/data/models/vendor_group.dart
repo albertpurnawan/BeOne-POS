@@ -70,4 +70,18 @@ class VendorGroupModel extends VendorGroupEntity implements BaseModel {
       sync: map['sync'] as int,
     );
   }
+
+  factory VendorGroupModel.fromEntity(VendorGroupEntity entity) {
+    return VendorGroupModel(
+      docId: entity.docId,
+      createDate: entity.createDate,
+      updateDate: entity.updateDate,
+      vendorGroupCode: entity.vendorGroupCode,
+      description: entity.description,
+      maxDiscount: entity.maxDiscount,
+      statusActive: entity.statusActive,
+      activated: entity.activated,
+      sync: entity.sync,
+    );
+  }
 }

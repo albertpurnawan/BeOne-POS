@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
@@ -16,28 +18,28 @@ class PricelistApi {
       bool hasMoreData = true;
       List<PricelistModel> allData = [];
 
-      while (hasMoreData) {
-        final response = await _dio.get(
-          "$url/tenant-pricelist?page=$page",
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
-        );
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {"docid": response.data[14]['docid'], "parameter": []};
+      // log(exeData.toString());
 
-        List<PricelistModel> data = (response.data as List)
-            .map((e) => PricelistModel.fromMapRemote(e))
-            .toList();
-        allData.addAll(data);
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      log(resp.data['data'].toString());
 
-        if (data.isEmpty) {
-          hasMoreData = false;
-        } else {
-          page++;
-        }
-      }
-      // log(allData[0].toString());
+      List<PricelistModel> data = (resp.data['data'] as List)
+          .map((e) => PricelistModel.fromMapRemote(e))
+          .toList();
+      allData.addAll(data);
 
       return allData;
     } catch (err) {
@@ -49,18 +51,17 @@ class PricelistApi {
   Future<PricelistModel> fetchSingleData(String docid) async {
     try {
       final response = await _dio.get(
-        "$url/tenant-pricelist/docid/$docid",
+        "$url/tenant-master-currency/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
           },
         ),
       );
-      // log([response.data].toString());
-
+      // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      PricelistModel datum = PricelistModel.fromMapRemote(response.data);
+      PricelistModel datum = PricelistModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

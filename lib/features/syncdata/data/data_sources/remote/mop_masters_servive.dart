@@ -1,68 +1,74 @@
-// import 'package:dio/dio.dart';
-// import 'package:pos_fe/core/constants/constants.dart';
-// import 'package:pos_fe/core/usecases/error_handler.dart';
-// import 'package:sqflite/sqflite.dart';
+import 'dart:developer';
 
-// class MOPApi {
-//   final Dio _dio;
-//   String token = Constant.token;
-//   String url = Constant.url;
+import 'package:dio/dio.dart';
+import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 
-//   MOPApi(this._dio);
+class MOPApi {
+  final Dio _dio;
+  String token = Constant.token;
+  String url = Constant.url;
 
-//   Future<List<MOPModel>> fetchData() async {
-//     try {
-//       int page = 1;
-//       bool hasMoreData = true;
-//       List<MOPModel> allData = [];
+  MOPApi(this._dio);
 
-//       while (hasMoreData) {
-//         final response = await _dio.get(
-//           "$url/tenant-means-of-payment/all/?page=$page",
-//           options: Options(
-//             headers: {
-//               'Authorization': 'Bearer $token',
-//             },
-//           ),
-//         );
+  Future<List<MeansOfPaymentModel>> fetchData() async {
+    try {
+      int page = 1;
+      bool hasMoreData = true;
+      List<MeansOfPaymentModel> allData = [];
 
-//         List<MOPModel> data =
-//             (response.data as List).map((e) => MOPModel.fromMap(e)).toList();
-//         // log(check.toString());
-//         allData.addAll(data);
+      final response = await _dio.get(
+        "$url/tenant-custom-query/list",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final exeData = {"docid": response.data[12]['docid'], "parameter": []};
+      // log(exeData.toString());
 
-//         if (data.isEmpty) {
-//           hasMoreData = false;
-//         } else {
-//           page++;
-//         }
-//       }
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      // log(resp.data['data'].toString());
 
-//       return allData;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
+      List<MeansOfPaymentModel> data = (resp.data['data'] as List)
+          .map((e) => MeansOfPaymentModel.fromMapRemote(e))
+          .toList();
+      allData.addAll(data);
 
-//   Future<MOPModel> fetchSingleData(String docid) async {
-//     try {
-//       final response = await _dio.get(
-//         "$url/tenant-means-of-payment/docid/$docid",
-//         options: Options(
-//           headers: {
-//             'Authorization': 'Bearer $token',
-//           },
-//         ),
-//       );
-//       // log([response.data].toString());
+      return allData;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
 
-//       MOPModel datum = MOPModel.fromMap(response.data);
+  Future<MeansOfPaymentModel> fetchSingleData(String docid) async {
+    try {
+      final response = await _dio.get(
+        "$url/tenant-master-currency/$docid",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
-//       return datum;
-//     } catch (err) {
-//       handleError(err);
-//       rethrow;
-//     }
-//   }
-// }
+      MeansOfPaymentModel datum =
+          MeansOfPaymentModel.fromMapRemote(response.data);
+
+      // log(datum.toString());
+      return datum;
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
+}

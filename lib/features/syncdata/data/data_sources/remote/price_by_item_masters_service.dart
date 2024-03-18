@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
@@ -7,28 +9,41 @@ class PriceByItemApi {
   final Dio _dio;
   String token = Constant.token;
   String url = Constant.url;
-  String tplnId = 'a776b020-b268-4c46-b1cc-59faf90321dc';
 
   PriceByItemApi(this._dio);
 
   Future<List<PriceByItemModel>> fetchData() async {
     try {
+      int page = 1;
+      bool hasMoreData = true;
       List<PriceByItemModel> allData = [];
 
       final response = await _dio.get(
-        "$url/tenant-price-by-item/all/$tplnId",
+        "$url/tenant-custom-query/list",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
           },
         ),
       );
+      final exeData = {"docid": response.data[32]['docid'], "parameter": []};
+      // log(exeData.toString());
 
-      List<PriceByItemModel> data = (response.data as List)
-          .map((e) => PriceByItemModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
-      // log(allData[0].toString());
+      final resp = await _dio.post("$url/tenant-custom-query/execute",
+          data: exeData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+
+      if (resp.data['data'].isNotEmpty) {
+        log(resp.data['data'][0].toString());
+
+        List<PriceByItemModel> data = (resp.data['data'] as List)
+            .map((e) => PriceByItemModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
+
       return allData;
     } catch (err) {
       handleError(err);
@@ -38,9 +53,8 @@ class PriceByItemApi {
 
   Future<PriceByItemModel> fetchSingleData(String docid) async {
     try {
-      String itemName = 'SESA Volcano Roll / pack';
       final response = await _dio.get(
-        "$url/tenant-price-by-item/?price_period_id=$docid&page=1&search_item=$itemName",
+        "$url/tenant-master-currency/$docid",
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -48,8 +62,9 @@ class PriceByItemApi {
         ),
       );
       // log(response.data.toString());
+      if (response.data == null) throw Exception('Null Data');
 
-      PriceByItemModel datum = PriceByItemModel.fromMapRemote(response.data[0]);
+      PriceByItemModel datum = PriceByItemModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

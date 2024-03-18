@@ -97,14 +97,14 @@ class VendorModel extends VendorEntity implements BaseModel {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
-      'vendCode': vendCode,
-      'vendName': vendName,
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
+      'vendcode': vendCode,
+      'vendname': vendName,
       'tovdgId': tovdgId,
-      'idCard': idCard,
-      'taxNo': taxNo,
+      'idcard': idCard,
+      'taxno': taxNo,
       'gender': gender,
       'birthdate': birthdate?.toUtc().toIso8601String(),
       'addr1': addr1,
@@ -119,8 +119,8 @@ class VendorModel extends VendorEntity implements BaseModel {
       'remarks': remarks,
       'toptrId': toptrId,
       'toplnId': toplnId,
-      'maxDiscount': maxDiscount,
-      'statusActive': statusActive,
+      'maxdiscount': maxDiscount,
+      'statusactive': statusActive,
       'activated': activated,
       'tohemId': tohemId,
       'sync': sync,
@@ -129,16 +129,16 @@ class VendorModel extends VendorEntity implements BaseModel {
 
   factory VendorModel.fromMap(Map<String, dynamic> map) {
     return VendorModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      vendCode: map['vendCode'] as String,
-      vendName: map['vendName'] as String,
+      vendCode: map['vendcode'] as String,
+      vendName: map['vendname'] as String,
       tovdgId: map['tovdgId'] != null ? map['tovdgId'] as String : null,
-      idCard: map['idCard'] as String,
-      taxNo: map['taxNo'] as String,
+      idCard: map['idcard'] as String,
+      taxNo: map['taxno'] as String,
       gender: map['gender'] as String,
       birthdate: map['birthdate'] != null
           ? DateTime.parse(map['birthdate'] as String).toLocal()
@@ -155,11 +155,55 @@ class VendorModel extends VendorEntity implements BaseModel {
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       toptrId: map['toptrId'] != null ? map['toptrId'] as String : null,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      maxDiscount: map['maxDiscount'] as double,
-      statusActive: map['statusActive'] as int,
+      maxDiscount: map['maxdiscount'] as double,
+      statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       sync: map['sync'] as int,
+    );
+  }
+
+  factory VendorModel.fromMapRemote(Map<String, dynamic> map) {
+    return VendorModel.fromMap({
+      ...map,
+      "tovdgId": map['tovdgdocid'] != null ? map['tovdgdocid'] as String : null,
+      "toprvId": map['toprvdocid'] != null ? map['toprvdocid'] as String : null,
+      "tocryId": map['tocrydocid'] != null ? map['tocrydocid'] as String : null,
+      "tozcdId": map['tozcddocid'] != null ? map['tozcddocid'] as String : null,
+      "tohemId": map['tohemdocid'] != null ? map['tohemdocid'] as String : null,
+      "maxdiscount": map['maxdiscount'].toDouble() as double,
+    });
+  }
+
+  factory VendorModel.fromEntity(VendorEntity entity) {
+    return VendorModel(
+      docId: entity.docId,
+      createDate: entity.createDate,
+      updateDate: entity.updateDate,
+      vendCode: entity.vendCode,
+      vendName: entity.vendName,
+      tovdgId: entity.tovdgId,
+      idCard: entity.idCard,
+      taxNo: entity.taxNo,
+      gender: entity.gender,
+      birthdate: entity.birthdate,
+      addr1: entity.addr1,
+      addr2: entity.addr2,
+      addr3: entity.addr3,
+      city: entity.city,
+      toprvId: entity.toprvId,
+      tocryId: entity.tocryId,
+      tozcdId: entity.tozcdId,
+      phone: entity.phone,
+      email: entity.email,
+      remarks: entity.remarks,
+      toptrId: entity.toptrId,
+      toplnId: entity.toplnId,
+      maxDiscount: entity.maxDiscount,
+      statusActive: entity.statusActive,
+      activated: entity.activated,
+      tohemId: entity.tohemId,
+      sync: entity.sync,
     );
   }
 }

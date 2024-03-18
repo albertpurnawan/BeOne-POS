@@ -31,7 +31,7 @@ class EmployeeFields {
     empDept,
     empTitle,
     empWorkplace,
-    empdDebt,
+    empDebt,
   ];
   static const String docId = 'docid';
   static const String createDate = 'createdate';
@@ -59,7 +59,7 @@ class EmployeeFields {
   static const String empDept = 'empdept';
   static const String empTitle = 'emptitle';
   static const String empWorkplace = 'empworkplace';
-  static const String empdDebt = 'empdebt';
+  static const String empDebt = 'empdebt';
 }
 
 class EmployeeModel extends EmployeeEntity implements BaseModel {
@@ -90,7 +90,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
     required super.empDept,
     required super.empTitle,
     required super.empWorkplace,
-    required super.empdDebt,
+    required super.empDebt,
   });
 
   @override
@@ -108,32 +108,22 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       'addr3': addr3,
       'city': city,
       'remarks': remarks,
-      'toprvid': toprvId,
-      'tocryid': tocryId,
-      'tozcdid': tozcdId,
+      'toprvId': toprvId,
+      'tocryId': tocryId,
+      'tozcdId': tozcdId,
       'idcard': idCard,
       'gender': gender,
       'birthdate': birthdate.toLocal().toIso8601String(),
       'photo': photo,
-      'joindate': joinDate..toLocal().toIso8601String(),
-      'resigndate': resignDate..toLocal().toIso8601String(),
-      'statuscctive': statusActive,
+      'joindate': joinDate.toLocal().toIso8601String(),
+      'resigndate': resignDate?.toLocal().toIso8601String(),
+      'statusactive': statusActive,
       'activated': activated,
       'empdept': empDept,
       'emptitle': empTitle,
       'empworkplace': empWorkplace,
-      'empddebt': empdDebt,
+      'empdebt': empDebt,
     };
-  }
-
-  factory EmployeeModel.fromMapRemote(Map<String, dynamic> map) {
-    return EmployeeModel.fromMap({
-      ...map,
-      'toprvid': map['toprv_id'] != null ? map['toprv_id'] as String : null,
-      'tocryid': map['tocry_id'] != null ? map['tocry_id'] as String : null,
-      'tozcdid': map['tozcd_id'] != null ? map['tozcd_id'] as String : null,
-      'empdDebt': map['empddebt'].toDouble() as double,
-    });
   }
 
   factory EmployeeModel.fromMap(Map<String, dynamic> map) {
@@ -152,22 +142,35 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       addr3: map['addr3'] != null ? map['addr3'] as String : null,
       city: map['city'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      toprvId: map['toprvid'] != null ? map['toprvid'] as String : null,
-      tocryId: map['tocryid'] != null ? map['tocryid'] as String : null,
-      tozcdId: map['tozcdid'] != null ? map['tozcdid'] as String : null,
+      toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
+      tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
+      tozcdId: map['tozcdId'] != null ? map['tozcdId'] as String : null,
       idCard: map['idcard'] as String,
       gender: map['gender'] as String,
       birthdate: DateTime.parse(map['birthdate']).toLocal(),
-      photo: map['photo'] as dynamic,
+      photo: map['photo'] != null ? map['photo'] as dynamic : null,
       joinDate: DateTime.parse(map['joindate']).toLocal(),
-      resignDate: DateTime.parse(map['resigndate']).toLocal(),
-      statusActive: map['statuscctive'] as int,
+      resignDate: map['resigndate'] != null
+          ? DateTime.parse(map['resigndate']).toLocal()
+          : null,
+      statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       empDept: map['empdept'] as String,
       empTitle: map['emptitle'] as String,
       empWorkplace: map['empworkplace'] as String,
-      empdDebt: map['empddebt'] as double,
+      empDebt: map['empdebt'] as double,
     );
+  }
+
+  factory EmployeeModel.fromMapRemote(Map<String, dynamic> map) {
+    return EmployeeModel.fromMap({
+      ...map,
+      'toprvId': map['toprvdocid'] != null ? map['toprvdocid'] as String : null,
+      'tocryId': map['tocrydocid'] != null ? map['tocrydocid'] as String : null,
+      'tozcdId': map['tozcddocid'] != null ? map['tozcddocid'] as String : null,
+      'empdebt':
+          map['empdebt'] != null ? map['empdebt'].toDouble() as double : null,
+    });
   }
 
   factory EmployeeModel.fromEntity(EmployeeEntity entity) {
@@ -198,7 +201,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       empDept: entity.empDept,
       empTitle: entity.empTitle,
       empWorkplace: entity.empWorkplace,
-      empdDebt: entity.empdDebt,
+      empDebt: entity.empDebt,
     );
   }
 }

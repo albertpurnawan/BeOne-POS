@@ -89,9 +89,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
   factory MeansOfPaymentModel.fromMapRemote(Map<String, dynamic> map) {
     return MeansOfPaymentModel.fromMap({
       ...map,
-      "topmtId": map['topmt_id']['docid'] != null
-          ? map['topmt_id']['docid'] as String
-          : null,
+      "topmtId": map['topmtdocid'] != null ? map['topmtdocid'] as String : null,
       "bankcharge": map['bankcharge'].toDouble() as double,
     });
   }

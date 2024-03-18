@@ -56,6 +56,10 @@ abstract class BaseDao<T extends BaseModel> {
 
   Future<List<T>> readAll();
 
+  Future<void> deleteAll() async {
+    await db.delete(tableName);
+  }
+
   // Future<T?> readByDocId(
   //     String docId, T Function(Map<String, dynamic> data) fromMap) async {
   //   final res = await db.query(
