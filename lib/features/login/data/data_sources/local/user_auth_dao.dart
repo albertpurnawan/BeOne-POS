@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:crypto/crypto.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,15 +51,19 @@ class UserAuthDao extends BaseDao<UserModel> {
 
     final UserModel? user = await readByUsernameOrEmail(identifier);
 
-    if (user != null && password == user.password) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_loggedInKey, true);
-      await prefs.setString('identifier', identifier);
-      final bool? check = prefs.getBool(_loggedInKey);
-      log(check.toString());
-      final String? checkStr = prefs.getString("identifier");
-      log(checkStr.toString());
-      isLoggedIn = true;
+    if (user != null) {
+      final hashedPassword = md5.convert(utf8.encode(password)).toString();
+
+      if (hashedPassword == user.password) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(_loggedInKey, true);
+        await prefs.setString('identifier', identifier);
+        final bool? check = prefs.getBool(_loggedInKey);
+        log(check.toString());
+        final String? checkStr = prefs.getString("identifier");
+        log(checkStr.toString());
+        isLoggedIn = true;
+      }
     }
 
     return isLoggedIn;

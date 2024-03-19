@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
@@ -38,6 +39,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
+import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -260,7 +262,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
       await GetIt.instance<AppDatabase>()
           .preferredVendorDao
-          .bulkCreate(prefVendor);
+          .bulkCreate(data: prefVendor);
       setState(() {
         _syncProgress += 1 / totalTable;
       });
@@ -306,6 +308,24 @@ class _FetchScreenState extends State<FetchScreen> {
       setState(() {
         _syncProgress += 1 / totalTable;
       });
+
+      final posParameter = [
+        {
+          "docid": const Uuid().v4(),
+          "createdate": DateTime.now().toString(),
+          "updatedate": DateTime.now().toString(),
+          "tostrId": stores[0].docId,
+          "storename": stores[0].storeName,
+          "tcurrId": stores[0].tcurrId,
+          "currcode": currencies[0].curCode,
+          "toplnId": stores[0].toplnId,
+          "tocsrId": cashiers[0].docId,
+          "tovatId": stores[0].tovatId
+        }
+      ];
+
+      await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
+          data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
 
       // final auths = await GetIt.instance<AuthorizationApi>().fetchData();
       // await GetIt.instance<AppDatabase>().authorizationDao.bulkCreate(auths);
@@ -356,7 +376,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<CurrencyApi>().fetchData();
+      final data = await GetIt.instance<UserApi>().fetchData();
 
       setState(() {
         _dataFetched = data.length;
@@ -383,7 +403,7 @@ class _FetchScreenState extends State<FetchScreen> {
           await GetIt.instance<InvoiceHeaderApi>().fetchSingleData(docid);
       print(datum);
       setState(() {
-        _singleData = datum.docId;
+        _singleData = datum.docnum;
       });
       print("Data Fetched");
     } catch (error) {

@@ -297,49 +297,49 @@ PRAGMA foreign_keys = ON;
     vendorDao = VendorDao(_database!);
     preferredVendorDao = PreferredVendorDao(_database!);
 
-    currencyDao.bulkCreate(
-        data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
-    itemCategoryDao.bulkCreate(
-        data: tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
-    taxMasterDao.bulkCreate(
-        data: tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
-    productHierarchyDao.bulkCreate(
-        data: tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
-    productHierarchyMasterDao.bulkCreate(
-        data:
-            phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
-    pricelistDao.bulkCreate(
-        data: topln.map((e) => PricelistModel.fromMap(e)).toList());
-    pricelistPeriodDao.bulkCreate(
-        data: tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
-    uomDao.bulkCreate(data: touom.map((e) => UomModel.fromMap(e)).toList());
-    storeMasterDao.bulkCreate(
-        data: tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
-    itemMasterDao.bulkCreate(
-        data: toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
-    itemBarcodeDao.bulkCreate(
-        data: tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
-    itemByStoreDao.bulkCreate(
-        data: tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
-    priceByItemDao.bulkCreate(
-        data: tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
-    priceByItemBarcodeDao.bulkCreate(
-        data: tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
-    customerGroupDao.bulkCreate(
-        data: tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
-    customerDao.bulkCreate(
-        data: tocus.map((e) => CustomerModel.fromMap(e)).toList());
-    paymentTypeDao.bulkCreate(
-        data: topmt.map((e) => PaymentTypeModel.fromMap(e)).toList());
-    meansOfPaymentDao.bulkCreate(
-        data: tpmt1.map((e) => MeansOfPaymentModel.fromMap(e)).toList());
-    mopByStoreDao.bulkCreate(
-        data: tpmt3.map((e) => MOPByStoreModel.fromMap(e)).toList());
-    userDao.bulkCreate(data: tousr.map((e) => UserModel.fromMap(e)).toList());
-    cashRegisterDao.bulkCreate(
-        data: tocsr.map((e) => CashRegisterModel.fromMap(e)).toList());
-    posParameterDao.bulkCreate(
-        data: topos.map((e) => POSParameterModel.fromMap(e)).toList());
+    // currencyDao.bulkCreate(
+    //     data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
+    // itemCategoryDao.bulkCreate(
+    //     data: tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+    // taxMasterDao.bulkCreate(
+    //     data: tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
+    // productHierarchyDao.bulkCreate(
+    //     data: tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
+    // productHierarchyMasterDao.bulkCreate(
+    //     data:
+    //         phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
+    // pricelistDao.bulkCreate(
+    //     data: topln.map((e) => PricelistModel.fromMap(e)).toList());
+    // pricelistPeriodDao.bulkCreate(
+    //     data: tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
+    // uomDao.bulkCreate(data: touom.map((e) => UomModel.fromMap(e)).toList());
+    // storeMasterDao.bulkCreate(
+    //     data: tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
+    // itemMasterDao.bulkCreate(
+    //     data: toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
+    // itemBarcodeDao.bulkCreate(
+    //     data: tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
+    // itemByStoreDao.bulkCreate(
+    //     data: tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
+    // priceByItemDao.bulkCreate(
+    //     data: tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
+    // priceByItemBarcodeDao.bulkCreate(
+    //     data: tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
+    // customerGroupDao.bulkCreate(
+    //     data: tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
+    // customerDao.bulkCreate(
+    //     data: tocus.map((e) => CustomerModel.fromMap(e)).toList());
+    // paymentTypeDao.bulkCreate(
+    //     data: topmt.map((e) => PaymentTypeModel.fromMap(e)).toList());
+    // meansOfPaymentDao.bulkCreate(
+    //     data: tpmt1.map((e) => MeansOfPaymentModel.fromMap(e)).toList());
+    // mopByStoreDao.bulkCreate(
+    //     data: tpmt3.map((e) => MOPByStoreModel.fromMap(e)).toList());
+    // userDao.bulkCreate(data: tousr.map((e) => UserModel.fromMap(e)).toList());
+    // cashRegisterDao.bulkCreate(
+    //     data: tocsr.map((e) => CashRegisterModel.fromMap(e)).toList());
+    // posParameterDao.bulkCreate(
+    //     data: topos.map((e) => POSParameterModel.fromMap(e)).toList());
   }
 
   Future<void> _refreshItemsTable() async {
@@ -1159,7 +1159,7 @@ CREATE TABLE $tableItems (
 ${ItemFields.id} $idTypeAndConstraints,
 ${ItemFields.itemName} TEXT NOT NULL,
 ${ItemFields.itemCode} TEXT NOT NULL,
-${ItemFields.barcode} TEXT NOT NULL UNIQUE,
+${ItemFields.barcode} TEXT NOT NULL,
 ${ItemFields.price} DOUBLE NOT NULL,
 ${ItemFields.toitmId} TEXT NOT NULL,
 ${ItemFields.tbitmId} TEXT NOT NULL,
