@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
-import 'package:pos_fe/features/sales/data/models/province.dart';
 
 class CountryApi {
   final Dio _dio;
@@ -15,8 +14,8 @@ class CountryApi {
 
   Future<List<CountryModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-COUNTRY";
+      Map<String, dynamic> exeData = {};
       List<CountryModel> allData = [];
 
       final response = await _dio.get(
@@ -27,23 +26,31 @@ class CountryApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[6]['docid'],
-        "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
-      };
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {
+            "docid": api["docid"],
+            "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
+          };
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      // log(resp.data['data'].toString());
 
-      List<CountryModel> data = (resp.data['data'] as List)
-          .map((e) => CountryModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Country ---");
+        log(resp.data['data'][0].toString());
+
+        List<CountryModel> data = (resp.data['data'] as List)
+            .map((e) => CountryModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

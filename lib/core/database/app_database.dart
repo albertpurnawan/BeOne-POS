@@ -297,49 +297,49 @@ PRAGMA foreign_keys = ON;
     vendorDao = VendorDao(_database!);
     preferredVendorDao = PreferredVendorDao(_database!);
 
-    currencyDao.bulkCreate(
-        data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
-    itemCategoryDao.bulkCreate(
-        data: tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
-    taxMasterDao.bulkCreate(
-        data: tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
-    productHierarchyDao.bulkCreate(
-        data: tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
-    productHierarchyMasterDao.bulkCreate(
-        data:
-            phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
-    pricelistDao.bulkCreate(
-        data: topln.map((e) => PricelistModel.fromMap(e)).toList());
-    pricelistPeriodDao.bulkCreate(
-        data: tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
-    uomDao.bulkCreate(data: touom.map((e) => UomModel.fromMap(e)).toList());
-    storeMasterDao.bulkCreate(
-        data: tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
-    itemMasterDao.bulkCreate(
-        data: toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
-    itemBarcodeDao.bulkCreate(
-        data: tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
-    itemByStoreDao.bulkCreate(
-        data: tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
-    priceByItemDao.bulkCreate(
-        data: tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
-    priceByItemBarcodeDao.bulkCreate(
-        data: tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
-    customerGroupDao.bulkCreate(
-        data: tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
-    customerDao.bulkCreate(
-        data: tocus.map((e) => CustomerModel.fromMap(e)).toList());
-    paymentTypeDao.bulkCreate(
-        data: topmt.map((e) => PaymentTypeModel.fromMap(e)).toList());
-    meansOfPaymentDao.bulkCreate(
-        data: tpmt1.map((e) => MeansOfPaymentModel.fromMap(e)).toList());
-    mopByStoreDao.bulkCreate(
-        data: tpmt3.map((e) => MOPByStoreModel.fromMap(e)).toList());
-    userDao.bulkCreate(data: tousr.map((e) => UserModel.fromMap(e)).toList());
-    cashRegisterDao.bulkCreate(
-        data: tocsr.map((e) => CashRegisterModel.fromMap(e)).toList());
-    posParameterDao.bulkCreate(
-        data: topos.map((e) => POSParameterModel.fromMap(e)).toList());
+    // currencyDao.bulkCreate(
+    //     data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
+    // itemCategoryDao.bulkCreate(
+    //     data: tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
+    // taxMasterDao.bulkCreate(
+    //     data: tovat.map((e) => TaxMasterModel.fromMap(e)).toList());
+    // productHierarchyDao.bulkCreate(
+    //     data: tphir.map((e) => ProductHierarchyModel.fromMap(e)).toList());
+    // productHierarchyMasterDao.bulkCreate(
+    //     data:
+    //         phir1.map((e) => ProductHierarchyMasterModel.fromMap(e)).toList());
+    // pricelistDao.bulkCreate(
+    //     data: topln.map((e) => PricelistModel.fromMap(e)).toList());
+    // pricelistPeriodDao.bulkCreate(
+    //     data: tpln1.map((e) => PricelistPeriodModel.fromMap(e)).toList());
+    // uomDao.bulkCreate(data: touom.map((e) => UomModel.fromMap(e)).toList());
+    // storeMasterDao.bulkCreate(
+    //     data: tostr.map((e) => StoreMasterModel.fromMap(e)).toList());
+    // itemMasterDao.bulkCreate(
+    //     data: toitm.map((e) => ItemMasterModel.fromMap(e)).toList());
+    // itemBarcodeDao.bulkCreate(
+    //     data: tbitm.map((e) => ItemBarcodeModel.fromMap(e)).toList());
+    // itemByStoreDao.bulkCreate(
+    //     data: tsitm.map((e) => ItemByStoreModel.fromMap(e)).toList());
+    // priceByItemDao.bulkCreate(
+    //     data: tpln2.map((e) => PriceByItemModel.fromMap(e)).toList());
+    // priceByItemBarcodeDao.bulkCreate(
+    //     data: tpln4.map((e) => PriceByItemBarcodeModel.fromMap(e)).toList());
+    // customerGroupDao.bulkCreate(
+    //     data: tocrg.map((e) => CustomerGroupModel.fromMap(e)).toList());
+    // customerDao.bulkCreate(
+    //     data: tocus.map((e) => CustomerModel.fromMap(e)).toList());
+    // paymentTypeDao.bulkCreate(
+    //     data: topmt.map((e) => PaymentTypeModel.fromMap(e)).toList());
+    // meansOfPaymentDao.bulkCreate(
+    //     data: tpmt1.map((e) => MeansOfPaymentModel.fromMap(e)).toList());
+    // mopByStoreDao.bulkCreate(
+    //     data: tpmt3.map((e) => MOPByStoreModel.fromMap(e)).toList());
+    // userDao.bulkCreate(data: tousr.map((e) => UserModel.fromMap(e)).toList());
+    // cashRegisterDao.bulkCreate(
+    //     data: tocsr.map((e) => CashRegisterModel.fromMap(e)).toList());
+    // posParameterDao.bulkCreate(
+    //     data: topos.map((e) => POSParameterModel.fromMap(e)).toList());
   }
 
   Future<void> _refreshItemsTable() async {
@@ -890,37 +890,38 @@ ${VendorFields.updateDate} datetime DEFAULT NULL,
   ${VendorFields.vendCode} varchar(191) NOT NULL,
   ${VendorFields.vendName} varchar(100) NOT NULL,
   ${VendorFields.tovdgId} text DEFAULT NULL,
-  ${VendorFields.idCard} varchar(30) NOT NULL,
-  ${VendorFields.taxNo} varchar(50) NOT NULL,
-  ${VendorFields.gender} varchar(1) NOT NULL,
-  ${VendorFields.birthdate} date DEFAULT NULL,
-  ${VendorFields.addr1} varchar(200) NOT NULL,
-  ${VendorFields.addr2} varchar(200) DEFAULT NULL,
-  ${VendorFields.addr3} varchar(200) DEFAULT NULL,
-  ${VendorFields.city} varchar(100) NOT NULL,
-  ${VendorFields.toprvId} text DEFAULT NULL,
-  ${VendorFields.tocryId} text DEFAULT NULL,
-  ${VendorFields.tozcdId} text DEFAULT NULL,
-  ${VendorFields.phone} varchar(20) NOT NULL,
-  ${VendorFields.email} varchar(100) NOT NULL,
   ${VendorFields.remarks} text,
-  ${VendorFields.toptrId} text DEFAULT NULL,
-  ${VendorFields.toplnId} text DEFAULT NULL,
-  ${VendorFields.maxDiscount} double NOT NULL,
-  ${VendorFields.statusActive} int NOT NULL,
-  ${VendorFields.activated} int NOT NULL,
-  ${VendorFields.tohemId} text DEFAULT NULL,
-  ${VendorFields.sync} int NOT NULL DEFAULT '0',
   $createdAtDefinition,
-  CONSTRAINT `toven_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toven_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toven_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toven_toptrId_fkey` FOREIGN KEY (`toptrId`) REFERENCES `toptr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toven_tovdgId_fkey` FOREIGN KEY (`tovdgId`) REFERENCES `tovdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toven_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toven_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `toven_tovdgId_fkey` FOREIGN KEY (`tovdgId`) REFERENCES `tovdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+// ${VendorFields.idCard} varchar(30) NOT NULL,
+//   ${VendorFields.taxNo} varchar(50) NOT NULL,
+//   ${VendorFields.gender} varchar(1) NOT NULL,
+//   ${VendorFields.birthdate} date DEFAULT NULL,
+//   ${VendorFields.addr1} varchar(200) NOT NULL,
+//   ${VendorFields.addr2} varchar(200) DEFAULT NULL,
+//   ${VendorFields.addr3} varchar(200) DEFAULT NULL,
+//   ${VendorFields.city} varchar(100) NOT NULL,
+//   ${VendorFields.toprvId} text DEFAULT NULL,
+//   ${VendorFields.tocryId} text DEFAULT NULL,
+//   ${VendorFields.tozcdId} text DEFAULT NULL,
+//   ${VendorFields.phone} varchar(20) NOT NULL,
+//   ${VendorFields.email} varchar(100) NOT NULL,
+//   ${VendorFields.toptrId} text DEFAULT NULL,
+//   ${VendorFields.toplnId} text DEFAULT NULL,
+//   ${VendorFields.maxDiscount} double NOT NULL,
+//   ${VendorFields.statusActive} int NOT NULL,
+//   ${VendorFields.activated} int NOT NULL,
+//   ${VendorFields.tohemId} text DEFAULT NULL,
+//   ${VendorFields.sync} int NOT NULL DEFAULT '0',
+//   CONSTRAINT `toven_tocryId_fkey` FOREIGN KEY (`tocryId`) REFERENCES `tocry` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toven_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toven_toprvId_fkey` FOREIGN KEY (`toprvId`) REFERENCES `toprv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toven_toptrId_fkey` FOREIGN KEY (`toptrId`) REFERENCES `toptr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toven_tozcdId_fkey` FOREIGN KEY (`tozcdId`) REFERENCES `tozcd` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toven_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableBasePayTerm (
@@ -1158,7 +1159,7 @@ CREATE TABLE $tableItems (
 ${ItemFields.id} $idTypeAndConstraints,
 ${ItemFields.itemName} TEXT NOT NULL,
 ${ItemFields.itemCode} TEXT NOT NULL,
-${ItemFields.barcode} TEXT NOT NULL UNIQUE,
+${ItemFields.barcode} TEXT NOT NULL,
 ${ItemFields.price} DOUBLE NOT NULL,
 ${ItemFields.toitmId} TEXT NOT NULL,
 ${ItemFields.tbitmId} TEXT NOT NULL,

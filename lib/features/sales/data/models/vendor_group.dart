@@ -71,6 +71,13 @@ class VendorGroupModel extends VendorGroupEntity implements BaseModel {
     );
   }
 
+  factory VendorGroupModel.fromMapRemote(Map<String, dynamic> map) {
+    return VendorGroupModel.fromMap({
+      ...map,
+      "maxdiscount": map['maxdiscount'].toDouble() as double,
+    });
+  }
+
   factory VendorGroupModel.fromEntity(VendorGroupEntity entity) {
     return VendorGroupModel(
       docId: entity.docId,

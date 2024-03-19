@@ -14,8 +14,8 @@ class EmployeeApi {
 
   Future<List<EmployeeModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-EMPLOYEE";
+      Map<String, dynamic> exeData = {};
       List<EmployeeModel> allData = [];
 
       final response = await _dio.get(
@@ -26,20 +26,28 @@ class EmployeeApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[9]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'].toString());
 
-      List<EmployeeModel> data = (resp.data['data'] as List)
-          .map((e) => EmployeeModel.fromMapRemote(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Employee ---");
+        log(resp.data['data'][0].toString());
+
+        List<EmployeeModel> data = (resp.data['data'] as List)
+            .map((e) => EmployeeModel.fromMapRemote(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

@@ -17,6 +17,8 @@ abstract class BaseDao<T extends BaseModel> {
     if (txn != null) {
       final batch = txn.batch();
 
+      batch.delete(tableName);
+
       for (final e in data) {
         batch.insert(tableName, e.toMap());
       }
@@ -27,6 +29,8 @@ abstract class BaseDao<T extends BaseModel> {
       await db.transaction((txn) async {
         try {
           final batch = txn.batch();
+
+          batch.delete(tableName);
 
           for (final e in data) {
             batch.insert(tableName, e.toMap());
@@ -56,7 +60,7 @@ abstract class BaseDao<T extends BaseModel> {
 
   Future<List<T>> readAll();
 
-  Future<void> deleteAll() async {
+  Future<void> deleteAll({required T data, Transaction? txn}) async {
     await db.delete(tableName);
   }
 

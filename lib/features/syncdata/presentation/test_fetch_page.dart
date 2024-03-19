@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
@@ -13,6 +14,8 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_maste
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
@@ -37,6 +40,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
+import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -57,7 +61,7 @@ class _FetchScreenState extends State<FetchScreen> {
   int _statusCode = 0;
   String _errorMessage = '';
   double _syncProgress = 0.0;
-  int totalTable = 29;
+  int totalTable = 30;
   int fetched = 0;
 
   void _fetchToken() async {
@@ -256,13 +260,13 @@ class _FetchScreenState extends State<FetchScreen> {
         _syncProgress += 1 / totalTable;
       });
 
-      // final prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
-      // await GetIt.instance<AppDatabase>()
-      //     .preferredVendorDao
-      //     .bulkCreate(prefVendor);
-      // setState(() {
-      //   _syncProgress += 1 / totalTable;
-      // });
+      final prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
+      await GetIt.instance<AppDatabase>()
+          .preferredVendorDao
+          .bulkCreate(data: prefVendor);
+      setState(() {
+        _syncProgress += 1 / totalTable;
+      });
       // // ---
 
       final cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
@@ -306,6 +310,24 @@ class _FetchScreenState extends State<FetchScreen> {
         _syncProgress += 1 / totalTable;
       });
 
+      final posParameter = [
+        {
+          "docid": const Uuid().v4(),
+          "createdate": DateTime.now().toString(),
+          "updatedate": DateTime.now().toString(),
+          "tostrId": stores[0].docId,
+          "storename": stores[0].storeName,
+          "tcurrId": stores[0].tcurrId,
+          "currcode": currencies[0].curCode,
+          "toplnId": stores[0].toplnId,
+          "tocsrId": cashiers[0].docId,
+          "tovatId": stores[0].tovatId
+        }
+      ];
+
+      await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
+          data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
+
       // final auths = await GetIt.instance<AuthorizationApi>().fetchData();
       // await GetIt.instance<AppDatabase>().authorizationDao.bulkCreate(auths);
       // final itemPics = await GetIt.instance<ItemPictureApi>().fetchData();
@@ -319,6 +341,7 @@ class _FetchScreenState extends State<FetchScreen> {
           taxes.length +
           payTypes.length +
           mops.length +
+          ccs.length +
           pricelists.length +
           stores.length +
           mopStores.length +
@@ -334,6 +357,7 @@ class _FetchScreenState extends State<FetchScreen> {
           itemRemarks.length +
           venGroups.length +
           vendor.length +
+          prefVendor.length +
           cusGroup.length +
           cusCst.length +
           priceByItem.length +
@@ -353,14 +377,14 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<ProvinceApi>().fetchData();
+      final data = await GetIt.instance<InvoiceApi>().sendInvoice();
 
       setState(() {
-        _dataFetched = data.length;
-        _dataExample = data[0].docId;
+        // _dataFetched = data.length;
+        // _dataExample = data[0].docId;
         _errorMessage = '';
       });
-      print(data);
+      // print(data);
       print("Data Fetched");
     } catch (error) {
       print('Error: $error');
@@ -376,10 +400,11 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchSingleData(String docid) async {
     print("Fetching single data...");
     try {
-      final datum = await GetIt.instance<UoMApi>().fetchSingleData(docid);
+      final datum =
+          await GetIt.instance<InvoiceHeaderApi>().fetchSingleData(docid);
       print(datum);
       setState(() {
-        _singleData = datum.docId;
+        _singleData = datum.docnum;
       });
       print("Data Fetched");
     } catch (error) {

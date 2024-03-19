@@ -14,8 +14,8 @@ class VendorGroupApi {
 
   Future<List<VendorGroupModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-VENDORGROUP";
+      Map<String, dynamic> exeData = {};
       List<VendorGroupModel> allData = [];
 
       final response = await _dio.get(
@@ -26,8 +26,12 @@ class VendorGroupApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[27]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -36,10 +40,11 @@ class VendorGroupApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
+        log("--- Vendor Group ---");
         log(resp.data['data'][0].toString());
 
         List<VendorGroupModel> data = (resp.data['data'] as List)
-            .map((e) => VendorGroupModel.fromMap(e))
+            .map((e) => VendorGroupModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
       }

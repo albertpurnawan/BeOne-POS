@@ -15,8 +15,8 @@ class CreditCardApi {
 
   Future<List<CreditCardModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-CREDITCARD";
+      Map<String, dynamic> exeData = {};
       List<CreditCardModel> allData = [];
 
       final response = await _dio.get(
@@ -27,20 +27,28 @@ class CreditCardApi {
           },
         ),
       );
-      final exeData = {"docid": response.data[13]['docid'], "parameter": []};
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {"docid": api["docid"], "parameter": []};
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.data['data'].toString());
 
-      List<CreditCardModel> data = (resp.data['data'] as List)
-          .map((e) => CreditCardModel.fromMap(e))
-          .toList();
-      allData.addAll(data);
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Credit Card ---");
+        log(resp.data['data'][0].toString());
+
+        List<CreditCardModel> data = (resp.data['data'] as List)
+            .map((e) => CreditCardModel.fromMap(e))
+            .toList();
+        allData.addAll(data);
+      }
 
       return allData;
     } catch (err) {

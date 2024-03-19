@@ -14,8 +14,8 @@ class PreferredVendorApi {
 
   Future<List<PreferredVendorModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      String apiName = "API-ITEMPREFEREDVENDOR";
+      Map<String, dynamic> exeData = {};
       List<PreferredVendorModel> allData = [];
 
       final response = await _dio.get(
@@ -26,11 +26,15 @@ class PreferredVendorApi {
           },
         ),
       );
-      final exeData = {
-        "docid": response.data[29]['docid'],
-        "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
-      };
-      // log(exeData.toString());
+
+      for (var api in response.data) {
+        if (api["name"] == apiName) {
+          exeData = {
+            "docid": api["docid"],
+            "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+          };
+        }
+      }
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
@@ -39,6 +43,7 @@ class PreferredVendorApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
+        log("--- Preferred Vendor ---");
         log(resp.data['data'][0].toString());
 
         List<PreferredVendorModel> data = (resp.data['data'] as List)
