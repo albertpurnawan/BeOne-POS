@@ -26,6 +26,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_maste
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_detail_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
@@ -101,6 +102,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PreferredVendorApi>(PreferredVendorApi(sl()));
   sl.registerSingleton<InvoiceHeaderApi>(InvoiceHeaderApi(sl()));
   sl.registerSingleton<InvoiceDetailApi>(InvoiceDetailApi(sl()));
+  sl.registerSingleton<InvoiceApi>(InvoiceApi(sl()));
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(

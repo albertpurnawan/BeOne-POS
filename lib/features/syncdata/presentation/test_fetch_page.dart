@@ -15,6 +15,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
@@ -376,14 +377,14 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<UserApi>().fetchData();
+      final data = await GetIt.instance<InvoiceApi>().sendInvoice();
 
       setState(() {
-        _dataFetched = data.length;
-        _dataExample = data[0].docId;
+        // _dataFetched = data.length;
+        // _dataExample = data[0].docId;
         _errorMessage = '';
       });
-      print(data);
+      // print(data);
       print("Data Fetched");
     } catch (error) {
       print('Error: $error');
