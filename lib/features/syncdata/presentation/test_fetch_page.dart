@@ -1,12 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/credit_card_service.dart';
@@ -20,7 +17,6 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_s
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_picture_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_remarks_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
@@ -310,6 +306,8 @@ class _FetchScreenState extends State<FetchScreen> {
         _syncProgress += 1 / totalTable;
       });
 
+      // final topos =
+      //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final posParameter = [
         {
           "docid": const Uuid().v4(),

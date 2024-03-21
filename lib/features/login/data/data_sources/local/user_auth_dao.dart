@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
@@ -8,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UserAuthDao extends BaseDao<UserModel> {
-  static const _loggedInKey = "is_logged_in";
   UserAuthDao(Database db)
       : super(
           db: db,
@@ -56,12 +54,8 @@ class UserAuthDao extends BaseDao<UserModel> {
 
       if (hashedPassword == user.password) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(_loggedInKey, true);
+        await prefs.setBool('logStatus', true);
         await prefs.setString('identifier', identifier);
-        final bool? check = prefs.getBool(_loggedInKey);
-        log(check.toString());
-        final String? checkStr = prefs.getString("identifier");
-        log(checkStr.toString());
         isLoggedIn = true;
       }
     }
@@ -71,11 +65,11 @@ class UserAuthDao extends BaseDao<UserModel> {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_loggedInKey, false);
+    await prefs.setBool('isLoggedIn', false);
   }
 
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_loggedInKey) ?? false;
+    return prefs.getBool('isLoggedIn') ?? false;
   }
 }

@@ -17,16 +17,19 @@ class InvoiceApi {
     try {
       final invHead =
           await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
+      log(invHead[0].toString());
       final invDet =
           await GetIt.instance<AppDatabase>().invoiceDetailDao.readAll();
+      log(invDet[0].toString());
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readAll();
+      log(payMean[0].toString());
 
-      if (invDet[0].toinvId == invHead[0].docId) {}
+      // if (invDet[0].toinvId == invHead[0].docId) {}
 
       final dataToSend = {
-        "tostr_id": invHead[0].tostrId,
-        "docnum": invHead[0].docnum,
-        "orderno": invHead[0].orderNo,
+        "tostr_id": "878694e6-fdf4-49a7-82e3-d0facb685741",
+        "docnum": "007-2212140001/SMPTEST",
+        "orderno": 1,
         "tocus_id": "c2ee5bb8-9850-4014-b7bf-fd5492a60d84",
         "tohem_id": "a483a6f2-80e3-4093-bbc8-f03e79093098",
         "transdate": invHead[0].transDate,
@@ -50,9 +53,9 @@ class InvoiceApi {
         "toinv_tohem_id": "a483a6f2-80e3-4093-bbc8-f03e79093098",
         "invoice_item": [
           {
-            "docnum": invDet[0].docNum,
+            "docnum": "007-2212140001/SMPTEST",
             "idnumber": invDet[0].idNumber,
-            "toitm_id": invDet[0].toitmId,
+            "toitm_id": "c08ecb51-5524-4683-bea5-15353a296d18",
             "quantity": invDet[0].quantity,
             "sellingprice": invDet[0].sellingPrice,
             "discprctg": invDet[0].discPrctg,
@@ -64,11 +67,11 @@ class InvoiceApi {
             "remarks": invDet[0].remarks,
             "edittime": invDet[0].editTime,
             "cogs": invDet[0].cogs,
-            "tovat_id": invDet[0].tovatId,
+            "tovat_id": "4fdf5787-986b-46da-8e36-529edc076cb6",
             "promotiontingkat": invDet[0].promotionTingkat,
             "promovoucherno": invDet[0].promoVoucherNo,
             "includetax": invDet[0].includeTax,
-            "toven_id": invDet[0].tovenId,
+            "toven_id": "3fe37695-f766-4550-9e1d-06697f337c9f",
             "tbitm_id": invDet[0].tbitmId,
             "discprctgmember": 0.0,
             "discamountmember": 0.0
@@ -80,15 +83,15 @@ class InvoiceApi {
       };
       log(dataToSend.toString());
 
-      final response = await _dio.post(
-        "$url/tenant-invoice/",
-        data: dataToSend,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
+      // final response = await _dio.post(
+      //   "$url/tenant-invoice/",
+      //   data: dataToSend,
+      //   options: Options(
+      //     headers: {
+      //       'Authorization': 'Bearer $token',
+      //     },
+      //   ),
+      // );
     } catch (err) {
       handleError(err);
       rethrow;
