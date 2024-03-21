@@ -407,7 +407,19 @@ ON u.touomId = i.touomId
       const createdAtDefinition = 'createdat TEXT DEFAULT CURRENT_TIMESTAMP';
 
       await db.transaction((txn) async {
-        await db.execute("""
+        await txn.execute("""
+CREATE TABLE receiptContents (
+  id ${idTypeAndConstraints},
+  row INTEGER NOT NULL,
+  content STRING NOT NULL,
+  fontsize INTEGER DEFAULT 1,
+  isbold INTEGER DEFAULT 0,
+  alignment INTEGER DEFAULT 0,
+  customvalue STRING
+);
+""");
+
+        await txn.execute("""
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   docid STRING NOT NULL UNIQUE, 

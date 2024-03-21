@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -107,6 +108,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             overlayColor: MaterialStateColor.resolveWith(
                                 (states) => Colors.black.withOpacity(.2))),
                         onPressed: () {
+                          GetIt.instance<ReceiptPrinter>().printReceiveTest(
+                              context.read<ReceiptCubit>().state);
                           // Navigator.of(context).pop();
                         },
                         child: const Center(
