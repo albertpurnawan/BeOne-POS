@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 class Constant {
   //TOKEN
   static const String token =
@@ -11,8 +13,37 @@ class Constant {
   static String minute = '*';
   static String second = '*';
 
+  //TENANTID
+  static String gtentId = '';
+
   //STOREID
-  static String storeId = '9ce98ccc-e03e-4c76-aae4-d187764816eb';
+  static String tostrId = '';
+
+  //CASHIERID
+  static String tocsrId = '';
+
+  //BASEURL
+  static String baseUrl = '';
+
+  static void updateTopos(String tenantId, String storeId,
+      String cashRegisterId, String baseUrl) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('gtentId', tenantId);
+    prefs.setString('tostrId', storeId);
+    prefs.setString('tocsrId', tenantId);
+    prefs.setString('baseUrl', baseUrl);
+
+    gtentId = tenantId;
+    tostrId = storeId;
+    tocsrId = cashRegisterId;
+  }
+
+  static Future<void> loadTopos() async {
+    final prefs = await SharedPreferences.getInstance();
+    gtentId = prefs.getString('gtentId') ?? '';
+    tostrId = prefs.getString('tostrId') ?? '';
+    tocsrId = prefs.getString('tocsrId') ?? '';
+  }
 
   //URL
   static String url = "http://110.239.68.248:8803";

@@ -193,15 +193,15 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
   factory InvoiceHeaderModel.fromMapRemote(Map<String, dynamic> map) {
     return InvoiceHeaderModel.fromMap({
       ...map,
-      "tostrId": map['tostr_id']?['docid'] != null
-          ? map['tostr_id']['docid'] as String
-          : null,
-      "tocusId": map['tocus_id']?['docid'] != null
-          ? map['tocus_id']['docid'] as String
-          : null,
-      "tohemId": map['tohem_id']?['docid'] != null
-          ? map['tohem_id']['docid'] as String
-          : null,
+      // "tostrId": map['tostr_id']?['docid'] != null
+      //     ? map['tostr_id']['docid'] as String
+      //     : null,
+      // "tocusId": map['tocus_id']?['docid'] != null
+      //     ? map['tocus_id']['docid'] as String
+      //     : null,
+      // "tohemId": map['tohem_id']?['docid'] != null
+      //     ? map['tohem_id']['docid'] as String
+      //     : null,
       "subtotal": map['subtotal'].toDouble() as double,
       "discprctg": map['discprctg'].toDouble() as double,
       "discamount": map['discamount'].toDouble() as double,
@@ -214,12 +214,12 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       "grandtotal": map['grandtotal'].toDouble() as double,
       "changed": map['changed'].toDouble() as double,
       "totalpayment": map['totalpayment'].toDouble() as double,
-      "tocsrId": map['tocsr_id']?['docid'] != null
-          ? map['tocsr_id']['docid'] as String
-          : null,
-      "toinvTohemId": map['tohem_id']?['docid'] != null
-          ? map['tohem_id']['docid'] as String
-          : null,
+      // "tocsrId": map['tocsr_id']?['docid'] != null
+      //     ? map['tocsr_id']['docid'] as String
+      //     : null,
+      // "toinvTohemId": map['tohem_id']?['docid'] != null
+      //     ? map['tohem_id']['docid'] as String
+      //     : null,
     });
   }
 
