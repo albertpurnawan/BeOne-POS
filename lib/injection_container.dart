@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
@@ -54,12 +55,14 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_serv
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
+import 'package:thermal_printer/thermal_printer.dart';
 import 'package:uuid/uuid.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   sl.registerSingleton<Dio>(Dio());
+  sl.registerSingleton<ReceiptPrinter>(ReceiptPrinter());
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
   sl.registerSingleton<Uuid>(const Uuid());
 
