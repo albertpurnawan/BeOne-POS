@@ -64,6 +64,17 @@ abstract class BaseDao<T extends BaseModel> {
     await db.delete(tableName);
   }
 
+  Future<void> update(
+      {required String docId, required T data, Transaction? txn}) async {
+    if (txn != null) {
+      final res = await txn.update(tableName, data.toMap(),
+          where: "docId = ?", whereArgs: [docId]);
+    } else {
+      final res = await db.update(tableName, data.toMap(),
+          where: "docId = ?", whereArgs: [docId]);
+    }
+  }
+
   // Future<T?> readByDocId(
   //     String docId, T Function(Map<String, dynamic> data) fromMap) async {
   //   final res = await db.query(
