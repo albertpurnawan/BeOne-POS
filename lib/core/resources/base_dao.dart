@@ -17,7 +17,7 @@ abstract class BaseDao<T extends BaseModel> {
     if (txn != null) {
       final batch = txn.batch();
 
-      // batch.delete(tableName);
+      batch.delete(tableName); //make repo and add delete there, dao 1f1m
 
       for (final e in data) {
         batch.insert(tableName, e.toMap());
@@ -30,7 +30,7 @@ abstract class BaseDao<T extends BaseModel> {
         try {
           final batch = txn.batch();
 
-          // batch.delete(tableName);
+          batch.delete(tableName);
 
           for (final e in data) {
             batch.insert(tableName, e.toMap());

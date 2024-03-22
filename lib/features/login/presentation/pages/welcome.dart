@@ -43,7 +43,6 @@ class WelcomeScreen extends StatefulWidget {
                         SharedPreferences prefs =
                             await SharedPreferences.getInstance();
                         bool isLoggedIn = prefs.getBool('logStatus') ?? false;
-                        print("WELCOME $isLoggedIn");
                         if (isLoggedIn == false) {
                           Helpers.navigate(context, LoginScreen());
                         } else {

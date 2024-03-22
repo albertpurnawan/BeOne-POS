@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
@@ -70,6 +71,7 @@ class UserAuthDao extends BaseDao<UserModel> {
 
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
+    log("DAO $prefs");
     return prefs.getBool('isLoggedIn') ?? false;
   }
 }

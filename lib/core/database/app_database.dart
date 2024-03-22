@@ -75,6 +75,7 @@ import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/data/models/close_shift.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/credit_memo_detail.dart';
@@ -161,6 +162,7 @@ import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_da
 import 'package:pos_fe/features/sales/data/models/promo_voucher_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
+import 'package:pos_fe/features/sales/data/models/start_shift.dart';
 import 'package:pos_fe/features/sales/data/models/store_master.dart';
 import 'package:pos_fe/features/sales/data/models/tax_master.dart';
 import 'package:pos_fe/features/sales/data/models/uom.dart';
@@ -2408,6 +2410,43 @@ CREATE TABLE $tablePOSParameter (
   CONSTRAINT `topos_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableStartShift (
+  $uuidDefinition,
+  ${StartShiftFields.createDate} datetime NOT NULL,
+  ${StartShiftFields.updateDate} datetime DEFAULT NULL,
+  ${StartShiftFields.tocsrId} text DEFAULT NULL,
+  ${StartShiftFields.tohemId} text DEFAULT NULL,
+  ${StartShiftFields.startDate} datetime NOT NULL,
+  ${StartShiftFields.startTime} datetime NOT NULL,
+  ${StartShiftFields.timezone} varchar(200) NOT NULL,
+  ${StartShiftFields.startingCash} double default '0',
+  $createdAtDefinition,
+  CONSTRAINT `startShift_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `startShift_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCloseShift (
+  $uuidDefinition,
+  ${CloseShiftFields.createDate} datetime NOT NULL,
+  ${CloseShiftFields.updateDate} datetime DEFAULT NULL,
+  ${CloseShiftFields.tocsrId} text DEFAULT NULL,
+  ${CloseShiftFields.tohemId} text DEFAULT NULL,
+  ${CloseShiftFields.closeDate} datetime NOT NULL,
+  ${CloseShiftFields.closeTime} datetime NOT NULL,
+  ${CloseShiftFields.timezone} varchar(200) NOT NULL,
+  ${CloseShiftFields.expectedCash} double DEFAULT '0',
+  ${CloseShiftFields.actualCash} double DEFAULT '0',
+  ${CloseShiftFields.approvalStatus} int NOT NULL,
+  ${CloseShiftFields.approvedBy} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `closeShift_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `closeShift_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE  
 )
 """);
       });
