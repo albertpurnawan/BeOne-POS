@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/phir1.dart';
+import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
 import 'package:pos_fe/core/database/seeders_data/tbitm.dart';
 import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
 import 'package:pos_fe/core/database/seeders_data/tocat.dart';
@@ -168,6 +169,8 @@ import 'package:pos_fe/features/sales/data/models/product_hierarchy_master.dart'
 import 'package:pos_fe/features/sales/data/models/store_master.dart';
 import 'package:pos_fe/features/sales/data/models/tax_master.dart';
 import 'package:pos_fe/features/sales/data/models/uom.dart';
+import 'package:pos_fe/features/settings/data/data_sources/local/receipt_content_dao.dart';
+import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
@@ -176,6 +179,7 @@ class AppDatabase {
 
   Database? _database;
 
+  late final ReceiptContentDao receiptContentDao;
   late final UserAuthDao userAuthDao;
   late final AuthorizationDao authorizationDao;
   late final AssignPriceMemberPerStoreDao assignPriceMemberPerStoreDao;
@@ -255,6 +259,7 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> _injectDao() async {
+    receiptContentDao = ReceiptContentDao(_database!);
     userAuthDao = UserAuthDao(_database!);
     authorizationDao = AuthorizationDao(_database!);
     assignPriceMemberPerStoreDao = AssignPriceMemberPerStoreDao(_database!);
@@ -297,6 +302,10 @@ PRAGMA foreign_keys = ON;
     vendorDao = VendorDao(_database!);
     preferredVendorDao = PreferredVendorDao(_database!);
 
+    receiptContentDao.bulkCreate(
+        data: receiptcontents
+            .map((e) => ReceiptContentModel.fromMap(e))
+            .toList());
     // currencyDao.bulkCreate(
     //     data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
     // itemCategoryDao.bulkCreate(
@@ -408,14 +417,14 @@ ON u.touomId = i.touomId
 
       await db.transaction((txn) async {
         await txn.execute("""
-CREATE TABLE receiptContents (
-  id ${idTypeAndConstraints},
-  row INTEGER NOT NULL,
-  content STRING NOT NULL,
-  fontsize INTEGER DEFAULT 1,
-  isbold INTEGER DEFAULT 0,
-  alignment INTEGER DEFAULT 0,
-  customvalue STRING
+CREATE TABLE $tableReceiptContents (
+  id $idTypeAndConstraints,
+  ${ReceiptContentFields.row} INTEGER NOT NULL,
+  ${ReceiptContentFields.content} STRING NOT NULL,
+  ${ReceiptContentFields.fontSize} INTEGER DEFAULT 1,
+  ${ReceiptContentFields.isBold} INTEGER DEFAULT 0,
+  ${ReceiptContentFields.alignment} INTEGER DEFAULT 0,
+  ${ReceiptContentFields.customValue} STRING
 );
 """);
 

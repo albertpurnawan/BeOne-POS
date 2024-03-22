@@ -10,8 +10,8 @@ import 'package:thermal_printer/thermal_printer.dart';
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter = BluetoothPrinter(
-      deviceName: "192.168.1.249:9100",
-      address: "192.168.1.249",
+      deviceName: "192.168.1.242:9100",
+      address: "192.168.1.242",
       typePrinter: PrinterType.network);
   List<int>? pendingTask;
   bool _reconnect = true;
