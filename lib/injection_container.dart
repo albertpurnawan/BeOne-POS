@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
@@ -60,6 +61,7 @@ final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   sl.registerSingleton<Dio>(Dio());
+  sl.registerSingleton<ReceiptPrinter>(ReceiptPrinter());
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
   sl.registerSingleton<Uuid>(const Uuid());
 
