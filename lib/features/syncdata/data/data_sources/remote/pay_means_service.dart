@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 
 class PayMeansApi {
@@ -15,8 +14,6 @@ class PayMeansApi {
 
   Future<List<PayMeansModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
       List<PayMeansModel> allData = [];
 
       final response = await _dio.get(

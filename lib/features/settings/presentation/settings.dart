@@ -106,7 +106,7 @@ class _SettingsFormState extends State<SettingsForm> {
               validator: (val) =>
                   val == null || val.isEmpty ? "TenantId is required" : null,
               label: "TenantId",
-              hint: "TenantId",
+              hint: "Tenant Id",
               prefixIcon: const Icon(Icons.person_2_sharp),
             ),
           ),
@@ -118,7 +118,7 @@ class _SettingsFormState extends State<SettingsForm> {
               validator: (val) =>
                   val == null || val.isEmpty ? "StoreId is required" : null,
               label: "StoreId",
-              hint: "StoreId",
+              hint: "Store Id",
               prefixIcon: const Icon(Icons.store),
             ),
           ),
@@ -130,7 +130,7 @@ class _SettingsFormState extends State<SettingsForm> {
               validator: (val) =>
                   val == null || val.isEmpty ? "CashierId is required" : null,
               label: "CashierId",
-              hint: "CashierId",
+              hint: "Cashier Id",
               prefixIcon: const Icon(Icons.point_of_sale),
             ),
           ),
@@ -142,7 +142,7 @@ class _SettingsFormState extends State<SettingsForm> {
               validator: (val) =>
                   val == null || val.isEmpty ? "BaseUrl is required" : null,
               label: "BaseUrl",
-              hint: "BaseUrl",
+              hint: "Base Url",
               prefixIcon: const Icon(Icons.link_outlined),
             ),
           ),

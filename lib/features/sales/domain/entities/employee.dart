@@ -20,7 +20,7 @@ class EmployeeEntity {
   final String idCard;
   final String gender;
   final DateTime birthdate;
-  final dynamic? photo;
+  final dynamic photo;
   final DateTime joinDate;
   final DateTime? resignDate;
   final int statusActive;
@@ -79,7 +79,7 @@ class EmployeeEntity {
     String? idCard,
     String? gender,
     DateTime? birthdate,
-    dynamic? photo,
+    dynamic photo,
     DateTime? joinDate,
     DateTime? resignDate,
     int? statusActive,

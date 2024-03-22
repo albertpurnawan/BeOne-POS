@@ -7,6 +7,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
@@ -183,6 +184,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                     onPressed: () async {
                       await GetIt.instance<SaveReceiptUseCase>()
                           .call(params: context.read<ReceiptCubit>().state);
+                      await GetIt.instance<InvoiceApi>().sendInvoice();
                       setState(() {
                         isCharged = true;
                       });
