@@ -14,8 +14,6 @@ class ItemPictureApi {
 
   Future<List<ItemPictureModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
       List<ItemPictureModel> allData = [];
 
       final response = await _dio.get(

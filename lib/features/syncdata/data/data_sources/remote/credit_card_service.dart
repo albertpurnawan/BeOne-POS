@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
-import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 
 class CreditCardApi {
   final Dio _dio;

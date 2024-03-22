@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
@@ -21,14 +22,13 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/credit_card_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_detail_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_header_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';

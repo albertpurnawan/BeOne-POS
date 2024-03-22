@@ -30,4 +30,16 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
         .map((itemData) => InvoiceDetailModel.fromMap(itemData))
         .toList();
   }
+
+  Future<List<InvoiceDetailModel>> readBytoinvId(String toinvId) async {
+    final result = await db.query(
+      tableName,
+      where: 'toinvId = ?',
+      whereArgs: [toinvId],
+    );
+
+    return result
+        .map((itemData) => InvoiceDetailModel.fromMap(itemData))
+        .toList();
+  }
 }

@@ -33,4 +33,14 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
   }
 
   Future<void> createWithRelations(ReceiptModel receiptModel) async {}
+
+  Future<List<InvoiceHeaderModel>> readByLastDate() async {
+    final res = await db.query(
+      tableName,
+      orderBy: 'createdat DESC',
+      limit: 1,
+    );
+
+    return res.map((itemData) => InvoiceHeaderModel.fromMap(itemData)).toList();
+  }
 }
