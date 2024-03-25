@@ -1,23 +1,313 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
-import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter = BluetoothPrinter(
-      deviceName: "192.168.1.242:9100",
-      address: "192.168.1.242",
-      typePrinter: PrinterType.network);
+    // deviceName: "192.168.1.249:9100",
+    // address: "192.168.1.249",
+    // typePrinter: PrinterType.network,
+    deviceName: "POS-80C",
+    address: null,
+    port: null,
+    vendorId: null,
+    productId: null,
+    isBle: false,
+    typePrinter: PrinterType.usb,
+    state: null,
+  );
   List<int>? pendingTask;
   bool _reconnect = true;
   BTStatus _currentStatus = BTStatus.none;
+  PrintReceiptDetail? currentPrintReceiptDetail;
 
   ReceiptPrinter();
+
+  String _convertPrintReceiptContentToText(
+      PrintReceiptContent printReceiptContent) {
+    switch (printReceiptContent.printReceiptContentType) {
+      case PrintReceiptContentType.storeName:
+        return currentPrintReceiptDetail?.storeMasterEntity.storeName ?? "";
+      case PrintReceiptContentType.date:
+        return DateFormat('yyyy-MM-dd').format(DateTime.now());
+      case PrintReceiptContentType.time:
+        return DateFormat('hh:mm aaa').format(DateTime.now());
+      case PrintReceiptContentType.datetime:
+        return DateFormat('yyyy-MM-dd - hh:mm aaa').format(DateTime.now());
+      case PrintReceiptContentType.docNum:
+        return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
+      case PrintReceiptContentType.employeeCodeAndName:
+        return "";
+      case PrintReceiptContentType.mopAlias:
+        return currentPrintReceiptDetail
+                ?.receiptEntity.mopSelection?.mopAlias ??
+            "";
+      case PrintReceiptContentType.address1:
+        return currentPrintReceiptDetail?.storeMasterEntity.addr1 ?? "";
+      case PrintReceiptContentType.address2:
+        return currentPrintReceiptDetail?.storeMasterEntity.addr2 ?? "";
+      case PrintReceiptContentType.address3:
+        return currentPrintReceiptDetail?.storeMasterEntity.addr3 ?? "";
+      case PrintReceiptContentType.city:
+        return currentPrintReceiptDetail?.storeMasterEntity.city ?? "";
+      case PrintReceiptContentType.customRow1:
+      case PrintReceiptContentType.customRow2:
+      case PrintReceiptContentType.customRow3:
+      case PrintReceiptContentType.customRow4:
+      case PrintReceiptContentType.customRow5:
+      case PrintReceiptContentType.customRow6:
+      case PrintReceiptContentType.customRow7:
+      case PrintReceiptContentType.customRow8:
+      case PrintReceiptContentType.customRow9:
+      case PrintReceiptContentType.customRow10:
+        return printReceiptContent.customValue ?? "";
+      default:
+        return "";
+    }
+  }
+
+  List<int> _convertPrintReceiptContentToBytes(
+      List<PrintReceiptContent> printReceiptContentsRow, Generator generator) {
+    List<int> bytes = [];
+
+    if (printReceiptContentsRow.length == 1) {
+      final PrintReceiptContent printReceiptContent =
+          printReceiptContentsRow.first;
+      switch (printReceiptContentsRow[0].printReceiptContentType) {
+        case PrintReceiptContentType.emptyLine:
+          bytes += generator.emptyLines(1);
+        case PrintReceiptContentType.horizontalLine:
+          bytes += generator.hr();
+        case PrintReceiptContentType.items:
+          for (final item
+              in currentPrintReceiptDetail?.receiptEntity.receiptItems ?? []) {
+            bytes += generator.text(
+                "${item.quantity}x${item.itemEntity.price} ${item.itemEntity.itemName}");
+            bytes += generator.row([
+              PosColumn(
+                  width: 8,
+                  text:
+                      "   ${item.itemEntity.barcode} ${item.itemEntity.itemName}",
+                  styles: PosStyles(
+                    align: PosAlign.left,
+                    height: printReceiptContent.fontSize,
+                    width: printReceiptContent.fontSize,
+                    bold: printReceiptContent.isBold,
+                    // codeTable: 'CP1252',
+                  )),
+              PosColumn(
+                  width: 4,
+                  text: '${item.subtotal}',
+                  styles: PosStyles(
+                    align: PosAlign.right,
+                    height: printReceiptContent.fontSize,
+                    width: printReceiptContent.fontSize,
+                    bold: printReceiptContent.isBold,
+                    // codeTable: 'CP1252',
+                  )),
+            ]);
+          }
+        case PrintReceiptContentType.totalPrice:
+          bytes += generator.row([
+            PosColumn(
+                width: 4,
+                text: "Total",
+                styles: PosStyles(
+                  align: PosAlign.left,
+                  height: printReceiptContent.fontSize,
+                  width: printReceiptContent.fontSize,
+                  bold: printReceiptContent.isBold,
+                  // codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 8,
+                text: Helpers.parseMoney(
+                    currentPrintReceiptDetail!.receiptEntity.totalPrice),
+                styles: PosStyles(
+                  align: PosAlign.right,
+                  height: printReceiptContent.fontSize,
+                  width: printReceiptContent.fontSize,
+                  bold: printReceiptContent.isBold,
+                  // codeTable: 'CP1252',
+                )),
+          ]);
+        case PrintReceiptContentType.taxDetails:
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Net Sales - Non Taxable",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  // codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: 'Rp 0',
+                styles: const PosStyles(
+                  align: PosAlign.right,
+                  // codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Net Sales - Tax Base",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  // codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: 'Rp 6,216',
+                styles: const PosStyles(
+                  align: PosAlign.right,
+                  // codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "PPN 11%",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  // codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: 'Rp 684',
+                styles: const PosStyles(
+                  align: PosAlign.right,
+                  // codeTable: 'CP1252',
+                )),
+          ]);
+        case PrintReceiptContentType.totalQty:
+          bytes += generator.text(
+              'Total Qty. : ${currentPrintReceiptDetail!.receiptEntity.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element).toString()}',
+              styles: PosStyles(
+                align: PosAlign.left,
+                height: printReceiptContent.fontSize,
+                width: printReceiptContent.fontSize,
+                bold: printReceiptContent.isBold,
+              ));
+        case PrintReceiptContentType.receiptBarcode:
+          final List<String> barcodeData = currentPrintReceiptDetail!
+              .receiptEntity.docNum
+              .split("")
+              .toList();
+          print(barcodeData);
+          bytes += generator.barcode(Barcode.code39(barcodeData));
+        case PrintReceiptContentType.logo:
+        default:
+          bytes += generator.text(
+              _convertPrintReceiptContentToText(printReceiptContent),
+              styles: PosStyles(
+                align: printReceiptContent.alignment,
+                height: printReceiptContent.fontSize,
+                width: printReceiptContent.fontSize,
+                bold: printReceiptContent.isBold,
+              ));
+      }
+    } else if (printReceiptContentsRow.length > 1) {
+      bytes += generator.row(printReceiptContentsRow
+          .map((e) => PosColumn(
+              width: 12 ~/ printReceiptContentsRow.length,
+              text: _convertPrintReceiptContentToText(e),
+              styles: PosStyles(
+                bold: e.isBold,
+                height: e.fontSize,
+                width: e.fontSize,
+                align: e.alignment,
+              )))
+          .toList());
+    }
+
+    return bytes;
+  }
+
+  PosTextSize _convertFontSizeToPosTextSize(int fontSize) {
+    switch (fontSize) {
+      case 1:
+        return PosTextSize.size1;
+      case 2:
+        return PosTextSize.size2;
+      case 3:
+        return PosTextSize.size3;
+      case 4:
+        return PosTextSize.size4;
+      case 5:
+        return PosTextSize.size5;
+      case 6:
+        return PosTextSize.size6;
+      case 7:
+        return PosTextSize.size7;
+      case 8:
+        return PosTextSize.size8;
+      default:
+        return PosTextSize.size1;
+    }
+  }
+
+  Future<void> printReceipt(PrintReceiptDetail printReceiptDetail) async {
+    List<int> bytes = [];
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(PaperSize.mm80, profile);
+    currentPrintReceiptDetail = printReceiptDetail;
+
+    List<List<PrintReceiptContent>> printReceiptContents = [];
+    int currentRow = -1;
+    print(
+        "printReceiptDetail ${printReceiptDetail.receiptContentEntities.length}");
+    for (int i = 0; i < printReceiptDetail.receiptContentEntities.length; i++) {
+      final ReceiptContentEntity receiptContentEntity =
+          printReceiptDetail.receiptContentEntities[i]!;
+      final PrintReceiptContent printReceiptContent = PrintReceiptContent(
+          printReceiptContentType: PrintReceiptContentType.values.firstWhere(
+            (printReceiptContentType) =>
+                printReceiptContentType
+                    .toString()
+                    .toLowerCase()
+                    .split(".")
+                    .last ==
+                receiptContentEntity.content.toLowerCase(),
+            orElse: () => PrintReceiptContentType.none,
+          ),
+          row: receiptContentEntity.row,
+          fontSize:
+              _convertFontSizeToPosTextSize(receiptContentEntity.fontSize),
+          isBold: receiptContentEntity.isBold,
+          alignment: receiptContentEntity.alignment == 2
+              ? PosAlign.right
+              : receiptContentEntity.alignment == 1
+                  ? PosAlign.center
+                  : PosAlign.left,
+          customValue: receiptContentEntity.customValue);
+
+      if (printReceiptContent.row != currentRow) {
+        printReceiptContents.add([printReceiptContent]);
+      } else {
+        printReceiptContents.last.add(printReceiptContent);
+      }
+      currentRow = printReceiptContent.row;
+    }
+    print("printReceiptContents ${printReceiptContents.length}");
+    // print(printReceiptContents);
+
+    for (int i = 0; i < printReceiptContents.length; i++) {
+      final List<PrintReceiptContent> row = printReceiptContents[i];
+      bytes.addAll(_convertPrintReceiptContentToBytes(row, generator));
+    }
+
+    _printEscPos(bytes, generator);
+  }
 
   Future printReceiveTest(ReceiptEntity receiptEntity) async {
     List<int> bytes = [];
@@ -28,159 +318,159 @@ class ReceiptPrinter {
       [
         PrintReceiptContent(
             printReceiptContentType: PrintReceiptContentType.customRow1,
-            order: 1,
-            fontSize: 2,
+            row: 1,
+            fontSize: PosTextSize.size2,
             alignment: PosAlign.center,
-            customText: "Testmart")
+            customValue: "Testmart")
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.emptyLine,
-          order: 2,
+          row: 2,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.docNum,
-          order: 3,
+          row: 3,
         )
       ],
       // [
       //   PrintReceiptContent(
       //       printReceiptContentType:
       //           PrintReceiptContentType.employeeCodeAndName,
-      //       order: 4,
+      //       row: 4,
       //       alignment: PosAlign.left),
       //   PrintReceiptContent(
       //     printReceiptContentType: PrintReceiptContentType.datetime,
-      //     order: 4,
+      //     row: 4,
       //     alignment: PosAlign.right,
       //   )
       // ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.horizontalLine,
-          order: 5,
+          row: 5,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.emptyLine,
-          order: 6,
+          row: 6,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.items,
-          order: 7,
+          row: 7,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.emptyLine,
-          order: 8,
+          row: 8,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.totalPrice,
-          order: 9,
+          row: 9,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.taxDetails,
-          order: 10,
+          row: 10,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.emptyLine,
-          order: 11,
+          row: 11,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.totalQty,
-          order: 12,
+          row: 12,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.emptyLine,
-          order: 13,
+          row: 13,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.mopAlias,
-          order: 14,
+          row: 14,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.customRow2,
-          order: 15,
-          customText: "Belanja dari Rumah via",
+          row: 15,
+          customValue: "Belanja dari Rumah via",
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.customRow3,
-          order: 16,
-          customText: "waonline.testmart.co.id",
+          row: 16,
+          customValue: "waonline.testmart.co.id",
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.customRow4,
-          order: 17,
-          customText: "Untuk informasi dan saran, hubungi",
+          row: 17,
+          customValue: "Untuk informasi dan saran, hubungi",
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.customRow5,
-          order: 18,
-          customText: "IG @testmart.id - WA 0810 0000 0000",
+          row: 18,
+          customValue: "IG @testmart.id - WA 0810 0000 0000",
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.customRow6,
-          order: 19,
-          customText: "PT TESTMART JAYA",
+          row: 19,
+          customValue: "PT TESTMART JAYA",
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.customRow7,
-          order: 20,
-          customText: "NPWP: 13.000.000.8-888.888",
+          row: 20,
+          customValue: "NPWP: 13.000.000.8-888.888",
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.address1,
-          order: 21,
+          row: 21,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.address2,
-          order: 22,
+          row: 22,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.address3,
-          order: 23,
+          row: 23,
         )
       ],
       [
         PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.receiptBarcode,
-          order: 24,
+          row: 24,
         )
       ],
     ];
@@ -435,23 +725,29 @@ class BluetoothPrinter {
 
 class PrintReceiptContent {
   final PrintReceiptContentType printReceiptContentType;
-  final int fontSize;
+  final PosTextSize fontSize;
   final bool isBold;
   final PosAlign alignment;
-  final int order;
-  final String? customText;
+  final int row;
+  final String? customValue;
 
   PrintReceiptContent({
     required this.printReceiptContentType,
-    this.fontSize = 1,
+    this.fontSize = PosTextSize.size1,
     this.isBold = false,
     this.alignment = PosAlign.left,
-    required this.order,
-    this.customText,
+    required this.row,
+    this.customValue,
   });
+
+  @override
+  String toString() {
+    return 'PrintReceiptContent(printReceiptContentType: $printReceiptContentType, fontSize: $fontSize, isBold: $isBold, alignment: $alignment, row: $row, customValue: $customValue)';
+  }
 }
 
 enum PrintReceiptContentType {
+  none,
   emptyLine,
   horizontalLine,
 

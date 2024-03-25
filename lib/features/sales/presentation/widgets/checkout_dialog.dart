@@ -8,6 +8,7 @@ import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -108,8 +109,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             overlayColor: MaterialStateColor.resolveWith(
                                 (states) => Colors.black.withOpacity(.2))),
                         onPressed: () {
-                          GetIt.instance<ReceiptPrinter>().printReceiveTest(
-                              context.read<ReceiptCubit>().state);
+                          print("berapa kali");
+                          GetIt.instance<PrintReceiptUsecase>()
+                              .call(params: context.read<ReceiptCubit>().state);
                           // Navigator.of(context).pop();
                         },
                         child: const Center(
