@@ -14,8 +14,8 @@ class AuthorizationApi {
 
   Future<List<AuthorizationModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      // int page = 1;
+      // bool hasMoreData = true;
       List<AuthorizationModel> allData = [];
 
       final response = await _dio.get(

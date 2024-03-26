@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 
 class InvoiceDetailApi {
   final Dio _dio;
@@ -15,8 +14,8 @@ class InvoiceDetailApi {
 
   Future<List<InvoiceDetailModel>> fetchData() async {
     try {
-      int page = 1;
-      bool hasMoreData = true;
+      // int page = 1;
+      // bool hasMoreData = true;
       List<InvoiceDetailModel> allData = [];
 
       final response = await _dio.get(
