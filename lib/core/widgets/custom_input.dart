@@ -88,6 +88,7 @@ class _CustomInputState extends State<CustomInput> {
         maxLines: _obscureText! ? 1 : widget.maxLines,
         decoration: InputDecoration(
             hintText: widget.hint,
+            hintStyle: const TextStyle(fontStyle: FontStyle.italic),
             prefixIcon: widget.prefixIcon,
             suffixIcon: widget.type == CustomInputType.password
                 ? ClickableRipple(

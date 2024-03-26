@@ -305,6 +305,7 @@ class _FetchScreenState extends State<FetchScreen> {
       setState(() {
         _syncProgress += 1 / totalTable;
       });
+      // log("$priceItemBarcode\n");
 
       // final topos =
       //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
