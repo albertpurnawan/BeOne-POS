@@ -22,25 +22,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Initial Setup'),
+        backgroundColor: Color.fromARGB(255, 169, 0, 0),
+        foregroundColor: Colors.white,
+      ),
       backgroundColor: Colors.white,
-      body: ScrollWidget(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
-          child: Column(
-            children: [
-              SizedBox(
-                height: (MediaQuery.of(context).size.height / 2) - 250,
-              ),
-              const Text(
-                'SETTINGS',
-                style: TextStyle(
-                    color: ProjectColors.swatch,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
-              const SettingsForm()
-            ],
-          )),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'SETTINGS',
+            style: TextStyle(
+                color: ProjectColors.swatch,
+                fontSize: 30,
+                fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 30),
+          const SettingsForm()
+        ],
+      ),
     );
   }
 }

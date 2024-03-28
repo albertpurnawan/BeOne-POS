@@ -186,7 +186,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                     onPressed: () async {
                       await GetIt.instance<SaveReceiptUseCase>()
                           .call(params: context.read<ReceiptCubit>().state);
-                      await GetIt.instance<InvoiceApi>().sendInvoice();
+                      // await GetIt.instance<InvoiceApi>().sendInvoice();
                       setState(() {
                         isCharged = true;
                       });

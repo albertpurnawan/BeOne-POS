@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -12,25 +14,65 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 
 class ReceiptPrinter {
-  BluetoothPrinter? selectedPrinter = BluetoothPrinter(
-    // deviceName: "192.168.1.249:9100",
-    // address: "192.168.1.249",
-    // typePrinter: PrinterType.network,
-    deviceName: "POS-80C",
-    address: null,
-    port: null,
-    vendorId: null,
-    productId: null,
-    isBle: false,
-    typePrinter: PrinterType.usb,
-    state: null,
-  );
+  BluetoothPrinter? selectedPrinter;
+  // BluetoothPrinter? selectedPrinter = BluetoothPrinter(
+  //   // deviceName: "192.168.1.249:9100",
+  //   // address: "192.168.1.249",
+  //   // typePrinter: PrinterType.network,
+  //   deviceName: "POS-80C",
+  //   address: null,
+  //   port: null,
+  //   vendorId: null,
+  //   productId: null,
+  //   isBle: false,
+  //   typePrinter: PrinterType.usb,
+  //   state: null,
+  // );
   List<int>? pendingTask;
   bool _reconnect = true;
   BTStatus _currentStatus = BTStatus.none;
   PrintReceiptDetail? currentPrintReceiptDetail;
 
-  ReceiptPrinter();
+  ReceiptPrinter._init();
+
+  static Future<ReceiptPrinter> init() async {
+    final receiptPrinter = ReceiptPrinter._init();
+
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
+        null) {
+      final [
+        deviceName,
+        address,
+        port,
+        vendorId,
+        productId,
+        isBle,
+        typePrinter,
+        state
+      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
+
+      receiptPrinter.selectedPrinter = BluetoothPrinter(
+        deviceName: deviceName == "null" ? null : deviceName,
+        address: address == "null" ? null : address,
+        port: port == "null" ? null : port,
+        vendorId: vendorId == "null" ? null : vendorId,
+        productId: productId == "null" ? null : productId,
+        isBle: isBle == "true" ? true : false,
+        typePrinter: typePrinter == "PrinterType.bluetooth"
+            ? PrinterType.bluetooth
+            : typePrinter == "PrinterType.network"
+                ? PrinterType.network
+                : PrinterType.usb,
+        state: state == "null"
+            ? null
+            : state == "true"
+                ? true
+                : false,
+      );
+    }
+
+    return receiptPrinter;
+  }
 
   String _convertPrintReceiptContentToText(
       PrintReceiptContent printReceiptContent) {
@@ -91,7 +133,7 @@ class ReceiptPrinter {
           for (final item
               in currentPrintReceiptDetail?.receiptEntity.receiptItems ?? []) {
             bytes += generator.text(
-                "${item.quantity}x${item.itemEntity.price} ${item.itemEntity.itemName}");
+                "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.price)} ${item.itemEntity.itemName}");
             bytes += generator.row([
               PosColumn(
                   width: 8,
@@ -106,7 +148,7 @@ class ReceiptPrinter {
                   )),
               PosColumn(
                   width: 4,
-                  text: '${item.subtotal}',
+                  text: '${Helpers.parseMoney(item.subtotal)}',
                   styles: PosStyles(
                     align: PosAlign.right,
                     height: printReceiptContent.fontSize,
@@ -199,12 +241,19 @@ class ReceiptPrinter {
                 bold: printReceiptContent.isBold,
               ));
         case PrintReceiptContentType.receiptBarcode:
-          final List<String> barcodeData = currentPrintReceiptDetail!
-              .receiptEntity.docNum
-              .split("")
-              .toList();
-          print(barcodeData);
-          bytes += generator.barcode(Barcode.code39(barcodeData));
+          // final List<String> barcodeData = currentPrintReceiptDetail!
+          //     .receiptEntity.docNum
+          //     .substring(0, 21) // max 21 char di 80mm
+          //     .split("")
+          //     .toList();
+          // print(barcodeData);
+          // print(generator.barcode(Barcode.code39(barcodeData)));
+          // bytes += generator.barcode(Barcode.code39(barcodeData),
+          //     width: 1, height: 60);
+          bytes += generator.qrcode(
+              currentPrintReceiptDetail!.receiptEntity.docNum,
+              size: QRSize.Size6);
+
         case PrintReceiptContentType.logo:
         default:
           bytes += generator.text(
@@ -258,8 +307,16 @@ class ReceiptPrinter {
 
   Future<void> printReceipt(PrintReceiptDetail printReceiptDetail) async {
     List<int> bytes = [];
+    final String? paperSize =
+        GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
-    final generator = Generator(PaperSize.mm80, profile);
+    final generator = Generator(
+        paperSize == null
+            ? PaperSize.mm58
+            : paperSize == "80 mm"
+                ? PaperSize.mm80
+                : PaperSize.mm58,
+        profile);
     currentPrintReceiptDetail = printReceiptDetail;
 
     List<List<PrintReceiptContent>> printReceiptContents = [];
@@ -514,7 +571,7 @@ class ReceiptPrinter {
           case PrintReceiptContentType.items:
             for (final item in receiptEntity.receiptItems) {
               bytes += generator.text(
-                  "${item.quantity}x${item.itemEntity.price} ${item.itemEntity.itemName}");
+                  "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.price)} ${item.itemEntity.itemName}");
               bytes += generator.row([
                 PosColumn(
                     width: 8,
@@ -526,7 +583,7 @@ class ReceiptPrinter {
                     )),
                 PosColumn(
                     width: 4,
-                    text: '${item.subtotal}',
+                    text: Helpers.parseMoney(item.subtotal),
                     styles: const PosStyles(
                       align: PosAlign.right,
                       // codeTable: 'CP1252',
@@ -650,8 +707,42 @@ class ReceiptPrinter {
   void _printEscPos(List<int> bytes, Generator generator) async {
     bool connectedTCP = false;
 
-    PrinterManager printerManager = PrinterManager.instance;
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
+        null) {
+      final [
+        deviceName,
+        address,
+        port,
+        vendorId,
+        productId,
+        isBle,
+        typePrinter,
+        state
+      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
+
+      selectedPrinter = BluetoothPrinter(
+        deviceName: deviceName == "null" ? null : deviceName,
+        address: address == "null" ? null : address,
+        port: port == "null" ? null : port,
+        vendorId: vendorId == "null" ? null : vendorId,
+        productId: productId == "null" ? null : productId,
+        isBle: isBle == "true" ? true : false,
+        typePrinter: typePrinter == "PrinterType.bluetooth"
+            ? PrinterType.bluetooth
+            : typePrinter == "PrinterType.network"
+                ? PrinterType.network
+                : PrinterType.usb,
+        state: state == "null"
+            ? null
+            : state == "true"
+                ? true
+                : false,
+      );
+    }
+
     if (selectedPrinter == null) return;
+
+    PrinterManager printerManager = PrinterManager.instance;
     BluetoothPrinter bluetoothPrinter = selectedPrinter!;
 
     switch (bluetoothPrinter.typePrinter) {

@@ -62,15 +62,19 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_serv
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   sl.registerSingleton<Dio>(Dio());
-  sl.registerSingleton<ReceiptPrinter>(ReceiptPrinter());
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
   sl.registerSingleton<Uuid>(const Uuid());
+  sl.registerSingletonAsync<SharedPreferences>(
+      () => SharedPreferences.getInstance());
+  sl.registerSingletonAsync<ReceiptPrinter>(() => ReceiptPrinter.init(),
+      dependsOn: [SharedPreferences]);
 
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
   sl.registerSingleton<AuthorizationApi>(AuthorizationApi(sl()));
