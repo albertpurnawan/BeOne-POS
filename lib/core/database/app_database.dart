@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
 // import 'package:pos_fe/core/database/seeders_data/phir1.dart';
@@ -304,9 +307,9 @@ PRAGMA foreign_keys = ON;
     preferredVendorDao = PreferredVendorDao(_database!);
 
     receiptContentDao.bulkCreate(
-        data: receiptcontents
-            .map((e) => ReceiptContentModel.fromMap(e))
-            .toList());
+        data: receiptcontents.map((e) {
+      return ReceiptContentModel.fromMap(e);
+    }).toList());
     // currencyDao.bulkCreate(
     //     data: tcurr.map((e) => CurrencyModel.fromMap(e)).toList());
     // itemCategoryDao.bulkCreate(
@@ -425,7 +428,8 @@ CREATE TABLE $tableReceiptContents (
   ${ReceiptContentFields.fontSize} INTEGER DEFAULT 1,
   ${ReceiptContentFields.isBold} INTEGER DEFAULT 0,
   ${ReceiptContentFields.alignment} INTEGER DEFAULT 0,
-  ${ReceiptContentFields.customValue} STRING
+  ${ReceiptContentFields.customValue} STRING,
+  ${ReceiptContentFields.imageBytes} BLOB
 );
 """);
 
@@ -1186,9 +1190,9 @@ ${ItemFields.price} DOUBLE NOT NULL,
 ${ItemFields.toitmId} TEXT NOT NULL,
 ${ItemFields.tbitmId} TEXT NOT NULL,
 ${ItemFields.tpln2Id} TEXT NOT NULL,
-CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
+CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
+CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE
 )
 ''');
 

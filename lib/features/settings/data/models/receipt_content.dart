@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 
@@ -12,6 +14,7 @@ class ReceiptContentFields {
     isBold,
     alignment,
     customValue,
+    imageBytes
   ];
 
   static const String id = 'id';
@@ -21,6 +24,7 @@ class ReceiptContentFields {
   static const String isBold = 'isbold';
   static const String alignment = 'alignment';
   static const String customValue = 'customvalue';
+  static const String imageBytes = 'imagebytes';
 }
 
 class ReceiptContentModel extends ReceiptContentEntity implements BaseModel {
@@ -32,6 +36,7 @@ class ReceiptContentModel extends ReceiptContentEntity implements BaseModel {
     required super.isBold,
     required super.alignment,
     required super.customValue,
+    required super.imageBytes,
   });
 
   @override
@@ -44,6 +49,7 @@ class ReceiptContentModel extends ReceiptContentEntity implements BaseModel {
       'isbold': isBold ? 1 : 0,
       'alignment': alignment,
       'customvalue': customValue,
+      'imagebytes': imageBytes
     };
   }
 
@@ -57,6 +63,8 @@ class ReceiptContentModel extends ReceiptContentEntity implements BaseModel {
       alignment: map['alignment'] as int,
       customValue:
           map['customvalue'] != null ? map['customvalue'] as String : null,
+      imageBytes:
+          map['imagebytes'] != null ? map['imagebytes'] as Uint8List : null,
     );
   }
 
@@ -69,6 +77,7 @@ class ReceiptContentModel extends ReceiptContentEntity implements BaseModel {
       isBold: entity.isBold,
       alignment: entity.alignment,
       customValue: entity.customValue,
+      imageBytes: entity.imageBytes,
     );
   }
 }

@@ -10,6 +10,6 @@ class SaveReceiptUseCase implements UseCase<void, ReceiptEntity> {
   @override
   Future<void> call({ReceiptEntity? params}) {
     // TODO: implement call
-    return _receiptRepository.createInvoice(params!);
+    return _receiptRepository.createInvoiceHeaderAndDetail(params!);
   }
 }

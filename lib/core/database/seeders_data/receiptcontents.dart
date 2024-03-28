@@ -120,10 +120,10 @@ const receiptcontents = [
   },
   {
     "row": 16,
-    "content": "customValue1",
+    "content": "customRow1",
     "fontsize": 1,
     "isbold": 0,
-    "alignment": 0,
+    "alignment": 1,
     "customvalue":
         "Belanja dari Rumah via\nwaonline.testmart.co.id\nUntuk informasi dan saran, hubungi\nIG @testmart.id - WA 0810 0000 0000\nPT TESTMART JAYA\nNPWP: 13.000.000.8-888.888"
   },
@@ -132,21 +132,21 @@ const receiptcontents = [
     "content": "address1",
     "fontsize": 1,
     "isbold": 0,
-    "alignment": 0,
+    "alignment": 1,
   },
   {
     "row": 18,
     "content": "address2",
     "fontsize": 1,
     "isbold": 0,
-    "alignment": 0,
+    "alignment": 1,
   },
   {
     "row": 19,
     "content": "city",
     "fontsize": 1,
     "isbold": 0,
-    "alignment": 0,
+    "alignment": 1,
   },
   {
     "row": 20,

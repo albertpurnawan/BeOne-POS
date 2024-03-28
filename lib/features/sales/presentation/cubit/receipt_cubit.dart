@@ -96,7 +96,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void clearReceiptItems() {
-    emit(state.copyWith(receiptItems: [], totalPrice: 0));
+    emit(state.copyWith(
+        receiptItems: [],
+        totalPrice: 0,
+        docNum:
+            "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1"));
   }
 
   void updateMopSelection(
