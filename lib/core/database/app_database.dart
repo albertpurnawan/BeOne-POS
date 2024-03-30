@@ -29,6 +29,7 @@ import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/authorization_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/cash_register_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/cashier_balance_transaction_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/country_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/credit_card_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart';
@@ -224,6 +225,7 @@ class AppDatabase {
   late final VendorGroupDao vendorGroupDao;
   late final VendorDao vendorDao;
   late final PreferredVendorDao preferredVendorDao;
+  late final CashierBalanceTransactionDao cashierBalanceTransactionDao;
 
   AppDatabase._init();
 
@@ -304,6 +306,7 @@ PRAGMA foreign_keys = ON;
     vendorGroupDao = VendorGroupDao(_database!);
     vendorDao = VendorDao(_database!);
     preferredVendorDao = PreferredVendorDao(_database!);
+    cashierBalanceTransactionDao = CashierBalanceTransactionDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents
@@ -1323,13 +1326,15 @@ CREATE TABLE $tableCashierBalanceTransaction (
   ${CashierBalanceTransactionFields.closeValue} double NOT NULL,
   ${CashierBalanceTransactionFields.openedbyId} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.closedbyId} text DEFAULT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `tcsr1_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tcsr1_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tcsr1_openedbyId_fkey` FOREIGN KEY (`openedbyId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tcsr1_closedbyId_fkey` FOREIGN KEY (`closedbyId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  ${CashierBalanceTransactionFields.approvalStatus} int DEFAULT NULL,
+  $createdAtDefinition
 )
 """);
+
+        // CONSTRAINT `tcsr1_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tcsr1_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tcsr1_openedbyId_fkey` FOREIGN KEY (`openedbyId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tcsr1_closedbyId_fkey` FOREIGN KEY (`closedbyId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableGender (
@@ -2405,6 +2410,8 @@ CREATE TABLE $tablePOSParameter (
   ${POSParameterFields.tocsrId} text DEFAULT NULL,
   ${POSParameterFields.tovatId} text DEFAULT NULL,
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
+  ${POSParameterFields.user} text DEFAULT NULL,
+  ${POSParameterFields.password} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

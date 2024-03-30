@@ -46,7 +46,7 @@ class CashierBalanceTransactionFields {
   static const String closeValue = "closevalue";
   static const String openedbyId = "openedbyId";
   static const String closedbyId = "closedbyId";
-  static const String approvalStatus = "approvalStatus";
+  static const String approvalStatus = "approvalstatus";
 }
 
 class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
@@ -96,7 +96,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       'closevalue': closeValue,
       'openedbyId': openedbyId,
       'closedbyId': closedbyId,
-      'approvalStatus': approvalStatus,
+      'approvalstatus': approvalStatus,
     };
   }
 
@@ -120,12 +120,12 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       openValue: map['openvalue'] as double,
       calcValue: map['calcvalue'] as double,
       cashValue: map['cashvalue'] as double,
-      closeValue: map['closvValue'] as double,
+      closeValue: map['closevalue'] as double,
       openedbyId:
           map['openedbyId'] != null ? map['openedbyId'] as String : null,
       closedbyId:
           map['closedbyId'] != null ? map['closedbyId'] as String : null,
-      approvalStatus: map['approvalStatus'] as int,
+      approvalStatus: map['approvalstatus'] as int,
     );
   }
 

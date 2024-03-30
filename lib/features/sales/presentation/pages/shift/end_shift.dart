@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/custom_row.dart';
 import 'package:pos_fe/core/widgets/custom_row_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EndShiftScreen extends StatefulWidget {
   const EndShiftScreen({super.key});
@@ -28,7 +33,7 @@ class _EndShiftScreenState extends State<EndShiftScreen> {
           child: Column(
             children: [
               SizedBox(
-                height: (MediaQuery.of(context).size.height / 2) - 300,
+                height: (MediaQuery.of(context).size.height / 2) - 350,
               ),
               const Text(
                 'End Currrent Shift',
@@ -38,77 +43,7 @@ class _EndShiftScreenState extends State<EndShiftScreen> {
                     fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 30),
-              const CustomRow(
-                leftText: "Cashier",
-                rightText: "Cashier1   ",
-              ),
-              const CustomRow(
-                leftText: "Shift Started",
-                rightText: "SomeDate at SomeTime   ",
-              ),
-              const SizedBox(height: 10),
-              const CustomRow(
-                leftText: "System Cashier",
-                rightText: "",
-              ),
-              const CustomRow(
-                leftText: "   Start Cash",
-                rightText: "Start Cash1   ",
-              ),
-              const CustomRow(
-                leftText: "   Cash Flow",
-                rightText: "Cash Flow1   ",
-              ),
-              const CustomRow(
-                leftText: "   Cash Sales",
-                rightText: "0   ",
-              ),
-              const CustomRow(
-                leftText: "   Expected Cash",
-                rightText: "All Cash   ",
-              ),
-              const CustomRow(
-                leftText: "   Non-Cash",
-                rightText: "Total NonCash   ",
-              ),
-              const SizedBox(height: 10),
-              const CustomRow(
-                leftText: "Actual Cash",
-                rightText: "",
-              ),
-              const CustomRowInput(
-                leftText: "   Actual Cash Earned",
-                rightText: "Enter Actual Cash Earned",
-              ),
-              // const EndShiftForm(),
-              const SizedBox(height: 30),
-              Container(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: CustomButton(
-                  child: const Text("End Shift"),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: 200,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            10.0), // Adjust the borderRadius value as needed
-                      ),
-                    ),
-                  ),
-                  child: const Text('Cancel'),
-                ),
-              ),
+              const EndShiftForm(),
             ],
           )),
     );
@@ -124,11 +59,25 @@ class EndShiftForm extends StatefulWidget {
 
 class _EndShiftFormState extends State<EndShiftForm> {
   late TextEditingController actualCashController;
+  late Future<CashierBalanceTransactionModel?> _openingFuture;
+  late Future<List<InvoiceHeaderModel?>> _transactionsFuture;
+  late CashierBalanceTransactionModel? opening;
+  late List<InvoiceHeaderModel?> transactions;
+  double differences = 0.0;
+
+  void _updateCashierBalanceTransaction(
+      String docId, CashierBalanceTransactionModel value) async {
+    await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .update(docId: docId, data: value);
+  }
 
   @override
   void initState() {
     super.initState();
     actualCashController = TextEditingController();
+    _openingFuture = _fetchOpeningData();
+    _transactionsFuture = _fetchInvoices();
   }
 
   @override
@@ -137,65 +86,194 @@ class _EndShiftFormState extends State<EndShiftForm> {
     actualCashController.dispose();
   }
 
+  Future<CashierBalanceTransactionModel?> _fetchOpeningData() async {
+    opening = await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .readLastValue();
+    return opening;
+  }
+
+  Future<List<InvoiceHeaderModel?>> _fetchInvoices() async {
+    transactions =
+        await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
+    return transactions;
+  }
+
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
 
+    return FutureBuilder<CashierBalanceTransactionModel?>(
+      future: _openingFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          opening = snapshot.data!;
+          return FutureBuilder<List<InvoiceHeaderModel?>>(
+            future: _transactionsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                transactions = snapshot.data!;
+                return buildForm(context, formKey);
+              }
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget buildForm(BuildContext context, GlobalKey<FormState> formKey) {
+    double cashFlow = 0;
+    for (var transaction in transactions) {
+      cashFlow += transaction!.grandTotal;
+    }
+
+    final double actualCash = double.tryParse(actualCashController.text) ?? 0.0;
+    final double expectedCash = cashFlow;
+
+    final String differences = (expectedCash - actualCash).toString();
+
     return Center(
       child: Form(
         key: formKey,
-        child: Column(children: [
-          Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomInput(
-              controller: actualCashController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "Actual Cash is required" : null,
-              keyboardType: TextInputType.number,
-              hint: "Enter Actual Cash Earned",
-              prefixIcon: const Icon(Icons.monetization_on_rounded),
+        child: Column(
+          children: [
+            CustomRow(
+              leftText: "Cashier",
+              rightText: opening!.tocsrId,
             ),
-          ),
-          const SizedBox(height: 15),
-        ]),
+            CustomRow(
+              leftText: "Shift Started",
+              rightText:
+                  DateFormat('dd MMM yyyy, HH:mm').format(opening!.openDate),
+            ),
+            const SizedBox(height: 10),
+            const CustomRow(
+              leftText: "System Cashier",
+              rightText: "",
+            ),
+            CustomRow(
+              leftText: "   Start Cash",
+              rightText: opening!.openValue.toString(),
+            ),
+            CustomRow(
+              leftText: "   Cash Flow",
+              rightText: cashFlow.toString(),
+            ),
+            const CustomRow(
+              leftText: "   Cash Sales",
+              rightText: "0.0",
+            ),
+            CustomRow(
+              leftText: "   Expected Cash",
+              rightText: cashFlow.toString(),
+            ),
+            const CustomRow(
+              leftText: "   Non-Cash",
+              rightText: "0.0",
+            ),
+            const SizedBox(height: 10),
+            const CustomRow(
+              leftText: "Actual Cash",
+              rightText: "",
+            ),
+            CustomRowInput(
+              controller: actualCashController,
+              leftText: "   Actual Cash Earned",
+              hint: "Enter Actual Cash Earned",
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a value';
+                }
+                final isNumeric = double.tryParse(value);
+                if (isNumeric == null) {
+                  return 'Please enter a valid number';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 10),
+            CustomRow(
+              leftText: "   Differences",
+              rightText: differences,
+            ),
+            const SizedBox(height: 30),
+            Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: CustomButton(
+                child: const Text("End Shift"),
+                onTap: () async {
+                  if (!formKey.currentState!.validate()) return;
+
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool('isOpen', false);
+
+                  final double inputValue =
+                      double.tryParse(actualCashController.text) ?? 0.0;
+
+                  if (opening != null) {
+                    final CashierBalanceTransactionModel shift =
+                        CashierBalanceTransactionModel(
+                      docId: opening!.docId,
+                      createDate: opening!.createDate,
+                      updateDate: opening!.updateDate,
+                      tocsrId: opening!.tocsrId,
+                      tousrId: opening!.tousrId,
+                      docNum: opening!.docNum,
+                      openDate: opening!.openDate,
+                      openTime: opening!.openTime,
+                      calcDate: opening!.calcDate,
+                      calcTime: opening!.calcTime,
+                      closeDate: DateTime.now(),
+                      closeTime: DateTime.now(),
+                      timezone: opening!.timezone,
+                      openValue: opening!.openValue,
+                      calcValue: 0,
+                      cashValue: 0,
+                      closeValue: inputValue,
+                      openedbyId: "",
+                      closedbyId: "",
+                      approvalStatus: 1,
+                    );
+
+                    _updateCashierBalanceTransaction(opening!.docId, shift);
+                  }
+
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                child: const Text('Cancel'),
+              ),
+            ),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class ActualCashFormFields extends StatelessWidget {
-  const ActualCashFormFields({
-    Key? key,
-    this.validator,
-    this.prefix,
-    this.prefixIcon,
-    this.suffix,
-    this.suffixIcon,
-    required this.label,
-    this.obscureText = false,
-    this.controller,
-  }) : super(key: key);
-
-  final String? Function(String? val)? validator;
-  final Widget? prefix, prefixIcon, suffix, suffixIcon;
-  final String label;
-  final bool obscureText;
-  final TextEditingController? controller;
-
-  @override
-  Widget build(Object context) {
-    return TextFormField(
-      validator: validator,
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-          isDense: true,
-          contentPadding: const EdgeInsets.only(bottom: 10),
-          prefixIcon: prefixIcon,
-          prefix: prefix,
-          suffixIcon: suffixIcon,
-          suffix: suffix,
-          labelText: label),
     );
   }
 }

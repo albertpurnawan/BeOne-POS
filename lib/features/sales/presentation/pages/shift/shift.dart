@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 class StartShiftScreen extends StatefulWidget {
   const StartShiftScreen({super.key});
@@ -21,9 +15,6 @@ class StartShiftScreen extends StatefulWidget {
 class _StartShiftScreenState extends State<StartShiftScreen> {
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final formattedDate = DateFormat('dd MMM yyy, HH : mm').format(now);
-
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: ProjectColors.swatch,
         statusBarBrightness: Brightness.light,
@@ -37,15 +28,29 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
               SizedBox(
                 height: (MediaQuery.of(context).size.height / 2) - 250,
               ),
-              Text(
-                'Shift: $formattedDate',
-                style: const TextStyle(
+              const Text(
+                'Show Date Here',
+                style: TextStyle(
                     color: ProjectColors.swatch,
                     fontSize: 30,
                     fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 30),
               const StartShiftForm(),
+              const SizedBox(height: 20),
+              Container(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: CustomButton(
+                  child: const Text("Start Shift"),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const StartShiftScreen()),
+                    );
+                  },
+                ),
+              ),
               const SizedBox(height: 10),
               SizedBox(
                 width: 200,
@@ -80,16 +85,10 @@ class StartShiftForm extends StatefulWidget {
 class _StartShiftFormState extends State<StartShiftForm> {
   late TextEditingController openValueController;
 
-  void _insertCashierBalanceTransaction(
-      CashierBalanceTransactionModel value) async {
-    await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .create(data: value);
-  }
-
   @override
   void initState() {
     super.initState();
+
     openValueController = TextEditingController();
   }
 
@@ -111,16 +110,9 @@ class _StartShiftFormState extends State<StartShiftForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: openValueController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a value';
-                }
-                final isNumeric = double.tryParse(value);
-                if (isNumeric == null) {
-                  return 'Please enter a valid number';
-                }
-                return null;
-              },
+              validator: (val) => val == null || val.isEmpty
+                  ? "Opening Value is required"
+                  : null,
               // label: "Openvalue",
               keyboardType: TextInputType.number,
               hint: "Enter Amount of Starting Cash",
@@ -128,55 +120,6 @@ class _StartShiftFormState extends State<StartShiftForm> {
             ),
           ),
           const SizedBox(height: 15),
-          Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomButton(
-              child: const Text("Start Shift"),
-              onTap: () async {
-                if (!formKey.currentState!.validate()) return;
-
-                final SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
-                await prefs.setBool('isOpen', true);
-
-                final double inputValue =
-                    double.tryParse(openValueController.text) ?? 0.0;
-
-                final CashierBalanceTransactionModel shift =
-                    CashierBalanceTransactionModel(
-                  docId: const Uuid().v4(),
-                  createDate: DateTime.now(),
-                  updateDate: DateTime.now(),
-                  tocsrId: "4ca46d3e-30ff-4441-98f8-3fdcf81dc230",
-                  tousrId: "fab056fa-b206-4360-8c35-568407651827",
-                  docNum: "RandomDocNum",
-                  openDate: DateTime.now(),
-                  openTime: DateTime.now(),
-                  calcDate: DateTime.utc(1970, 1, 1),
-                  calcTime: DateTime.utc(1970, 1, 1),
-                  closeDate: DateTime.utc(1970, 1, 1),
-                  closeTime: DateTime.utc(1970, 1, 1),
-                  timezone: "GMT+07",
-                  openValue: inputValue,
-                  calcValue: 0,
-                  cashValue: 0,
-                  closeValue: 0,
-                  openedbyId: "",
-                  closedbyId: "",
-                  approvalStatus: 0,
-                );
-                _insertCashierBalanceTransaction(shift);
-
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const SalesPage()),
-                // );
-              },
-            ),
-          ),
         ]),
       ),
     );

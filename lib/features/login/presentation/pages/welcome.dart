@@ -100,23 +100,55 @@ class WelcomeScreen extends StatefulWidget {
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
                       child: const Text("Start Shift"),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                              ),
-                              content: SizedBox(
-                                width: MediaQuery.of(context).size.width *
-                                    0.7, // 70% of screen width
-                                child: const StartShiftScreen(),
-                              ),
-                            );
-                          },
-                        );
+                      onTap: () async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        final bool isOpen = prefs.getBool('isOpen') ?? false;
+
+                        if (isOpen) {
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                content: const Text(
+                                  "Please end current shift first",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                content: SizedBox(
+                                  width: MediaQuery.of(context).size.width *
+                                      0.7, // 70% of screen width
+                                  child: const StartShiftScreen(),
+                                ),
+                              );
+                            },
+                          );
+                        }
                       },
                     ),
                   ),
@@ -125,23 +157,55 @@ class WelcomeScreen extends StatefulWidget {
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
                       child: const Text("End Shift"),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                              ),
-                              content: SizedBox(
-                                width: MediaQuery.of(context).size.width *
-                                    0.7, // 70% of screen width
-                                child: const EndShiftScreen(),
-                              ),
-                            );
-                          },
-                        );
+                      onTap: () async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        final bool isOpen = prefs.getBool('isOpen') ?? false;
+
+                        if (isOpen) {
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                content: SizedBox(
+                                  width: MediaQuery.of(context).size.width *
+                                      0.7, // 70% of screen width
+                                  child: const EndShiftScreen(),
+                                ),
+                              );
+                            },
+                          );
+                        } else {
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                content: const Text(
+                                  "Please start a new shift first",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       },
                     ),
                   ),
@@ -208,10 +272,20 @@ class LanguageSwitchButton extends StatelessWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  // bool isOpen = false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _checkShiftStatus();
+  // }
+
+  // Future<void> _checkShiftStatus() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     isOpen = prefs.getBool('isOpen') ?? false;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {

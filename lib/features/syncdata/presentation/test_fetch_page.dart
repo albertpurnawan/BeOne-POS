@@ -314,13 +314,17 @@ class _FetchScreenState extends State<FetchScreen> {
           "docid": const Uuid().v4(),
           "createdate": DateTime.now().toString(),
           "updatedate": DateTime.now().toString(),
+          "gtentId": const Uuid().v4(),
           "tostrId": stores[0].docId,
           "storename": stores[0].storeName,
           "tcurrId": stores[0].tcurrId,
           "currcode": currencies[0].curCode,
           "toplnId": stores[0].toplnId,
           "tocsrId": cashiers[0].docId,
-          "tovatId": stores[0].tovatId
+          "tovatId": stores[0].tovatId,
+          "baseUrl": "someUrl",
+          "user": "user",
+          "password": "password",
         }
       ];
 
@@ -368,8 +372,9 @@ class _FetchScreenState extends State<FetchScreen> {
         _syncProgress = 1.0;
       });
       print('Data synched');
-    } catch (error) {
+    } catch (error, stack) {
       print("Error synchronizing: $error");
+      debugPrintStack(stackTrace: stack);
     }
   }
 

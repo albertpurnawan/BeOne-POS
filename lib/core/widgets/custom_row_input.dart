@@ -1,22 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:pos_fe/core/widgets/field_label.dart';
 
-class CustomRowInput extends StatelessWidget {
-  final String leftText;
-  final String rightText;
-
+class CustomRowInput extends StatefulWidget {
   const CustomRowInput({
     Key? key,
     required this.leftText,
-    required this.rightText,
+    this.controller,
+    this.validator,
+    this.isCollapsed,
+    this.isDense,
+    this.autofocus,
+    this.keyboardType,
+    this.onChanged,
+    this.label,
+    this.hint,
+    this.maxLines = 1,
+    this.onEditingComplete,
+    this.focusNode,
+    this.textAlign,
   }) : super(key: key);
+
+  final String leftText;
+  final TextEditingController? controller;
+  final String? Function(String? value)? validator;
+  final bool? isCollapsed, isDense, autofocus;
+  final TextInputType? keyboardType;
+  final void Function(String? value)? onChanged;
+  final String? label, hint;
+  final void Function()? onEditingComplete;
+  final int? maxLines;
+  final FocusNode? focusNode;
+  final TextAlign? textAlign;
+
+  @override
+  State<CustomRowInput> createState() => _CustomRowInputState();
+}
+
+class _CustomRowInputState extends State<CustomRowInput> {
+  FocusNode? _focusNode;
+
+  @override
+  void dispose() {
+    _focusNode!.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    if (_focusNode == null) {
+      _focusNode = widget.focusNode ?? FocusNode();
+      _focusNode!.addListener(() {
+        setState(() {});
+      });
+    }
+
     return FieldLabel(
-      color: theme.colorScheme.primary,
+      color: _focusNode!.hasFocus ? theme.colorScheme.primary : null,
+      label: widget.label,
       child: Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.red), // Add border here
@@ -26,7 +68,7 @@ class CustomRowInput extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                leftText,
+                widget.leftText,
                 style: const TextStyle(
                   fontSize: 18,
                 ),
@@ -35,15 +77,24 @@ class CustomRowInput extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 1.0),
-                  child: TextField(
-                    textAlign: TextAlign.right,
+                  child: TextFormField(
                     style: const TextStyle(fontSize: 18),
-                    keyboardType: TextInputType.number,
+                    autofocus: widget.autofocus ?? false,
+                    onEditingComplete: widget.onEditingComplete,
+                    onChanged: widget.onChanged,
+                    controller: widget.controller,
+                    validator: widget.validator,
+                    focusNode: _focusNode,
+                    textAlign: widget.textAlign ?? TextAlign.right,
+                    keyboardType: widget.keyboardType,
+                    maxLines: widget.maxLines,
                     decoration: InputDecoration(
-                      hintText: rightText,
+                      hintText: widget.hint,
                       hintStyle: const TextStyle(fontStyle: FontStyle.italic),
                       contentPadding: const EdgeInsets.symmetric(
                           vertical: 1, horizontal: 5),
+                      isCollapsed: widget.isCollapsed ?? false,
+                      isDense: widget.isDense,
                       border: InputBorder.none,
                     ),
                   ),
@@ -54,3 +105,5 @@ class CustomRowInput extends StatelessWidget {
     );
   }
 }
+
+enum CustomInputType { text }
