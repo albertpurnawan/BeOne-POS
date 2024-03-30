@@ -101,7 +101,7 @@ class _SettingsFormState extends State<SettingsForm> {
         key: formKey,
         child: Column(children: [
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: gtentController,
               validator: (val) =>
@@ -113,7 +113,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tostrController,
               validator: (val) =>
@@ -125,7 +125,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tocsrController,
               validator: (val) =>
@@ -137,7 +137,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: urlController,
               validator: (val) =>
@@ -149,7 +149,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 25),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
               child: const Text("Save"),
               onTap: () async {
@@ -160,7 +160,7 @@ class _SettingsFormState extends State<SettingsForm> {
               },
             ),
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
         ]),
       ),
     );

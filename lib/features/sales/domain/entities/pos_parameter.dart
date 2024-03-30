@@ -5,50 +5,62 @@ class POSParameterEntity {
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
+  final String? gtentId;
   final String? tostrId;
   final String storeName;
   final String? tcurrId;
   final String currCode;
-  final String? toplnId;
   final String? tocsrId;
   final String? tovatId;
+  final String? baseUrl;
+  final String? user;
+  final String? password;
 
   POSParameterEntity({
     required this.docId,
     required this.createDate,
     required this.updateDate,
+    required this.gtentId,
     required this.tostrId,
     required this.storeName,
     required this.tcurrId,
     required this.currCode,
-    required this.toplnId,
     required this.tocsrId,
     required this.tovatId,
+    required this.baseUrl,
+    required this.user,
+    required this.password,
   });
 
   POSParameterEntity copyWith({
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
+    String? gtentId,
     String? tostrId,
     String? storeName,
     String? tcurrId,
     String? currCode,
-    String? toplnId,
     String? tocsrId,
     String? tovatId,
+    String? baseUrl,
+    String? user,
+    String? password,
   }) {
     return POSParameterEntity(
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
+      gtentId: gtentId ?? this.gtentId,
       tostrId: tostrId ?? this.tostrId,
       storeName: storeName ?? this.storeName,
       tcurrId: tcurrId ?? this.tcurrId,
       currCode: currCode ?? this.currCode,
-      toplnId: toplnId ?? this.toplnId,
       tocsrId: tocsrId ?? this.tocsrId,
       tovatId: tovatId ?? this.tovatId,
+      baseUrl: baseUrl ?? this.baseUrl,
+      user: user ?? this.user,
+      password: password ?? this.password,
     );
   }
 
@@ -57,13 +69,16 @@ class POSParameterEntity {
       'docId': docId,
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
+      'gtentId': gtentId,
       'tostrId': tostrId,
       'storeName': storeName,
       'tcurrId': tcurrId,
       'currCode': currCode,
-      'toplnId': toplnId,
       'tocsrId': tocsrId,
       'tovatId': tovatId,
+      'baseUrl': baseUrl,
+      'user': user,
+      'password': password,
     };
   }
 
@@ -74,13 +89,16 @@ class POSParameterEntity {
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
+      gtentId: map['gtentId'] != null ? map['gtentId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       storeName: map['storeName'] as String,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       currCode: map['currCode'] as String,
-      toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
       tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
+      baseUrl: map['baseUrl'] != null ? map['baseUrl'] as String : null,
+      user: map['user'] != null ? map['user'] as String : null,
+      password: map['password'] != null ? map['password'] as String : null,
     );
   }
 
@@ -91,7 +109,7 @@ class POSParameterEntity {
 
   @override
   String toString() {
-    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, storeName: $storeName, tcurrId: $tcurrId, currCode: $currCode, toplnId: $toplnId, tocsrId: $tocsrId, tovatId: $tovatId)';
+    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tcurrId: $tcurrId, currCode: $currCode, tocsrId: $tocsrId, tovatId: $tovatId, baseUrl: $baseUrl, user: $user, password: $password)';
   }
 
   @override
@@ -101,13 +119,16 @@ class POSParameterEntity {
     return other.docId == docId &&
         other.createDate == createDate &&
         other.updateDate == updateDate &&
+        other.gtentId == gtentId &&
         other.tostrId == tostrId &&
         other.storeName == storeName &&
         other.tcurrId == tcurrId &&
         other.currCode == currCode &&
-        other.toplnId == toplnId &&
         other.tocsrId == tocsrId &&
-        other.tovatId == tovatId;
+        other.tovatId == tovatId &&
+        other.baseUrl == baseUrl &&
+        other.user == user &&
+        other.password == password;
   }
 
   @override
@@ -115,12 +136,15 @@ class POSParameterEntity {
     return docId.hashCode ^
         createDate.hashCode ^
         updateDate.hashCode ^
+        gtentId.hashCode ^
         tostrId.hashCode ^
         storeName.hashCode ^
         tcurrId.hashCode ^
         currCode.hashCode ^
-        toplnId.hashCode ^
         tocsrId.hashCode ^
-        tovatId.hashCode;
+        tovatId.hashCode ^
+        baseUrl.hashCode ^
+        user.hashCode ^
+        password.hashCode;
   }
 }

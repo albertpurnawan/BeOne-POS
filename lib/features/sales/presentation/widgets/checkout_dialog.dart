@@ -94,7 +94,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                           style: TextStyle(color: ProjectColors.primary),
                         )),
                       )),
-                      SizedBox(
+                      const SizedBox(
                         width: 10,
                       ),
                       Expanded(
@@ -123,7 +123,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                       )),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   TextButton(
@@ -497,7 +497,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                           side: const BorderSide(
                                               color: ProjectColors.primary,
                                               width: 1.5),
-                                          padding: EdgeInsets.all(20),
+                                          padding: const EdgeInsets.all(20),
                                           label: Text(Helpers.parseMoney(
                                               cashAmountSuggestions[index])),
                                           selected: _value ==
@@ -555,7 +555,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                         side: const BorderSide(
                                             color: ProjectColors.primary,
                                             width: 1.5),
-                                        padding: EdgeInsets.all(20),
+                                        padding: const EdgeInsets.all(20),
                                         label: Text(
                                           mop.mopAlias,
                                         ),
@@ -642,7 +642,7 @@ class __CheckoutSuccessDialogContentState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 60),
+                  padding: const EdgeInsets.symmetric(horizontal: 60),
                   width: double.infinity,
                   // height: 180,
                   // color: Color.fromARGB(255, 237, 237, 237), // almost white
@@ -716,7 +716,7 @@ class __CheckoutSuccessDialogContentState
                               "assets/images/icon-success.svg",
                               height: 42,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Text(
@@ -729,7 +729,7 @@ class __CheckoutSuccessDialogContentState
                                 // color: Colors.black,
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 52,
                             )
                           ],
@@ -740,7 +740,7 @@ class __CheckoutSuccessDialogContentState
                         Text(
                           DateFormat("EEE, dd MMM yyyy - hh:mm aaa")
                               .format(DateTime.now()),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -758,14 +758,15 @@ class __CheckoutSuccessDialogContentState
                   height: 10,
                 ),
                 Container(
-                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 10),
                     width: double.infinity,
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "Detail",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                           ),
@@ -774,23 +775,23 @@ class __CheckoutSuccessDialogContentState
                       ],
                     )),
                 Container(
-                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
                     width: double.infinity,
-                    child: Table(columnWidths: {
+                    child: Table(columnWidths: const {
                       0: FlexColumnWidth(4),
                       1: FlexColumnWidth(1),
                       2: FlexColumnWidth(4),
                     }, children: [
                       TableRow(
                         children: [
-                          Text(
+                          const Text(
                             "Invoice Number",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5,
                           ),
                           Text(
@@ -804,14 +805,14 @@ class __CheckoutSuccessDialogContentState
                       ),
                       TableRow(
                         children: [
-                          Text(
+                          const Text(
                             "Payment",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5,
                           ),
                           Text(
@@ -829,14 +830,14 @@ class __CheckoutSuccessDialogContentState
                       ),
                       TableRow(
                         children: [
-                          Text(
+                          const Text(
                             "Total Bill",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5,
                           ),
                           Text(
@@ -850,14 +851,14 @@ class __CheckoutSuccessDialogContentState
                       ),
                       TableRow(
                         children: [
-                          Text(
+                          const Text(
                             "Received",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5,
                           ),
                           Text(
@@ -871,14 +872,14 @@ class __CheckoutSuccessDialogContentState
                       ),
                       TableRow(
                         children: [
-                          Text(
+                          const Text(
                             "Change",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5,
                           ),
                           Text(
@@ -891,7 +892,7 @@ class __CheckoutSuccessDialogContentState
                         ],
                       ),
                     ])),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 )
               ],

@@ -17,7 +17,7 @@ abstract class BaseDao<T extends BaseModel> {
     if (txn != null) {
       final batch = txn.batch();
 
-      batch.delete(tableName);
+      batch.delete(tableName); //make repo and add delete there, dao 1f1m
 
       for (final e in data) {
         batch.insert(tableName, e.toMap());
@@ -67,10 +67,10 @@ abstract class BaseDao<T extends BaseModel> {
   Future<void> update(
       {required String docId, required T data, Transaction? txn}) async {
     if (txn != null) {
-      final res = await txn.update(tableName, data.toMap(),
+      await txn.update(tableName, data.toMap(),
           where: "docId = ?", whereArgs: [docId]);
     } else {
-      final res = await db.update(tableName, data.toMap(),
+      await db.update(tableName, data.toMap(),
           where: "docId = ?", whereArgs: [docId]);
     }
   }

@@ -33,4 +33,22 @@ class CashierBalanceTransactionDao
         .map((itemData) => CashierBalanceTransactionModel.fromMap(itemData))
         .toList();
   }
+
+  Future<double> insertValue(double value) async {
+    final result = await db.insert('tcsr1', {'value': value});
+
+    return result.toDouble();
+  }
+
+  Future<CashierBalanceTransactionModel?> readLastValue() async {
+    final result = await db.query(
+      tableName,
+      orderBy: 'createdat DESC',
+      limit: 1,
+    );
+
+    return result.isNotEmpty
+        ? CashierBalanceTransactionModel.fromMap(result[0])
+        : null;
+  }
 }

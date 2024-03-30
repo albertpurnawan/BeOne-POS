@@ -24,6 +24,7 @@ class CashierBalanceTransactionFields {
     closeValue,
     openedbyId,
     closedbyId,
+    approvalStatus,
   ];
 
   static const String docId = "docid";
@@ -45,6 +46,7 @@ class CashierBalanceTransactionFields {
   static const String closeValue = "closevalue";
   static const String openedbyId = "openedbyId";
   static const String closedbyId = "closedbyId";
+  static const String approvalStatus = "approvalstatus";
 }
 
 class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
@@ -69,6 +71,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
     required super.closeValue,
     required super.openedbyId,
     required super.closedbyId,
+    required super.approvalStatus,
   });
 
   @override
@@ -93,6 +96,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       'closevalue': closeValue,
       'openedbyId': openedbyId,
       'closedbyId': closedbyId,
+      'approvalstatus': approvalStatus,
     };
   }
 
@@ -116,11 +120,12 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       openValue: map['openvalue'] as double,
       calcValue: map['calcvalue'] as double,
       cashValue: map['cashvalue'] as double,
-      closeValue: map['closvValue'] as double,
+      closeValue: map['closevalue'] as double,
       openedbyId:
           map['openedbyId'] != null ? map['openedbyId'] as String : null,
       closedbyId:
           map['closedbyId'] != null ? map['closedbyId'] as String : null,
+      approvalStatus: map['approvalstatus'] as int,
     );
   }
 
@@ -163,6 +168,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       closeValue: entity.closeValue,
       openedbyId: entity.openedbyId,
       closedbyId: entity.closedbyId,
+      approvalStatus: entity.approvalStatus,
     );
   }
 }

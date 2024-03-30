@@ -1,15 +1,16 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class StartShiftEntity {
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
-  final String tocsrId;
-  final String tohemId; //startedBy
+  final String? tocsrId;
+  final String? tohemId; //startedBy
   final DateTime startDate;
   final DateTime startTime;
-  final String timezone;
+  final String timezone; //DateTime.now().timeZoneOffset.inHours;
   final double startingCash;
 
   StartShiftEntity({
@@ -69,8 +70,8 @@ class StartShiftEntity {
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
-      tocsrId: map['tocsrId'] as String,
-      tohemId: map['tohemId'] as String,
+      tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
+      tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       startDate: DateTime.fromMillisecondsSinceEpoch(map['startDate'] as int),
       startTime: DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int),
       timezone: map['timezone'] as String,

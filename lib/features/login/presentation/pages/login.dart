@@ -113,8 +113,6 @@ class _LoginFormState extends State<LoginForm> {
                 if (loginSuccess) {
                   await authDao.isLoggedIn();
                   Helpers.navigate(context, SalesPage());
-                  // if (isLoggedIn) {
-                  //   Helpers.navigate(context, SalesPage());
                   // } else {
                   //   ScaffoldMessenger.of(context).showSnackBar(
                   //     SnackBar(
