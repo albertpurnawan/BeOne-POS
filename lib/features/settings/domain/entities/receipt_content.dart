@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui';
 
 class ReceiptContentEntity {
   final int? id;
@@ -9,6 +11,7 @@ class ReceiptContentEntity {
   final bool isBold;
   final int alignment;
   final String? customValue;
+  final Uint8List? imageBytes;
 
   ReceiptContentEntity({
     required this.id,
@@ -18,6 +21,7 @@ class ReceiptContentEntity {
     required this.isBold,
     required this.alignment,
     required this.customValue,
+    required this.imageBytes,
   });
 
   ReceiptContentEntity copyWith({
@@ -28,6 +32,7 @@ class ReceiptContentEntity {
     bool? isBold,
     int? alignment,
     String? customValue,
+    Uint8List? imageBytes,
   }) {
     return ReceiptContentEntity(
       id: id ?? this.id,
@@ -37,6 +42,7 @@ class ReceiptContentEntity {
       isBold: isBold ?? this.isBold,
       alignment: alignment ?? this.alignment,
       customValue: customValue ?? this.customValue,
+      imageBytes: imageBytes ?? this.imageBytes,
     );
   }
 
@@ -49,6 +55,7 @@ class ReceiptContentEntity {
       'isBold': isBold,
       'alignment': alignment,
       'customValue': customValue,
+      'imageBytes': imageBytes,
     };
   }
 
@@ -62,6 +69,8 @@ class ReceiptContentEntity {
       alignment: map['alignment'] as int,
       customValue:
           map['customValue'] != null ? map['customValue'] as String : null,
+      imageBytes:
+          map['imageBytes'] != null ? map['imageBytes'] as Uint8List : null,
     );
   }
 
@@ -72,7 +81,7 @@ class ReceiptContentEntity {
 
   @override
   String toString() {
-    return 'ReceiptContentEntity(id: $id, row: $row, content: $content, fontSize: $fontSize, isBold: $isBold, alignment: $alignment, customValue: $customValue)';
+    return 'ReceiptContentEntity(id: $id, row: $row, content: $content, fontSize: $fontSize, isBold: $isBold, alignment: $alignment, customValue: $customValue, imageBytes: $imageBytes)';
   }
 
   @override
@@ -85,7 +94,8 @@ class ReceiptContentEntity {
         other.fontSize == fontSize &&
         other.isBold == isBold &&
         other.alignment == alignment &&
-        other.customValue == customValue;
+        other.customValue == customValue &&
+        other.imageBytes == imageBytes;
   }
 
   @override
@@ -96,6 +106,7 @@ class ReceiptContentEntity {
         fontSize.hashCode ^
         isBold.hashCode ^
         alignment.hashCode ^
-        customValue.hashCode;
+        customValue.hashCode ^
+        imageBytes.hashCode;
   }
 }

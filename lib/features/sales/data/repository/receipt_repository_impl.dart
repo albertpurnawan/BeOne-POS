@@ -17,7 +17,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   ReceiptRepositoryImpl(this._appDatabase, this._uuid);
 
   @override
-  Future<void> createInvoice(ReceiptEntity receiptEntity) async {
+  Future<void> createInvoiceHeaderAndDetail(ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
 

@@ -101,7 +101,7 @@ class _SalesPageState extends State<SalesPage> {
       // resizeToAvoidBottomInset: false,
       body: ScrollWidget(
         child: SizedBox(
-          height: MediaQuery.of(context).size.height,
+          height: MediaQuery.of(context).size.height * 0.98,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(38, 38, 38, 20),
             child: Row(
@@ -859,7 +859,61 @@ class _SalesPageState extends State<SalesPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            flex: 2,
+            flex: 1,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SizedBox.expand(
+                    child: OutlinedButton(
+                        onPressed: () {
+                          context.read<ReceiptCubit>().clearReceiptItems();
+                          setState(() {});
+                          Navigator.pop(context);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          elevation: 5,
+                          shadowColor: Colors.black87,
+                          backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                          padding: const EdgeInsets.all(3),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          side: BorderSide.none,
+                        ),
+                        child: const Icon(Icons.home_outlined)),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Expanded(
+                  child: SizedBox.expand(
+                    child: OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        elevation: 5,
+                        shadowColor: Colors.black87,
+                        backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                        padding: const EdgeInsets.all(3),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        side: BorderSide.none,
+                      ),
+                      child: Icon(Icons.question_mark_rounded),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          Expanded(
+            flex: 4,
             child: Column(
               children: [
                 Expanded(
@@ -999,7 +1053,7 @@ class _SalesPageState extends State<SalesPage> {
             width: 5,
           ),
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Column(
               children: [
                 Expanded(
@@ -1007,6 +1061,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: OutlinedButton(
                       onPressed: () {
                         context.read<ReceiptCubit>().clearReceiptItems();
+                        setState(() {});
                       },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
@@ -1019,9 +1074,11 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: const Text(
-                        "Clear Orders",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      child: FittedBox(
+                        child: const Text(
+                          "Clear Orders",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
                   ),
@@ -1044,11 +1101,13 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: const Text(
-                        "Print Validation",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                      child: FittedBox(
+                        child: const Text(
+                          "Print Validation",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -2129,9 +2188,11 @@ class _SalesPageState extends State<SalesPage> {
               shadowColor: Colors.black87,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10))),
-          child: Text(
-            buttonNumber,
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+          child: FittedBox(
+            child: Text(
+              buttonNumber,
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+            ),
           ),
         ),
       ),
