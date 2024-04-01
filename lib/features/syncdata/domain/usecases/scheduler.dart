@@ -1,20 +1,22 @@
-import 'package:cron/cron.dart';
-import 'package:get_it/get_it.dart';
-import 'package:pos_fe/core/constants/constants.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
+import 'dart:developer';
 
-void syncWithBOS() {
+import 'package:cron/cron.dart';
+import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/syncdata/domain/usecases/sync_data.dart';
+
+Future<void> syncWithBOS() async {
   final cron = Cron();
   String cronSyntax =
-      '${Constant.second} ${Constant.minute} ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}';
+      "${Constant.second} ${Constant.minute} ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}";
 
-  cron.schedule(Schedule.parse(cronSyntax), () async {
-    try {
-      // USERS
-      await GetIt.instance<UsersDao>().upsertDataFromAPI();
-    } catch (err) {
-      print('Error $err');
-      rethrow;
-    }
-  });
+  try {
+    cron.schedule(Schedule.parse(cronSyntax), () async {
+      await syncData();
+      log("Sync Via CRON Success");
+    });
+  } catch (err) {
+    handleError(err);
+    rethrow;
+  }
 }
