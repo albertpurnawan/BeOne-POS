@@ -13,7 +13,7 @@ import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EndShiftScreen extends StatefulWidget {
-  const EndShiftScreen({super.key});
+  const EndShiftScreen({Key? key}) : super(key: key);
 
   @override
   State<EndShiftScreen> createState() => _EndShiftScreenState();
@@ -29,23 +29,24 @@ class _EndShiftScreenState extends State<EndShiftScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: ScrollWidget(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            children: [
-              SizedBox(
-                height: (MediaQuery.of(context).size.height / 2) - 350,
-              ),
-              const Text(
-                'End Currrent Shift',
-                style: TextStyle(
-                    color: ProjectColors.swatch,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
-              const EndShiftForm(),
-            ],
-          )),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: Column(
+          children: [
+            SizedBox(
+              height: (MediaQuery.of(context).size.height / 2) - 350,
+            ),
+            const Text(
+              'End Current Shift',
+              style: TextStyle(
+                  color: ProjectColors.swatch,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 30),
+            const EndShiftForm(),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -64,6 +65,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
   late CashierBalanceTransactionModel? opening;
   late List<InvoiceHeaderModel?> transactions;
   double differences = 0.0;
+  final formKey = GlobalKey<FormState>();
 
   void _updateCashierBalanceTransaction(
       String docId, CashierBalanceTransactionModel value) async {
@@ -101,7 +103,14 @@ class _EndShiftFormState extends State<EndShiftForm> {
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
+    actualCashController.addListener(() {
+      setState(() {
+        final double cashFlow = _calculateCashFlow();
+        final double actualCash =
+            double.tryParse(actualCashController.text) ?? 0.0;
+        differences = cashFlow - actualCash;
+      });
+    });
 
     return FutureBuilder<CashierBalanceTransactionModel?>(
       future: _openingFuture,
@@ -131,15 +140,9 @@ class _EndShiftFormState extends State<EndShiftForm> {
   }
 
   Widget buildForm(BuildContext context, GlobalKey<FormState> formKey) {
-    double cashFlow = 0;
-    for (var transaction in transactions) {
-      cashFlow += transaction!.grandTotal;
-    }
-
-    final double actualCash = double.tryParse(actualCashController.text) ?? 0.0;
-    final double expectedCash = cashFlow;
-
-    final String differences = (expectedCash - actualCash).toString();
+    double cashFlow = _calculateCashFlow();
+    final prefs = GetIt.instance<SharedPreferences>();
+    final userLogged = prefs.getString('identifier');
 
     return Center(
       child: Form(
@@ -148,7 +151,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
           children: [
             CustomRow(
               leftText: "Cashier",
-              rightText: opening!.tocsrId,
+              rightText: "${opening!.openedbyId} / $userLogged",
             ),
             CustomRow(
               leftText: "Shift Started",
@@ -204,7 +207,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
             const SizedBox(height: 10),
             CustomRow(
               leftText: "   Differences",
-              rightText: differences,
+              rightText: differences.toString(),
             ),
             const SizedBox(height: 30),
             Container(
@@ -214,8 +217,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
                 onTap: () async {
                   if (!formKey.currentState!.validate()) return;
 
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
+                  final prefs = GetIt.instance<SharedPreferences>();
                   await prefs.setBool('isOpen', false);
 
                   final double inputValue =
@@ -275,5 +277,13 @@ class _EndShiftFormState extends State<EndShiftForm> {
         ),
       ),
     );
+  }
+
+  double _calculateCashFlow() {
+    double cashFlow = 0;
+    for (var transaction in transactions) {
+      cashFlow += transaction!.grandTotal;
+    }
+    return cashFlow;
   }
 }

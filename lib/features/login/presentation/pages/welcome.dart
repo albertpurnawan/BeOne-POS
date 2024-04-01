@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
@@ -36,8 +37,7 @@ class WelcomeScreen extends StatefulWidget {
                     child: CustomButton(
                       child: Text("Login"),
                       onTap: () async {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
+                        final prefs = GetIt.instance<SharedPreferences>();
                         bool isLoggedIn = prefs.getBool('logStatus') ?? false;
                         if (isLoggedIn == false) {
                           Helpers.navigate(context, LoginScreen());

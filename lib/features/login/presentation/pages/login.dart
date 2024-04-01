@@ -78,7 +78,7 @@ class _LoginFormState extends State<LoginForm> {
         key: formKey,
         child: Column(children: [
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: usernameController,
               validator: (val) =>
@@ -90,7 +90,7 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: passwordController,
               label: "Password",
@@ -103,7 +103,7 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
               child: const Text("Login"),
               onTap: () async {
@@ -112,7 +112,8 @@ class _LoginFormState extends State<LoginForm> {
                     usernameController.text, passwordController.text);
                 if (loginSuccess) {
                   await authDao.isLoggedIn();
-                  Helpers.navigate(context, SalesPage());
+                  if (!context.mounted) return;
+                  Helpers.navigate(context, const SalesPage());
                   // } else {
                   //   ScaffoldMessenger.of(context).showSnackBar(
                   //     SnackBar(
@@ -122,8 +123,9 @@ class _LoginFormState extends State<LoginForm> {
                   //   );
                   // }
                 } else {
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Invalid username or password.'),
                       backgroundColor: Colors.red,
                     ),

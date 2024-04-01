@@ -135,8 +135,7 @@ class _StartShiftFormState extends State<StartShiftForm> {
               onTap: () async {
                 if (!formKey.currentState!.validate()) return;
 
-                final SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
+                final prefs = GetIt.instance<SharedPreferences>();
                 await prefs.setBool('isOpen', true);
 
                 final double inputValue =

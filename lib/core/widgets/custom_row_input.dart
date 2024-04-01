@@ -18,6 +18,7 @@ class CustomRowInput extends StatefulWidget {
     this.onEditingComplete,
     this.focusNode,
     this.textAlign,
+    this.textInputAction,
   }) : super(key: key);
 
   final String leftText;
@@ -25,6 +26,7 @@ class CustomRowInput extends StatefulWidget {
   final String? Function(String? value)? validator;
   final bool? isCollapsed, isDense, autofocus;
   final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
   final void Function(String? value)? onChanged;
   final String? label, hint;
   final void Function()? onEditingComplete;
@@ -61,9 +63,8 @@ class _CustomRowInputState extends State<CustomRowInput> {
       label: widget.label,
       child: Container(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.red), // Add border here
-            borderRadius:
-                BorderRadius.circular(4), // Optional: Add border radius
+            border: Border.all(color: Colors.red),
+            borderRadius: BorderRadius.circular(4),
           ),
           child: Row(
             children: [
@@ -87,6 +88,7 @@ class _CustomRowInputState extends State<CustomRowInput> {
                     focusNode: _focusNode,
                     textAlign: widget.textAlign ?? TextAlign.right,
                     keyboardType: widget.keyboardType,
+                    textInputAction: widget.textInputAction,
                     maxLines: widget.maxLines,
                     decoration: InputDecoration(
                       hintText: widget.hint,
