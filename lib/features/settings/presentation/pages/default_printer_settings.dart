@@ -232,10 +232,6 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
       device.state?.toString() ?? "null",
     ]);
     GetIt.instance<ReceiptPrinter>().selectedPrinter = device;
-    print("sharedpref");
-    print(GetIt.instance<SharedPreferences>().getStringList("defaultPrinter"));
-    print("receiptprint");
-    print(GetIt.instance<ReceiptPrinter>().selectedPrinter);
     setState(() {});
   }
 
@@ -402,7 +398,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
       backgroundColor: Color.fromARGB(255, 243, 243, 243),
       appBar: AppBar(
         title: const Text('Default Printer'),
-        backgroundColor: Color.fromARGB(255, 169, 0, 0),
+        backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Center(
@@ -726,13 +722,13 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                             backgroundColor: selectedPrinter == null || _isConnected
                                 ? MaterialStateColor.resolveWith((states) =>
                                     Color.fromARGB(255, 200, 200, 200))
-                                : MaterialStateColor.resolveWith((states) =>
-                                    const Color.fromARGB(255, 169, 0, 0)),
+                                : MaterialStateColor.resolveWith(
+                                    (states) => ProjectColors.primary),
                             foregroundColor: selectedPrinter == null || _isConnected
                                 ? MaterialStateColor.resolveWith((states) =>
                                     Color.fromARGB(255, 111, 111, 111))
-                                : MaterialStateColor.resolveWith(
-                                    (states) => Color.fromARGB(255, 255, 255, 255)),
+                                : MaterialStateColor.resolveWith((states) =>
+                                    Color.fromARGB(255, 255, 255, 255)),
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: selectedPrinter == null || _isConnected
                             ? null

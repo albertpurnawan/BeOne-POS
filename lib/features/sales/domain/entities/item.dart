@@ -10,6 +10,7 @@ class ItemEntity {
   final String toitmId;
   final String tbitmId;
   final String tpln2Id;
+  final int openPrice;
 
   ItemEntity({
     required this.id,
@@ -20,6 +21,7 @@ class ItemEntity {
     required this.toitmId,
     required this.tbitmId,
     required this.tpln2Id,
+    required this.openPrice,
   });
 
   ItemEntity copyWith({
@@ -31,6 +33,7 @@ class ItemEntity {
     String? toitmId,
     String? tbitmId,
     String? tpln2Id,
+    int? openPrice,
   }) {
     return ItemEntity(
       id: id ?? this.id,
@@ -41,6 +44,7 @@ class ItemEntity {
       toitmId: toitmId ?? this.toitmId,
       tbitmId: tbitmId ?? this.tbitmId,
       tpln2Id: tpln2Id ?? this.tpln2Id,
+      openPrice: openPrice ?? this.openPrice,
     );
   }
 
@@ -54,6 +58,7 @@ class ItemEntity {
       'toitmId': toitmId,
       'tbitmId': tbitmId,
       'tpln2Id': tpln2Id,
+      'openPrice': openPrice,
     };
   }
 
@@ -67,6 +72,7 @@ class ItemEntity {
       toitmId: map['toitmId'] as String,
       tbitmId: map['tbitmId'] as String,
       tpln2Id: map['tpln2Id'] as String,
+      openPrice: map['openPrice'] as int,
     );
   }
 
@@ -77,7 +83,7 @@ class ItemEntity {
 
   @override
   String toString() {
-    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id)';
+    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id, openPrice: $openPrice)';
   }
 
   @override
@@ -91,7 +97,8 @@ class ItemEntity {
         other.price == price &&
         other.toitmId == toitmId &&
         other.tbitmId == tbitmId &&
-        other.tpln2Id == tpln2Id;
+        other.tpln2Id == tpln2Id &&
+        other.openPrice == openPrice;
   }
 
   @override
@@ -103,6 +110,7 @@ class ItemEntity {
         price.hashCode ^
         toitmId.hashCode ^
         tbitmId.hashCode ^
-        tpln2Id.hashCode;
+        tpln2Id.hashCode ^
+        openPrice.hashCode;
   }
 }

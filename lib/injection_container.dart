@@ -24,6 +24,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
+import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
@@ -160,6 +161,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<PrintReceiptUsecase>(
       () => PrintReceiptUsecase(sl(), sl(), sl(), sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetPosParameterUseCase>(
+      () => GetPosParameterUseCase(sl()),
       dependsOn: [AppDatabase]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 

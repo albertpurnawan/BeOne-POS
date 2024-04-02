@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/routes/router.dart';
+import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
@@ -90,7 +91,8 @@ class MyApp extends StatelessWidget {
                   title: 'TestPOS',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
-                    colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+                    colorScheme:
+                        ColorScheme.fromSeed(seedColor: ProjectColors.primary),
                     fontFamily: 'Roboto',
                     useMaterial3: true,
                   ),

@@ -355,13 +355,13 @@ PRAGMA foreign_keys = ON;
     //     data: topos.map((e) => POSParameterModel.fromMap(e)).toList());
   }
 
-  Future<void> _refreshItemsTable() async {
+  Future<void> refreshItemsTable() async {
     await _database!.execute("""
 DELETE FROM items
 """);
     await _database!.execute("""
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id)
-SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice)
+SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id, i.openprice
 FROM (
   SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
   FROM topln AS pl
@@ -392,7 +392,7 @@ INNER JOIN
  FROM tbitm) as bc
  ON bc.docid = b.tbitmId
 INNER JOIN (
-  SELECT docid, itemcode, itemname, touomId
+  SELECT docid, itemcode, itemname, touomId, openprice
   FROM toitm
 ) as i
 ON i.docid = p.toitmId
@@ -408,7 +408,7 @@ ON u.touomId = i.touomId
     final appDatabase = AppDatabase._init();
     await appDatabase.getDB();
     await appDatabase._injectDao();
-    await appDatabase._refreshItemsTable();
+    await appDatabase.refreshItemsTable();
 
     return appDatabase;
   }
@@ -1190,6 +1190,7 @@ ${ItemFields.price} DOUBLE NOT NULL,
 ${ItemFields.toitmId} TEXT NOT NULL,
 ${ItemFields.tbitmId} TEXT NOT NULL,
 ${ItemFields.tpln2Id} TEXT NOT NULL,
+${ItemFields.openPrice} int NOT NULL,
 CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
 CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
 CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE

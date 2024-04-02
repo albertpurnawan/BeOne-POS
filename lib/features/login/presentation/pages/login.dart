@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
@@ -22,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
+        statusBarColor: Color.fromARGB(255, 134, 1, 1),
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
@@ -112,7 +114,8 @@ class _LoginFormState extends State<LoginForm> {
                     usernameController.text, passwordController.text);
                 if (loginSuccess) {
                   await authDao.isLoggedIn();
-                  Helpers.navigate(context, SalesPage());
+                  context.pushNamed(RouteConstants.home);
+                  // Helpers.navigate(context, SalesPage());
                   // if (isLoggedIn) {
                   //   Helpers.navigate(context, SalesPage());
                   // } else {

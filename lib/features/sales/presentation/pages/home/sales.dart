@@ -4,16 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 
 class SalesPage extends StatefulWidget {
   const SalesPage({super.key});
@@ -32,6 +36,7 @@ class _SalesPageState extends State<SalesPage> {
   CustomerEntity? radioValue;
   CustomerEntity? selectedCustomer;
 
+  final ScrollController _scrollControllerMain = ScrollController();
   final ScrollController _scrollControllerReceiptItems = ScrollController();
   final ScrollController _scrollControllerReceiptSummary = ScrollController();
 
@@ -74,6 +79,7 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   void dispose() {
+    _scrollControllerMain.dispose();
     _scrollControllerReceiptItems.dispose();
     _scrollControllerReceiptSummary.dispose();
     _newReceiptItemCodeFocusNode.dispose();
@@ -90,20 +96,24 @@ class _SalesPageState extends State<SalesPage> {
     isEditingReceiptItemQty =
         isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
 
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: Color.fromARGB(255, 169, 0, 0),
-        statusBarBrightness: Brightness.light,
-        statusBarIconBrightness: Brightness.light));
+    if (!Platform.isWindows) {
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+          statusBarColor: ProjectColors.primary,
+          statusBarBrightness: Brightness.light,
+          statusBarIconBrightness: Brightness.light));
+    }
     return Scaffold(
       // backgroundColor: Color.fromRGBO(175, 47, 47, 1),
-      backgroundColor: const Color.fromRGBO(245, 245, 245, 1),
+      backgroundColor: Color.fromARGB(255, 234, 234, 234),
       // backgroundColor: Colors.white,
       // resizeToAvoidBottomInset: false,
       body: ScrollWidget(
+        controller: _scrollControllerMain,
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.98,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(38, 38, 38, 20),
+            padding:
+                EdgeInsets.fromLTRB(38, Platform.isWindows ? 28 : 38, 38, 10),
             child: Row(
               children: [
                 // Start - Column 1
@@ -211,7 +221,7 @@ class _SalesPageState extends State<SalesPage> {
                   //     color: Color.fromRGBO(195, 53, 53, 1),
                   //     width: 4.0),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-                  color: Color.fromARGB(255, 169, 0, 0),
+                  color: ProjectColors.primary,
                 ),
                 child: Row(
                   children: [
@@ -224,7 +234,7 @@ class _SalesPageState extends State<SalesPage> {
                             width: 160,
                             padding: const EdgeInsets.fromLTRB(20, 15, 10, 16),
                             decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 134, 1, 1),
+                              color: const Color.fromARGB(255, 85, 0, 0),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(5),
                                 bottomRight: Radius.circular(45),
@@ -677,7 +687,7 @@ class _SalesPageState extends State<SalesPage> {
                   //     color: Color.fromRGBO(195, 53, 53, 1),
                   //     width: 4.0),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-                  color: Color.fromARGB(255, 169, 0, 0),
+                  color: ProjectColors.primary,
                 ),
                 child: const Row(
                   children: [
@@ -873,7 +883,7 @@ class _SalesPageState extends State<SalesPage> {
                         style: OutlinedButton.styleFrom(
                           elevation: 5,
                           shadowColor: Colors.black87,
-                          backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                          backgroundColor: ProjectColors.primary,
                           padding: const EdgeInsets.all(3),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
@@ -894,7 +904,7 @@ class _SalesPageState extends State<SalesPage> {
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                        backgroundColor: ProjectColors.primary,
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -928,8 +938,7 @@ class _SalesPageState extends State<SalesPage> {
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor: ProjectColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -964,8 +973,7 @@ class _SalesPageState extends State<SalesPage> {
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor: ProjectColors.primary,
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -1001,8 +1009,7 @@ class _SalesPageState extends State<SalesPage> {
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor: ProjectColors.primary,
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -1027,8 +1034,7 @@ class _SalesPageState extends State<SalesPage> {
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 169, 0, 0),
+                              backgroundColor: ProjectColors.primary,
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -1066,7 +1072,7 @@ class _SalesPageState extends State<SalesPage> {
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                        backgroundColor: ProjectColors.primary,
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -1093,7 +1099,7 @@ class _SalesPageState extends State<SalesPage> {
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                        backgroundColor: ProjectColors.primary,
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -1152,7 +1158,7 @@ class _SalesPageState extends State<SalesPage> {
                     decoration: const BoxDecoration(
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(5)),
-                      color: Color.fromARGB(255, 169, 0, 0),
+                      color: ProjectColors.primary,
                     ),
                     child: Row(
                       children: [
@@ -1373,7 +1379,7 @@ class _SalesPageState extends State<SalesPage> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
                     // elevation: 5,
-                    backgroundColor: const Color.fromARGB(255, 166, 0, 0),
+                    backgroundColor: ProjectColors.primary,
                     foregroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -1724,7 +1730,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
                   shadowColor: Colors.black87,
-                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                  backgroundColor: ProjectColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
@@ -1750,7 +1756,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
                   shadowColor: Colors.black87,
-                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                  backgroundColor: ProjectColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
@@ -1776,7 +1782,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
                   shadowColor: Colors.black87,
-                  backgroundColor: const Color.fromARGB(255, 169, 0, 0),
+                  backgroundColor: ProjectColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
@@ -1832,7 +1838,7 @@ class _SalesPageState extends State<SalesPage> {
                   shadowColor: Colors.black87,
                   backgroundColor: isEditingNewReceiptItemQty
                       ? const Color.fromARGB(255, 113, 0, 0)
-                      : const Color.fromARGB(255, 169, 0, 0),
+                      : ProjectColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
@@ -2058,26 +2064,54 @@ class _SalesPageState extends State<SalesPage> {
                       onPressed: () async {
                         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
                           print(1);
-                          context.read<ReceiptCubit>().addOrUpdateReceiptItems(
-                              _textEditingControllerNewReceiptItemCode.text,
-                              double.parse(
-                                  _textEditingControllerNewReceiptItemQuantity
-                                      .text));
+                          final ItemEntity? itemEntity = await GetIt.instance<
+                                  GetItemByBarcodeUseCase>()
+                              .call(
+                                  params:
+                                      _textEditingControllerNewReceiptItemCode
+                                          .text);
+                          if (itemEntity == null) return;
+                          if (itemEntity.barcode == "203020018") {
+                            setState(() {
+                              isEditingNewReceiptItemCode = false;
+                              isEditingNewReceiptItemQty = false;
+                              isUpdatingReceiptItemQty = false;
+                            });
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => OpenPriceDialog(
+                                      itemEntity: itemEntity,
+                                      quantity: double.parse(
+                                          _textEditingControllerNewReceiptItemQuantity
+                                              .text),
+                                    )).then((value) => setState(() {
+                                  isEditingNewReceiptItemCode = true;
+                                  _newReceiptItemCodeFocusNode.requestFocus();
+                                }));
+                          } else {
+                            context.read<ReceiptCubit>().addOrUpdateReceiptItems(
+                                _textEditingControllerNewReceiptItemCode.text,
+                                double.parse(
+                                    _textEditingControllerNewReceiptItemQuantity
+                                        .text));
+
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              final position = _scrollControllerReceiptItems
+                                      .position.maxScrollExtent +
+                                  100;
+                              _scrollControllerReceiptItems.animateTo(
+                                position,
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeOut,
+                              );
+                            });
+                          }
+
                           setState(() {
                             _textEditingControllerNewReceiptItemCode.text = "";
                             _textEditingControllerNewReceiptItemQuantity.text =
                                 "1";
-                          });
-
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            final position = _scrollControllerReceiptItems
-                                    .position.maxScrollExtent +
-                                100;
-                            _scrollControllerReceiptItems.animateTo(
-                              position,
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeOut,
-                            );
                           });
                         } else if (isUpdatingReceiptItemQty) {
                           context.read<ReceiptCubit>().updateQuantity(
@@ -2203,7 +2237,7 @@ class _SalesPageState extends State<SalesPage> {
       RawKeyEvent event,
       TextEditingController textEditingController,
       FocusNode textFieldFocusNode,
-      bool isNumOnly) {
+      bool isNumOnly) async {
     if (textFieldFocusNode.hasPrimaryFocus) {
       print("h1");
       if (event.character != null &&
@@ -2214,24 +2248,46 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.isKeyPressed(LogicalKeyboardKey.enter) ||
           event.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-          context.read<ReceiptCubit>().addOrUpdateReceiptItems(
-              _textEditingControllerNewReceiptItemCode.text,
-              double.parse(_textEditingControllerNewReceiptItemQuantity.text));
+          final ItemEntity? itemEntity =
+              await GetIt.instance<GetItemByBarcodeUseCase>()
+                  .call(params: _textEditingControllerNewReceiptItemCode.text);
+          if (itemEntity == null) return;
+          if (itemEntity.barcode == "203020018") {
+            setState(() {
+              isEditingNewReceiptItemCode = false;
+              isEditingNewReceiptItemQty = false;
+              isUpdatingReceiptItemQty = false;
+            });
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => OpenPriceDialog(
+                      itemEntity: itemEntity,
+                      quantity: double.parse(
+                          _textEditingControllerNewReceiptItemQuantity.text),
+                    )).then((value) => setState(() {
+                  isEditingNewReceiptItemCode = true;
+                  _newReceiptItemCodeFocusNode.requestFocus();
+                }));
+          } else {
+            context.read<ReceiptCubit>().addOrUpdateReceiptItems(
+                _textEditingControllerNewReceiptItemCode.text,
+                double.parse(
+                    _textEditingControllerNewReceiptItemQuantity.text));
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final position =
+                  _scrollControllerReceiptItems.position.maxScrollExtent + 100;
+              _scrollControllerReceiptItems.animateTo(
+                position,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOut,
+              );
+            });
+          }
 
           setState(() {
             _textEditingControllerNewReceiptItemCode.text = "";
             _textEditingControllerNewReceiptItemQuantity.text = "1";
-            _newReceiptItemCodeFocusNode.requestFocus();
-          });
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final position =
-                _scrollControllerReceiptItems.position.maxScrollExtent + 100;
-            _scrollControllerReceiptItems.animateTo(
-              position,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOut,
-            );
           });
         } else if (isUpdatingReceiptItemQty) {
           context.read<ReceiptCubit>().updateQuantity(
