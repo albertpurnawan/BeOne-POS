@@ -9,6 +9,7 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/end_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/start_shift.dart';
 import 'package:pos_fe/features/settings/presentation/pages/printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/settings.dart';
@@ -84,6 +85,20 @@ class WelcomeScreen extends StatefulWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => SettingsScreen()),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 400),
+                    child: CustomButton(
+                      child: Text("Shift Recap"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RecapShifts()),
                         );
                       },
                     ),

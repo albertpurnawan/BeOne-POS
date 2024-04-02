@@ -108,7 +108,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
         final double cashFlow = _calculateCashFlow();
         final double actualCash =
             double.tryParse(actualCashController.text) ?? 0.0;
-        differences = cashFlow - actualCash;
+        differences = actualCash - cashFlow;
       });
     });
 
