@@ -4,7 +4,6 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
-import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -72,14 +71,14 @@ class _SettingsFormState extends State<SettingsForm> {
     oldGtentId = Constant.gtentId;
     oldTostrId = Constant.tostrId;
     oldTocsrId = Constant.tocsrId;
-    oldUrl = Constant.baseUrl;
+    oldUrl = Constant.url;
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         oldGtentId = prefs.getString('gtentId') ?? oldGtentId;
         oldTostrId = prefs.getString('tostrId') ?? oldTostrId;
         oldTocsrId = prefs.getString('tocsrId') ?? oldTocsrId;
-        oldUrl = prefs.getString('baseUrl') ?? oldUrl;
+        oldUrl = prefs.getString('url') ?? oldUrl;
       });
     });
   }
@@ -101,7 +100,7 @@ class _SettingsFormState extends State<SettingsForm> {
         key: formKey,
         child: Column(children: [
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: gtentController,
               validator: (val) =>
@@ -113,7 +112,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tostrController,
               validator: (val) =>
@@ -125,7 +124,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tocsrController,
               validator: (val) =>
@@ -137,7 +136,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: urlController,
               validator: (val) =>
@@ -149,7 +148,7 @@ class _SettingsFormState extends State<SettingsForm> {
           ),
           const SizedBox(height: 25),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
               child: const Text("Save"),
               onTap: () async {
@@ -160,7 +159,7 @@ class _SettingsFormState extends State<SettingsForm> {
               },
             ),
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
         ]),
       ),
     );

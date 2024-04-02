@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
@@ -42,5 +43,24 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     );
 
     return res.map((itemData) => InvoiceHeaderModel.fromMap(itemData)).toList();
+  }
+
+  Future<List<InvoiceHeaderModel>> readByShift() async {
+    final String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    final res = await db.query(
+      tableName,
+      where: 'createdat LIKE ?',
+      whereArgs: ['$today%'],
+    );
+
+    if (res.isEmpty) {
+      return [];
+    }
+
+    final List<InvoiceHeaderModel> invoices =
+        res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
+
+    return invoices;
   }
 }

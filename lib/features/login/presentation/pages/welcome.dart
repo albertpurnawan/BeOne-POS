@@ -1,9 +1,6 @@
-import 'dart:async';
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
@@ -12,6 +9,10 @@ import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/end_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/start_shift.dart';
 import 'package:pos_fe/features/settings/presentation/settings.dart';
 import 'package:pos_fe/features/syncdata/presentation/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,10 +39,8 @@ class WelcomeScreen extends StatefulWidget {
                     child: CustomButton(
                       child: Text("Login"),
                       onTap: () async {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
+                        final prefs = GetIt.instance<SharedPreferences>();
                         bool isLoggedIn = prefs.getBool('logStatus') ?? false;
-                        print("WELCOME $isLoggedIn");
                         if (isLoggedIn == false) {
                           Helpers.navigate(context, LoginScreen());
                         } else {
@@ -79,7 +78,7 @@ class WelcomeScreen extends StatefulWidget {
                       },
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Container(
                     constraints: BoxConstraints(maxWidth: 400),
                     child: CustomButton(
@@ -93,6 +92,133 @@ class WelcomeScreen extends StatefulWidget {
                       },
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 400),
+                    child: CustomButton(
+                      child: Text("Shift Recap"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RecapShifts()),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: CustomButton(
+                      child: const Text("Start Shift"),
+                      onTap: () async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        final bool isOpen = prefs.getBool('isOpen') ?? false;
+
+                        if (isOpen) {
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                content: const Text(
+                                  "Please end current shift first",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                content: SizedBox(
+                                  width: MediaQuery.of(context).size.width *
+                                      0.7, // 70% of screen width
+                                  child: const StartShiftScreen(),
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                      constraints: const BoxConstraints(maxWidth: 400),
+                      child: CustomButton(
+                          child: const Text("End Shift"),
+                          onTap: () async {
+                            final SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            final bool isOpen =
+                                prefs.getBool('isOpen') ?? false;
+
+                            if (isOpen) {
+                              if (!context.mounted) return;
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0)),
+                                    ),
+                                    content: SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7, // 70% of screen width
+                                      child: const EndShiftScreen(),
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
+                              if (!context.mounted) return;
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0)),
+                                    ),
+                                    content: const Text(
+                                      "Please start a new shift first",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          })),
                 ],
               ),
             ),
@@ -156,10 +282,20 @@ class LanguageSwitchButton extends StatelessWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  // bool isOpen = false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _checkShiftStatus();
+  // }
+
+  // Future<void> _checkShiftStatus() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     isOpen = prefs.getBool('isOpen') ?? false;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {

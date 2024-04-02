@@ -80,7 +80,7 @@ class _LoginFormState extends State<LoginForm> {
         key: formKey,
         child: Column(children: [
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: usernameController,
               validator: (val) =>
@@ -92,7 +92,7 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: passwordController,
               label: "Password",
@@ -105,7 +105,7 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 15),
           Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
               child: const Text("Login"),
               onTap: () async {
@@ -114,7 +114,7 @@ class _LoginFormState extends State<LoginForm> {
                     usernameController.text, passwordController.text);
                 if (loginSuccess) {
                   await authDao.isLoggedIn();
-                  context.pushNamed(RouteConstants.home);
+                  if (context.mounted) context.pushNamed(RouteConstants.home);
                   // Helpers.navigate(context, SalesPage());
                   // if (isLoggedIn) {
                   //   Helpers.navigate(context, SalesPage());
@@ -127,8 +127,9 @@ class _LoginFormState extends State<LoginForm> {
                   //   );
                   // }
                 } else {
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Invalid username or password.'),
                       backgroundColor: Colors.red,
                     ),
