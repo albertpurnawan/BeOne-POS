@@ -33,6 +33,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_se
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:sqflite/sqflite.dart';
@@ -201,6 +202,12 @@ Future<void> syncData() async {
             .bulkCreate(data: itemRemarks);
       },
       () async {
+        final venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
+        await GetIt.instance<AppDatabase>()
+            .vendorGroupDao
+            .bulkCreate(data: venGroups);
+      },
+      () async {
         final vendor = await GetIt.instance<VendorApi>().fetchData();
         await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(data: vendor);
       },
@@ -248,8 +255,7 @@ Future<void> syncData() async {
       try {
         await fetchFunction();
       } catch (e) {
-        print('Error fetching data: $e');
-        // Handle the error here, such as logging or displaying a message
+        handleError(e);
       }
     }
 

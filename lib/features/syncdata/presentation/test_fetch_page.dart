@@ -1,9 +1,41 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
+import 'package:pos_fe/features/sales/data/models/cash_register.dart';
+import 'package:pos_fe/features/sales/data/models/country.dart';
+import 'package:pos_fe/features/sales/data/models/credit_card.dart';
+import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
+import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/employee.dart';
+import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
+import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
+import 'package:pos_fe/features/sales/data/models/item_category.dart';
+import 'package:pos_fe/features/sales/data/models/item_master.dart';
+import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
+import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
+import 'package:pos_fe/features/sales/data/models/price_by_item.dart';
+import 'package:pos_fe/features/sales/data/models/price_by_item_barcode.dart';
+import 'package:pos_fe/features/sales/data/models/pricelist.dart';
+import 'package:pos_fe/features/sales/data/models/pricelist_period.dart';
+import 'package:pos_fe/features/sales/data/models/province.dart';
+import 'package:pos_fe/features/sales/data/models/store_master.dart';
+import 'package:pos_fe/features/sales/data/models/tax_master.dart';
+import 'package:pos_fe/features/sales/data/models/uom.dart';
+import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/data/models/user_role.dart';
+import 'package:pos_fe/features/sales/data/models/vendor.dart';
+import 'package:pos_fe/features/sales/data/models/vendor_group.dart';
+import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
@@ -36,6 +68,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
@@ -73,238 +106,350 @@ class _FetchScreenState extends State<FetchScreen> {
   }
 
   void _manualSyncData() async {
+    late List<CurrencyModel> currencies;
+    late List<CountryModel> countries;
+    late List<ProvinceModel> provinces;
+    late List<ZipCodeModel> zipcodes;
+    late List<EmployeeModel> employees;
+    late List<TaxMasterModel> taxes;
+    late List<PaymentTypeModel> payTypes;
+    late List<MeansOfPaymentModel> mops;
+    late List<CreditCardModel> ccs;
+    late List<PricelistModel> pricelists;
+    late List<StoreMasterModel> stores;
+    late List<MOPByStoreModel> mopStores;
+    late List<CashRegisterModel> cashiers;
+    late List<UomModel> uoms;
+    late List<UserRoleModel> roles;
+    late List<UserModel> users;
+    late List<PricelistPeriodModel> pricelistPeriod;
+    late List<ItemCategoryModel> itemCat;
+    late List<ItemMasterModel> items;
+    late List<ItemByStoreModel> itemsStores;
+    late List<ItemBarcodeModel> itemBarcodes;
+    late List<ItemRemarksModel> itemRemarks;
+    late List<VendorGroupModel> venGroups;
+    late List<VendorModel> vendor;
+    late List<PreferredVendorModel> prefVendor;
+    late List<CustomerGroupModel> cusGroup;
+    late List<CustomerCstModel> cusCst;
+    late List<PriceByItemModel> priceByItem;
+    late List<AssignPriceMemberPerStoreModel> apmps;
+    late List<PriceByItemBarcodeModel> priceItemBarcode;
+
     print("Synching data...");
     try {
-      setState(() {
-        _syncProgress = 0.0;
-      });
-
-      final currencies = await GetIt.instance<CurrencyApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .currencyDao
-          .bulkCreate(data: currencies);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final countries = await GetIt.instance<CountryApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .countryDao
-          .bulkCreate(data: countries);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final provinces = await GetIt.instance<ProvinceApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .provinceDao
-          .bulkCreate(data: provinces);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
-      await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(data: zipcodes);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final employees = await GetIt.instance<EmployeeApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .employeeDao
-          .bulkCreate(data: employees);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final taxes = await GetIt.instance<TaxMasterApi>().fetchData();
-      await GetIt.instance<AppDatabase>().taxMasterDao.bulkCreate(data: taxes);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .paymentTypeDao
-          .bulkCreate(data: payTypes);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final mops = await GetIt.instance<MOPApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .meansOfPaymentDao
-          .bulkCreate(data: mops);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final ccs = await GetIt.instance<CreditCardApi>().fetchData();
-      await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(data: ccs);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final pricelists = await GetIt.instance<PricelistApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .pricelistDao
-          .bulkCreate(data: pricelists);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final stores = await GetIt.instance<StoreMasterApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .storeMasterDao
-          .bulkCreate(data: stores);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final mopStores = await GetIt.instance<MOPByStoreApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .mopByStoreDao
-          .bulkCreate(data: mopStores);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .cashRegisterDao
-          .bulkCreate(data: cashiers);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final uoms = await GetIt.instance<UoMApi>().fetchData();
-      await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: uoms);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final roles = await GetIt.instance<UserRoleApi>().fetchData();
-      await GetIt.instance<AppDatabase>().userRoleDao.bulkCreate(data: roles);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final users = await GetIt.instance<UserApi>().fetchData();
-      await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: users);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final pricelistPeriod =
-          await GetIt.instance<PricelistPeriodApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .pricelistPeriodDao
-          .bulkCreate(data: pricelistPeriod);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .itemCategoryDao
-          .bulkCreate(data: itemCat);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final items = await GetIt.instance<ItemMasterApi>().fetchData();
-      await GetIt.instance<AppDatabase>().itemMasterDao.bulkCreate(data: items);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .itemByStoreDao
-          .bulkCreate(data: itemsStores);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .itemBarcodeDao
-          .bulkCreate(data: itemBarcodes);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-      // // ---
-      final itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .itemRemarkDao
-          .bulkCreate(data: itemRemarks);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .vendorGroupDao
-          .bulkCreate(data: venGroups);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final vendor = await GetIt.instance<VendorApi>().fetchData();
-      await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(data: vendor);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .preferredVendorDao
-          .bulkCreate(data: prefVendor);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-      // // ---
-
-      final cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .customerGroupDao
-          .bulkCreate(data: cusGroup);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final cusCst = await GetIt.instance<CustomerApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .customerCstDao
-          .bulkCreate(data: cusCst);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .priceByItemDao
-          .bulkCreate(data: priceByItem);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final apmps = await GetIt.instance<APMPSApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .assignPriceMemberPerStoreDao
-          .bulkCreate(data: apmps);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
-
-      final priceItemBarcode =
-          await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
-      await GetIt.instance<AppDatabase>()
-          .priceByItemBarcodeDao
-          .bulkCreate(data: priceItemBarcode);
-      setState(() {
-        _syncProgress += 1 / totalTable;
-      });
+      final fetchFunctions = [
+        () async {
+          try {
+            currencies = await GetIt.instance<CurrencyApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .currencyDao
+                .bulkCreate(data: currencies);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            countries = await GetIt.instance<CountryApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .countryDao
+                .bulkCreate(data: countries);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            provinces = await GetIt.instance<ProvinceApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .provinceDao
+                .bulkCreate(data: provinces);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .zipcodeDao
+              .bulkCreate(data: zipcodes);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          employees = await GetIt.instance<EmployeeApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .employeeDao
+              .bulkCreate(data: employees);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          taxes = await GetIt.instance<TaxMasterApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .taxMasterDao
+              .bulkCreate(data: taxes);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .paymentTypeDao
+              .bulkCreate(data: payTypes);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          mops = await GetIt.instance<MOPApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .meansOfPaymentDao
+              .bulkCreate(data: mops);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          ccs = await GetIt.instance<CreditCardApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .creditCardDao
+              .bulkCreate(data: ccs);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          pricelists = await GetIt.instance<PricelistApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .pricelistDao
+              .bulkCreate(data: pricelists);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          stores = await GetIt.instance<StoreMasterApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .storeMasterDao
+              .bulkCreate(data: stores);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          try {
+            mopStores = await GetIt.instance<MOPByStoreApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .mopByStoreDao
+                .bulkCreate(data: mopStores);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .cashRegisterDao
+              .bulkCreate(data: cashiers);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          uoms = await GetIt.instance<UoMApi>().fetchData();
+          await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: uoms);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          roles = await GetIt.instance<UserRoleApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .userRoleDao
+              .bulkCreate(data: roles);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          users = await GetIt.instance<UserApi>().fetchData();
+          await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: users);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          pricelistPeriod =
+              await GetIt.instance<PricelistPeriodApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .pricelistPeriodDao
+              .bulkCreate(data: pricelistPeriod);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .itemCategoryDao
+              .bulkCreate(data: itemCat);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          items = await GetIt.instance<ItemMasterApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .itemMasterDao
+              .bulkCreate(data: items);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .itemByStoreDao
+              .bulkCreate(data: itemsStores);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .itemBarcodeDao
+              .bulkCreate(data: itemBarcodes);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        // // ---
+        () async {
+          itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .itemRemarkDao
+              .bulkCreate(data: itemRemarks);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .vendorGroupDao
+              .bulkCreate(data: venGroups);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          vendor = await GetIt.instance<VendorApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .vendorDao
+              .bulkCreate(data: vendor);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .preferredVendorDao
+              .bulkCreate(data: prefVendor);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        // // ---
+        () async {
+          cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .customerGroupDao
+              .bulkCreate(data: cusGroup);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          cusCst = await GetIt.instance<CustomerApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .customerCstDao
+              .bulkCreate(data: cusCst);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .priceByItemDao
+              .bulkCreate(data: priceByItem);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          apmps = await GetIt.instance<APMPSApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .assignPriceMemberPerStoreDao
+              .bulkCreate(data: apmps);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+        () async {
+          priceItemBarcode =
+              await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
+          await GetIt.instance<AppDatabase>()
+              .priceByItemBarcodeDao
+              .bulkCreate(data: priceItemBarcode);
+          setState(() {
+            _syncProgress += 1 / totalTable;
+          });
+        },
+      ];
+      for (final fetchFunction in fetchFunctions) {
+        try {
+          await fetchFunction();
+        } catch (e) {
+          handleError(e);
+        }
+      }
       // log("$priceItemBarcode\n");
 
       // final topos =
@@ -358,7 +503,7 @@ class _FetchScreenState extends State<FetchScreen> {
           itemsStores.length +
           itemBarcodes.length +
           itemRemarks.length +
-          venGroups.length +
+          // venGroups.length +
           vendor.length +
           prefVendor.length +
           cusGroup.length +

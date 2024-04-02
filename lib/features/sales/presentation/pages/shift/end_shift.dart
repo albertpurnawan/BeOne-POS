@@ -219,7 +219,6 @@ class _EndShiftFormState extends State<EndShiftForm> {
                   if (!formKey.currentState!.validate()) return;
 
                   final prefs = GetIt.instance<SharedPreferences>();
-                  await prefs.setBool('isOpen', false);
 
                   final double inputValue =
                       double.tryParse(actualCashController.text) ?? 0.0;
@@ -251,6 +250,9 @@ class _EndShiftFormState extends State<EndShiftForm> {
 
                     _updateCashierBalanceTransaction(opening!.docId, shift);
                   }
+                  await prefs.setBool('isOpen', false);
+
+                  await prefs.setString('tcsr1Id', "");
 
                   if (!context.mounted) return;
                   Navigator.pop(context);
