@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +15,7 @@ class UserAuthDao extends BaseDao<UserModel> {
           tableName: tableUser,
           modelFields: UserFields.values,
         );
+  final prefs = GetIt.instance<SharedPreferences>();
 
   @override
   Future<UserModel?> readByDocId(String docId) async {
@@ -54,7 +56,7 @@ class UserAuthDao extends BaseDao<UserModel> {
       final hashedPassword = md5.convert(utf8.encode(password)).toString();
 
       if (hashedPassword == user.password) {
-        final prefs = await SharedPreferences.getInstance();
+        // final prefs = GetIt.instance<SharedPreferences>();
         await prefs.setBool('logStatus', true);
         await prefs.setString('identifier', identifier);
         isLoggedIn = true;
@@ -65,12 +67,12 @@ class UserAuthDao extends BaseDao<UserModel> {
   }
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
   }
 
   Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
     log("DAO $prefs");
     return prefs.getBool('isLoggedIn') ?? false;
   }

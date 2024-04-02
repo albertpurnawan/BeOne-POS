@@ -10,7 +10,7 @@ class Constant {
   static String month = '*';
   static String day = '*';
   static String hour = '*';
-  static String minute = '*';
+  static String minute = '*/60';
   static String second = '*';
 
   //TENANTID
@@ -22,8 +22,8 @@ class Constant {
   //CASHIERID
   static String tocsrId = '';
 
-  //BASEURL
-  static String baseUrl = '';
+  // BASEURL
+  static String url = "http://110.239.68.248:8803";
 
   static void updateTopos(String tenantId, String storeId,
       String cashRegisterId, String baseUrl) async {
@@ -44,7 +44,4 @@ class Constant {
     tostrId = prefs.getString('tostrId') ?? '';
     tocsrId = prefs.getString('tocsrId') ?? '';
   }
-
-  //URL
-  static String url = "http://110.239.68.248:8803";
 }

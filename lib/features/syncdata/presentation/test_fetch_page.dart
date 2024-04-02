@@ -72,7 +72,7 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
-  void _syncData() async {
+  void _manualSyncData() async {
     print("Synching data...");
     try {
       setState(() {
@@ -445,7 +445,7 @@ class _FetchScreenState extends State<FetchScreen> {
             ElevatedButton(
               onPressed: () {
                 // _fetchToken();
-                _syncData();
+                _manualSyncData();
               },
               child: Text('SYNC'),
             ),

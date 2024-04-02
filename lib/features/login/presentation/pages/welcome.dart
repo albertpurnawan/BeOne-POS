@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
@@ -8,6 +9,7 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/end_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/start_shift.dart';
 import 'package:pos_fe/features/settings/presentation/pages/printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/settings.dart';
@@ -36,8 +38,7 @@ class WelcomeScreen extends StatefulWidget {
                     child: CustomButton(
                       child: Text("Login"),
                       onTap: () async {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
+                        final prefs = GetIt.instance<SharedPreferences>();
                         bool isLoggedIn = prefs.getBool('logStatus') ?? false;
                         if (isLoggedIn == false) {
                           Helpers.navigate(context, LoginScreen());
@@ -84,6 +85,20 @@ class WelcomeScreen extends StatefulWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => SettingsScreen()),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 400),
+                    child: CustomButton(
+                      child: Text("Shift Recap"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RecapShifts()),
                         );
                       },
                     ),

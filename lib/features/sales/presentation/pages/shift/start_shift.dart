@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
@@ -21,8 +21,7 @@ class StartShiftScreen extends StatefulWidget {
 class _StartShiftScreenState extends State<StartShiftScreen> {
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final formattedDate = DateFormat('dd MMM yyy, HH : mm').format(now);
+    final formattedDate = Helpers.formatDate(DateTime.now());
 
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: ProjectColors.swatch,
@@ -135,9 +134,10 @@ class _StartShiftFormState extends State<StartShiftForm> {
               onTap: () async {
                 if (!formKey.currentState!.validate()) return;
 
-                final SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
+                final prefs = GetIt.instance<SharedPreferences>();
                 await prefs.setBool('isOpen', true);
+                await prefs.setString(
+                    'startShift', DateTime.now().toIso8601String());
 
                 final double inputValue =
                     double.tryParse(openValueController.text) ?? 0.0;
