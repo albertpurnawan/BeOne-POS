@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_row.dart';
 import 'package:pos_fe/core/widgets/custom_row_input.dart';
@@ -66,6 +66,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
   late List<InvoiceHeaderModel?> transactions;
   double differences = 0.0;
   final formKey = GlobalKey<FormState>();
+  final prefs = GetIt.instance<SharedPreferences>();
 
   void _updateCashierBalanceTransaction(
       String docId, CashierBalanceTransactionModel value) async {
@@ -78,6 +79,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
   void initState() {
     super.initState();
     actualCashController = TextEditingController();
+
     _openingFuture = _fetchOpeningData();
     _transactionsFuture = _fetchInvoices();
   }
@@ -155,8 +157,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
             ),
             CustomRow(
               leftText: "Shift Started",
-              rightText:
-                  DateFormat('dd MMM yyyy, HH:mm').format(opening!.openDate),
+              rightText: Helpers.formatDate(opening!.openDate),
             ),
             const SizedBox(height: 10),
             const CustomRow(

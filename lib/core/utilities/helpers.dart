@@ -216,4 +216,9 @@ abstract class Helpers {
     debugPrint(dtString);
     return dt.toUtc().toString();
   }
+
+  static String formatDate(DateTime dTime) {
+    final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy HH:mm');
+    return formatter.format(dTime).toString();
+  }
 }

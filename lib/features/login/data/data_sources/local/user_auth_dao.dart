@@ -15,6 +15,7 @@ class UserAuthDao extends BaseDao<UserModel> {
           tableName: tableUser,
           modelFields: UserFields.values,
         );
+  final prefs = GetIt.instance<SharedPreferences>();
 
   @override
   Future<UserModel?> readByDocId(String docId) async {
@@ -55,7 +56,7 @@ class UserAuthDao extends BaseDao<UserModel> {
       final hashedPassword = md5.convert(utf8.encode(password)).toString();
 
       if (hashedPassword == user.password) {
-        final prefs = GetIt.instance<SharedPreferences>();
+        // final prefs = GetIt.instance<SharedPreferences>();
         await prefs.setBool('logStatus', true);
         await prefs.setString('identifier', identifier);
         isLoggedIn = true;
@@ -66,12 +67,12 @@ class UserAuthDao extends BaseDao<UserModel> {
   }
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
   }
 
   Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
     log("DAO $prefs");
     return prefs.getBool('isLoggedIn') ?? false;
   }
