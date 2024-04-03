@@ -9,6 +9,7 @@ import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
@@ -62,8 +63,10 @@ class MyApp extends StatelessWidget {
           providers: [
             BlocProvider<ReceiptCubit>(
                 create: (context) => ReceiptCubit(
-                    GetIt.instance<GetItemByBarcodeUseCase>(),
-                    GetIt.instance<SaveReceiptUseCase>())),
+                      GetIt.instance<GetItemByBarcodeUseCase>(),
+                      GetIt.instance<SaveReceiptUseCase>(),
+                      GetIt.instance<GetEmployeeUseCase>(),
+                    )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>
                     CustomersCubit(GetIt.instance<GetCustomersUseCase>())),

@@ -8,6 +8,7 @@ import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dar
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/pos_parameter_repository_impl.dart';
@@ -15,6 +16,7 @@ import 'package:pos_fe/features/sales/data/repository/receipt_content_repository
 import 'package:pos_fe/features/sales/data/repository/receipt_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/store_master_repository_impl.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/pos_paramater_repository.dart';
@@ -22,6 +24,7 @@ import 'package:pos_fe/features/sales/domain/repository/receipt_content_reposito
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
@@ -147,6 +150,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<UserAuthRepository>(
       () => UserAuthRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<EmployeeRepository>(
+      () => EmployeeRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -165,7 +171,7 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<SaveReceiptUseCase>(
       () => SaveReceiptUseCase(sl()),
-      dependsOn: [AppDatabase]);
+      dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<PrintReceiptUsecase>(
       () => PrintReceiptUsecase(sl(), sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
@@ -177,6 +183,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<LogoutUseCase>(() => LogoutUseCase(sl()),
       dependsOn: [SharedPreferences]);
+  sl.registerSingletonWithDependencies<GetEmployeeUseCase>(
+      () => GetEmployeeUseCase(sl(), sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 
   return;
