@@ -44,7 +44,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
       backgroundColor: Color.fromARGB(255, 243, 243, 243),
       appBar: AppBar(
         title: const Text('Paper Size'),
-        backgroundColor: Color.fromARGB(255, 169, 0, 0),
+        backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Center(
@@ -119,7 +119,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
                           ? MaterialStateColor.resolveWith(
                               (states) => Color.fromARGB(255, 200, 200, 200))
                           : MaterialStateColor.resolveWith(
-                              (states) => const Color.fromARGB(255, 169, 0, 0)),
+                              (states) => ProjectColors.primary),
                       foregroundColor: radioValue == null
                           ? MaterialStateColor.resolveWith(
                               (states) => Color.fromARGB(255, 111, 111, 111))

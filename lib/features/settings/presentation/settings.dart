@@ -22,8 +22,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Initial Setup'),
-        backgroundColor: Color.fromARGB(255, 169, 0, 0),
+        title: const Text('Device Setup'),
+        backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,

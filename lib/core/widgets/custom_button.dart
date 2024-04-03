@@ -49,7 +49,7 @@ class _CustomButtonState extends State<CustomButton>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.color ?? ProjectColors.swatch;
+    final color = widget.color ?? ProjectColors.primary;
     final borderRadius = widget.borderRadius ?? BorderRadius.circular(5);
     final scaleAnimation =
         Tween<double>(begin: 1, end: .97).animate(_animationController);

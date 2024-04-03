@@ -2,6 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
+import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
+import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
+import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
@@ -24,6 +28,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
+import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
@@ -139,6 +144,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<ReceiptContentRepository>(
       () => ReceiptContentRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<UserAuthRepository>(
+      () => UserAuthRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -161,6 +169,14 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<PrintReceiptUsecase>(
       () => PrintReceiptUsecase(sl(), sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetPosParameterUseCase>(
+      () => GetPosParameterUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<LoginUseCase>(
+      () => LoginUseCase(sl(), sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
+  sl.registerSingletonWithDependencies<LogoutUseCase>(() => LogoutUseCase(sl()),
+      dependsOn: [SharedPreferences]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 
   return;

@@ -367,6 +367,8 @@ class _FetchScreenState extends State<FetchScreen> {
           apmps.length +
           priceItemBarcode.length;
 
+      await GetIt.instance<AppDatabase>().refreshItemsTable();
+
       setState(() {
         _dataCount = fetched;
         _syncProgress = 1.0;

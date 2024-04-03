@@ -95,6 +95,57 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
+  void addOrUpdateReceiptItemWithOpenPrice(
+      ItemEntity itemEntity, double quantity, double? price) async {
+    if (quantity <= 0) {
+      // Error
+      print("quantity null");
+      return;
+    }
+
+    ItemEntity? priceSetItemEntity;
+
+    if (itemEntity.openPrice == 0 && price != null) {
+      priceSetItemEntity = itemEntity.copyWith(price: price);
+    } else {
+      priceSetItemEntity = itemEntity;
+    }
+
+    List<ReceiptItemEntity> newReceiptItems = [];
+    int totalPrice = 0;
+    bool isNewReceiptItem = true;
+    for (final currentReceiptItem in state.receiptItems) {
+      if (currentReceiptItem.itemEntity.barcode == priceSetItemEntity.barcode &&
+          currentReceiptItem.itemEntity.price == priceSetItemEntity.price) {
+        currentReceiptItem.quantity += quantity;
+        currentReceiptItem.subtotal =
+            (currentReceiptItem.quantity * priceSetItemEntity.price).toInt();
+        isNewReceiptItem = false;
+        newReceiptItems.add(currentReceiptItem);
+      } else {
+        newReceiptItems.add(currentReceiptItem);
+      }
+      totalPrice += currentReceiptItem.subtotal;
+    }
+
+    if (isNewReceiptItem) {
+      final int subtotal = (quantity * priceSetItemEntity.price).toInt();
+      newReceiptItems.add(ReceiptItemEntity(
+        quantity: quantity,
+        subtotal: subtotal,
+        itemEntity: priceSetItemEntity,
+        id: null,
+        createdAt: null,
+        receiptId: null,
+      ));
+      totalPrice += subtotal;
+    }
+
+    final ReceiptEntity newState =
+        state.copyWith(receiptItems: newReceiptItems, totalPrice: totalPrice);
+    emit(newState);
+  }
+
   void clearReceiptItems() {
     emit(state.copyWith(
         receiptItems: [],
