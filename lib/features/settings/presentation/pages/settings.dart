@@ -86,8 +86,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               Text(
                                 "Account",
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromARGB(255, 66, 66, 66)),
+                                  fontWeight: FontWeight.w700,
+                                  color: Color.fromARGB(255, 66, 66, 66),
+                                  fontSize: 18,
+                                ),
                               ),
                             ],
                           ),
@@ -123,7 +125,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Username"),
+                                        Text(
+                                          "Username",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -131,6 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           "rachman01",
                                           style: TextStyle(
+                                            fontSize: 18,
                                             fontWeight: FontWeight.w700,
                                             color:
                                                 Color.fromARGB(255, 66, 66, 66),
@@ -186,7 +192,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("E-mail"),
+                                        Text(
+                                          "E-mail",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -194,10 +203,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           "rachman01@mail.com",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         // SizedBox(
                                         //   width: 15,
@@ -246,7 +255,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Role"),
+                                        Text(
+                                          "Role",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -254,10 +266,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           "Staff",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         // SizedBox(
                                         //   width: 15,
@@ -296,7 +308,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 "Config",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w700,
-                                    color: Color.fromARGB(255, 66, 66, 66)),
+                                    color: Color.fromARGB(255, 66, 66, 66),
+                                    fontSize: 18),
                               ),
                             ],
                           ),
@@ -330,7 +343,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Tenant"),
+                                        Text(
+                                          "Tenant",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -338,10 +354,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           "99999-99999-99999" ?? "Not Set",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         // SizedBox(
                                         //   width: 15,
@@ -387,7 +403,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Store"),
+                                        Text(
+                                          "Store",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -396,10 +415,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           _posParameterEntity?.tostrId ??
                                               "Not Set",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         // SizedBox(
                                         //   width: 15,
@@ -445,7 +464,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Cash Register"),
+                                        Text(
+                                          "Cash Register",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -454,10 +476,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           _posParameterEntity?.tocsrId ??
                                               "Not Set",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         // SizedBox(
                                         //   width: 15,
@@ -503,7 +525,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Base URL"),
+                                        Text(
+                                          "Base URL",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -511,10 +536,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           Constant.url ?? "Not Set",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         // SizedBox(
                                         //   width: 15,
@@ -549,7 +574,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 "Printer",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w700,
-                                    color: Color.fromARGB(255, 66, 66, 66)),
+                                    color: Color.fromARGB(255, 66, 66, 66),
+                                    fontSize: 18),
                               ),
                             ],
                           ),
@@ -585,7 +611,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Default Printer"),
+                                        Text(
+                                          "Default Printer",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -596,10 +625,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       "defaultPrinter")?[0] ??
                                               "Not Set",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         SizedBox(
                                           width: 15,
@@ -651,7 +680,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 30,
                                         ),
-                                        Text("Paper Size"),
+                                        Text(
+                                          "Paper Size",
+                                          style: TextStyle(fontSize: 18),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -661,10 +693,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   .getString("paperSize") ??
                                               "Not Set",
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
-                                          ),
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 18),
                                         ),
                                         SizedBox(
                                           width: 15,

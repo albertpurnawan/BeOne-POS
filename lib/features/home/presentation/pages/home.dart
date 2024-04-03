@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -243,7 +245,8 @@ class HomeScreen extends StatelessWidget {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () {
-                            context.pop();
+                            context.goNamed(RouteConstants.welcome);
+                            GetIt.instance<LogoutUseCase>().call();
                           },
                           child: const Text(
                             "Logout",

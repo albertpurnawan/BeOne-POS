@@ -17,6 +17,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
@@ -30,6 +31,7 @@ void main() async {
   await GetIt.instance.allReady();
   await Constant.loadTopos();
   await syncWithBOS();
+  print(await GetIt.instance<SharedPreferences>().getKeys());
   runApp(const MyApp());
 }
 

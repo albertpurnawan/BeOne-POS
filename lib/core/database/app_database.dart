@@ -413,6 +413,7 @@ ON u.touomId = i.touomId
     final appDatabase = AppDatabase._init();
     await appDatabase.getDB();
     await appDatabase._injectDao();
+
     await appDatabase.refreshItemsTable();
 
     return appDatabase;

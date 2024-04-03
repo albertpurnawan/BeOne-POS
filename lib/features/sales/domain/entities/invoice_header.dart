@@ -66,7 +66,7 @@ class InvoiceHeaderEntity {
     required this.sync,
     required this.syncCRM,
     required this.toinvTohemId,
-    required this.tcsr1,
+    this.tcsr1,
   });
 
   InvoiceHeaderEntity copyWith({

@@ -1,5 +1,5 @@
 import 'package:pos_fe/core/resources/base_model.dart';
-import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/settings/domain/entities/pos_parameter.dart';
 
 const String tablePOSParameter = 'topos';
 

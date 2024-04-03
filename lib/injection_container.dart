@@ -2,6 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
+import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
+import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
+import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
@@ -140,6 +144,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<ReceiptContentRepository>(
       () => ReceiptContentRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<UserAuthRepository>(
+      () => UserAuthRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -165,6 +172,11 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<GetPosParameterUseCase>(
       () => GetPosParameterUseCase(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<LoginUseCase>(
+      () => LoginUseCase(sl(), sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
+  sl.registerSingletonWithDependencies<LogoutUseCase>(() => LogoutUseCase(sl()),
+      dependsOn: [SharedPreferences]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 
   return;

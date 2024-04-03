@@ -310,22 +310,22 @@ class _SalesPageState extends State<SalesPage> {
                 ),
               ),
               Expanded(
-                child: Scrollbar(
-                  controller: _scrollControllerReceiptItems,
-                  thumbVisibility: true,
-                  child: Column(
-                    children: [
-                      BlocBuilder<ReceiptCubit, ReceiptEntity>(
-                        builder: (context, state) {
-                          if (state.receiptItems.isEmpty) {
-                            return const Expanded(
-                                child: EmptyList(
-                              imagePath: "assets/images/empty-item.svg",
-                              sentence:
-                                  "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
-                            ));
-                          }
-                          return Expanded(
+                child: Column(
+                  children: [
+                    BlocBuilder<ReceiptCubit, ReceiptEntity>(
+                      builder: (context, state) {
+                        if (state.receiptItems.isEmpty) {
+                          return const Expanded(
+                              child: EmptyList(
+                            imagePath: "assets/images/empty-item.svg",
+                            sentence:
+                                "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
+                          ));
+                        }
+                        return Expanded(
+                          child: Scrollbar(
+                            controller: _scrollControllerReceiptItems,
+                            thumbVisibility: true,
                             child: ListView.builder(
                               padding: const EdgeInsets.symmetric(vertical: 0),
                               controller: _scrollControllerReceiptItems,
@@ -645,11 +645,11 @@ class _SalesPageState extends State<SalesPage> {
                                 );
                               },
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],

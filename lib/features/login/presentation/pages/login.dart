@@ -11,6 +11,8 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
+import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
+import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -54,7 +56,6 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   late TextEditingController usernameController, passwordController;
-  final UserAuthDao authDao = GetIt.instance<AppDatabase>().userAuthDao;
 
   @override
   void initState() {
@@ -110,12 +111,16 @@ class _LoginFormState extends State<LoginForm> {
               child: const Text("Login"),
               onTap: () async {
                 if (!formKey.currentState!.validate()) return;
-                final loginSuccess = await authDao.login(
-                    usernameController.text, passwordController.text);
-                if (loginSuccess) {
-                  await authDao.isLoggedIn();
+                final loginSuccess = await GetIt.instance<LoginUseCase>().call(
+                    params: UserAuthEntity(
+                        docId: null,
+                        email: usernameController.text,
+                        username: usernameController.text,
+                        password: passwordController.text,
+                        tohemId: null,
+                        torolId: null));
+                if (loginSuccess!) {
                   if (context.mounted) context.pushNamed(RouteConstants.home);
-                  // Helpers.navigate(context, SalesPage());
                   // if (isLoggedIn) {
                   //   Helpers.navigate(context, SalesPage());
                   // } else {
