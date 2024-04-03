@@ -303,6 +303,15 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
           styles: const PosStyles(align: PosAlign.right),
           containsChinese: true),
     ]);
+
+    // final List<int> barData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 4];
+    // bytes += generator.barcode(Barcode.code39([2, 0, 3, 0, 2, 0, 0, 1, 6]));
+    // bytes += generator.barcode(Barcode.code39([2, 0, 3, 0, 2, 0, 0, 1, 7]));
+    // bytes += generator.barcode(Barcode.code39([2, 0, 3, 0, 2, 0, 0, 1, 8]));
+    // bytes += generator.barcode(Barcode.code39([2, 0, 3, 0, 2, 0, 0, 1, 9]));
+    // bytes += generator.barcode(Barcode.ean13(
+    //     "8997028210370".split("").map((e) => int.parse(e)).toList()));
+
     _printEscPos(bytes, generator);
   }
 

@@ -4,10 +4,12 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 
@@ -16,13 +18,16 @@ part 'receipt_state.dart';
 class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetItemByBarcodeUseCase _getItemByBarcodeUseCase;
   final SaveReceiptUseCase _saveReceiptUseCase;
+  final GetEmployeeUseCase _getEmployeeUseCase;
 
-  ReceiptCubit(this._getItemByBarcodeUseCase, this._saveReceiptUseCase)
+  ReceiptCubit(this._getItemByBarcodeUseCase, this._saveReceiptUseCase,
+      this._getEmployeeUseCase)
       : super(ReceiptEntity(
-            docNum:
-                "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
-            receiptItems: [],
-            totalPrice: 0));
+          docNum:
+              "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+          receiptItems: [],
+          totalPrice: 0,
+        ));
 
   void addOrUpdateReceiptItems(String itemBarcode, double quantity) async {
     if (quantity <= 0) {
@@ -36,6 +41,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     if (itemEntity == null) {
       print("itemEntity null");
       return;
+    }
+
+    if (state.receiptItems.isEmpty) {
+      final EmployeeEntity? employeeEntity = await _getEmployeeUseCase.call();
+      emit(state.copyWith(employeeEntity: employeeEntity));
     }
 
     List<ReceiptItemEntity> newReceiptItems = [];
@@ -105,7 +115,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
     ItemEntity? priceSetItemEntity;
 
-    if (itemEntity.openPrice == 0 && price != null) {
+    if (itemEntity.openPrice == 1 && price != null) {
       priceSetItemEntity = itemEntity.copyWith(price: price);
     } else {
       priceSetItemEntity = itemEntity;

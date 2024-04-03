@@ -88,7 +88,8 @@ class ReceiptPrinter {
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
       case PrintReceiptContentType.employeeCodeAndName:
-        return "";
+        // return "";
+        return "${currentPrintReceiptDetail?.receiptEntity.employeeEntity?.empCode} - ${currentPrintReceiptDetail?.receiptEntity.employeeEntity?.empName}";
       case PrintReceiptContentType.mopAlias:
         return currentPrintReceiptDetail
                 ?.receiptEntity.mopSelection?.mopAlias ??

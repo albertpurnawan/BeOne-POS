@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -51,7 +52,8 @@ class HomeScreen extends StatelessWidget {
                                   text: "Good Afternoon ",
                                 ),
                                 TextSpan(
-                                    text: "rachman01",
+                                    text: GetIt.instance<SharedPreferences>()
+                                        .getString("username"),
                                     style:
                                         TextStyle(fontWeight: FontWeight.w700)),
                                 TextSpan(

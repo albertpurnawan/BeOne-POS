@@ -10,14 +10,17 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SalesPage extends StatefulWidget {
   const SalesPage({super.key});
@@ -35,6 +38,7 @@ class _SalesPageState extends State<SalesPage> {
   bool isEditingReceiptItemQty = false;
   CustomerEntity? radioValue;
   CustomerEntity? selectedCustomer;
+  EmployeeEntity? employeeEntity;
 
   final ScrollController _scrollControllerMain = ScrollController();
   final ScrollController _scrollControllerReceiptItems = ScrollController();
@@ -75,6 +79,9 @@ class _SalesPageState extends State<SalesPage> {
   @override
   void initState() {
     super.initState();
+    GetIt.instance<GetEmployeeUseCase>()
+        .call()
+        .then((value) => employeeEntity = value);
   }
 
   @override
@@ -1171,7 +1178,7 @@ class _SalesPageState extends State<SalesPage> {
                                   borderRadius: BorderRadius.circular(20)),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 0),
-                              child: const Row(
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Icon(Icons.assignment_ind_outlined,
@@ -1180,7 +1187,9 @@ class _SalesPageState extends State<SalesPage> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "rachman01",
+                                    GetIt.instance<SharedPreferences>()
+                                            .getString("username") ??
+                                        "-",
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w500,
@@ -2071,7 +2080,7 @@ class _SalesPageState extends State<SalesPage> {
                                       _textEditingControllerNewReceiptItemCode
                                           .text);
                           if (itemEntity == null) return;
-                          if (itemEntity.barcode == "203020018") {
+                          if (itemEntity.openPrice == 1) {
                             setState(() {
                               isEditingNewReceiptItemCode = false;
                               isEditingNewReceiptItemQty = false;
@@ -2252,7 +2261,7 @@ class _SalesPageState extends State<SalesPage> {
               await GetIt.instance<GetItemByBarcodeUseCase>()
                   .call(params: _textEditingControllerNewReceiptItemCode.text);
           if (itemEntity == null) return;
-          if (itemEntity.barcode == "203020018") {
+          if (itemEntity.openPrice == 1) {
             setState(() {
               isEditingNewReceiptItemCode = false;
               isEditingNewReceiptItemQty = false;
