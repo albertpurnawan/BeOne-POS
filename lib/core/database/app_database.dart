@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:dio/dio.dart';
-import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
 // import 'package:pos_fe/core/database/seeders_data/phir1.dart';
@@ -1465,10 +1462,12 @@ CREATE TABLE $tableInvoiceHeader (
   ${InvoiceHeaderFields.sync} int NOT NULL DEFAULT '0',
   ${InvoiceHeaderFields.syncCRM} int NOT NULL DEFAULT '0',
   ${InvoiceHeaderFields.toinvTohemId} text DEFAULT NULL,
+  ${InvoiceHeaderFields.tcsr1Id} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `toinv_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toinv_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `toinv_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toinv_tcsr1Id_fkey` FOREIGN KEY (`tcsr1Id`) REFERENCES `tcsr1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
         // CONSTRAINT `toinv_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,

@@ -1,4 +1,5 @@
 // import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
@@ -8,6 +9,7 @@ import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
@@ -24,6 +26,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     await db.transaction((txn) async {
       final POSParameterModel posParameterModel =
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
+
+      final prefs = GetIt.instance<SharedPreferences>();
+      final tcsr1Id = prefs.getString('tcsr1Id');
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -57,6 +62,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         sync: 0,
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
+        tcsr1Id: tcsr1Id, // get di sini
       );
 
       await _appDatabase.invoiceHeaderDao

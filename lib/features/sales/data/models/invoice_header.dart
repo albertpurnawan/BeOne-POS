@@ -35,6 +35,7 @@ class InvoiceHeaderFields {
     sync,
     syncCRM,
     toinvTohemId,
+    tcsr1Id,
   ];
 
   static const String docId = "docid";
@@ -67,6 +68,7 @@ class InvoiceHeaderFields {
   static const String sync = "sync";
   static const String syncCRM = "synccrm";
   static const String toinvTohemId = "toinvTohemId";
+  static const String tcsr1Id = "tcsr1Id";
 }
 
 class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
@@ -101,6 +103,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
     required super.sync,
     required super.syncCRM,
     required super.toinvTohemId,
+    required super.tcsr1Id,
   });
 
   @override
@@ -134,6 +137,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'sync': sync,
       'synccrm': syncCRM,
       'toinvTohemId': toinvTohemId,
+      'tcsr1Id': tcsr1Id,
     };
     if (transDate == null && transTime == null) {
       return map;
@@ -187,6 +191,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       syncCRM: map['synccrm'] as int,
       toinvTohemId:
           map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
     );
   }
 
@@ -255,6 +260,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       sync: entity.sync,
       syncCRM: entity.syncCRM,
       toinvTohemId: entity.toinvTohemId,
+      tcsr1Id: entity.tcsr1Id,
     );
   }
 }

@@ -1,7 +1,8 @@
-import 'package:intl/intl.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
@@ -46,12 +47,13 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
   }
 
   Future<List<InvoiceHeaderModel>> readByShift() async {
-    final String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final prefs = GetIt.instance<SharedPreferences>();
+    final tcsr1Id = prefs.getString('tcsr1Id');
 
     final res = await db.query(
       tableName,
-      where: 'createdat LIKE ?',
-      whereArgs: ['$today%'],
+      where: 'tcsr1Id LIKE ?',
+      whereArgs: ['$tcsr1Id%'],
     );
 
     if (res.isEmpty) {

@@ -33,7 +33,7 @@ class InvoiceHeaderEntity {
   final int sync;
   final int syncCRM;
   final String? toinvTohemId;
-  final String? tcsr1;
+  final String? tcsr1Id;
 
   InvoiceHeaderEntity({
     required this.docId,
@@ -66,7 +66,7 @@ class InvoiceHeaderEntity {
     required this.sync,
     required this.syncCRM,
     required this.toinvTohemId,
-    this.tcsr1,
+    required this.tcsr1Id,
   });
 
   InvoiceHeaderEntity copyWith({
@@ -100,7 +100,7 @@ class InvoiceHeaderEntity {
     int? sync,
     int? syncCRM,
     String? toinvTohemId,
-    String? tcsr1,
+    String? tcsr1Id,
   }) {
     return InvoiceHeaderEntity(
       docId: docId ?? this.docId,
@@ -133,7 +133,7 @@ class InvoiceHeaderEntity {
       sync: sync ?? this.sync,
       syncCRM: syncCRM ?? this.syncCRM,
       toinvTohemId: toinvTohemId ?? this.toinvTohemId,
-      tcsr1: tcsr1 ?? this.tcsr1,
+      tcsr1Id: tcsr1Id ?? this.tcsr1Id,
     );
   }
 
@@ -169,7 +169,7 @@ class InvoiceHeaderEntity {
       'sync': sync,
       'syncCRM': syncCRM,
       'toinvTohemId': toinvTohemId,
-      'tcsr1': tcsr1,
+      'tcsr1Id': tcsr1Id,
     };
   }
 
@@ -214,7 +214,7 @@ class InvoiceHeaderEntity {
       syncCRM: map['syncCRM'] as int,
       toinvTohemId:
           map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
-      tcsr1: map['tcsr1'] != null ? map['tcsr1'] as String : null,
+      tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
     );
   }
 
@@ -225,7 +225,7 @@ class InvoiceHeaderEntity {
 
   @override
   String toString() {
-    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDate: $transDate, transTime: $transTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, tcsr1: $tcsr1)';
+    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDate: $transDate, transTime: $transTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, tcsr1Id: $tcsr1Id)';
   }
 
   @override
@@ -262,7 +262,7 @@ class InvoiceHeaderEntity {
         other.sync == sync &&
         other.syncCRM == syncCRM &&
         other.toinvTohemId == toinvTohemId &&
-        other.tcsr1 == tcsr1;
+        other.tcsr1Id == tcsr1Id;
   }
 
   @override
@@ -297,6 +297,6 @@ class InvoiceHeaderEntity {
         sync.hashCode ^
         syncCRM.hashCode ^
         toinvTohemId.hashCode ^
-        tcsr1.hashCode;
+        tcsr1Id.hashCode;
   }
 }

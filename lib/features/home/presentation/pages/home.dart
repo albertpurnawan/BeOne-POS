@@ -131,7 +131,8 @@ class HomeScreen extends StatelessWidget {
                                       Color.fromARGB(255, 255, 255, 255)),
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
-                          onPressed: () {},
+                          onPressed: () =>
+                              context.pushNamed(RouteConstants.shifts),
                           child: const Text(
                             "Shifts",
                             textAlign: TextAlign.center,
