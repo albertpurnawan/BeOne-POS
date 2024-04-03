@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
@@ -9,6 +11,8 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
+import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
+import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
+        statusBarColor: Color.fromARGB(255, 134, 1, 1),
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
@@ -52,7 +56,6 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   late TextEditingController usernameController, passwordController;
-  final UserAuthDao authDao = GetIt.instance<AppDatabase>().userAuthDao;
 
   @override
   void initState() {
@@ -108,12 +111,18 @@ class _LoginFormState extends State<LoginForm> {
               child: const Text("Login"),
               onTap: () async {
                 if (!formKey.currentState!.validate()) return;
-                final loginSuccess = await authDao.login(
-                    usernameController.text, passwordController.text);
-                if (loginSuccess) {
-                  await authDao.isLoggedIn();
-                  if (!context.mounted) return;
-                  Helpers.navigate(context, const SalesPage());
+                final loginSuccess = await GetIt.instance<LoginUseCase>().call(
+                    params: UserAuthEntity(
+                        docId: null,
+                        email: usernameController.text,
+                        username: usernameController.text,
+                        password: passwordController.text,
+                        tohemId: null,
+                        torolId: null));
+                if (loginSuccess!) {
+                  if (context.mounted) context.pushNamed(RouteConstants.home);
+                  // if (isLoggedIn) {
+                  //   Helpers.navigate(context, SalesPage());
                   // } else {
                   //   ScaffoldMessenger.of(context).showSnackBar(
                   //     SnackBar(

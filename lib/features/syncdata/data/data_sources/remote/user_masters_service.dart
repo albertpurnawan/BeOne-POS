@@ -44,7 +44,7 @@ class UserApi {
         log(resp.data['data'][0].toString());
 
         List<UserModel> data = (resp.data['data'] as List)
-            .map((e) => UserModel.fromMap(e))
+            .map((e) => UserModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
       }

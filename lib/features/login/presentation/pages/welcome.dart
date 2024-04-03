@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
@@ -11,7 +13,6 @@ import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/end_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/start_shift.dart';
-import 'package:pos_fe/features/settings/presentation/pages/printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/settings.dart';
 import 'package:pos_fe/features/syncdata/presentation/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +33,7 @@ class WelcomeScreen extends StatefulWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const BeOneLogo(size: 150),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 50),
                   Container(
                     constraints: BoxConstraints(maxWidth: 400),
                     child: CustomButton(
@@ -43,25 +44,27 @@ class WelcomeScreen extends StatefulWidget {
                         if (isLoggedIn == false) {
                           Helpers.navigate(context, LoginScreen());
                         } else {
-                          Helpers.navigate(context, SalesPage());
+                          context.pushNamed(RouteConstants.home);
                         }
                       },
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Container(
-                    constraints: BoxConstraints(maxWidth: 400),
-                    child: CustomButton(
-                        onTap: () {},
-                        child: Text("Register"),
-                        style: CustomButtonStyle.bordered),
-                  ),
-                  const SizedBox(height: 15),
-                  ClickableText(
-                    "Forgot Password ● Help Center",
-                    // onTap: () =>
-                    //     Helpers.navigate(context, ForgotPasswordScreen()),
-                  ),
+                  // Container(
+                  //   constraints: BoxConstraints(maxWidth: 400),
+                  //   child: CustomButton(
+                  //       onTap: () {
+                  //         Helpers.navigate(context, HomeScreen());
+                  //       },
+                  //       child: Text("Register"),
+                  //       style: CustomButtonStyle.bordered),
+                  // ),
+                  // const SizedBox(height: 15),
+                  // ClickableText(
+                  //   "Forgot Password ● Help Center",
+                  //   // onTap: () =>
+                  //   //     Helpers.navigate(context, ForgotPasswordScreen()),
+                  // ),
                   Container(
                     constraints: BoxConstraints(maxWidth: 400),
                     child: CustomButton(
@@ -79,7 +82,7 @@ class WelcomeScreen extends StatefulWidget {
                   Container(
                     constraints: BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: Text("Settings"),
+                      child: Text("Setup Device"),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -216,20 +219,6 @@ class WelcomeScreen extends StatefulWidget {
                               );
                             }
                           })),
-                  SizedBox(height: 10),
-                  Container(
-                    constraints: BoxConstraints(maxWidth: 400),
-                    child: CustomButton(
-                      child: Text("Printer Settings"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PrinterSettings()),
-                        );
-                      },
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -311,12 +300,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
+        statusBarColor: ProjectColors.primary,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
 
     return Container(
-      color: Colors.white,
+      color: Color.fromARGB(255, 234, 234, 234),
       child: WelcomeScreen.welcomingButtons(context),
     );
   }
