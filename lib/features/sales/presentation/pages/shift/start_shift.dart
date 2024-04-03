@@ -136,8 +136,6 @@ class _StartShiftFormState extends State<StartShiftForm> {
 
                 final prefs = GetIt.instance<SharedPreferences>();
                 await prefs.setBool('isOpen', true);
-                await prefs.setString(
-                    'startShift', DateTime.now().toIso8601String());
 
                 final double inputValue =
                     double.tryParse(openValueController.text) ?? 0.0;
@@ -166,6 +164,8 @@ class _StartShiftFormState extends State<StartShiftForm> {
                   approvalStatus: 0,
                 );
                 _insertCashierBalanceTransaction(shift);
+
+                await prefs.setString('tcsr1Id', shift.docId);
 
                 if (!context.mounted) return;
                 Navigator.pop(context);

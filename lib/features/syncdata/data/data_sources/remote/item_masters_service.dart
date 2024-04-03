@@ -44,7 +44,7 @@ class ItemMasterApi {
 
       if (resp.data['data'].isNotEmpty) {
         log("--- Item Master ---");
-        log(resp.data['data'].toString());
+        log(resp.data['data'][0].toString());
 
         List<ItemMasterModel> data = (resp.data['data'] as List)
             .map((e) => ItemMasterModel.fromMapRemote(e))

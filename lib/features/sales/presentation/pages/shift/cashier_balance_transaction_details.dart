@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/end_shift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CashierBalanceTransactionDetails extends StatelessWidget {
   final CashierBalanceTransactionModel transaction;
@@ -82,6 +86,61 @@ class CashierBalanceTransactionDetails extends StatelessWidget {
               height: 20,
               color: Colors.amber,
               thickness: 10,
+            ),
+            const SizedBox(height: 15),
+            Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: CustomButton(
+                  child: const Text("End Shift"),
+                  onTap: () async {
+                    final SharedPreferences prefs =
+                        GetIt.instance<SharedPreferences>();
+                    final bool isOpen = prefs.getBool('isOpen') ?? false;
+
+                    if (isOpen) {
+                      if (!context.mounted) return;
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
+                            ),
+                            content: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.7,
+                              child: const EndShiftScreen(),
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      if (!context.mounted) return;
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
+                            ),
+                            content: const Text(
+                              "Please start a new shift first",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  }),
             ),
           ],
         ),

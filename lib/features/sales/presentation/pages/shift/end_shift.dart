@@ -10,6 +10,7 @@ import 'package:pos_fe/core/widgets/custom_row_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_end_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EndShiftScreen extends StatefulWidget {
@@ -218,8 +219,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
                 onTap: () async {
                   if (!formKey.currentState!.validate()) return;
 
-                  final prefs = GetIt.instance<SharedPreferences>();
-                  await prefs.setBool('isOpen', false);
+                  // final prefs = GetIt.instance<SharedPreferences>();
 
                   final double inputValue =
                       double.tryParse(actualCashController.text) ?? 0.0;
@@ -249,11 +249,19 @@ class _EndShiftFormState extends State<EndShiftForm> {
                       approvalStatus: 1,
                     );
 
-                    _updateCashierBalanceTransaction(opening!.docId, shift);
-                  }
+                    //   _updateCashierBalanceTransaction(opening!.docId, shift);
+                    // }
+                    // await prefs.setBool('isOpen', false);
 
-                  if (!context.mounted) return;
-                  Navigator.pop(context);
+                    // await prefs.setString('tcsr1Id', "");
+
+                    if (!context.mounted) return;
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ConfirmEndShift();
+                        });
+                  }
                 },
               ),
             ),

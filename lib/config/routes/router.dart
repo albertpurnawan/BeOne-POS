@@ -5,6 +5,7 @@ import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
 import 'package:pos_fe/features/settings/presentation/pages/settings.dart';
 
 class AppRouter {
@@ -66,6 +67,13 @@ class AppRouter {
         path: "/settings",
         pageBuilder: (context, state) {
           return const MaterialPage(child: SettingsScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteConstants.shifts,
+        path: "/shifts",
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: RecapShifts());
         },
       ),
     ],
