@@ -219,48 +219,49 @@ class _EndShiftFormState extends State<EndShiftForm> {
                 onTap: () async {
                   if (!formKey.currentState!.validate()) return;
 
-                  final prefs = GetIt.instance<SharedPreferences>();
+                  // final prefs = GetIt.instance<SharedPreferences>();
 
                   final double inputValue =
                       double.tryParse(actualCashController.text) ?? 0.0;
 
-                  // if (opening != null) {
-                  //   final CashierBalanceTransactionModel shift =
-                  //       CashierBalanceTransactionModel(
-                  //     docId: opening!.docId,
-                  //     createDate: opening!.createDate,
-                  //     updateDate: opening!.updateDate,
-                  //     tocsrId: opening!.tocsrId,
-                  //     tousrId: opening!.tousrId,
-                  //     docNum: opening!.docNum,
-                  //     openDate: opening!.openDate,
-                  //     openTime: opening!.openTime,
-                  //     calcDate: opening!.calcDate,
-                  //     calcTime: opening!.calcTime,
-                  //     closeDate: DateTime.now(),
-                  //     closeTime: DateTime.now(),
-                  //     timezone: opening!.timezone,
-                  //     openValue: opening!.openValue,
-                  //     calcValue: 0,
-                  //     cashValue: 0,
-                  //     closeValue: inputValue,
-                  //     openedbyId: "",
-                  //     closedbyId: "",
-                  //     approvalStatus: 1,
-                  //   );
+                  if (opening != null) {
+                    final CashierBalanceTransactionModel shift =
+                        CashierBalanceTransactionModel(
+                      docId: opening!.docId,
+                      createDate: opening!.createDate,
+                      updateDate: opening!.updateDate,
+                      tocsrId: opening!.tocsrId,
+                      tousrId: opening!.tousrId,
+                      docNum: opening!.docNum,
+                      openDate: opening!.openDate,
+                      openTime: opening!.openTime,
+                      calcDate: opening!.calcDate,
+                      calcTime: opening!.calcTime,
+                      closeDate: DateTime.now(),
+                      closeTime: DateTime.now(),
+                      timezone: opening!.timezone,
+                      openValue: opening!.openValue,
+                      calcValue: 0,
+                      cashValue: 0,
+                      closeValue: inputValue,
+                      openedbyId: "",
+                      closedbyId: "",
+                      approvalStatus: 1,
+                    );
 
-                  //   _updateCashierBalanceTransaction(opening!.docId, shift);
-                  // }
-                  // await prefs.setBool('isOpen', false);
+                    //   _updateCashierBalanceTransaction(opening!.docId, shift);
+                    // }
+                    // await prefs.setBool('isOpen', false);
 
-                  // await prefs.setString('tcsr1Id', "");
+                    // await prefs.setString('tcsr1Id', "");
 
-                  if (!context.mounted) return;
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ConfirmEndShift();
-                      });
+                    if (!context.mounted) return;
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ConfirmEndShift();
+                        });
+                  }
                 },
               ),
             ),

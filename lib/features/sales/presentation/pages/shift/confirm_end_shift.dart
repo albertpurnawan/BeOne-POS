@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmEndShift extends StatelessWidget {
@@ -41,6 +42,15 @@ class ConfirmEndShift extends StatelessWidget {
                     child: const Text("End Shift"),
                     onTap: () async {
                       if (!formKey.currentState!.validate()) return;
+
+                      await prefs.setBool('isOpen', false);
+                      await prefs.setString('tcsr1Id', "");
+
+                      if (!context.mounted) return;
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RecapShifts()));
                     },
                   ),
                 ),

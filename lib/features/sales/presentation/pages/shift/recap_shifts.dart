@@ -6,6 +6,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/cashier_balance_transaction_details.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/start_shift.dart';
@@ -49,6 +50,19 @@ class _RecapShiftsState extends State<RecapShifts> {
             const SizedBox(height: 30),
             const RecapsShiftList(),
             const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to the HomeScreen and remove all routes below it
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  );
+                },
+                child: const Text('Home'),
+              ),
+            ),
             Container(
               constraints: const BoxConstraints(maxWidth: 400),
               child: CustomButton(
