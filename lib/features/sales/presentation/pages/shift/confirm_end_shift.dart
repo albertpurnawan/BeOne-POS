@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/widgets/custom_button.dart';
+import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmEndShift extends StatelessWidget {
@@ -18,31 +20,46 @@ class ConfirmEndShift extends StatelessWidget {
           child: Form(
             key: formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
+              children: [
+                const SizedBox(height: 15),
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 300),
+                  child: CustomInput(
+                    label: "Password",
+                    hint: "Password",
+                    prefixIcon: const Icon(Icons.lock),
+                    validator: (val) => val == null || val.isEmpty
+                        ? "Password is required"
+                        : null,
+                    type: CustomInputType.password,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {},
                 ),
                 const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      formKey.currentState!.save();
-
-                      // Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text('Submit'),
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 300),
+                  child: CustomButton(
+                    child: const Text("End Shift"),
+                    onTap: () async {
+                      if (!formKey.currentState!.validate()) return;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                    },
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
                 ),
               ],
             ),
