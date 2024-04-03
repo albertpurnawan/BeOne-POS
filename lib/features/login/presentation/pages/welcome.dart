@@ -167,7 +167,7 @@ class WelcomeScreen extends StatefulWidget {
                           child: const Text("End Shift"),
                           onTap: () async {
                             final SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
+                                GetIt.instance<SharedPreferences>();
                             final bool isOpen =
                                 prefs.getBool('isOpen') ?? false;
 

@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter/material.dart';
 import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -17,8 +18,6 @@ abstract class BaseDao<T extends BaseModel> {
     if (txn != null) {
       final batch = txn.batch();
 
-      batch.delete(tableName); //make repo and add delete there, dao 1f1m
-
       for (final e in data) {
         batch.insert(tableName, e.toMap());
       }
@@ -29,8 +28,6 @@ abstract class BaseDao<T extends BaseModel> {
       await db.transaction((txn) async {
         try {
           final batch = txn.batch();
-
-          batch.delete(tableName);
 
           for (final e in data) {
             batch.insert(tableName, e.toMap());
@@ -60,7 +57,7 @@ abstract class BaseDao<T extends BaseModel> {
 
   Future<List<T>> readAll();
 
-  Future<void> deleteAll({required T data, Transaction? txn}) async {
+  Future<void> deleteAll({required List<T> data, Transaction? txn}) async {
     await db.delete(tableName);
   }
 
@@ -72,6 +69,18 @@ abstract class BaseDao<T extends BaseModel> {
     } else {
       await db.update(tableName, data.toMap(),
           where: "docId = ?", whereArgs: [docId]);
+    }
+  }
+
+  //TEMPORARY DELCREATE
+  Future<void> resync({required List<T> data, Transaction? txn}) async {
+    try {
+      await deleteAll(data: data, txn: txn);
+      await bulkCreate(data: data, txn: txn);
+    } catch (err, stack) {
+      print(err);
+      debugPrintStack(stackTrace: stack);
+      rethrow;
     }
   }
 

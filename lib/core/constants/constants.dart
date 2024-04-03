@@ -9,8 +9,8 @@ class Constant {
   static String weekday = '*';
   static String month = '*';
   static String day = '*';
-  static String hour = '*';
-  static String minute = '*/60';
+  static String hour = '*/12';
+  static String minute = '*';
   static String second = '*';
 
   //TENANTID

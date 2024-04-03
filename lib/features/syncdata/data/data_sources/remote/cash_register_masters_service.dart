@@ -44,7 +44,7 @@ class CashRegisterApi {
 
       if (resp.data['data'].isNotEmpty) {
         log("--- Cash Register ---");
-        log(resp.data['data'].toString());
+        log(resp.data['data'][0].toString());
 
         List<CashRegisterModel> data = (resp.data['data'] as List)
             .map((e) => CashRegisterModel.fromMapRemote(e))

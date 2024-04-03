@@ -105,7 +105,7 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
-  void _manualSyncData() async {
+  void manualSyncData() async {
     late List<CurrencyModel> currencies;
     late List<CountryModel> countries;
     late List<ProvinceModel> provinces;
@@ -145,7 +145,7 @@ class _FetchScreenState extends State<FetchScreen> {
             currencies = await GetIt.instance<CurrencyApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .currencyDao
-                .bulkCreate(data: currencies);
+                .resync(data: currencies);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -162,7 +162,7 @@ class _FetchScreenState extends State<FetchScreen> {
             countries = await GetIt.instance<CountryApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .countryDao
-                .bulkCreate(data: countries);
+                .resync(data: countries);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -179,7 +179,7 @@ class _FetchScreenState extends State<FetchScreen> {
             provinces = await GetIt.instance<ProvinceApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .provinceDao
-                .bulkCreate(data: provinces);
+                .resync(data: provinces);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -192,83 +192,145 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         },
         () async {
-          zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .zipcodeDao
-              .bulkCreate(data: zipcodes);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .zipcodeDao
+                .resync(data: zipcodes);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          employees = await GetIt.instance<EmployeeApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .employeeDao
-              .bulkCreate(data: employees);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            employees = await GetIt.instance<EmployeeApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .employeeDao
+                .resync(data: employees);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          taxes = await GetIt.instance<TaxMasterApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .taxMasterDao
-              .bulkCreate(data: taxes);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            taxes = await GetIt.instance<TaxMasterApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .taxMasterDao
+                .resync(data: taxes);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .paymentTypeDao
-              .bulkCreate(data: payTypes);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .paymentTypeDao
+                .resync(data: payTypes);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          mops = await GetIt.instance<MOPApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .meansOfPaymentDao
-              .bulkCreate(data: mops);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            mops = await GetIt.instance<MOPApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .meansOfPaymentDao
+                .resync(data: mops);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          ccs = await GetIt.instance<CreditCardApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .creditCardDao
-              .bulkCreate(data: ccs);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            ccs = await GetIt.instance<CreditCardApi>().fetchData();
+            await GetIt.instance<AppDatabase>().creditCardDao.resync(data: ccs);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          pricelists = await GetIt.instance<PricelistApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .pricelistDao
-              .bulkCreate(data: pricelists);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            pricelists = await GetIt.instance<PricelistApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .pricelistDao
+                .resync(data: pricelists);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          stores = await GetIt.instance<StoreMasterApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .storeMasterDao
-              .bulkCreate(data: stores);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            stores = await GetIt.instance<StoreMasterApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .storeMasterDao
+                .resync(data: stores);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
           try {
             mopStores = await GetIt.instance<MOPByStoreApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .mopByStoreDao
-                .bulkCreate(data: mopStores);
+                .resync(data: mopStores);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -281,166 +343,306 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         },
         () async {
-          cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .cashRegisterDao
-              .bulkCreate(data: cashiers);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .cashRegisterDao
+                .resync(data: cashiers);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          uoms = await GetIt.instance<UoMApi>().fetchData();
-          await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: uoms);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            uoms = await GetIt.instance<UoMApi>().fetchData();
+            await GetIt.instance<AppDatabase>().uomDao.resync(data: uoms);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          roles = await GetIt.instance<UserRoleApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .userRoleDao
-              .bulkCreate(data: roles);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            roles = await GetIt.instance<UserRoleApi>().fetchData();
+            await GetIt.instance<AppDatabase>().userRoleDao.resync(data: roles);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          users = await GetIt.instance<UserApi>().fetchData();
-          await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: users);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            users = await GetIt.instance<UserApi>().fetchData();
+            await GetIt.instance<AppDatabase>().userDao.resync(data: users);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          pricelistPeriod =
-              await GetIt.instance<PricelistPeriodApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .pricelistPeriodDao
-              .bulkCreate(data: pricelistPeriod);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            pricelistPeriod =
+                await GetIt.instance<PricelistPeriodApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .pricelistPeriodDao
+                .resync(data: pricelistPeriod);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .itemCategoryDao
-              .bulkCreate(data: itemCat);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .itemCategoryDao
+                .resync(data: itemCat);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          items = await GetIt.instance<ItemMasterApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .itemMasterDao
-              .bulkCreate(data: items);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            items = await GetIt.instance<ItemMasterApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .itemMasterDao
+                .resync(data: items);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .itemByStoreDao
-              .bulkCreate(data: itemsStores);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .itemByStoreDao
+                .resync(data: itemsStores);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .itemBarcodeDao
-              .bulkCreate(data: itemBarcodes);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .itemBarcodeDao
+                .resync(data: itemBarcodes);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         // // ---
         () async {
-          itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .itemRemarkDao
-              .bulkCreate(data: itemRemarks);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .itemRemarkDao
+                .resync(data: itemRemarks);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .vendorGroupDao
-              .bulkCreate(data: venGroups);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .vendorGroupDao
+                .resync(data: venGroups);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          vendor = await GetIt.instance<VendorApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .vendorDao
-              .bulkCreate(data: vendor);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            vendor = await GetIt.instance<VendorApi>().fetchData();
+            await GetIt.instance<AppDatabase>().vendorDao.resync(data: vendor);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .preferredVendorDao
-              .bulkCreate(data: prefVendor);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .preferredVendorDao
+                .resync(data: prefVendor);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         // // ---
         () async {
-          cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .customerGroupDao
-              .bulkCreate(data: cusGroup);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .customerGroupDao
+                .resync(data: cusGroup);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          cusCst = await GetIt.instance<CustomerApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .customerCstDao
-              .bulkCreate(data: cusCst);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            cusCst = await GetIt.instance<CustomerApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .customerCstDao
+                .resync(data: cusCst);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .priceByItemDao
-              .bulkCreate(data: priceByItem);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .priceByItemDao
+                .resync(data: priceByItem);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          apmps = await GetIt.instance<APMPSApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .assignPriceMemberPerStoreDao
-              .bulkCreate(data: apmps);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            apmps = await GetIt.instance<APMPSApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .assignPriceMemberPerStoreDao
+                .resync(data: apmps);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
         () async {
-          priceItemBarcode =
-              await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
-          await GetIt.instance<AppDatabase>()
-              .priceByItemBarcodeDao
-              .bulkCreate(data: priceItemBarcode);
-          setState(() {
-            _syncProgress += 1 / totalTable;
-          });
+          try {
+            priceItemBarcode =
+                await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .priceByItemBarcodeDao
+                .resync(data: priceItemBarcode);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
         },
       ];
       for (final fetchFunction in fetchFunctions) {
@@ -473,13 +675,13 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       ];
 
-      await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
+      await GetIt.instance<AppDatabase>().posParameterDao.resync(
           data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
 
       // final auths = await GetIt.instance<AuthorizationApi>().fetchData();
-      // await GetIt.instance<AppDatabase>().authorizationDao.bulkCreate(auths);
+      // await GetIt.instance<AppDatabase>().authorizationDao.resync(auths);
       // final itemPics = await GetIt.instance<ItemPictureApi>().fetchData();
-      // await GetIt.instance<AppDatabase>().itemPictureDao.bulkCreate(itemPics);
+      // await GetIt.instance<AppDatabase>().itemPictureDao.resync(itemPics);
 
       fetched = currencies.length +
           countries.length +
@@ -503,7 +705,7 @@ class _FetchScreenState extends State<FetchScreen> {
           itemsStores.length +
           itemBarcodes.length +
           itemRemarks.length +
-          // venGroups.length +
+          venGroups.length +
           vendor.length +
           prefVendor.length +
           cusGroup.length +
@@ -590,7 +792,7 @@ class _FetchScreenState extends State<FetchScreen> {
             ElevatedButton(
               onPressed: () {
                 // _fetchToken();
-                _manualSyncData();
+                manualSyncData();
               },
               child: Text('SYNC'),
             ),

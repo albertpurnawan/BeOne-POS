@@ -10,6 +10,7 @@ import 'package:pos_fe/core/widgets/custom_row_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_end_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EndShiftScreen extends StatefulWidget {
@@ -223,39 +224,43 @@ class _EndShiftFormState extends State<EndShiftForm> {
                   final double inputValue =
                       double.tryParse(actualCashController.text) ?? 0.0;
 
-                  if (opening != null) {
-                    final CashierBalanceTransactionModel shift =
-                        CashierBalanceTransactionModel(
-                      docId: opening!.docId,
-                      createDate: opening!.createDate,
-                      updateDate: opening!.updateDate,
-                      tocsrId: opening!.tocsrId,
-                      tousrId: opening!.tousrId,
-                      docNum: opening!.docNum,
-                      openDate: opening!.openDate,
-                      openTime: opening!.openTime,
-                      calcDate: opening!.calcDate,
-                      calcTime: opening!.calcTime,
-                      closeDate: DateTime.now(),
-                      closeTime: DateTime.now(),
-                      timezone: opening!.timezone,
-                      openValue: opening!.openValue,
-                      calcValue: 0,
-                      cashValue: 0,
-                      closeValue: inputValue,
-                      openedbyId: "",
-                      closedbyId: "",
-                      approvalStatus: 1,
-                    );
+                  // if (opening != null) {
+                  //   final CashierBalanceTransactionModel shift =
+                  //       CashierBalanceTransactionModel(
+                  //     docId: opening!.docId,
+                  //     createDate: opening!.createDate,
+                  //     updateDate: opening!.updateDate,
+                  //     tocsrId: opening!.tocsrId,
+                  //     tousrId: opening!.tousrId,
+                  //     docNum: opening!.docNum,
+                  //     openDate: opening!.openDate,
+                  //     openTime: opening!.openTime,
+                  //     calcDate: opening!.calcDate,
+                  //     calcTime: opening!.calcTime,
+                  //     closeDate: DateTime.now(),
+                  //     closeTime: DateTime.now(),
+                  //     timezone: opening!.timezone,
+                  //     openValue: opening!.openValue,
+                  //     calcValue: 0,
+                  //     cashValue: 0,
+                  //     closeValue: inputValue,
+                  //     openedbyId: "",
+                  //     closedbyId: "",
+                  //     approvalStatus: 1,
+                  //   );
 
-                    _updateCashierBalanceTransaction(opening!.docId, shift);
-                  }
-                  await prefs.setBool('isOpen', false);
+                  //   _updateCashierBalanceTransaction(opening!.docId, shift);
+                  // }
+                  // await prefs.setBool('isOpen', false);
 
-                  await prefs.setString('tcsr1Id', "");
+                  // await prefs.setString('tcsr1Id', "");
 
                   if (!context.mounted) return;
-                  Navigator.pop(context);
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ConfirmEndShift();
+                      });
                 },
               ),
             ),
