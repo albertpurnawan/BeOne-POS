@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
@@ -139,13 +138,14 @@ class _FetchScreenState extends State<FetchScreen> {
 
     print("Synching data...");
     try {
+      await GetIt.instance<AppDatabase>().currencyDao.deleteAll();
       final fetchFunctions = [
         () async {
           try {
             currencies = await GetIt.instance<CurrencyApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .currencyDao
-                .resync(data: currencies);
+                .bulkCreate(data: currencies);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -162,7 +162,7 @@ class _FetchScreenState extends State<FetchScreen> {
             countries = await GetIt.instance<CountryApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .countryDao
-                .resync(data: countries);
+                .bulkCreate(data: countries);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -179,7 +179,7 @@ class _FetchScreenState extends State<FetchScreen> {
             provinces = await GetIt.instance<ProvinceApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .provinceDao
-                .resync(data: provinces);
+                .bulkCreate(data: provinces);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -196,7 +196,7 @@ class _FetchScreenState extends State<FetchScreen> {
             zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .zipcodeDao
-                .resync(data: zipcodes);
+                .bulkCreate(data: zipcodes);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -213,7 +213,7 @@ class _FetchScreenState extends State<FetchScreen> {
             employees = await GetIt.instance<EmployeeApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .employeeDao
-                .resync(data: employees);
+                .bulkCreate(data: employees);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -230,7 +230,7 @@ class _FetchScreenState extends State<FetchScreen> {
             taxes = await GetIt.instance<TaxMasterApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .taxMasterDao
-                .resync(data: taxes);
+                .bulkCreate(data: taxes);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -247,7 +247,7 @@ class _FetchScreenState extends State<FetchScreen> {
             payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .paymentTypeDao
-                .resync(data: payTypes);
+                .bulkCreate(data: payTypes);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -264,7 +264,7 @@ class _FetchScreenState extends State<FetchScreen> {
             mops = await GetIt.instance<MOPApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .meansOfPaymentDao
-                .resync(data: mops);
+                .bulkCreate(data: mops);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -279,7 +279,9 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             ccs = await GetIt.instance<CreditCardApi>().fetchData();
-            await GetIt.instance<AppDatabase>().creditCardDao.resync(data: ccs);
+            await GetIt.instance<AppDatabase>()
+                .creditCardDao
+                .bulkCreate(data: ccs);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -296,7 +298,7 @@ class _FetchScreenState extends State<FetchScreen> {
             pricelists = await GetIt.instance<PricelistApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .pricelistDao
-                .resync(data: pricelists);
+                .bulkCreate(data: pricelists);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -313,7 +315,7 @@ class _FetchScreenState extends State<FetchScreen> {
             stores = await GetIt.instance<StoreMasterApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .storeMasterDao
-                .resync(data: stores);
+                .bulkCreate(data: stores);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -330,7 +332,7 @@ class _FetchScreenState extends State<FetchScreen> {
             mopStores = await GetIt.instance<MOPByStoreApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .mopByStoreDao
-                .resync(data: mopStores);
+                .bulkCreate(data: mopStores);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -347,7 +349,7 @@ class _FetchScreenState extends State<FetchScreen> {
             cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .cashRegisterDao
-                .resync(data: cashiers);
+                .bulkCreate(data: cashiers);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -362,7 +364,7 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             uoms = await GetIt.instance<UoMApi>().fetchData();
-            await GetIt.instance<AppDatabase>().uomDao.resync(data: uoms);
+            await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: uoms);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -377,7 +379,9 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             roles = await GetIt.instance<UserRoleApi>().fetchData();
-            await GetIt.instance<AppDatabase>().userRoleDao.resync(data: roles);
+            await GetIt.instance<AppDatabase>()
+                .userRoleDao
+                .bulkCreate(data: roles);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -392,7 +396,7 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             users = await GetIt.instance<UserApi>().fetchData();
-            await GetIt.instance<AppDatabase>().userDao.resync(data: users);
+            await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: users);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -410,7 +414,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 await GetIt.instance<PricelistPeriodApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .pricelistPeriodDao
-                .resync(data: pricelistPeriod);
+                .bulkCreate(data: pricelistPeriod);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -427,7 +431,7 @@ class _FetchScreenState extends State<FetchScreen> {
             itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .itemCategoryDao
-                .resync(data: itemCat);
+                .bulkCreate(data: itemCat);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -444,7 +448,7 @@ class _FetchScreenState extends State<FetchScreen> {
             items = await GetIt.instance<ItemMasterApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .itemMasterDao
-                .resync(data: items);
+                .bulkCreate(data: items);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -461,7 +465,7 @@ class _FetchScreenState extends State<FetchScreen> {
             itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .itemByStoreDao
-                .resync(data: itemsStores);
+                .bulkCreate(data: itemsStores);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -478,7 +482,7 @@ class _FetchScreenState extends State<FetchScreen> {
             itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .itemBarcodeDao
-                .resync(data: itemBarcodes);
+                .bulkCreate(data: itemBarcodes);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -496,7 +500,7 @@ class _FetchScreenState extends State<FetchScreen> {
             itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .itemRemarkDao
-                .resync(data: itemRemarks);
+                .bulkCreate(data: itemRemarks);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -513,7 +517,7 @@ class _FetchScreenState extends State<FetchScreen> {
             venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .vendorGroupDao
-                .resync(data: venGroups);
+                .bulkCreate(data: venGroups);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -528,7 +532,9 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             vendor = await GetIt.instance<VendorApi>().fetchData();
-            await GetIt.instance<AppDatabase>().vendorDao.resync(data: vendor);
+            await GetIt.instance<AppDatabase>()
+                .vendorDao
+                .bulkCreate(data: vendor);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -545,7 +551,7 @@ class _FetchScreenState extends State<FetchScreen> {
             prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .preferredVendorDao
-                .resync(data: prefVendor);
+                .bulkCreate(data: prefVendor);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -563,7 +569,7 @@ class _FetchScreenState extends State<FetchScreen> {
             cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .customerGroupDao
-                .resync(data: cusGroup);
+                .bulkCreate(data: cusGroup);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -580,7 +586,7 @@ class _FetchScreenState extends State<FetchScreen> {
             cusCst = await GetIt.instance<CustomerApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .customerCstDao
-                .resync(data: cusCst);
+                .bulkCreate(data: cusCst);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -597,7 +603,7 @@ class _FetchScreenState extends State<FetchScreen> {
             priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .priceByItemDao
-                .resync(data: priceByItem);
+                .bulkCreate(data: priceByItem);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -614,7 +620,7 @@ class _FetchScreenState extends State<FetchScreen> {
             apmps = await GetIt.instance<APMPSApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .assignPriceMemberPerStoreDao
-                .resync(data: apmps);
+                .bulkCreate(data: apmps);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -632,7 +638,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
             await GetIt.instance<AppDatabase>()
                 .priceByItemBarcodeDao
-                .resync(data: priceItemBarcode);
+                .bulkCreate(data: priceItemBarcode);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -675,13 +681,13 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       ];
 
-      await GetIt.instance<AppDatabase>().posParameterDao.resync(
+      await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
           data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
 
       // final auths = await GetIt.instance<AuthorizationApi>().fetchData();
-      // await GetIt.instance<AppDatabase>().authorizationDao.resync(auths);
+      // await GetIt.instance<AppDatabase>().authorizationDao.bulkCreate(auths);
       // final itemPics = await GetIt.instance<ItemPictureApi>().fetchData();
-      // await GetIt.instance<AppDatabase>().itemPictureDao.resync(itemPics);
+      // await GetIt.instance<AppDatabase>().itemPictureDao.bulkCreate(itemPics);
 
       fetched = currencies.length +
           countries.length +
@@ -730,7 +736,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<InvoiceApi>().sendInvoice();
+      final data = await GetIt.instance<MOPByStoreApi>().fetchData();
 
       setState(() {
         // _dataFetched = data.length;

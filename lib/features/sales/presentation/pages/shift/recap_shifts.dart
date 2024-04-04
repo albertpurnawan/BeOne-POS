@@ -54,7 +54,6 @@ class _RecapShiftsState extends State<RecapShifts> {
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigate to the HomeScreen and remove all routes below it
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -84,7 +83,8 @@ class _RecapShiftsState extends State<RecapShifts> {
                           ),
                           content: const Text(
                             "Please end current shift first",
-                            style: TextStyle(color: Colors.red),
+                            style:
+                                TextStyle(color: Color.fromRGBO(128, 0, 0, 1)),
                           ),
                           actions: <Widget>[
                             TextButton(
@@ -108,8 +108,7 @@ class _RecapShiftsState extends State<RecapShifts> {
                                 BorderRadius.all(Radius.circular(10.0)),
                           ),
                           content: SizedBox(
-                            width: MediaQuery.of(context).size.width *
-                                0.7, // 70% of screen width
+                            width: MediaQuery.of(context).size.width * 0.7,
                             child: const StartShiftScreen(),
                           ),
                         );
