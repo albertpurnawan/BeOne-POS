@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
@@ -25,6 +28,7 @@ class OpenShiftScreen extends StatefulWidget {
 class _OpenShiftScreenState extends State<OpenShiftScreen> {
   late Timer _timer;
   String formattedDate = Helpers.formatDate(DateTime.now());
+  late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
 
   Future<POSParameterEntity?> getPosParameter() async {
     return GetIt.instance<GetPosParameterUseCase>().call();
@@ -57,12 +61,8 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
     return FutureBuilder<POSParameterEntity?>(
       future: getPosParameter(),
       builder: (context, snapshot) {
-        // final formattedDate = Helpers.formatDate(DateTime.now());
         final storeName = snapshot.data?.storeName ?? 'Loading...';
-        final cashier = snapshot.data?.user ??
-            'Loading...'; // need to check, tohem or lainnya
-        final adminCashier = snapshot.data?.user ??
-            'Loading...'; // need to check, tohem or lainnya
+        final cashier = prefs.getString('username');
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -111,15 +111,6 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
                 const SizedBox(height: 10),
                 const StartShiftForm(),
                 const SizedBox(height: 25),
-                Text(
-                  'Approver: $adminCashier',
-                  style: const TextStyle(
-                    color: ProjectColors.mediumBlack,
-                    fontSize: 18,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                const SizedBox(height: 25),
                 SizedBox(
                   width: 200,
                   child: ElevatedButton(
@@ -156,6 +147,16 @@ class StartShiftForm extends StatefulWidget {
 
 class _StartShiftFormState extends State<StartShiftForm> {
   late TextEditingController openValueController;
+  late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+
+  Future<String> getStoreName() async {
+    final String? storeId = prefs.getString("tostrId");
+    final store = await GetIt.instance<AppDatabase>()
+        .storeMasterDao
+        .readByDocId(storeId!);
+    final storeName = store!.storeName;
+    return storeName;
+  }
 
   void _insertCashierBalanceTransaction(
       CashierBalanceTransactionModel value) async {
@@ -168,6 +169,7 @@ class _StartShiftFormState extends State<StartShiftForm> {
   void initState() {
     super.initState();
     openValueController = TextEditingController();
+    getStoreName();
   }
 
   @override
@@ -192,13 +194,14 @@ class _StartShiftFormState extends State<StartShiftForm> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a value';
                 }
-                final isNumeric = double.tryParse(value);
-                if (isNumeric == null) {
-                  return 'Please enter a valid number';
-                }
+                // final isNumeric = double.tryParse(value);
+                // if (isNumeric == null) {
+                //   return 'Please enter a valid number';
+                // }
                 return null;
               },
               // label: "Openvalue",
+              inputFormatters: [MoneyInputFormatter()],
               keyboardType: TextInputType.number,
               hint: "Enter Amount of Opening Balance",
               prefixIcon: const Icon(Icons.monetization_on_outlined),
@@ -208,7 +211,7 @@ class _StartShiftFormState extends State<StartShiftForm> {
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
-              child: const Text("Start Shift"),
+              child: const Text("Open Shift"),
               onTap: () async {
                 if (!formKey.currentState!.validate()) return;
 
@@ -225,7 +228,7 @@ class _StartShiftFormState extends State<StartShiftForm> {
                   updateDate: DateTime.now(),
                   tocsrId: "4ca46d3e-30ff-4441-98f8-3fdcf81dc230",
                   tousrId: "fab056fa-b206-4360-8c35-568407651827",
-                  docNum: "RandomDocNum",
+                  docNum: "", // need edit
                   openDate: DateTime.now(),
                   openTime: DateTime.now(),
                   calcDate: DateTime.utc(1970, 1, 1),
@@ -246,7 +249,7 @@ class _StartShiftFormState extends State<StartShiftForm> {
                 await prefs.setString('tcsr1Id', shift.docId);
 
                 if (!context.mounted) return;
-                Navigator.pop(context);
+                if (context.mounted) context.pushNamed(RouteConstants.home);
                 // Navigator.push(
                 //   context,
                 //   MaterialPageRoute(

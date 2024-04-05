@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
@@ -41,7 +41,7 @@ class _RecapShiftsState extends State<RecapShifts> {
               height: (MediaQuery.of(context).size.height / 2) - 325,
             ),
             const Text(
-              'Shifts Recap',
+              'Transactions List',
               style: TextStyle(
                   color: ProjectColors.swatch,
                   fontSize: 30,
@@ -162,8 +162,9 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
           final Map<String, List<CashierBalanceTransactionModel>>
               transactionsByDate = {};
           for (var transaction in snapshot.data!) {
-            final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy');
-            final String dateFormatted = formatter.format(transaction.openDate);
+            final String dateFormatted =
+                Helpers.dateEEddMMMyyy(transaction.openDate);
+
             if (!transactionsByDate.containsKey(dateFormatted)) {
               transactionsByDate[dateFormatted] = [];
             }

@@ -221,4 +221,14 @@ abstract class Helpers {
     final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy HH:mm:ss');
     return formatter.format(dTime).toString();
   }
+
+  static String dateEEddMMMyyy(DateTime dTime) {
+    final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy');
+    return formatter.format(dTime).toString();
+  }
+
+  static String dateHHmmss(DateTime dTime) {
+    final DateFormat formatter = DateFormat('HH:mm:ss');
+    return formatter.format(dTime).toString();
+  }
 }
