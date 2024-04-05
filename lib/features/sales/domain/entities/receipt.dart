@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
@@ -15,6 +16,7 @@ class ReceiptEntity {
   MopSelectionEntity? mopSelection;
   int? amountReceived;
   CustomerEntity? customerEntity;
+  EmployeeEntity? employeeEntity;
 
   ReceiptEntity({
     required this.docNum,
@@ -24,6 +26,7 @@ class ReceiptEntity {
     this.mopSelection,
     this.amountReceived,
     this.customerEntity,
+    this.employeeEntity,
   });
 
   ReceiptEntity copyWith({
@@ -34,6 +37,7 @@ class ReceiptEntity {
     MopSelectionEntity? mopSelection,
     int? amountReceived,
     CustomerEntity? customerEntity,
+    EmployeeEntity? employeeEntity,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -43,6 +47,7 @@ class ReceiptEntity {
       mopSelection: mopSelection ?? this.mopSelection,
       amountReceived: amountReceived ?? this.amountReceived,
       customerEntity: customerEntity ?? this.customerEntity,
+      employeeEntity: employeeEntity ?? this.employeeEntity,
     );
   }
 
@@ -55,6 +60,7 @@ class ReceiptEntity {
       'mopSelection': mopSelection?.toMap(),
       'amountReceived': amountReceived,
       'customerEntity': customerEntity?.toMap(),
+      'employeeEntity': employeeEntity?.toMap(),
     };
   }
 
@@ -80,6 +86,8 @@ class ReceiptEntity {
           ? CustomerEntity.fromMap(
               map['customerEntity'] as Map<String, dynamic>)
           : null,
+      employeeEntity:
+          EmployeeEntity.fromMap(map['employeeEntity'] as Map<String, dynamic>),
     );
   }
 
@@ -90,7 +98,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, totalPrice: $totalPrice, createdAt: $createdAt, mopSelection: $mopSelection, amountReceived: $amountReceived, customerEntity: $customerEntity)';
+    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, totalPrice: $totalPrice, createdAt: $createdAt, mopSelection: $mopSelection, amountReceived: $amountReceived, customerEntity: $customerEntity, employeeEntity: $employeeEntity)';
   }
 
   @override
@@ -103,7 +111,8 @@ class ReceiptEntity {
         other.createdAt == createdAt &&
         other.mopSelection == mopSelection &&
         other.amountReceived == amountReceived &&
-        other.customerEntity == customerEntity;
+        other.customerEntity == customerEntity &&
+        other.employeeEntity == employeeEntity;
   }
 
   @override
@@ -114,6 +123,7 @@ class ReceiptEntity {
         createdAt.hashCode ^
         mopSelection.hashCode ^
         amountReceived.hashCode ^
-        customerEntity.hashCode;
+        customerEntity.hashCode ^
+        employeeEntity.hashCode;
   }
 }

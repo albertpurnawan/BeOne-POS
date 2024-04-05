@@ -61,7 +61,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docStatus: 0,
         sync: 0,
         syncCRM: 0,
-        toinvTohemId: null, // get di sini
+        toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
       );
 

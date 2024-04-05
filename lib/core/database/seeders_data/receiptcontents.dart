@@ -29,7 +29,7 @@ const receiptcontents = [
   },
   {
     "row": 4,
-    "content": "employee",
+    "content": "employeeCodeAndName",
     "fontsize": 1,
     "isbold": 0,
     "alignment": 0,
