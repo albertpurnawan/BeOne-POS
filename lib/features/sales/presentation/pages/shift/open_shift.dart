@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -8,63 +10,139 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-class StartShiftScreen extends StatefulWidget {
-  const StartShiftScreen({super.key});
+class OpenShiftScreen extends StatefulWidget {
+  const OpenShiftScreen({super.key});
 
   @override
-  State<StartShiftScreen> createState() => _StartShiftScreenState();
+  State<OpenShiftScreen> createState() => _OpenShiftScreenState();
 }
 
-class _StartShiftScreenState extends State<StartShiftScreen> {
+class _OpenShiftScreenState extends State<OpenShiftScreen> {
+  late Timer _timer;
+  String formattedDate = Helpers.formatDate(DateTime.now());
+
+  Future<POSParameterEntity?> getPosParameter() async {
+    return GetIt.instance<GetPosParameterUseCase>().call();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        formattedDate = Helpers.formatDate(DateTime.now());
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the screen is disposed
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final formattedDate = Helpers.formatDate(DateTime.now());
-
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
-        statusBarBrightness: Brightness.light,
-        statusBarIconBrightness: Brightness.light));
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: ScrollWidget(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
-          child: Column(
-            children: [
-              SizedBox(
-                height: (MediaQuery.of(context).size.height / 2) - 250,
-              ),
-              Text(
-                'Shift: $formattedDate',
-                style: const TextStyle(
+      statusBarColor: ProjectColors.swatch,
+      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.light,
+    ));
+
+    return FutureBuilder<POSParameterEntity?>(
+      future: getPosParameter(),
+      builder: (context, snapshot) {
+        // final formattedDate = Helpers.formatDate(DateTime.now());
+        final storeName = snapshot.data?.storeName ?? 'Loading...';
+        final cashier = snapshot.data?.user ??
+            'Loading...'; // need to check, tohem or lainnya
+        final adminCashier = snapshot.data?.user ??
+            'Loading...'; // need to check, tohem or lainnya
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: ScrollWidget(
+            padding: const EdgeInsets.symmetric(horizontal: 50),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: (MediaQuery.of(context).size.height / 2) - 350,
+                ),
+                Text(
+                  'Opening Shift - $storeName',
+                  style: const TextStyle(
                     color: ProjectColors.swatch,
                     fontSize: 30,
-                    fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
-              const StartShiftForm(),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: 200,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            10.0), // Adjust the borderRadius value as needed
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Cashier: $cashier',
+                  style: const TextStyle(
+                    color: ProjectColors.mediumBlack,
+                    fontSize: 18,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Start: $formattedDate',
+                  style: const TextStyle(
+                    color: ProjectColors.mediumBlack,
+                    fontSize: 20,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                const SizedBox(height: 50),
+                const Text(
+                  'Opening Balance:',
+                  style: TextStyle(
+                    color: ProjectColors.swatch,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const StartShiftForm(),
+                const SizedBox(height: 25),
+                Text(
+                  'Approver: $adminCashier',
+                  style: const TextStyle(
+                    color: ProjectColors.mediumBlack,
+                    fontSize: 18,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            10.0,
+                          ), // Adjust the borderRadius value as needed
+                        ),
                       ),
                     ),
+                    child: const Text('Cancel'),
                   ),
-                  child: const Text('Cancel'),
                 ),
-              ),
-            ],
-          )),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -122,11 +200,11 @@ class _StartShiftFormState extends State<StartShiftForm> {
               },
               // label: "Openvalue",
               keyboardType: TextInputType.number,
-              hint: "Enter Amount of Starting Cash",
-              prefixIcon: const Icon(Icons.monetization_on_rounded),
+              hint: "Enter Amount of Opening Balance",
+              prefixIcon: const Icon(Icons.monetization_on_outlined),
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 75),
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(

@@ -9,7 +9,7 @@ import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/cashier_balance_transaction_details.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/start_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RecapShifts extends StatefulWidget {
@@ -109,7 +109,7 @@ class _RecapShiftsState extends State<RecapShifts> {
                           ),
                           content: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.7,
-                            child: const StartShiftScreen(),
+                            child: const OpenShiftScreen(),
                           ),
                         );
                       },

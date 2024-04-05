@@ -104,6 +104,190 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
+  // void updateFromBOS() async {
+  //   late List<CurrencyModel> currenciesBOS, currenciesDAO;
+  //   late List<CountryModel> countriesBOS, countriesDAO;
+  //   late List<ProvinceModel> provincesBOS, provincesDAO;
+  //   late List<ZipCodeModel> zipcodesBOS, zipcodesDAO;
+  //   late List<EmployeeModel> employeesBOS, employeesDAO;
+  //   late List<TaxMasterModel> taxesBOS, taxesDAO;
+  //   late List<PaymentTypeModel> payTypesBOS, payTypesDAO;
+  //   late List<MeansOfPaymentModel> mopsBOS, mopsDAO;
+  //   late List<CreditCardModel> ccsBOS, ccsDAO;
+  //   late List<PricelistModel> pricelistsBOS, pricelistsDAO;
+  //   late List<StoreMasterModel> storesBOS, storesDAO;
+  //   late List<MOPByStoreModel> mopStoresBOS, mopStoresDAO;
+  //   late List<CashRegisterModel> cashiersBOS, cashiersDAO;
+  //   late List<UomModel> uomsBOS, uomsDAO;
+  //   late List<UserRoleModel> rolesBOS, rolesDAO;
+  //   late List<UserModel> usersBOS, usersDAO;
+  //   late List<PricelistPeriodModel> pricelistPeriodBOS, pricelistPeriodDAO;
+  //   late List<ItemCategoryModel> itemCatBOS, itemCatDAO;
+  //   late List<ItemMasterModel> itemsBOS, itemsDAO;
+  //   late List<ItemByStoreModel> itemsStoresBOS, itemsStoresDAO;
+  //   late List<ItemBarcodeModel> itemBarcodesBOS, itemBarcodesDAO;
+  //   late List<ItemRemarksModel> itemRemarksBOS, itemRemarksDAO;
+  //   late List<VendorGroupModel> venGroupsBOS, venGroupsDAO;
+  //   late List<VendorModel> vendorBOS, vendorDAO;
+  //   late List<PreferredVendorModel> prefVendorBOS, prefVendorDAO;
+  //   late List<CustomerGroupModel> cusGroupBOS, cusGroupDAO;
+  //   late List<CustomerCstModel> cusCstBOS, cusCstDAO;
+  //   late List<PriceByItemModel> priceByItemBOS, priceByItemDAO;
+  //   late List<AssignPriceMemberPerStoreModel> apmpsBOS, apmpsDAO;
+  //   late List<PriceByItemBarcodeModel> priceItemBarcodeBOS, priceItemBarcodeDAO;
+
+  //   final fetchFunctions = [
+  //     () async {
+  //       currenciesBOS = await GetIt.instance<CurrencyApi>().fetchData();
+  //       currenciesDAO =
+  //           await GetIt.instance<AppDatabase>().currencyDao.readAll();
+
+  //       if (currenciesDAO.isEmpty) {
+  //         await GetIt.instance<AppDatabase>()
+  //             .currencyDao
+  //             .bulkCreate(data: currenciesBOS);
+  //         return;
+  //       }
+
+  //       for (var currencyBOS in currenciesBOS) {
+  //         CurrencyModel? currencyDAO;
+  //         try {
+  //           currencyDAO = currenciesDAO.firstWhere(
+  //             (currency) => currency.docId == currencyBOS.docId,
+  //           );
+  //         } catch (e) {
+  //           currencyDAO = null;
+  //         }
+
+  //         if (currencyDAO == null) {
+  //           await GetIt.instance<AppDatabase>()
+  //               .currencyDao
+  //               .create(data: currencyBOS);
+  //           continue;
+  //         }
+  //         if ((currencyBOS.updateDate!).isAfter(currencyDAO.updateDate!)) {
+  //           await GetIt.instance<AppDatabase>()
+  //               .currencyDao
+  //               .update(docId: currencyBOS.docId, data: currencyBOS);
+  //         }
+  //       }
+  //     },
+  //     () async {
+  //       countriesBOS = await GetIt.instance<CountryApi>().fetchData();
+  //       countriesDAO = await GetIt.instance<AppDatabase>().countryDao.readAll();
+
+  //       if (countriesDAO.isEmpty) {
+  //         await GetIt.instance<AppDatabase>()
+  //             .countryDao
+  //             .bulkCreate(data: countriesBOS);
+  //         return;
+  //       }
+
+  //       for (var countryBOS in countriesBOS) {
+  //         CountryModel? countryDAO;
+  //         try {
+  //           countryDAO = countriesDAO.firstWhere(
+  //             (country) => country.docId == countryBOS.docId,
+  //           );
+  //         } catch (e) {
+  //           countryDAO = null;
+  //         }
+
+  //         if (countryDAO == null) {
+  //           await GetIt.instance<AppDatabase>()
+  //               .countryDao
+  //               .create(data: countryBOS);
+  //           continue;
+  //         }
+  //         if ((countryBOS.updateDate!).isAfter(countryDAO.updateDate!)) {
+  //           await GetIt.instance<AppDatabase>()
+  //               .countryDao
+  //               .update(docId: countryBOS.docId, data: countryBOS);
+  //         }
+  //       }
+  //     },
+  //     () async {
+  //       provincesBOS = await GetIt.instance<ProvinceApi>().fetchData();
+  //       provincesDAO =
+  //           await GetIt.instance<AppDatabase>().provinceDao.readAll();
+
+  //       if (provincesDAO.isEmpty) {
+  //         await GetIt.instance<AppDatabase>()
+  //             .provinceDao
+  //             .bulkCreate(data: provincesBOS);
+  //         return;
+  //       }
+
+  //       for (var datumBOS in provincesBOS) {
+  //         ProvinceModel? datumDAO;
+  //         try {
+  //           datumDAO = provincesDAO.firstWhere(
+  //             (datum) => datum.docId == datumBOS.docId,
+  //           );
+  //         } catch (e) {
+  //           datumDAO = null;
+  //         }
+
+  //         if (datumDAO == null) {
+  //           await GetIt.instance<AppDatabase>()
+  //               .provinceDao
+  //               .create(data: datumBOS);
+  //           continue;
+  //         }
+  //         if ((datumBOS.updateDate!).isAfter(datumDAO.updateDate!)) {
+  //           await GetIt.instance<AppDatabase>()
+  //               .provinceDao
+  //               .update(docId: datumBOS.docId, data: datumBOS);
+  //         }
+  //       }
+  //     },
+  //   ];
+
+  //   for (final fetchFunction in fetchFunctions) {
+  //     try {
+  //       await fetchFunction();
+  //     } catch (e) {
+  //       handleError(e);
+  //     }
+  //   }
+
+  // itemsBOS = await GetIt.instance<ItemMasterApi>().fetchData();
+  // itemsDAO = await GetIt.instance<AppDatabase>().itemMasterDao.readAll();
+
+  // log("BOS ===> $itemsBOS");
+  // log("DAO B4 ===> $itemsDAO");
+
+  // if (itemsDAO.isEmpty) {
+  //   await GetIt.instance<AppDatabase>()
+  //       .itemMasterDao
+  //       .bulkCreate(data: itemsBOS);
+  //   return;
+  // }
+
+  // for (var itemBOS in itemsBOS) {
+  //   ItemMasterModel? itemDAO;
+  //   try {
+  //     itemDAO = itemsDAO.firstWhere(
+  //       (item) => item.docId == itemBOS.docId,
+  //     );
+  //   } catch (e) {
+  //     itemDAO = null;
+  //   }
+
+  //   if (itemDAO == null) {
+  //     await GetIt.instance<AppDatabase>().itemMasterDao.create(data: itemBOS);
+  //     continue;
+  //   }
+  //   if ((itemBOS.updateDate!).isAfter(itemDAO.updateDate!)) {
+  //     await GetIt.instance<AppDatabase>()
+  //         .itemMasterDao
+  //         .update(docId: itemBOS.docId, data: itemBOS);
+  //   }
+  // }
+  // itemsDAO = await GetIt.instance<AppDatabase>().itemMasterDao.readAll();
+  // log("DAO AFTER ===> $itemsDAO");
+  // }
+
   void manualSyncData() async {
     late List<CurrencyModel> currencies;
     late List<CountryModel> countries;
@@ -143,6 +327,7 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             currencies = await GetIt.instance<CurrencyApi>().fetchData();
+
             await GetIt.instance<AppDatabase>()
                 .currencyDao
                 .bulkCreate(data: currencies);
@@ -838,7 +1023,7 @@ class _FetchScreenState extends State<FetchScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _fetchData();
+                manualSyncData();
               },
               child: Text('FETCH'),
             ),
