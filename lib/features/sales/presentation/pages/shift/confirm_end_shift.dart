@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +11,17 @@ class ConfirmEndShift extends StatelessWidget {
   ConfirmEndShift({Key? key}) : super(key: key);
   final formKey = GlobalKey<FormState>();
   final prefs = GetIt.instance<SharedPreferences>();
+
+  void checkPassword(String password) async {
+    final String? username = prefs.getString('username');
+
+    if (username != null) {
+      final List<UserModel> users =
+          await GetIt.instance<AppDatabase>().userDao.readAll();
+
+      //  final UserModel? currentUser = users.firstWhereOrNull((user) => user.username == username);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

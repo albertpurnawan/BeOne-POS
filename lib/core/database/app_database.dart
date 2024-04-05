@@ -647,21 +647,23 @@ CREATE TABLE $tableItemMasters (
   ${ItemMasterFields.multiplyOrder} int DEFAULT '1',
   ${ItemMasterFields.syncCRM} int NOT NULL DEFAULT '0',
   ${ItemMasterFields.mergeQuantity} int NOT NULL DEFAULT '0',
-  $createdAtDefinition,
-  CONSTRAINT `toitm_property10_fkey` FOREIGN KEY (`property10`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property1_fkey` FOREIGN KEY (`property1`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property2_fkey` FOREIGN KEY (`property2`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property3_fkey` FOREIGN KEY (`property3`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property4_fkey` FOREIGN KEY (`property4`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property5_fkey` FOREIGN KEY (`property5`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property6_fkey` FOREIGN KEY (`property6`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property7_fkey` FOREIGN KEY (`property7`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property8_fkey` FOREIGN KEY (`property8`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_property9_fkey` FOREIGN KEY (`property9`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitm_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  $createdAtDefinition
+  
 )
 """);
+
+// CONSTRAINT `toitm_property10_fkey` FOREIGN KEY (`property10`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property1_fkey` FOREIGN KEY (`property1`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property2_fkey` FOREIGN KEY (`property2`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property3_fkey` FOREIGN KEY (`property3`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property4_fkey` FOREIGN KEY (`property4`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property5_fkey` FOREIGN KEY (`property5`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property6_fkey` FOREIGN KEY (`property6`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property7_fkey` FOREIGN KEY (`property7`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property8_fkey` FOREIGN KEY (`property8`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_property9_fkey` FOREIGN KEY (`property9`) REFERENCES `tprop` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+//   CONSTRAINT `toitm_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tableItemPicture (
