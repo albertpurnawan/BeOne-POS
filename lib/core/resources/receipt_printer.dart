@@ -605,7 +605,8 @@ class ReceiptPrinter {
                   )),
               PosColumn(
                   width: 8,
-                  text: Helpers.parseMoney(receiptEntity.totalPrice),
+                  text: Helpers.parseMoney(
+                      receiptEntity.totalPrice + receiptEntity.totalTax),
                   styles: const PosStyles(
                     bold: true,
                     height: PosTextSize.size2,
@@ -618,7 +619,7 @@ class ReceiptPrinter {
             bytes += generator.row([
               PosColumn(
                   width: 8,
-                  text: "Net Sales - Non Taxable",
+                  text: Helpers.parseMoney(receiptEntity.totalTax),
                   styles: const PosStyles(
                     align: PosAlign.left,
                     // codeTable: 'CP1252',
@@ -626,38 +627,6 @@ class ReceiptPrinter {
               PosColumn(
                   width: 4,
                   text: 'Rp 0',
-                  styles: const PosStyles(
-                    align: PosAlign.right,
-                    // codeTable: 'CP1252',
-                  )),
-            ]);
-            bytes += generator.row([
-              PosColumn(
-                  width: 8,
-                  text: "Net Sales - Tax Base",
-                  styles: const PosStyles(
-                    align: PosAlign.left,
-                    // codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 4,
-                  text: 'Rp 6,216',
-                  styles: const PosStyles(
-                    align: PosAlign.right,
-                    // codeTable: 'CP1252',
-                  )),
-            ]);
-            bytes += generator.row([
-              PosColumn(
-                  width: 8,
-                  text: "PPN 11%",
-                  styles: const PosStyles(
-                    align: PosAlign.left,
-                    // codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 4,
-                  text: 'Rp 684',
                   styles: const PosStyles(
                     align: PosAlign.right,
                     // codeTable: 'CP1252',

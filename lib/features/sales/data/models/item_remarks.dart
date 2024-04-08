@@ -54,9 +54,7 @@ class ItemRemarksModel extends ItemRemarkEntity implements BaseModel {
   factory ItemRemarksModel.fromMapRemote(Map<String, dynamic> map) {
     return ItemRemarksModel.fromMap({
       ...map,
-      "toitmId": map['toitm_id']['docid'] != null
-          ? map['toitm_id']['docid'] as String
-          : null,
+      "toitmId": map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
     });
   }
 

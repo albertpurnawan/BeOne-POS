@@ -250,11 +250,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   }
 
   List<int> generateCashAmountSuggestions(int receiptTotalAmount) {
-    List<int> cashAmountSuggestions = [];
-    final List<int> multipliers = [10000, 50000, 100000];
-
-    cashAmountSuggestions
-        .add(receiptTotalAmount + 5000 - (receiptTotalAmount % 5000));
+    List<int> cashAmountSuggestions = [receiptTotalAmount];
+    final List<int> multipliers = [5000, 10000, 50000, 100000];
 
     for (final multiplier in multipliers) {
       if (cashAmountSuggestions.last % multiplier != 0) {
@@ -302,8 +299,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     context.read<ReceiptCubit>().updateMopSelection(
         mopSelectionEntity: mopSelectionEntity,
         amountReceived: mopSelectionEntity.payTypeCode == "1"
-            ? _cashAmount
-            : context.read<ReceiptCubit>().state.totalPrice);
+            ? _cashAmount.toDouble()
+            : (context.read<ReceiptCubit>().state.totalPrice +
+                context.read<ReceiptCubit>().state.totalTax));
   }
 
   @override
@@ -390,7 +388,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                             height: 10,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPrice)}",
+                            "Rp ${Helpers.parseMoney((context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
                             style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.w700,
@@ -427,10 +425,15 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
                           if (mopType.payTypeCodes[0] == "1") {
                             final List<int> cashAmountSuggestions =
-                                generateCashAmountSuggestions(context
-                                    .read<ReceiptCubit>()
-                                    .state
-                                    .totalPrice);
+                                generateCashAmountSuggestions((context
+                                            .read<ReceiptCubit>()
+                                            .state
+                                            .totalPrice +
+                                        context
+                                            .read<ReceiptCubit>()
+                                            .state
+                                            .totalTax)
+                                    .toInt());
 
                             return SizedBox(
                               width: double.infinity,
@@ -720,7 +723,7 @@ class __CheckoutSuccessDialogContentState
                               width: 10,
                             ),
                             Text(
-                              "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPrice)}",
+                              "Rp ${Helpers.parseMoney((context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
                               style: const TextStyle(
                                 fontSize: 42,
                                 fontWeight: FontWeight.w700,
@@ -841,7 +844,7 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPrice)}",
+                            "Rp ${Helpers.parseMoney((context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -883,7 +886,7 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.amountReceived! - context.read<ReceiptCubit>().state.totalPrice)}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.amountReceived! - (context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,

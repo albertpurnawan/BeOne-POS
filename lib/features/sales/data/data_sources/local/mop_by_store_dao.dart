@@ -45,4 +45,19 @@ SELECT paytypecode, description, docid FROM topmt
         .map((itemData) => MopSelectionModel.fromMap(itemData))
         .toList();
   }
+
+  Future<MopSelectionModel?> readByDocIdIncludeRelations(String docId) async {
+    final result = await db.rawQuery("""
+SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description FROM tpmt3 as p3
+INNER JOIN (
+SELECT mopalias, bankcharge, docid, topmtId FROM tpmt1
+) as p1 ON p3.tpmt1Id = p1.docid
+INNER JOIN (
+SELECT paytypecode, description, docid FROM topmt
+) as p ON p1.topmtId = p.docid
+WHERE p3.docid = $docId;
+""");
+
+    return result.isNotEmpty ? MopSelectionModel.fromMap(result[0]) : null;
+  }
 }

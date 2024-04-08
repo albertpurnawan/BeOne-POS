@@ -12,6 +12,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
@@ -32,7 +33,6 @@ void main() async {
   await GetIt.instance.allReady();
   await Constant.loadTopos();
   await syncWithBOS();
-  print(await GetIt.instance<SharedPreferences>().getKeys());
   runApp(const MyApp());
 }
 
@@ -63,10 +63,10 @@ class MyApp extends StatelessWidget {
           providers: [
             BlocProvider<ReceiptCubit>(
                 create: (context) => ReceiptCubit(
-                      GetIt.instance<GetItemByBarcodeUseCase>(),
-                      GetIt.instance<SaveReceiptUseCase>(),
-                      GetIt.instance<GetEmployeeUseCase>(),
-                    )),
+                    GetIt.instance<GetItemByBarcodeUseCase>(),
+                    GetIt.instance<SaveReceiptUseCase>(),
+                    GetIt.instance<GetEmployeeUseCase>(),
+                    GetIt.instance<GetStoreMasterUseCase>())),
             BlocProvider<CustomersCubit>(
                 create: (context) =>
                     CustomersCubit(GetIt.instance<GetCustomersUseCase>())),

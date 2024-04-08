@@ -6,35 +6,31 @@ import 'package:pos_fe/features/sales/domain/entities/item.dart';
 class ReceiptItemEntity {
   int? id;
   double quantity;
-  int subtotal;
-  DateTime? createdAt;
+  double subtotal;
   ItemEntity itemEntity;
-  int? receiptId;
+  double taxAmount;
 
   ReceiptItemEntity({
     required this.id,
     required this.quantity,
     required this.subtotal,
-    required this.createdAt,
     required this.itemEntity,
-    required this.receiptId,
+    required this.taxAmount,
   });
 
   ReceiptItemEntity copyWith({
     int? id,
     double? quantity,
-    int? subtotal,
-    DateTime? createdAt,
+    double? subtotal,
     ItemEntity? itemEntity,
-    int? receiptId,
+    double? taxAmount,
   }) {
     return ReceiptItemEntity(
       id: id ?? this.id,
       quantity: quantity ?? this.quantity,
       subtotal: subtotal ?? this.subtotal,
-      createdAt: createdAt ?? this.createdAt,
       itemEntity: itemEntity ?? this.itemEntity,
-      receiptId: receiptId ?? this.receiptId,
+      taxAmount: taxAmount ?? this.taxAmount,
     );
   }
 
@@ -43,9 +39,8 @@ class ReceiptItemEntity {
       'id': id,
       'quantity': quantity,
       'subtotal': subtotal,
-      'createdAt': createdAt?.millisecondsSinceEpoch,
       'itemEntity': itemEntity.toMap(),
-      'receiptId': receiptId,
+      'taxAmount': taxAmount,
     };
   }
 
@@ -53,12 +48,9 @@ class ReceiptItemEntity {
     return ReceiptItemEntity(
       id: map['id'] != null ? map['id'] as int : null,
       quantity: map['quantity'] as double,
-      subtotal: map['subtotal'] as int,
-      createdAt: map['createdAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
-          : null,
+      subtotal: map['subtotal'] as double,
       itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
-      receiptId: map['receiptId'] != null ? map['receiptId'] as int : null,
+      taxAmount: map['taxAmount'] as double,
     );
   }
 
@@ -69,7 +61,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(id: $id, quantity: $quantity, subtotal: $subtotal, createdAt: $createdAt, itemEntity: $itemEntity, receiptId: $receiptId)';
+    return 'ReceiptItemEntity(id: $id, quantity: $quantity, subtotal: $subtotal, itemEntity: $itemEntity, taxAmount: $taxAmount)';
   }
 
   @override
@@ -79,9 +71,8 @@ class ReceiptItemEntity {
     return other.id == id &&
         other.quantity == quantity &&
         other.subtotal == subtotal &&
-        other.createdAt == createdAt &&
         other.itemEntity == itemEntity &&
-        other.receiptId == receiptId;
+        other.taxAmount == taxAmount;
   }
 
   @override
@@ -89,8 +80,7 @@ class ReceiptItemEntity {
     return id.hashCode ^
         quantity.hashCode ^
         subtotal.hashCode ^
-        createdAt.hashCode ^
         itemEntity.hashCode ^
-        receiptId.hashCode;
+        taxAmount.hashCode;
   }
 }

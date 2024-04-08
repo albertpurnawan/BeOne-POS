@@ -31,7 +31,7 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
         .toList();
   }
 
-  Future<List<InvoiceDetailModel>> readBytoinvId(String toinvId) async {
+  Future<List<InvoiceDetailModel>> readByToinvId(String toinvId) async {
     final result = await db.query(
       tableName,
       where: 'toinvId = ?',

@@ -4,10 +4,15 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
 class ReceiptModel extends ReceiptEntity implements BaseModel {
   ReceiptModel({
+    required super.docNum,
     required super.receiptItems,
     required super.totalPrice,
     super.createdAt,
-    required super.docNum,
+    super.mopSelection,
+    super.amountReceived,
+    super.customerEntity,
+    super.employeeEntity,
+    required super.totalTax,
   });
 
   factory ReceiptModel.fromMap(Map<String, dynamic> map) {
@@ -17,11 +22,12 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
           (x) => ReceiptItemModel.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      totalPrice: map['totalprice'] as int,
+      totalPrice: map['totalprice'] as double,
       createdAt: map['createdat'] != null
           ? DateTime.parse(map['createdAt']).toLocal()
           : null,
       docNum: map['docNum'],
+      totalTax: map['totalTax'],
     );
   }
 
@@ -31,7 +37,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       'receiptItems': receiptItems.map((x) => x.toMap()).toList(),
       'totalPrice': totalPrice,
       'createdAt': createdAt?.toUtc().toIso8601String(),
-      'docNum': docNum
+      'docNum': docNum,
+      'totalTax': totalTax,
     };
   }
 
@@ -40,6 +47,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       docNum: entity.docNum,
       receiptItems: entity.receiptItems,
       totalPrice: entity.totalPrice,
+      totalTax: entity.totalTax,
     );
   }
 }

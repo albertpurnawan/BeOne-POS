@@ -22,12 +22,12 @@ class InvoiceApi {
 
       final invDet = await GetIt.instance<AppDatabase>()
           .invoiceDetailDao
-          .readBytoinvId(invHead[0].docId.toString());
+          .readByToinvId(invHead[0].docId.toString());
       log(invDet.toString());
 
       final payMean = await GetIt.instance<AppDatabase>()
           .payMeansDao
-          .readBytoinvId(invHead[0].docId.toString());
+          .readByToinvId(invHead[0].docId.toString());
       log(payMean.toString());
 
       // if (invDet[0].toinvId == invHead[0].docId) {}

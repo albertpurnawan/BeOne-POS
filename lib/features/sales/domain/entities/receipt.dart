@@ -11,12 +11,13 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 class ReceiptEntity {
   String docNum;
   List<ReceiptItemEntity> receiptItems;
-  int totalPrice;
+  double totalPrice;
   DateTime? createdAt;
   MopSelectionEntity? mopSelection;
-  int? amountReceived;
+  double? amountReceived;
   CustomerEntity? customerEntity;
   EmployeeEntity? employeeEntity;
+  double totalTax;
 
   ReceiptEntity({
     required this.docNum,
@@ -27,17 +28,19 @@ class ReceiptEntity {
     this.amountReceived,
     this.customerEntity,
     this.employeeEntity,
+    required this.totalTax,
   });
 
   ReceiptEntity copyWith({
     String? docNum,
     List<ReceiptItemEntity>? receiptItems,
-    int? totalPrice,
+    double? totalPrice,
     DateTime? createdAt,
     MopSelectionEntity? mopSelection,
-    int? amountReceived,
+    double? amountReceived,
     CustomerEntity? customerEntity,
     EmployeeEntity? employeeEntity,
+    double? totalTax,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -48,6 +51,7 @@ class ReceiptEntity {
       amountReceived: amountReceived ?? this.amountReceived,
       customerEntity: customerEntity ?? this.customerEntity,
       employeeEntity: employeeEntity ?? this.employeeEntity,
+      totalTax: totalTax ?? this.totalTax,
     );
   }
 
@@ -61,6 +65,7 @@ class ReceiptEntity {
       'amountReceived': amountReceived,
       'customerEntity': customerEntity?.toMap(),
       'employeeEntity': employeeEntity?.toMap(),
+      'totalTax': totalTax,
     };
   }
 
@@ -72,7 +77,7 @@ class ReceiptEntity {
           (x) => ReceiptItemEntity.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      totalPrice: map['totalPrice'] as int,
+      totalPrice: map['totalPrice'] as double,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -80,14 +85,18 @@ class ReceiptEntity {
           ? MopSelectionEntity.fromMap(
               map['mopSelection'] as Map<String, dynamic>)
           : null,
-      amountReceived:
-          map['amountReceived'] != null ? map['amountReceived'] as int : null,
+      amountReceived: map['amountReceived'] != null
+          ? map['amountReceived'] as double
+          : null,
       customerEntity: map['customerEntity'] != null
           ? CustomerEntity.fromMap(
               map['customerEntity'] as Map<String, dynamic>)
           : null,
-      employeeEntity:
-          EmployeeEntity.fromMap(map['employeeEntity'] as Map<String, dynamic>),
+      employeeEntity: map['employeeEntity'] != null
+          ? EmployeeEntity.fromMap(
+              map['employeeEntity'] as Map<String, dynamic>)
+          : null,
+      totalTax: map['totalTax'] as double,
     );
   }
 
@@ -98,7 +107,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, totalPrice: $totalPrice, createdAt: $createdAt, mopSelection: $mopSelection, amountReceived: $amountReceived, customerEntity: $customerEntity, employeeEntity: $employeeEntity)';
+    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, totalPrice: $totalPrice, createdAt: $createdAt, mopSelection: $mopSelection, amountReceived: $amountReceived, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax)';
   }
 
   @override
@@ -112,7 +121,8 @@ class ReceiptEntity {
         other.mopSelection == mopSelection &&
         other.amountReceived == amountReceived &&
         other.customerEntity == customerEntity &&
-        other.employeeEntity == employeeEntity;
+        other.employeeEntity == employeeEntity &&
+        other.totalTax == totalTax;
   }
 
   @override
@@ -124,6 +134,7 @@ class ReceiptEntity {
         mopSelection.hashCode ^
         amountReceived.hashCode ^
         customerEntity.hashCode ^
-        employeeEntity.hashCode;
+        employeeEntity.hashCode ^
+        totalTax.hashCode;
   }
 }

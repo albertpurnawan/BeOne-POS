@@ -46,6 +46,7 @@ abstract class BaseDao<T extends BaseModel> {
   Future<void> create({required T data, Transaction? txn}) async {
     if (txn != null) {
       final res = await txn.insert(tableName, data.toMap());
+      print(await txn.query(tableName, where: "_id = ?"));
       print(res.toString());
     } else {
       final res = await db.insert(tableName, data.toMap());

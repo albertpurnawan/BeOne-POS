@@ -266,7 +266,7 @@ class _SalesPageState extends State<SalesPage> {
                             Text(
                               context.read<ReceiptCubit>().state.docNum,
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),
@@ -300,11 +300,19 @@ class _SalesPageState extends State<SalesPage> {
                               width: 5,
                             ),
                             Text(
-                              selectedCustomer != null
-                                  ? selectedCustomer!.custName
+                              context
+                                          .read<ReceiptCubit>()
+                                          .state
+                                          .customerEntity !=
+                                      null
+                                  ? context
+                                      .read<ReceiptCubit>()
+                                      .state
+                                      .customerEntity!
+                                      .custName
                                   : " - ",
                               style: const TextStyle(
-                                fontSize: 22,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),
@@ -507,7 +515,7 @@ class _SalesPageState extends State<SalesPage> {
                                                           child: Column(
                                                             children: [
                                                               Text(
-                                                                "@ ${Helpers.parseMoney(e.itemEntity.price)}",
+                                                                "@ ${Helpers.parseMoney(e.itemEntity.dpp.toInt())}",
                                                                 textAlign:
                                                                     TextAlign
                                                                         .right,
@@ -529,8 +537,9 @@ class _SalesPageState extends State<SalesPage> {
                                                             child: Column(
                                                               children: [
                                                                 Text(
-                                                                  Helpers.parseMoney(
-                                                                      e.subtotal),
+                                                                  Helpers.parseMoney(e
+                                                                      .subtotal
+                                                                      .toInt()),
                                                                   style: const TextStyle(
                                                                       fontSize:
                                                                           18,
@@ -1073,7 +1082,7 @@ class _SalesPageState extends State<SalesPage> {
                   child: SizedBox.expand(
                     child: OutlinedButton(
                       onPressed: () {
-                        context.read<ReceiptCubit>().clearReceiptItems();
+                        context.read<ReceiptCubit>().resetReceipt();
                         setState(() {});
                       },
                       style: OutlinedButton.styleFrom(
@@ -1191,7 +1200,7 @@ class _SalesPageState extends State<SalesPage> {
                                             .getString("username") ??
                                         "-",
                                     style: TextStyle(
-                                      fontSize: 22,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.white,
                                     ),
@@ -1222,7 +1231,7 @@ class _SalesPageState extends State<SalesPage> {
                                   Text(
                                     "16:39:21",
                                     style: TextStyle(
-                                      fontSize: 22,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.white,
                                     ),
@@ -1257,7 +1266,7 @@ class _SalesPageState extends State<SalesPage> {
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(state.totalPrice),
+                                Helpers.parseMoney(state.totalPrice.toInt()),
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1298,33 +1307,17 @@ class _SalesPageState extends State<SalesPage> {
                             ],
                           ),
                           const SizedBox(height: 25),
-                          const Row(
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Tax A",
+                                "Tax Amount",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                "45.611",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Tax B",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                "26.611",
+                                Helpers.parseMoney(state.totalTax.toInt()),
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1357,7 +1350,8 @@ class _SalesPageState extends State<SalesPage> {
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          Helpers.parseMoney(state.totalPrice),
+                          Helpers.parseMoney(
+                              (state.totalPrice + state.totalTax).toInt()),
                           style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
