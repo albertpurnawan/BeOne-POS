@@ -11,8 +11,9 @@ class VendorGroupDao extends BaseDao<VendorGroupModel> {
         );
 
   @override
-  Future<VendorGroupModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<VendorGroupModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class VendorGroupDao extends BaseDao<VendorGroupModel> {
   }
 
   @override
-  Future<List<VendorGroupModel>> readAll() async {
+  Future<List<VendorGroupModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

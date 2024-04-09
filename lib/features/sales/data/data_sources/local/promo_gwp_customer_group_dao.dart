@@ -11,8 +11,10 @@ class PromoGWPCustomerGroupDao extends BaseDao<PromoGWPCustomerGroupModel> {
         );
 
   @override
-  Future<PromoGWPCustomerGroupModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoGWPCustomerGroupModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class PromoGWPCustomerGroupDao extends BaseDao<PromoGWPCustomerGroupModel> {
   }
 
   @override
-  Future<List<PromoGWPCustomerGroupModel>> readAll() async {
+  Future<List<PromoGWPCustomerGroupModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -150,6 +150,51 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
     }
   }
 
+  InvoiceHeaderModel fromMap(Map<String, dynamic> map) {
+    return InvoiceHeaderModel(
+      docId: map['docid'] as String,
+      createDate: map['createdate'] != null
+          ? DateTime.parse(map['createdate'] as String).toLocal()
+          : null,
+      updateDate: map['updatedate'] != null
+          ? DateTime.parse(map['updatedate'] as String).toLocal()
+          : null,
+      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+      docnum: map['docnum'] as String,
+      orderNo: map['orderno'] as int,
+      tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
+      tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
+      transDate: map['transdate'] != null
+          ? DateTime.parse(map['transdate'] as String).toLocal()
+          : null,
+      transTime: map['transtime'] != null
+          ? DateTime.parse(map['transtime'] as String).toLocal()
+          : null,
+      timezone: map['timezone'] as String,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
+      subTotal: map['subtotal'] as double,
+      discPrctg: map['discprctg'] as double,
+      discAmount: map['discamount'] as double,
+      discountCard: map['discountcard'] as double,
+      coupon: map['coupon'] as String,
+      discountCoupun: map['discountcoupun'] as double,
+      taxPrctg: map['taxprctg'] as double,
+      taxAmount: map['taxamount'] as double,
+      addCost: map['addcost'] as double,
+      rounding: map['rounding'] as double,
+      grandTotal: map['grandtotal'] as double,
+      changed: map['changed'] as double,
+      totalPayment: map['totalpayment'] as double,
+      tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
+      docStatus: map['docstatus'] as int,
+      sync: map['sync'] as int,
+      syncCRM: map['synccrm'] as int,
+      toinvTohemId:
+          map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
+    );
+  }
+
   factory InvoiceHeaderModel.fromMap(Map<String, dynamic> map) {
     return InvoiceHeaderModel(
       docId: map['docid'] as String,

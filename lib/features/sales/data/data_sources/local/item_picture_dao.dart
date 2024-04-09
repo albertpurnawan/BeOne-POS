@@ -11,8 +11,9 @@ class ItemPictureDao extends BaseDao<ItemPictureModel> {
         );
 
   @override
-  Future<ItemPictureModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<ItemPictureModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class ItemPictureDao extends BaseDao<ItemPictureModel> {
   }
 
   @override
-  Future<List<ItemPictureModel>> readAll() async {
+  Future<List<ItemPictureModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

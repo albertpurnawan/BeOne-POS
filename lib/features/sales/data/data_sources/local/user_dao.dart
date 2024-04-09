@@ -11,8 +11,9 @@ class UserDao extends BaseDao<UserModel> {
         );
 
   @override
-  Future<UserModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<UserModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class UserDao extends BaseDao<UserModel> {
   }
 
   @override
-  Future<List<UserModel>> readAll() async {
+  Future<List<UserModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => UserModel.fromMap(itemData)).toList();

@@ -11,8 +11,10 @@ class PromoCreditCardDao extends BaseDao<PromoCreditCardModel> {
         );
 
   @override
-  Future<PromoCreditCardModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoCreditCardModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class PromoCreditCardDao extends BaseDao<PromoCreditCardModel> {
   }
 
   @override
-  Future<List<PromoCreditCardModel>> readAll() async {
+  Future<List<PromoCreditCardModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

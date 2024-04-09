@@ -22,19 +22,19 @@ class InvoiceApi {
 
       final invDet = await GetIt.instance<AppDatabase>()
           .invoiceDetailDao
-          .readByToinvId(invHead[0].docId.toString());
+          .readByToinvId(invHead[0].docId.toString(), null);
       log(invDet.toString());
 
       final payMean = await GetIt.instance<AppDatabase>()
           .payMeansDao
-          .readByToinvId(invHead[0].docId.toString());
+          .readByToinvId(invHead[0].docId.toString(), null);
       log(payMean.toString());
 
       // if (invDet[0].toinvId == invHead[0].docId) {}
 
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
-        "docnum": "${invHead[0].docnum}",
+        "docnum": invHead[0].docnum,
         "orderno": invHead[0].orderNo,
         "tocus_id": "c2ee5bb8-9850-4014-b7bf-fd5492a60d84",
         "tohem_id": "a483a6f2-80e3-4093-bbc8-f03e79093098",

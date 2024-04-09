@@ -11,8 +11,10 @@ class BatchCreditMemoDao extends BaseDao<BatchCreditMemoModel> {
         );
 
   @override
-  Future<BatchCreditMemoModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<BatchCreditMemoModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class BatchCreditMemoDao extends BaseDao<BatchCreditMemoModel> {
   }
 
   @override
-  Future<List<BatchCreditMemoModel>> readAll() async {
+  Future<List<BatchCreditMemoModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -11,8 +11,10 @@ class AuthorizationDao extends BaseDao<AuthorizationModel> {
         );
 
   @override
-  Future<AuthorizationModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<AuthorizationModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class AuthorizationDao extends BaseDao<AuthorizationModel> {
   }
 
   @override
-  Future<List<AuthorizationModel>> readAll() async {
+  Future<List<AuthorizationModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -10,8 +10,10 @@ class ProductHierarchyMasterDao extends BaseDao<ProductHierarchyMasterModel> {
             modelFields: ProductHierarchyMasterFields.values);
 
   @override
-  Future<ProductHierarchyMasterModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<ProductHierarchyMasterModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +24,8 @@ class ProductHierarchyMasterDao extends BaseDao<ProductHierarchyMasterModel> {
   }
 
   @override
-  Future<List<ProductHierarchyMasterModel>> readAll() async {
+  Future<List<ProductHierarchyMasterModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

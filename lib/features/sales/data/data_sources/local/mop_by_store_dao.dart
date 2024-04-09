@@ -12,8 +12,9 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
         );
 
   @override
-  Future<MOPByStoreModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<MOPByStoreModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -24,7 +25,8 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
   }
 
   @override
-  Future<List<MOPByStoreModel>> readAll() async {
+  Future<List<MOPByStoreModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => MOPByStoreModel.fromMap(itemData)).toList();
@@ -46,8 +48,10 @@ SELECT paytypecode, description, docid FROM topmt
         .toList();
   }
 
-  Future<MopSelectionModel?> readByDocIdIncludeRelations(String docId) async {
-    final result = await db.rawQuery("""
+  Future<MopSelectionModel?> readByDocIdIncludeRelations(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.rawQuery("""
 SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description FROM tpmt3 as p3
 INNER JOIN (
 SELECT mopalias, bankcharge, docid, topmtId FROM tpmt1
@@ -55,7 +59,7 @@ SELECT mopalias, bankcharge, docid, topmtId FROM tpmt1
 INNER JOIN (
 SELECT paytypecode, description, docid FROM topmt
 ) as p ON p1.topmtId = p.docid
-WHERE p3.docid = $docId;
+WHERE p3.docid = '$docId';
 """);
 
     return result.isNotEmpty ? MopSelectionModel.fromMap(result[0]) : null;

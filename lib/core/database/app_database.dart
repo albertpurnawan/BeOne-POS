@@ -378,7 +378,7 @@ INNER JOIN (
 """;
       } else {
         final TaxMasterModel? taxMaster =
-            await taxMasterDao.readByDocId(storeMaster[0].tovatId!);
+            await taxMasterDao.readByDocId(storeMaster[0].tovatId!, null);
         storeTovatId = taxMaster!.docId;
         storeTaxRate = taxMaster.rate;
       }

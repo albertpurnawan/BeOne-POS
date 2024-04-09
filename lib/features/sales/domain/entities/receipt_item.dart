@@ -4,53 +4,65 @@ import 'dart:convert';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 
 class ReceiptItemEntity {
-  int? id;
   double quantity;
-  double subtotal;
-  ItemEntity itemEntity;
+  double totalGross;
+  final ItemEntity itemEntity;
   double taxAmount;
+  final double sellingPrice;
+  double totalAmount;
+  double totalSellBarcode;
 
   ReceiptItemEntity({
-    required this.id,
     required this.quantity,
-    required this.subtotal,
+    required this.totalGross,
     required this.itemEntity,
     required this.taxAmount,
+    required this.sellingPrice,
+    required this.totalAmount,
+    required this.totalSellBarcode,
   });
 
   ReceiptItemEntity copyWith({
-    int? id,
     double? quantity,
-    double? subtotal,
+    double? totalGross,
     ItemEntity? itemEntity,
     double? taxAmount,
+    double? sellingPrice,
+    double? totalAmount,
+    double? totalSellBarcode,
   }) {
     return ReceiptItemEntity(
-      id: id ?? this.id,
       quantity: quantity ?? this.quantity,
-      subtotal: subtotal ?? this.subtotal,
+      totalGross: totalGross ?? this.totalGross,
       itemEntity: itemEntity ?? this.itemEntity,
       taxAmount: taxAmount ?? this.taxAmount,
+      sellingPrice: sellingPrice ?? this.sellingPrice,
+      totalAmount: totalAmount ?? this.totalAmount,
+      totalSellBarcode: totalSellBarcode ?? this.totalSellBarcode,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'quantity': quantity,
-      'subtotal': subtotal,
+      'totalGross': totalGross,
       'itemEntity': itemEntity.toMap(),
       'taxAmount': taxAmount,
+      'sellingPrice': sellingPrice,
+      'totalAmount': totalAmount,
+      'totalSellBarcode': totalSellBarcode,
     };
   }
 
   factory ReceiptItemEntity.fromMap(Map<String, dynamic> map) {
     return ReceiptItemEntity(
-      id: map['id'] != null ? map['id'] as int : null,
       quantity: map['quantity'] as double,
-      subtotal: map['subtotal'] as double,
+      totalGross: map['totalGross'] as double,
       itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
       taxAmount: map['taxAmount'] as double,
+      sellingPrice: map['sellingPrice'] as double,
+      totalAmount: map['totalAmount'] as double,
+      totalSellBarcode: map['totalSellBarcode'] as double,
     );
   }
 
@@ -61,26 +73,30 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(id: $id, quantity: $quantity, subtotal: $subtotal, itemEntity: $itemEntity, taxAmount: $taxAmount)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode)';
   }
 
   @override
   bool operator ==(covariant ReceiptItemEntity other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.quantity == quantity &&
-        other.subtotal == subtotal &&
+    return other.quantity == quantity &&
+        other.totalGross == totalGross &&
         other.itemEntity == itemEntity &&
-        other.taxAmount == taxAmount;
+        other.taxAmount == taxAmount &&
+        other.sellingPrice == sellingPrice &&
+        other.totalAmount == totalAmount &&
+        other.totalSellBarcode == totalSellBarcode;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        quantity.hashCode ^
-        subtotal.hashCode ^
+    return quantity.hashCode ^
+        totalGross.hashCode ^
         itemEntity.hashCode ^
-        taxAmount.hashCode;
+        taxAmount.hashCode ^
+        sellingPrice.hashCode ^
+        totalAmount.hashCode ^
+        totalSellBarcode.hashCode;
   }
 }

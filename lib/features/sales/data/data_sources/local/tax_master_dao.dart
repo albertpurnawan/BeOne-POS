@@ -10,8 +10,9 @@ class TaxMasterDao extends BaseDao<TaxMasterModel> {
             modelFields: TaxMasterFields.values);
 
   @override
-  Future<TaxMasterModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<TaxMasterModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +23,8 @@ class TaxMasterDao extends BaseDao<TaxMasterModel> {
   }
 
   @override
-  Future<List<TaxMasterModel>> readAll() async {
+  Future<List<TaxMasterModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => TaxMasterModel.fromMap(itemData)).toList();

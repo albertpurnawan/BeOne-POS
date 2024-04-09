@@ -49,13 +49,13 @@ class ItemsDao extends BaseDao<ItemModel> {
   }
 
   @override
-  Future<List<ItemModel>> readAll() {
+  Future<List<ItemModel>> readAll({Transaction? txn}) async {
     // TODO: implement readAll
     throw UnimplementedError();
   }
 
   @override
-  Future<ItemModel?> readByDocId(String docId) {
+  Future<ItemModel?> readByDocId(String docId, Transaction? txn) async {
     // TODO: implement readByDocId
     throw UnimplementedError();
   }

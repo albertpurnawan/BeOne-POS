@@ -8,6 +8,7 @@ class MopSelectionEntity {
   final double? bankCharge;
   final String? payTypeCode;
   final String description;
+  final double? amount;
 
   MopSelectionEntity({
     required this.tpmt3Id,
@@ -16,6 +17,7 @@ class MopSelectionEntity {
     required this.bankCharge,
     required this.payTypeCode,
     required this.description,
+    required this.amount,
   });
 
   MopSelectionEntity copyWith({
@@ -25,6 +27,7 @@ class MopSelectionEntity {
     double? bankCharge,
     String? payTypeCode,
     String? description,
+    double? amount,
   }) {
     return MopSelectionEntity(
       tpmt3Id: tpmt3Id ?? this.tpmt3Id,
@@ -33,6 +36,7 @@ class MopSelectionEntity {
       bankCharge: bankCharge ?? this.bankCharge,
       payTypeCode: payTypeCode ?? this.payTypeCode,
       description: description ?? this.description,
+      amount: amount ?? this.amount,
     );
   }
 
@@ -44,6 +48,7 @@ class MopSelectionEntity {
       'bankCharge': bankCharge,
       'payTypeCode': payTypeCode,
       'description': description,
+      'amount': amount,
     };
   }
 
@@ -57,6 +62,7 @@ class MopSelectionEntity {
       payTypeCode:
           map['payTypeCode'] != null ? map['payTypeCode'] as String : null,
       description: map['description'] as String,
+      amount: map['amount'] != null ? map['amount'] as double : null,
     );
   }
 
@@ -67,7 +73,7 @@ class MopSelectionEntity {
 
   @override
   String toString() {
-    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description)';
+    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount)';
   }
 
   @override
@@ -79,7 +85,8 @@ class MopSelectionEntity {
         other.mopAlias == mopAlias &&
         other.bankCharge == bankCharge &&
         other.payTypeCode == payTypeCode &&
-        other.description == description;
+        other.description == description &&
+        other.amount == amount;
   }
 
   @override
@@ -89,6 +96,7 @@ class MopSelectionEntity {
         mopAlias.hashCode ^
         bankCharge.hashCode ^
         payTypeCode.hashCode ^
-        description.hashCode;
+        description.hashCode ^
+        amount.hashCode;
   }
 }

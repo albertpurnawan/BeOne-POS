@@ -11,8 +11,10 @@ class PromoCouponAssignStoreDao extends BaseDao<PromoCouponAssignStoreModel> {
         );
 
   @override
-  Future<PromoCouponAssignStoreModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoCouponAssignStoreModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class PromoCouponAssignStoreDao extends BaseDao<PromoCouponAssignStoreModel> {
   }
 
   @override
-  Future<List<PromoCouponAssignStoreModel>> readAll() async {
+  Future<List<PromoCouponAssignStoreModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result
