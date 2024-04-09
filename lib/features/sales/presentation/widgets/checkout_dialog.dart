@@ -8,7 +8,9 @@ import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
@@ -62,7 +64,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       contentPadding: const EdgeInsets.all(0),
       content: isCharged
-          ? const _CheckoutSuccessDialogContent()
+          ? _CheckoutSuccessDialogContent()
           : const CheckoutDialogContent(),
 
       // contentPadding: const EdgeInsets.symmetric(
@@ -184,12 +186,17 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                         overlayColor: MaterialStateColor.resolveWith(
                             (states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
-                      await GetIt.instance<SaveReceiptUseCase>()
-                          .call(params: context.read<ReceiptCubit>().state);
-                      // await GetIt.instance<InvoiceApi>().sendInvoice();
-                      setState(() {
-                        isCharged = true;
-                      });
+                      try {
+                        context.read<ReceiptCubit>().charge();
+                        Future.delayed(Duration(milliseconds: 600), () {
+                          setState(() {
+                            isCharged = true;
+                          });
+                        });
+                      } catch (e, s) {
+                        print(e);
+                        debugPrintStack(stackTrace: s);
+                      }
                     },
                     child: const Center(
                         child: Text(
@@ -300,8 +307,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         mopSelectionEntity: mopSelectionEntity,
         amountReceived: mopSelectionEntity.payTypeCode == "1"
             ? _cashAmount.toDouble()
-            : (context.read<ReceiptCubit>().state.totalPrice +
-                context.read<ReceiptCubit>().state.totalTax));
+            : context.read<ReceiptCubit>().state.grandTotal);
   }
 
   @override
@@ -388,7 +394,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                             height: 10,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney((context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
                             style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.w700,
@@ -425,14 +431,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
                           if (mopType.payTypeCodes[0] == "1") {
                             final List<int> cashAmountSuggestions =
-                                generateCashAmountSuggestions((context
-                                            .read<ReceiptCubit>()
-                                            .state
-                                            .totalPrice +
-                                        context
-                                            .read<ReceiptCubit>()
-                                            .state
-                                            .totalTax)
+                                generateCashAmountSuggestions(context
+                                    .read<ReceiptCubit>()
+                                    .state
+                                    .grandTotal
                                     .toInt());
 
                             return SizedBox(
@@ -723,7 +725,7 @@ class __CheckoutSuccessDialogContentState
                               width: 10,
                             ),
                             Text(
-                              "Rp ${Helpers.parseMoney((context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
+                              "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
                               style: const TextStyle(
                                 fontSize: 42,
                                 fontWeight: FontWeight.w700,
@@ -741,8 +743,14 @@ class __CheckoutSuccessDialogContentState
                           height: 10,
                         ),
                         Text(
-                          DateFormat("EEE, dd MMM yyyy - hh:mm aaa")
-                              .format(DateTime.now()),
+                          context.read<ReceiptCubit>().state.transDateTime !=
+                                  null
+                              ? DateFormat("EEE, dd MMM yyyy - hh:mm aaa")
+                                  .format(context
+                                      .read<ReceiptCubit>()
+                                      .state
+                                      .transDateTime!)
+                              : "",
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -844,7 +852,7 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney((context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -865,7 +873,7 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.amountReceived!)}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPayment!)}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -886,7 +894,9 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.amountReceived! - (context.read<ReceiptCubit>().state.totalPrice + context.read<ReceiptCubit>().state.totalTax).toInt())}",
+                            context.read<ReceiptCubit>().state.changed != null
+                                ? "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.changed!)}"
+                                : "",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,

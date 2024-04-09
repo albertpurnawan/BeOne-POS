@@ -12,8 +12,10 @@ class PromoCouponDefaultValidDaysDao
         );
 
   @override
-  Future<PromoCouponDefaultValidDaysModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoCouponDefaultValidDaysModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -26,7 +28,9 @@ class PromoCouponDefaultValidDaysDao
   }
 
   @override
-  Future<List<PromoCouponDefaultValidDaysModel>> readAll() async {
+  Future<List<PromoCouponDefaultValidDaysModel>> readAll(
+      {Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

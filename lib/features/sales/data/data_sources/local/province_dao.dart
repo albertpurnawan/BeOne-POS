@@ -11,8 +11,9 @@ class ProvinceDao extends BaseDao<ProvinceModel> {
         );
 
   @override
-  Future<ProvinceModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<ProvinceModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class ProvinceDao extends BaseDao<ProvinceModel> {
   }
 
   @override
-  Future<List<ProvinceModel>> readAll() async {
+  Future<List<ProvinceModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => ProvinceModel.fromMap(itemData)).toList();

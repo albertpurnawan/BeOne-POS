@@ -11,47 +11,67 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 class ReceiptEntity {
   String docNum;
   List<ReceiptItemEntity> receiptItems;
-  double totalPrice;
-  DateTime? createdAt;
   MopSelectionEntity? mopSelection;
-  double? amountReceived;
   CustomerEntity? customerEntity;
   EmployeeEntity? employeeEntity;
   double totalTax;
+  DateTime? transDateTime;
+  DateTime transStart;
+  DateTime? transEnd;
+  double subtotal;
+  double taxAmount;
+  double grandTotal;
+  double? totalPayment;
+  double? changed;
 
   ReceiptEntity({
     required this.docNum,
     required this.receiptItems,
-    required this.totalPrice,
-    this.createdAt,
     this.mopSelection,
-    this.amountReceived,
     this.customerEntity,
     this.employeeEntity,
     required this.totalTax,
+    this.transDateTime,
+    required this.transStart,
+    this.transEnd,
+    required this.subtotal,
+    required this.taxAmount,
+    required this.grandTotal,
+    this.totalPayment,
+    this.changed,
   });
 
   ReceiptEntity copyWith({
     String? docNum,
     List<ReceiptItemEntity>? receiptItems,
-    double? totalPrice,
-    DateTime? createdAt,
     MopSelectionEntity? mopSelection,
-    double? amountReceived,
     CustomerEntity? customerEntity,
     EmployeeEntity? employeeEntity,
     double? totalTax,
+    DateTime? transDateTime,
+    DateTime? transStart,
+    DateTime? transEnd,
+    double? subtotal,
+    double? taxAmount,
+    double? grandTotal,
+    double? totalPayment,
+    double? changed,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
       receiptItems: receiptItems ?? this.receiptItems,
-      totalPrice: totalPrice ?? this.totalPrice,
-      createdAt: createdAt ?? this.createdAt,
       mopSelection: mopSelection ?? this.mopSelection,
-      amountReceived: amountReceived ?? this.amountReceived,
       customerEntity: customerEntity ?? this.customerEntity,
       employeeEntity: employeeEntity ?? this.employeeEntity,
       totalTax: totalTax ?? this.totalTax,
+      transDateTime: transDateTime ?? this.transDateTime,
+      transStart: transStart ?? this.transStart,
+      transEnd: transEnd ?? this.transEnd,
+      subtotal: subtotal ?? this.subtotal,
+      taxAmount: taxAmount ?? this.taxAmount,
+      grandTotal: grandTotal ?? this.grandTotal,
+      totalPayment: totalPayment ?? this.totalPayment,
+      changed: changed ?? this.changed,
     );
   }
 
@@ -59,13 +79,18 @@ class ReceiptEntity {
     return <String, dynamic>{
       'docNum': docNum,
       'receiptItems': receiptItems.map((x) => x.toMap()).toList(),
-      'totalPrice': totalPrice,
-      'createdAt': createdAt?.millisecondsSinceEpoch,
       'mopSelection': mopSelection?.toMap(),
-      'amountReceived': amountReceived,
       'customerEntity': customerEntity?.toMap(),
       'employeeEntity': employeeEntity?.toMap(),
       'totalTax': totalTax,
+      'transDateTime': transDateTime?.millisecondsSinceEpoch,
+      'transStart': transStart.millisecondsSinceEpoch,
+      'transEnd': transEnd?.millisecondsSinceEpoch,
+      'subtotal': subtotal,
+      'taxAmount': taxAmount,
+      'grandTotal': grandTotal,
+      'totalPayment': totalPayment,
+      'changed': changed,
     };
   }
 
@@ -77,16 +102,9 @@ class ReceiptEntity {
           (x) => ReceiptItemEntity.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      totalPrice: map['totalPrice'] as double,
-      createdAt: map['createdAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
-          : null,
       mopSelection: map['mopSelection'] != null
           ? MopSelectionEntity.fromMap(
               map['mopSelection'] as Map<String, dynamic>)
-          : null,
-      amountReceived: map['amountReceived'] != null
-          ? map['amountReceived'] as double
           : null,
       customerEntity: map['customerEntity'] != null
           ? CustomerEntity.fromMap(
@@ -97,6 +115,19 @@ class ReceiptEntity {
               map['employeeEntity'] as Map<String, dynamic>)
           : null,
       totalTax: map['totalTax'] as double,
+      transDateTime: map['transDateTime'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int)
+          : null,
+      transStart: DateTime.fromMillisecondsSinceEpoch(map['transStart'] as int),
+      transEnd: map['transEnd'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['transEnd'] as int)
+          : null,
+      subtotal: map['subtotal'] as double,
+      taxAmount: map['taxAmount'] as double,
+      grandTotal: map['grandTotal'] as double,
+      totalPayment:
+          map['totalPayment'] != null ? map['totalPayment'] as double : null,
+      changed: map['changed'] != null ? map['changed'] as double : null,
     );
   }
 
@@ -107,7 +138,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, totalPrice: $totalPrice, createdAt: $createdAt, mopSelection: $mopSelection, amountReceived: $amountReceived, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax)';
+    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed)';
   }
 
   @override
@@ -116,25 +147,35 @@ class ReceiptEntity {
 
     return other.docNum == docNum &&
         listEquals(other.receiptItems, receiptItems) &&
-        other.totalPrice == totalPrice &&
-        other.createdAt == createdAt &&
         other.mopSelection == mopSelection &&
-        other.amountReceived == amountReceived &&
         other.customerEntity == customerEntity &&
         other.employeeEntity == employeeEntity &&
-        other.totalTax == totalTax;
+        other.totalTax == totalTax &&
+        other.transDateTime == transDateTime &&
+        other.transStart == transStart &&
+        other.transEnd == transEnd &&
+        other.subtotal == subtotal &&
+        other.taxAmount == taxAmount &&
+        other.grandTotal == grandTotal &&
+        other.totalPayment == totalPayment &&
+        other.changed == changed;
   }
 
   @override
   int get hashCode {
     return docNum.hashCode ^
         receiptItems.hashCode ^
-        totalPrice.hashCode ^
-        createdAt.hashCode ^
         mopSelection.hashCode ^
-        amountReceived.hashCode ^
         customerEntity.hashCode ^
         employeeEntity.hashCode ^
-        totalTax.hashCode;
+        totalTax.hashCode ^
+        transDateTime.hashCode ^
+        transStart.hashCode ^
+        transEnd.hashCode ^
+        subtotal.hashCode ^
+        taxAmount.hashCode ^
+        grandTotal.hashCode ^
+        totalPayment.hashCode ^
+        changed.hashCode;
   }
 }

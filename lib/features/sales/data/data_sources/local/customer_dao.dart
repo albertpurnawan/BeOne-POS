@@ -10,8 +10,9 @@ class CustomerDao extends BaseDao<CustomerModel> {
             modelFields: CustomerFields.values);
 
   @override
-  Future<CustomerModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<CustomerModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +23,8 @@ class CustomerDao extends BaseDao<CustomerModel> {
   }
 
   @override
-  Future<List<CustomerModel>> readAll({String? searchKeyword}) async {
+  Future<List<CustomerModel>> readAll(
+      {String? searchKeyword, Transaction? txn}) async {
     final result = await db.query(tableName,
         where:
             "${CustomerFields.custName} LIKE ? OR ${CustomerFields.phone} LIKE ?",

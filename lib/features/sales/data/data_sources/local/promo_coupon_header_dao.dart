@@ -11,8 +11,10 @@ class PromoCouponHeaderDao extends BaseDao<PromoCouponHeaderModel> {
         );
 
   @override
-  Future<PromoCouponHeaderModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoCouponHeaderModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class PromoCouponHeaderDao extends BaseDao<PromoCouponHeaderModel> {
   }
 
   @override
-  Future<List<PromoCouponHeaderModel>> readAll() async {
+  Future<List<PromoCouponHeaderModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

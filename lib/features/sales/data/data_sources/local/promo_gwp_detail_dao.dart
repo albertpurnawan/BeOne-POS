@@ -11,8 +11,10 @@ class PromoGWPDetailDao extends BaseDao<PromoGWPDetailModel> {
         );
 
   @override
-  Future<PromoGWPDetailModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoGWPDetailModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class PromoGWPDetailDao extends BaseDao<PromoGWPDetailModel> {
   }
 
   @override
-  Future<List<PromoGWPDetailModel>> readAll() async {
+  Future<List<PromoGWPDetailModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

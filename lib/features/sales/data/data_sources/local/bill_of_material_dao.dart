@@ -11,8 +11,10 @@ class BillOfMaterialDao extends BaseDao<BillOfMaterialModel> {
         );
 
   @override
-  Future<BillOfMaterialModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<BillOfMaterialModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class BillOfMaterialDao extends BaseDao<BillOfMaterialModel> {
   }
 
   @override
-  Future<List<BillOfMaterialModel>> readAll() async {
+  Future<List<BillOfMaterialModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

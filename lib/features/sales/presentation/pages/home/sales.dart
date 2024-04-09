@@ -538,7 +538,7 @@ class _SalesPageState extends State<SalesPage> {
                                                               children: [
                                                                 Text(
                                                                   Helpers.parseMoney(e
-                                                                      .subtotal
+                                                                      .totalGross
                                                                       .toInt()),
                                                                   style: const TextStyle(
                                                                       fontSize:
@@ -892,7 +892,7 @@ class _SalesPageState extends State<SalesPage> {
                   child: SizedBox.expand(
                     child: OutlinedButton(
                         onPressed: () {
-                          context.read<ReceiptCubit>().clearReceiptItems();
+                          context.read<ReceiptCubit>().resetReceipt();
                           setState(() {});
                           Navigator.pop(context);
                         },
@@ -1266,7 +1266,7 @@ class _SalesPageState extends State<SalesPage> {
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(state.totalPrice.toInt()),
+                                Helpers.parseMoney(state.subtotal.toInt()),
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1317,7 +1317,7 @@ class _SalesPageState extends State<SalesPage> {
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(state.totalTax.toInt()),
+                                Helpers.parseMoney(state.taxAmount.toInt()),
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1350,8 +1350,7 @@ class _SalesPageState extends State<SalesPage> {
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          Helpers.parseMoney(
-                              (state.totalPrice + state.totalTax).toInt()),
+                          Helpers.parseMoney(state.grandTotal.toInt()),
                           style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),

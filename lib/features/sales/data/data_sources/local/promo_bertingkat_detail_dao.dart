@@ -11,8 +11,10 @@ class PromoBertingkatDetailDao extends BaseDao<PromoBertingkatDetailModel> {
         );
 
   @override
-  Future<PromoBertingkatDetailModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoBertingkatDetailModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class PromoBertingkatDetailDao extends BaseDao<PromoBertingkatDetailModel> {
   }
 
   @override
-  Future<List<PromoBertingkatDetailModel>> readAll() async {
+  Future<List<PromoBertingkatDetailModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

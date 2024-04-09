@@ -10,8 +10,10 @@ class PreferredVendorDao extends BaseDao<PreferredVendorModel> {
             modelFields: PreferredVendorFields.values);
 
   @override
-  Future<PreferredVendorModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PreferredVendorModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +24,8 @@ class PreferredVendorDao extends BaseDao<PreferredVendorModel> {
   }
 
   @override
-  Future<List<PreferredVendorModel>> readAll() async {
+  Future<List<PreferredVendorModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

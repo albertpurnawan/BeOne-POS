@@ -10,8 +10,9 @@ class ItemBarcodeDao extends BaseDao<ItemBarcodeModel> {
             modelFields: ItemBarcodesFields.values);
 
   @override
-  Future<ItemBarcodeModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<ItemBarcodeModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +23,8 @@ class ItemBarcodeDao extends BaseDao<ItemBarcodeModel> {
   }
 
   @override
-  Future<List<ItemBarcodeModel>> readAll() async {
+  Future<List<ItemBarcodeModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -378,7 +378,7 @@ INNER JOIN (
 """;
       } else {
         final TaxMasterModel? taxMaster =
-            await taxMasterDao.readByDocId(storeMaster[0].tovatId!);
+            await taxMasterDao.readByDocId(storeMaster[0].tovatId!, null);
         storeTovatId = taxMaster!.docId;
         storeTaxRate = taxMaster.rate;
       }
@@ -1530,8 +1530,8 @@ CREATE TABLE $tableInvoiceHeader (
   ${InvoiceHeaderFields.orderNo} int NOT NULL,
   ${InvoiceHeaderFields.tocusId} text DEFAULT NULL,
   ${InvoiceHeaderFields.tohemId} text DEFAULT NULL,
-  ${InvoiceHeaderFields.transDate} text DEFAULT CURRENT_TIMESTAMP,
-  ${InvoiceHeaderFields.transTime} text DEFAULT CURRENT_TIMESTAMP,
+  ${InvoiceHeaderFields.transDate} text DEFAULT CURRENT_DATE,
+  ${InvoiceHeaderFields.transTime} text DEFAULT CURRENT_TIME,
   ${InvoiceHeaderFields.timezone} varchar(200) NOT NULL,
   ${InvoiceHeaderFields.remarks} text,
   ${InvoiceHeaderFields.subTotal} double NOT NULL,

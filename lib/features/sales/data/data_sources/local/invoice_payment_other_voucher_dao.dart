@@ -11,8 +11,9 @@ class IPOVDao extends BaseDao<IPOVModel> {
         );
 
   @override
-  Future<IPOVModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<IPOVModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class IPOVDao extends BaseDao<IPOVModel> {
   }
 
   @override
-  Future<List<IPOVModel>> readAll() async {
+  Future<List<IPOVModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => IPOVModel.fromMap(itemData)).toList();

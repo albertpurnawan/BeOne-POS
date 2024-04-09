@@ -11,8 +11,9 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
         );
 
   @override
-  Future<PayMeansModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PayMeansModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,14 +24,17 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
   }
 
   @override
-  Future<List<PayMeansModel>> readAll() async {
+  Future<List<PayMeansModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => PayMeansModel.fromMap(itemData)).toList();
   }
 
-  Future<List<PayMeansModel>> readByToinvId(String toinvId) async {
-    final result = await db.query(
+  Future<List<PayMeansModel>> readByToinvId(
+      String toinvId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.query(
       tableName,
       where: 'toinvId = ?',
       whereArgs: [toinvId],

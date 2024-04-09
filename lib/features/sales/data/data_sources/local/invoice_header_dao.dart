@@ -14,8 +14,10 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
         );
 
   @override
-  Future<InvoiceHeaderModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<InvoiceHeaderModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -26,7 +28,8 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
   }
 
   @override
-  Future<List<InvoiceHeaderModel>> readAll() async {
+  Future<List<InvoiceHeaderModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result
@@ -34,7 +37,20 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
         .toList();
   }
 
-  Future<void> createWithRelations(ReceiptModel receiptModel) async {}
+  @override
+  Future<InvoiceHeaderModel?> create(
+      {required InvoiceHeaderModel data, Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.insert(tableName, data.toMap());
+    final List<Map<String, Object?>> createdData =
+        await dbExecutor.query(tableName, where: "rowid = ?", whereArgs: [res]);
+
+    if (createdData.isNotEmpty) {
+      return InvoiceHeaderModel.fromMap(createdData.first);
+    } else {
+      return null;
+    }
+  }
 
   Future<List<InvoiceHeaderModel>> readByLastDate() async {
     final res = await db.query(

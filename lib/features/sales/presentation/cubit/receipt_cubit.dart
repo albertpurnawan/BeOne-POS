@@ -29,8 +29,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           docNum:
               "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
           receiptItems: [],
-          totalPrice: 0,
+          subtotal: 0,
           totalTax: 0,
+          transStart: DateTime.now(),
+          taxAmount: 0,
+          grandTotal: 0,
         ));
 
   void addOrUpdateReceiptItems(String itemBarcode, double quantity) async {
@@ -53,132 +56,104 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     List<ReceiptItemEntity> newReceiptItems = [];
-    double totalPrice = 0;
-    double totalTax = 0;
+    double subtotal = 0;
+    double taxAmount = 0;
     bool isNewReceiptItem = true;
     for (final currentReceiptItem in state.receiptItems) {
       if (currentReceiptItem.itemEntity.barcode == itemBarcode) {
         currentReceiptItem.quantity += quantity;
-        currentReceiptItem.subtotal = itemEntity.includeTax == 1
-            ? (itemEntity.price *
-                currentReceiptItem.quantity *
-                (100 / (100 + itemEntity.taxRate)))
-            : itemEntity.price * currentReceiptItem.quantity;
-        currentReceiptItem.taxAmount = itemEntity.includeTax == 1
-            ? (itemEntity.price * currentReceiptItem.quantity) -
-                currentReceiptItem.subtotal
-            : itemEntity.price *
-                currentReceiptItem.quantity *
-                (itemEntity.taxRate / 100);
+        final double priceQty = currentReceiptItem.itemEntity.price * quantity;
+        currentReceiptItem.totalSellBarcode += priceQty;
+        currentReceiptItem.totalGross +=
+            currentReceiptItem.itemEntity.includeTax == 1
+                ? (priceQty *
+                    (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
+                : priceQty;
+        currentReceiptItem.taxAmount +=
+            currentReceiptItem.itemEntity.includeTax == 1
+                ? (priceQty) - currentReceiptItem.totalGross
+                : priceQty * (currentReceiptItem.itemEntity.taxRate / 100);
+        currentReceiptItem.totalAmount =
+            currentReceiptItem.totalGross + currentReceiptItem.taxAmount;
         isNewReceiptItem = false;
         newReceiptItems.add(currentReceiptItem);
       } else {
         newReceiptItems.add(currentReceiptItem);
       }
-      totalPrice += currentReceiptItem.subtotal;
-      totalTax += currentReceiptItem.taxAmount;
+      subtotal += currentReceiptItem.totalGross;
+      taxAmount += currentReceiptItem.taxAmount;
     }
 
     if (isNewReceiptItem) {
-      final double subtotal = itemEntity.includeTax == 1
-          ? (itemEntity.price * quantity * (100 / (100 + itemEntity.taxRate)))
-          : itemEntity.price * quantity;
-      final double taxAmount = itemEntity.includeTax == 1
-          ? (itemEntity.price * quantity) - subtotal
-          : itemEntity.price * quantity * (itemEntity.taxRate / 100);
+      final double priceQty = itemEntity.price * quantity;
+      final double totalSellBarcode = priceQty;
+      final double totalGross = itemEntity.includeTax == 1
+          ? (priceQty * (100 / (100 + itemEntity.taxRate)))
+          : priceQty;
+      final double taxAmountNewItem = itemEntity.includeTax == 1
+          ? (priceQty) - totalGross
+          : priceQty * (itemEntity.taxRate / 100);
+      final double totalAmount = totalGross + taxAmountNewItem;
       newReceiptItems.add(ReceiptItemEntity(
         quantity: quantity,
-        subtotal: subtotal,
+        totalGross: totalGross,
         itemEntity: itemEntity,
-        id: null,
-        taxAmount: taxAmount,
+        taxAmount: taxAmountNewItem,
+        sellingPrice: itemEntity.price,
+        totalAmount: totalAmount,
+        totalSellBarcode: totalSellBarcode,
       ));
-      totalPrice += subtotal;
-      totalTax += taxAmount;
+      subtotal += totalGross;
+      taxAmount += taxAmountNewItem;
     }
 
     final ReceiptEntity newState = state.copyWith(
       receiptItems: newReceiptItems,
-      totalPrice: totalPrice,
-      totalTax: totalTax,
+      subtotal: subtotal,
+      taxAmount: taxAmount,
+      grandTotal: subtotal + taxAmount,
     );
     emit(newState);
-  }
-
-  void addOrUpdateReceiptLoopBlock(
-      ItemEntity itemEntity, String itemBarcode, double quantity) {
-    List<ReceiptItemEntity> newReceiptItems = [];
-    double totalPrice = 0;
-    double totalTax = 0;
-    bool isNewReceiptItem = true;
-    for (final currentReceiptItem in state.receiptItems) {
-      if (currentReceiptItem.itemEntity.barcode == itemBarcode) {
-        currentReceiptItem.quantity += quantity;
-        currentReceiptItem.subtotal = itemEntity.includeTax == 1
-            ? (itemEntity.price *
-                currentReceiptItem.quantity *
-                (100 / (100 + itemEntity.taxRate)))
-            : itemEntity.price * currentReceiptItem.quantity;
-        currentReceiptItem.taxAmount = itemEntity.includeTax == 1
-            ? (itemEntity.price * currentReceiptItem.quantity) -
-                currentReceiptItem.subtotal
-            : itemEntity.price *
-                currentReceiptItem.quantity *
-                (itemEntity.taxRate / 100);
-        isNewReceiptItem = false;
-        newReceiptItems.add(currentReceiptItem);
-      } else {
-        newReceiptItems.add(currentReceiptItem);
-      }
-      totalPrice += currentReceiptItem.subtotal;
-      totalTax += currentReceiptItem.taxAmount;
-    }
-
-    if (isNewReceiptItem) {
-      final double subtotal = itemEntity.includeTax == 1
-          ? (itemEntity.price * quantity * (100 / (100 + itemEntity.taxRate)))
-          : itemEntity.price * quantity;
-      final double taxAmount = itemEntity.includeTax == 1
-          ? (itemEntity.price * quantity) - subtotal
-          : itemEntity.price * quantity * (itemEntity.taxRate / 100);
-      newReceiptItems.add(ReceiptItemEntity(
-        quantity: quantity,
-        subtotal: subtotal,
-        itemEntity: itemEntity,
-        id: null,
-        taxAmount: taxAmount,
-      ));
-      totalPrice += subtotal;
-      totalTax += taxAmount;
-    }
-
-    final ReceiptEntity newState = state.copyWith(
-      receiptItems: newReceiptItems,
-      totalPrice: totalPrice,
-      totalTax: totalTax,
-    );
-    emit(newState);
+    print(newState.taxAmount);
+    print("terjadi");
   }
 
   void updateQuantity(ReceiptItemEntity receiptItemEntity, double quantity) {
     List<ReceiptItemEntity> newReceiptItems = [];
-    double totalPrice = 0;
+    double subtotal = 0;
+    double taxAmount = 0;
 
     for (final currentReceiptItem in state.receiptItems) {
       if (currentReceiptItem.itemEntity.barcode ==
           receiptItemEntity.itemEntity.barcode) {
         currentReceiptItem.quantity += quantity;
-        currentReceiptItem.subtotal =
-            (currentReceiptItem.quantity * receiptItemEntity.itemEntity.price);
+        final double priceQty = currentReceiptItem.itemEntity.price * quantity;
+        currentReceiptItem.totalSellBarcode += priceQty;
+        currentReceiptItem.totalGross +=
+            currentReceiptItem.itemEntity.includeTax == 1
+                ? (priceQty *
+                    (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
+                : priceQty;
+        currentReceiptItem.taxAmount +=
+            currentReceiptItem.itemEntity.includeTax == 1
+                ? (priceQty) - currentReceiptItem.totalGross
+                : priceQty * (currentReceiptItem.itemEntity.taxRate / 100);
+        currentReceiptItem.totalAmount =
+            currentReceiptItem.totalGross + currentReceiptItem.taxAmount;
         newReceiptItems.add(currentReceiptItem);
       } else {
         newReceiptItems.add(currentReceiptItem);
       }
-      totalPrice += currentReceiptItem.subtotal;
+      subtotal += currentReceiptItem.totalGross;
+      taxAmount += currentReceiptItem.taxAmount;
     }
 
-    final ReceiptEntity newState =
-        state.copyWith(receiptItems: newReceiptItems, totalPrice: totalPrice);
+    final ReceiptEntity newState = state.copyWith(
+      receiptItems: newReceiptItems,
+      subtotal: subtotal,
+      taxAmount: taxAmount,
+      grandTotal: subtotal + taxAmount,
+    );
     emit(newState);
   }
 
@@ -210,84 +185,130 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       priceSetItemEntity = itemEntity;
     }
 
-    // addOrUpdateReceiptLoopBlock(
-    //   priceSetItemEntity,
-    //   itemEntity.barcode,
-    //   quantity,
-    // );
-
     List<ReceiptItemEntity> newReceiptItems = [];
-    double totalPrice = 0;
-    double totalTax = 0;
+    double subtotal = 0;
+    double taxAmount = 0;
     bool isNewReceiptItem = true;
     for (final currentReceiptItem in state.receiptItems) {
       if (currentReceiptItem.itemEntity.barcode == priceSetItemEntity.barcode &&
           currentReceiptItem.itemEntity.price == priceSetItemEntity.price) {
         currentReceiptItem.quantity += quantity;
-        currentReceiptItem.subtotal = priceSetItemEntity.includeTax == 1
-            ? (priceSetItemEntity.price *
-                currentReceiptItem.quantity *
-                (100 / (100 + priceSetItemEntity.taxRate)))
-            : priceSetItemEntity.price * currentReceiptItem.quantity;
-        currentReceiptItem.taxAmount = priceSetItemEntity.includeTax == 1
-            ? (priceSetItemEntity.price * currentReceiptItem.quantity) -
-                currentReceiptItem.subtotal
-            : priceSetItemEntity.price *
-                currentReceiptItem.quantity *
-                (priceSetItemEntity.taxRate / 100);
+        final double priceQty = currentReceiptItem.itemEntity.price * quantity;
+        currentReceiptItem.totalSellBarcode += priceQty;
+        currentReceiptItem.totalGross +=
+            currentReceiptItem.itemEntity.includeTax == 1
+                ? (priceQty *
+                    (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
+                : priceQty;
+        currentReceiptItem.taxAmount +=
+            currentReceiptItem.itemEntity.includeTax == 1
+                ? (priceQty) - currentReceiptItem.totalGross
+                : priceQty * (currentReceiptItem.itemEntity.taxRate / 100);
+        currentReceiptItem.totalAmount =
+            currentReceiptItem.totalGross + currentReceiptItem.taxAmount;
         isNewReceiptItem = false;
         newReceiptItems.add(currentReceiptItem);
       } else {
         newReceiptItems.add(currentReceiptItem);
       }
-      totalPrice += currentReceiptItem.subtotal;
-      totalTax += currentReceiptItem.taxAmount;
+      subtotal += currentReceiptItem.totalGross;
+      taxAmount += currentReceiptItem.taxAmount;
     }
 
     if (isNewReceiptItem) {
-      final double subtotal = priceSetItemEntity.includeTax == 1
-          ? (priceSetItemEntity.price *
-              quantity *
-              (100 / (100 + priceSetItemEntity.taxRate)))
-          : priceSetItemEntity.price * quantity;
-      final double taxAmount = priceSetItemEntity.includeTax == 1
-          ? (priceSetItemEntity.price * quantity) - subtotal
-          : priceSetItemEntity.price *
-              quantity *
-              (priceSetItemEntity.taxRate / 100);
+      final double priceQty = priceSetItemEntity.price * quantity;
+      final double totalSellBarcode = priceQty;
+      final double totalGross = priceSetItemEntity.includeTax == 1
+          ? (priceQty * (100 / (100 + priceSetItemEntity.taxRate)))
+          : priceQty;
+      final double taxAmountNewItem = priceSetItemEntity.includeTax == 1
+          ? (priceQty) - totalGross
+          : priceQty * (priceSetItemEntity.taxRate / 100);
+      final double totalAmount = totalGross + taxAmountNewItem;
       newReceiptItems.add(ReceiptItemEntity(
         quantity: quantity,
-        subtotal: subtotal,
+        totalGross: totalGross,
         itemEntity: priceSetItemEntity,
-        id: null,
-        taxAmount: taxAmount,
+        taxAmount: taxAmountNewItem,
+        sellingPrice: priceSetItemEntity.price,
+        totalAmount: totalAmount,
+        totalSellBarcode: totalSellBarcode,
       ));
-      totalPrice += subtotal;
-      totalTax += taxAmount;
+      subtotal += totalGross;
+      taxAmount += taxAmountNewItem;
     }
 
     final ReceiptEntity newState = state.copyWith(
       receiptItems: newReceiptItems,
-      totalPrice: totalPrice,
-      totalTax: totalTax,
+      subtotal: subtotal,
+      taxAmount: taxAmount,
+      grandTotal: subtotal + taxAmount,
     );
     emit(newState);
-  }
 
-  void clearReceiptItems() {
-    emit(state.copyWith(
-        receiptItems: [],
-        totalPrice: 0,
-        totalTax: 0,
-        docNum:
-            "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1"));
+    // List<ReceiptItemEntity> newReceiptItems = [];
+    // double totalPrice = 0;
+    // double totalTax = 0;
+    // bool isNewReceiptItem = true;
+    // for (final currentReceiptItem in state.receiptItems) {
+    //   if (currentReceiptItem.itemEntity.barcode == priceSetItemEntity.barcode &&
+    //       currentReceiptItem.itemEntity.price == priceSetItemEntity.price) {
+    //     currentReceiptItem.quantity += quantity;
+    //     currentReceiptItem.subtotal = priceSetItemEntity.includeTax == 1
+    //         ? (priceSetItemEntity.price *
+    //             currentReceiptItem.quantity *
+    //             (100 / (100 + priceSetItemEntity.taxRate)))
+    //         : priceSetItemEntity.price * currentReceiptItem.quantity;
+    //     currentReceiptItem.taxAmount = priceSetItemEntity.includeTax == 1
+    //         ? (priceSetItemEntity.price * currentReceiptItem.quantity) -
+    //             currentReceiptItem.subtotal
+    //         : priceSetItemEntity.price *
+    //             currentReceiptItem.quantity *
+    //             (priceSetItemEntity.taxRate / 100);
+    //     isNewReceiptItem = false;
+    //     newReceiptItems.add(currentReceiptItem);
+    //   } else {
+    //     newReceiptItems.add(currentReceiptItem);
+    //   }
+    //   totalPrice += currentReceiptItem.subtotal;
+    //   totalTax += currentReceiptItem.taxAmount;
+    // }
+
+    // if (isNewReceiptItem) {
+    //   final double subtotal = priceSetItemEntity.includeTax == 1
+    //       ? (priceSetItemEntity.price *
+    //           quantity *
+    //           (100 / (100 + priceSetItemEntity.taxRate)))
+    //       : priceSetItemEntity.price * quantity;
+    //   final double taxAmount = priceSetItemEntity.includeTax == 1
+    //       ? (priceSetItemEntity.price * quantity) - subtotal
+    //       : priceSetItemEntity.price *
+    //           quantity *
+    //           (priceSetItemEntity.taxRate / 100);
+    //   newReceiptItems.add(ReceiptItemEntity(
+    //     quantity: quantity,
+    //     subtotal: subtotal,
+    //     itemEntity: priceSetItemEntity,
+    //     id: null,
+    //     taxAmount: taxAmount,
+    //   ));
+    //   totalPrice += subtotal;
+    //   totalTax += taxAmount;
+    // }
+
+    // final ReceiptEntity newState = state.copyWith(
+    //   receiptItems: newReceiptItems,
+    //   totalPrice: totalPrice,
+    //   totalTax: totalTax,
+    // );
+    // emit(newState);
   }
 
   void updateMopSelection(
       {required MopSelectionEntity mopSelectionEntity,
       required double amountReceived}) {
     final newState = state.copyWith(
-        mopSelection: mopSelectionEntity, amountReceived: amountReceived);
+        mopSelection: mopSelectionEntity, totalPayment: amountReceived);
     emit(newState);
   }
 
@@ -297,16 +318,29 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   void removeReceiptItem() {}
 
-  void resetReceipt() {
-    emit(ReceiptEntity(
-        docNum:
-            "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
-        receiptItems: [],
-        totalPrice: 0,
-        totalTax: 0));
+  void charge() async {
+    final newState =
+        state.copyWith(changed: state.totalPayment! - state.grandTotal);
+    // emit(newState);
+    final ReceiptEntity? createdReceipt =
+        await _saveReceiptUseCase.call(params: newState);
+    print(createdReceipt);
+    createdReceipt != null ? emit(createdReceipt) : null;
+    // await GetIt.instance<PrintReceiptUsecase>()
+    //     .call(params: createdReceipt);
+    // await GetIt.instance<InvoiceApi>().sendInvoice();
   }
 
-  void saveReceipt() async {
-    return await _saveReceiptUseCase(params: state);
+  void resetReceipt() {
+    emit(ReceiptEntity(
+      docNum:
+          "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+      receiptItems: [],
+      subtotal: 0,
+      totalTax: 0,
+      transStart: DateTime.now(),
+      taxAmount: 0,
+      grandTotal: 0,
+    ));
   }
 }
