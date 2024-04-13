@@ -104,7 +104,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         totalSellBarcode: totalSellBarcode,
       ));
       subtotal += totalGross;
-      taxAmount += taxAmount;
+      taxAmount += taxAmountNewItem;
     }
 
     final ReceiptEntity newState = state.copyWith(
@@ -114,6 +114,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       grandTotal: subtotal + taxAmount,
     );
     emit(newState);
+    print(newState.taxAmount);
+    print("terjadi");
   }
 
   void updateQuantity(ReceiptItemEntity receiptItemEntity, double quantity) {
@@ -233,7 +235,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         totalSellBarcode: totalSellBarcode,
       ));
       subtotal += totalGross;
-      taxAmount += taxAmount;
+      taxAmount += taxAmountNewItem;
     }
 
     final ReceiptEntity newState = state.copyWith(
@@ -317,9 +319,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   void removeReceiptItem() {}
 
   void charge() async {
+    final newState =
+        state.copyWith(changed: state.totalPayment! - state.grandTotal);
+    // emit(newState);
     final ReceiptEntity? createdReceipt =
-        await _saveReceiptUseCase.call(params: state);
+        await _saveReceiptUseCase.call(params: newState);
     print(createdReceipt);
+    createdReceipt != null ? emit(createdReceipt) : null;
     // await GetIt.instance<PrintReceiptUsecase>()
     //     .call(params: createdReceipt);
     // await GetIt.instance<InvoiceApi>().sendInvoice();

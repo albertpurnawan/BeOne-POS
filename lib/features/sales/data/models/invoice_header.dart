@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/invoice_header.dart';
 
@@ -81,8 +82,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
     required super.orderNo,
     required super.tocusId,
     required super.tohemId,
-    required super.transDate,
-    required super.transTime,
+    required super.transDateTime,
     required super.timezone,
     required super.remarks,
     required super.subTotal,
@@ -139,60 +139,15 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'toinvTohemId': toinvTohemId,
       'tcsr1Id': tcsr1Id,
     };
-    if (transDate == null && transTime == null) {
+    if (transDateTime == null) {
       return map;
     } else {
       return {
         ...map,
-        'transdate': transDate?.toUtc().toIso8601String(),
-        'transtime': transTime?.toUtc().toIso8601String(),
+        'transdate': DateFormat('yyyy-MM-dd').format(transDateTime!.toUtc()),
+        'transtime': DateFormat.Hms().format(transDateTime!.toUtc()),
       };
     }
-  }
-
-  InvoiceHeaderModel fromMap(Map<String, dynamic> map) {
-    return InvoiceHeaderModel(
-      docId: map['docid'] as String,
-      createDate: map['createdate'] != null
-          ? DateTime.parse(map['createdate'] as String).toLocal()
-          : null,
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
-      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
-      docnum: map['docnum'] as String,
-      orderNo: map['orderno'] as int,
-      tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
-      tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      transDate: map['transdate'] != null
-          ? DateTime.parse(map['transdate'] as String).toLocal()
-          : null,
-      transTime: map['transtime'] != null
-          ? DateTime.parse(map['transtime'] as String).toLocal()
-          : null,
-      timezone: map['timezone'] as String,
-      remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      subTotal: map['subtotal'] as double,
-      discPrctg: map['discprctg'] as double,
-      discAmount: map['discamount'] as double,
-      discountCard: map['discountcard'] as double,
-      coupon: map['coupon'] as String,
-      discountCoupun: map['discountcoupun'] as double,
-      taxPrctg: map['taxprctg'] as double,
-      taxAmount: map['taxamount'] as double,
-      addCost: map['addcost'] as double,
-      rounding: map['rounding'] as double,
-      grandTotal: map['grandtotal'] as double,
-      changed: map['changed'] as double,
-      totalPayment: map['totalpayment'] as double,
-      tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
-      docStatus: map['docstatus'] as int,
-      sync: map['sync'] as int,
-      syncCRM: map['synccrm'] as int,
-      toinvTohemId:
-          map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
-      tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
-    );
   }
 
   factory InvoiceHeaderModel.fromMap(Map<String, dynamic> map) {
@@ -209,11 +164,8 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       orderNo: map['orderno'] as int,
       tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      transDate: map['transdate'] != null
-          ? DateTime.parse(map['transdate'] as String).toLocal()
-          : null,
-      transTime: map['transtime'] != null
-          ? DateTime.parse(map['transtime'] as String).toLocal()
+      transDateTime: map['transdate'] != null && map['transtime'] != null
+          ? DateTime.parse("${map['transdate']} ${map['transtime']}Z").toLocal()
           : null,
       timezone: map['timezone'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
@@ -283,8 +235,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       orderNo: entity.orderNo,
       tocusId: entity.tocusId,
       tohemId: entity.tohemId,
-      transDate: entity.transDate,
-      transTime: entity.transTime,
+      transDateTime: entity.transDateTime,
       timezone: entity.timezone,
       remarks: entity.remarks,
       subTotal: entity.subTotal,

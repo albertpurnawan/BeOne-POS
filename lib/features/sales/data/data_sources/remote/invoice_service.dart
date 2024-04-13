@@ -38,10 +38,9 @@ class InvoiceApi {
         "orderno": invHead[0].orderNo,
         "tocus_id": "c2ee5bb8-9850-4014-b7bf-fd5492a60d84",
         "tohem_id": "a483a6f2-80e3-4093-bbc8-f03e79093098",
-        "transdate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            .format(invHead[0].transDate!),
-        "transtime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            .format(invHead[0].transTime!),
+        "transdate":
+            DateFormat('yyyy-MM-dd').format(invHead[0].transDateTime!.toUtc()),
+        "transtime": DateFormat.Hms().format(invHead[0].transDateTime!.toUtc()),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
         "subtotal": invHead[0].subTotal,

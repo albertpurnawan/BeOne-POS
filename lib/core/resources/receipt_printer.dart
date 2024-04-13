@@ -80,11 +80,14 @@ class ReceiptPrinter {
       case PrintReceiptContentType.storeName:
         return currentPrintReceiptDetail?.storeMasterEntity.storeName ?? "";
       case PrintReceiptContentType.date:
-        return DateFormat('yyyy-MM-dd').format(DateTime.now());
+        return DateFormat('yyyy-MM-dd')
+            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.time:
-        return DateFormat('hh:mm aaa').format(DateTime.now());
+        return DateFormat('hh:mm aaa')
+            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
-        return DateFormat('yyyy-MM-dd - hh:mm aaa').format(DateTime.now());
+        return DateFormat('yyyy-MM-dd - hh:mm aaa')
+            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
       case PrintReceiptContentType.employeeCodeAndName:
@@ -132,9 +135,9 @@ class ReceiptPrinter {
           bytes += generator.hr();
         case PrintReceiptContentType.items:
           for (final item
-              in currentPrintReceiptDetail?.receiptEntity.receiptItems ?? []) {
+              in currentPrintReceiptDetail!.receiptEntity.receiptItems) {
             bytes += generator.text(
-                "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.price)} ${item.itemEntity.itemName}");
+                "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.dpp)} ${item.itemEntity.itemName}");
             bytes += generator.row([
               PosColumn(
                   width: 8,
@@ -149,7 +152,7 @@ class ReceiptPrinter {
                   )),
               PosColumn(
                   width: 4,
-                  text: '${Helpers.parseMoney(item.subtotal)}',
+                  text: Helpers.parseMoney(item.totalGross),
                   styles: PosStyles(
                     align: PosAlign.right,
                     height: printReceiptContent.fontSize,
@@ -187,46 +190,15 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 8,
-                text: "Net Sales - Non Taxable",
+                text: "Tax Amount",
                 styles: const PosStyles(
                   align: PosAlign.left,
                   // codeTable: 'CP1252',
                 )),
             PosColumn(
                 width: 4,
-                text: 'Rp 0',
-                styles: const PosStyles(
-                  align: PosAlign.right,
-                  // codeTable: 'CP1252',
-                )),
-          ]);
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "Net Sales - Tax Base",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  // codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: 'Rp 6,216',
-                styles: const PosStyles(
-                  align: PosAlign.right,
-                  // codeTable: 'CP1252',
-                )),
-          ]);
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "PPN 11%",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  // codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: 'Rp 684',
+                text: Helpers.parseMoney(
+                    currentPrintReceiptDetail!.receiptEntity.taxAmount),
                 styles: const PosStyles(
                   align: PosAlign.right,
                   // codeTable: 'CP1252',
@@ -254,7 +226,6 @@ class ReceiptPrinter {
           bytes += generator.qrcode(
               currentPrintReceiptDetail!.receiptEntity.docNum,
               size: QRSize.Size6);
-
         case PrintReceiptContentType.logo:
         default:
           bytes += generator.text(

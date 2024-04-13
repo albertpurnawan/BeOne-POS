@@ -15,11 +15,11 @@ class MopSelectionModel extends MopSelectionEntity {
     return MopSelectionModel(
       tpmt3Id: map['tpmt3Id'] as String,
       tpmt1Id: map['tpmt1Id'] as String,
-      mopAlias: map['mopAlias'] as String,
+      mopAlias: map['mopalias'] as String,
       bankCharge:
-          map['bankCharge'] != null ? map['bankCharge'] as double : null,
+          map['bankcharge'] != null ? map['bankcharge'] as double : null,
       payTypeCode:
-          map['payTypeCode'] != null ? map['payTypeCode'] as String : null,
+          map['paytypecode'] != null ? map['paytypecode'] as String : null,
       description: map['description'] as String,
       amount: map['amount'] != null ? map['amount'] as double : null,
     );

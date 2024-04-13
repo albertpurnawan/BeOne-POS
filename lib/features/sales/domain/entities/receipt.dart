@@ -15,8 +15,7 @@ class ReceiptEntity {
   CustomerEntity? customerEntity;
   EmployeeEntity? employeeEntity;
   double totalTax;
-  DateTime? transDate;
-  DateTime? transTime;
+  DateTime? transDateTime;
   DateTime transStart;
   DateTime? transEnd;
   double subtotal;
@@ -32,8 +31,7 @@ class ReceiptEntity {
     this.customerEntity,
     this.employeeEntity,
     required this.totalTax,
-    this.transDate,
-    this.transTime,
+    this.transDateTime,
     required this.transStart,
     this.transEnd,
     required this.subtotal,
@@ -50,8 +48,7 @@ class ReceiptEntity {
     CustomerEntity? customerEntity,
     EmployeeEntity? employeeEntity,
     double? totalTax,
-    DateTime? transDate,
-    DateTime? transTime,
+    DateTime? transDateTime,
     DateTime? transStart,
     DateTime? transEnd,
     double? subtotal,
@@ -67,8 +64,7 @@ class ReceiptEntity {
       customerEntity: customerEntity ?? this.customerEntity,
       employeeEntity: employeeEntity ?? this.employeeEntity,
       totalTax: totalTax ?? this.totalTax,
-      transDate: transDate ?? this.transDate,
-      transTime: transTime ?? this.transTime,
+      transDateTime: transDateTime ?? this.transDateTime,
       transStart: transStart ?? this.transStart,
       transEnd: transEnd ?? this.transEnd,
       subtotal: subtotal ?? this.subtotal,
@@ -87,8 +83,7 @@ class ReceiptEntity {
       'customerEntity': customerEntity?.toMap(),
       'employeeEntity': employeeEntity?.toMap(),
       'totalTax': totalTax,
-      'transDate': transDate?.millisecondsSinceEpoch,
-      'transTime': transTime?.millisecondsSinceEpoch,
+      'transDateTime': transDateTime?.millisecondsSinceEpoch,
       'transStart': transStart.millisecondsSinceEpoch,
       'transEnd': transEnd?.millisecondsSinceEpoch,
       'subtotal': subtotal,
@@ -120,11 +115,8 @@ class ReceiptEntity {
               map['employeeEntity'] as Map<String, dynamic>)
           : null,
       totalTax: map['totalTax'] as double,
-      transDate: map['transDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['transDate'] as int)
-          : null,
-      transTime: map['transTime'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['transTime'] as int)
+      transDateTime: map['transDateTime'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int)
           : null,
       transStart: DateTime.fromMillisecondsSinceEpoch(map['transStart'] as int),
       transEnd: map['transEnd'] != null
@@ -146,7 +138,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDate: $transDate, transTime: $transTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed)';
+    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed)';
   }
 
   @override
@@ -159,8 +151,7 @@ class ReceiptEntity {
         other.customerEntity == customerEntity &&
         other.employeeEntity == employeeEntity &&
         other.totalTax == totalTax &&
-        other.transDate == transDate &&
-        other.transTime == transTime &&
+        other.transDateTime == transDateTime &&
         other.transStart == transStart &&
         other.transEnd == transEnd &&
         other.subtotal == subtotal &&
@@ -178,8 +169,7 @@ class ReceiptEntity {
         customerEntity.hashCode ^
         employeeEntity.hashCode ^
         totalTax.hashCode ^
-        transDate.hashCode ^
-        transTime.hashCode ^
+        transDateTime.hashCode ^
         transStart.hashCode ^
         transEnd.hashCode ^
         subtotal.hashCode ^

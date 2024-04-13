@@ -43,6 +43,8 @@ SELECT paytypecode, description, docid FROM topmt
 ) as p ON p1.topmtId = p.docid;
 """);
 
+    print(result);
+
     return result
         .map((itemData) => MopSelectionModel.fromMap(itemData))
         .toList();

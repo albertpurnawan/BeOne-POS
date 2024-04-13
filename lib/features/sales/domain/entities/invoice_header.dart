@@ -11,8 +11,7 @@ class InvoiceHeaderEntity {
   final int orderNo;
   final String? tocusId;
   final String? tohemId;
-  final DateTime? transDate;
-  final DateTime? transTime;
+  final DateTime? transDateTime;
   final String timezone;
   final String? remarks;
   final double subTotal;
@@ -44,8 +43,7 @@ class InvoiceHeaderEntity {
     required this.orderNo,
     required this.tocusId,
     required this.tohemId,
-    required this.transDate,
-    required this.transTime,
+    required this.transDateTime,
     required this.timezone,
     required this.remarks,
     required this.subTotal,
@@ -78,8 +76,7 @@ class InvoiceHeaderEntity {
     int? orderNo,
     String? tocusId,
     String? tohemId,
-    DateTime? transDate,
-    DateTime? transTime,
+    DateTime? transDateTime,
     String? timezone,
     String? remarks,
     double? subTotal,
@@ -111,8 +108,7 @@ class InvoiceHeaderEntity {
       orderNo: orderNo ?? this.orderNo,
       tocusId: tocusId ?? this.tocusId,
       tohemId: tohemId ?? this.tohemId,
-      transDate: transDate ?? this.transDate,
-      transTime: transTime ?? this.transTime,
+      transDateTime: transDateTime ?? this.transDateTime,
       timezone: timezone ?? this.timezone,
       remarks: remarks ?? this.remarks,
       subTotal: subTotal ?? this.subTotal,
@@ -147,8 +143,7 @@ class InvoiceHeaderEntity {
       'orderNo': orderNo,
       'tocusId': tocusId,
       'tohemId': tohemId,
-      'transDate': transDate?.millisecondsSinceEpoch,
-      'transTime': transTime?.millisecondsSinceEpoch,
+      'transDateTime': transDateTime?.millisecondsSinceEpoch,
       'timezone': timezone,
       'remarks': remarks,
       'subTotal': subTotal,
@@ -187,11 +182,8 @@ class InvoiceHeaderEntity {
       orderNo: map['orderNo'] as int,
       tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      transDate: map['transDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['transDate'] as int)
-          : null,
-      transTime: map['transTime'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['transTime'] as int)
+      transDateTime: map['transDateTime'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int)
           : null,
       timezone: map['timezone'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
@@ -225,7 +217,7 @@ class InvoiceHeaderEntity {
 
   @override
   String toString() {
-    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDate: $transDate, transTime: $transTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, tcsr1Id: $tcsr1Id)';
+    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDateTime: $transDateTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, tcsr1Id: $tcsr1Id)';
   }
 
   @override
@@ -240,8 +232,7 @@ class InvoiceHeaderEntity {
         other.orderNo == orderNo &&
         other.tocusId == tocusId &&
         other.tohemId == tohemId &&
-        other.transDate == transDate &&
-        other.transTime == transTime &&
+        other.transDateTime == transDateTime &&
         other.timezone == timezone &&
         other.remarks == remarks &&
         other.subTotal == subTotal &&
@@ -275,8 +266,7 @@ class InvoiceHeaderEntity {
         orderNo.hashCode ^
         tocusId.hashCode ^
         tohemId.hashCode ^
-        transDate.hashCode ^
-        transTime.hashCode ^
+        transDateTime.hashCode ^
         timezone.hashCode ^
         remarks.hashCode ^
         subTotal.hashCode ^

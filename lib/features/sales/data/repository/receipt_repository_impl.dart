@@ -1,6 +1,5 @@
 // import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image/image.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
@@ -47,8 +46,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         orderNo: 1, // generate
         tocusId: receiptEntity.customerEntity?.docId,
         tohemId: null, // get di sini atau dari awal aja
-        transDate: null, // dao
-        transTime: null, // dao
+        transDateTime: null, // dao
         timezone: "GMT+07",
         remarks: null, // sementara hardcode
         subTotal: receiptEntity.subtotal,
@@ -58,7 +56,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         coupon: "",
         discountCoupun: 0,
         taxPrctg: 0,
-        taxAmount: receiptEntity.totalTax,
+        taxAmount: receiptEntity.taxAmount,
         addCost: 0,
         rounding: 0,
         grandTotal: receiptEntity.grandTotal + receiptEntity.totalTax,
@@ -230,6 +228,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                 invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity));
       }
 
+      print(invoiceHeaderModel.transDateTime);
+      print(invoiceHeaderModel.transDateTime?.toLocal());
+
       receiptModel = ReceiptModel(
         receiptItems: receiptItemModels,
         subtotal: invoiceHeaderModel.subTotal,
@@ -239,8 +240,11 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         customerEntity: customerModel,
         employeeEntity: employeeModel,
         transStart: DateTime.now(),
+        transDateTime: invoiceHeaderModel.transDateTime?.toLocal(),
         taxAmount: invoiceHeaderModel.taxAmount,
         grandTotal: invoiceHeaderModel.grandTotal,
+        totalPayment: invoiceHeaderModel.totalPayment,
+        changed: invoiceHeaderModel.changed,
       );
     });
 
