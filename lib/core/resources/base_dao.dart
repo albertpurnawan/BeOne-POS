@@ -55,8 +55,43 @@ abstract class BaseDao<T extends BaseModel> {
 
   Future<List<T>> readAll({Transaction? txn});
 
-  Future<void> deleteAll({required List<T> data, Transaction? txn}) async {
-    await db.delete(tableName);
+  Future<void> deleteAll() async {
+    final List<String> tableNames = [
+      'tcurr',
+      'tocry',
+      'toprv',
+      'tozcd',
+      'tohem',
+      'tovat',
+      'topmt',
+      'tpmt1',
+      'tpmt2',
+      'topln',
+      'tostr',
+      'tpmt3',
+      'tocsr',
+      'touom',
+      'torol',
+      'tousr',
+      'tpln1',
+      'tocat',
+      'toitm',
+      'tsitm',
+      'tbitm',
+      'tritm',
+      'tovdg',
+      'toven',
+      'tvitm',
+      'tocrg',
+      'tocus',
+      'tpln2',
+      'tpln3',
+      'tpln4',
+    ];
+
+    for (final tableName in tableNames) {
+      await db.delete(tableName);
+    }
   }
 
   Future<void> update(
@@ -73,7 +108,7 @@ abstract class BaseDao<T extends BaseModel> {
   //TEMPORARY DELCREATE
   Future<void> resync({required List<T> data, Transaction? txn}) async {
     try {
-      await deleteAll(data: data, txn: txn);
+      await deleteAll();
       await bulkCreate(data: data, txn: txn);
     } catch (err, stack) {
       print(err);

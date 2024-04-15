@@ -14,12 +14,15 @@ class Constant {
 
   //TENANTID
   static String gtentId = '';
+  // b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb
 
   //STOREID
   static String tostrId = '';
+  //878694e6-fdf4-49a7-82e3-d0facb685741
 
   //CASHIERID
   static String tocsrId = '';
+  //4ca46d3e-30ff-4441-98f8-3fdcf81dc230
 
   // BASEURL
   static String url = "http://110.239.68.248:8803";

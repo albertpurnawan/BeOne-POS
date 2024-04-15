@@ -39,13 +39,14 @@ import 'package:sqflite/sqflite.dart';
 Future<void> syncData() async {
   print("Synching data...");
   try {
+    await GetIt.instance<AppDatabase>().currencyDao.deleteAll();
     final fetchFunctions = [
       () async {
         try {
           final currencies = await GetIt.instance<CurrencyApi>().fetchData();
           await GetIt.instance<AppDatabase>()
               .currencyDao
-              .resync(data: currencies);
+              .bulkCreate(data: currencies);
         } catch (e) {
           if (e is DatabaseException) {
             log('DatabaseException occurred: $e');
@@ -59,7 +60,7 @@ Future<void> syncData() async {
           final countries = await GetIt.instance<CountryApi>().fetchData();
           await GetIt.instance<AppDatabase>()
               .countryDao
-              .resync(data: countries);
+              .bulkCreate(data: countries);
         } catch (e) {
           if (e is DatabaseException) {
             log('DatabaseException occurred: $e');
@@ -73,7 +74,7 @@ Future<void> syncData() async {
           final provinces = await GetIt.instance<ProvinceApi>().fetchData();
           await GetIt.instance<AppDatabase>()
               .provinceDao
-              .resync(data: provinces);
+              .bulkCreate(data: provinces);
         } catch (e) {
           if (e is DatabaseException) {
             log('DatabaseException occurred: $e');
@@ -84,48 +85,56 @@ Future<void> syncData() async {
       },
       () async {
         final zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
-        await GetIt.instance<AppDatabase>().zipcodeDao.resync(data: zipcodes);
+        await GetIt.instance<AppDatabase>()
+            .zipcodeDao
+            .bulkCreate(data: zipcodes);
       },
       () async {
         final employees = await GetIt.instance<EmployeeApi>().fetchData();
-        await GetIt.instance<AppDatabase>().employeeDao.resync(data: employees);
+        await GetIt.instance<AppDatabase>()
+            .employeeDao
+            .bulkCreate(data: employees);
       },
       () async {
         final taxes = await GetIt.instance<TaxMasterApi>().fetchData();
-        await GetIt.instance<AppDatabase>().taxMasterDao.resync(data: taxes);
+        await GetIt.instance<AppDatabase>()
+            .taxMasterDao
+            .bulkCreate(data: taxes);
       },
       () async {
         final payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .paymentTypeDao
-            .resync(data: payTypes);
+            .bulkCreate(data: payTypes);
       },
       () async {
         final mops = await GetIt.instance<MOPApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .meansOfPaymentDao
-            .resync(data: mops);
+            .bulkCreate(data: mops);
       },
       () async {
         final ccs = await GetIt.instance<CreditCardApi>().fetchData();
-        await GetIt.instance<AppDatabase>().creditCardDao.resync(data: ccs);
+        await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(data: ccs);
       },
       () async {
         final pricelists = await GetIt.instance<PricelistApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .pricelistDao
-            .resync(data: pricelists);
+            .bulkCreate(data: pricelists);
       },
       () async {
         final stores = await GetIt.instance<StoreMasterApi>().fetchData();
-        await GetIt.instance<AppDatabase>().storeMasterDao.resync(data: stores);
+        await GetIt.instance<AppDatabase>()
+            .storeMasterDao
+            .bulkCreate(data: stores);
       },
       () async {
         try {
           final mopStores = await GetIt.instance<MOPByStoreApi>().fetchData();
           await GetIt.instance<AppDatabase>()
               .mopByStoreDao
-              .resync(data: mopStores);
+              .bulkCreate(data: mopStores);
         } catch (e) {
           if (e is DatabaseException) {
             log('DatabaseException occurred: $e');
@@ -138,102 +147,106 @@ Future<void> syncData() async {
         final cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .cashRegisterDao
-            .resync(data: cashiers);
+            .bulkCreate(data: cashiers);
       },
       () async {
         final uoms = await GetIt.instance<UoMApi>().fetchData();
-        await GetIt.instance<AppDatabase>().uomDao.resync(data: uoms);
+        await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: uoms);
       },
       () async {
         final roles = await GetIt.instance<UserRoleApi>().fetchData();
-        await GetIt.instance<AppDatabase>().userRoleDao.resync(data: roles);
+        await GetIt.instance<AppDatabase>().userRoleDao.bulkCreate(data: roles);
       },
       () async {
         final users = await GetIt.instance<UserApi>().fetchData();
-        await GetIt.instance<AppDatabase>().userDao.resync(data: users);
+        await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: users);
       },
       () async {
         final pricelistPeriod =
             await GetIt.instance<PricelistPeriodApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .pricelistPeriodDao
-            .resync(data: pricelistPeriod);
+            .bulkCreate(data: pricelistPeriod);
       },
       () async {
         final itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .itemCategoryDao
-            .resync(data: itemCat);
+            .bulkCreate(data: itemCat);
       },
       () async {
         final items = await GetIt.instance<ItemMasterApi>().fetchData();
-        await GetIt.instance<AppDatabase>().itemMasterDao.resync(data: items);
+        await GetIt.instance<AppDatabase>()
+            .itemMasterDao
+            .bulkCreate(data: items);
       },
       () async {
         final itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .itemByStoreDao
-            .resync(data: itemsStores);
+            .bulkCreate(data: itemsStores);
       },
       () async {
         final itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .itemBarcodeDao
-            .resync(data: itemBarcodes);
+            .bulkCreate(data: itemBarcodes);
       },
       // // ---
       () async {
         final itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .itemRemarkDao
-            .resync(data: itemRemarks);
+            .bulkCreate(data: itemRemarks);
       },
       () async {
         final venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .vendorGroupDao
-            .resync(data: venGroups);
+            .bulkCreate(data: venGroups);
       },
       () async {
         final vendor = await GetIt.instance<VendorApi>().fetchData();
-        await GetIt.instance<AppDatabase>().vendorDao.resync(data: vendor);
+        await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(data: vendor);
       },
       () async {
         final prefVendor =
             await GetIt.instance<PreferredVendorApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .preferredVendorDao
-            .resync(data: prefVendor);
+            .bulkCreate(data: prefVendor);
       },
       // // ---
       () async {
         final cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .customerGroupDao
-            .resync(data: cusGroup);
+            .bulkCreate(data: cusGroup);
       },
       () async {
         final cusCst = await GetIt.instance<CustomerApi>().fetchData();
-        await GetIt.instance<AppDatabase>().customerCstDao.resync(data: cusCst);
+        await GetIt.instance<AppDatabase>()
+            .customerCstDao
+            .bulkCreate(data: cusCst);
       },
       () async {
         final priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .priceByItemDao
-            .resync(data: priceByItem);
+            .bulkCreate(data: priceByItem);
       },
       () async {
         final apmps = await GetIt.instance<APMPSApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .assignPriceMemberPerStoreDao
-            .resync(data: apmps);
+            .bulkCreate(data: apmps);
       },
       () async {
         final priceItemBarcode =
             await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
         await GetIt.instance<AppDatabase>()
             .priceByItemBarcodeDao
-            .resync(data: priceItemBarcode);
+            .bulkCreate(data: priceItemBarcode);
       },
     ];
     for (final fetchFunction in fetchFunctions) {
@@ -265,13 +278,13 @@ Future<void> syncData() async {
     //   }
     // ];
 
-    // await GetIt.instance<AppDatabase>().posParameterDao.resync(
+    // await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
     //     data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
 
     // final auths = await GetIt.instance<AuthorizationApi>().fetchData();
-    // await GetIt.instance<AppDatabase>().authorizationDao.resync(auths);
+    // await GetIt.instance<AppDatabase>().authorizationDao.bulkCreate(auths);
     // final itemPics = await GetIt.instance<ItemPictureApi>().fetchData();
-    // await GetIt.instance<AppDatabase>().itemPictureDao.resync(itemPics);
+    // await GetIt.instance<AppDatabase>().itemPictureDao.bulkCreate(itemPics);
 
     // fetched = currencies.length +
     //     countries.length +
