@@ -32,7 +32,12 @@ class _RecapShiftsState extends State<RecapShifts> {
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
+      appBar: AppBar(
+        title: const Text('Transactions List'),
+        backgroundColor: ProjectColors.primary,
+        foregroundColor: Colors.white,
+      ),
       body: ScrollWidget(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
@@ -47,6 +52,8 @@ class _RecapShiftsState extends State<RecapShifts> {
                   fontSize: 30,
                   fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 30),
+            // insert
             const SizedBox(height: 30),
             const RecapsShiftList(),
             const SizedBox(height: 10),
@@ -155,7 +162,7 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
       builder: (BuildContext context,
           AsyncSnapshot<List<CashierBalanceTransactionModel>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
@@ -187,15 +194,25 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
                   title: Text(date),
                   children: transactions.map((transaction) {
                     return ListTile(
-                      title: Text(transaction.docId),
-                      subtitle: Text(transaction.closeValue.toString()),
+                      contentPadding: EdgeInsets.zero,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(transaction.docNum),
+                          Text(transaction.calcValue.toString()),
+                          Text(transaction.approvalStatus.toString()),
+                        ],
+                      ),
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CashierBalanceTransactionDetails(
-                                        transaction: transaction)));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CashierBalanceTransactionDetails(
+                              transaction: transaction,
+                            ),
+                          ),
+                        );
                       },
                     );
                   }).toList(),

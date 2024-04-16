@@ -231,4 +231,9 @@ abstract class Helpers {
     final DateFormat formatter = DateFormat('HH:mm:ss');
     return formatter.format(dTime).toString();
   }
+
+  static String formatDateNoSeconds(DateTime dTime) {
+    final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy HH:mm');
+    return formatter.format(dTime).toString();
+  }
 }

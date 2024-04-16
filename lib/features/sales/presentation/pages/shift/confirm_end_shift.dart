@@ -4,7 +4,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shifts.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmEndShift extends StatelessWidget {
@@ -63,7 +63,7 @@ class ConfirmEndShift extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const RecapShifts()));
+                              builder: (context) => const ShiftsList()));
                     },
                   ),
                 ),

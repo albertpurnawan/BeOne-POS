@@ -51,4 +51,24 @@ class CashierBalanceTransactionDao
         ? CashierBalanceTransactionModel.fromMap(result[0])
         : null;
   }
+
+  Future<List<CashierBalanceTransactionModel>?> readByDate(
+      DateTime date) async {
+    final startOfDay =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final endOfDay =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} 23:59:59';
+
+    final result = await db.query(
+      tableName,
+      where: 'createdat BETWEEN ? AND ?',
+      whereArgs: [startOfDay, endOfDay],
+    );
+
+    final transactions = result
+        .map((map) => CashierBalanceTransactionModel.fromMap(map))
+        .toList();
+
+    return transactions;
+  }
 }

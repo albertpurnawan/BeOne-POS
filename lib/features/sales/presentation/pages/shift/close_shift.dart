@@ -219,8 +219,6 @@ class _EndShiftFormState extends State<EndShiftForm> {
                 onTap: () async {
                   if (!formKey.currentState!.validate()) return;
 
-                  // final prefs = GetIt.instance<SharedPreferences>();
-
                   final double inputValue =
                       double.tryParse(actualCashController.text) ?? 0.0;
 
@@ -249,11 +247,11 @@ class _EndShiftFormState extends State<EndShiftForm> {
                       approvalStatus: 1,
                     );
 
-                    //   _updateCashierBalanceTransaction(opening!.docId, shift);
-                    // }
-                    // await prefs.setBool('isOpen', false);
+                    _updateCashierBalanceTransaction(opening!.docId, shift);
 
-                    // await prefs.setString('tcsr1Id', "");
+                    await prefs.setBool('isOpen', false);
+
+                    await prefs.setString('tcsr1Id', "");
 
                     if (!context.mounted) return;
                     showDialog(

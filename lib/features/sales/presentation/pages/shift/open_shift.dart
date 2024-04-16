@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -46,7 +48,7 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
 
   @override
   void dispose() {
-    _timer.cancel(); // Cancel the timer when the screen is disposed
+    _timer.cancel();
     super.dispose();
   }
 
@@ -221,6 +223,20 @@ class _StartShiftFormState extends State<StartShiftForm> {
                 final double inputValue =
                     double.tryParse(openValueController.text) ?? 0.0;
 
+                final store = await GetIt.instance<AppDatabase>()
+                    .storeMasterDao
+                    .readAll();
+                final storeCode = store[0].storeCode;
+                final date = DateTime.now();
+                String formattedDate = DateFormat('yyyyMMdd').format(date);
+                final countShift = await GetIt.instance<AppDatabase>()
+                    .cashierBalanceTransactionDao
+                    .readByDate(date);
+                log(countShift.toString());
+                final number =
+                    ((countShift!.length) + 1).toString().padLeft(3, '0');
+                final docnum = '$storeCode-$formattedDate-$number';
+
                 final CashierBalanceTransactionModel shift =
                     CashierBalanceTransactionModel(
                   docId: const Uuid().v4(),
@@ -228,7 +244,7 @@ class _StartShiftFormState extends State<StartShiftForm> {
                   updateDate: DateTime.now(),
                   tocsrId: "4ca46d3e-30ff-4441-98f8-3fdcf81dc230",
                   tousrId: "fab056fa-b206-4360-8c35-568407651827",
-                  docNum: "", // need edit
+                  docNum: docnum,
                   openDate: DateTime.now(),
                   openTime: DateTime.now(),
                   calcDate: DateTime.utc(1970, 1, 1),
