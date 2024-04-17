@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
@@ -157,9 +158,10 @@ class _LoginFormState extends State<LoginForm> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(10.0)),
                           ),
+                          backgroundColor: ProjectColors.primary,
                           content: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.7,
-                            child: const OpenShiftScreen(),
+                            child: const OpenShiftDialog(),
                           ),
                         );
                       },
