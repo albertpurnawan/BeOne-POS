@@ -1021,39 +1021,39 @@ class _FetchScreenState extends State<FetchScreen> {
               ],
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                manualSyncData();
-              },
-              child: Text('FETCH'),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Data Fetched: [$_dataFetched] $_dataExample',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _docIdController,
-              decoration: InputDecoration(
-                labelText: 'Enter Document ID',
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _fetchSingleData(_docIdController.text);
-              },
-              child: Text('SEARCH'),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Data Found: ${_singleData}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 20),
-            if (_statusCode != 0) Text(_statusCode.toString()),
-            if (_errorMessage.isNotEmpty) Text(_errorMessage),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     manualSyncData();
+            //   },
+            //   child: Text('FETCH'),
+            // ),
+            // SizedBox(height: 20),
+            // Text(
+            //   'Data Fetched: [$_dataFetched] $_dataExample',
+            //   style: TextStyle(fontSize: 18),
+            // ),
+            // SizedBox(height: 20),
+            // TextField(
+            //   controller: _docIdController,
+            //   decoration: InputDecoration(
+            //     labelText: 'Enter Document ID',
+            //   ),
+            // ),
+            //   SizedBox(height: 20),
+            //   ElevatedButton(
+            //     onPressed: () {
+            //       _fetchSingleData(_docIdController.text);
+            //     },
+            //     child: Text('SEARCH'),
+            //   ),
+            //   SizedBox(height: 20),
+            //   Text(
+            //     'Data Found: ${_singleData}',
+            //     style: TextStyle(fontSize: 18),
+            //   ),
+            //   SizedBox(height: 20),
+            //   if (_statusCode != 0) Text(_statusCode.toString()),
+            //   if (_errorMessage.isNotEmpty) Text(_errorMessage),
           ],
         ),
       ),

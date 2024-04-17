@@ -221,8 +221,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                   final prefs = GetIt.instance<SharedPreferences>();
                   await prefs.setBool('isOpen', true);
 
-                  final double inputValue =
-                      double.tryParse(openValueController.text) ?? 0.0;
+                  final inputText =
+                      openValueController.text.replaceAll(',', '');
+                  final double inputValue = double.tryParse(inputText) ?? 0.0;
 
                   final store = await GetIt.instance<AppDatabase>()
                       .storeMasterDao
@@ -254,7 +255,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                     closeTime: DateTime.utc(1970, 1, 1),
                     timezone: "GMT+07",
                     openValue: inputValue,
-                    calcValue: inputValue,
+                    calcValue: 0,
                     cashValue: 0,
                     closeValue: 0,
                     openedbyId: "",
