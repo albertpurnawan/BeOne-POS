@@ -29,6 +29,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
@@ -174,6 +175,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<PrintReceiptUsecase>(
       () => PrintReceiptUsecase(sl(), sl(), sl(), sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<PrintOpenShiftUsecase>(
+      () => PrintOpenShiftUsecase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetPosParameterUseCase>(
       () => GetPosParameterUseCase(sl()),

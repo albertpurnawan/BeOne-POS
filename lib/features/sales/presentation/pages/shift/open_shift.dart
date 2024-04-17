@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -8,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
@@ -15,6 +15,7 @@ import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -147,6 +148,8 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String? storeName;
 
+  ReceiptPrinter? receiptPrinter;
+
   Future<String> getStoreName() async {
     final String? storeId = prefs.getString("tostrId");
     final store = await GetIt.instance<AppDatabase>()
@@ -230,11 +233,11 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                   final countShift = await GetIt.instance<AppDatabase>()
                       .cashierBalanceTransactionDao
                       .readByDate(date);
-                  log(countShift.toString());
+
                   final number =
                       ((countShift!.length) + 1).toString().padLeft(3, '0');
                   final docnum = '$storeCode-$formattedDate-$number';
-                  log(docnum);
+
                   final CashierBalanceTransactionModel shift =
                       CashierBalanceTransactionModel(
                     docId: const Uuid().v4(),
@@ -251,7 +254,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                     closeTime: DateTime.utc(1970, 1, 1),
                     timezone: "GMT+07",
                     openValue: inputValue,
-                    calcValue: 0,
+                    calcValue: inputValue,
                     cashValue: 0,
                     closeValue: 0,
                     openedbyId: "",
@@ -261,6 +264,10 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                   _insertCashierBalanceTransaction(shift);
 
                   await prefs.setString('tcsr1Id', shift.docId);
+
+                  final printOpenShiftUsecase =
+                      GetIt.instance<PrintOpenShiftUsecase>();
+                  await printOpenShiftUsecase.call(params: shift);
 
                   if (!context.mounted) return;
                   if (context.mounted) context.pushNamed(RouteConstants.home);

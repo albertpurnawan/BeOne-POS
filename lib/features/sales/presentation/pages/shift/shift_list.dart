@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ShiftsList extends StatefulWidget {
@@ -29,6 +32,10 @@ class _ShiftsListState extends State<ShiftsList> {
         title: const Text('Shifts'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pushNamed(RouteConstants.home),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -84,6 +91,7 @@ class _ActiveShiftState extends State<ActiveShift> {
     String formattedOpenDate =
         Helpers.formatDateNoSeconds(activeShift!.openDate);
     final cashier = prefs.getString('username');
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 200.0),
       child: Container(
@@ -131,16 +139,27 @@ class _ActiveShiftState extends State<ActiveShift> {
                   ),
                 ],
               ),
-              CustomButton(
-                color: ProjectColors.swatch,
-                child: const Text("CLOSE SHIFT"),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const EndShiftScreen()));
-                },
-              )
+              activeShift!.approvalStatus == 0
+                  ? CustomButton(
+                      color: ProjectColors.swatch,
+                      child: const Text("CLOSE SHIFT"),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const EndShiftScreen()));
+                      },
+                    )
+                  : CustomButton(
+                      color: Colors.green,
+                      child: const Text("OPEN SHIFT"),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const OpenShiftDialog()));
+                      },
+                    ),
             ],
           ),
         ),
