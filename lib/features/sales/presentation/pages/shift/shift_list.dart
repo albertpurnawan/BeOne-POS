@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -237,7 +238,6 @@ class _AllShiftState extends State<AllShift> {
                     children: [
                       for (var entry in sortedEntries)
                         Column(
-                          // mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
@@ -250,30 +250,50 @@ class _AllShiftState extends State<AllShift> {
                             const SizedBox(height: 10),
                             for (var shift in entry.value)
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    shift.docNum,
-                                    style: const TextStyle(fontSize: 20),
-                                  ),
-                                  Text(
-                                    '${shift.closeValue}',
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                  shift.approvalStatus == 0
-                                      ? const Text(
-                                          'OPEN',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            color:
-                                                Color.fromARGB(255, 47, 143, 8),
-                                          ),
-                                        )
-                                      : const Text(
-                                          'CLOSED',
-                                          style: TextStyle(fontSize: 18),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          shift.docNum,
+                                          style: const TextStyle(fontSize: 20),
                                         ),
+                                        SizedBox(
+                                          width: 100,
+                                          child: Text(
+                                            NumberFormat.decimalPattern()
+                                                .format(
+                                                    shift.closeValue.toInt()),
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                            textAlign: TextAlign.end,
+                                          ),
+                                        ),
+                                        if (shift.approvalStatus == 0)
+                                          const SizedBox(
+                                            width: 100,
+                                            child: Text(
+                                              'OPEN',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: Color.fromARGB(
+                                                    255, 47, 143, 8),
+                                              ),
+                                            ),
+                                          )
+                                        else
+                                          const SizedBox(
+                                            width: 100,
+                                            child: Text(
+                                              'CLOSED',
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
                                   const Icon(
                                     Icons.arrow_right_outlined,
                                     size: 40,
