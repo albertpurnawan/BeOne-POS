@@ -151,7 +151,7 @@ class _ActiveShiftState extends State<ActiveShift> {
                       },
                     )
                   : CustomButton(
-                      color: Colors.green,
+                      color: const Color.fromARGB(255, 47, 143, 8),
                       child: const Text("OPEN SHIFT"),
                       onTap: () {
                         Navigator.push(
@@ -208,6 +208,16 @@ class _AllShiftState extends State<AllShift> {
         groupedShifts[date]!.add(shift);
       }
     }
+
+    // Sort the entries by date in descending order
+    List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries =
+        groupedShifts.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
+
+    // Sort shifts within each group by date in descending order
+    for (var entry in sortedEntries) {
+      entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));
+    }
+
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 200.0),
@@ -225,24 +235,52 @@ class _AllShiftState extends State<AllShift> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      for (var entry in groupedShifts.entries)
+                      for (var entry in sortedEntries)
                         Column(
+                          // mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Date: ${entry.key}', // Display date
-                              style: TextStyle(
+                              entry.key, // Display date
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: 20,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            // Display shifts for this date
+                            const SizedBox(height: 10),
                             for (var shift in entry.value)
-                              Text(
-                                'Shift ID: ${shift.docNum}', // Display shift ID or any relevant information
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    shift.docNum,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  Text(
+                                    '${shift.closeValue}',
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                  shift.approvalStatus == 0
+                                      ? const Text(
+                                          'OPEN',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color:
+                                                Color.fromARGB(255, 47, 143, 8),
+                                          ),
+                                        )
+                                      : const Text(
+                                          'CLOSED',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                  const Icon(
+                                    Icons.arrow_right_outlined,
+                                    size: 40,
+                                  ),
+                                ],
                               ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                           ],
                         ),
                     ],
