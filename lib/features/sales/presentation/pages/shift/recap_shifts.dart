@@ -32,12 +32,12 @@ class _RecapShiftsState extends State<RecapShifts> {
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
-        title: const Text('Shift Recap'),
+        title: const Text('Transactions List'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      backgroundColor: Colors.white,
       body: ScrollWidget(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(

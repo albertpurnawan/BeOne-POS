@@ -8,7 +8,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/end_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -89,6 +89,47 @@ class _ActiveShiftState extends State<ActiveShift> {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasActiveShift = activeShift != null;
+
+    if (!hasActiveShift) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 200.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 233, 222, 222),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 30.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  "NO ACTIVE SHIFT",
+                  style: TextStyle(
+                      color: ProjectColors.mediumBlack,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold),
+                ),
+                CustomButton(
+                  color: const Color.fromARGB(255, 47, 143, 8),
+                  child: const Text("OPEN SHIFT"),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OpenShiftDialog(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     String formattedOpenDate =
         Helpers.formatDateNoSeconds(activeShift!.openDate);
     final cashier = prefs.getString('username');
@@ -148,7 +189,8 @@ class _ActiveShiftState extends State<ActiveShift> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const EndShiftScreen()));
+                                builder: (context) =>
+                                    const CloseShiftScreen()));
                       },
                     )
                   : CustomButton(
