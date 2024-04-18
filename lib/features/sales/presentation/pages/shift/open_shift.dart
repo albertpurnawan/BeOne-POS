@@ -1,38 +1,41 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
-import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-class OpenShiftScreen extends StatefulWidget {
-  const OpenShiftScreen({super.key});
+class OpenShiftDialog extends StatefulWidget {
+  const OpenShiftDialog({super.key});
 
   @override
-  State<OpenShiftScreen> createState() => _OpenShiftScreenState();
+  State<OpenShiftDialog> createState() => _OpenShiftDialogState();
 }
 
-class _OpenShiftScreenState extends State<OpenShiftScreen> {
+class _OpenShiftDialogState extends State<OpenShiftDialog> {
   late Timer _timer;
   String formattedDate = Helpers.formatDate(DateTime.now());
-
-  Future<POSParameterEntity?> getPosParameter() async {
-    return GetIt.instance<GetPosParameterUseCase>().call();
-  }
+  late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  POSParameterModel? posParameter;
 
   @override
   void initState() {
     super.initState();
+    getPosParameter();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         formattedDate = Helpers.formatDate(DateTime.now());
@@ -40,33 +43,28 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
     });
   }
 
+  Future<void> getPosParameter() async {
+    final pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    setState(() {
+      posParameter = pos[0];
+    });
+  }
+
   @override
   void dispose() {
-    _timer.cancel(); // Cancel the timer when the screen is disposed
+    _timer.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: ProjectColors.swatch,
-      statusBarBrightness: Brightness.light,
-      statusBarIconBrightness: Brightness.light,
-    ));
-
-    return FutureBuilder<POSParameterEntity?>(
-      future: getPosParameter(),
-      builder: (context, snapshot) {
-        // final formattedDate = Helpers.formatDate(DateTime.now());
-        final storeName = snapshot.data?.storeName ?? 'Loading...';
-        final cashier = snapshot.data?.user ??
-            'Loading...'; // need to check, tohem or lainnya
-        final adminCashier = snapshot.data?.user ??
-            'Loading...'; // need to check, tohem or lainnya
-
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: ScrollWidget(
+    final cashier = prefs.getString('username');
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10.0),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: ScrollWidget(
             padding: const EdgeInsets.symmetric(horizontal: 50),
             child: Column(
               children: [
@@ -74,7 +72,7 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
                   height: (MediaQuery.of(context).size.height / 2) - 350,
                 ),
                 Text(
-                  'Opening Shift - $storeName',
+                  'Opening Shift - ${posParameter!.storeName}',
                   style: const TextStyle(
                     color: ProjectColors.swatch,
                     fontSize: 30,
@@ -99,7 +97,7 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
                     fontWeight: FontWeight.normal,
                   ),
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 30),
                 const Text(
                   'Opening Balance:',
                   style: TextStyle(
@@ -109,16 +107,7 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const StartShiftForm(),
-                const SizedBox(height: 25),
-                Text(
-                  'Approver: $adminCashier',
-                  style: const TextStyle(
-                    color: ProjectColors.mediumBlack,
-                    fontSize: 18,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
+                const OpenShiftForm(),
                 const SizedBox(height: 25),
                 SizedBox(
                   width: 200,
@@ -141,21 +130,36 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
               ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
 
-class StartShiftForm extends StatefulWidget {
-  const StartShiftForm({Key? key}) : super(key: key);
+class OpenShiftForm extends StatefulWidget {
+  const OpenShiftForm({Key? key}) : super(key: key);
 
   @override
-  State<StartShiftForm> createState() => _StartShiftFormState();
+  State<OpenShiftForm> createState() => _OpenShiftFormState();
 }
 
-class _StartShiftFormState extends State<StartShiftForm> {
+class _OpenShiftFormState extends State<OpenShiftForm> {
   late TextEditingController openValueController;
+  SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  String? storeName;
+
+  ReceiptPrinter? receiptPrinter;
+
+  Future<String> getStoreName() async {
+    final String? storeId = prefs.getString("tostrId");
+    final store = await GetIt.instance<AppDatabase>()
+        .storeMasterDao
+        .readByDocId(storeId!, null);
+    setState(() {
+      storeName = store!.storeName;
+    });
+    return storeName!;
+  }
 
   void _insertCashierBalanceTransaction(
       CashierBalanceTransactionModel value) async {
@@ -168,6 +172,7 @@ class _StartShiftFormState extends State<StartShiftForm> {
   void initState() {
     super.initState();
     openValueController = TextEditingController();
+    getStoreName();
   }
 
   @override
@@ -179,121 +184,100 @@ class _StartShiftFormState extends State<StartShiftForm> {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
-
     return Center(
       child: Form(
         key: formKey,
-        child: Column(children: [
-          Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomInput(
-              controller: openValueController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a value';
-                }
-                final isNumeric = double.tryParse(value);
-                if (isNumeric == null) {
-                  return 'Please enter a valid number';
-                }
-                return null;
-              },
-              // label: "Openvalue",
-              keyboardType: TextInputType.number,
-              hint: "Enter Amount of Opening Balance",
-              prefixIcon: const Icon(Icons.monetization_on_outlined),
+        child: Column(
+          children: [
+            Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: CustomInput(
+                controller: openValueController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a value';
+                  }
+                  // final isNumeric = double.tryParse(value);
+                  // if (isNumeric == null) {
+                  //   return 'Please enter a valid number';
+                  // }
+                  return null;
+                },
+                // label: "Openvalue",
+                inputFormatters: [MoneyInputFormatter()],
+                keyboardType: TextInputType.number,
+                hint: "Enter Amount of Opening Balance",
+                prefixIcon: const Icon(Icons.monetization_on_outlined),
+              ),
             ),
-          ),
-          const SizedBox(height: 75),
-          Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomButton(
-              child: const Text("Start Shift"),
-              onTap: () async {
-                if (!formKey.currentState!.validate()) return;
+            const SizedBox(height: 88),
+            Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: CustomButton(
+                child: const Text("Open Shift"),
+                onTap: () async {
+                  if (!formKey.currentState!.validate()) return;
 
-                final prefs = GetIt.instance<SharedPreferences>();
-                await prefs.setBool('isOpen', true);
+                  final prefs = GetIt.instance<SharedPreferences>();
+                  await prefs.setBool('isOpen', true);
 
-                final double inputValue =
-                    double.tryParse(openValueController.text) ?? 0.0;
+                  final inputText =
+                      openValueController.text.replaceAll(',', '');
+                  final double inputValue = double.tryParse(inputText) ?? 0.0;
 
-                final CashierBalanceTransactionModel shift =
-                    CashierBalanceTransactionModel(
-                  docId: const Uuid().v4(),
-                  createDate: DateTime.now(),
-                  updateDate: DateTime.now(),
-                  tocsrId: "4ca46d3e-30ff-4441-98f8-3fdcf81dc230",
-                  tousrId: "fab056fa-b206-4360-8c35-568407651827",
-                  docNum: "RandomDocNum",
-                  openDate: DateTime.now(),
-                  openTime: DateTime.now(),
-                  calcDate: DateTime.utc(1970, 1, 1),
-                  calcTime: DateTime.utc(1970, 1, 1),
-                  closeDate: DateTime.utc(1970, 1, 1),
-                  closeTime: DateTime.utc(1970, 1, 1),
-                  timezone: "GMT+07",
-                  openValue: inputValue,
-                  calcValue: 0,
-                  cashValue: 0,
-                  closeValue: 0,
-                  openedbyId: "",
-                  closedbyId: "",
-                  approvalStatus: 0,
-                );
-                _insertCashierBalanceTransaction(shift);
+                  final store = await GetIt.instance<AppDatabase>()
+                      .storeMasterDao
+                      .readAll();
+                  final storeCode = store[0].storeCode;
+                  final date = DateTime.now();
+                  String formattedDate = DateFormat('yyyyMMdd').format(date);
+                  final countShift = await GetIt.instance<AppDatabase>()
+                      .cashierBalanceTransactionDao
+                      .readByDate(date);
 
-                await prefs.setString('tcsr1Id', shift.docId);
+                  final number =
+                      ((countShift!.length) + 1).toString().padLeft(3, '0');
+                  final docnum = '$storeCode-$formattedDate-$number';
 
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const SalesPage()),
-                // );
-              },
-            ),
-          ),
-        ]),
+                  final CashierBalanceTransactionModel shift =
+                      CashierBalanceTransactionModel(
+                    docId: const Uuid().v4(),
+                    createDate: DateTime.now(),
+                    updateDate: DateTime.now(),
+                    tocsrId: "4ca46d3e-30ff-4441-98f8-3fdcf81dc230",
+                    tousrId: "fab056fa-b206-4360-8c35-568407651827",
+                    docNum: docnum,
+                    openDate: DateTime.now(),
+                    openTime: DateTime.now(),
+                    calcDate: DateTime.utc(1970, 1, 1),
+                    calcTime: DateTime.utc(1970, 1, 1),
+                    closeDate: DateTime.utc(1970, 1, 1),
+                    closeTime: DateTime.utc(1970, 1, 1),
+                    timezone: "GMT+07",
+                    openValue: inputValue,
+                    calcValue: 0,
+                    cashValue: 0,
+                    closeValue: 0,
+                    openedbyId: "",
+                    closedbyId: "",
+                    approvalStatus: 0,
+                  );
+                  _insertCashierBalanceTransaction(shift);
+
+                  await prefs.setString('tcsr1Id', shift.docId);
+
+                  final printOpenShiftUsecase =
+                      GetIt.instance<PrintOpenShiftUsecase>();
+                  await printOpenShiftUsecase.call(params: shift);
+
+                  if (!context.mounted) return;
+                  if (context.mounted) context.pushNamed(RouteConstants.home);
+                },
+              ),
+            )
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class StartShiftFormFields extends StatelessWidget {
-  const StartShiftFormFields({
-    Key? key,
-    this.validator,
-    this.prefix,
-    this.prefixIcon,
-    this.suffix,
-    this.suffixIcon,
-    required this.label,
-    this.obscureText = false,
-    this.controller,
-  }) : super(key: key);
-
-  final String? Function(String? val)? validator;
-  final Widget? prefix, prefixIcon, suffix, suffixIcon;
-  final String label;
-  final bool obscureText;
-  final TextEditingController? controller;
-
-  @override
-  Widget build(Object context) {
-    return TextFormField(
-      validator: validator,
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-          isDense: true,
-          contentPadding: const EdgeInsets.only(bottom: 10),
-          prefixIcon: prefixIcon,
-          prefix: prefix,
-          suffixIcon: suffixIcon,
-          suffix: suffix,
-          labelText: label),
     );
   }
 }

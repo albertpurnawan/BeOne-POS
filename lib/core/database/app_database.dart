@@ -47,6 +47,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/item_picture_dao.d
 import 'package:pos_fe/features/sales/data/data_sources/local/item_remark_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/means_of_payment_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/money_denomination_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pay_means_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/payment_type_dao.dart';
@@ -105,6 +106,7 @@ import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_property.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
+import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_detail.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
@@ -226,6 +228,7 @@ class AppDatabase {
   late final VendorDao vendorDao;
   late final PreferredVendorDao preferredVendorDao;
   late final CashierBalanceTransactionDao cashierBalanceTransactionDao;
+  late final MoneyDenominationDao moneyDenominationDao;
 
   AppDatabase._init();
 
@@ -307,6 +310,7 @@ PRAGMA foreign_keys = ON;
     vendorDao = VendorDao(_database!);
     preferredVendorDao = PreferredVendorDao(_database!);
     cashierBalanceTransactionDao = CashierBalanceTransactionDao(_database!);
+    moneyDenominationDao = MoneyDenominationDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
@@ -2551,6 +2555,29 @@ CREATE TABLE $tableCloseShift (
   $createdAtDefinition,
   CONSTRAINT `closeShift_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `closeShift_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE  
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableMoneyDemonination (
+  $uuidDefinition,
+  ${MoneyDenominationFields.createDate} datetime NOT NULL,
+  ${MoneyDenominationFields.updateDate} datetime DEFAULT NULL,
+  ${MoneyDenominationFields.tcsr1Id} text DEFAULT NULL,
+  ${MoneyDenominationFields.coin50} int DEFAULT '0',
+  ${MoneyDenominationFields.coin100} int DEFAULT '0',
+  ${MoneyDenominationFields.coin200} int DEFAULT '0',
+  ${MoneyDenominationFields.coin500} int DEFAULT '0',
+  ${MoneyDenominationFields.coin1k} int DEFAULT '0',
+  ${MoneyDenominationFields.paper1k} int DEFAULT '0',
+  ${MoneyDenominationFields.paper2k} int DEFAULT '0',
+  ${MoneyDenominationFields.paper5k} int DEFAULT '0',
+  ${MoneyDenominationFields.paper10k} int DEFAULT '0',
+  ${MoneyDenominationFields.paper20k} int DEFAULT '0',
+  ${MoneyDenominationFields.paper50k} int DEFAULT '0',
+  ${MoneyDenominationFields.paper100k} int DEFAULT '0',
+  $createdAtDefinition,
+  CONSTRAINT `moneydemo_tcsr1_fkey` FOREIGN KEY (`tcsr1Id`) REFERENCES `tcsr1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
