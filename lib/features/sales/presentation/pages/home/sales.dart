@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -17,8 +18,10 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -928,7 +931,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: Icon(Icons.question_mark_rounded),
+                      child: Icon(Icons.lock_person_outlined),
                     ),
                   ),
                 ),
@@ -939,7 +942,7 @@ class _SalesPageState extends State<SalesPage> {
             width: 5,
           ),
           Expanded(
-            flex: 4,
+            flex: 2,
             child: Column(
               children: [
                 Expanded(
@@ -948,44 +951,10 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              padding: const EdgeInsets.all(3),
-                              foregroundColor: Colors.white,
-                              backgroundColor: ProjectColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              side: BorderSide.none,
-                            ),
-                            // style: ButtonStyle(
-                            //   foregroundColor:
-                            //       MaterialStatePropertyAll<Color>(
-                            //           Color.fromRGBO(195, 53, 53, 1)),
-                            //   side: MaterialStatePropertyAll<BorderSide>(
-                            //     BorderSide(
-                            //       color: Color.fromRGBO(195, 53, 53, 1),
-                            //       width: 3,
-                            //     ),
-                            //   ),
-                            // ),
-                            child: const Text(
-                              "Item Disc %",
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                        child: SizedBox.expand(
-                          child: OutlinedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.read<ReceiptCubit>().resetReceipt();
+                              setState(() {});
+                            },
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
@@ -997,13 +966,41 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                               side: BorderSide.none,
                             ),
-                            child: const Text(
-                              "Item Disc \$",
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                            child: FittedBox(
+                              child: const Text(
+                                "Reset",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
                             ),
                           ),
                         ),
                       ),
+
+                      // const SizedBox(
+                      //   width: 5,
+                      // ),
+                      // Expanded(
+                      //   child: SizedBox.expand(
+                      //     child: OutlinedButton(
+                      //       onPressed: () {},
+                      //       style: OutlinedButton.styleFrom(
+                      //         elevation: 5,
+                      //         shadowColor: Colors.black87,
+                      //         backgroundColor: ProjectColors.primary,
+                      //         padding: const EdgeInsets.all(3),
+                      //         foregroundColor: Colors.white,
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(5),
+                      //         ),
+                      //         side: BorderSide.none,
+                      //       ),
+                      //       child: const Text(
+                      //         "Item Disc \$",
+                      //         style: TextStyle(fontWeight: FontWeight.w600),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -1034,37 +1031,37 @@ class _SalesPageState extends State<SalesPage> {
                               side: BorderSide.none,
                             ),
                             child: const Text(
-                              "MFR Disc %",
+                              "Reprint",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                        child: SizedBox.expand(
-                          child: OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(3),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              side: BorderSide.none,
-                            ),
-                            child: const Text(
-                              "MFR Disc \$",
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // const SizedBox(
+                      //   width: 5,
+                      // ),
+                      // Expanded(
+                      //   child: SizedBox.expand(
+                      //     child: OutlinedButton(
+                      //       onPressed: () {},
+                      //       style: OutlinedButton.styleFrom(
+                      //         elevation: 5,
+                      //         shadowColor: Colors.black87,
+                      //         backgroundColor: ProjectColors.primary,
+                      //         padding: const EdgeInsets.all(3),
+                      //         foregroundColor: Colors.white,
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(5),
+                      //         ),
+                      //         side: BorderSide.none,
+                      //       ),
+                      //       child: const Text(
+                      //         "MFR Disc \$",
+                      //         style: TextStyle(fontWeight: FontWeight.w600),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -1081,9 +1078,71 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        elevation: 5,
+                        shadowColor: Colors.black87,
+                        padding: const EdgeInsets.all(3),
+                        foregroundColor: Colors.white,
+                        backgroundColor: ProjectColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        side: BorderSide.none,
+                      ),
+                      // style: ButtonStyle(
+                      //   foregroundColor:
+                      //       MaterialStatePropertyAll<Color>(
+                      //           Color.fromRGBO(195, 53, 53, 1)),
+                      //   side: MaterialStatePropertyAll<BorderSide>(
+                      //     BorderSide(
+                      //       color: Color.fromRGBO(195, 53, 53, 1),
+                      //       width: 3,
+                      //     ),
+                      //   ),
+                      // ),
+                      child: const Text(
+                        "Item Disc.",
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Expanded(
+                  child: SizedBox.expand(
+                    child: OutlinedButton(
                       onPressed: () {
-                        context.read<ReceiptCubit>().resetReceipt();
-                        setState(() {});
+                        setState(() {
+                          isEditingNewReceiptItemCode = false;
+                          isEditingNewReceiptItemQty = false;
+                          isUpdatingReceiptItemQty = false;
+                        });
+
+                        showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => ItemSearchDialog())
+                            .then((value) {
+                          setState(() {
+                            context.read<ItemsCubit>().clearItems();
+                            isEditingNewReceiptItemCode = true;
+                            _newReceiptItemCodeFocusNode.requestFocus();
+                          });
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final position = _scrollControllerReceiptItems
+                                    .position.maxScrollExtent +
+                                100;
+                            _scrollControllerReceiptItems.animateTo(
+                              position,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeOut,
+                            );
+                          });
+                        });
                       },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
@@ -1098,34 +1157,7 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                       child: FittedBox(
                         child: const Text(
-                          "Clear Orders",
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Expanded(
-                  child: SizedBox.expand(
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        elevation: 5,
-                        shadowColor: Colors.black87,
-                        backgroundColor: ProjectColors.primary,
-                        padding: const EdgeInsets.all(3),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        side: BorderSide.none,
-                      ),
-                      child: FittedBox(
-                        child: const Text(
-                          "Print Validation",
+                          "Item Search",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -1138,6 +1170,40 @@ class _SalesPageState extends State<SalesPage> {
               ],
             ),
           ),
+          const SizedBox(
+            width: 5,
+          ),
+          // Expanded(
+          //   flex: 2,
+          //   child: SizedBox(
+          //     height: double.infinity,
+          //     child: OutlinedButton(
+          //       onPressed: () {
+          //         context.read<ReceiptCubit>().resetReceipt();
+          //         setState(() {});
+          //       },
+          //       style: OutlinedButton.styleFrom(
+          //         elevation: 5,
+          //         shadowColor: Colors.black87,
+          //         backgroundColor: ProjectColors.primary,
+          //         padding: const EdgeInsets.all(25),
+          //         foregroundColor: Colors.white,
+          //         shape: RoundedRectangleBorder(
+          //           borderRadius: BorderRadius.circular(5),
+          //         ),
+          //         side: BorderSide.none,
+          //       ),
+          //       child: SizedBox.expand(
+          //         child: FittedBox(
+          //           fit: BoxFit.cover,
+          //           child: Icon(
+          //             Icons.search,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -1400,9 +1466,11 @@ class _SalesPageState extends State<SalesPage> {
                         width: 8,
                       ),
                       Text(
-                        "Suspend",
+                        "Queue",
                         style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 18),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                        ),
                       ),
                     ],
                   ),
@@ -1471,6 +1539,32 @@ class _SalesPageState extends State<SalesPage> {
       flex: 1,
       child: Column(
         children: [
+          Expanded(
+            child: SizedBox.expand(
+              child: OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(7),
+                  elevation: 5,
+                  shadowColor: Colors.black87,
+                  backgroundColor: ProjectColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  side: BorderSide.none,
+                ),
+                child: const Text(
+                  "Queue List",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
           Expanded(
             child: SizedBox.expand(
               child: OutlinedButton(
@@ -1741,32 +1835,6 @@ class _SalesPageState extends State<SalesPage> {
                 ),
                 child: const Text(
                   "Select Cust.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: SizedBox.expand(
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(7),
-                  elevation: 5,
-                  shadowColor: Colors.black87,
-                  backgroundColor: ProjectColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  side: BorderSide.none,
-                ),
-                child: const Text(
-                  "Check Price",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
@@ -2271,6 +2339,15 @@ class _SalesPageState extends State<SalesPage> {
                   isEditingNewReceiptItemCode = true;
                   _newReceiptItemCodeFocusNode.requestFocus();
                 }));
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final position =
+                  _scrollControllerReceiptItems.position.maxScrollExtent + 100;
+              _scrollControllerReceiptItems.animateTo(
+                position,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOut,
+              );
+            });
           } else {
             context.read<ReceiptCubit>().addOrUpdateReceiptItems(
                 _textEditingControllerNewReceiptItemCode.text,

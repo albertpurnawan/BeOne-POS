@@ -73,61 +73,60 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           ? [
               Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                          child: TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(
-                                        color: ProjectColors.primary))),
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.white),
-                            overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.black.withOpacity(.2))),
-                        onPressed: () {
-                          // Navigator.of(context).pop();
-                        },
-                        child: const Center(
-                            child: Text(
-                          "Send Receipt",
-                          style: TextStyle(color: ProjectColors.primary),
-                        )),
-                      )),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                          child: TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(
-                                        color: ProjectColors.primary))),
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.white),
-                            overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.black.withOpacity(.2))),
-                        onPressed: () {
-                          print("berapa kali");
-                          GetIt.instance<PrintReceiptUsecase>()
-                              .call(params: context.read<ReceiptCubit>().state);
-                          // Navigator.of(context).pop();
-                        },
-                        child: const Center(
-                            child: Text(
-                          "Print Receipt",
-                          style: TextStyle(color: ProjectColors.primary),
-                        )),
-                      )),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //         child: TextButton(
+                  //       style: ButtonStyle(
+                  //           shape: MaterialStatePropertyAll(
+                  //               RoundedRectangleBorder(
+                  //                   borderRadius: BorderRadius.circular(5),
+                  //                   side: const BorderSide(
+                  //                       color: ProjectColors.primary))),
+                  //           backgroundColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.white),
+                  //           overlayColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.black.withOpacity(.2))),
+                  //       onPressed: () {
+                  //         // Navigator.of(context).pop();
+                  //       },
+                  //       child: const Center(
+                  //           child: Text(
+                  //         "Send Receipt",
+                  //         style: TextStyle(color: ProjectColors.primary),
+                  //       )),
+                  //     )),
+                  //     const SizedBox(
+                  //       width: 10,
+                  //     ),
+                  //     Expanded(
+                  //         child: TextButton(
+                  //       style: ButtonStyle(
+                  //           shape: MaterialStatePropertyAll(
+                  //               RoundedRectangleBorder(
+                  //                   borderRadius: BorderRadius.circular(5),
+                  //                   side: const BorderSide(
+                  //                       color: ProjectColors.primary))),
+                  //           backgroundColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.white),
+                  //           overlayColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.black.withOpacity(.2))),
+                  //       onPressed: () {
+                  //         GetIt.instance<PrintReceiptUseCase>()
+                  //             .call(params: context.read<ReceiptCubit>().state);
+                  //         // Navigator.of(context).pop();
+                  //       },
+                  //       child: const Center(
+                  //           child: Text(
+                  //         "Print Receipt",
+                  //         style: TextStyle(color: ProjectColors.primary),
+                  //       )),
+                  //     )),
+                  //   ],
+                  // ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
                   TextButton(
                     style: ButtonStyle(
                         shape: MaterialStatePropertyAll(RoundedRectangleBorder(

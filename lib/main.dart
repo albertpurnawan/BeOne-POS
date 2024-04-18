@@ -10,11 +10,16 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/scheduler.dart';
@@ -63,16 +68,21 @@ class MyApp extends StatelessWidget {
           providers: [
             BlocProvider<ReceiptCubit>(
                 create: (context) => ReceiptCubit(
-                    GetIt.instance<GetItemByBarcodeUseCase>(),
-                    GetIt.instance<SaveReceiptUseCase>(),
-                    GetIt.instance<GetEmployeeUseCase>(),
-                    GetIt.instance<GetStoreMasterUseCase>())),
+                      GetIt.instance<GetItemByBarcodeUseCase>(),
+                      GetIt.instance<SaveReceiptUseCase>(),
+                      GetIt.instance<GetEmployeeUseCase>(),
+                      GetIt.instance<PrintReceiptUseCase>(),
+                      GetIt.instance<OpenCashDrawerUseCase>(),
+                    )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>
                     CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(
                 create: (context) => MopSelectionsCubit(
                     GetIt.instance<GetMopSelectionsUseCase>())),
+            BlocProvider<ItemsCubit>(
+                create: (context) =>
+                    ItemsCubit(GetIt.instance<GetItemsUseCase>())),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {

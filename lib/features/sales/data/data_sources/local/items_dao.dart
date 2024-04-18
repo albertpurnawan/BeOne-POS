@@ -49,9 +49,20 @@ class ItemsDao extends BaseDao<ItemModel> {
   }
 
   @override
-  Future<List<ItemModel>> readAll({Transaction? txn}) async {
-    // TODO: implement readAll
-    throw UnimplementedError();
+  Future<List<ItemModel>> readAll(
+      {String? searchKeyword, Transaction? txn}) async {
+    final result = await db.query(
+      tableName,
+      where:
+          "${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ?",
+      whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%"],
+      orderBy: "itemname",
+      limit: 300,
+    );
+    print(123123123123);
+    print(searchKeyword);
+    print(result);
+    return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 
   @override

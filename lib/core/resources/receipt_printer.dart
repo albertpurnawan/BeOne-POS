@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
+import 'package:thermal_printer/esc_pos_utils_platform/src/commands.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
@@ -176,8 +177,9 @@ class ReceiptPrinter {
                 )),
             PosColumn(
                 width: 8,
-                text: Helpers.parseMoney(
-                    currentPrintReceiptDetail!.receiptEntity.grandTotal),
+                text: Helpers.parseMoney(currentPrintReceiptDetail!
+                    .receiptEntity.grandTotal
+                    .toInt()),
                 styles: PosStyles(
                   align: PosAlign.right,
                   height: printReceiptContent.fontSize,
@@ -198,7 +200,7 @@ class ReceiptPrinter {
             PosColumn(
                 width: 4,
                 text: Helpers.parseMoney(
-                    currentPrintReceiptDetail!.receiptEntity.taxAmount),
+                    currentPrintReceiptDetail!.receiptEntity.taxAmount.toInt()),
                 styles: const PosStyles(
                   align: PosAlign.right,
                   // codeTable: 'CP1252',
@@ -335,6 +337,102 @@ class ReceiptPrinter {
     _printEscPos(bytes, generator);
   }
 
+  Future<void> openCashDrawer({PosDrawer pin = PosDrawer.pin2}) async {
+    List<int> bytes = [];
+    final String? paperSize =
+        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(
+        paperSize == null
+            ? PaperSize.mm58
+            : paperSize == "80 mm"
+                ? PaperSize.mm80
+                : PaperSize.mm58,
+        profile);
+
+    bool connectedTCP = false;
+
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
+        null) {
+      final [
+        deviceName,
+        address,
+        port,
+        vendorId,
+        productId,
+        isBle,
+        typePrinter,
+        state
+      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
+
+      selectedPrinter = BluetoothPrinter(
+        deviceName: deviceName == "null" ? null : deviceName,
+        address: address == "null" ? null : address,
+        port: port == "null" ? null : port,
+        vendorId: vendorId == "null" ? null : vendorId,
+        productId: productId == "null" ? null : productId,
+        isBle: isBle == "true" ? true : false,
+        typePrinter: typePrinter == "PrinterType.bluetooth"
+            ? PrinterType.bluetooth
+            : typePrinter == "PrinterType.network"
+                ? PrinterType.network
+                : PrinterType.usb,
+        state: state == "null"
+            ? null
+            : state == "true"
+                ? true
+                : false,
+      );
+    }
+
+    if (selectedPrinter == null) return;
+
+    PrinterManager printerManager = PrinterManager.instance;
+    BluetoothPrinter bluetoothPrinter = selectedPrinter!;
+
+    bytes += generator.drawer();
+
+    switch (bluetoothPrinter.typePrinter) {
+      case PrinterType.usb:
+        await printerManager.connect(
+            type: bluetoothPrinter.typePrinter,
+            model: UsbPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                productId: bluetoothPrinter.productId,
+                vendorId: bluetoothPrinter.vendorId));
+        pendingTask = null;
+        break;
+      case PrinterType.bluetooth:
+        await printerManager.connect(
+            type: bluetoothPrinter.typePrinter,
+            model: BluetoothPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                address: bluetoothPrinter.address!,
+                isBle: bluetoothPrinter.isBle ?? false,
+                autoConnect: _reconnect));
+        pendingTask = null;
+        if (Platform.isAndroid) pendingTask = bytes;
+        break;
+      case PrinterType.network:
+        connectedTCP = await printerManager.connect(
+            type: bluetoothPrinter.typePrinter,
+            model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+        if (!connectedTCP) print(' --- please review your connection ---');
+        break;
+      default:
+    }
+
+    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth &&
+        Platform.isAndroid) {
+      if (_currentStatus == BTStatus.connected) {
+        printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
+        pendingTask = null;
+      }
+    } else {
+      printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
+    }
+  }
+
   /// print ticket
   void _printEscPos(List<int> bytes, Generator generator) async {
     bool connectedTCP = false;
@@ -399,7 +497,7 @@ class ReceiptPrinter {
                 isBle: bluetoothPrinter.isBle ?? false,
                 autoConnect: _reconnect));
         pendingTask = null;
-        if (Platform.isAndroid) pendingTask = bytes;
+        // if (Platform.isAndroid) pendingTask = bytes;
         break;
       case PrinterType.network:
         bytes += generator.feed(2);
@@ -408,6 +506,7 @@ class ReceiptPrinter {
             type: bluetoothPrinter.typePrinter,
             model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         if (!connectedTCP) print(' --- please review your connection ---');
+        pendingTask = null;
         break;
       default:
     }

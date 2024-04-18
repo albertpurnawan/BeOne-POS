@@ -13,6 +13,8 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 
 part 'receipt_state.dart';
@@ -21,10 +23,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetItemByBarcodeUseCase _getItemByBarcodeUseCase;
   final SaveReceiptUseCase _saveReceiptUseCase;
   final GetEmployeeUseCase _getEmployeeUseCase;
-  final GetStoreMasterUseCase _getStoreMasterUseCase;
+  final PrintReceiptUseCase _printReceiptUsecase;
+  final OpenCashDrawerUseCase _openCashDrawerUseCase;
 
-  ReceiptCubit(this._getItemByBarcodeUseCase, this._saveReceiptUseCase,
-      this._getEmployeeUseCase, this._getStoreMasterUseCase)
+  ReceiptCubit(
+      this._getItemByBarcodeUseCase,
+      this._saveReceiptUseCase,
+      this._getEmployeeUseCase,
+      this._printReceiptUsecase,
+      this._openCashDrawerUseCase)
       : super(ReceiptEntity(
           docNum:
               "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
@@ -62,14 +69,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     for (final currentReceiptItem in state.receiptItems) {
       if (currentReceiptItem.itemEntity.barcode == itemBarcode) {
         currentReceiptItem.quantity += quantity;
-        final double priceQty = currentReceiptItem.itemEntity.price * quantity;
-        currentReceiptItem.totalSellBarcode += priceQty;
-        currentReceiptItem.totalGross +=
+        final double priceQty =
+            currentReceiptItem.itemEntity.price * currentReceiptItem.quantity;
+        currentReceiptItem.totalSellBarcode = priceQty;
+        currentReceiptItem.totalGross =
             currentReceiptItem.itemEntity.includeTax == 1
                 ? (priceQty *
                     (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
                 : priceQty;
-        currentReceiptItem.taxAmount +=
+        currentReceiptItem.taxAmount =
             currentReceiptItem.itemEntity.includeTax == 1
                 ? (priceQty) - currentReceiptItem.totalGross
                 : priceQty * (currentReceiptItem.itemEntity.taxRate / 100);
@@ -127,14 +135,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (currentReceiptItem.itemEntity.barcode ==
           receiptItemEntity.itemEntity.barcode) {
         currentReceiptItem.quantity += quantity;
-        final double priceQty = currentReceiptItem.itemEntity.price * quantity;
-        currentReceiptItem.totalSellBarcode += priceQty;
-        currentReceiptItem.totalGross +=
+        final double priceQty =
+            currentReceiptItem.itemEntity.price * currentReceiptItem.quantity;
+        currentReceiptItem.totalSellBarcode = priceQty;
+        currentReceiptItem.totalGross =
             currentReceiptItem.itemEntity.includeTax == 1
                 ? (priceQty *
                     (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
                 : priceQty;
-        currentReceiptItem.taxAmount +=
+        currentReceiptItem.taxAmount =
             currentReceiptItem.itemEntity.includeTax == 1
                 ? (priceQty) - currentReceiptItem.totalGross
                 : priceQty * (currentReceiptItem.itemEntity.taxRate / 100);
@@ -193,14 +202,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (currentReceiptItem.itemEntity.barcode == priceSetItemEntity.barcode &&
           currentReceiptItem.itemEntity.price == priceSetItemEntity.price) {
         currentReceiptItem.quantity += quantity;
-        final double priceQty = currentReceiptItem.itemEntity.price * quantity;
-        currentReceiptItem.totalSellBarcode += priceQty;
-        currentReceiptItem.totalGross +=
+        final double priceQty =
+            currentReceiptItem.itemEntity.price * currentReceiptItem.quantity;
+        currentReceiptItem.totalSellBarcode = priceQty;
+        currentReceiptItem.totalGross =
             currentReceiptItem.itemEntity.includeTax == 1
                 ? (priceQty *
                     (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
                 : priceQty;
-        currentReceiptItem.taxAmount +=
+        currentReceiptItem.taxAmount =
             currentReceiptItem.itemEntity.includeTax == 1
                 ? (priceQty) - currentReceiptItem.totalGross
                 : priceQty * (currentReceiptItem.itemEntity.taxRate / 100);
@@ -304,6 +314,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     // emit(newState);
   }
 
+  void addOrUpdateReceiptItemsBySearch(ItemEntity itemEntity) {
+    return addOrUpdateReceiptItemWithOpenPrice(itemEntity, 1, null);
+  }
+
   void updateMopSelection(
       {required MopSelectionEntity mopSelectionEntity,
       required double amountReceived}) {
@@ -321,13 +335,17 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   void charge() async {
     final newState =
         state.copyWith(changed: state.totalPayment! - state.grandTotal);
-    // emit(newState);
     final ReceiptEntity? createdReceipt =
         await _saveReceiptUseCase.call(params: newState);
-    print(createdReceipt);
-    createdReceipt != null ? emit(createdReceipt) : null;
-    // await GetIt.instance<PrintReceiptUsecase>()
-    //     .call(params: createdReceipt);
+    if (createdReceipt != null) {
+      emit(createdReceipt);
+      try {
+        await _printReceiptUsecase.call(params: createdReceipt);
+      } catch (e) {
+        print(e);
+      }
+      await _openCashDrawerUseCase.call();
+    }
     // await GetIt.instance<InvoiceApi>().sendInvoice();
   }
 

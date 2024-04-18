@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
@@ -25,19 +26,28 @@ class _LoginScreenState extends State<LoginScreen> {
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login'),
+        backgroundColor: ProjectColors.primary,
+        foregroundColor: Colors.white,
+      ),
       backgroundColor: Color.fromARGB(255, 234, 234, 234),
-      body: ScrollWidget(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
-          child: Column(
-            children: [
-              SizedBox(
-                height: (MediaQuery.of(context).size.height / 2) - 150,
-              ),
-              const BeOneLogo(size: 130),
-              const SizedBox(height: 30),
-              const LoginForm()
-            ],
-          )),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: (MediaQuery.of(context).size.height / 5),
+            ),
+            const BeOneLogo(size: 130),
+            const SizedBox(height: 30),
+            const LoginForm(),
+            const SizedBox(
+              height: 130,
+            )
+          ],
+        ),
+      ),
     );
   }
 }
