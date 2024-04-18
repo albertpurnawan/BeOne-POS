@@ -12,8 +12,10 @@ class AssignPriceMemberPerStoreDao
         );
 
   @override
-  Future<AssignPriceMemberPerStoreModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<AssignPriceMemberPerStoreModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -26,7 +28,9 @@ class AssignPriceMemberPerStoreDao
   }
 
   @override
-  Future<List<AssignPriceMemberPerStoreModel>> readAll() async {
+  Future<List<AssignPriceMemberPerStoreModel>> readAll(
+      {Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

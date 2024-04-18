@@ -8,7 +8,9 @@ import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
@@ -62,7 +64,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       contentPadding: const EdgeInsets.all(0),
       content: isCharged
-          ? const _CheckoutSuccessDialogContent()
+          ? _CheckoutSuccessDialogContent()
           : const CheckoutDialogContent(),
 
       // contentPadding: const EdgeInsets.symmetric(
@@ -71,61 +73,60 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           ? [
               Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                          child: TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(
-                                        color: ProjectColors.primary))),
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.white),
-                            overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.black.withOpacity(.2))),
-                        onPressed: () {
-                          // Navigator.of(context).pop();
-                        },
-                        child: const Center(
-                            child: Text(
-                          "Send Receipt",
-                          style: TextStyle(color: ProjectColors.primary),
-                        )),
-                      )),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                          child: TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(
-                                        color: ProjectColors.primary))),
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.white),
-                            overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.black.withOpacity(.2))),
-                        onPressed: () {
-                          print("berapa kali");
-                          GetIt.instance<PrintReceiptUsecase>()
-                              .call(params: context.read<ReceiptCubit>().state);
-                          // Navigator.of(context).pop();
-                        },
-                        child: const Center(
-                            child: Text(
-                          "Print Receipt",
-                          style: TextStyle(color: ProjectColors.primary),
-                        )),
-                      )),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //         child: TextButton(
+                  //       style: ButtonStyle(
+                  //           shape: MaterialStatePropertyAll(
+                  //               RoundedRectangleBorder(
+                  //                   borderRadius: BorderRadius.circular(5),
+                  //                   side: const BorderSide(
+                  //                       color: ProjectColors.primary))),
+                  //           backgroundColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.white),
+                  //           overlayColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.black.withOpacity(.2))),
+                  //       onPressed: () {
+                  //         // Navigator.of(context).pop();
+                  //       },
+                  //       child: const Center(
+                  //           child: Text(
+                  //         "Send Receipt",
+                  //         style: TextStyle(color: ProjectColors.primary),
+                  //       )),
+                  //     )),
+                  //     const SizedBox(
+                  //       width: 10,
+                  //     ),
+                  //     Expanded(
+                  //         child: TextButton(
+                  //       style: ButtonStyle(
+                  //           shape: MaterialStatePropertyAll(
+                  //               RoundedRectangleBorder(
+                  //                   borderRadius: BorderRadius.circular(5),
+                  //                   side: const BorderSide(
+                  //                       color: ProjectColors.primary))),
+                  //           backgroundColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.white),
+                  //           overlayColor: MaterialStateColor.resolveWith(
+                  //               (states) => Colors.black.withOpacity(.2))),
+                  //       onPressed: () {
+                  //         GetIt.instance<PrintReceiptUseCase>()
+                  //             .call(params: context.read<ReceiptCubit>().state);
+                  //         // Navigator.of(context).pop();
+                  //       },
+                  //       child: const Center(
+                  //           child: Text(
+                  //         "Print Receipt",
+                  //         style: TextStyle(color: ProjectColors.primary),
+                  //       )),
+                  //     )),
+                  //   ],
+                  // ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
                   TextButton(
                     style: ButtonStyle(
                         shape: MaterialStatePropertyAll(RoundedRectangleBorder(
@@ -184,12 +185,17 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                         overlayColor: MaterialStateColor.resolveWith(
                             (states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
-                      await GetIt.instance<SaveReceiptUseCase>()
-                          .call(params: context.read<ReceiptCubit>().state);
-                      // await GetIt.instance<InvoiceApi>().sendInvoice();
-                      setState(() {
-                        isCharged = true;
-                      });
+                      try {
+                        context.read<ReceiptCubit>().charge();
+                        Future.delayed(Duration(milliseconds: 600), () {
+                          setState(() {
+                            isCharged = true;
+                          });
+                        });
+                      } catch (e, s) {
+                        print(e);
+                        debugPrintStack(stackTrace: s);
+                      }
                     },
                     child: const Center(
                         child: Text(
@@ -250,11 +256,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   }
 
   List<int> generateCashAmountSuggestions(int receiptTotalAmount) {
-    List<int> cashAmountSuggestions = [];
-    final List<int> multipliers = [10000, 50000, 100000];
-
-    cashAmountSuggestions
-        .add(receiptTotalAmount + 5000 - (receiptTotalAmount % 5000));
+    List<int> cashAmountSuggestions = [receiptTotalAmount];
+    final List<int> multipliers = [5000, 10000, 50000, 100000];
 
     for (final multiplier in multipliers) {
       if (cashAmountSuggestions.last % multiplier != 0) {
@@ -302,8 +305,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     context.read<ReceiptCubit>().updateMopSelection(
         mopSelectionEntity: mopSelectionEntity,
         amountReceived: mopSelectionEntity.payTypeCode == "1"
-            ? _cashAmount
-            : context.read<ReceiptCubit>().state.totalPrice);
+            ? _cashAmount.toDouble()
+            : context.read<ReceiptCubit>().state.grandTotal);
   }
 
   @override
@@ -390,7 +393,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                             height: 10,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPrice)}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
                             style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.w700,
@@ -430,7 +433,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                 generateCashAmountSuggestions(context
                                     .read<ReceiptCubit>()
                                     .state
-                                    .totalPrice);
+                                    .grandTotal
+                                    .toInt());
 
                             return SizedBox(
                               width: double.infinity,
@@ -720,7 +724,7 @@ class __CheckoutSuccessDialogContentState
                               width: 10,
                             ),
                             Text(
-                              "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPrice)}",
+                              "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
                               style: const TextStyle(
                                 fontSize: 42,
                                 fontWeight: FontWeight.w700,
@@ -738,8 +742,14 @@ class __CheckoutSuccessDialogContentState
                           height: 10,
                         ),
                         Text(
-                          DateFormat("EEE, dd MMM yyyy - hh:mm aaa")
-                              .format(DateTime.now()),
+                          context.read<ReceiptCubit>().state.transDateTime !=
+                                  null
+                              ? DateFormat("EEE, dd MMM yyyy - hh:mm aaa")
+                                  .format(context
+                                      .read<ReceiptCubit>()
+                                      .state
+                                      .transDateTime!)
+                              : "",
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -841,7 +851,7 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPrice)}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -862,7 +872,7 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.amountReceived!)}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPayment!)}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -883,7 +893,9 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.amountReceived! - context.read<ReceiptCubit>().state.totalPrice)}",
+                            context.read<ReceiptCubit>().state.changed != null
+                                ? "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.changed!)}"
+                                : "",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,

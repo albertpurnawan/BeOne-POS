@@ -13,8 +13,10 @@ class PromoBertingkatDefaultValidDaysDao
 
   @override
   Future<PromoBertingkatDefaultValidDaysModel?> readByDocId(
-      String docId) async {
-    final res = await db.query(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -27,7 +29,9 @@ class PromoBertingkatDefaultValidDaysDao
   }
 
   @override
-  Future<List<PromoBertingkatDefaultValidDaysModel>> readAll() async {
+  Future<List<PromoBertingkatDefaultValidDaysModel>> readAll(
+      {Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

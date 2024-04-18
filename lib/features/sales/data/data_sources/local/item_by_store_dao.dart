@@ -10,8 +10,9 @@ class ItemByStoreDao extends BaseDao<ItemByStoreModel> {
             modelFields: ItemsByStoreFields.values);
 
   @override
-  Future<ItemByStoreModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<ItemByStoreModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +23,8 @@ class ItemByStoreDao extends BaseDao<ItemByStoreModel> {
   }
 
   @override
-  Future<List<ItemByStoreModel>> readAll() async {
+  Future<List<ItemByStoreModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -4,61 +4,65 @@ import 'dart:convert';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 
 class ReceiptItemEntity {
-  int? id;
   double quantity;
-  int subtotal;
-  DateTime? createdAt;
-  ItemEntity itemEntity;
-  int? receiptId;
+  double totalGross;
+  final ItemEntity itemEntity;
+  double taxAmount;
+  final double sellingPrice;
+  double totalAmount;
+  double totalSellBarcode;
 
   ReceiptItemEntity({
-    required this.id,
     required this.quantity,
-    required this.subtotal,
-    required this.createdAt,
+    required this.totalGross,
     required this.itemEntity,
-    required this.receiptId,
+    required this.taxAmount,
+    required this.sellingPrice,
+    required this.totalAmount,
+    required this.totalSellBarcode,
   });
 
   ReceiptItemEntity copyWith({
-    int? id,
     double? quantity,
-    int? subtotal,
-    DateTime? createdAt,
+    double? totalGross,
     ItemEntity? itemEntity,
-    int? receiptId,
+    double? taxAmount,
+    double? sellingPrice,
+    double? totalAmount,
+    double? totalSellBarcode,
   }) {
     return ReceiptItemEntity(
-      id: id ?? this.id,
       quantity: quantity ?? this.quantity,
-      subtotal: subtotal ?? this.subtotal,
-      createdAt: createdAt ?? this.createdAt,
+      totalGross: totalGross ?? this.totalGross,
       itemEntity: itemEntity ?? this.itemEntity,
-      receiptId: receiptId ?? this.receiptId,
+      taxAmount: taxAmount ?? this.taxAmount,
+      sellingPrice: sellingPrice ?? this.sellingPrice,
+      totalAmount: totalAmount ?? this.totalAmount,
+      totalSellBarcode: totalSellBarcode ?? this.totalSellBarcode,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'quantity': quantity,
-      'subtotal': subtotal,
-      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'totalGross': totalGross,
       'itemEntity': itemEntity.toMap(),
-      'receiptId': receiptId,
+      'taxAmount': taxAmount,
+      'sellingPrice': sellingPrice,
+      'totalAmount': totalAmount,
+      'totalSellBarcode': totalSellBarcode,
     };
   }
 
   factory ReceiptItemEntity.fromMap(Map<String, dynamic> map) {
     return ReceiptItemEntity(
-      id: map['id'] != null ? map['id'] as int : null,
       quantity: map['quantity'] as double,
-      subtotal: map['subtotal'] as int,
-      createdAt: map['createdAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
-          : null,
+      totalGross: map['totalGross'] as double,
       itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
-      receiptId: map['receiptId'] != null ? map['receiptId'] as int : null,
+      taxAmount: map['taxAmount'] as double,
+      sellingPrice: map['sellingPrice'] as double,
+      totalAmount: map['totalAmount'] as double,
+      totalSellBarcode: map['totalSellBarcode'] as double,
     );
   }
 
@@ -69,28 +73,30 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(id: $id, quantity: $quantity, subtotal: $subtotal, createdAt: $createdAt, itemEntity: $itemEntity, receiptId: $receiptId)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode)';
   }
 
   @override
   bool operator ==(covariant ReceiptItemEntity other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.quantity == quantity &&
-        other.subtotal == subtotal &&
-        other.createdAt == createdAt &&
+    return other.quantity == quantity &&
+        other.totalGross == totalGross &&
         other.itemEntity == itemEntity &&
-        other.receiptId == receiptId;
+        other.taxAmount == taxAmount &&
+        other.sellingPrice == sellingPrice &&
+        other.totalAmount == totalAmount &&
+        other.totalSellBarcode == totalSellBarcode;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        quantity.hashCode ^
-        subtotal.hashCode ^
-        createdAt.hashCode ^
+    return quantity.hashCode ^
+        totalGross.hashCode ^
         itemEntity.hashCode ^
-        receiptId.hashCode;
+        taxAmount.hashCode ^
+        sellingPrice.hashCode ^
+        totalAmount.hashCode ^
+        totalSellBarcode.hashCode;
   }
 }

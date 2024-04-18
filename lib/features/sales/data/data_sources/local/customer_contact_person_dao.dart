@@ -11,8 +11,10 @@ class CustomerContactPersonDao extends BaseDao<CustomerContactPersonModel> {
         );
 
   @override
-  Future<CustomerContactPersonModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<CustomerContactPersonModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class CustomerContactPersonDao extends BaseDao<CustomerContactPersonModel> {
   }
 
   @override
-  Future<List<CustomerContactPersonModel>> readAll() async {
+  Future<List<CustomerContactPersonModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -10,14 +10,14 @@ import 'package:pos_fe/features/sales/domain/repository/receipt_content_reposito
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 
-class PrintReceiptUsecase implements UseCase<void, ReceiptEntity?> {
+class PrintReceiptUseCase implements UseCase<void, ReceiptEntity?> {
   // POS Parameter
   final POSParameterRepository _posParameterRepository;
   final StoreMasterRepository _storeMasterRepository;
   final ReceiptContentRepository _receiptContentRepository;
   final ReceiptPrinter _receiptPrinter;
 
-  PrintReceiptUsecase(this._posParameterRepository, this._storeMasterRepository,
+  PrintReceiptUseCase(this._posParameterRepository, this._storeMasterRepository,
       this._receiptContentRepository, this._receiptPrinter);
   // Store
   // Receipt kurang tovat, tohem, toven

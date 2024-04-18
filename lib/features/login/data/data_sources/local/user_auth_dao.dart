@@ -19,8 +19,9 @@ class UserAuthDao extends BaseDao<UserAuthModel> {
   final prefs = GetIt.instance<SharedPreferences>();
 
   @override
-  Future<UserAuthModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<UserAuthModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -31,7 +32,8 @@ class UserAuthDao extends BaseDao<UserAuthModel> {
   }
 
   @override
-  Future<List<UserAuthModel>> readAll() async {
+  Future<List<UserAuthModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => UserAuthModel.fromMap(itemData)).toList();

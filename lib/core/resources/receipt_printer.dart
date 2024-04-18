@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
+import 'package:thermal_printer/esc_pos_utils_platform/src/commands.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
@@ -80,11 +81,14 @@ class ReceiptPrinter {
       case PrintReceiptContentType.storeName:
         return currentPrintReceiptDetail?.storeMasterEntity.storeName ?? "";
       case PrintReceiptContentType.date:
-        return DateFormat('yyyy-MM-dd').format(DateTime.now());
+        return DateFormat('yyyy-MM-dd')
+            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.time:
-        return DateFormat('hh:mm aaa').format(DateTime.now());
+        return DateFormat('hh:mm aaa')
+            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
-        return DateFormat('yyyy-MM-dd - hh:mm aaa').format(DateTime.now());
+        return DateFormat('yyyy-MM-dd - hh:mm aaa')
+            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
       case PrintReceiptContentType.employeeCodeAndName:
@@ -132,9 +136,9 @@ class ReceiptPrinter {
           bytes += generator.hr();
         case PrintReceiptContentType.items:
           for (final item
-              in currentPrintReceiptDetail?.receiptEntity.receiptItems ?? []) {
+              in currentPrintReceiptDetail!.receiptEntity.receiptItems) {
             bytes += generator.text(
-                "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.price)} ${item.itemEntity.itemName}");
+                "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.dpp)} ${item.itemEntity.itemName}");
             bytes += generator.row([
               PosColumn(
                   width: 8,
@@ -149,7 +153,7 @@ class ReceiptPrinter {
                   )),
               PosColumn(
                   width: 4,
-                  text: '${Helpers.parseMoney(item.subtotal)}',
+                  text: Helpers.parseMoney(item.totalGross),
                   styles: PosStyles(
                     align: PosAlign.right,
                     height: printReceiptContent.fontSize,
@@ -173,8 +177,9 @@ class ReceiptPrinter {
                 )),
             PosColumn(
                 width: 8,
-                text: Helpers.parseMoney(
-                    currentPrintReceiptDetail!.receiptEntity.totalPrice),
+                text: Helpers.parseMoney(currentPrintReceiptDetail!
+                    .receiptEntity.grandTotal
+                    .toInt()),
                 styles: PosStyles(
                   align: PosAlign.right,
                   height: printReceiptContent.fontSize,
@@ -187,46 +192,15 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 8,
-                text: "Net Sales - Non Taxable",
+                text: "Tax Amount",
                 styles: const PosStyles(
                   align: PosAlign.left,
                   // codeTable: 'CP1252',
                 )),
             PosColumn(
                 width: 4,
-                text: 'Rp 0',
-                styles: const PosStyles(
-                  align: PosAlign.right,
-                  // codeTable: 'CP1252',
-                )),
-          ]);
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "Net Sales - Tax Base",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  // codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: 'Rp 6,216',
-                styles: const PosStyles(
-                  align: PosAlign.right,
-                  // codeTable: 'CP1252',
-                )),
-          ]);
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "PPN 11%",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  // codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: 'Rp 684',
+                text: Helpers.parseMoney(
+                    currentPrintReceiptDetail!.receiptEntity.taxAmount.toInt()),
                 styles: const PosStyles(
                   align: PosAlign.right,
                   // codeTable: 'CP1252',
@@ -254,7 +228,6 @@ class ReceiptPrinter {
           bytes += generator.qrcode(
               currentPrintReceiptDetail!.receiptEntity.docNum,
               size: QRSize.Size6);
-
         case PrintReceiptContentType.logo:
         default:
           bytes += generator.text(
@@ -322,8 +295,7 @@ class ReceiptPrinter {
 
     List<List<PrintReceiptContent>> printReceiptContents = [];
     int currentRow = -1;
-    print(
-        "printReceiptDetail ${printReceiptDetail.receiptContentEntities.length}");
+
     for (int i = 0; i < printReceiptDetail.receiptContentEntities.length; i++) {
       final ReceiptContentEntity receiptContentEntity =
           printReceiptDetail.receiptContentEntities[i]!;
@@ -356,8 +328,6 @@ class ReceiptPrinter {
       }
       currentRow = printReceiptContent.row;
     }
-    print("printReceiptContents ${printReceiptContents.length}");
-    // print(printReceiptContents);
 
     for (int i = 0; i < printReceiptContents.length; i++) {
       final List<PrintReceiptContent> row = printReceiptContents[i];
@@ -367,341 +337,100 @@ class ReceiptPrinter {
     _printEscPos(bytes, generator);
   }
 
-  Future printReceiveTest(ReceiptEntity receiptEntity) async {
+  Future<void> openCashDrawer({PosDrawer pin = PosDrawer.pin2}) async {
     List<int> bytes = [];
+    final String? paperSize =
+        GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
-    final generator = Generator(PaperSize.mm80, profile);
+    final generator = Generator(
+        paperSize == null
+            ? PaperSize.mm58
+            : paperSize == "80 mm"
+                ? PaperSize.mm80
+                : PaperSize.mm58,
+        profile);
 
-    final List<List<PrintReceiptContent>> printReceiptContents = [
-      [
-        PrintReceiptContent(
-            printReceiptContentType: PrintReceiptContentType.customRow1,
-            row: 1,
-            fontSize: PosTextSize.size2,
-            alignment: PosAlign.center,
-            customValue: "Testmart")
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.emptyLine,
-          row: 2,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.docNum,
-          row: 3,
-        )
-      ],
-      // [
-      //   PrintReceiptContent(
-      //       printReceiptContentType:
-      //           PrintReceiptContentType.employeeCodeAndName,
-      //       row: 4,
-      //       alignment: PosAlign.left),
-      //   PrintReceiptContent(
-      //     printReceiptContentType: PrintReceiptContentType.datetime,
-      //     row: 4,
-      //     alignment: PosAlign.right,
-      //   )
-      // ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.horizontalLine,
-          row: 5,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.emptyLine,
-          row: 6,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.items,
-          row: 7,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.emptyLine,
-          row: 8,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.totalPrice,
-          row: 9,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.taxDetails,
-          row: 10,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.emptyLine,
-          row: 11,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.totalQty,
-          row: 12,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.emptyLine,
-          row: 13,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.mopAlias,
-          row: 14,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.customRow2,
-          row: 15,
-          customValue: "Belanja dari Rumah via",
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.customRow3,
-          row: 16,
-          customValue: "waonline.testmart.co.id",
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.customRow4,
-          row: 17,
-          customValue: "Untuk informasi dan saran, hubungi",
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.customRow5,
-          row: 18,
-          customValue: "IG @testmart.id - WA 0810 0000 0000",
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.customRow6,
-          row: 19,
-          customValue: "PT TESTMART JAYA",
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.customRow7,
-          row: 20,
-          customValue: "NPWP: 13.000.000.8-888.888",
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.address1,
-          row: 21,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.address2,
-          row: 22,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.address3,
-          row: 23,
-        )
-      ],
-      [
-        PrintReceiptContent(
-          printReceiptContentType: PrintReceiptContentType.receiptBarcode,
-          row: 24,
-        )
-      ],
-    ];
+    bool connectedTCP = false;
 
-    for (int i = 0; i < printReceiptContents.length; i++) {
-      final List<PrintReceiptContent> row = printReceiptContents[i];
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
+        null) {
+      final [
+        deviceName,
+        address,
+        port,
+        vendorId,
+        productId,
+        isBle,
+        typePrinter,
+        state
+      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
 
-      for (int j = 0; j < row.length; j++) {
-        switch (row[0].printReceiptContentType) {
-          case PrintReceiptContentType.emptyLine:
-            bytes += generator.emptyLines(1);
-          case PrintReceiptContentType.horizontalLine:
-            bytes += generator.hr();
-          case PrintReceiptContentType.logo:
-            continue;
-          case PrintReceiptContentType.storeName:
-            continue;
-          case PrintReceiptContentType.date:
-            bytes += generator.text(
-                DateFormat('yyyy-MM-dd').format(receiptEntity.createdAt!));
-          case PrintReceiptContentType.time:
-            bytes += generator
-                .text(DateFormat('hh:mm aaa').format(receiptEntity.createdAt!));
-          case PrintReceiptContentType.datetime:
-            bytes += generator.text(DateFormat('yyyy-MM-dd - hh:mm aaa')
-                .format(receiptEntity.createdAt!));
-          case PrintReceiptContentType.docNum:
-            bytes += generator.text(receiptEntity.docNum);
-          case PrintReceiptContentType.employeeCodeAndName:
-            continue;
-          case PrintReceiptContentType.mopAlias:
-            bytes += generator.text(receiptEntity.mopSelection!.mopAlias);
-          case PrintReceiptContentType.address1:
-            bytes += generator.text("Test Business Park Lt. 8");
-          case PrintReceiptContentType.address2:
-            bytes += generator.text("Jl. Jend. Test Kav. 88");
-          case PrintReceiptContentType.address3:
-            bytes += generator.text("");
-          case PrintReceiptContentType.city:
-            bytes += generator.text("Jakarta");
-          case PrintReceiptContentType.items:
-            for (final item in receiptEntity.receiptItems) {
-              bytes += generator.text(
-                  "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.price)} ${item.itemEntity.itemName}");
-              bytes += generator.row([
-                PosColumn(
-                    width: 8,
-                    text:
-                        "   ${item.itemEntity.barcode} ${item.itemEntity.itemName}",
-                    styles: const PosStyles(
-                      align: PosAlign.left,
-                      // codeTable: 'CP1252',
-                    )),
-                PosColumn(
-                    width: 4,
-                    text: Helpers.parseMoney(item.subtotal),
-                    styles: const PosStyles(
-                      align: PosAlign.right,
-                      // codeTable: 'CP1252',
-                    )),
-              ]);
-            }
-          case PrintReceiptContentType.totalPrice:
-            bytes += generator.row([
-              PosColumn(
-                  width: 4,
-                  text: "Total",
-                  styles: const PosStyles(
-                    bold: true,
-                    height: PosTextSize.size2,
-                    width: PosTextSize.size2,
-                    align: PosAlign.left,
-                    // codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 8,
-                  text: Helpers.parseMoney(receiptEntity.totalPrice),
-                  styles: const PosStyles(
-                    bold: true,
-                    height: PosTextSize.size2,
-                    width: PosTextSize.size2,
-                    align: PosAlign.right,
-                    // codeTable: 'CP1252',
-                  )),
-            ]);
-          case PrintReceiptContentType.taxDetails:
-            bytes += generator.row([
-              PosColumn(
-                  width: 8,
-                  text: "Net Sales - Non Taxable",
-                  styles: const PosStyles(
-                    align: PosAlign.left,
-                    // codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 4,
-                  text: 'Rp 0',
-                  styles: const PosStyles(
-                    align: PosAlign.right,
-                    // codeTable: 'CP1252',
-                  )),
-            ]);
-            bytes += generator.row([
-              PosColumn(
-                  width: 8,
-                  text: "Net Sales - Tax Base",
-                  styles: const PosStyles(
-                    align: PosAlign.left,
-                    // codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 4,
-                  text: 'Rp 6,216',
-                  styles: const PosStyles(
-                    align: PosAlign.right,
-                    // codeTable: 'CP1252',
-                  )),
-            ]);
-            bytes += generator.row([
-              PosColumn(
-                  width: 8,
-                  text: "PPN 11%",
-                  styles: const PosStyles(
-                    align: PosAlign.left,
-                    // codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 4,
-                  text: 'Rp 684',
-                  styles: const PosStyles(
-                    align: PosAlign.right,
-                    // codeTable: 'CP1252',
-                  )),
-            ]);
-          case PrintReceiptContentType.totalQty:
-            bytes += generator.text(
-                'Total Qty. : ${receiptEntity.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element).toString()}',
-                styles: const PosStyles(
-                  bold: true,
-                  height: PosTextSize.size2,
-                  width: PosTextSize.size2,
-                  align: PosAlign.left,
-                ));
-          case PrintReceiptContentType.receiptBarcode:
-            final List<int> barData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 4];
-            bytes += generator.barcode(Barcode.upcA(barData));
-          case PrintReceiptContentType.customRow1:
-            bytes += generator.text("Testmart");
-          case PrintReceiptContentType.customRow2:
-            bytes += generator.text("Belanja dari Rumah via");
-          case PrintReceiptContentType.customRow3:
-            bytes += generator.text("waonline.testmart.co.id");
-          case PrintReceiptContentType.customRow4:
-            bytes += generator.text("Untuk Informasi dan Saran, Hubungi");
-          case PrintReceiptContentType.customRow5:
-            bytes += generator.text('IG @testmart.id - WA 0810 0000 0000');
-          case PrintReceiptContentType.customRow6:
-            bytes += generator.text('PT TESTMART JAYA');
-          case PrintReceiptContentType.customRow7:
-            bytes += generator.text('NPWP: 13.000.000.8-888.888');
-          case PrintReceiptContentType.customRow8:
-            continue;
-          case PrintReceiptContentType.customRow9:
-            continue;
-          case PrintReceiptContentType.customRow10:
-            continue;
-          default:
-            continue;
-        }
-      }
+      selectedPrinter = BluetoothPrinter(
+        deviceName: deviceName == "null" ? null : deviceName,
+        address: address == "null" ? null : address,
+        port: port == "null" ? null : port,
+        vendorId: vendorId == "null" ? null : vendorId,
+        productId: productId == "null" ? null : productId,
+        isBle: isBle == "true" ? true : false,
+        typePrinter: typePrinter == "PrinterType.bluetooth"
+            ? PrinterType.bluetooth
+            : typePrinter == "PrinterType.network"
+                ? PrinterType.network
+                : PrinterType.usb,
+        state: state == "null"
+            ? null
+            : state == "true"
+                ? true
+                : false,
+      );
     }
 
-    _printEscPos(bytes, generator);
+    if (selectedPrinter == null) return;
+
+    PrinterManager printerManager = PrinterManager.instance;
+    BluetoothPrinter bluetoothPrinter = selectedPrinter!;
+
+    bytes += generator.drawer();
+
+    switch (bluetoothPrinter.typePrinter) {
+      case PrinterType.usb:
+        await printerManager.connect(
+            type: bluetoothPrinter.typePrinter,
+            model: UsbPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                productId: bluetoothPrinter.productId,
+                vendorId: bluetoothPrinter.vendorId));
+        pendingTask = null;
+        break;
+      case PrinterType.bluetooth:
+        await printerManager.connect(
+            type: bluetoothPrinter.typePrinter,
+            model: BluetoothPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                address: bluetoothPrinter.address!,
+                isBle: bluetoothPrinter.isBle ?? false,
+                autoConnect: _reconnect));
+        pendingTask = null;
+        if (Platform.isAndroid) pendingTask = bytes;
+        break;
+      case PrinterType.network:
+        connectedTCP = await printerManager.connect(
+            type: bluetoothPrinter.typePrinter,
+            model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+        if (!connectedTCP) print(' --- please review your connection ---');
+        break;
+      default:
+    }
+
+    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth &&
+        Platform.isAndroid) {
+      if (_currentStatus == BTStatus.connected) {
+        printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
+        pendingTask = null;
+      }
+    } else {
+      printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
+    }
   }
 
   /// print ticket
@@ -768,7 +497,7 @@ class ReceiptPrinter {
                 isBle: bluetoothPrinter.isBle ?? false,
                 autoConnect: _reconnect));
         pendingTask = null;
-        if (Platform.isAndroid) pendingTask = bytes;
+        // if (Platform.isAndroid) pendingTask = bytes;
         break;
       case PrinterType.network:
         bytes += generator.feed(2);
@@ -777,6 +506,7 @@ class ReceiptPrinter {
             type: bluetoothPrinter.typePrinter,
             model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         if (!connectedTCP) print(' --- please review your connection ---');
+        pendingTask = null;
         break;
       default:
     }

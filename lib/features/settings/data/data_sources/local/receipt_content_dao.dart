@@ -11,8 +11,10 @@ class ReceiptContentDao extends BaseDao<ReceiptContentModel> {
         );
 
   @override
-  Future<ReceiptContentModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<ReceiptContentModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class ReceiptContentDao extends BaseDao<ReceiptContentModel> {
   }
 
   @override
-  Future<List<ReceiptContentModel>> readAll() async {
+  Future<List<ReceiptContentModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -11,4 +11,10 @@ class MopSelectionRepositoryImpl implements MopSelectionRepository {
     // TODO: implement getMopSelections
     return await _appDatabase.mopByStoreDao.readAllIncludeRelations();
   }
+
+  @override
+  Future<MopSelectionModel?> getMopSelectionByTpmt3Id(String tpmt3Id) async {
+    return await _appDatabase.mopByStoreDao
+        .readByDocIdIncludeRelations(tpmt3Id, null);
+  }
 }

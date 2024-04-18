@@ -11,8 +11,10 @@ class PromoPackageValidDaysDao extends BaseDao<PromoPackageValidDaysModel> {
         );
 
   @override
-  Future<PromoPackageValidDaysModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoPackageValidDaysModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class PromoPackageValidDaysDao extends BaseDao<PromoPackageValidDaysModel> {
   }
 
   @override
-  Future<List<PromoPackageValidDaysModel>> readAll() async {
+  Future<List<PromoPackageValidDaysModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

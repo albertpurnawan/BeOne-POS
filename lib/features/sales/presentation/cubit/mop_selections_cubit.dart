@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 
@@ -14,8 +15,9 @@ class MopSelectionsCubit extends Cubit<List<MopSelectionEntity>> {
     try {
       final newState = await _getMopSelectionsUseCase.call();
       emit(newState);
-    } catch (e) {
+    } catch (e, s) {
       print("getMopSelectionsError");
+      debugPrintStack(stackTrace: s);
     }
   }
 }

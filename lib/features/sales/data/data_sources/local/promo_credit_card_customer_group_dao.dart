@@ -12,8 +12,10 @@ class PromoCreditCardCustomerGroupDao
         );
 
   @override
-  Future<PromoCreditCardCustomerGroupModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoCreditCardCustomerGroupModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -26,7 +28,9 @@ class PromoCreditCardCustomerGroupDao
   }
 
   @override
-  Future<List<PromoCreditCardCustomerGroupModel>> readAll() async {
+  Future<List<PromoCreditCardCustomerGroupModel>> readAll(
+      {Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

@@ -9,6 +9,6 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
   @override
   Future<EmployeeEntity?> getEmployee(String docId) {
     // TODO: implement getEmployee
-    return _appDatabase.employeeDao.readByDocId(docId);
+    return _appDatabase.employeeDao.readByDocId(docId, null);
   }
 }

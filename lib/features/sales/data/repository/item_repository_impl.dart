@@ -8,7 +8,7 @@ class ItemRepositoryImpl implements ItemRepository {
   ItemRepositoryImpl(this._appDatabase);
 
   @override
-  Future<List<ItemModel>> getItems() async {
+  Future<List<ItemModel>> getItems({String? searchKeyword}) async {
     // TODO: implement getItems
     // try {
     //   final httpResponse = await _itemService.getItems();
@@ -28,7 +28,7 @@ class ItemRepositoryImpl implements ItemRepository {
     // } on DioException catch (e) {
     //   return DataFailed(e);
     // }
-    return _appDatabase.itemsDao.readItems();
+    return _appDatabase.itemsDao.readAll(searchKeyword: searchKeyword);
   }
 
   @override

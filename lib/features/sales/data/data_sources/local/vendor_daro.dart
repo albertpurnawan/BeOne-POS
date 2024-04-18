@@ -7,8 +7,9 @@ class VendorDao extends BaseDao<VendorModel> {
       : super(db: db, tableName: tableVendor, modelFields: VendorFields.values);
 
   @override
-  Future<VendorModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<VendorModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -19,7 +20,8 @@ class VendorDao extends BaseDao<VendorModel> {
   }
 
   @override
-  Future<List<VendorModel>> readAll() async {
+  Future<List<VendorModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => VendorModel.fromMap(itemData)).toList();
