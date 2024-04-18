@@ -11,7 +11,8 @@ class MoneyDenominationDao extends BaseDao<MoneyDenominationModel> {
         );
 
   @override
-  Future<MoneyDenominationModel?> readByDocId(String docId) async {
+  Future<MoneyDenominationModel?> readByDocId(
+      String docId, Transaction? txn) async {
     final res = await db.query(
       tableName,
       columns: modelFields,
@@ -23,7 +24,7 @@ class MoneyDenominationDao extends BaseDao<MoneyDenominationModel> {
   }
 
   @override
-  Future<List<MoneyDenominationModel>> readAll() async {
+  Future<List<MoneyDenominationModel>> readAll({Transaction? txn}) async {
     final result = await db.query(tableName);
 
     return result

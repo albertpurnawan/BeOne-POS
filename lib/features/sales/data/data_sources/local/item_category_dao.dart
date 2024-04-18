@@ -10,13 +10,13 @@ class ItemCategoryDao extends BaseDao<ItemCategoryModel> {
             modelFields: ItemCategoryFields.values);
 
   @override
-  Future<List<ItemCategoryModel>> readAll() {
+  Future<List<ItemCategoryModel>> readAll({Transaction? txn}) async {
     // TODO: implement readAll
     throw UnimplementedError();
   }
 
   @override
-  Future<ItemCategoryModel?> readByDocId(String docId) {
+  Future<ItemCategoryModel?> readByDocId(String docId, Transaction? txn) async {
     // TODO: implement readByDocId
     throw UnimplementedError();
   }
@@ -34,7 +34,7 @@ class ItemCategoryDao extends BaseDao<ItemCategoryModel> {
   //   await DaoHelper.bulkCreate(db, tableName, data);
   // }
 
-  // Future<ItemCategoryModel> readByDocId(String docId) async {
+  // Future<ItemCategoryModel> readByDocId(String docId, Transaction? txn) async { DatabaseExecutor dbExecutor = txn ?? db;
   //   final maps = await db.query(
   //     tableName,
   //     columns: CurrencyFields.values,
@@ -49,7 +49,7 @@ class ItemCategoryDao extends BaseDao<ItemCategoryModel> {
   //   }
   // }
 
-  // Future<List<ItemCategoryModel>> readAll() async {
+  // Future<List<ItemCategoryModel>> readAll({Transaction? txn}) async { DatabaseExecutor dbExecutor = txn ?? db;
   //   final result = await db.query(tableName);
 
   //   return result

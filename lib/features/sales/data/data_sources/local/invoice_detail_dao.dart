@@ -11,8 +11,10 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
         );
 
   @override
-  Future<InvoiceDetailModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<InvoiceDetailModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +25,8 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
   }
 
   @override
-  Future<List<InvoiceDetailModel>> readAll() async {
+  Future<List<InvoiceDetailModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result
@@ -31,8 +34,10 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
         .toList();
   }
 
-  Future<List<InvoiceDetailModel>> readBytoinvId(String toinvId) async {
-    final result = await db.query(
+  Future<List<InvoiceDetailModel>> readByToinvId(
+      String toinvId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.query(
       tableName,
       where: 'toinvId = ?',
       whereArgs: [toinvId],

@@ -28,7 +28,7 @@ class _RecapShiftsState extends State<RecapShifts> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
+        statusBarColor: ProjectColors.primary,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
@@ -182,7 +182,6 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
           sortedDates.sort((a, b) => b.compareTo(a));
 
           return Container(
-            color: Colors.white,
             height: 500,
             child: ListView.builder(
               itemCount: sortedDates.length,

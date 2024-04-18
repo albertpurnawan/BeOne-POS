@@ -6,15 +6,28 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
-class OpenPriceDialog extends StatelessWidget {
+class OpenPriceDialog extends StatefulWidget {
   OpenPriceDialog(
       {super.key, required this.itemEntity, required this.quantity});
 
   final ItemEntity itemEntity;
   final double quantity;
 
+  @override
+  State<OpenPriceDialog> createState() => _OpenPriceDialogState();
+}
+
+class _OpenPriceDialogState extends State<OpenPriceDialog> {
   final _textEditingControllerOpenPrice = TextEditingController();
+
   final _focusNodeOpenPrice = FocusNode();
+
+  @override
+  initState() {
+    super.initState();
+    _textEditingControllerOpenPrice.text =
+        Helpers.parseMoney(widget.itemEntity.dpp.toInt());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,17 +58,18 @@ class OpenPriceDialog extends StatelessWidget {
             focusNode: _focusNodeOpenPrice,
             controller: _textEditingControllerOpenPrice,
             autofocus: true,
-            // onChanged: (value) => setState(() {
-            //   _cashAmount =
-            //       Helpers.revertMoneyToDecimalFormat(
-            //               value)
-            //           .toInt();
-            //   updateReceiptMop();
-            // }),
             inputFormatters: [MoneyInputFormatter()],
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 24),
+            onEditingComplete: () {
+              context.read<ReceiptCubit>().addOrUpdateReceiptItemWithOpenPrice(
+                  widget.itemEntity,
+                  widget.quantity,
+                  Helpers.revertMoneyToDecimalFormat(
+                      _textEditingControllerOpenPrice.text));
+              Navigator.of(context).pop();
+            },
             decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
                 hintText: "Enter Price",
@@ -78,28 +92,6 @@ class OpenPriceDialog extends StatelessWidget {
                 child: TextButton(
               style: ButtonStyle(
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                      side: const BorderSide(color: ProjectColors.primary))),
-                  backgroundColor:
-                      MaterialStateColor.resolveWith((states) => Colors.white),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.black.withOpacity(.2))),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Center(
-                  child: Text(
-                "Cancel",
-                style: TextStyle(color: ProjectColors.primary),
-              )),
-            )),
-            const SizedBox(
-              width: 10,
-            ),
-            Expanded(
-                child: TextButton(
-              style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5))),
                   backgroundColor: MaterialStateColor.resolveWith(
                       (states) => ProjectColors.primary),
@@ -110,8 +102,8 @@ class OpenPriceDialog extends StatelessWidget {
                 context
                     .read<ReceiptCubit>()
                     .addOrUpdateReceiptItemWithOpenPrice(
-                        itemEntity,
-                        quantity,
+                        widget.itemEntity,
+                        widget.quantity,
                         Helpers.revertMoneyToDecimalFormat(
                             _textEditingControllerOpenPrice.text));
                 Navigator.of(context).pop();

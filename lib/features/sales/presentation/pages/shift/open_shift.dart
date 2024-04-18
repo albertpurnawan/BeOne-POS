@@ -154,7 +154,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
     final String? storeId = prefs.getString("tostrId");
     final store = await GetIt.instance<AppDatabase>()
         .storeMasterDao
-        .readByDocId(storeId!);
+        .readByDocId(storeId!, null);
     setState(() {
       storeName = store!.storeName;
     });

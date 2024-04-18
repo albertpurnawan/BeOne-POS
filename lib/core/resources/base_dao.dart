@@ -45,17 +45,15 @@ abstract class BaseDao<T extends BaseModel> {
 
   Future<void> create({required T data, Transaction? txn}) async {
     if (txn != null) {
-      final res = await txn.insert(tableName, data.toMap());
-      print(res.toString());
+      await txn.insert(tableName, data.toMap());
     } else {
-      final res = await db.insert(tableName, data.toMap());
-      print(res.toString());
+      await db.insert(tableName, data.toMap());
     }
   }
 
-  Future<T?> readByDocId(String docId);
+  Future<T?> readByDocId(String docId, Transaction? txn);
 
-  Future<List<T>> readAll();
+  Future<List<T>> readAll({Transaction? txn});
 
   Future<void> deleteAll() async {
     final List<String> tableNames = [

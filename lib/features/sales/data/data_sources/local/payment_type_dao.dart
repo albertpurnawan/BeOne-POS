@@ -11,8 +11,9 @@ class PaymentTypeDao extends BaseDao<PaymentTypeModel> {
         );
 
   @override
-  Future<PaymentTypeModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PaymentTypeModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class PaymentTypeDao extends BaseDao<PaymentTypeModel> {
   }
 
   @override
-  Future<List<PaymentTypeModel>> readAll() async {
+  Future<List<PaymentTypeModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

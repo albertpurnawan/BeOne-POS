@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/invoice_header.dart';
 
@@ -81,8 +82,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
     required super.orderNo,
     required super.tocusId,
     required super.tohemId,
-    required super.transDate,
-    required super.transTime,
+    required super.transDateTime,
     required super.timezone,
     required super.remarks,
     required super.subTotal,
@@ -139,13 +139,13 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'toinvTohemId': toinvTohemId,
       'tcsr1Id': tcsr1Id,
     };
-    if (transDate == null && transTime == null) {
+    if (transDateTime == null) {
       return map;
     } else {
       return {
         ...map,
-        'transdate': transDate?.toUtc().toIso8601String(),
-        'transtime': transTime?.toUtc().toIso8601String(),
+        'transdate': DateFormat('yyyy-MM-dd').format(transDateTime!.toUtc()),
+        'transtime': DateFormat.Hms().format(transDateTime!.toUtc()),
       };
     }
   }
@@ -164,11 +164,8 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       orderNo: map['orderno'] as int,
       tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      transDate: map['transdate'] != null
-          ? DateTime.parse(map['transdate'] as String).toLocal()
-          : null,
-      transTime: map['transtime'] != null
-          ? DateTime.parse(map['transtime'] as String).toLocal()
+      transDateTime: map['transdate'] != null && map['transtime'] != null
+          ? DateTime.parse("${map['transdate']} ${map['transtime']}Z").toLocal()
           : null,
       timezone: map['timezone'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
@@ -238,8 +235,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       orderNo: entity.orderNo,
       tocusId: entity.tocusId,
       tohemId: entity.tohemId,
-      transDate: entity.transDate,
-      transTime: entity.transTime,
+      transDateTime: entity.transDateTime,
       timezone: entity.timezone,
       remarks: entity.remarks,
       subTotal: entity.subTotal,

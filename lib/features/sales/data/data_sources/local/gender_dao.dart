@@ -11,8 +11,9 @@ class GenderDao extends BaseDao<GenderModel> {
         );
 
   @override
-  Future<GenderModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<GenderModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class GenderDao extends BaseDao<GenderModel> {
   }
 
   @override
-  Future<List<GenderModel>> readAll() async {
+  Future<List<GenderModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => GenderModel.fromMap(itemData)).toList();

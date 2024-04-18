@@ -12,8 +12,10 @@ class CashierBalanceTransactionDao
         );
 
   @override
-  Future<CashierBalanceTransactionModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<CashierBalanceTransactionModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -26,7 +28,9 @@ class CashierBalanceTransactionDao
   }
 
   @override
-  Future<List<CashierBalanceTransactionModel>> readAll() async {
+  Future<List<CashierBalanceTransactionModel>> readAll(
+      {Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

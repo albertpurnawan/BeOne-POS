@@ -10,8 +10,9 @@ class PricelistDao extends BaseDao<PricelistModel> {
             modelFields: PricelistFields.values);
 
   @override
-  Future<PricelistModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PricelistModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +23,8 @@ class PricelistDao extends BaseDao<PricelistModel> {
   }
 
   @override
-  Future<List<PricelistModel>> readAll() async {
+  Future<List<PricelistModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => PricelistModel.fromMap(itemData)).toList();
