@@ -339,47 +339,6 @@ class ReceiptPrinter {
     _printEscPos(bytes, generator);
   }
 
-  Future printOpenShift() async {
-    log("PRINT OPEN SHIFT");
-    List<int> bytes = [];
-
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
-
-    final generator = Generator(PaperSize.mm58, profile);
-    bytes += generator.setGlobalCodeTable('CP1252');
-    bytes += generator.text('Test Open Shift',
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text('Product 1');
-    bytes += generator.text('Product 2');
-
-    bytes += generator.row([
-      PosColumn(
-          width: 8,
-          text: 'CASHIER - UDIN',
-          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
-      PosColumn(
-          width: 4,
-          text: 'USD 2.00',
-          styles: const PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
-    ]);
-
-    // // Chinese characters
-    bytes += generator.row([
-      PosColumn(
-          width: 8,
-          text: '豚肉・木耳と玉子炒め弁当',
-          styles: const PosStyles(align: PosAlign.left),
-          containsChinese: true),
-      PosColumn(
-          width: 4,
-          text: '￥1,990',
-          styles: const PosStyles(align: PosAlign.right),
-          containsChinese: true),
-    ]);
-
-    _printEscPos(bytes, generator);
-  }
-
   Future<void> openCashDrawer({PosDrawer pin = PosDrawer.pin2}) async {
     List<int> bytes = [];
     final String? paperSize =
@@ -474,6 +433,47 @@ class ReceiptPrinter {
     } else {
       printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
     }
+  }
+
+  Future printOpenShift() async {
+    log("PRINT OPEN SHIFT");
+    List<int> bytes = [];
+
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mm58, profile);
+    bytes += generator.setGlobalCodeTable('CP1252');
+    bytes += generator.text('Test Open Shift',
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text('Product 1');
+    bytes += generator.text('Product 2');
+
+    bytes += generator.row([
+      PosColumn(
+          width: 8,
+          text: 'CASHIER - UDIN',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 4,
+          text: 'USD 2.00',
+          styles: const PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
+    ]);
+
+    // // Chinese characters
+    bytes += generator.row([
+      PosColumn(
+          width: 8,
+          text: '豚肉・木耳と玉子炒め弁当',
+          styles: const PosStyles(align: PosAlign.left),
+          containsChinese: true),
+      PosColumn(
+          width: 4,
+          text: '￥1,990',
+          styles: const PosStyles(align: PosAlign.right),
+          containsChinese: true),
+    ]);
+
+    _printEscPos(bytes, generator);
   }
 
   /// print ticket

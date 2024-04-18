@@ -10,8 +10,11 @@ import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
+<<<<<<< HEAD
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+=======
+>>>>>>> dfb9b5e77010b51c0a6a01a95adbc2c52a63a1fe
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
