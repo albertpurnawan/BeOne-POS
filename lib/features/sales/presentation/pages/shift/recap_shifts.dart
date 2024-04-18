@@ -28,10 +28,15 @@ class _RecapShiftsState extends State<RecapShifts> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
+        statusBarColor: ProjectColors.primary,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Shift Recap'),
+        backgroundColor: ProjectColors.primary,
+        foregroundColor: Colors.white,
+      ),
       backgroundColor: Colors.white,
       body: ScrollWidget(
         padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -174,7 +179,6 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
           sortedDates.sort((a, b) => b.compareTo(a));
 
           return Container(
-            color: Colors.white,
             height: 500,
             child: ListView.builder(
               itemCount: sortedDates.length,

@@ -11,6 +11,11 @@ class ItemEntity {
   final String tbitmId;
   final String tpln2Id;
   final int openPrice;
+  final String tovenId;
+  final int includeTax;
+  final String tovatId;
+  final double taxRate;
+  final double dpp;
 
   ItemEntity({
     required this.id,
@@ -22,6 +27,11 @@ class ItemEntity {
     required this.tbitmId,
     required this.tpln2Id,
     required this.openPrice,
+    required this.tovenId,
+    required this.includeTax,
+    required this.tovatId,
+    required this.taxRate,
+    required this.dpp,
   });
 
   ItemEntity copyWith({
@@ -34,6 +44,11 @@ class ItemEntity {
     String? tbitmId,
     String? tpln2Id,
     int? openPrice,
+    String? tovenId,
+    int? includeTax,
+    String? tovatId,
+    double? taxRate,
+    double? dpp,
   }) {
     return ItemEntity(
       id: id ?? this.id,
@@ -45,6 +60,11 @@ class ItemEntity {
       tbitmId: tbitmId ?? this.tbitmId,
       tpln2Id: tpln2Id ?? this.tpln2Id,
       openPrice: openPrice ?? this.openPrice,
+      tovenId: tovenId ?? this.tovenId,
+      includeTax: includeTax ?? this.includeTax,
+      tovatId: tovatId ?? this.tovatId,
+      taxRate: taxRate ?? this.taxRate,
+      dpp: dpp ?? this.dpp,
     );
   }
 
@@ -59,6 +79,11 @@ class ItemEntity {
       'tbitmId': tbitmId,
       'tpln2Id': tpln2Id,
       'openPrice': openPrice,
+      'tovenId': tovenId,
+      'includeTax': includeTax,
+      'tovatId': tovatId,
+      'taxRate': taxRate,
+      'dpp': dpp,
     };
   }
 
@@ -73,6 +98,11 @@ class ItemEntity {
       tbitmId: map['tbitmId'] as String,
       tpln2Id: map['tpln2Id'] as String,
       openPrice: map['openPrice'] as int,
+      tovenId: map['tovenId'] as String,
+      includeTax: map['includeTax'] as int,
+      tovatId: map['tovatId'] as String,
+      taxRate: map['taxRate'] as double,
+      dpp: map['dpp'] as double,
     );
   }
 
@@ -83,7 +113,7 @@ class ItemEntity {
 
   @override
   String toString() {
-    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id, openPrice: $openPrice)';
+    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id, openPrice: $openPrice, tovenId: $tovenId, includeTax: $includeTax, tovatId: $tovatId, taxRate: $taxRate, dpp: $dpp)';
   }
 
   @override
@@ -98,7 +128,12 @@ class ItemEntity {
         other.toitmId == toitmId &&
         other.tbitmId == tbitmId &&
         other.tpln2Id == tpln2Id &&
-        other.openPrice == openPrice;
+        other.openPrice == openPrice &&
+        other.tovenId == tovenId &&
+        other.includeTax == includeTax &&
+        other.tovatId == tovatId &&
+        other.taxRate == taxRate &&
+        other.dpp == dpp;
   }
 
   @override
@@ -111,6 +146,11 @@ class ItemEntity {
         toitmId.hashCode ^
         tbitmId.hashCode ^
         tpln2Id.hashCode ^
-        openPrice.hashCode;
+        openPrice.hashCode ^
+        tovenId.hashCode ^
+        includeTax.hashCode ^
+        tovatId.hashCode ^
+        taxRate.hashCode ^
+        dpp.hashCode;
   }
 }

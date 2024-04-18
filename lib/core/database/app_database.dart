@@ -358,51 +358,136 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> refreshItemsTable() async {
+    final storeMaster = await storeMasterDao.readAll();
+    bool taxByItem = false;
+    String taxAdditionalQuery = "";
+    String? storeTovatId = '""';
+    double? storeTaxRate = 0;
+
+    if (storeMaster.isNotEmpty) {
+      if (storeMaster[0].taxBy == 1) {
+        taxByItem = true;
+        taxAdditionalQuery = """
+INNER JOIN (
+    SELECT
+      docid AS tovatId,
+      rate AS taxrate
+    FROM
+      tovat
+  ) as t ON t.tovatId = s.tovatId
+""";
+      } else {
+        final TaxMasterModel? taxMaster =
+            await taxMasterDao.readByDocId(storeMaster[0].tovatId!, null);
+        storeTovatId = taxMaster!.docId;
+        storeTaxRate = taxMaster.rate;
+      }
+    }
+
     await _database!.execute("""
 DELETE FROM items
 """);
     await _database!.execute("""
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice)
-SELECT  i.itemname, i.itemcode, bc.barcode, b.price, p.toitmId, b.tbitmId,  b.tpln2Id, i.openprice
-FROM (
-  SELECT docid AS toplnId, pp.tpln1Id, pr.tpln2Id, pr.toitmId, DATETIME(pp.tpln1createdate) AS tpln1createdate, MAX(DATETIME(pp.tpln1createdate)) AS latestPrice
-  FROM topln AS pl
-   INNER JOIN
-    (
-    SELECT docid AS tpln1Id, toplnId, createdate AS tpln1createdate
-    FROM tpln1
-    WHERE DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
-    ) AS pp
-   ON pl.docid = pp.toplnId
-   
-   INNER JOIN
-   (
-      SELECT docid AS tpln2Id, tpln1Id, toitmId
-      FROM tpln2
-   ) AS pr
-   ON pr.tpln1Id = pp.tpln1Id
-  
-  WHERE pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc'
-  GROUP BY pr.toitmId
-) as p
-INNER JOIN 
-  (SELECT tbitmId, price, tpln2Id
-  FROM tpln4) as b
-ON p.tpln2Id = b.tpln2Id
-INNER JOIN
- (SELECT docid, barcode
- FROM tbitm) as bc
- ON bc.docid = b.tbitmId
-INNER JOIN (
-  SELECT docid, itemcode, itemname, touomId, openprice
-  FROM toitm
-) as i
-ON i.docid = p.toitmId
-INNER JOIN (
-  SELECT docid AS touomId, uomcode
-  FROM touom
-) as u
-ON u.touomId = i.touomId
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
+SELECT 
+  i.itemname, 
+  i.itemcode, 
+  bc.barcode, 
+  b.price, 
+  p.toitmId, 
+  b.tbitmId, 
+  b.tpln2Id, 
+  i.openprice,
+  v.tovenId,
+  i.includetax,
+  ${taxByItem ? "t.tovatId as tovatId" : storeTovatId},
+  ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
+  ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"}
+FROM 
+  (
+    SELECT 
+      docid AS toplnId, 
+      pp.tpln1Id, 
+      pr.tpln2Id, 
+      pr.toitmId, 
+      DATETIME(pp.tpln1createdate) AS tpln1createdate, 
+      MAX(
+        DATETIME(pp.tpln1createdate)
+      ) AS latestPrice 
+    FROM 
+      topln AS pl 
+      INNER JOIN (
+        SELECT 
+          docid AS tpln1Id, 
+          toplnId, 
+          createdate AS tpln1createdate 
+        FROM 
+          tpln1 
+        WHERE 
+          DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
+      ) AS pp ON pl.docid = pp.toplnId 
+      INNER JOIN (
+        SELECT 
+          docid AS tpln2Id, 
+          tpln1Id, 
+          toitmId 
+        FROM 
+          tpln2
+      ) AS pr ON pr.tpln1Id = pp.tpln1Id 
+    WHERE 
+      pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc' 
+    GROUP BY 
+      pr.toitmId
+  ) as p 
+  INNER JOIN (
+    SELECT 
+      tbitmId, 
+      price, 
+      tpln2Id 
+    FROM 
+      tpln4
+  ) as b ON p.tpln2Id = b.tpln2Id 
+  INNER JOIN (
+    SELECT 
+      docid, 
+      barcode 
+    FROM 
+      tbitm
+  ) as bc ON bc.docid = b.tbitmId 
+  INNER JOIN (
+    SELECT 
+      docid, 
+      itemcode, 
+      itemname, 
+      touomId, 
+      openprice,
+      includetax 
+    FROM 
+      toitm
+  ) as i ON i.docid = p.toitmId 
+  INNER JOIN (
+    SELECT 
+      docid AS touomId, 
+      uomcode 
+    FROM 
+      touom
+  ) as u ON u.touomId = i.touomId
+  INNER JOIN (
+    SELECT
+      docid AS tsitmId,
+      ${taxByItem ? "tovatId," : ""} 
+      toitmId
+    FROM
+      tsitm
+  ) as s ON s.toitmId = p.toitmId
+  INNER JOIN (
+    SELECT
+      tsitmId,
+      tovenId
+    FROM
+      tvitm
+  ) as v ON v.tsitmId = s.tsitmId
+  ${taxByItem ? taxAdditionalQuery : ""} 
 """);
   }
 
@@ -1196,6 +1281,11 @@ ${ItemFields.toitmId} TEXT NOT NULL,
 ${ItemFields.tbitmId} TEXT NOT NULL,
 ${ItemFields.tpln2Id} TEXT NOT NULL,
 ${ItemFields.openPrice} int NOT NULL,
+${ItemFields.tovenId} STRING,
+${ItemFields.includeTax} INTEGER NOT NULL,
+${ItemFields.tovatId} STRING NOT NULL,
+${ItemFields.taxRate} DOUBLE NOT NULL,
+${ItemFields.dpp} DOUBLE NOT NULL,
 CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
 CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
 CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE
@@ -1442,8 +1532,8 @@ CREATE TABLE $tableInvoiceHeader (
   ${InvoiceHeaderFields.orderNo} int NOT NULL,
   ${InvoiceHeaderFields.tocusId} text DEFAULT NULL,
   ${InvoiceHeaderFields.tohemId} text DEFAULT NULL,
-  ${InvoiceHeaderFields.transDate} text DEFAULT CURRENT_TIMESTAMP,
-  ${InvoiceHeaderFields.transTime} text DEFAULT CURRENT_TIMESTAMP,
+  ${InvoiceHeaderFields.transDate} text DEFAULT CURRENT_DATE,
+  ${InvoiceHeaderFields.transTime} text DEFAULT CURRENT_TIME,
   ${InvoiceHeaderFields.timezone} varchar(200) NOT NULL,
   ${InvoiceHeaderFields.remarks} text,
   ${InvoiceHeaderFields.subTotal} double NOT NULL,

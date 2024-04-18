@@ -12,8 +12,10 @@ class PromoBuyXGetYBuyConditionDao
         );
 
   @override
-  Future<PromoBuyXGetYBuyConditionModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PromoBuyXGetYBuyConditionModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -26,7 +28,9 @@ class PromoBuyXGetYBuyConditionDao
   }
 
   @override
-  Future<List<PromoBuyXGetYBuyConditionModel>> readAll() async {
+  Future<List<PromoBuyXGetYBuyConditionModel>> readAll(
+      {Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

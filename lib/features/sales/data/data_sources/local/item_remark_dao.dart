@@ -11,8 +11,9 @@ class ItemRemarkDao extends BaseDao<ItemRemarksModel> {
         );
 
   @override
-  Future<ItemRemarksModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<ItemRemarksModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class ItemRemarkDao extends BaseDao<ItemRemarksModel> {
   }
 
   @override
-  Future<List<ItemRemarksModel>> readAll() async {
+  Future<List<ItemRemarksModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

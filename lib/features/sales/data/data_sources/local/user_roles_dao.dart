@@ -11,8 +11,9 @@ class UserRoleDao extends BaseDao<UserRoleModel> {
         );
 
   @override
-  Future<UserRoleModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<UserRoleModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class UserRoleDao extends BaseDao<UserRoleModel> {
   }
 
   @override
-  Future<List<UserRoleModel>> readAll() async {
+  Future<List<UserRoleModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result.map((itemData) => UserRoleModel.fromMap(itemData)).toList();

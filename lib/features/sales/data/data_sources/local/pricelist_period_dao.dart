@@ -10,8 +10,10 @@ class PricelistPeriodDao extends BaseDao<PricelistPeriodModel> {
             modelFields: PricelistPeriodFields.values);
 
   @override
-  Future<PricelistPeriodModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<PricelistPeriodModel?> readByDocId(
+      String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -22,7 +24,8 @@ class PricelistPeriodDao extends BaseDao<PricelistPeriodModel> {
   }
 
   @override
-  Future<List<PricelistPeriodModel>> readAll() async {
+  Future<List<PricelistPeriodModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result

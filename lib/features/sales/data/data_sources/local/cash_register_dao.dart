@@ -11,8 +11,9 @@ class CashRegisterDao extends BaseDao<CashRegisterModel> {
         );
 
   @override
-  Future<CashRegisterModel?> readByDocId(String docId) async {
-    final res = await db.query(
+  Future<CashRegisterModel?> readByDocId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
       where: 'docid = ?',
@@ -23,7 +24,8 @@ class CashRegisterDao extends BaseDao<CashRegisterModel> {
   }
 
   @override
-  Future<List<CashRegisterModel>> readAll() async {
+  Future<List<CashRegisterModel>> readAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
     final result = await db.query(tableName);
 
     return result
