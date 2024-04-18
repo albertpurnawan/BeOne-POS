@@ -10,6 +10,8 @@ import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -80,6 +82,9 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
+    final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+
+    final bool isOpen = prefs.getBool('isOpen') ?? false;
 
     return Center(
       child: Form(
@@ -125,7 +130,51 @@ class _LoginFormState extends State<LoginForm> {
                         tohemId: null,
                         torolId: null));
                 if (loginSuccess!) {
-                  if (context.mounted) context.pushNamed(RouteConstants.home);
+                  if (isOpen) {
+                    if (!context.mounted) return;
+                    if (context.mounted) context.pushNamed(RouteConstants.home);
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (BuildContext context) {
+                    //     return AlertDialog(
+                    //       shape: const RoundedRectangleBorder(
+                    //         borderRadius:
+                    //             BorderRadius.all(Radius.circular(10.0)),
+                    //       ),
+                    //       content: const Text(
+                    //         "Please end current shift first",
+                    //         style:
+                    //             TextStyle(color: Color.fromRGBO(128, 0, 0, 1)),
+                    //       ),
+                    //       actions: <Widget>[
+                    //         TextButton(
+                    //           onPressed: () {
+                    //             Navigator.pop(context);
+                    //           },
+                    //           child: const Text('OK'),
+                    //         ),
+                    //       ],
+                    //     );
+                    //   },
+                    // );
+                  } else {
+                    if (!context.mounted) return;
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
+                          ),
+                          content: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.7,
+                            child: const OpenShiftScreen(),
+                          ),
+                        );
+                      },
+                    );
+                  }
                   // if (isLoggedIn) {
                   //   Helpers.navigate(context, SalesPage());
                   // } else {

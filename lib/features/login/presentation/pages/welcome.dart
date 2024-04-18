@@ -18,6 +18,9 @@ class WelcomeScreen extends StatefulWidget {
 
   static Widget welcomingButtons(BuildContext context) {
     // final api = Api.of(context);
+    final prefs = GetIt.instance<SharedPreferences>();
+    bool isLoggedIn = prefs.getBool('logStatus') ?? false;
+    bool isOpen = prefs.getBool('isOpen') ?? false;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -35,10 +38,27 @@ class WelcomeScreen extends StatefulWidget {
                     child: CustomButton(
                       child: Text("Login"),
                       onTap: () async {
-                        final prefs = GetIt.instance<SharedPreferences>();
-                        bool isLoggedIn = prefs.getBool('logStatus') ?? false;
                         if (isLoggedIn == false) {
                           Helpers.navigate(context, LoginScreen());
+                          // } else if (isLoggedIn && isOpen == false) {
+                          //   Helpers.navigate(context, LoginScreen());
+                          // if (!context.mounted) return;
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (BuildContext context) {
+                          //     return AlertDialog(
+                          //       shape: const RoundedRectangleBorder(
+                          //         borderRadius:
+                          //             BorderRadius.all(Radius.circular(10.0)),
+                          //       ),
+                          //       content: SizedBox(
+                          //         width:
+                          //             MediaQuery.of(context).size.width * 0.7,
+                          //         child: const OpenShiftScreen(),
+                          //       ),
+                          //     );
+                          //   },
+                          // );
                         } else {
                           context.pushNamed(RouteConstants.home);
                         }
