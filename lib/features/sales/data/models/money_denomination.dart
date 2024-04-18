@@ -26,18 +26,18 @@ class MoneyDenominationFields {
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
   static const String tcsr1Id = "tcsr1Id";
-  static const String coin50 = "";
-  static const String coin100 = "";
-  static const String coin200 = "";
-  static const String coin500 = "";
-  static const String coin1k = "";
-  static const String paper1k = "";
-  static const String paper2k = "";
-  static const String paper5k = "";
-  static const String paper10k = "";
-  static const String paper20k = "";
-  static const String paper50k = "";
-  static const String paper100k = "";
+  static const String coin50 = "coin50";
+  static const String coin100 = "coin100";
+  static const String coin200 = "coin200";
+  static const String coin500 = "coin500";
+  static const String coin1k = "coin1k";
+  static const String paper1k = "paper1k";
+  static const String paper2k = "paper2k";
+  static const String paper5k = "paper5k";
+  static const String paper10k = "paper10k";
+  static const String paper20k = "paper20k";
+  static const String paper50k = "paper50k";
+  static const String paper100k = "paper100k";
 }
 
 class MoneyDenominationModel extends MoneyDenominationEntity
