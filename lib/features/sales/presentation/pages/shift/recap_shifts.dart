@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
@@ -46,12 +46,14 @@ class _RecapShiftsState extends State<RecapShifts> {
               height: (MediaQuery.of(context).size.height / 2) - 325,
             ),
             const Text(
-              'Shifts Recap',
+              'Transactions List',
               style: TextStyle(
                   color: ProjectColors.swatch,
                   fontSize: 30,
                   fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 30),
+            // insert
             const SizedBox(height: 30),
             const RecapsShiftList(),
             const SizedBox(height: 10),
@@ -114,7 +116,7 @@ class _RecapShiftsState extends State<RecapShifts> {
                           ),
                           content: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.7,
-                            child: const OpenShiftScreen(),
+                            child: const OpenShiftDialog(),
                           ),
                         );
                       },
@@ -160,15 +162,16 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
       builder: (BuildContext context,
           AsyncSnapshot<List<CashierBalanceTransactionModel>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
           final Map<String, List<CashierBalanceTransactionModel>>
               transactionsByDate = {};
           for (var transaction in snapshot.data!) {
-            final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy');
-            final String dateFormatted = formatter.format(transaction.openDate);
+            final String dateFormatted =
+                Helpers.dateEEddMMMyyy(transaction.openDate);
+
             if (!transactionsByDate.containsKey(dateFormatted)) {
               transactionsByDate[dateFormatted] = [];
             }
@@ -190,15 +193,25 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
                   title: Text(date),
                   children: transactions.map((transaction) {
                     return ListTile(
-                      title: Text(transaction.docId),
-                      subtitle: Text(transaction.closeValue.toString()),
+                      contentPadding: EdgeInsets.zero,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(transaction.docNum),
+                          Text(transaction.calcValue.toString()),
+                          Text(transaction.approvalStatus.toString()),
+                        ],
+                      ),
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CashierBalanceTransactionDetails(
-                                        transaction: transaction)));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CashierBalanceTransactionDetails(
+                              transaction: transaction,
+                            ),
+                          ),
+                        );
                       },
                     );
                   }).toList(),

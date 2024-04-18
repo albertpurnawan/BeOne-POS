@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +12,9 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
+import 'package:thermal_printer/thermal_printer.dart';
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter;
@@ -431,6 +433,47 @@ class ReceiptPrinter {
     } else {
       printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
     }
+  }
+
+  Future printOpenShift() async {
+    log("PRINT OPEN SHIFT");
+    List<int> bytes = [];
+
+    final profile = await CapabilityProfile.load(name: 'XP-N160I');
+
+    final generator = Generator(PaperSize.mm58, profile);
+    bytes += generator.setGlobalCodeTable('CP1252');
+    bytes += generator.text('Test Open Shift',
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text('Product 1');
+    bytes += generator.text('Product 2');
+
+    bytes += generator.row([
+      PosColumn(
+          width: 8,
+          text: 'CASHIER - UDIN',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 4,
+          text: 'USD 2.00',
+          styles: const PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
+    ]);
+
+    // // Chinese characters
+    bytes += generator.row([
+      PosColumn(
+          width: 8,
+          text: '豚肉・木耳と玉子炒め弁当',
+          styles: const PosStyles(align: PosAlign.left),
+          containsChinese: true),
+      PosColumn(
+          width: 4,
+          text: '￥1,990',
+          styles: const PosStyles(align: PosAlign.right),
+          containsChinese: true),
+    ]);
+
+    _printEscPos(bytes, generator);
   }
 
   /// print ticket

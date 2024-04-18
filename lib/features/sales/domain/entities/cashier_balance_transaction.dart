@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class CashierBalanceTransactionEntity {
   final String docId;
@@ -26,9 +27,9 @@ class CashierBalanceTransactionEntity {
   CashierBalanceTransactionEntity({
     required this.docId,
     required this.createDate,
-    this.updateDate,
-    this.tocsrId,
-    this.tousrId,
+    required this.updateDate,
+    required this.tocsrId,
+    required this.tousrId,
     required this.docNum,
     required this.openDate,
     required this.openTime,
@@ -41,8 +42,8 @@ class CashierBalanceTransactionEntity {
     required this.calcValue,
     required this.cashValue,
     required this.closeValue,
-    this.openedbyId,
-    this.closedbyId,
+    required this.openedbyId,
+    required this.closedbyId,
     required this.approvalStatus,
   });
 
