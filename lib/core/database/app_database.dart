@@ -2469,25 +2469,15 @@ CREATE TABLE $tableCloseShift (
 """);
 
         await txn.execute("""
-CREATE TABLE $tableMoneyDemonination (
+CREATE TABLE $tableMoneyDenomination (
   $uuidDefinition,
   ${MoneyDenominationFields.createDate} datetime NOT NULL,
   ${MoneyDenominationFields.updateDate} datetime DEFAULT NULL,
+  ${MoneyDenominationFields.nominal} text DEFAULT NULL,
+  ${MoneyDenominationFields.count} int DEFAULT '0',
   ${MoneyDenominationFields.tcsr1Id} text DEFAULT NULL,
-  ${MoneyDenominationFields.coin50} int DEFAULT '0',
-  ${MoneyDenominationFields.coin100} int DEFAULT '0',
-  ${MoneyDenominationFields.coin200} int DEFAULT '0',
-  ${MoneyDenominationFields.coin500} int DEFAULT '0',
-  ${MoneyDenominationFields.coin1k} int DEFAULT '0',
-  ${MoneyDenominationFields.paper1k} int DEFAULT '0',
-  ${MoneyDenominationFields.paper2k} int DEFAULT '0',
-  ${MoneyDenominationFields.paper5k} int DEFAULT '0',
-  ${MoneyDenominationFields.paper10k} int DEFAULT '0',
-  ${MoneyDenominationFields.paper20k} int DEFAULT '0',
-  ${MoneyDenominationFields.paper50k} int DEFAULT '0',
-  ${MoneyDenominationFields.paper100k} int DEFAULT '0',
   $createdAtDefinition,
-  CONSTRAINT `moneydemo_tcsr1_fkey` FOREIGN KEY (`tcsr1Id`) REFERENCES `tcsr1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tcsr2_tcsr1_fkey` FOREIGN KEY (`tcsr1Id`) REFERENCES `tcsr1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
