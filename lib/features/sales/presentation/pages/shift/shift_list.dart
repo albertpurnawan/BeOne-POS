@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ShiftsList extends StatefulWidget {
@@ -29,6 +33,10 @@ class _ShiftsListState extends State<ShiftsList> {
         title: const Text('Shifts'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pushNamed(RouteConstants.home),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -84,6 +92,7 @@ class _ActiveShiftState extends State<ActiveShift> {
     String formattedOpenDate =
         Helpers.formatDateNoSeconds(activeShift!.openDate);
     final cashier = prefs.getString('username');
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 200.0),
       child: Container(
@@ -131,16 +140,27 @@ class _ActiveShiftState extends State<ActiveShift> {
                   ),
                 ],
               ),
-              CustomButton(
-                color: ProjectColors.swatch,
-                child: const Text("CLOSE SHIFT"),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const EndShiftScreen()));
-                },
-              )
+              activeShift!.approvalStatus == 0
+                  ? CustomButton(
+                      color: ProjectColors.swatch,
+                      child: const Text("CLOSE SHIFT"),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const EndShiftScreen()));
+                      },
+                    )
+                  : CustomButton(
+                      color: const Color.fromARGB(255, 47, 143, 8),
+                      child: const Text("OPEN SHIFT"),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const OpenShiftDialog()));
+                      },
+                    ),
             ],
           ),
         ),
@@ -189,6 +209,16 @@ class _AllShiftState extends State<AllShift> {
         groupedShifts[date]!.add(shift);
       }
     }
+
+    // Sort the entries by date in descending order
+    List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries =
+        groupedShifts.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
+
+    // Sort shifts within each group by date in descending order
+    for (var entry in sortedEntries) {
+      entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));
+    }
+
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 200.0),
@@ -206,24 +236,71 @@ class _AllShiftState extends State<AllShift> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      for (var entry in groupedShifts.entries)
+                      for (var entry in sortedEntries)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Date: ${entry.key}', // Display date
-                              style: TextStyle(
+                              entry.key, // Display date
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: 20,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            // Display shifts for this date
+                            const SizedBox(height: 10),
                             for (var shift in entry.value)
-                              Text(
-                                'Shift ID: ${shift.docNum}', // Display shift ID or any relevant information
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          shift.docNum,
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                        SizedBox(
+                                          width: 100,
+                                          child: Text(
+                                            NumberFormat.decimalPattern()
+                                                .format(
+                                                    shift.closeValue.toInt()),
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                            textAlign: TextAlign.end,
+                                          ),
+                                        ),
+                                        if (shift.approvalStatus == 0)
+                                          const SizedBox(
+                                            width: 100,
+                                            child: Text(
+                                              'OPEN',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: Color.fromARGB(
+                                                    255, 47, 143, 8),
+                                              ),
+                                            ),
+                                          )
+                                        else
+                                          const SizedBox(
+                                            width: 100,
+                                            child: Text(
+                                              'CLOSED',
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_right_outlined,
+                                    size: 40,
+                                  ),
+                                ],
                               ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                           ],
                         ),
                     ],
