@@ -90,7 +90,14 @@ class WelcomeScreen extends StatefulWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => FetchScreen()),
-                        );
+                        ).then((value) => Future.delayed(
+                            Duration(milliseconds: 200),
+                            () => SystemChrome.setSystemUIOverlayStyle(
+                                const SystemUiOverlayStyle(
+                                    statusBarColor: ProjectColors.primary,
+                                    statusBarBrightness: Brightness.light,
+                                    statusBarIconBrightness:
+                                        Brightness.light))));
                       },
                     ),
                   ),
@@ -104,7 +111,14 @@ class WelcomeScreen extends StatefulWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => SettingsScreen()),
-                        );
+                        ).then((value) => Future.delayed(
+                            Duration(milliseconds: 200),
+                            () => SystemChrome.setSystemUIOverlayStyle(
+                                const SystemUiOverlayStyle(
+                                    statusBarColor: ProjectColors.primary,
+                                    statusBarBrightness: Brightness.light,
+                                    statusBarIconBrightness:
+                                        Brightness.light))));
                       },
                     ),
                   ),
