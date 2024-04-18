@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
@@ -346,7 +348,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
       await _openCashDrawerUseCase.call();
     }
-    // await GetIt.instance<InvoiceApi>().sendInvoice();
+    await GetIt.instance<InvoiceApi>().sendInvoice();
   }
 
   void resetReceipt() {
