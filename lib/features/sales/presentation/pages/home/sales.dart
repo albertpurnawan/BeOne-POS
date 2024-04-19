@@ -250,7 +250,7 @@ class _SalesPageState extends State<SalesPage> {
                         alignment: Alignment.centerLeft,
                         child: Container(
                             height: 50,
-                            width: 160,
+                            width: 100,
                             padding: const EdgeInsets.fromLTRB(20, 15, 10, 16),
                             decoration: const BoxDecoration(
                               color: const Color.fromARGB(255, 85, 0, 0),
@@ -260,7 +260,7 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                             ),
                             child: SvgPicture.asset(
-                              "assets/logo/white.svg",
+                              "assets/logo/white_only_pos.svg",
                               alignment: Alignment.centerLeft,
                             )),
                       ),
@@ -1856,7 +1856,26 @@ class _SalesPageState extends State<SalesPage> {
           Expanded(
             child: SizedBox.expand(
               child: OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  final ReceiptItemEntity receiptItemTarget = context
+                      .read<ReceiptCubit>()
+                      .state
+                      .receiptItems[indexIsSelect[0]];
+
+                  setState(() {
+                    indexIsSelect = [-1, 0];
+                    _textEditingControllerNewReceiptItemQuantity.text = "1";
+                    _textEditingControllerNewReceiptItemCode.text = "";
+                    _newReceiptItemQuantityFocusNode.unfocus();
+                    isUpdatingReceiptItemQty = false;
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  });
+
+                  context
+                      .read<ReceiptCubit>()
+                      .removeReceiptItem(receiptItemTarget);
+                },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(7),
                   elevation: 5,

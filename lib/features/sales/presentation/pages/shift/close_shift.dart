@@ -120,6 +120,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
       });
     });
 
+    // try {
     return FutureBuilder<CashierBalanceTransactionModel?>(
       future: _openingFuture,
       builder: (context, snapshot) {
@@ -145,6 +146,10 @@ class _EndShiftFormState extends State<EndShiftForm> {
         }
       },
     );
+    // } catch (e, s) {
+    //   debugPrintStack(stackTrace: s);
+    //   return Placeholder();
+    // }
   }
 
   Widget buildForm(BuildContext context, GlobalKey<FormState> formKey) {
