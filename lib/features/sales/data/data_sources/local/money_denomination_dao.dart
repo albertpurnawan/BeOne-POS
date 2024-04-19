@@ -6,7 +6,7 @@ class MoneyDenominationDao extends BaseDao<MoneyDenominationModel> {
   MoneyDenominationDao(Database db)
       : super(
           db: db,
-          tableName: tableMoneyDemonination,
+          tableName: tableMoneyDenomination,
           modelFields: MoneyDenominationFields.values,
         );
 
