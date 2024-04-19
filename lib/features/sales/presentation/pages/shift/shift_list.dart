@@ -187,9 +187,12 @@ class _ActiveShiftState extends State<ActiveShift> {
                       child: const Text("CLOSE SHIFT"),
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const EndShiftScreen()));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EndShiftScreen(shiftId: activeShift!.docId),
+                          ),
+                        );
                       },
                     )
                   : CustomButton(
@@ -335,9 +338,20 @@ class _AllShiftState extends State<AllShift> {
                                       ],
                                     ),
                                   ),
-                                  const Icon(
-                                    Icons.arrow_right_outlined,
-                                    size: 40,
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EndShiftScreen(
+                                              shiftId: shift.docId),
+                                        ),
+                                      );
+                                    },
+                                    child: Icon(
+                                      Icons.arrow_right_outlined,
+                                      size: 40,
+                                    ),
                                   ),
                                 ],
                               ),

@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
@@ -17,10 +18,14 @@ class TokenApi {
       log(url);
       log(emailAdmin);
       log(passwordAdmin);
-      final response = await _dio.get("$url/auth/login", data: {
-        "email": emailAdmin,
-        "password": passwordAdmin,
+      var formData = FormData.fromMap({
+        'data': json.encode({
+          'email': emailAdmin,
+          'password': 'passwordAdmin',
+        })
       });
+
+      final response = await _dio.get("$url/auth/login", data: formData);
       log(response.data);
       return response.data;
     } catch (err) {

@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CashierBalanceTransactionDetails extends StatelessWidget {
@@ -109,7 +108,7 @@ class CashierBalanceTransactionDetails extends StatelessWidget {
                             ),
                             content: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.7,
-                              child: const EndShiftScreen(),
+                              // child: const EndShiftScreen(),
                             ),
                           );
                         },

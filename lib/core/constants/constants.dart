@@ -29,7 +29,7 @@ class Constant {
   static String url = "http://110.239.68.248:8803";
 
   // EMAIL ADMIN
-  static String emailAdmin = "interfacing@topgolf.com";
+  static String emailAdmin = "interfacing@demo.com";
 
   // PASS ADMIN
   static String passwordAdmin = "BeOne\$\$123";

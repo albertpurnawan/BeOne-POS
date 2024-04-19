@@ -14,19 +14,23 @@ import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_end_shift
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EndShiftScreen extends StatefulWidget {
-  const EndShiftScreen({Key? key}) : super(key: key);
+  final String shiftId;
+  const EndShiftScreen({Key? key, required this.shiftId}) : super(key: key);
 
   @override
-  State<EndShiftScreen> createState() => _EndShiftScreenState();
+  State<EndShiftScreen> createState() => _EndShiftScreenState(shiftId: shiftId);
 }
 
 class _EndShiftScreenState extends State<EndShiftScreen> {
+  final String shiftId;
+  _EndShiftScreenState({required this.shiftId});
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: ProjectColors.swatch,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       body: ScrollWidget(
@@ -44,7 +48,7 @@ class _EndShiftScreenState extends State<EndShiftScreen> {
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
-            const EndShiftForm(),
+            EndShiftForm(shiftId: shiftId),
           ],
         ),
       ),
@@ -53,13 +57,15 @@ class _EndShiftScreenState extends State<EndShiftScreen> {
 }
 
 class EndShiftForm extends StatefulWidget {
-  const EndShiftForm({Key? key}) : super(key: key);
+  final String shiftId;
+  const EndShiftForm({Key? key, required this.shiftId}) : super(key: key);
 
   @override
-  State<EndShiftForm> createState() => _EndShiftFormState();
+  State<EndShiftForm> createState() => _EndShiftFormState(shiftId: shiftId);
 }
 
 class _EndShiftFormState extends State<EndShiftForm> {
+  final String shiftId;
   late TextEditingController actualCashController;
   late Future<CashierBalanceTransactionModel?> _openingFuture;
   late Future<List<InvoiceHeaderModel?>> _transactionsFuture;
@@ -68,6 +74,8 @@ class _EndShiftFormState extends State<EndShiftForm> {
   double differences = 0.0;
   final formKey = GlobalKey<FormState>();
   final prefs = GetIt.instance<SharedPreferences>();
+
+  _EndShiftFormState({required this.shiftId});
 
   void _updateCashierBalanceTransaction(
       String docId, CashierBalanceTransactionModel value) async {
@@ -92,9 +100,10 @@ class _EndShiftFormState extends State<EndShiftForm> {
   }
 
   Future<CashierBalanceTransactionModel?> _fetchOpeningData() async {
+    // final shiftId = prefs.getString('tcsr1Id');
     opening = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
-        .readLastValue();
+        .readByDocId(shiftId, null);
     return opening;
   }
 

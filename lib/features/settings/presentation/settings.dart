@@ -64,7 +64,7 @@ class _SettingsFormState extends State<SettingsForm> {
   late List<POSParameterModel> posParameters;
 
   // needed to change
-  String emailAdmin = "interfacing@topgolf.com";
+  String emailAdmin = "interfacing@demo.com";
   String passwordAdmin = "BeOne\$\$123";
   // md5.convert(utf8.encode("BeOne\$\$123")).toString();
 
