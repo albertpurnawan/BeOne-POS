@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
@@ -42,6 +44,8 @@ class _SalesPageState extends State<SalesPage> {
   CustomerEntity? radioValue;
   CustomerEntity? selectedCustomer;
   EmployeeEntity? employeeEntity;
+  late Timer _timer;
+  String currentTime = DateFormat.Hms().format(DateTime.now());
 
   final ScrollController _scrollControllerMain = ScrollController();
   final ScrollController _scrollControllerReceiptItems = ScrollController();
@@ -85,6 +89,11 @@ class _SalesPageState extends State<SalesPage> {
     GetIt.instance<GetEmployeeUseCase>()
         .call()
         .then((value) => employeeEntity = value);
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        currentTime = DateFormat.Hms().format(DateTime.now());
+      });
+    });
   }
 
   @override
@@ -163,7 +172,7 @@ class _SalesPageState extends State<SalesPage> {
                         flex: 12,
                         child: Column(
                           children: [
-                            _transactionSummary(),
+                            _transactionSummary(currentTime),
                             const SizedBox(
                               height: 10,
                             ),
@@ -556,84 +565,84 @@ class _SalesPageState extends State<SalesPage> {
                                                         ),
                                                       ],
                                                     ),
-                                                    index % 3 == 0
-                                                        ? const Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                "Aeon card disc",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromARGB(
-                                                                    //         255,
-                                                                    //         243,
-                                                                    //         109,
-                                                                    //         0),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                              Text(
-                                                                "-26,568",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromARGB(
-                                                                    //         255,
-                                                                    //         243,
-                                                                    //         109,
-                                                                    //         0),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                            ],
-                                                          )
-                                                        : const SizedBox
-                                                            .shrink(),
-                                                    index % 4 == 0
-                                                        ? const Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                "PROMO LEBARAN",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromRGBO(
-                                                                    //         14,
-                                                                    //         68,
-                                                                    //         193,
-                                                                    //         1),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                              Text(
-                                                                "-32,568",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromRGBO(
-                                                                    //         14,
-                                                                    //         68,
-                                                                    //         193,
-                                                                    //         1),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                            ],
-                                                          )
-                                                        : const SizedBox
-                                                            .shrink(),
+                                                    // index % 3 == 0
+                                                    //     ? const Row(
+                                                    //         mainAxisAlignment:
+                                                    //             MainAxisAlignment
+                                                    //                 .spaceBetween,
+                                                    //         crossAxisAlignment:
+                                                    //             CrossAxisAlignment
+                                                    //                 .start,
+                                                    //         children: [
+                                                    //           Text(
+                                                    //             "Aeon card disc",
+                                                    //             style: TextStyle(
+                                                    //                 // color: Color
+                                                    //                 //     .fromARGB(
+                                                    //                 //         255,
+                                                    //                 //         243,
+                                                    //                 //         109,
+                                                    //                 //         0),
+                                                    //                 fontSize: 16,
+                                                    //                 fontStyle: FontStyle.italic,
+                                                    //                 fontWeight: FontWeight.w500),
+                                                    //           ),
+                                                    //           Text(
+                                                    //             "-26,568",
+                                                    //             style: TextStyle(
+                                                    //                 // color: Color
+                                                    //                 //     .fromARGB(
+                                                    //                 //         255,
+                                                    //                 //         243,
+                                                    //                 //         109,
+                                                    //                 //         0),
+                                                    //                 fontSize: 16,
+                                                    //                 fontStyle: FontStyle.italic,
+                                                    //                 fontWeight: FontWeight.w500),
+                                                    //           ),
+                                                    //         ],
+                                                    //       )
+                                                    //     : const SizedBox
+                                                    //         .shrink(),
+                                                    // index % 4 == 0
+                                                    //     ? const Row(
+                                                    //         mainAxisAlignment:
+                                                    //             MainAxisAlignment
+                                                    //                 .spaceBetween,
+                                                    //         crossAxisAlignment:
+                                                    //             CrossAxisAlignment
+                                                    //                 .start,
+                                                    //         children: [
+                                                    //           Text(
+                                                    //             "PROMO LEBARAN",
+                                                    //             style: TextStyle(
+                                                    //                 // color: Color
+                                                    //                 //     .fromRGBO(
+                                                    //                 //         14,
+                                                    //                 //         68,
+                                                    //                 //         193,
+                                                    //                 //         1),
+                                                    //                 fontSize: 16,
+                                                    //                 fontStyle: FontStyle.italic,
+                                                    //                 fontWeight: FontWeight.w500),
+                                                    //           ),
+                                                    //           Text(
+                                                    //             "-32,568",
+                                                    //             style: TextStyle(
+                                                    //                 // color: Color
+                                                    //                 //     .fromRGBO(
+                                                    //                 //         14,
+                                                    //                 //         68,
+                                                    //                 //         193,
+                                                    //                 //         1),
+                                                    //                 fontSize: 16,
+                                                    //                 fontStyle: FontStyle.italic,
+                                                    //                 fontWeight: FontWeight.w500),
+                                                    //           ),
+                                                    //         ],
+                                                    //       )
+                                                    //     : const SizedBox
+                                                    //         .shrink(),
                                                   ],
                                                 ),
                                               ),
@@ -1209,7 +1218,7 @@ class _SalesPageState extends State<SalesPage> {
     );
   }
 
-  Widget _transactionSummary() {
+  Widget _transactionSummary(String currentTime) {
     return BlocBuilder<ReceiptCubit, ReceiptEntity>(
       builder: (context, state) {
         return Expanded(
@@ -1287,7 +1296,7 @@ class _SalesPageState extends State<SalesPage> {
                                   borderRadius: BorderRadius.circular(20)),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 0),
-                              child: const Row(
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Icon(Icons.schedule, color: Colors.white),
@@ -1295,7 +1304,7 @@ class _SalesPageState extends State<SalesPage> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "16:39:21",
+                                    currentTime,
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
@@ -1339,40 +1348,40 @@ class _SalesPageState extends State<SalesPage> {
                             ],
                           ),
                           const SizedBox(height: 25),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "AKHIRTAHUN20",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                "- 1.504.468",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Annual Member Disc",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                "- 262.611",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 25),
+                          // const Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     Text(
+                          //       "AKHIRTAHUN20",
+                          //       style: TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //     Text(
+                          //       "- 1.504.468",
+                          //       style: TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 5),
+                          // const Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     Text(
+                          //       "Annual Member Disc",
+                          //       style: TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //     Text(
+                          //       "- 262.611",
+                          //       style: TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 25),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,

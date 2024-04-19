@@ -47,7 +47,7 @@ class _ShiftsListState extends State<ShiftsList> {
             Container(
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 233, 222, 222),
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(5),
               ),
               height: 4,
               width: 875,
@@ -98,7 +98,7 @@ class _ActiveShiftState extends State<ActiveShift> {
       child: Container(
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 233, 222, 222),
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(5),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 30.0),
@@ -111,7 +111,7 @@ class _ActiveShiftState extends State<ActiveShift> {
                   Text(
                     formattedOpenDate,
                     style: const TextStyle(
-                        color: ProjectColors.swatch,
+                        color: ProjectColors.primary,
                         fontSize: 24,
                         fontWeight: FontWeight.bold),
                   ),
@@ -129,11 +129,13 @@ class _ActiveShiftState extends State<ActiveShift> {
                               "OPEN",
                               style: TextStyle(
                                   fontSize: 20,
-                                  color: Color.fromARGB(255, 47, 143, 8)),
+                                  color: Color.fromARGB(255, 47, 143, 8),
+                                  fontWeight: FontWeight.w700),
                             )
                           : const Text(
                               "CLOSED",
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w700),
                             ),
                       const SizedBox(width: 10),
                     ],
@@ -142,7 +144,7 @@ class _ActiveShiftState extends State<ActiveShift> {
               ),
               activeShift!.approvalStatus == 0
                   ? CustomButton(
-                      color: ProjectColors.swatch,
+                      color: ProjectColors.primary,
                       child: const Text("CLOSE SHIFT"),
                       onTap: () {
                         Navigator.push(
@@ -229,7 +231,7 @@ class _AllShiftState extends State<AllShift> {
               width: constraints.maxWidth,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 233, 222, 222),
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(5),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -278,6 +280,7 @@ class _AllShiftState extends State<AllShift> {
                                               'OPEN',
                                               style: TextStyle(
                                                 fontSize: 18,
+                                                fontWeight: FontWeight.w700,
                                                 color: Color.fromARGB(
                                                     255, 47, 143, 8),
                                               ),
@@ -288,7 +291,9 @@ class _AllShiftState extends State<AllShift> {
                                             width: 100,
                                             child: Text(
                                               'CLOSED',
-                                              style: TextStyle(fontSize: 18),
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700),
                                             ),
                                           ),
                                       ],
