@@ -54,7 +54,6 @@ dependencies:
   # esc_pos_utils: ^1.1.0
   # flutter_esc_pos_utils: ^1.0.0
   thermal_printer: ^1.0.5
-  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +82,8 @@ flutter:
     #   - images/a_dot_ham.jpeg
     - assets/logo/maroon.svg
     - assets/logo/white.svg
+    - assets/logo/maroon_only_pos.svg
+    - assets/logo/white_only_pos.svg
     - assets/images/empty-item.svg
     - assets/images/empty-search.svg
     - assets/images/barcode-scanner.svg

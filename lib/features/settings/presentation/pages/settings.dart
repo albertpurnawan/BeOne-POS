@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
@@ -696,6 +698,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   255, 66, 66, 66),
                                               fontSize: 16),
                                         ),
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Icon(
+                                          Icons.navigate_next,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            height: 0,
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 35,
+                      ),
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "Cache",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Color.fromARGB(255, 66, 66, 66),
+                                    fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Divider(
+                            height: 0,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              GetIt.instance<SharedPreferences>().clear();
+                              context.goNamed(RouteConstants.welcome);
+                            },
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        const Icon(
+                                          Icons.delete_outline,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Clear Cache",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
                                         SizedBox(
                                           width: 15,
                                         ),

@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               height: (MediaQuery.of(context).size.height / 5),
             ),
-            const BeOneLogo(size: 130),
+            const BeOneLogo(size: 90),
             const SizedBox(height: 30),
             const LoginForm(),
             const SizedBox(
@@ -132,7 +132,7 @@ class _LoginFormState extends State<LoginForm> {
                 if (loginSuccess!) {
                   if (isOpen) {
                     if (!context.mounted) return;
-                    if (context.mounted) context.pushNamed(RouteConstants.home);
+                    if (context.mounted) context.goNamed(RouteConstants.home);
                     // showDialog(
                     //   context: context,
                     //   builder: (BuildContext context) {
@@ -165,11 +165,28 @@ class _LoginFormState extends State<LoginForm> {
                         return AlertDialog(
                           shape: const RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
+                                BorderRadius.all(Radius.circular(5.0)),
                           ),
-                          backgroundColor: ProjectColors.primary,
+                          // backgroundColor: ProjectColors.primary,
+                          contentPadding: EdgeInsets.all(0),
+                          titlePadding: EdgeInsets.all(0),
+                          title: Container(
+                            decoration: const BoxDecoration(
+                              color: ProjectColors.primary,
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(5.0)),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                            child: const Text(
+                              'Shift Opening',
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white),
+                            ),
+                          ),
                           content: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
+                            width: MediaQuery.of(context).size.width * 0.5,
                             child: const OpenShiftDialog(),
                           ),
                         );

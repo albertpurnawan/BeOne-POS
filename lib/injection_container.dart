@@ -184,7 +184,6 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<PrintOpenShiftUsecase>(
       () => PrintOpenShiftUsecase(sl()),
       dependsOn: [AppDatabase]);
-
   sl.registerSingletonWithDependencies<GetPosParameterUseCase>(
       () => GetPosParameterUseCase(sl()),
       dependsOn: [AppDatabase]);

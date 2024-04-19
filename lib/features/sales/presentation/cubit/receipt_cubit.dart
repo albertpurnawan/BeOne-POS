@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
@@ -330,7 +332,22 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(state.copyWith(customerEntity: customerEntity));
   }
 
-  void removeReceiptItem() {}
+  void removeReceiptItem(ReceiptItemEntity receiptItemEntity) {
+    List<ReceiptItemEntity> newReceiptItems = [];
+
+    for (final currentReceiptItem in state.receiptItems) {
+      if (receiptItemEntity != currentReceiptItem) {
+        newReceiptItems.add(currentReceiptItem);
+      }
+    }
+
+    emit(state.copyWith(
+      receiptItems: newReceiptItems,
+      subtotal: state.subtotal - receiptItemEntity.totalGross,
+      taxAmount: state.taxAmount - receiptItemEntity.taxAmount,
+      grandTotal: state.grandTotal - receiptItemEntity.totalAmount,
+    ));
+  }
 
   void charge() async {
     final newState =
@@ -346,7 +363,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
       await _openCashDrawerUseCase.call();
     }
-    // await GetIt.instance<InvoiceApi>().sendInvoice();
+    await GetIt.instance<InvoiceApi>().sendInvoice();
   }
 
   void resetReceipt() {

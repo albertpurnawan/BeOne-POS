@@ -94,8 +94,8 @@ class MyApp extends StatelessWidget {
                     color: Colors.white,
                     child: Center(
                       child: SvgPicture.asset(
-                        "assets/logo/maroon.svg",
-                        width: 170,
+                        "assets/logo/maroon_only_pos.svg",
+                        width: 130,
                         color: const Color(0xFFD42627),
                       ),
                     ),
