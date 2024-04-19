@@ -20,7 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
+        statusBarColor: ProjectColors.primary,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
     return Scaffold(
@@ -29,20 +29,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      backgroundColor: Colors.white,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'SETTINGS',
-            style: TextStyle(
-                color: ProjectColors.swatch,
-                fontSize: 30,
-                fontWeight: FontWeight.bold),
+      backgroundColor: Color.fromARGB(255, 234, 234, 234),
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(50),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // const Text(
+                //   'SETTINGS',
+                //   style: TextStyle(
+                //       color: ProjectColors.swatch,
+                //       fontSize: 30,
+                //       fontWeight: FontWeight.bold),
+                // ),
+                // const SizedBox(height: 30),
+                const SettingsForm()
+              ],
+            ),
           ),
-          const SizedBox(height: 30),
-          const SettingsForm()
-        ],
+        ),
       ),
     );
   }

@@ -32,7 +32,12 @@ class _EndShiftScreenState extends State<EndShiftScreen> {
         statusBarIconBrightness: Brightness.light));
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
+      backgroundColor: Color.fromARGB(255, 234, 234, 234),
+      appBar: AppBar(
+        title: const Text('End Current Shift'),
+        backgroundColor: ProjectColors.primary,
+        foregroundColor: Colors.white,
+      ),
       body: ScrollWidget(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
@@ -154,7 +159,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
   Widget buildForm(BuildContext context, GlobalKey<FormState> formKey) {
     double cashFlow = _calculateCashFlow();
     final prefs = GetIt.instance<SharedPreferences>();
-    final userLogged = prefs.getString('identifier');
+    final userLogged = prefs.getString('username');
 
     return Center(
       child: Form(
@@ -176,11 +181,11 @@ class _EndShiftFormState extends State<EndShiftForm> {
             ),
             CustomRow(
               leftText: "   Start Cash",
-              rightText: opening!.openValue.toString(),
+              rightText: Helpers.parseMoney(opening!.openValue.toInt()),
             ),
             CustomRow(
               leftText: "   Cash Flow",
-              rightText: cashFlow.toString(),
+              rightText: Helpers.parseMoney(cashFlow.toInt()),
             ),
             const CustomRow(
               leftText: "   Cash Sales",
@@ -188,7 +193,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
             ),
             CustomRow(
               leftText: "   Expected Cash",
-              rightText: cashFlow.toString(),
+              rightText: Helpers.parseMoney(cashFlow.toInt()),
             ),
             const CustomRow(
               leftText: "   Non-Cash",
@@ -218,7 +223,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
             const SizedBox(height: 10),
             CustomRow(
               leftText: "   Differences",
-              rightText: differences.toString(),
+              rightText: Helpers.parseMoney(differences.toInt()),
             ),
             const SizedBox(height: 30),
             Container(
@@ -274,21 +279,28 @@ class _EndShiftFormState extends State<EndShiftForm> {
             ),
             const SizedBox(height: 10),
             SizedBox(
-              width: 200,
-              child: ElevatedButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                },
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
-                child: const Text('Cancel'),
-              ),
-            ),
+                width: 400,
+                child: TextButton(
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side:
+                              const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.black.withOpacity(.2))),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Center(
+                      child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                        color: ProjectColors.primary,
+                        fontWeight: FontWeight.w700),
+                  )),
+                )),
           ],
         ),
       ),

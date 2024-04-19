@@ -865,7 +865,7 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPayment!)}",
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPayment!.toInt())}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -887,7 +887,7 @@ class __CheckoutSuccessDialogContentState
                           ),
                           Text(
                             context.read<ReceiptCubit>().state.changed != null
-                                ? "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.changed!)}"
+                                ? "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.changed!.toInt())}"
                                 : "",
                             style: const TextStyle(
                               fontSize: 18,

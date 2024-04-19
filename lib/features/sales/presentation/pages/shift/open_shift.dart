@@ -59,76 +59,78 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
   @override
   Widget build(BuildContext context) {
     final cashier = prefs.getString('username');
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10.0),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: ScrollWidget(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: (MediaQuery.of(context).size.height / 2) - 350,
+    return Container(
+      color: Color.fromARGB(255, 234, 234, 234),
+      child: Center(
+        child: ScrollWidget(
+          // padding: const EdgeInsets.symmetric(horizontal: 50),
+          child: Column(
+            children: [
+              SizedBox(
+                height: (MediaQuery.of(context).size.height / 2) - 350,
+              ),
+              Text(
+                'Opening Shift - ${posParameter!.storeName}',
+                style: const TextStyle(
+                  color: ProjectColors.primary,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  'Opening Shift - ${posParameter!.storeName}',
-                  style: const TextStyle(
-                    color: ProjectColors.swatch,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Cashier: $cashier',
+                style: const TextStyle(
+                  color: ProjectColors.mediumBlack,
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'Cashier: $cashier',
-                  style: const TextStyle(
-                    color: ProjectColors.mediumBlack,
-                    fontSize: 18,
-                    fontWeight: FontWeight.normal,
-                  ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Start: $formattedDate',
+                style: const TextStyle(
+                  color: ProjectColors.mediumBlack,
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'Start: $formattedDate',
-                  style: const TextStyle(
-                    color: ProjectColors.mediumBlack,
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal,
-                  ),
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                'Opening Balance:',
+                style: TextStyle(
+                  color: ProjectColors.primary,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 30),
-                const Text(
-                  'Opening Balance:',
-                  style: TextStyle(
-                    color: ProjectColors.swatch,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const OpenShiftForm(),
-                const SizedBox(height: 25),
-                SizedBox(
-                  width: 200,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+              ),
+              const SizedBox(height: 10),
+              const OpenShiftForm(),
+              const SizedBox(height: 15),
+              SizedBox(
+                  width: 400,
+                  child: TextButton(
                     style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            10.0,
-                          ), // Adjust the borderRadius value as needed
-                        ),
-                      ),
-                    ),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-              ],
-            ),
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: const BorderSide(
+                                color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.white),
+                        overlayColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.black.withOpacity(.2))),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Center(
+                        child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                          color: ProjectColors.primary,
+                          fontWeight: FontWeight.w700),
+                    )),
+                  )),
+            ],
           ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
@@ -973,88 +974,110 @@ class _FetchScreenState extends State<FetchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
-        title: Text('Fetch Data'),
+        backgroundColor: ProjectColors.primary,
+        foregroundColor: Colors.white,
+        title: Text('Sync Data'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // _fetchToken();
-                manualSyncData();
-              },
-              child: Text('SYNC'),
-            ),
-            SizedBox(height: 20),
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: SizedBox(
-                    height: 40,
-                    child: LinearProgressIndicator(
-                      value: _syncProgress,
-                      backgroundColor: Colors.grey[300],
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
-                    ),
-                  ),
-                ),
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      _syncProgress == 1.0
-                          ? "Data Synced: $fetched"
-                          : "${(_syncProgress * 100).round().toString()}%",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: SizedBox(
+                      height: 40,
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: LinearProgressIndicator(
+                        value: _syncProgress,
+                        backgroundColor:
+                            const Color.fromARGB(255, 184, 183, 183),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
                       ),
                     ),
                   ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        _syncProgress == 1.0
+                            ? "Data Synced: $fetched"
+                            : "${(_syncProgress * 100).round().toString()}%",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.3,
+                // width: MediaQuery.of(context).size.width * 0.4,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // _fetchToken();
+                    manualSyncData();
+                  },
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStatePropertyAll(ProjectColors.primary),
+                      foregroundColor: MaterialStatePropertyAll(Colors.white)),
+                  child: Text(
+                    'SYNC',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
-              ],
-            ),
-            SizedBox(height: 20),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     manualSyncData();
-            //   },
-            //   child: Text('FETCH'),
-            // ),
-            // SizedBox(height: 20),
-            // Text(
-            //   'Data Fetched: [$_dataFetched] $_dataExample',
-            //   style: TextStyle(fontSize: 18),
-            // ),
-            // SizedBox(height: 20),
-            // TextField(
-            //   controller: _docIdController,
-            //   decoration: InputDecoration(
-            //     labelText: 'Enter Document ID',
-            //   ),
-            // ),
-            //   SizedBox(height: 20),
-            //   ElevatedButton(
-            //     onPressed: () {
-            //       _fetchSingleData(_docIdController.text);
-            //     },
-            //     child: Text('SEARCH'),
-            //   ),
-            //   SizedBox(height: 20),
-            //   Text(
-            //     'Data Found: ${_singleData}',
-            //     style: TextStyle(fontSize: 18),
-            //   ),
-            //   SizedBox(height: 20),
-            //   if (_statusCode != 0) Text(_statusCode.toString()),
-            //   if (_errorMessage.isNotEmpty) Text(_errorMessage),
-          ],
+              ),
+              SizedBox(height: 50),
+
+              // ElevatedButton(
+              //   onPressed: () {
+              //     manualSyncData();
+              //   },
+              //   child: Text('FETCH'),
+              // ),
+              // SizedBox(height: 20),
+              // Text(
+              //   'Data Fetched: [$_dataFetched] $_dataExample',
+              //   style: TextStyle(fontSize: 18),
+              // ),
+              // SizedBox(height: 20),
+              // TextField(
+              //   controller: _docIdController,
+              //   decoration: InputDecoration(
+              //     labelText: 'Enter Document ID',
+              //   ),
+              // ),
+              //   SizedBox(height: 20),
+              //   ElevatedButton(
+              //     onPressed: () {
+              //       _fetchSingleData(_docIdController.text);
+              //     },
+              //     child: Text('SEARCH'),
+              //   ),
+              //   SizedBox(height: 20),
+              //   Text(
+              //     'Data Found: ${_singleData}',
+              //     style: TextStyle(fontSize: 18),
+              //   ),
+              //   SizedBox(height: 20),
+              //   if (_statusCode != 0) Text(_statusCode.toString()),
+              //   if (_errorMessage.isNotEmpty) Text(_errorMessage),
+            ],
+          ),
         ),
       ),
     );

@@ -164,11 +164,28 @@ class _LoginFormState extends State<LoginForm> {
                         return AlertDialog(
                           shape: const RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
+                                BorderRadius.all(Radius.circular(5.0)),
                           ),
-                          backgroundColor: ProjectColors.primary,
+                          // backgroundColor: ProjectColors.primary,
+                          contentPadding: EdgeInsets.all(0),
+                          titlePadding: EdgeInsets.all(0),
+                          title: Container(
+                            decoration: const BoxDecoration(
+                              color: ProjectColors.primary,
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(5.0)),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                            child: const Text(
+                              'Shift Opening',
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white),
+                            ),
+                          ),
                           content: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
+                            width: MediaQuery.of(context).size.width * 0.5,
                             child: const OpenShiftDialog(),
                           ),
                         );
