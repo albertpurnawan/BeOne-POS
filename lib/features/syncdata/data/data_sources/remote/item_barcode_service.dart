@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 class ItemBarcodeApi {
   final Dio _dio;
   String token = Constant.token;
+  String storeId = Constant.tostrId;
   String url = Constant.url;
 
   ItemBarcodeApi(this._dio);
@@ -31,7 +32,7 @@ class ItemBarcodeApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+            "parameter": [storeId]
           };
         }
       }

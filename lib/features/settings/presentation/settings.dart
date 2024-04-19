@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/settings/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -58,6 +61,12 @@ class _SettingsFormState extends State<SettingsForm> {
       tocsrController,
       urlController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
+  late List<POSParameterModel> posParameters;
+
+  // needed to change
+  String emailAdmin = "interfacing@topgolf.com";
+  String passwordAdmin = "BeOne\$\$123";
+  // md5.convert(utf8.encode("BeOne\$\$123")).toString();
 
   @override
   void initState() {
@@ -152,8 +161,16 @@ class _SettingsFormState extends State<SettingsForm> {
             child: CustomButton(
               child: const Text("Save"),
               onTap: () async {
-                Constant.updateTopos(gtentController.text, tostrController.text,
-                    tocsrController.text, urlController.text);
+                Constant.updateTopos(
+                    gtentController.text,
+                    tostrController.text,
+                    tocsrController.text,
+                    urlController.text,
+                    emailAdmin,
+                    passwordAdmin);
+
+                await GetIt.instance<TokenApi>()
+                    .getToken(urlController.text, emailAdmin, passwordAdmin);
 
                 Navigator.pop(context);
               },

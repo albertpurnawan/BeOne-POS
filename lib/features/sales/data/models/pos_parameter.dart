@@ -56,7 +56,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
-      'createdate': createDate.toLocal().toIso8601String(),
+      'createdate': createDate?.toLocal().toIso8601String(),
       'updatedate': updateDate?.toLocal().toIso8601String(),
       'gtentId': gtentId,
       'tostrId': tostrId,
@@ -65,7 +65,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       'currcode': currCode,
       'tocsrId': tocsrId,
       'tovatId': tovatId,
-      'baseUrl': baseUrl,
+      'baseurl': baseUrl,
       'user': user,
       'password': password,
     };
@@ -74,20 +74,22 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
   factory POSParameterModel.fromMap(Map<String, dynamic> map) {
     return POSParameterModel(
       docId: map['docid'] as String,
-      createDate: DateTime.parse(map['createdate'] as String).toLocal(),
+      createDate: map['createdate'] != null
+          ? DateTime.parse(map['createdate'] as String).toLocal()
+          : null,
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      gtentId: map['gtentId'] as String,
-      tostrId: map['tostrId'] as String,
-      storeName: map['storename'] as String,
-      tcurrId: map['tcurrId'] as String,
-      currCode: map['currcode'] as String,
-      tocsrId: map['tocsrId'] as String,
-      tovatId: map['tovatId'] as String,
-      baseUrl: map['baseUrl'] as String,
-      user: map['user'] as String,
-      password: map['password'] as String,
+      gtentId: map['gtentId'] != null ? map['gtentId'] as String : null,
+      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+      storeName: map['storename'] != null ? map['storename'] as String : null,
+      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
+      currCode: map['currcode'] != null ? map['currcode'] as String : null,
+      tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
+      tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
+      baseUrl: map['baseurl'] != null ? map['baseurl'] as String : null,
+      user: map['user'] != null ? map['user'] as String : null,
+      password: map['password'] != null ? map['password'] as String : null,
     );
   }
 

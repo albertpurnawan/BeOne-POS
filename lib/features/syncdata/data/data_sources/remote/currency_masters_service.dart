@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/currency.dart';
 class CurrencyApi {
   final Dio _dio;
   String token = Constant.token;
+  String tenantId = Constant.gtentId;
   String url = Constant.url;
 
   CurrencyApi(this._dio);
@@ -31,7 +32,7 @@ class CurrencyApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": ["b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb"]
+            "parameter": [tenantId]
           };
         }
       }

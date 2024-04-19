@@ -351,7 +351,7 @@ class _CalculateCashState extends State<CalculateCash> {
     controller5k = TextEditingController();
     controller2k = TextEditingController();
     controller1k = TextEditingController();
-    controller1kC = TextEditingController();
+    // controller1kC = TextEditingController();
     controller500 = TextEditingController();
     controller200 = TextEditingController();
     controller100 = TextEditingController();
@@ -374,11 +374,20 @@ class _CalculateCashState extends State<CalculateCash> {
     String total5k = calculateTotal5k(controller5k.text);
     String total2k = calculateTotal2k(controller2k.text);
     String total1k = calculateTotal1k(controller1k.text);
-    String total1kC = calculateTotal1kC(controller1kC.text);
+    // String total1kC = calculateTotal1kC(controller1kC.text);
     String total500 = calculateTotal500(controller500.text);
     String total200 = calculateTotal200(controller200.text);
     String total100 = calculateTotal100(controller100.text);
     String total50 = calculateTotal50(controller50.text);
+
+    List cashes = [
+      total100k,
+      total50k,
+      total20k,
+      total10k,
+      total5k,
+    ];
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -504,14 +513,657 @@ class _CalculateCashState extends State<CalculateCash> {
             ],
           ),
         ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 20,000",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller20k,
+                  onChanged: (value) {
+                    setState(() {
+                      total20k = calculateTotal20k(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total20k,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 10,000",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller10k,
+                  onChanged: (value) {
+                    setState(() {
+                      total10k = calculateTotal10k(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total10k,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 5,000",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller5k,
+                  onChanged: (value) {
+                    setState(() {
+                      total5k = calculateTotal5k(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total5k,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 2,000",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller2k,
+                  onChanged: (value) {
+                    setState(() {
+                      total2k = calculateTotal2k(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total2k,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 1,000",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller1k,
+                  onChanged: (value) {
+                    setState(() {
+                      total1k = calculateTotal1k(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total1k,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // const SizedBox(height: 5),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 100.0),
+        //   child: Row(
+        //     crossAxisAlignment: CrossAxisAlignment.center,
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       const SizedBox(
+        //         width: 300,
+        //         child: Text(
+        //           "Rp 1,000 Coin",
+        //           style: TextStyle(
+        //             fontSize: 20,
+        //           ),
+        //           textAlign: TextAlign.start,
+        //         ),
+        //       ),
+        //       SizedBox(
+        //         height: 30,
+        //         width: containerWidth,
+        //         child: TextFormField(
+        //           controller: controller1kC,
+        //           onChanged: (value) {
+        //             setState(() {
+        //               total1kC = calculateTotal1kC(value);
+        //             });
+        //           },
+        //           validator: (value) {
+        //             if (value == null || value.isEmpty) {
+        //               return 'Please enter a value';
+        //             }
+        //             return null;
+        //           },
+        //           textAlignVertical: TextAlignVertical.top,
+        //           decoration: const InputDecoration(
+        //             isCollapsed: true,
+        //             contentPadding: EdgeInsets.only(bottom: 8.0),
+        //           ),
+        //           inputFormatters: [
+        //             LengthLimitingTextInputFormatter(maxLength)
+        //           ],
+        //           keyboardType: TextInputType.number,
+        //           style: const TextStyle(
+        //             fontSize: 20,
+        //           ),
+        //           textAlign: TextAlign.center,
+        //         ),
+        //       ),
+        //       SizedBox(
+        //         width: 300,
+        //         child: Text(
+        //           total1kC,
+        //           style: const TextStyle(
+        //             fontSize: 20,
+        //           ),
+        //           textAlign: TextAlign.end,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 500",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller500,
+                  onChanged: (value) {
+                    setState(() {
+                      total500 = calculateTotal500(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total500,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 200",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller200,
+                  onChanged: (value) {
+                    setState(() {
+                      total200 = calculateTotal200(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total200,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 100",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller100,
+                  onChanged: (value) {
+                    setState(() {
+                      total100 = calculateTotal100(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total100,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Rp 50",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: TextFormField(
+                  controller: controller50,
+                  onChanged: (value) {
+                    setState(() {
+                      total50 = calculateTotal50(value);
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(maxLength)
+                  ],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  total50,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 30),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 300,
+                child: Text(
+                  "Total Cash",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: containerWidth,
+                child: const Text(""),
+              ),
+              SizedBox(
+                width: 300,
+                child: Text(
+                  "Total Cash",
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 }
 
 double calculateContainerWidth(int maxLength, double fontSize) {
-  // Assuming each character occupies around 10 pixels
-  // Add some extra space for padding
   return (maxLength * 10) + (fontSize * 2);
 }
 
@@ -585,15 +1237,15 @@ String calculateTotal1k(String text) {
   return total1k;
 }
 
-String calculateTotal1kC(String text) {
-  int? quantity1kC = int.tryParse(text);
-  int total1kCValue = quantity1kC != null ? (1000 * quantity1kC) : 0;
+// String calculateTotal1kC(String text) {
+//   int? quantity1kC = int.tryParse(text);
+//   int total1kCValue = quantity1kC != null ? (1000 * quantity1kC) : 0;
 
-  NumberFormat formatter = NumberFormat.decimalPattern();
-  String total1kC = formatter.format(total1kCValue);
+//   NumberFormat formatter = NumberFormat.decimalPattern();
+//   String total1kC = formatter.format(total1kCValue);
 
-  return total1kC;
-}
+//   return total1kC;
+// }
 
 String calculateTotal500(String text) {
   int? quantity500 = int.tryParse(text);
@@ -634,3 +1286,7 @@ String calculateTotal50(String text) {
 
   return total50;
 }
+
+// String calculateTotalCash(List cashes) {
+
+// }

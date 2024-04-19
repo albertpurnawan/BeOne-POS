@@ -1,15 +1,16 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class POSParameterEntity {
   final String docId;
-  final DateTime createDate;
+  final DateTime? createDate;
   final DateTime? updateDate;
   final String? gtentId;
   final String? tostrId;
-  final String storeName;
+  final String? storeName;
   final String? tcurrId;
-  final String currCode;
+  final String? currCode;
   final String? tocsrId;
   final String? tovatId;
   final String? baseUrl;
@@ -67,7 +68,7 @@ class POSParameterEntity {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docId': docId,
-      'createDate': createDate.millisecondsSinceEpoch,
+      'createDate': createDate?.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'gtentId': gtentId,
       'tostrId': tostrId,
@@ -85,15 +86,17 @@ class POSParameterEntity {
   factory POSParameterEntity.fromMap(Map<String, dynamic> map) {
     return POSParameterEntity(
       docId: map['docId'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
+      createDate: map['createDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
+          : null,
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
       gtentId: map['gtentId'] != null ? map['gtentId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
-      storeName: map['storeName'] as String,
+      storeName: map['storeName'] != null ? map['storeName'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
-      currCode: map['currCode'] as String,
+      currCode: map['currCode'] != null ? map['currCode'] as String : null,
       tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
       baseUrl: map['baseUrl'] != null ? map['baseUrl'] as String : null,

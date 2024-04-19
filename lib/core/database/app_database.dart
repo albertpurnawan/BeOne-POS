@@ -2501,11 +2501,11 @@ CREATE TABLE $tablePromoCouponDefaultValidDays (
         await txn.execute("""
 CREATE TABLE $tablePOSParameter (
   $uuidDefinition,
-  ${POSParameterFields.createDate} datetime NOT NULL,
+  ${POSParameterFields.createDate} datetime DEFAULT NULL,
   ${POSParameterFields.updateDate} datetime DEFAULT NULL,
   ${POSParameterFields.gtentId} text DEFAULT NULL,
   ${POSParameterFields.tostrId} text DEFAULT NULL,
-  ${POSParameterFields.storeName} text NOT NULL,
+  ${POSParameterFields.storeName} text DEFAULT NULL,
   ${POSParameterFields.tcurrId} text DEFAULT NULL,
   ${POSParameterFields.currCode} text DEFAULT NULL,
   ${POSParameterFields.tocsrId} text DEFAULT NULL,
