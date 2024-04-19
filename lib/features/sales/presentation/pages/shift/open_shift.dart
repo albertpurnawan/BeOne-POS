@@ -31,11 +31,24 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
   String formattedDate = Helpers.formatDate(DateTime.now());
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   POSParameterModel? posParameter;
+  String? storeName;
+
+  Future<String> getStoreName() async {
+    final String? storeId = prefs.getString("tostrId");
+    final store = await GetIt.instance<AppDatabase>()
+        .storeMasterDao
+        .readByDocId(storeId!, null);
+    setState(() {
+      storeName = store!.storeName;
+    });
+    return storeName!;
+  }
 
   @override
   void initState() {
     super.initState();
     getPosParameter();
+    getStoreName();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         formattedDate = Helpers.formatDate(DateTime.now());
@@ -70,7 +83,7 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
                 height: (MediaQuery.of(context).size.height / 2) - 350,
               ),
               Text(
-                'Opening Shift - ${posParameter!.storeName}',
+                'Opening Shift - $storeName',
                 style: const TextStyle(
                   color: ProjectColors.primary,
                   fontSize: 30,
@@ -148,20 +161,8 @@ class OpenShiftForm extends StatefulWidget {
 class _OpenShiftFormState extends State<OpenShiftForm> {
   late TextEditingController openValueController;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-  String? storeName;
 
   ReceiptPrinter? receiptPrinter;
-
-  Future<String> getStoreName() async {
-    final String? storeId = prefs.getString("tostrId");
-    final store = await GetIt.instance<AppDatabase>()
-        .storeMasterDao
-        .readByDocId(storeId!, null);
-    setState(() {
-      storeName = store!.storeName;
-    });
-    return storeName!;
-  }
 
   void _insertCashierBalanceTransaction(
       CashierBalanceTransactionModel value) async {
@@ -174,7 +175,6 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
   void initState() {
     super.initState();
     openValueController = TextEditingController();
-    getStoreName();
   }
 
   @override

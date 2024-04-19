@@ -1,7 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 
@@ -12,22 +9,21 @@ class TokenApi {
     this._dio,
   );
 
-  Future<String> getToken(
+  Future<String?> getToken(
       String url, String emailAdmin, String passwordAdmin) async {
     try {
-      log(url);
-      log(emailAdmin);
-      log(passwordAdmin);
-      var formData = FormData.fromMap({
-        'data': json.encode({
-          'email': emailAdmin,
-          'password': 'passwordAdmin',
-        })
-      });
+      Map<String, dynamic> formData = {
+        "email": emailAdmin,
+        "password": passwordAdmin,
+      };
 
-      final response = await _dio.get("$url/auth/login", data: formData);
-      log(response.data);
-      return response.data;
+      final response = await _dio.post("$url/auth/login",
+          data: formData,
+          options: Options(
+            validateStatus: (_) => true,
+          ));
+
+      return response.data['token'];
     } catch (err) {
       handleError(err);
       rethrow;

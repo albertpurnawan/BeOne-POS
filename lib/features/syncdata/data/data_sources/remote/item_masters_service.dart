@@ -32,7 +32,7 @@ class ItemMasterApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [storeId]
+            "parameter": ["e24bd658-bfb6-404f-b867-3e294b8d5b0b"]
           };
         }
       }
