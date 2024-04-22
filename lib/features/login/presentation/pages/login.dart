@@ -7,7 +7,6 @@ import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
-import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';

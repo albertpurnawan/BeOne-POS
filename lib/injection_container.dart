@@ -67,6 +67,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierar
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/token_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_service.dart';
@@ -87,6 +88,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonAsync<ReceiptPrinter>(() => ReceiptPrinter.init(),
       dependsOn: [SharedPreferences]);
 
+  sl.registerSingleton<TokenApi>(TokenApi(sl()));
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
   sl.registerSingleton<AuthorizationApi>(AuthorizationApi(sl()));
   sl.registerSingleton<APMPSApi>(APMPSApi(sl()));

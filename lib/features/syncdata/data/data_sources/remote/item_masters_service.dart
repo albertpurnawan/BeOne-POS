@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/item_master.dart';
 class ItemMasterApi {
   final Dio _dio;
   String token = Constant.token;
+  String storeId = Constant.tostrId;
   String url = Constant.url;
 
   ItemMasterApi(this._dio);
@@ -31,7 +32,7 @@ class ItemMasterApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": ["878694e6-fdf4-49a7-82e3-d0facb685741"]
+            "parameter": ["e24bd658-bfb6-404f-b867-3e294b8d5b0b"]
           };
         }
       }

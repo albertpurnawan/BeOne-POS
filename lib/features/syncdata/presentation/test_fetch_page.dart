@@ -21,7 +21,6 @@ import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
-import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/price_by_item.dart';
 import 'package:pos_fe/features/sales/data/models/price_by_item_barcode.dart';
@@ -69,7 +68,6 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -848,27 +846,27 @@ class _FetchScreenState extends State<FetchScreen> {
 
       // final topos =
       //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-      final posParameter = [
-        {
-          "docid": const Uuid().v4(),
-          "createdate": DateTime.now().toString(),
-          "updatedate": DateTime.now().toString(),
-          "gtentId": const Uuid().v4(),
-          "tostrId": stores[0].docId,
-          "storename": stores[0].storeName,
-          "tcurrId": stores[0].tcurrId,
-          "currcode": currencies[0].curCode,
-          "toplnId": stores[0].toplnId,
-          "tocsrId": cashiers[0].docId,
-          "tovatId": stores[0].tovatId,
-          "baseUrl": "someUrl",
-          "user": "user",
-          "password": "password",
-        }
-      ];
+      // final posParameter = [
+      //   {
+      //     "docid": const Uuid().v4(),
+      //     "createdate": DateTime.now().toString(),
+      //     "updatedate": DateTime.now().toString(),
+      //     "gtentId": const Uuid().v4(),
+      //     "tostrId": stores[0].docId,
+      //     "storename": stores[0].storeName,
+      //     "tcurrId": stores[0].tcurrId,
+      //     "currcode": currencies[0].curCode,
+      //     "toplnId": stores[0].toplnId,
+      //     "tocsrId": cashiers[0].docId,
+      //     "tovatId": stores[0].tovatId,
+      //     "baseUrl": "someUrl",
+      //     "user": "user",
+      //     "password": "password",
+      //   }
+      // ];
 
-      await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
-          data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
+      // await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
+      //     data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
 
       // final auths = await GetIt.instance<AuthorizationApi>().fetchData();
       // await GetIt.instance<AppDatabase>().authorizationDao.bulkCreate(auths);
