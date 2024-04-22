@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:sqflite/sqflite.dart';
@@ -27,13 +29,13 @@ class POSParameterDao extends BaseDao<POSParameterModel> {
   Future<List<POSParameterModel>> readAll({Transaction? txn}) async {
     if (txn != null) {
       final result = await txn.query(tableName);
-
+      log("$result ressuuuuuult");
       return result
           .map((itemData) => POSParameterModel.fromMap(itemData))
           .toList();
     } else {
       final result = await db.query(tableName);
-
+      log("$result ressuuuuuult");
       return result
           .map((itemData) => POSParameterModel.fromMap(itemData))
           .toList();

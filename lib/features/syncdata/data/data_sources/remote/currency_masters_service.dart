@@ -27,9 +27,14 @@ class CurrencyApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      log(pos[0].toString());
+
       tenantId = pos[0].gtentId;
-      
+      log("$tenantId tenaaaaaat");
+
       url = pos[0].baseUrl;
+      log("${pos[0].baseUrl}");
+      log("$url uuuuuuurllll");
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",

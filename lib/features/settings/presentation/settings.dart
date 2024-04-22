@@ -224,6 +224,7 @@ class _SettingsFormState extends State<SettingsForm> {
                   usernameAdmin: emailController.text,
                   passwordAdmin: hashedPass,
                 );
+                log(topos.toString());
 
                 await GetIt.instance<AppDatabase>()
                     .posParameterDao
