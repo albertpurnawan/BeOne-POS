@@ -218,7 +218,7 @@ class _SettingsFormState extends State<SettingsForm> {
                   updateDate: DateTime.now(),
                   gtentId: gtentController.text,
                   tostrId: tostrController.text,
-                  storeName: "",
+                  storeName: "TopGolf's Store 01", //need to edit
                   tocsrId: tocsrController.text,
                   baseUrl: urlController.text,
                   usernameAdmin: emailController.text,

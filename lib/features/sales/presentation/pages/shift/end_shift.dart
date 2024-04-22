@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -9,13 +11,17 @@ import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.da
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CloseShiftScreen extends StatefulWidget {
-  const CloseShiftScreen({Key? key}) : super(key: key);
+  final String shiftId;
+  const CloseShiftScreen({Key? key, required this.shiftId}) : super(key: key);
 
   @override
-  State<CloseShiftScreen> createState() => _CloseShiftScreenState();
+  State<CloseShiftScreen> createState() =>
+      _CloseShiftScreenState(shiftId: shiftId);
 }
 
 class _CloseShiftScreenState extends State<CloseShiftScreen> {
+  final String shiftId;
+  _CloseShiftScreenState({required this.shiftId});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +46,7 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-              const CloseShiftForm(),
+              CloseShiftForm(shiftId: shiftId),
             ],
           ),
         ),
@@ -50,16 +56,19 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 }
 
 class CloseShiftForm extends StatefulWidget {
-  const CloseShiftForm({Key? key}) : super(key: key);
+  final String shiftId;
+  const CloseShiftForm({Key? key, required this.shiftId}) : super(key: key);
 
   @override
-  State<CloseShiftForm> createState() => _CloseShiftFormState();
+  State<CloseShiftForm> createState() => _CloseShiftFormState(shiftId: shiftId);
 }
 
 class _CloseShiftFormState extends State<CloseShiftForm> {
+  final String shiftId;
   CashierBalanceTransactionModel? activeShift;
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
 
+  _CloseShiftFormState({required this.shiftId});
   @override
   void initState() {
     super.initState();
@@ -380,13 +389,25 @@ class _CalculateCashState extends State<CalculateCash> {
     String total100 = calculateTotal100(controller100.text);
     String total50 = calculateTotal50(controller50.text);
 
+    log("$total100k 100k");
+    log("$total500 500");
     List cashes = [
       total100k,
       total50k,
       total20k,
       total10k,
       total5k,
+      total2k,
+      total1k,
+      total500,
+      total200,
+      total100,
+      total50,
     ];
+    log("$cashes cashes");
+
+    String totalCash = calculateTotalCash(cashes);
+    log("$totalCash totalCash");
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -1148,7 +1169,7 @@ class _CalculateCashState extends State<CalculateCash> {
               SizedBox(
                 width: 300,
                 child: Text(
-                  "Total Cash",
+                  totalCash,
                   style: const TextStyle(
                     fontSize: 20,
                   ),
@@ -1237,16 +1258,6 @@ String calculateTotal1k(String text) {
   return total1k;
 }
 
-// String calculateTotal1kC(String text) {
-//   int? quantity1kC = int.tryParse(text);
-//   int total1kCValue = quantity1kC != null ? (1000 * quantity1kC) : 0;
-
-//   NumberFormat formatter = NumberFormat.decimalPattern();
-//   String total1kC = formatter.format(total1kCValue);
-
-//   return total1kC;
-// }
-
 String calculateTotal500(String text) {
   int? quantity500 = int.tryParse(text);
   int total500Value = quantity500 != null ? (500 * quantity500) : 0;
@@ -1287,6 +1298,12 @@ String calculateTotal50(String text) {
   return total50;
 }
 
-// String calculateTotalCash(List cashes) {
-
-// }
+String calculateTotalCash(List cashes) {
+  double total = 0;
+  for (String cash in cashes) {
+    total += double.tryParse(cash.replaceAll(',', '')) ?? 0;
+  }
+  NumberFormat formatter = NumberFormat.decimalPattern();
+  String totalCash = formatter.format(total);
+  return totalCash;
+}

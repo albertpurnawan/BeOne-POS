@@ -23,15 +23,11 @@ class CurrencyApi {
       List<CurrencyModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      log("token tokeeeeeennnn");
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-
       tenantId = pos[0].gtentId;
-      log("$tenantId tenaaaaaant");
       url = pos[0].baseUrl;
-      log("$url url");
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
