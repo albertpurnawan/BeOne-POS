@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
@@ -747,6 +749,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           InkWell(
                             onTap: () {
                               GetIt.instance<SharedPreferences>().clear();
+                              context.goNamed(RouteConstants.welcome);
                             },
                             child: Column(
                               children: [

@@ -274,7 +274,7 @@ class HomeScreen extends StatelessWidget {
                       child: Container(
                           alignment: Alignment.centerRight,
                           height: 50,
-                          width: 160,
+                          width: 130,
                           padding: const EdgeInsets.fromLTRB(10, 16, 0, 15),
                           decoration: const BoxDecoration(
                             color: const Color.fromARGB(255, 85, 0, 0),
@@ -284,7 +284,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                           child: SvgPicture.asset(
-                            "assets/logo/white.svg",
+                            "assets/logo/white_only_pos.svg",
                             // alignment: Alignment.centerLeft,
                           )),
                     ),

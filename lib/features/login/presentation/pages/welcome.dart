@@ -31,7 +31,7 @@ class WelcomeScreen extends StatefulWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const BeOneLogo(size: 150),
+                  const BeOneLogo(size: 90),
                   const SizedBox(height: 50),
                   Container(
                     constraints: BoxConstraints(maxWidth: 400),
@@ -127,16 +127,16 @@ class WelcomeScreen extends StatefulWidget {
               ),
             ),
           ),
-          const LanguageSwitchButton(color: ProjectColors.swatch),
+          const LanguageSwitchButton(color: ProjectColors.primary),
           const SizedBox(height: 5),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 30),
-            child: Text(
-                "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
-                textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),
-          )
+          // const Padding(
+          //   padding: EdgeInsets.only(bottom: 30),
+          //   child: Text(
+          //       "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
+          //       textAlign: TextAlign.center,
+          //       style:
+          //           TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),
+          // )
         ],
       ),
     );

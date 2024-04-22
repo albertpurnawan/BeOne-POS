@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               height: (MediaQuery.of(context).size.height / 5),
             ),
-            const BeOneLogo(size: 130),
+            const BeOneLogo(size: 90),
             const SizedBox(height: 30),
             const LoginForm(),
             const SizedBox(
@@ -131,7 +131,7 @@ class _LoginFormState extends State<LoginForm> {
                 if (loginSuccess!) {
                   if (isOpen) {
                     if (!context.mounted) return;
-                    if (context.mounted) context.pushNamed(RouteConstants.home);
+                    if (context.mounted) context.goNamed(RouteConstants.home);
                     // showDialog(
                     //   context: context,
                     //   builder: (BuildContext context) {

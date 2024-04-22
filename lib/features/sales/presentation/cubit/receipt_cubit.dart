@@ -330,7 +330,22 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(state.copyWith(customerEntity: customerEntity));
   }
 
-  void removeReceiptItem() {}
+  void removeReceiptItem(ReceiptItemEntity receiptItemEntity) {
+    List<ReceiptItemEntity> newReceiptItems = [];
+
+    for (final currentReceiptItem in state.receiptItems) {
+      if (receiptItemEntity != currentReceiptItem) {
+        newReceiptItems.add(currentReceiptItem);
+      }
+    }
+
+    emit(state.copyWith(
+      receiptItems: newReceiptItems,
+      subtotal: state.subtotal - receiptItemEntity.totalGross,
+      taxAmount: state.taxAmount - receiptItemEntity.taxAmount,
+      grandTotal: state.grandTotal - receiptItemEntity.totalAmount,
+    ));
+  }
 
   void charge() async {
     final newState =

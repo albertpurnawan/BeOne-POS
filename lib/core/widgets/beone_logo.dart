@@ -13,7 +13,7 @@ class BeOneLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset("assets/logo/maroon.svg",
+    return SvgPicture.asset("assets/logo/maroon_only_pos.svg",
         color: color, width: size);
   }
 }
