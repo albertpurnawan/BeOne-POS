@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrencyApi {
   final Dio _dio;
-  // String token = Constant.token;
   String? tenantId;
   String? url;
   String? token;
@@ -24,17 +23,15 @@ class CurrencyApi {
       List<CurrencyModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      log("token tokeeeeeennnn");
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-      log(pos[0].toString());
 
       tenantId = pos[0].gtentId;
-      log("$tenantId tenaaaaaat");
-
+      log("$tenantId tenaaaaaant");
       url = pos[0].baseUrl;
-      log("${pos[0].baseUrl}");
-      log("$url uuuuuuurllll");
+      log("$url url");
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
