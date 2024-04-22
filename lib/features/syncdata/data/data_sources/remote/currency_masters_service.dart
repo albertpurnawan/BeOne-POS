@@ -1,15 +1,19 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:pos_fe/core/constants/constants.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrencyApi {
   final Dio _dio;
-  String token = Constant.token;
-  String tenantId = Constant.gtentId;
-  String url = Constant.url;
+  // String token = Constant.token;
+  String? tenantId;
+  String? url;
+  String? token;
 
   CurrencyApi(this._dio);
 
@@ -18,6 +22,14 @@ class CurrencyApi {
       String apiName = "API-CURRENCY";
       Map<String, dynamic> exeData = {};
       List<CurrencyModel> allData = [];
+      SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      token = prefs.getString('adminToken');
+
+      List<POSParameterModel> pos =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
+      
+      url = pos[0].baseUrl;
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
