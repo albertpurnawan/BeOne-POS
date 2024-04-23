@@ -121,8 +121,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     String formattedExpectedCash =
         NumberFormat.decimalPattern().format(expectedCash.toInt());
 
-    double totalCashDouble = double.tryParse(totalCash) ?? 0.0;
-
     final cashier = prefs.getString('username');
 
     return Padding(

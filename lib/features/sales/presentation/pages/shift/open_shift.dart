@@ -72,8 +72,9 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
   @override
   Widget build(BuildContext context) {
     final cashier = prefs.getString('username');
-    return Container(
-      color: Color.fromARGB(255, 234, 234, 234),
+    return Material(
+        child: Container(
+      color: const Color.fromARGB(255, 234, 234, 234),
       child: Center(
         child: ScrollWidget(
           // padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -147,7 +148,7 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

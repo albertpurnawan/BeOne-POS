@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -128,36 +130,13 @@ class _LoginFormState extends State<LoginForm> {
                         password: passwordController.text,
                         tohemId: null,
                         torolId: null));
-                if (loginSuccess!) {
+
+                log("$loginSuccess loginsuccess");
+                log("$isOpen isOpen");
+                if (loginSuccess != null && loginSuccess) {
                   if (isOpen) {
-                    if (!context.mounted) return;
                     if (context.mounted) context.goNamed(RouteConstants.home);
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (BuildContext context) {
-                    //     return AlertDialog(
-                    //       shape: const RoundedRectangleBorder(
-                    //         borderRadius:
-                    //             BorderRadius.all(Radius.circular(10.0)),
-                    //       ),
-                    //       content: const Text(
-                    //         "Please end current shift first",
-                    //         style:
-                    //             TextStyle(color: Color.fromRGBO(128, 0, 0, 1)),
-                    //       ),
-                    //       actions: <Widget>[
-                    //         TextButton(
-                    //           onPressed: () {
-                    //             Navigator.pop(context);
-                    //           },
-                    //           child: const Text('OK'),
-                    //         ),
-                    //       ],
-                    //     );
-                    //   },
-                    // );
                   } else {
-                    if (!context.mounted) return;
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -166,7 +145,6 @@ class _LoginFormState extends State<LoginForm> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(5.0)),
                           ),
-                          // backgroundColor: ProjectColors.primary,
                           contentPadding: EdgeInsets.all(0),
                           titlePadding: EdgeInsets.all(0),
                           title: Container(
@@ -179,9 +157,10 @@ class _LoginFormState extends State<LoginForm> {
                             child: const Text(
                               'Shift Opening',
                               style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           content: SizedBox(
@@ -192,24 +171,16 @@ class _LoginFormState extends State<LoginForm> {
                       },
                     );
                   }
-                  // if (isLoggedIn) {
-                  //   Helpers.navigate(context, SalesPage());
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //       content: Text('Login failed. Please try again.'),
-                  //       backgroundColor: Colors.red,
-                  //     ),
-                  //   );
-                  // }
                 } else {
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Invalid username or password.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  // Show error message if login is not successful or null
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invalid username or password.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
               },
             ),
