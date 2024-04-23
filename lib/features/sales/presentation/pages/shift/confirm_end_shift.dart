@@ -1,15 +1,24 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmEndShift extends StatelessWidget {
-  ConfirmEndShift({Key? key}) : super(key: key);
+  final CashierBalanceTransactionModel shift;
+  final String totalCash;
+
+  ConfirmEndShift(this.shift, this.totalCash, {Key? key})
+      : super(
+          key: key,
+        );
   final formKey = GlobalKey<FormState>();
   final prefs = GetIt.instance<SharedPreferences>();
 
@@ -17,15 +26,25 @@ class ConfirmEndShift extends StatelessWidget {
     final String? username = prefs.getString('username');
 
     if (username != null) {
-      final List<UserModel> users =
-          await GetIt.instance<AppDatabase>().userDao.readAll();
+      final UserModel? user = await GetIt.instance<AppDatabase>()
+          .userDao
+          .readByUsername(username, null);
 
       //  final UserModel? currentUser = users.firstWhereOrNull((user) => user.username == username);
     }
   }
 
+  void _updateCashierBalanceTransaction(
+      String docId, CashierBalanceTransactionModel value) async {
+    await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .update(docId: docId, data: value);
+  }
+
   @override
   Widget build(BuildContext context) {
+    log(shift.toString());
+    log(totalCash);
     return AlertDialog(
       titlePadding: EdgeInsets.all(0),
       title: Container(

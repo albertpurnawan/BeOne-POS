@@ -242,6 +242,16 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       "margin": map['margin']?.toDouble() as double,
       "tocatId": map['tocatdocid'] != null ? map['tocatdocid'] as String : null,
       "touomId": map['touomdocid'] != null ? map['touomdocid'] as String : null,
+      "property1": map['property1']?.toString(),
+      "property2": map['property2']?.toString(),
+      "property3": map['property3']?.toString(),
+      "property4": map['property4']?.toString(),
+      "property5": map['property5']?.toString(),
+      "property6": map['property6']?.toString(),
+      "property7": map['property7']?.toString(),
+      "property8": map['property8']?.toString(),
+      "property9": map['property9']?.toString(),
+      "property10": map['property10']?.toString(),
     });
   }
 

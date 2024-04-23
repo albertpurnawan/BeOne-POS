@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrencyApi {
   final Dio _dio;
-  // String token = Constant.token;
   String? tenantId;
   String? url;
   String? token;
@@ -28,7 +27,6 @@ class CurrencyApi {
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      
       url = pos[0].baseUrl;
 
       final response = await _dio.get(

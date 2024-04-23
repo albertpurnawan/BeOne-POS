@@ -847,32 +847,27 @@ class _FetchScreenState extends State<FetchScreen> {
 
       // final topos =
       //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-      // final posParameter = [
-      //   {
-      //     "docid": const Uuid().v4(),
-      //     "createdate": DateTime.now().toString(),
-      //     "updatedate": DateTime.now().toString(),
-      //     "gtentId": const Uuid().v4(),
-      //     "tostrId": stores[0].docId,
-      //     "storename": stores[0].storeName,
-      //     "tcurrId": stores[0].tcurrId,
-      //     "currcode": currencies[0].curCode,
-      //     "toplnId": stores[0].toplnId,
-      //     "tocsrId": cashiers[0].docId,
-      //     "tovatId": stores[0].tovatId,
-      //     "baseUrl": "someUrl",
-      //     "user": "user",
-      //     "password": "password",
-      //   }
-      // ];
+      // final store = await GetIt.instance<AppDatabase>()
+      //     .storeMasterDao
+      //     .readByDocId(topos[0].tostrId!, null);
 
-      // await GetIt.instance<AppDatabase>().posParameterDao.bulkCreate(
-      //     data: posParameter.map((e) => POSParameterModel.fromMap(e)).toList());
+      // final posParameter = {
+      //   "docid": topos[0].docId,
+      //   "createdate": topos[0].createDate.toString(),
+      //   "updatedate": DateTime.now().toString(),
+      //   "gtentId": topos[0].gtentId,
+      //   "tostrId": topos[0].tostrId,
+      //   "storename": store!.storeName,
+      //   "tocsrId": topos[0].tocsrId,
+      //   "baseUrl": topos[0].baseUrl,
+      //   "usernameAdmin": topos[0].usernameAdmin,
+      //   "passwordAdmin": topos[0].passwordAdmin,
+      // };
+      // final posData = POSParameterModel.fromMap(posParameter);
 
-      // final auths = await GetIt.instance<AuthorizationApi>().fetchData();
-      // await GetIt.instance<AppDatabase>().authorizationDao.bulkCreate(auths);
-      // final itemPics = await GetIt.instance<ItemPictureApi>().fetchData();
-      // await GetIt.instance<AppDatabase>().itemPictureDao.bulkCreate(itemPics);
+      // await GetIt.instance<AppDatabase>()
+      //     .posParameterDao
+      //     .update(docId: topos[0].docId, data: posData);
 
       fetched = currencies.length +
           countries.length +

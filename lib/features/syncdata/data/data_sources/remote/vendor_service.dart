@@ -1,14 +1,17 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:pos_fe/core/constants/constants.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/vendor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorApi {
   final Dio _dio;
-  String token = Constant.token;
-  String url = Constant.url;
+  String? url;
+  String? token;
 
   VendorApi(this._dio);
 
@@ -17,6 +20,12 @@ class VendorApi {
       String apiName = "API-VENDOR";
       Map<String, dynamic> exeData = {};
       List<VendorModel> allData = [];
+      SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      token = prefs.getString('adminToken');
+
+      List<POSParameterModel> pos =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      url = pos[0].baseUrl;
 
       final response = await _dio.get(
         "$url/tenant-custom-query/list",

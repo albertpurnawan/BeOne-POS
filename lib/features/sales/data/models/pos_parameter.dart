@@ -24,7 +24,7 @@ class POSParameterFields {
   static const String tostrId = 'tostrId';
   static const String storeName = 'storename';
   static const String tocsrId = "tocsrId";
-  static const String baseUrl = "baseUrl";
+  static const String baseUrl = "baseurl";
   static const String usernameAdmin = "usernameadmin";
   static const String passwordAdmin = "passwordadmin";
 }
