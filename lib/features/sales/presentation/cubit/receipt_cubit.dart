@@ -137,46 +137,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     print("terjadi");
   }
 
-  void updateQuantity(ReceiptItemEntity receiptItemEntity, double quantity) {
-    List<ReceiptItemEntity> newReceiptItems = [];
-    double subtotal = 0;
-    double taxAmount = 0;
-
-    for (final currentReceiptItem in state.receiptItems) {
-      if (currentReceiptItem.itemEntity.barcode ==
-          receiptItemEntity.itemEntity.barcode) {
-        currentReceiptItem.quantity += quantity;
-        final double priceQty =
-            currentReceiptItem.itemEntity.price * currentReceiptItem.quantity;
-        currentReceiptItem.totalSellBarcode = priceQty;
-        currentReceiptItem.totalGross =
-            currentReceiptItem.itemEntity.includeTax == 1
-                ? (priceQty *
-                    (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
-                : priceQty;
-        currentReceiptItem.taxAmount =
-            currentReceiptItem.itemEntity.includeTax == 1
-                ? (priceQty) - currentReceiptItem.totalGross
-                : priceQty * (currentReceiptItem.itemEntity.taxRate / 100);
-        currentReceiptItem.totalAmount =
-            currentReceiptItem.totalGross + currentReceiptItem.taxAmount;
-        newReceiptItems.add(currentReceiptItem);
-      } else {
-        newReceiptItems.add(currentReceiptItem);
-      }
-      subtotal += currentReceiptItem.totalGross;
-      taxAmount += currentReceiptItem.taxAmount;
-    }
-
-    final ReceiptEntity newState = state.copyWith(
-      receiptItems: newReceiptItems,
-      subtotal: subtotal,
-      taxAmount: taxAmount,
-      grandTotal: subtotal + taxAmount,
-    );
-    emit(newState);
-  }
-
   void addOrUpdateReceiptItemWithOpenPrice(
       ItemEntity itemEntity, double quantity, double? dpp) async {
     if (quantity <= 0) {
@@ -193,9 +153,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     ItemEntity? priceSetItemEntity;
 
     if (itemEntity.openPrice == 1 && dpp != null) {
-      // final StoreMasterEntity storeMaster = await _getStoreMasterUseCase.call();
-      // final bool taxByItem = storeMaster.taxBy == 1;
-      // final double dpp = taxByItem ? (100/(100+itemEntity.taxRate)) * price;
       priceSetItemEntity = itemEntity.copyWith(
           price: itemEntity.includeTax == 1
               ? dpp * ((100 + itemEntity.taxRate) / 100)
@@ -266,63 +223,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       grandTotal: subtotal + taxAmount,
     );
     emit(newState);
-
-    // List<ReceiptItemEntity> newReceiptItems = [];
-    // double totalPrice = 0;
-    // double totalTax = 0;
-    // bool isNewReceiptItem = true;
-    // for (final currentReceiptItem in state.receiptItems) {
-    //   if (currentReceiptItem.itemEntity.barcode == priceSetItemEntity.barcode &&
-    //       currentReceiptItem.itemEntity.price == priceSetItemEntity.price) {
-    //     currentReceiptItem.quantity += quantity;
-    //     currentReceiptItem.subtotal = priceSetItemEntity.includeTax == 1
-    //         ? (priceSetItemEntity.price *
-    //             currentReceiptItem.quantity *
-    //             (100 / (100 + priceSetItemEntity.taxRate)))
-    //         : priceSetItemEntity.price * currentReceiptItem.quantity;
-    //     currentReceiptItem.taxAmount = priceSetItemEntity.includeTax == 1
-    //         ? (priceSetItemEntity.price * currentReceiptItem.quantity) -
-    //             currentReceiptItem.subtotal
-    //         : priceSetItemEntity.price *
-    //             currentReceiptItem.quantity *
-    //             (priceSetItemEntity.taxRate / 100);
-    //     isNewReceiptItem = false;
-    //     newReceiptItems.add(currentReceiptItem);
-    //   } else {
-    //     newReceiptItems.add(currentReceiptItem);
-    //   }
-    //   totalPrice += currentReceiptItem.subtotal;
-    //   totalTax += currentReceiptItem.taxAmount;
-    // }
-
-    // if (isNewReceiptItem) {
-    //   final double subtotal = priceSetItemEntity.includeTax == 1
-    //       ? (priceSetItemEntity.price *
-    //           quantity *
-    //           (100 / (100 + priceSetItemEntity.taxRate)))
-    //       : priceSetItemEntity.price * quantity;
-    //   final double taxAmount = priceSetItemEntity.includeTax == 1
-    //       ? (priceSetItemEntity.price * quantity) - subtotal
-    //       : priceSetItemEntity.price *
-    //           quantity *
-    //           (priceSetItemEntity.taxRate / 100);
-    //   newReceiptItems.add(ReceiptItemEntity(
-    //     quantity: quantity,
-    //     subtotal: subtotal,
-    //     itemEntity: priceSetItemEntity,
-    //     id: null,
-    //     taxAmount: taxAmount,
-    //   ));
-    //   totalPrice += subtotal;
-    //   totalTax += taxAmount;
-    // }
-
-    // final ReceiptEntity newState = state.copyWith(
-    //   receiptItems: newReceiptItems,
-    //   totalPrice: totalPrice,
-    //   totalTax: totalTax,
-    // );
-    // emit(newState);
   }
 
   void addOrUpdateReceiptItemsBySearch(ItemEntity itemEntity) {
@@ -361,22 +261,21 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void charge() async {
-    print("total payment ${state.totalPayment!}");
-    print("grandTotal ${state.grandTotal}");
     final newState =
         state.copyWith(changed: state.totalPayment! - state.grandTotal);
     final ReceiptEntity? createdReceipt =
         await _saveReceiptUseCase.call(params: newState);
     if (createdReceipt != null) {
-      print(" $createdReceipt");
-      await _deleteQueuedReceiptUseCase.call(params: state.toinvId);
+      if (state.toinvId != null) {
+        await _deleteQueuedReceiptUseCase.call(params: state.toinvId);
+      }
       emit(createdReceipt);
       try {
         await _printReceiptUsecase.call(params: createdReceipt);
+        await _openCashDrawerUseCase.call();
       } catch (e) {
         print(e);
       }
-      await _openCashDrawerUseCase.call();
       await GetIt.instance<InvoiceApi>().sendInvoice();
     }
   }
@@ -395,23 +294,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void queueReceipt() async {
-    final ReceiptEntity? queuedReceipt =
-        await _queueReceiptUseCase.call(params: state);
-    print("ini adalah quequed receipt");
-    print(queuedReceipt);
-    emit(ReceiptEntity(
-      docNum:
-          "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
-      receiptItems: [],
-      subtotal: 0,
-      totalTax: 0,
-      transStart: DateTime.now(),
-      taxAmount: 0,
-      grandTotal: 0,
-    ));
+    await _queueReceiptUseCase.call(params: state);
+    resetReceipt();
   }
 
   void retrieveFromQueue(ReceiptEntity receiptEntity) {
-    emit(receiptEntity);
+    emit(receiptEntity
+      ..docNum =
+          "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1");
   }
 }
