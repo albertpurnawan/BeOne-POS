@@ -252,7 +252,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
                   100 /
                   (100 + queuedInvoiceDetailModel.taxPrctg),
               taxAmount: queuedInvoiceDetailModel.totalAmount *
-                  queuedInvoiceDetailModel.taxPrctg,
+                  (queuedInvoiceDetailModel.taxPrctg / 100),
               itemEntity: ItemModel(
                 id: null,
                 itemName: itemMasterModel.itemName,

@@ -39,7 +39,7 @@ class WelcomeScreen extends StatefulWidget {
                       child: Text("Login"),
                       onTap: () async {
                         if (isLoggedIn == false) {
-                          Helpers.navigate(context, LoginScreen());
+                          context.pushNamed(RouteConstants.login);
                           // } else if (isLoggedIn && isOpen == false) {
                           //   Helpers.navigate(context, LoginScreen());
                           // if (!context.mounted) return;

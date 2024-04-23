@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -68,6 +69,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       print("itemEntity null");
       return;
     }
+
+    dev.log(state.toString());
+    dev.log("OWPJDOPIJOKJDSLIDHSUIDGHISUGDHIUSGD");
 
     List<ReceiptItemEntity> newReceiptItems = [];
     double subtotal = 0;
@@ -322,6 +326,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void addOrUpdateReceiptItemsBySearch(ItemEntity itemEntity) {
+    dev.log(state.toString());
+    dev.log("OWPJDOPIJOKJDSLIDHSUIDGHISUGDHIUSGD");
     return addOrUpdateReceiptItemWithOpenPrice(itemEntity, 1, null);
   }
 

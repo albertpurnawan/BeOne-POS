@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -444,8 +445,9 @@ class _SalesPageState extends State<SalesPage> {
                                                                 CrossAxisAlignment
                                                                     .start,
                                                             children: [
-                                                              SizedBox(
-                                                                height: 25,
+                                                              FittedBox(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
                                                                 child: Row(
                                                                   children: [
                                                                     SvgPicture

@@ -197,8 +197,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             totalGross: invoiceDetailModel.totalAmount *
                 100 /
                 (100 + invoiceDetailModel.taxPrctg),
-            taxAmount:
-                invoiceDetailModel.totalAmount * invoiceDetailModel.taxPrctg,
+            taxAmount: invoiceDetailModel.totalAmount *
+                (invoiceDetailModel.taxPrctg / 100),
             itemEntity: ItemModel(
               id: null,
               itemName: itemMasterModel.itemName,
