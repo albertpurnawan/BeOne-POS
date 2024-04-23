@@ -23,6 +23,7 @@ class ReceiptEntity {
   double grandTotal;
   double? totalPayment;
   double? changed;
+  String? toinvId;
 
   ReceiptEntity({
     required this.docNum,
@@ -39,6 +40,7 @@ class ReceiptEntity {
     required this.grandTotal,
     this.totalPayment,
     this.changed,
+    this.toinvId,
   });
 
   ReceiptEntity copyWith({
@@ -56,6 +58,7 @@ class ReceiptEntity {
     double? grandTotal,
     double? totalPayment,
     double? changed,
+    String? toinvId,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -72,6 +75,7 @@ class ReceiptEntity {
       grandTotal: grandTotal ?? this.grandTotal,
       totalPayment: totalPayment ?? this.totalPayment,
       changed: changed ?? this.changed,
+      toinvId: toinvId ?? this.toinvId,
     );
   }
 
@@ -91,6 +95,7 @@ class ReceiptEntity {
       'grandTotal': grandTotal,
       'totalPayment': totalPayment,
       'changed': changed,
+      'toinvId': toinvId,
     };
   }
 
@@ -128,6 +133,7 @@ class ReceiptEntity {
       totalPayment:
           map['totalPayment'] != null ? map['totalPayment'] as double : null,
       changed: map['changed'] != null ? map['changed'] as double : null,
+      toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
     );
   }
 
@@ -138,7 +144,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed)';
+    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId)';
   }
 
   @override
@@ -158,7 +164,8 @@ class ReceiptEntity {
         other.taxAmount == taxAmount &&
         other.grandTotal == grandTotal &&
         other.totalPayment == totalPayment &&
-        other.changed == changed;
+        other.changed == changed &&
+        other.toinvId == toinvId;
   }
 
   @override
@@ -176,6 +183,7 @@ class ReceiptEntity {
         taxAmount.hashCode ^
         grandTotal.hashCode ^
         totalPayment.hashCode ^
-        changed.hashCode;
+        changed.hashCode ^
+        toinvId.hashCode;
   }
 }

@@ -636,7 +636,8 @@ class _FetchScreenState extends State<FetchScreen> {
             setState(() {
               _syncProgress += 1 / totalTable;
             });
-          } catch (e) {
+          } catch (e, s) {
+            debugPrintStack(stackTrace: s);
             if (e is DatabaseException) {
               log('DatabaseException occurred: $e');
             } else {
@@ -1029,13 +1030,37 @@ class _FetchScreenState extends State<FetchScreen> {
                           MaterialStatePropertyAll(ProjectColors.primary),
                       foregroundColor: MaterialStatePropertyAll(Colors.white)),
                   child: Text(
-                    'SYNC',
+                    'Sync',
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
-              SizedBox(height: 50),
-
+              // SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.3,
+                // width: MediaQuery.of(context).size.width * 0.4,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await GetIt.instance<AppDatabase>().resetDatabase();
+                  },
+                  style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
+                        side: BorderSide(
+                          color: ProjectColors.primary,
+                          width: 2,
+                        ))),
+                    backgroundColor: MaterialStatePropertyAll(
+                        Color.fromARGB(255, 234, 234, 234)),
+                    foregroundColor:
+                        MaterialStatePropertyAll(ProjectColors.primary),
+                  ),
+                  child: Text(
+                    'Reset',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
               // ElevatedButton(
               //   onPressed: () {
               //     manualSyncData();
