@@ -30,7 +30,7 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
   @override
   Future<List<InvoiceHeaderModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => InvoiceHeaderModel.fromMap(itemData))

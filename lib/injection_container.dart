@@ -12,6 +12,7 @@ import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.d
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/pos_parameter_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/queued_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_content_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/store_master_repository_impl.dart';
@@ -20,19 +21,24 @@ import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/pos_paramater_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_content_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
+import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
@@ -158,6 +164,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<EmployeeRepository>(
       () => EmployeeRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<QueuedReceiptRepository>(
+      () => QueuedReceiptRepositoryImpl(sl(), sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -176,6 +185,18 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<SaveReceiptUseCase>(
       () => SaveReceiptUseCase(sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
+  sl.registerSingletonWithDependencies<QueueReceiptUseCase>(
+      () => QueueReceiptUseCase(sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
+  sl.registerSingletonWithDependencies<GetQueuedReceiptsUseCase>(
+      () => GetQueuedReceiptsUseCase(sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
+  sl.registerSingletonWithDependencies<DeleteQueuedReceiptUseCase>(
+      () => DeleteQueuedReceiptUseCase(sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
+  sl.registerSingletonWithDependencies<DeleteAllQueuedReceiptsUseCase>(
+      () => DeleteAllQueuedReceiptsUseCase(sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<PrintReceiptUseCase>(
       () => PrintReceiptUseCase(sl(), sl(), sl(), sl()),

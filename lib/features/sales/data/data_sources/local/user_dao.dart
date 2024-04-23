@@ -30,4 +30,16 @@ class UserDao extends BaseDao<UserModel> {
 
     return result.map((itemData) => UserModel.fromMap(itemData)).toList();
   }
+
+  Future<UserModel?> readByUsername(String username, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+
+    return res.isNotEmpty ? UserModel.fromMap(res[0]) : null;
+  }
 }

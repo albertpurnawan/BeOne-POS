@@ -276,7 +276,7 @@ class _EndShiftFormState extends State<EndShiftForm> {
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return ConfirmEndShift();
+                          return ConfirmEndShift(shift, inputValue.toString());
                         });
                   }
                 },

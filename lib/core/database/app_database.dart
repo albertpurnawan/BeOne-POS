@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
 // import 'package:pos_fe/core/database/seeders_data/phir1.dart';
@@ -60,6 +62,8 @@ import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_period_d
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/province_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_detail_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/store_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/tax_master_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/uom_dao.dart';
@@ -165,6 +169,8 @@ import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_da
 import 'package:pos_fe/features/sales/data/models/promo_voucher_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
+import 'package:pos_fe/features/sales/data/models/queued_invoice_detail.dart';
+import 'package:pos_fe/features/sales/data/models/queued_invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/start_shift.dart';
 import 'package:pos_fe/features/sales/data/models/store_master.dart';
 import 'package:pos_fe/features/sales/data/models/tax_master.dart';
@@ -185,50 +191,52 @@ class AppDatabase {
 
   Database? _database;
 
-  late final ReceiptContentDao receiptContentDao;
-  late final UserAuthDao userAuthDao;
-  late final AuthorizationDao authorizationDao;
-  late final AssignPriceMemberPerStoreDao assignPriceMemberPerStoreDao;
-  late final ItemsDao itemsDao;
-  late final CurrencyDao currencyDao;
-  late final CountryDao countryDao;
-  late final ProvinceDao provinceDao;
-  late final ZipcodeDao zipcodeDao;
-  late final EmployeeDao employeeDao;
-  late final TaxMasterDao taxMasterDao;
-  late final CreditCardDao creditCardDao;
-  late final ProductHierarchyDao productHierarchyDao;
-  late final ProductHierarchyMasterDao productHierarchyMasterDao;
-  late final ItemCategoryDao itemCategoryDao;
-  late final UomDao uomDao;
-  late final ItemMasterDao itemMasterDao;
-  late final ItemPictureDao itemPictureDao;
-  late final PricelistDao pricelistDao;
-  late final CashRegisterDao cashRegisterDao;
-  late final PricelistPeriodDao pricelistPeriodDao;
-  late final ItemBarcodeDao itemBarcodeDao;
-  late final ItemRemarkDao itemRemarkDao;
-  late final ItemByStoreDao itemByStoreDao;
-  late final PriceByItemDao priceByItemDao;
-  late final PriceByItemBarcodeDao priceByItemBarcodeDao;
-  late final StoreMasterDao storeMasterDao;
-  late final CustomerGroupDao customerGroupDao;
-  late final CustomerDao customerDao;
-  late final CustomerCstDao customerCstDao;
-  late final PaymentTypeDao paymentTypeDao;
-  late final MeansOfPaymentDao meansOfPaymentDao;
-  late final MOPByStoreDao mopByStoreDao;
-  late final UserRoleDao userRoleDao;
-  late final InvoiceHeaderDao invoiceHeaderDao;
-  late final InvoiceDetailDao invoiceDetailDao;
-  late final POSParameterDao posParameterDao;
-  late final UserDao userDao;
-  late final PayMeansDao payMeansDao;
-  late final VendorGroupDao vendorGroupDao;
-  late final VendorDao vendorDao;
-  late final PreferredVendorDao preferredVendorDao;
-  late final CashierBalanceTransactionDao cashierBalanceTransactionDao;
-  late final MoneyDenominationDao moneyDenominationDao;
+  late ReceiptContentDao receiptContentDao;
+  late UserAuthDao userAuthDao;
+  late AuthorizationDao authorizationDao;
+  late AssignPriceMemberPerStoreDao assignPriceMemberPerStoreDao;
+  late ItemsDao itemsDao;
+  late CurrencyDao currencyDao;
+  late CountryDao countryDao;
+  late ProvinceDao provinceDao;
+  late ZipcodeDao zipcodeDao;
+  late EmployeeDao employeeDao;
+  late TaxMasterDao taxMasterDao;
+  late CreditCardDao creditCardDao;
+  late ProductHierarchyDao productHierarchyDao;
+  late ProductHierarchyMasterDao productHierarchyMasterDao;
+  late ItemCategoryDao itemCategoryDao;
+  late UomDao uomDao;
+  late ItemMasterDao itemMasterDao;
+  late ItemPictureDao itemPictureDao;
+  late PricelistDao pricelistDao;
+  late CashRegisterDao cashRegisterDao;
+  late PricelistPeriodDao pricelistPeriodDao;
+  late ItemBarcodeDao itemBarcodeDao;
+  late ItemRemarkDao itemRemarkDao;
+  late ItemByStoreDao itemByStoreDao;
+  late PriceByItemDao priceByItemDao;
+  late PriceByItemBarcodeDao priceByItemBarcodeDao;
+  late StoreMasterDao storeMasterDao;
+  late CustomerGroupDao customerGroupDao;
+  late CustomerDao customerDao;
+  late CustomerCstDao customerCstDao;
+  late PaymentTypeDao paymentTypeDao;
+  late MeansOfPaymentDao meansOfPaymentDao;
+  late MOPByStoreDao mopByStoreDao;
+  late UserRoleDao userRoleDao;
+  late InvoiceHeaderDao invoiceHeaderDao;
+  late InvoiceDetailDao invoiceDetailDao;
+  late POSParameterDao posParameterDao;
+  late UserDao userDao;
+  late PayMeansDao payMeansDao;
+  late VendorGroupDao vendorGroupDao;
+  late VendorDao vendorDao;
+  late PreferredVendorDao preferredVendorDao;
+  late CashierBalanceTransactionDao cashierBalanceTransactionDao;
+  late MoneyDenominationDao moneyDenominationDao;
+  late QueuedInvoiceHeaderDao queuedInvoiceHeaderDao;
+  late QueuedInvoiceDetailDao queuedInvoiceDetailDao;
 
   AppDatabase._init();
 
@@ -311,6 +319,8 @@ PRAGMA foreign_keys = ON;
     preferredVendorDao = PreferredVendorDao(_database!);
     cashierBalanceTransactionDao = CashierBalanceTransactionDao(_database!);
     moneyDenominationDao = MoneyDenominationDao(_database!);
+    queuedInvoiceHeaderDao = QueuedInvoiceHeaderDao(_database!);
+    queuedInvoiceDetailDao = QueuedInvoiceDetailDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
@@ -368,8 +378,11 @@ PRAGMA foreign_keys = ON;
     String? storeTovatId = '""';
     double? storeTaxRate = 0;
 
+    print("refreshItemTable");
+
     if (storeMaster.isNotEmpty) {
       if (storeMaster[0].taxBy == 1) {
+        print("1111111111111");
         taxByItem = true;
         taxAdditionalQuery = """
 INNER JOIN (
@@ -381,17 +394,122 @@ INNER JOIN (
   ) as t ON t.tovatId = s.tovatId
 """;
       } else {
+        print("222222222222");
         final TaxMasterModel? taxMaster =
             await taxMasterDao.readByDocId(storeMaster[0].tovatId!, null);
         storeTovatId = taxMaster!.docId;
         storeTaxRate = taxMaster.rate;
+        print(storeTovatId);
+        print(storeTaxRate);
       }
     }
-
-    await _database!.execute("""
+    try {
+      await _database!.execute("""
 DELETE FROM items
 """);
-    await _database!.execute("""
+      await _database!.execute("""
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
+SELECT 
+  i.itemname, 
+  i.itemcode, 
+  bc.barcode, 
+  b.price, 
+  p.toitmId, 
+  b.tbitmId, 
+  b.tpln2Id, 
+  i.openprice,
+  v.tovenId,
+  i.includetax,
+  ${taxByItem ? "t.tovatId as tovatId" : storeTovatId},
+  ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
+  ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"}
+FROM 
+  (
+    SELECT 
+      docid AS toplnId, 
+      pp.tpln1Id, 
+      pr.tpln2Id, 
+      pr.toitmId, 
+      DATETIME(pp.tpln1createdate) AS tpln1createdate, 
+      MAX(
+        DATETIME(pp.tpln1createdate)
+      ) AS latestPrice 
+    FROM 
+      topln AS pl 
+      INNER JOIN (
+        SELECT 
+          docid AS tpln1Id, 
+          toplnId, 
+          createdate AS tpln1createdate 
+        FROM 
+          tpln1 
+        WHERE 
+          DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
+      ) AS pp ON pl.docid = pp.toplnId 
+      INNER JOIN (
+        SELECT 
+          docid AS tpln2Id, 
+          tpln1Id, 
+          toitmId 
+        FROM 
+          tpln2
+      ) AS pr ON pr.tpln1Id = pp.tpln1Id 
+    WHERE 
+      pl.tcurrId = '259eff8d-2105-41ea-978f-45ea417e0799' 
+    GROUP BY 
+      pr.toitmId
+  ) as p 
+  INNER JOIN (
+    SELECT 
+      tbitmId, 
+      price, 
+      tpln2Id 
+    FROM 
+      tpln4
+  ) as b ON p.tpln2Id = b.tpln2Id 
+  INNER JOIN (
+    SELECT 
+      docid, 
+      barcode 
+    FROM 
+      tbitm
+  ) as bc ON bc.docid = b.tbitmId 
+  INNER JOIN (
+    SELECT 
+      docid, 
+      itemcode, 
+      itemname, 
+      touomId, 
+      openprice,
+      includetax 
+    FROM 
+      toitm
+  ) as i ON i.docid = p.toitmId 
+  INNER JOIN (
+    SELECT 
+      docid AS touomId, 
+      uomcode 
+    FROM 
+      touom
+  ) as u ON u.touomId = i.touomId
+  INNER JOIN (
+    SELECT
+      docid AS tsitmId,
+      ${taxByItem ? "tovatId," : ""} 
+      toitmId
+    FROM
+      tsitm
+  ) as s ON s.toitmId = p.toitmId
+  INNER JOIN (
+    SELECT
+      tsitmId,
+      tovenId
+    FROM
+      tvitm
+  ) as v ON v.tsitmId = s.tsitmId
+  ${taxByItem ? taxAdditionalQuery : ""} 
+""");
+      log("""
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
 SELECT 
   i.itemname, 
@@ -493,6 +611,9 @@ FROM
   ) as v ON v.tsitmId = s.tsitmId
   ${taxByItem ? taxAdditionalQuery : ""} 
 """);
+    } catch (e, s) {
+      debugPrintStack(stackTrace: s);
+    }
   }
 
   static Future<AppDatabase> init() async {
@@ -2563,6 +2684,87 @@ CREATE TABLE $tableMoneyDenomination (
   CONSTRAINT `tcsr2_tcsr1_fkey` FOREIGN KEY (`tcsr1Id`) REFERENCES `tcsr1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute("""
+CREATE TABLE $tableQueuedInvoiceHeader (
+  $uuidDefinition,
+  ${QueuedInvoiceHeaderFields.createDate} datetime DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.tostrId} text DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.docnum} varchar(30) NOT NULL,
+  ${QueuedInvoiceHeaderFields.orderNo} int NOT NULL,
+  ${QueuedInvoiceHeaderFields.tocusId} text DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.tohemId} text DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.transDate} text DEFAULT CURRENT_DATE,
+  ${QueuedInvoiceHeaderFields.transTime} text DEFAULT CURRENT_TIME,
+  ${QueuedInvoiceHeaderFields.timezone} varchar(200) NOT NULL,
+  ${QueuedInvoiceHeaderFields.remarks} text,
+  ${QueuedInvoiceHeaderFields.subTotal} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.discPrctg} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.discAmount} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.discountCard} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.coupon} varchar(30) NOT NULL,
+  ${QueuedInvoiceHeaderFields.discountCoupun} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.taxPrctg} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.taxAmount} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.addCost} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.rounding} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.grandTotal} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.changed} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.totalPayment} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.tocsrId} text DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.docStatus} int NOT NULL DEFAULT '0',
+  ${QueuedInvoiceHeaderFields.sync} int NOT NULL DEFAULT '0',
+  ${QueuedInvoiceHeaderFields.syncCRM} int NOT NULL DEFAULT '0',
+  ${QueuedInvoiceHeaderFields.toinvTohemId} text DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.tcsr1Id} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+        // CONSTRAINT `toinv_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `toinv_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `toinv_tcsr1Id_fkey` FOREIGN KEY (`tcsr1Id`) REFERENCES `tcsr1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+        // CONSTRAINT `toinv_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `toinv_toinvTohemId_fkey` FOREIGN KEY (`toinvTohemId`) REFERENCES `tohem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+
+        await txn.execute("""
+CREATE TABLE $tableQueuedInvoiceDetail (
+  $uuidDefinition,
+  ${QueuedInvoiceDetailFields.createDate} datetime DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.updateDate} datetime DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.toinvId} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.lineNum} int NOT NULL,
+  ${QueuedInvoiceDetailFields.docNum} varchar(30) NOT NULL,
+  ${QueuedInvoiceDetailFields.idNumber} int NOT NULL,
+  ${QueuedInvoiceDetailFields.toitmId} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.quantity} double NOT NULL,
+  ${QueuedInvoiceDetailFields.sellingPrice} double NOT NULL,
+  ${QueuedInvoiceDetailFields.discPrctg} double NOT NULL,
+  ${QueuedInvoiceDetailFields.discAmount} double NOT NULL,
+  ${QueuedInvoiceDetailFields.totalAmount} double NOT NULL,
+  ${QueuedInvoiceDetailFields.taxPrctg} double NOT NULL,
+  ${QueuedInvoiceDetailFields.promotionType} varchar(20) NOT NULL,
+  ${QueuedInvoiceDetailFields.promotionId} varchar(191) NOT NULL,
+  ${QueuedInvoiceDetailFields.remarks} text,
+  ${QueuedInvoiceDetailFields.editTime} datetime NOT NULL,
+  ${QueuedInvoiceDetailFields.cogs} double NOT NULL,
+  ${QueuedInvoiceDetailFields.tovatId} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.promotionTingkat} varchar(191) DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.promoVoucherNo} varchar(191) DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.baseDocId} varchar(191) DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.baseLineDocId} varchar(191) DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.includeTax} int NOT NULL,
+  ${QueuedInvoiceDetailFields.tovenId} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.tbitmId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `queuedInvoiceDetails_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `queuedInvoiceHeaders` (`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `queuedInvoiceDetails_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `queuedInvoiceDetails_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `queuedInvoiceDetails_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+        // CONSTRAINT `tinv1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
       });
     } catch (e) {
       print(e);
@@ -2604,6 +2806,11 @@ CREATE TABLE $tableMoneyDenomination (
     }
   }
 
+  Future<void> resetDatabase() async {
+    await emptyDb();
+    _database = await _initDB(_databaseName);
+    await _injectDao();
+  }
   // Future close() async {
   //   final db = await instance.database;
 
