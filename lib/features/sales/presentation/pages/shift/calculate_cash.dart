@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -68,9 +66,7 @@ class _CalculateCashState extends State<CalculateCash> {
 
   void _changeTotalCash(List values) {
     String totalCash = calculateTotalCash(values);
-
-    log('Total cash calculated: $totalCash');
-
+    // log('Total cash calculated: $totalCash');
     widget.setTotal(totalCash);
   }
 

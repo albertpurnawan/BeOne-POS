@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +6,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_end_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,6 +67,7 @@ class CloseShiftForm extends StatefulWidget {
 class _CloseShiftFormState extends State<CloseShiftForm> {
   final String shiftId;
   CashierBalanceTransactionModel? activeShift;
+  late List<InvoiceHeaderModel?> transactions;
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCash = '0';
 
@@ -82,9 +82,17 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   Future<void> fetchActiveShift() async {
     final shift = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
-        .readLastValue();
+        .readByDocId(shiftId, null);
     setState(() {
       activeShift = shift;
+    });
+  }
+
+  Future<void> fetchInvoices() async {
+    final transaction =
+        await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
+    setState(() {
+      transactions = transaction;
     });
   }
 
@@ -92,7 +100,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     setState(() {
       totalCash = total;
     });
-    log("$totalCash in Parent");
+    // log("$totalCash in Parent");
   }
 
   @override
@@ -113,9 +121,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     String formattedExpectedCash =
         NumberFormat.decimalPattern().format(expectedCash.toInt());
 
-    final cashier = prefs.getString('username');
+    double totalCashDouble = double.tryParse(totalCash) ?? 0.0;
 
-    // log(totalCash);
+    final cashier = prefs.getString('username');
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 30.0),
@@ -340,12 +348,38 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             child: CustomButton(
                 child: const Text("End Shift"),
                 onTap: () async {
-                  if (!context.mounted) return;
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ConfirmEndShift();
-                      });
+                  if (activeShift != null) {
+                    final CashierBalanceTransactionModel shift =
+                        CashierBalanceTransactionModel(
+                      docId: activeShift!.docId,
+                      createDate: activeShift!.createDate,
+                      updateDate: activeShift!.updateDate,
+                      tocsrId: activeShift!.tocsrId,
+                      tousrId: activeShift!.tousrId,
+                      docNum: activeShift!.docNum,
+                      openDate: activeShift!.openDate,
+                      openTime: activeShift!.openTime,
+                      calcDate: activeShift!.calcDate,
+                      calcTime: activeShift!.calcTime,
+                      closeDate: activeShift!.closeDate,
+                      closeTime: activeShift!.closeTime,
+                      timezone: activeShift!.timezone,
+                      openValue: activeShift!.openValue,
+                      calcValue: activeShift!.calcValue,
+                      cashValue: activeShift!.cashValue,
+                      closeValue: activeShift!.closeValue,
+                      openedbyId: activeShift!.openedbyId,
+                      closedbyId: activeShift!.closedbyId,
+                      approvalStatus: activeShift!.approvalStatus,
+                    );
+
+                    if (!context.mounted) return;
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ConfirmEndShift(shift, totalCash);
+                        });
+                  }
                 }),
           ),
         ],
