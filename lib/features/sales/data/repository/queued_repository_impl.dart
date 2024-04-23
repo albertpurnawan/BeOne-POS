@@ -303,4 +303,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
   Future<void> deleteByDocId(String docId) async {
     await _appDatabase.queuedInvoiceHeaderDao.deleteByDocId(docId, null);
   }
+
+  @override
+  Future<void> deleteAll() async {
+    await _appDatabase.queuedInvoiceHeaderDao.deleteAllData();
+  }
 }

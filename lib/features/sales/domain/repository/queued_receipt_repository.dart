@@ -9,4 +9,6 @@ abstract class QueuedReceiptRepository {
   Future<List<ReceiptEntity>> getQueuedReceipts();
 
   Future<void> deleteByDocId(String docId);
+
+  Future<void> deleteAll();
 }

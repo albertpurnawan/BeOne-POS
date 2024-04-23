@@ -25,6 +25,7 @@ import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repositor
 import 'package:pos_fe/features/sales/domain/repository/receipt_content_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
@@ -191,6 +192,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<DeleteQueuedReceiptUseCase>(
       () => DeleteQueuedReceiptUseCase(sl()),
+      dependsOn: [AppDatabase, SharedPreferences]);
+  sl.registerSingletonWithDependencies<DeleteAllQueuedReceiptsUseCase>(
+      () => DeleteAllQueuedReceiptsUseCase(sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<PrintReceiptUseCase>(
       () => PrintReceiptUseCase(sl(), sl(), sl(), sl()),

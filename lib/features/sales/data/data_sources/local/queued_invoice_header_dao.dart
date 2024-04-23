@@ -75,6 +75,10 @@ class QueuedInvoiceHeaderDao extends BaseDao<QueuedInvoiceHeaderModel> {
     );
   }
 
+  Future<void> deleteAllData() async {
+    await db.delete(tableName);
+  }
+
   // Future<List<QueuedInvoiceHeaderModel>> readByShift() async {
   //   final prefs = GetIt.instance<SharedPreferences>();
   //   final tcsr1Id = prefs.getString('tcsr1Id');

@@ -13,6 +13,8 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
+import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -115,6 +117,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                               height: 20,
                             ),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: Row(
@@ -157,7 +160,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                   ),
                                 ),
                                 Container(
-                                  alignment: Alignment.center,
+                                  // alignment: Alignment.center,
                                   width: 100,
                                   child: Icon(
                                     Icons.navigate_next,
@@ -174,18 +177,30 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                   width: 60,
                                   child: InkWell(
                                     customBorder: CircleBorder(),
-                                    onTap: () => print("delete"),
+                                    onTap: () async {
+                                      GetIt.instance<
+                                              DeleteQueuedReceiptUseCase>()
+                                          .call(params: queuedReceipt.toinvId);
+                                      await getQueuedReceipts();
+                                    },
                                     splashColor: Colors.white38,
                                     child: Ink(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color:
-                                            const Color.fromRGBO(243, 0, 0, 1),
+                                        color: ProjectColors.primary,
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            spreadRadius: 0.5,
+                                            blurRadius: 5,
+                                            color: Color.fromRGBO(
+                                                220, 220, 220, 1),
+                                          ),
+                                        ],
                                       ),
                                       padding: EdgeInsets.all(7),
                                       child: Center(
                                         child: Icon(
-                                          Icons.delete_forever_outlined,
+                                          Icons.delete_forever,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -213,18 +228,21 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                               width: 10,
                                             ),
                                             Text(
-                                              queuedReceipt
-                                                          .receiptItems.length >
-                                                      1
-                                                  ? queuedReceipt.receiptItems
-                                                      .map((e) => e.quantity)
-                                                      .reduce(
-                                                          (value, element) =>
+                                              Helpers.cleanDecimal(
+                                                  queuedReceipt.receiptItems
+                                                              .length >
+                                                          1
+                                                      ? queuedReceipt
+                                                          .receiptItems
+                                                          .map(
+                                                              (e) => e.quantity)
+                                                          .reduce((value,
+                                                                  element) =>
                                                               value + element)
-                                                      .toString()
-                                                  : queuedReceipt
-                                                      .receiptItems[0].quantity
-                                                      .toString(),
+                                                      : queuedReceipt
+                                                          .receiptItems[0]
+                                                          .quantity,
+                                                  3),
                                               style: TextStyle(fontSize: 16),
                                             ),
                                           ],
@@ -309,47 +327,53 @@ class _QueueListDialogState extends State<QueueListDialog> {
         Row(
           children: [
             Expanded(
+                flex: 1,
                 child: TextButton(
-              style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                      side: const BorderSide(color: ProjectColors.primary))),
-                  backgroundColor:
-                      MaterialStateColor.resolveWith((states) => Colors.white),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.black.withOpacity(.2))),
-              onPressed: () {
-                setState(() {
-                  Navigator.of(context).pop();
-                  // Future.delayed(const Duration(milliseconds: 200),
-                  //     () => _newReceiptItemCodeFocusNode.requestFocus());
-                });
-              },
-              child: const Center(
-                  child: Text(
-                "Cancel",
-                style: TextStyle(color: ProjectColors.primary),
-              )),
-            )),
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side:
+                              const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.black.withOpacity(.2))),
+                  onPressed: () async {
+                    await GetIt.instance<DeleteAllQueuedReceiptsUseCase>()
+                        .call();
+
+                    setState(() {
+                      queuedReceipts.clear();
+                    });
+                  },
+                  child: const Center(
+                      child: Text(
+                    "Clear All",
+                    style: TextStyle(color: ProjectColors.primary),
+                  )),
+                )),
             const SizedBox(
               width: 10,
             ),
             Expanded(
+                flex: 3,
                 child: TextButton(
-              style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
-              onPressed: () {},
-              child: const Center(
-                  child: Text(
-                "Select",
-                style: TextStyle(color: Colors.white),
-              )),
-            )),
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => ProjectColors.primary),
+                      overlayColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.white.withOpacity(.2))),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Center(
+                      child: Text(
+                    "Return",
+                    style: TextStyle(color: Colors.white),
+                  )),
+                )),
           ],
         ),
       ],
