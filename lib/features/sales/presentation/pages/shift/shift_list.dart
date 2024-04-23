@@ -9,7 +9,6 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/end_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -190,9 +189,12 @@ class _ActiveShiftState extends State<ActiveShift> {
                       child: const Text("CLOSE SHIFT"),
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const EndShiftScreen()));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EndShiftScreen(shiftId: activeShift!.docId),
+                          ),
+                        );
                       },
                     )
                   : CustomButton(
@@ -341,9 +343,20 @@ class _AllShiftState extends State<AllShift> {
                                       ],
                                     ),
                                   ),
-                                  const Icon(
-                                    Icons.arrow_right_outlined,
-                                    size: 40,
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EndShiftScreen(
+                                              shiftId: shift.docId),
+                                        ),
+                                      );
+                                    },
+                                    child: Icon(
+                                      Icons.arrow_right_outlined,
+                                      size: 40,
+                                    ),
                                   ),
                                 ],
                               ),

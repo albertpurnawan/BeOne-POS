@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 class PreferredVendorApi {
   final Dio _dio;
   String token = Constant.token;
+  String storeId = Constant.tostrId;
   String url = Constant.url;
 
   PreferredVendorApi(this._dio);
@@ -31,7 +32,7 @@ class PreferredVendorApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": ["e24bd658-bfb6-404f-b867-3e294b8d5b0b"]
+            "parameter": [storeId]
           };
         }
       }

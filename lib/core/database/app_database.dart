@@ -2622,23 +2622,16 @@ CREATE TABLE $tablePromoCouponDefaultValidDays (
         await txn.execute("""
 CREATE TABLE $tablePOSParameter (
   $uuidDefinition,
-  ${POSParameterFields.createDate} datetime NOT NULL,
+  ${POSParameterFields.createDate} datetime DEFAULT NULL,
   ${POSParameterFields.updateDate} datetime DEFAULT NULL,
   ${POSParameterFields.gtentId} text DEFAULT NULL,
   ${POSParameterFields.tostrId} text DEFAULT NULL,
-  ${POSParameterFields.storeName} text NOT NULL,
-  ${POSParameterFields.tcurrId} text DEFAULT NULL,
-  ${POSParameterFields.currCode} text DEFAULT NULL,
+  ${POSParameterFields.storeName} text DEFAULT NULL,
   ${POSParameterFields.tocsrId} text DEFAULT NULL,
-  ${POSParameterFields.tovatId} text DEFAULT NULL,
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
-  ${POSParameterFields.user} text DEFAULT NULL,
-  ${POSParameterFields.password} text DEFAULT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `topos_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_tocsrId_fkey` FOREIGN KEY (`tocsrId`) REFERENCES `tocsr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topos_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  ${POSParameterFields.usernameAdmin} text DEFAULT NULL,
+  ${POSParameterFields.passwordAdmin} text DEFAULT NULL,
+  $createdAtDefinition
 )
 """);
 

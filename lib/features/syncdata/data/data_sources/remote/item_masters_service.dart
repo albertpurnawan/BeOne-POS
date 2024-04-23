@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/item_master.dart';
 class ItemMasterApi {
   final Dio _dio;
   String token = Constant.token;
+  String storeId = Constant.tostrId;
   String url = Constant.url;
 
   ItemMasterApi(this._dio);

@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 class ItemRemarksApi {
   final Dio _dio;
   String token = Constant.token;
+  String storeId = Constant.tostrId;
   String url = Constant.url;
 
   ItemRemarksApi(this._dio);
@@ -31,7 +32,7 @@ class ItemRemarksApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": ["e24bd658-bfb6-404f-b867-3e294b8d5b0b"]
+            "parameter": [storeId]
           };
         }
       }

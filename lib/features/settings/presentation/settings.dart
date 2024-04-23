@@ -1,10 +1,19 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -63,8 +72,16 @@ class _SettingsFormState extends State<SettingsForm> {
   late TextEditingController gtentController,
       tostrController,
       tocsrController,
-      urlController;
+      urlController,
+      emailController,
+      passwordController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
+  SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+
+  // needed to change
+  String emailAdmin = "interfacing@topgolf.com";
+  String passwordAdmin = "BeOne\$\$123";
+  // md5.convert(utf8.encode("BeOne\$\$123")).toString();
 
   @override
   void initState() {
@@ -74,6 +91,8 @@ class _SettingsFormState extends State<SettingsForm> {
     tostrController = TextEditingController();
     tocsrController = TextEditingController();
     urlController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
 
     oldGtentId = Constant.gtentId;
     oldTostrId = Constant.tostrId;
@@ -96,6 +115,9 @@ class _SettingsFormState extends State<SettingsForm> {
     gtentController.dispose();
     tostrController.dispose();
     tocsrController.dispose();
+    urlController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
   }
 
   @override
@@ -153,14 +175,75 @@ class _SettingsFormState extends State<SettingsForm> {
               prefixIcon: const Icon(Icons.link_outlined),
             ),
           ),
+          const SizedBox(height: 15),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: CustomInput(
+              controller: emailController,
+              validator: (val) => val == null || val.isEmpty
+                  ? "Manager Email is required"
+                  : null,
+              label: "Manager Email",
+              hint: "Manager Email",
+              prefixIcon: const Icon(Icons.email_outlined),
+            ),
+          ),
+          const SizedBox(height: 15),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: CustomInput(
+              controller: passwordController,
+              validator: (val) => val == null || val.isEmpty
+                  ? "Manager Password is required"
+                  : null,
+              obscureText: true,
+              label: "Manager Password",
+              hint: "Manager Password",
+              prefixIcon: const Icon(Icons.password_outlined),
+            ),
+          ),
           const SizedBox(height: 25),
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
               child: const Text("Save"),
               onTap: () async {
-                Constant.updateTopos(gtentController.text, tostrController.text,
-                    tocsrController.text, urlController.text);
+                final hashedPass = md5
+                    .convert(utf8.encode(passwordController.text))
+                    .toString();
+
+                final topos = POSParameterModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  gtentId: gtentController.text,
+                  tostrId: tostrController.text,
+                  storeName: "",
+                  tocsrId: tocsrController.text,
+                  baseUrl: urlController.text,
+                  usernameAdmin: emailController.text,
+                  passwordAdmin: hashedPass,
+                );
+
+                await GetIt.instance<AppDatabase>()
+                    .posParameterDao
+                    .create(data: topos);
+
+                log("TOPOS CREATED");
+
+                Constant.updateTopos(
+                    gtentController.text,
+                    tostrController.text,
+                    tocsrController.text,
+                    urlController.text,
+                    emailAdmin,
+                    passwordAdmin);
+
+                final token = await GetIt.instance<TokenApi>().getToken(
+                    urlController.text,
+                    emailController.text,
+                    passwordController.text);
+                prefs.setString('adminToken', token.toString());
 
                 Navigator.pop(context);
               },

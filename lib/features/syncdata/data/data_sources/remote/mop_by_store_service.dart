@@ -8,6 +8,7 @@ import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
 class MOPByStoreApi {
   final Dio _dio;
   String token = Constant.token;
+  String storeId = Constant.tostrId;
   String url = Constant.url;
 
   MOPByStoreApi(this._dio);
@@ -31,7 +32,7 @@ class MOPByStoreApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": ["e24bd658-bfb6-404f-b867-3e294b8d5b0b"]
+            "parameter": [storeId]
           };
         }
       }
