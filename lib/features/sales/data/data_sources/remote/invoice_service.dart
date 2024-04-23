@@ -36,8 +36,8 @@ class InvoiceApi {
         "tostr_id": invHead[0].tostrId,
         "docnum": invHead[0].docnum,
         "orderno": invHead[0].orderNo,
-        "tocus_id": "c2ee5bb8-9850-4014-b7bf-fd5492a60d84",
-        "tohem_id": "a483a6f2-80e3-4093-bbc8-f03e79093098",
+        "tocus_id": invHead[0].tocusId,
+        "tohem_id": invHead[0].tohemId,
         "transdate": invHead[0].transDateTime!.toUtc().toIso8601String(),
         "transtime": invHead[0].transDateTime!.toUtc().toIso8601String(),
         "timezone": invHead[0].timezone,
@@ -57,7 +57,7 @@ class InvoiceApi {
         "changed": invHead[0].changed,
         "totalpayment": invHead[0].totalPayment.toInt(),
         "tocsr_id": invHead[0].tocsrId,
-        "toinv_tohem_id": "a483a6f2-80e3-4093-bbc8-f03e79093098",
+        "toinv_tohem_id": invHead[0].toinvTohemId,
         "invoice_item": invDet.map((item) {
           return {
             "docnum": item.docNum,
@@ -79,7 +79,7 @@ class InvoiceApi {
             "promotiontingkat": item.promotionTingkat ?? "",
             "promovoucherno": item.promoVoucherNo ?? "",
             "includetax": item.includeTax,
-            "toven_id": "3fe37695-f766-4550-9e1d-06697f337c9f",
+            "toven_id": item.tovenId,
             "tbitm_id": item.tbitmId,
             "qtybarcode": 0.0,
             "sellpricebarcode": 0.0,
