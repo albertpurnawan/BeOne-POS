@@ -1,17 +1,18 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
+import 'package:pos_fe/features/sales/data/models/queued_invoice_detail.dart';
 import 'package:sqflite/sqflite.dart';
 
-class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
-  InvoiceDetailDao(Database db)
+class QueuedInvoiceDetailDao extends BaseDao<QueuedInvoiceDetailModel> {
+  QueuedInvoiceDetailDao(Database db)
       : super(
           db: db,
-          tableName: tableInvoiceDetail,
-          modelFields: InvoiceDetailFields.values,
+          tableName: tableQueuedInvoiceDetail,
+          modelFields: QueuedInvoiceDetailFields.values,
         );
 
   @override
-  Future<InvoiceDetailModel?> readByDocId(
+  Future<QueuedInvoiceDetailModel?> readByDocId(
       String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
@@ -21,20 +22,20 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
       whereArgs: [docId],
     );
 
-    return res.isNotEmpty ? InvoiceDetailModel.fromMap(res[0]) : null;
+    return res.isNotEmpty ? QueuedInvoiceDetailModel.fromMap(res[0]) : null;
   }
 
   @override
-  Future<List<InvoiceDetailModel>> readAll({Transaction? txn}) async {
+  Future<List<QueuedInvoiceDetailModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
     return result
-        .map((itemData) => InvoiceDetailModel.fromMap(itemData))
+        .map((itemData) => QueuedInvoiceDetailModel.fromMap(itemData))
         .toList();
   }
 
-  Future<List<InvoiceDetailModel>> readByToinvId(
+  Future<List<QueuedInvoiceDetailModel>> readByToinvId(
       String toinvId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(
@@ -44,7 +45,7 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
     );
 
     return result
-        .map((itemData) => InvoiceDetailModel.fromMap(itemData))
+        .map((itemData) => QueuedInvoiceDetailModel.fromMap(itemData))
         .toList();
   }
 }

@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Constant {
   //TOKEN
   static const String token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImludGVyZmFjaW5nQGRlbW8uY29tIiwiZ3RlbnRJZCI6ImI1NjNlZTc0LTAzZmQtNGVhMy1iNmE1LTBkYzA2MDdlZjhmYiIsInRvdXNySWQiOiJmYWIwNTZmYS1iMjA2LTQzNjAtOGMzNS01Njg0MDc2NTE4MjciLCJ0b3JvbElkIjoiM2I0ZDEyYzEtYjNmNi00ODQ0LThlMzEtMTk3YTM1ODc4MzdjIiwiaWF0IjoxNzEzNTA4NzY2LCJleHAiOjE3MTQ3MTgzNjZ9.DcYno05zt1fi93v850IfZKPCgkMoXCDwFEQkTANITUM';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImludGVyZmFjaW5nQHRvcGdvbGYuY29tIiwiZ3RlbnRJZCI6ImI1NjNlZTc0LTAzZmQtNGVhMy1iNmE1LTBkYzA2MDdlZjhmYiIsInRvdXNySWQiOiJmYWIwNTZmYS1iMjA2LTQzNjAtOGMzNS01Njg0MDc2NTE4MjciLCJ0b3JvbElkIjoiM2I0ZDEyYzEtYjNmNi00ODQ0LThlMzEtMTk3YTM1ODc4MzdjIiwiaWF0IjoxNzEzNTE4NDkwLCJleHAiOjE3MTQ3MjgwOTB9.P4eiLXZxyBbhzVxsp8t0s83akFPSw8fXVYwqJRMwOt8';
 
   //CRON
   static String weekday = '*';
@@ -26,7 +26,7 @@ class Constant {
   //4ca46d3e-30ff-4441-98f8-3fdcf81dc230
 
   // BASEURL
-  static String url = "http://110.239.68.248:8803";
+  static String url = "http://110.239.68.248:8902";
 
   static void updateTopos(String tenantId, String storeId,
       String cashRegisterId, String baseUrl) async {

@@ -2,8 +2,8 @@ import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
-class ReceiptModel extends ReceiptEntity implements BaseModel {
-  ReceiptModel({
+class QueuedReceiptModel extends ReceiptEntity implements BaseModel {
+  QueuedReceiptModel({
     required super.docNum,
     required super.receiptItems,
     super.mopSelection,
@@ -18,11 +18,10 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     required super.grandTotal,
     super.totalPayment,
     super.changed,
-    super.toinvId,
   });
 
-  factory ReceiptModel.fromEntity(ReceiptEntity entity) {
-    return ReceiptModel(
+  factory QueuedReceiptModel.fromEntity(ReceiptEntity entity) {
+    return QueuedReceiptModel(
       docNum: entity.docNum,
       receiptItems: entity.receiptItems,
       mopSelection: entity.mopSelection,
@@ -37,7 +36,6 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       grandTotal: entity.grandTotal,
       totalPayment: entity.totalPayment,
       changed: entity.changed,
-      toinvId: entity.toinvId,
     );
   }
 }

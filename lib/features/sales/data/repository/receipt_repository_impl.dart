@@ -34,6 +34,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       final POSParameterModel posParameterModel =
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
 
+      print(posParameterModel);
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1Id = prefs.getString('tcsr1Id');
 
@@ -59,7 +60,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         taxAmount: receiptEntity.taxAmount,
         addCost: 0,
         rounding: 0,
-        grandTotal: receiptEntity.grandTotal + receiptEntity.totalTax,
+        grandTotal: receiptEntity.grandTotal,
         changed: receiptEntity.changed!,
         totalPayment: receiptEntity.totalPayment!,
         tocsrId: posParameterModel.tocsrId, // get di sini
@@ -87,16 +88,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           idNumber: 10, // ? harcode dulu
           toitmId: e.itemEntity.toitmId,
           quantity: e.quantity,
-          sellingPrice: e.itemEntity.includeTax == 1
-              ? e.itemEntity.price
-              : e.itemEntity.price * ((100 + e.itemEntity.taxRate) / 100),
+          sellingPrice: e.sellingPrice,
           discPrctg: 0,
           discAmount: 0,
-          totalAmount: e.itemEntity.includeTax == 1
-              ? e.itemEntity.price * e.quantity
-              : e.itemEntity.price *
-                  e.quantity *
-                  ((100 + e.itemEntity.taxRate) / 100),
+          totalAmount: e.totalAmount,
           taxPrctg: e.itemEntity.taxRate,
           promotionType: "",
           promotionId: "",
@@ -124,7 +119,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         toinvId: generatedInvoiceHeaderDocId,
         lineNum: 1,
         tpmt3Id: receiptEntity.mopSelection!.tpmt3Id,
-        amount: receiptEntity.grandTotal.toDouble(),
+        amount: receiptEntity.totalPayment!,
         tpmt2Id: null,
         cardNo: null,
         cardHolder: null,
@@ -232,6 +227,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       print(invoiceHeaderModel.transDateTime?.toLocal());
 
       receiptModel = ReceiptModel(
+        toinvId: invoiceHeaderModel.docId,
         receiptItems: receiptItemModels,
         subtotal: invoiceHeaderModel.subTotal,
         docNum: invoiceHeaderModel.docnum,

@@ -12,11 +12,13 @@ import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 
 part 'receipt_state.dart';
@@ -27,13 +29,17 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetEmployeeUseCase _getEmployeeUseCase;
   final PrintReceiptUseCase _printReceiptUsecase;
   final OpenCashDrawerUseCase _openCashDrawerUseCase;
+  final QueueReceiptUseCase _queueReceiptUseCase;
+  final DeleteQueuedReceiptUseCase _deleteQueuedReceiptUseCase;
 
   ReceiptCubit(
       this._getItemByBarcodeUseCase,
       this._saveReceiptUseCase,
       this._getEmployeeUseCase,
       this._printReceiptUsecase,
-      this._openCashDrawerUseCase)
+      this._openCashDrawerUseCase,
+      this._queueReceiptUseCase,
+      this._deleteQueuedReceiptUseCase)
       : super(ReceiptEntity(
           docNum:
               "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
@@ -350,11 +356,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void charge() async {
+    print("total payment ${state.totalPayment!}");
+    print("grandTotal ${state.grandTotal}");
     final newState =
         state.copyWith(changed: state.totalPayment! - state.grandTotal);
     final ReceiptEntity? createdReceipt =
         await _saveReceiptUseCase.call(params: newState);
     if (createdReceipt != null) {
+      print(" $createdReceipt");
+      await _deleteQueuedReceiptUseCase.call(params: state.toinvId);
       emit(createdReceipt);
       try {
         await _printReceiptUsecase.call(params: createdReceipt);
@@ -362,8 +372,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         print(e);
       }
       await _openCashDrawerUseCase.call();
+      await GetIt.instance<InvoiceApi>().sendInvoice();
     }
-    await GetIt.instance<InvoiceApi>().sendInvoice();
   }
 
   void resetReceipt() {
@@ -377,5 +387,26 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       taxAmount: 0,
       grandTotal: 0,
     ));
+  }
+
+  void queueReceipt() async {
+    final ReceiptEntity? queuedReceipt =
+        await _queueReceiptUseCase.call(params: state);
+    print("ini adalah quequed receipt");
+    print(queuedReceipt);
+    emit(ReceiptEntity(
+      docNum:
+          "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+      receiptItems: [],
+      subtotal: 0,
+      totalTax: 0,
+      transStart: DateTime.now(),
+      taxAmount: 0,
+      grandTotal: 0,
+    ));
+  }
+
+  void retrieveFromQueue(ReceiptEntity receiptEntity) {
+    emit(receiptEntity);
   }
 }

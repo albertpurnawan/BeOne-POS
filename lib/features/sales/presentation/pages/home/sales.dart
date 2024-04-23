@@ -19,12 +19,14 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SalesPage extends StatefulWidget {
@@ -114,6 +116,8 @@ class _SalesPageState extends State<SalesPage> {
     isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
     isEditingReceiptItemQty =
         isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
+
+    print("test");
 
     if (!Platform.isWindows) {
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -1452,7 +1456,9 @@ class _SalesPageState extends State<SalesPage> {
             Expanded(
               child: SizedBox.expand(
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<ReceiptCubit>().queueReceipt();
+                  },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
                     // elevation: 5,
@@ -1551,7 +1557,28 @@ class _SalesPageState extends State<SalesPage> {
           Expanded(
             child: SizedBox.expand(
               child: OutlinedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => QueueListDialog()).then((value) {
+                    setState(() {
+                      context.read<ItemsCubit>().clearItems();
+                      isEditingNewReceiptItemCode = true;
+                      _newReceiptItemCodeFocusNode.requestFocus();
+                    });
+                    // WidgetsBinding.instance.addPostFrameCallback((_) {
+                    //   final position = _scrollControllerReceiptItems
+                    //           .position.maxScrollExtent +
+                    //       100;
+                    //   _scrollControllerReceiptItems.animateTo(
+                    //     position,
+                    //     duration: const Duration(milliseconds: 500),
+                    //     curve: Curves.easeOut,
+                    //   );
+                    // });
+                  });
+                },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(7),
                   elevation: 5,
