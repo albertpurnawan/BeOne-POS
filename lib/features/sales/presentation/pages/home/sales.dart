@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -2241,11 +2240,13 @@ class _SalesPageState extends State<SalesPage> {
                                 "1";
                           });
                         } else if (isUpdatingReceiptItemQty) {
-                          context.read<ReceiptCubit>().updateQuantity(
+                          context.read<ReceiptCubit>().addOrUpdateReceiptItems(
                               context
                                   .read<ReceiptCubit>()
                                   .state
-                                  .receiptItems[indexIsSelect[0]],
+                                  .receiptItems[indexIsSelect[0]]
+                                  .itemEntity
+                                  .barcode,
                               double.parse(
                                   _textEditingControllerNewReceiptItemQuantity
                                       .text));
@@ -2426,8 +2427,13 @@ class _SalesPageState extends State<SalesPage> {
             _textEditingControllerNewReceiptItemQuantity.text = "1";
           });
         } else if (isUpdatingReceiptItemQty) {
-          context.read<ReceiptCubit>().updateQuantity(
-              context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]],
+          context.read<ReceiptCubit>().addOrUpdateReceiptItems(
+              context
+                  .read<ReceiptCubit>()
+                  .state
+                  .receiptItems[indexIsSelect[0]]
+                  .itemEntity
+                  .barcode,
               double.parse(_textEditingControllerNewReceiptItemQuantity.text));
 
           setState(() {

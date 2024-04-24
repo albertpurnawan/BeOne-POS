@@ -1,16 +1,9 @@
-// import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
-import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
-import 'package:pos_fe/features/sales/data/models/pay_means.dart';
-import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
@@ -18,8 +11,6 @@ import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
-import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
