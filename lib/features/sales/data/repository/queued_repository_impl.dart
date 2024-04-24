@@ -190,6 +190,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         grandTotal: invoiceHeaderModel.grandTotal,
         totalPayment: invoiceHeaderModel.totalPayment,
         changed: invoiceHeaderModel.changed,
+        vouchers: [], // diambil service vouchers
+        totalVoucher: 0, // diambil service vouchers
+        totalNonVoucher: 0, // diambil service vouchers
       );
     });
 
@@ -283,6 +286,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           grandTotal: queuedInvoiceHeaderModel.grandTotal,
           totalPayment: queuedInvoiceHeaderModel.totalPayment,
           changed: queuedInvoiceHeaderModel.changed,
+          vouchers: [], // diambil service vouchers
+          totalVoucher: 0, // diambil service vouchers
+          totalNonVoucher: 0, // diambil service vouchers
         ));
       }
     });

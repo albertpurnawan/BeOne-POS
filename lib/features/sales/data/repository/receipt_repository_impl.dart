@@ -241,6 +241,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         grandTotal: invoiceHeaderModel.grandTotal,
         totalPayment: invoiceHeaderModel.totalPayment,
         changed: invoiceHeaderModel.changed,
+        vouchers: [], // diambil service vouchers
+        totalVoucher: 0, // diambil service vouchers
+        totalNonVoucher: 0, // diambil service vouchers
       );
     });
 

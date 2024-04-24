@@ -1,5 +1,5 @@
-import 'dart:math';
 import 'dart:developer' as dev;
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -12,7 +12,6 @@ import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
@@ -49,6 +48,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           transStart: DateTime.now(),
           taxAmount: 0,
           grandTotal: 0,
+          vouchers: [],
         ));
 
   void addOrUpdateReceiptItems(String itemBarcode, double quantity) async {
@@ -290,6 +290,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       transStart: DateTime.now(),
       taxAmount: 0,
       grandTotal: 0,
+      vouchers: [],
     ));
   }
 

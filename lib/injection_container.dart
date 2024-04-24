@@ -16,6 +16,7 @@ import 'package:pos_fe/features/sales/data/repository/queued_repository_impl.dar
 import 'package:pos_fe/features/sales/data/repository/receipt_content_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/store_master_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/vouchers_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
@@ -25,6 +26,8 @@ import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repositor
 import 'package:pos_fe/features/sales/domain/repository/receipt_content_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
@@ -167,6 +170,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<QueuedReceiptRepository>(
       () => QueuedReceiptRepositoryImpl(sl(), sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<VouchersSelectionRepository>(
+      () => VouchersSelectionRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -220,6 +226,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<GetStoreMasterUseCase>(
       () => GetStoreMasterUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CheckVoucherUseCase>(
+      () => CheckVoucherUseCase(sl()),
       dependsOn: [AppDatabase]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 

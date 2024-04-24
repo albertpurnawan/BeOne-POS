@@ -71,6 +71,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/user_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/user_roles_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/vendor_daro.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/vendor_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/zipcode_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
@@ -238,6 +239,7 @@ class AppDatabase {
   late MoneyDenominationDao moneyDenominationDao;
   late QueuedInvoiceHeaderDao queuedInvoiceHeaderDao;
   late QueuedInvoiceDetailDao queuedInvoiceDetailDao;
+  late VouchersSelectionDao vouchersSelectionDao;
 
   AppDatabase._init();
 
@@ -322,6 +324,7 @@ PRAGMA foreign_keys = ON;
     moneyDenominationDao = MoneyDenominationDao(_database!);
     queuedInvoiceHeaderDao = QueuedInvoiceHeaderDao(_database!);
     queuedInvoiceDetailDao = QueuedInvoiceDetailDao(_database!);
+    vouchersSelectionDao = VouchersSelectionDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {

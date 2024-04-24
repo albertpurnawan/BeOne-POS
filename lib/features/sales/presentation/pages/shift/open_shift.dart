@@ -247,8 +247,10 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                     docId: const Uuid().v4(),
                     createDate: DateTime.now(),
                     updateDate: DateTime.now(),
-                    tocsrId: "4ca46d3e-30ff-4441-98f8-3fdcf81dc230",
-                    tousrId: "fab056fa-b206-4360-8c35-568407651827",
+                    tocsrId:
+                        "4ca46d3e-30ff-4441-98f8-3fdcf81dc230", // jangan dihardcode
+                    tousrId:
+                        "fab056fa-b206-4360-8c35-568407651827", // jangan dihardcode
                     docNum: docnum,
                     openDate: DateTime.now(),
                     openTime: DateTime.now(),
