@@ -180,6 +180,7 @@ import 'package:pos_fe/features/sales/data/models/user_logs.dart';
 import 'package:pos_fe/features/sales/data/models/user_role.dart';
 import 'package:pos_fe/features/sales/data/models/vendor.dart';
 import 'package:pos_fe/features/sales/data/models/vendor_group.dart';
+import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/settings/data/data_sources/local/receipt_content_dao.dart';
 import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
@@ -2765,6 +2766,22 @@ CREATE TABLE $tableQueuedInvoiceDetail (
 )
 """);
         // CONSTRAINT `tinv1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+
+        await txn.execute("""
+CREATE TABLE $tableVouchersSelection (
+  ${VoucherSelectionFields.tostrId} text NOT NULL,
+  ${VoucherSelectionFields.tovcrId} text NOT NULL,
+  ${VoucherSelectionFields.voucherAlias} text NOT NULL,
+  ${VoucherSelectionFields.voucherAmount} double NOT NULL,
+  ${VoucherSelectionFields.validFrom} datetime NOT NULL,
+  ${VoucherSelectionFields.validTo} datetime NOT NULL,
+  ${VoucherSelectionFields.voucherStatus} int NOT NULL,
+  ${VoucherSelectionFields.statusActive} int NOT NULL,
+  ${VoucherSelectionFields.redeemDate} datetime DEFAULT NULL,
+  ${VoucherSelectionFields.tinv2Id} text DEFAULT NULL,
+  CONSTRAINT `tvcr9_tinv2_fkey` FOREIGN KEY (`tinv2Id`) REFERENCES `tinv2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
       });
     } catch (e) {
       print(e);
