@@ -5,9 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
 
 final List<MopType> mopTypes = [
   MopType(name: "Tunai", payTypeCodes: ["1"]),
@@ -214,7 +216,10 @@ class CheckoutDialogContent extends StatefulWidget {
 class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   String _value = "";
   int _cashAmount = 0;
-
+  int _vouchersAmount = 0;
+  List<MopSelectionEntity> _voucherMopSelections = [];
+  List<VouchersSelectionModel> _vouchers = [];
+  //teste
   List<MopSelectionEntity> mopSelectionModels = [];
   final _textEditingControllerCashAmount = TextEditingController();
   final _focusNodeCashAmount = FocusNode();
@@ -249,7 +254,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   }
 
   List<int> generateCashAmountSuggestions(int receiptTotalAmount) {
-    List<int> cashAmountSuggestions = [receiptTotalAmount];
+    List<int> cashAmountSuggestions = [receiptTotalAmount - _vouchersAmount];
     final List<int> multipliers = [5000, 10000, 50000, 100000];
 
     for (final multiplier in multipliers) {
@@ -302,6 +307,14 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
             : context.read<ReceiptCubit>().state.grandTotal);
   }
 
+  void handleVouchersRedeemed(
+      List<VouchersSelectionModel> vouchers, int vouchersAmount) {
+    setState(() {
+      _vouchers.add(vouchers.last);
+      _vouchersAmount += vouchersAmount;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -348,56 +361,213 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                     //   ],
                     // ),
                     child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          const SizedBox(
-                            height: 30,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(60),
-                              // color: Color.fromARGB(255, 89, 0, 0),
-                              boxShadow: const [
-                                BoxShadow(
-                                  spreadRadius: 0.5,
-                                  blurRadius: 5,
-                                  color: Color.fromRGBO(0, 0, 0, 0.097),
-                                ),
-                              ],
-                              // color: ProjectColors.primary,
-                              // color: Color.fromARGB(255, 31, 104, 36), // ijo
-                              // color: Color.fromARGB(255, 40, 40, 40),
-                              color: const Color.fromARGB(255, 47, 143, 8),
-                            ),
-                            child: const Text(
-                              "Total Amount",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                // color: Colors.black,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 30,
                               ),
-                            ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(60),
+                                  // color: Color.fromARGB(255, 89, 0, 0),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      spreadRadius: 0.5,
+                                      blurRadius: 5,
+                                      color: Color.fromRGBO(0, 0, 0, 0.097),
+                                    ),
+                                  ],
+                                  // color: ProjectColors.primary,
+                                  // color: Color.fromARGB(255, 31, 104, 36), // ijo
+                                  // color: Color.fromARGB(255, 40, 40, 40),
+                                  color: const Color.fromARGB(255, 47, 143, 8),
+                                ),
+                                child: const Text(
+                                  "Total Amount",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    // color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w700,
+                                  // color: const Color.fromARGB(255, 33, 33, 33),
+                                  color: Colors.white,
+                                  // color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Opacity(
+                                opacity: 0.6,
+                                child: Text(
+                                  "Rp ${Helpers.parseMoney((_cashAmount + _vouchersAmount) - (context.read<ReceiptCubit>().state.grandTotal.toInt()))}",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    // color: const Color.fromARGB(255, 33, 33, 33),
+                                    color: Colors.white,
+                                    // color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                            ],
                           ),
-                          const SizedBox(
-                            height: 10,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(60),
+                                  // color: Color.fromARGB(255, 89, 0, 0),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      spreadRadius: 0.5,
+                                      blurRadius: 5,
+                                      color: Color.fromRGBO(0, 0, 0, 0.097),
+                                    ),
+                                  ],
+                                  // color: ProjectColors.primary,
+                                  // color: Color.fromARGB(255, 31, 104, 36), // ijo
+                                  // color: Color.fromARGB(255, 40, 40, 40),
+                                  color: const Color.fromARGB(255, 47, 143, 8),
+                                ),
+                                child: const Text(
+                                  "Cash",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    // color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Rp ${Helpers.parseMoney(_cashAmount)}",
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w700,
+                                  // color: const Color.fromARGB(255, 33, 33, 33),
+                                  color: Colors.white,
+                                  // color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              const Opacity(
+                                opacity: 0.6,
+                                child: Text(
+                                  "",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    // color: const Color.fromARGB(255, 33, 33, 33),
+                                    color: Colors.white,
+                                    // color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                            ],
                           ),
-                          Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
-                            style: const TextStyle(
-                              fontSize: 42,
-                              fontWeight: FontWeight.w700,
-                              // color: const Color.fromARGB(255, 33, 33, 33),
-                              color: Colors.white,
-                              // color: Colors.black,
-                            ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(60),
+                                  // color: Color.fromARGB(255, 89, 0, 0),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      spreadRadius: 0.5,
+                                      blurRadius: 5,
+                                      color: Color.fromRGBO(0, 0, 0, 0.097),
+                                    ),
+                                  ],
+                                  // color: ProjectColors.primary,
+                                  // color: Color.fromARGB(255, 31, 104, 36), // ijo
+                                  // color: Color.fromARGB(255, 40, 40, 40),
+                                  color: const Color.fromARGB(255, 47, 143, 8),
+                                ),
+                                child: const Text(
+                                  "Vouchers",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    // color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Rp ${Helpers.parseMoney(_vouchersAmount)}",
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w700,
+                                  // color: const Color.fromARGB(255, 33, 33, 33),
+                                  color: Colors.white,
+                                  // color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              const Opacity(
+                                opacity: 0.6,
+                                child: Text(
+                                  "",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    // color: const Color.fromARGB(255, 33, 33, 33),
+                                    color: Colors.white,
+                                    // color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                            ],
                           ),
-                          const SizedBox(
-                            height: 30,
-                          )
                         ],
                       ),
                     ),
@@ -556,8 +726,76 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                         label: Text(
                                           mop.mopAlias,
                                         ),
-                                        selected: _value == mop.tpmt3Id,
+                                        // CONDITIONAL FOR SET SELECTED
+                                        selected: mopType.payTypeCodes[0] == "6"
+                                            ? _voucherMopSelections
+                                                .map((e) => e.tpmt3Id)
+                                                .contains(mop.tpmt3Id)
+                                            : _value == mop.tpmt3Id,
                                         onSelected: (bool selected) {
+                                          // VOUCHERS DIALOG HERE
+                                          if (mopType.payTypeCodes[0] == "6") {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  backgroundColor: Colors.white,
+                                                  surfaceTintColor:
+                                                      Colors.transparent,
+                                                  shape:
+                                                      const RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          5.0))),
+                                                  title: Container(
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      color:
+                                                          ProjectColors.primary,
+                                                      borderRadius:
+                                                          BorderRadius.vertical(
+                                                              top: Radius
+                                                                  .circular(
+                                                                      5.0)),
+                                                    ),
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(
+                                                        25, 10, 25, 10),
+                                                    child: const Text(
+                                                      'Redeem Voucher',
+                                                      style: TextStyle(
+                                                          fontSize: 22,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                  titlePadding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          0, 0, 0, 0),
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
+                                                  content: SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.5,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.5,
+                                                    child: VoucherCheckout(
+                                                        handleVouchersRedeemed),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                            _voucherMopSelections.add(mop);
+                                          }
                                           setState(() {
                                             _value =
                                                 selected ? mop.tpmt3Id : "";

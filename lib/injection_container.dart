@@ -7,6 +7,7 @@ import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
@@ -139,6 +140,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<InvoiceDetailApi>(InvoiceDetailApi(sl()));
   sl.registerSingleton<InvoiceApi>(InvoiceApi(sl()));
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
+  sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),

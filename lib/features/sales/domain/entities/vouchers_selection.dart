@@ -3,24 +3,24 @@ import 'dart:convert';
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class VouchersSelectionEntity {
-  final String tostrId;
   final String tovcrId;
   final String voucherAlias;
-  final double voucherAmount;
+  final int voucherAmount;
   final DateTime validFrom;
   final DateTime validTo;
+  final String serialNo;
   final int voucherStatus;
   final int statusActive;
   final DateTime? redeemDate;
   final String? tinv2Id;
 
   VouchersSelectionEntity({
-    required this.tostrId,
     required this.tovcrId,
     required this.voucherAlias,
     required this.voucherAmount,
     required this.validFrom,
     required this.validTo,
+    required this.serialNo,
     required this.voucherStatus,
     required this.statusActive,
     required this.redeemDate,
@@ -28,24 +28,24 @@ class VouchersSelectionEntity {
   });
 
   VouchersSelectionEntity copyWith({
-    String? tostrId,
     String? tovcrId,
     String? voucherAlias,
-    double? voucherAmount,
+    int? voucherAmount,
     DateTime? validFrom,
     DateTime? validTo,
+    String? serialNo,
     int? voucherStatus,
     int? statusActive,
     DateTime? redeemDate,
     String? tinv2Id,
   }) {
     return VouchersSelectionEntity(
-      tostrId: tostrId ?? this.tostrId,
       tovcrId: tovcrId ?? this.tovcrId,
       voucherAlias: voucherAlias ?? this.voucherAlias,
       voucherAmount: voucherAmount ?? this.voucherAmount,
       validFrom: validFrom ?? this.validFrom,
       validTo: validTo ?? this.validTo,
+      serialNo: serialNo ?? this.serialNo,
       voucherStatus: voucherStatus ?? this.voucherStatus,
       statusActive: statusActive ?? this.statusActive,
       redeemDate: redeemDate ?? this.redeemDate,
@@ -55,12 +55,12 @@ class VouchersSelectionEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'tostrId': tostrId,
       'tovcrId': tovcrId,
       'voucherAlias': voucherAlias,
       'voucherAmount': voucherAmount,
       'validFrom': validFrom.millisecondsSinceEpoch,
       'validTo': validTo.millisecondsSinceEpoch,
+      'serialNo': serialNo,
       'voucherStatus': voucherStatus,
       'statusActive': statusActive,
       'redeemDate': redeemDate?.millisecondsSinceEpoch,
@@ -70,12 +70,12 @@ class VouchersSelectionEntity {
 
   factory VouchersSelectionEntity.fromMap(Map<String, dynamic> map) {
     return VouchersSelectionEntity(
-      tostrId: map['tostrId'] as String,
       tovcrId: map['tovcrId'] as String,
       voucherAlias: map['voucherAlias'] as String,
-      voucherAmount: map['voucherAmount'] as double,
+      voucherAmount: map['voucherAmount'] as int,
       validFrom: DateTime.fromMillisecondsSinceEpoch(map['validFrom'] as int),
       validTo: DateTime.fromMillisecondsSinceEpoch(map['validTo'] as int),
+      serialNo: map['serialNo'] as String,
       voucherStatus: map['voucherStatus'] as int,
       statusActive: map['statusActive'] as int,
       redeemDate: map['redeemDate'] != null
@@ -93,20 +93,20 @@ class VouchersSelectionEntity {
 
   @override
   String toString() {
-    return 'VouchersSelectionEntity(tostrId: $tostrId, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, voucherStatus: $voucherStatus, statusActive: $statusActive, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
+    return 'VouchersSelectionEntity(tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
   }
 
   @override
   bool operator ==(covariant VouchersSelectionEntity other) {
     if (identical(this, other)) return true;
 
-    return other.tostrId == tostrId &&
-        other.tovcrId == tovcrId &&
+    return other.tovcrId == tovcrId &&
         other.voucherAlias == voucherAlias &&
         other.voucherAmount == voucherAmount &&
         other.validFrom == validFrom &&
         other.validTo == validTo &&
         other.voucherStatus == voucherStatus &&
+        other.serialNo == serialNo &&
         other.statusActive == statusActive &&
         other.redeemDate == redeemDate &&
         other.tinv2Id == tinv2Id;
@@ -114,12 +114,12 @@ class VouchersSelectionEntity {
 
   @override
   int get hashCode {
-    return tostrId.hashCode ^
-        tovcrId.hashCode ^
+    return tovcrId.hashCode ^
         voucherAlias.hashCode ^
         voucherAmount.hashCode ^
         validFrom.hashCode ^
         validTo.hashCode ^
+        serialNo.hashCode ^
         voucherStatus.hashCode ^
         statusActive.hashCode ^
         redeemDate.hashCode ^

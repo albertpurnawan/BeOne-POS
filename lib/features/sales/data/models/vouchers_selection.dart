@@ -5,24 +5,24 @@ const String tableVouchersSelection = "tvcr9";
 
 class VoucherSelectionFields {
   static const List<String> values = [
-    tostrId,
     tovcrId,
     voucherAlias,
     voucherAmount,
     validFrom,
     validTo,
+    serialNo,
     voucherStatus,
     statusActive,
     redeemDate,
     tinv2Id,
   ];
 
-  static const String tostrId = "tostrId";
   static const String tovcrId = "tovcrId";
   static const String voucherAlias = "voucheralias";
   static const String voucherAmount = "voucheramount";
   static const String validFrom = "validfrom";
   static const String validTo = "validto";
+  static const String serialNo = "serialno";
   static const String voucherStatus = "voucherstatus";
   static const String statusActive = "statusactive";
   static const String redeemDate = "redeemdate";
@@ -32,12 +32,12 @@ class VoucherSelectionFields {
 class VouchersSelectionModel extends VouchersSelectionEntity
     implements BaseModel {
   VouchersSelectionModel({
-    required super.tostrId,
     required super.tovcrId,
     required super.voucherAlias,
     required super.voucherAmount,
     required super.validFrom,
     required super.validTo,
+    required super.serialNo,
     required super.voucherStatus,
     required super.statusActive,
     required super.redeemDate,
@@ -47,12 +47,12 @@ class VouchersSelectionModel extends VouchersSelectionEntity
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'tostrId': tostrId,
       'tovcrId': tovcrId,
       'voucheralias': voucherAlias,
       'voucheramount': voucherAmount,
       'validfrom': validFrom.toUtc().toIso8601String(),
       'validto': validTo.toUtc().toIso8601String(),
+      'serialno': serialNo,
       'voucherstatus': voucherStatus,
       'statusactive': statusActive,
       'redeemdate': redeemDate?.toUtc().toIso8601String(),
@@ -62,12 +62,12 @@ class VouchersSelectionModel extends VouchersSelectionEntity
 
   factory VouchersSelectionModel.fromMap(Map<String, dynamic> map) {
     return VouchersSelectionModel(
-      tostrId: map['tostrId'] as String,
       tovcrId: map['tovcrId'] as String,
       voucherAlias: map['voucheralias'] as String,
-      voucherAmount: map['voucheramount'] as double,
+      voucherAmount: map['voucheramount'] as int,
       validFrom: DateTime.parse(map['validfrom'] as String).toLocal(),
       validTo: DateTime.parse(map['validto'] as String).toLocal(),
+      serialNo: map['serialno'] as String,
       voucherStatus: map['voucherstatus'] as int,
       statusActive: map['atatusActive'] as int,
       redeemDate: map['redeemdate'] != null
@@ -98,12 +98,12 @@ class VouchersSelectionModel extends VouchersSelectionEntity
 
   factory VouchersSelectionModel.fromEntity(VouchersSelectionEntity entity) {
     return VouchersSelectionModel(
-      tostrId: entity.tostrId,
       tovcrId: entity.tovcrId,
       voucherAlias: entity.voucherAlias,
       voucherAmount: entity.voucherAmount,
       validFrom: entity.validFrom,
       validTo: entity.validTo,
+      serialNo: entity.serialNo,
       voucherStatus: entity.voucherStatus,
       statusActive: entity.statusActive,
       redeemDate: entity.redeemDate,
