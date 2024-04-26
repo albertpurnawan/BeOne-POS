@@ -17,6 +17,7 @@ class InvoiceApi {
 
   Future<void> sendInvoice() async {
     try {
+      log("SEND INVOICE SERVICE");
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 

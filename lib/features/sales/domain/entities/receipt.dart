@@ -7,6 +7,7 @@ import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 
 class ReceiptEntity {
   String docNum;
@@ -24,8 +25,8 @@ class ReceiptEntity {
   double? totalPayment;
   double? changed;
   String? toinvId;
-  List<VouchersSelectionModel> vouchers;
-  double? totalVoucher;
+  List<VouchersSelectionEntity> vouchers;
+  int? totalVoucher;
   double? totalNonVoucher;
 
   ReceiptEntity({
@@ -65,8 +66,8 @@ class ReceiptEntity {
     double? totalPayment,
     double? changed,
     String? toinvId,
-    List<VouchersSelectionModel>? vouchers,
-    double? totalVoucher,
+    List<VouchersSelectionEntity>? vouchers,
+    int? totalVoucher,
     double? totalNonVoucher,
   }) {
     return ReceiptEntity(
@@ -155,7 +156,7 @@ class ReceiptEntity {
         ),
       ),
       totalVoucher:
-          map['totalVoucher'] != null ? map['totalVoucher'] as double : null,
+          map['totalVoucher'] != null ? map['totalVoucher'] as int : null,
       totalNonVoucher: map['totalNonVoucher'] != null
           ? map['totalNonVoucher'] as double
           : null,

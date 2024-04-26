@@ -12,6 +12,7 @@ import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
@@ -236,6 +237,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       required double amountReceived}) {
     final newState = state.copyWith(
         mopSelection: mopSelectionEntity, totalPayment: amountReceived);
+    emit(newState);
+  }
+
+  void updateVouchersSelection(
+      {required List<VouchersSelectionEntity> vouchersSelectionEntity,
+      required int vouchersAmount}) {
+    final newState = state.copyWith(
+        vouchers: vouchersSelectionEntity, totalVoucher: vouchersAmount);
     emit(newState);
   }
 

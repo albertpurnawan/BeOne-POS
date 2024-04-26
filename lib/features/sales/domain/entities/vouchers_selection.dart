@@ -3,6 +3,7 @@ import 'dart:convert';
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class VouchersSelectionEntity {
+  final String docId;
   final String tovcrId;
   final String voucherAlias;
   final int voucherAmount;
@@ -15,6 +16,7 @@ class VouchersSelectionEntity {
   final String? tinv2Id;
 
   VouchersSelectionEntity({
+    required this.docId,
     required this.tovcrId,
     required this.voucherAlias,
     required this.voucherAmount,
@@ -23,11 +25,12 @@ class VouchersSelectionEntity {
     required this.serialNo,
     required this.voucherStatus,
     required this.statusActive,
-    required this.redeemDate,
-    required this.tinv2Id,
+    this.redeemDate,
+    this.tinv2Id,
   });
 
   VouchersSelectionEntity copyWith({
+    String? docId,
     String? tovcrId,
     String? voucherAlias,
     int? voucherAmount,
@@ -40,6 +43,7 @@ class VouchersSelectionEntity {
     String? tinv2Id,
   }) {
     return VouchersSelectionEntity(
+      docId: docId ?? this.docId,
       tovcrId: tovcrId ?? this.tovcrId,
       voucherAlias: voucherAlias ?? this.voucherAlias,
       voucherAmount: voucherAmount ?? this.voucherAmount,
@@ -55,6 +59,7 @@ class VouchersSelectionEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'docId': docId,
       'tovcrId': tovcrId,
       'voucherAlias': voucherAlias,
       'voucherAmount': voucherAmount,
@@ -70,6 +75,7 @@ class VouchersSelectionEntity {
 
   factory VouchersSelectionEntity.fromMap(Map<String, dynamic> map) {
     return VouchersSelectionEntity(
+      docId: map['docId'] as String,
       tovcrId: map['tovcrId'] as String,
       voucherAlias: map['voucherAlias'] as String,
       voucherAmount: map['voucherAmount'] as int,
@@ -93,20 +99,21 @@ class VouchersSelectionEntity {
 
   @override
   String toString() {
-    return 'VouchersSelectionEntity(tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
+    return 'VouchersSelectionEntity(docId: $docId, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
   }
 
   @override
   bool operator ==(covariant VouchersSelectionEntity other) {
     if (identical(this, other)) return true;
 
-    return other.tovcrId == tovcrId &&
+    return other.docId == docId &&
+        other.tovcrId == tovcrId &&
         other.voucherAlias == voucherAlias &&
         other.voucherAmount == voucherAmount &&
         other.validFrom == validFrom &&
         other.validTo == validTo &&
-        other.voucherStatus == voucherStatus &&
         other.serialNo == serialNo &&
+        other.voucherStatus == voucherStatus &&
         other.statusActive == statusActive &&
         other.redeemDate == redeemDate &&
         other.tinv2Id == tinv2Id;
@@ -114,7 +121,8 @@ class VouchersSelectionEntity {
 
   @override
   int get hashCode {
-    return tovcrId.hashCode ^
+    return docId.hashCode ^
+        tovcrId.hashCode ^
         voucherAlias.hashCode ^
         voucherAmount.hashCode ^
         validFrom.hashCode ^

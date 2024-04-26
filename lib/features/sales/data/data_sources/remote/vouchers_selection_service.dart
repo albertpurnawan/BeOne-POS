@@ -5,6 +5,7 @@ import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class VouchersSelectionApi {
   final Dio _dio;
@@ -39,6 +40,7 @@ class VouchersSelectionApi {
       );
 
       voucher = VouchersSelectionModel(
+        docId: Uuid().v4(),
         tovcrId: response.data['tovcr_id']['docid'],
         voucherAlias: response.data['tovcr_id']['remarks'],
         voucherAmount: response.data['tovcr_id']['voucheramount'],

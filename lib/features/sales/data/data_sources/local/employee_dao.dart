@@ -29,4 +29,16 @@ class EmployeeDao extends BaseDao<EmployeeModel> {
 
     return result.map((itemData) => EmployeeModel.fromMap(itemData)).toList();
   }
+
+  Future<EmployeeModel?> readByEmpCode(String empCode, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'empcode = ?',
+      whereArgs: [empCode],
+    );
+
+    return res.isNotEmpty ? EmployeeModel.fromMap(res[0]) : null;
+  }
 }

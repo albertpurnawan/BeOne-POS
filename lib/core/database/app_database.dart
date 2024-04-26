@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
@@ -460,108 +459,6 @@ FROM
       ) AS pr ON pr.tpln1Id = pp.tpln1Id 
     WHERE 
       pl.tcurrId = '259eff8d-2105-41ea-978f-45ea417e0799' 
-    GROUP BY 
-      pr.toitmId
-  ) as p 
-  INNER JOIN (
-    SELECT 
-      tbitmId, 
-      price, 
-      tpln2Id 
-    FROM 
-      tpln4
-  ) as b ON p.tpln2Id = b.tpln2Id 
-  INNER JOIN (
-    SELECT 
-      docid, 
-      barcode 
-    FROM 
-      tbitm
-  ) as bc ON bc.docid = b.tbitmId 
-  INNER JOIN (
-    SELECT 
-      docid, 
-      itemcode, 
-      itemname, 
-      touomId, 
-      openprice,
-      includetax 
-    FROM 
-      toitm
-  ) as i ON i.docid = p.toitmId 
-  INNER JOIN (
-    SELECT 
-      docid AS touomId, 
-      uomcode 
-    FROM 
-      touom
-  ) as u ON u.touomId = i.touomId
-  INNER JOIN (
-    SELECT
-      docid AS tsitmId,
-      ${taxByItem ? "tovatId," : ""} 
-      toitmId
-    FROM
-      tsitm
-  ) as s ON s.toitmId = p.toitmId
-  INNER JOIN (
-    SELECT
-      tsitmId,
-      tovenId
-    FROM
-      tvitm
-  ) as v ON v.tsitmId = s.tsitmId
-  ${taxByItem ? taxAdditionalQuery : ""} 
-""");
-      log("""
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
-SELECT 
-  i.itemname, 
-  i.itemcode, 
-  bc.barcode, 
-  b.price, 
-  p.toitmId, 
-  b.tbitmId, 
-  b.tpln2Id, 
-  i.openprice,
-  v.tovenId,
-  i.includetax,
-  ${taxByItem ? "t.tovatId as tovatId" : storeTovatId},
-  ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
-  ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"}
-FROM 
-  (
-    SELECT 
-      docid AS toplnId, 
-      pp.tpln1Id, 
-      pr.tpln2Id, 
-      pr.toitmId, 
-      DATETIME(pp.tpln1createdate) AS tpln1createdate, 
-      MAX(
-        DATETIME(pp.tpln1createdate)
-      ) AS latestPrice 
-    FROM 
-      topln AS pl 
-      INNER JOIN (
-        SELECT 
-          docid AS tpln1Id, 
-          toplnId, 
-          createdate AS tpln1createdate 
-        FROM 
-          tpln1 
-        WHERE 
-          DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
-      ) AS pp ON pl.docid = pp.toplnId 
-      INNER JOIN (
-        SELECT 
-          docid AS tpln2Id, 
-          tpln1Id, 
-          toitmId 
-        FROM 
-          tpln2
-      ) AS pr ON pr.tpln1Id = pp.tpln1Id 
-    WHERE 
-      pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc' 
     GROUP BY 
       pr.toitmId
   ) as p 
@@ -2772,18 +2669,20 @@ CREATE TABLE $tableQueuedInvoiceDetail (
 
         await txn.execute("""
 CREATE TABLE $tableVouchersSelection (
+  ${VoucherSelectionFields.docId} text NOT NULL,
   ${VoucherSelectionFields.tovcrId} text NOT NULL,
   ${VoucherSelectionFields.voucherAlias} text NOT NULL,
   ${VoucherSelectionFields.voucherAmount} int NOT NULL,
   ${VoucherSelectionFields.validFrom} datetime NOT NULL,
   ${VoucherSelectionFields.validTo} datetime NOT NULL,
+  ${VoucherSelectionFields.serialNo} text NOT NULL,
   ${VoucherSelectionFields.voucherStatus} int NOT NULL,
   ${VoucherSelectionFields.statusActive} int NOT NULL,
   ${VoucherSelectionFields.redeemDate} datetime DEFAULT NULL,
-  ${VoucherSelectionFields.tinv2Id} text DEFAULT NULL,
-  CONSTRAINT `tvcr9_tinv2_fkey` FOREIGN KEY (`tinv2Id`) REFERENCES `tinv2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  ${VoucherSelectionFields.tinv2Id} text DEFAULT NULL
 )
 """);
+// CONSTRAINT `tvcr9_tinv2_fkey` FOREIGN KEY (`tinv2Id`) REFERENCES `tinv2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
       });
     } catch (e) {
       print(e);

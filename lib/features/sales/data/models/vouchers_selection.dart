@@ -5,6 +5,7 @@ const String tableVouchersSelection = "tvcr9";
 
 class VoucherSelectionFields {
   static const List<String> values = [
+    docId,
     tovcrId,
     voucherAlias,
     voucherAmount,
@@ -17,6 +18,7 @@ class VoucherSelectionFields {
     tinv2Id,
   ];
 
+  static const String docId = "docid";
   static const String tovcrId = "tovcrId";
   static const String voucherAlias = "voucheralias";
   static const String voucherAmount = "voucheramount";
@@ -32,6 +34,7 @@ class VoucherSelectionFields {
 class VouchersSelectionModel extends VouchersSelectionEntity
     implements BaseModel {
   VouchersSelectionModel({
+    required super.docId,
     required super.tovcrId,
     required super.voucherAlias,
     required super.voucherAmount,
@@ -47,6 +50,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'docid': docId,
       'tovcrId': tovcrId,
       'voucheralias': voucherAlias,
       'voucheramount': voucherAmount,
@@ -62,6 +66,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
 
   factory VouchersSelectionModel.fromMap(Map<String, dynamic> map) {
     return VouchersSelectionModel(
+      docId: map['docid'] as String,
       tovcrId: map['tovcrId'] as String,
       voucherAlias: map['voucheralias'] as String,
       voucherAmount: map['voucheramount'] as int,
@@ -98,6 +103,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
 
   factory VouchersSelectionModel.fromEntity(VouchersSelectionEntity entity) {
     return VouchersSelectionModel(
+      docId: entity.docId,
       tovcrId: entity.tovcrId,
       voucherAlias: entity.voucherAlias,
       voucherAmount: entity.voucherAmount,

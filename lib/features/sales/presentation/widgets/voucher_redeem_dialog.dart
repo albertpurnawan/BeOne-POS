@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
@@ -8,7 +11,6 @@ import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 class VoucherCheckout extends StatefulWidget {
   final Function(
     List<VouchersSelectionModel>,
-    int,
   ) onVouchersRedeemed;
   const VoucherCheckout(this.onVouchersRedeemed, {super.key});
 
@@ -70,6 +72,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                   ),
                 );
               }
+              log("$vouchers");
             } catch (err) {
               handleError(err);
               rethrow;
@@ -129,8 +132,32 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 for (var voucher in vouchers) {
                   await GetIt.instance<VouchersSelectionApi>()
                       .redeemVoucher(voucher.serialNo);
+
+                  final checkVoucher = await GetIt.instance<AppDatabase>()
+                      .vouchersSelectionDao
+                      .readByDocId(voucher.docId, null);
+
+                  if (checkVoucher == null) {
+                    final voucherToSave = VouchersSelectionModel(
+                      docId: voucher.docId,
+                      tovcrId: voucher.tovcrId,
+                      voucherAlias: voucher.voucherAlias,
+                      voucherAmount: voucher.voucherAmount,
+                      validFrom: voucher.validFrom,
+                      validTo: voucher.validTo,
+                      serialNo: voucher.serialNo,
+                      voucherStatus: 1,
+                      statusActive: voucher.statusActive,
+                      redeemDate: voucher.redeemDate,
+                      tinv2Id: "",
+                    );
+                    await GetIt.instance<AppDatabase>()
+                        .vouchersSelectionDao
+                        .create(data: voucherToSave);
+                  }
                 }
-                widget.onVouchersRedeemed(vouchers, vouchersAmount);
+
+                widget.onVouchersRedeemed(vouchers);
 
                 setState(() {
                   vouchers.clear();

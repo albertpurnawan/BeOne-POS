@@ -219,7 +219,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   int _vouchersAmount = 0;
   List<MopSelectionEntity> _voucherMopSelections = [];
   List<VouchersSelectionModel> _vouchers = [];
-  //teste
   List<MopSelectionEntity> mopSelectionModels = [];
   final _textEditingControllerCashAmount = TextEditingController();
   final _focusNodeCashAmount = FocusNode();
@@ -307,12 +306,17 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
             : context.read<ReceiptCubit>().state.grandTotal);
   }
 
-  void handleVouchersRedeemed(
-      List<VouchersSelectionModel> vouchers, int vouchersAmount) {
+  void handleVouchersRedeemed(List<VouchersSelectionModel> vouchers) {
+    int totalVoucherAmount = 0;
+    for (var voucher in vouchers) {
+      totalVoucherAmount += voucher.voucherAmount;
+    }
     setState(() {
-      _vouchers.add(vouchers.last);
-      _vouchersAmount += vouchersAmount;
+      _vouchers.addAll(vouchers);
+      _vouchersAmount += totalVoucherAmount;
     });
+    context.read<ReceiptCubit>().updateVouchersSelection(
+        vouchersSelectionEntity: vouchers, vouchersAmount: totalVoucherAmount);
   }
 
   @override

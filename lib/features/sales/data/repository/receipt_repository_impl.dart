@@ -1,4 +1,6 @@
 // import 'package:flutter/material.dart';
+import 'dart:developer';
+
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
@@ -33,10 +35,13 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     await db.transaction((txn) async {
       final POSParameterModel posParameterModel =
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
+      final EmployeeModel employee =
+          (await _appDatabase.employeeDao.readByEmpCode("99", null))!;
 
-      print(posParameterModel);
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1Id = prefs.getString('tcsr1Id');
+
+      log("RECEIPT ENTITY $receiptEntity");
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -46,7 +51,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docnum: receiptEntity.docNum, // generate
         orderNo: 1, // generate
         tocusId: receiptEntity.customerEntity?.docId,
-        tohemId: null, // get di sini atau dari awal aja
+        tohemId: employee.docId, // get di sini atau dari awal aja
         transDateTime: null, // dao
         timezone: "GMT+07",
         remarks: null, // sementara hardcode
@@ -70,6 +75,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
       );
+
+      log("INVOICE HEADER $invoiceHeaderModel");
 
       await _appDatabase.invoiceHeaderDao
           .create(data: invoiceHeaderModel, txn: txn);
@@ -158,6 +165,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
      * 3. Ambil pay means
      *  - ambil semua relations => mopSelection
      *  - amountReceived
+     * 4. Vouchers
      */
 
     final Database db = await _appDatabase.getDB();
@@ -183,6 +191,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           ? await _appDatabase.mopByStoreDao
               .readByDocIdIncludeRelations(payMeansModels[0].tpmt3Id!, txn)
           : null;
+
       final List<InvoiceDetailModel> invoiceDetailModels =
           await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
 
