@@ -111,4 +111,34 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
     );
   }
+
+  factory PromoHargaSpesialHeaderModel.fromMapRemote(Map<String, dynamic> map) {
+    return PromoHargaSpesialHeaderModel.fromMap({
+      ...map,
+      'toitmId': map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+    });
+  }
+
+  factory PromoHargaSpesialHeaderModel.fromEntity(
+      PromoHargaSpesialHeaderEntity entity) {
+    return PromoHargaSpesialHeaderModel(
+      docId: entity.docId,
+      createDate: entity.createDate,
+      updateDate: entity.updateDate,
+      promoCode: entity.promoCode,
+      description: entity.description,
+      startDate: entity.startDate,
+      endDate: entity.endDate,
+      startTime: entity.startTime,
+      endTime: entity.endTime,
+      remarks: entity.remarks,
+      statusActive: entity.statusActive,
+      maxPurchaseDay: entity.maxPurchaseDay,
+      maxPurchaseTransaction: entity.maxPurchaseTransaction,
+      validMultiply: entity.validMultiply,
+      quota: entity.quota,
+      promoAlias: entity.promoAlias,
+      toitmId: entity.toitmId,
+    );
+  }
 }

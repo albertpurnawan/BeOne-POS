@@ -157,6 +157,7 @@ import 'package:pos_fe/features/sales/data/models/promo_gwp_default_valid_days.d
 import 'package:pos_fe/features/sales/data/models/promo_gwp_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_buy.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_buy.dart';
@@ -2692,7 +2693,7 @@ CREATE TABLE $tablePromoHargaSpecialHeader (
   ${PromoHargaSpesialHeaderFields.createDate} datetime NOT NULL,
   ${PromoHargaSpesialHeaderFields.updateDate} datetime DEFAULT NULL,
   ${PromoHargaSpesialHeaderFields.promoCode} varchar(30) NOT NULL,
-  ${PromoHargaSpesialHeaderFields.description} vaarchar(200) NOT NULL,
+  ${PromoHargaSpesialHeaderFields.description} varchar(200) NOT NULL,
   ${PromoHargaSpesialHeaderFields.startDate} datetime NOT NULL,
   ${PromoHargaSpesialHeaderFields.endDate} datetime NOT NULL,
   ${PromoHargaSpesialHeaderFields.startTime} datetime NOT NULL,
@@ -2707,6 +2708,19 @@ CREATE TABLE $tablePromoHargaSpecialHeader (
   ${PromoHargaSpesialHeaderFields.toitmId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `topsb_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpesialBuy (
+  $uuidDefinition,
+  ${PromoHargaSpesialBuyFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialBuyFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialBuyFields.topsbId} text DEFAULT NULL,
+  ${PromoHargaSpesialBuyFields.qty} double NOT NULL,
+  ${PromoHargaSpesialBuyFields.price} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpsb1_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
