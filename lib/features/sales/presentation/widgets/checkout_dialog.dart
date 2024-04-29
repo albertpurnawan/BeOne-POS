@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
-import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
@@ -218,7 +220,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   int _cashAmount = 0;
   int _vouchersAmount = 0;
   List<MopSelectionEntity> _voucherMopSelections = [];
-  List<VouchersSelectionModel> _vouchers = [];
+  List<VouchersSelectionEntity> _vouchers = [];
   List<MopSelectionEntity> mopSelectionModels = [];
   final _textEditingControllerCashAmount = TextEditingController();
   final _focusNodeCashAmount = FocusNode();
@@ -227,6 +229,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   void initState() {
     super.initState();
     context.read<MopSelectionsCubit>().getMopSelections();
+    // _vouchersAmount = context
+    //     .read<ReceiptCubit>()
+    //     .state
+    //     .vouchers
+    //     .map((e) => e.voucherAmount)
+    //     .reduce((value, element) => value + element);
   }
 
   @override
@@ -306,7 +314,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
             : context.read<ReceiptCubit>().state.grandTotal);
   }
 
-  void handleVouchersRedeemed(List<VouchersSelectionModel> vouchers) {
+  void handleVouchersRedeemed(List<VouchersSelectionEntity> vouchers) {
     int totalVoucherAmount = 0;
     for (var voucher in vouchers) {
       totalVoucherAmount += voucher.voucherAmount;
@@ -315,8 +323,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       _vouchers.addAll(vouchers);
       _vouchersAmount += totalVoucherAmount;
     });
+    log("Checkout Dialog - ReceiptCubitVouchers - $vouchers");
     context.read<ReceiptCubit>().updateVouchersSelection(
-        vouchersSelectionEntity: vouchers, vouchersAmount: totalVoucherAmount);
+        vouchersSelectionEntity: _vouchers, vouchersAmount: _vouchersAmount);
   }
 
   @override
@@ -542,7 +551,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                 height: 10,
                               ),
                               Text(
-                                "Rp ${Helpers.parseMoney(_vouchersAmount)}",
+                                "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.vouchers.length != 0 ? context.read<ReceiptCubit>().state.vouchers.map((e) => e.voucherAmount).reduce((value, element) => value + element) : _vouchersAmount)}",
                                 style: const TextStyle(
                                   fontSize: 30,
                                   fontWeight: FontWeight.w700,

@@ -41,6 +41,7 @@ class VouchersSelectionApi {
 
       voucher = VouchersSelectionModel(
         docId: Uuid().v4(),
+        tpmt3Id: "532da15b-1e97-4616-9ea3-ee9072bbc6b1",
         tovcrId: response.data['tovcr_id']['docid'],
         voucherAlias: response.data['tovcr_id']['remarks'],
         voucherAmount: response.data['tovcr_id']['voucheramount'],

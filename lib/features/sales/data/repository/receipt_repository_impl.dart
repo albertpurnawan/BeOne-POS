@@ -14,8 +14,10 @@ import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
+import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -31,17 +33,16 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
-
+    log("ReceiptImpl - ReceiptEntity - $receiptEntity");
     await db.transaction((txn) async {
       final POSParameterModel posParameterModel =
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
+
       final EmployeeModel employee =
-          (await _appDatabase.employeeDao.readByEmpCode("99", null))!;
+          (await _appDatabase.employeeDao.readByEmpCode("99", txn))!;
 
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1Id = prefs.getString('tcsr1Id');
-
-      log("RECEIPT ENTITY $receiptEntity");
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -75,8 +76,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
       );
-
-      log("INVOICE HEADER $invoiceHeaderModel");
 
       await _appDatabase.invoiceHeaderDao
           .create(data: invoiceHeaderModel, txn: txn);
@@ -115,6 +114,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           tbitmId: e.itemEntity.tbitmId,
         );
       }).toList();
+      log("Inovice Detail - $invoiceDetailModels");
 
       await _appDatabase.invoiceDetailDao
           .bulkCreate(data: invoiceDetailModels, txn: txn);
@@ -134,6 +134,65 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       );
 
       await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
+
+      List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
+
+      for (final voucherSelection in vouchers) {
+        final PayMeansModel paymeansModel = PayMeansModel(
+          docId: _uuid.v4(),
+          createDate: null,
+          updateDate: null,
+          toinvId: generatedInvoiceHeaderDocId,
+          lineNum: 1,
+          tpmt3Id: voucherSelection.tpmt3Id,
+          amount: double.parse(voucherSelection.voucherAmount.toString()),
+          tpmt2Id: null,
+          cardNo: null,
+          cardHolder: null,
+          sisaVoucher: 0,
+        );
+
+        await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
+      }
+
+      log("VOUCHERS B4 - $vouchers");
+
+      vouchers = vouchers.map((voucher) {
+        voucher.tinv2Id = paymeansModel.docId;
+        return voucher;
+      }).toList();
+
+      final List<VouchersSelectionModel> vouchersModel =
+          vouchers.asMap().entries.map((entry) {
+        final VouchersSelectionEntity e = entry.value;
+        return VouchersSelectionModel(
+          docId: e.docId,
+          tpmt3Id: e.tpmt3Id,
+          tovcrId: e.tovcrId,
+          voucherAlias: e.voucherAlias,
+          voucherAmount: e.voucherAmount,
+          validFrom: e.validFrom,
+          validTo: e.validTo,
+          serialNo: e.serialNo,
+          voucherStatus: e.voucherStatus,
+          statusActive: e.statusActive,
+          redeemDate: e.redeemDate,
+          tinv2Id: e.tinv2Id,
+        );
+      }).toList();
+
+      log("VOUCHERS Model - $vouchersModel");
+
+      await Future.forEach(vouchersModel, (voucher) async {
+        log("Update Vouchers DB");
+        await _appDatabase.vouchersSelectionDao.update(
+          docId: voucher.docId,
+          data: voucher,
+          txn: txn,
+        );
+        log("DB UPDATED");
+      });
+      log("VOUCHERS AF - $vouchers");
     });
 
     return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId);
@@ -141,6 +200,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
   @override
   Future<ReceiptModel?> getReceiptByInvoiceHeaderDocId(String docId) async {
+    log("RECEIPT REPO IMPL - GETRECEIPT");
     /**
      * 1. Ambil invoice header 
      *  - docnum
@@ -174,6 +234,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     await db.transaction((txn) async {
       final InvoiceHeaderModel? invoiceHeaderModel =
           await _appDatabase.invoiceHeaderDao.readByDocId(docId, txn);
+      log("RECEIPT REPO IMPL - INVOICE HEADER MODEL");
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
       }
@@ -181,10 +242,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           ? await _appDatabase.customerDao
               .readByDocId(invoiceHeaderModel.tocusId!, txn)
           : null;
+      log("RECEIPT REPO IMPL - CUSTOMER MODEL");
       final EmployeeModel? employeeModel = invoiceHeaderModel.tohemId != null
           ? await _appDatabase.employeeDao
               .readByDocId(invoiceHeaderModel.tohemId!, txn)
           : null;
+      log("RECEIPT REPO IMPL - EMPLOYEE MODEL");
       final List<PayMeansModel> payMeansModels =
           await _appDatabase.payMeansDao.readByToinvId(docId, txn);
       final MopSelectionModel? mopSelectionModel = payMeansModels.isNotEmpty

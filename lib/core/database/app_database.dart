@@ -2670,6 +2670,7 @@ CREATE TABLE $tableQueuedInvoiceDetail (
         await txn.execute("""
 CREATE TABLE $tableVouchersSelection (
   ${VoucherSelectionFields.docId} text NOT NULL,
+  ${VoucherSelectionFields.tpmt3Id} text NOT NULL,
   ${VoucherSelectionFields.tovcrId} text NOT NULL,
   ${VoucherSelectionFields.voucherAlias} text NOT NULL,
   ${VoucherSelectionFields.voucherAmount} int NOT NULL,

@@ -4,6 +4,7 @@ import 'dart:convert';
 
 class VouchersSelectionEntity {
   final String docId;
+  final String tpmt3Id;
   final String tovcrId;
   final String voucherAlias;
   final int voucherAmount;
@@ -13,10 +14,11 @@ class VouchersSelectionEntity {
   final int voucherStatus;
   final int statusActive;
   final DateTime? redeemDate;
-  final String? tinv2Id;
+  String? tinv2Id;
 
   VouchersSelectionEntity({
     required this.docId,
+    required this.tpmt3Id,
     required this.tovcrId,
     required this.voucherAlias,
     required this.voucherAmount,
@@ -31,6 +33,7 @@ class VouchersSelectionEntity {
 
   VouchersSelectionEntity copyWith({
     String? docId,
+    String? tpmt3Id,
     String? tovcrId,
     String? voucherAlias,
     int? voucherAmount,
@@ -44,6 +47,7 @@ class VouchersSelectionEntity {
   }) {
     return VouchersSelectionEntity(
       docId: docId ?? this.docId,
+      tpmt3Id: tpmt3Id ?? this.tpmt3Id,
       tovcrId: tovcrId ?? this.tovcrId,
       voucherAlias: voucherAlias ?? this.voucherAlias,
       voucherAmount: voucherAmount ?? this.voucherAmount,
@@ -60,6 +64,7 @@ class VouchersSelectionEntity {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docId': docId,
+      'tpmt3Id': tpmt3Id,
       'tovcrId': tovcrId,
       'voucherAlias': voucherAlias,
       'voucherAmount': voucherAmount,
@@ -76,6 +81,7 @@ class VouchersSelectionEntity {
   factory VouchersSelectionEntity.fromMap(Map<String, dynamic> map) {
     return VouchersSelectionEntity(
       docId: map['docId'] as String,
+      tpmt3Id: map['tpmt3Id'] as String,
       tovcrId: map['tovcrId'] as String,
       voucherAlias: map['voucherAlias'] as String,
       voucherAmount: map['voucherAmount'] as int,
@@ -99,7 +105,7 @@ class VouchersSelectionEntity {
 
   @override
   String toString() {
-    return 'VouchersSelectionEntity(docId: $docId, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
+    return 'VouchersSelectionEntity(docId: $docId, tpmt3Id: $tpmt3Id, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
   }
 
   @override
@@ -107,6 +113,7 @@ class VouchersSelectionEntity {
     if (identical(this, other)) return true;
 
     return other.docId == docId &&
+        other.tpmt3Id == tpmt3Id &&
         other.tovcrId == tovcrId &&
         other.voucherAlias == voucherAlias &&
         other.voucherAmount == voucherAmount &&
@@ -122,6 +129,7 @@ class VouchersSelectionEntity {
   @override
   int get hashCode {
     return docId.hashCode ^
+        tpmt3Id.hashCode ^
         tovcrId.hashCode ^
         voucherAlias.hashCode ^
         voucherAmount.hashCode ^

@@ -6,6 +6,7 @@ const String tableVouchersSelection = "tvcr9";
 class VoucherSelectionFields {
   static const List<String> values = [
     docId,
+    tpmt3Id,
     tovcrId,
     voucherAlias,
     voucherAmount,
@@ -19,6 +20,7 @@ class VoucherSelectionFields {
   ];
 
   static const String docId = "docid";
+  static const String tpmt3Id = "tpmt3Id";
   static const String tovcrId = "tovcrId";
   static const String voucherAlias = "voucheralias";
   static const String voucherAmount = "voucheramount";
@@ -35,6 +37,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
     implements BaseModel {
   VouchersSelectionModel({
     required super.docId,
+    required super.tpmt3Id,
     required super.tovcrId,
     required super.voucherAlias,
     required super.voucherAmount,
@@ -51,6 +54,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'docid': docId,
+      'tpmt3Id': tpmt3Id,
       'tovcrId': tovcrId,
       'voucheralias': voucherAlias,
       'voucheramount': voucherAmount,
@@ -67,6 +71,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
   factory VouchersSelectionModel.fromMap(Map<String, dynamic> map) {
     return VouchersSelectionModel(
       docId: map['docid'] as String,
+      tpmt3Id: map['tpmt3Id'] as String,
       tovcrId: map['tovcrId'] as String,
       voucherAlias: map['voucheralias'] as String,
       voucherAmount: map['voucheramount'] as int,
@@ -74,7 +79,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
       validTo: DateTime.parse(map['validto'] as String).toLocal(),
       serialNo: map['serialno'] as String,
       voucherStatus: map['voucherstatus'] as int,
-      statusActive: map['atatusActive'] as int,
+      statusActive: map['statusactive'] as int,
       redeemDate: map['redeemdate'] != null
           ? DateTime.parse(map['redeemdate'] as String).toLocal()
           : null,
@@ -104,6 +109,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
   factory VouchersSelectionModel.fromEntity(VouchersSelectionEntity entity) {
     return VouchersSelectionModel(
       docId: entity.docId,
+      tpmt3Id: entity.tpmt3Id,
       tovcrId: entity.tovcrId,
       voucherAlias: entity.voucherAlias,
       voucherAmount: entity.voucherAmount,

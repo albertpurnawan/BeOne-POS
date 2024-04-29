@@ -240,11 +240,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  void updateVouchersSelection(
-      {required List<VouchersSelectionEntity> vouchersSelectionEntity,
-      required int vouchersAmount}) {
+  void updateVouchersSelection({
+    required List<VouchersSelectionEntity> vouchersSelectionEntity,
+    required int vouchersAmount,
+  }) {
+    dev.log("Receipt Cubit - Vs received - $vouchersSelectionEntity");
     final newState = state.copyWith(
-        vouchers: vouchersSelectionEntity, totalVoucher: vouchersAmount);
+      vouchers: vouchersSelectionEntity,
+      totalVoucher: vouchersAmount,
+    );
+    dev.log("Receipt Cubit - New State - $newState");
     emit(newState);
   }
 
@@ -272,8 +277,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   void charge() async {
     final newState =
         state.copyWith(changed: state.totalPayment! - state.grandTotal);
+    dev.log("RECEIPT CUBIT - NEW STATE");
     final ReceiptEntity? createdReceipt =
         await _saveReceiptUseCase.call(params: newState);
+    dev.log("RECEIPT CUBIT - CREATED RECEIPT");
     if (createdReceipt != null) {
       if (state.toinvId != null) {
         await _deleteQueuedReceiptUseCase.call(params: state.toinvId);

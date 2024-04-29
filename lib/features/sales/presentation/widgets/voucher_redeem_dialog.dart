@@ -140,6 +140,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                   if (checkVoucher == null) {
                     final voucherToSave = VouchersSelectionModel(
                       docId: voucher.docId,
+                      tpmt3Id: voucher.tpmt3Id,
                       tovcrId: voucher.tovcrId,
                       voucherAlias: voucher.voucherAlias,
                       voucherAmount: voucher.voucherAmount,

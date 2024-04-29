@@ -39,7 +39,33 @@ class InvoiceApi {
           .readByToinvId(invHead[0].docId.toString(), null);
       log(payMean.toString());
 
-      // if (invDet[0].toinvId == invHead[0].docId) {}
+      final vouchers = await GetIt.instance<AppDatabase>()
+          .vouchersSelectionDao
+          .readBytinv2Id(payMean[0].docId.toString(), txn: null);
+      log("$vouchers");
+
+      List<Map<String, dynamic>> invoiceVouchers = [];
+
+      List<Map<String, dynamic>> invoicePayments = [];
+      for (var payment in payMean) {
+        if (payment.tpmt3Id == "07be062c-1b8c-41fd-a16c-9f3d6b228c66") {
+          invoicePayments
+              .add({"tpmt3_id": payment.tpmt3Id, "amount": payment.amount});
+        } else if (payment.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
+          invoicePayments.add({
+            "tpmt3_id": payment.tpmt3Id,
+            "amount": payment.amount,
+            "sisavoucher": 0,
+            "invoice_voucher": [
+              {
+                "serialno":
+                    vouchers.map((voucher) => voucher.serialNo).toList(),
+                "type": 1
+              }
+            ]
+          });
+        }
+      }
 
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
@@ -111,9 +137,7 @@ class InvoiceApi {
             "discamountmember": 0.0
           };
         }).toList(),
-        "invoice_payment": [
-          {"tpmt3_id": payMean[0].tpmt3Id, "amount": payMean[0].amount}
-        ]
+        "invoice_payment": invoicePayments
       };
 
       log("Data2Send: $dataToSend");

@@ -32,6 +32,7 @@ class EmployeeDao extends BaseDao<EmployeeModel> {
 
   Future<EmployeeModel?> readByEmpCode(String empCode, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
+
     final res = await dbExecutor.query(
       tableName,
       columns: modelFields,

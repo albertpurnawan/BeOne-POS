@@ -1,4 +1,3 @@
-import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
 abstract class ReceiptRepository {
@@ -8,4 +7,6 @@ abstract class ReceiptRepository {
   Future<ReceiptEntity?> getReceiptByInvoiceHeaderDocId(String docId);
 
   Future<List<ReceiptEntity>> getReceipts();
+
+  // Future<List<ReceiptEntity>> sendReceipt();
 }
