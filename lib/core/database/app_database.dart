@@ -157,6 +157,7 @@ import 'package:pos_fe/features/sales/data/models/promo_gwp_default_valid_days.d
 import 'package:pos_fe/features/sales/data/models/promo_gwp_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_buy.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_assign_store.dart';
@@ -2720,7 +2721,28 @@ CREATE TABLE $tablePromoHargaSpesialBuy (
   ${PromoHargaSpesialBuyFields.qty} double NOT NULL,
   ${PromoHargaSpesialBuyFields.price} double NOT NULL,
   $createdAtDefinition,
-  CONSTRAINT `tpsb1_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tpsb1_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpesialAssignStore (
+  $uuidDefinition,
+  ${PromoHargaSpesialAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialAssignStoreFields.topsbId} text DEFAULT NULL,
+  ${PromoHargaSpesialAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoHargaSpesialAssignStoreFields.holiday} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day1} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day2} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day3} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day4} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day5} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day6} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpsb2_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpsb2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
