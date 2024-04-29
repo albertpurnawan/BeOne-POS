@@ -157,6 +157,7 @@ import 'package:pos_fe/features/sales/data/models/promo_gwp_default_valid_days.d
 import 'package:pos_fe/features/sales/data/models/promo_gwp_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_buy.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_customer_group.dart';
@@ -2684,6 +2685,30 @@ CREATE TABLE $tableVouchersSelection (
 )
 """);
 // CONSTRAINT `tvcr9_tinv2_fkey` FOREIGN KEY (`tinv2Id`) REFERENCES `tinv2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpecialHeader (
+  $uuidDefinition,
+  ${PromoHargaSpesialHeaderFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoHargaSpesialHeaderFields.description} vaarchar(200) NOT NULL,
+  ${PromoHargaSpesialHeaderFields.startDate} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.endDate} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.startTime} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.endTime} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.remarks} text,
+  ${PromoHargaSpesialHeaderFields.statusActive} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.maxPurchaseDay} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.maxPurchaseTransaction} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.validMultiply} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.quota} double NOT NULL,
+  ${PromoHargaSpesialHeaderFields.promoAlias} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.toitmId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topsb_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
       });
     } catch (e) {
       print(e);
