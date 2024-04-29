@@ -100,7 +100,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     setState(() {
       totalCash = total;
     });
-    // log("$totalCash in Parent");
   }
 
   @override

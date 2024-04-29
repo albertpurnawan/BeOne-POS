@@ -323,7 +323,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       _vouchers.addAll(vouchers);
       _vouchersAmount += totalVoucherAmount;
     });
-    log("Checkout Dialog - ReceiptCubitVouchers - $vouchers");
     context.read<ReceiptCubit>().updateVouchersSelection(
         vouchersSelectionEntity: _vouchers, vouchersAmount: _vouchersAmount);
   }
@@ -871,6 +870,7 @@ class __CheckoutSuccessDialogContentState
     extends State<_CheckoutSuccessDialogContent> {
   @override
   Widget build(BuildContext context) {
+    log("${(context.read<ReceiptCubit>().state.vouchers.length)}");
     return Theme(
         data: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
@@ -1096,6 +1096,32 @@ class __CheckoutSuccessDialogContentState
                           ),
                           Text(
                             "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          )
+                        ],
+                      ),
+                      // if (context
+                      //     .read<ReceiptCubit>()
+                      //     .state
+                      //     .vouchers
+                      //     .isNotEmpty)
+                      TableRow(
+                        children: [
+                          const Text(
+                            "Vouchers",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalVoucher!.toInt())}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -72,7 +70,6 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                   ),
                 );
               }
-              log("$vouchers");
             } catch (err) {
               handleError(err);
               rethrow;

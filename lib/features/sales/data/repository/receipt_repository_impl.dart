@@ -1,6 +1,4 @@
 // import 'package:flutter/material.dart';
-import 'dart:developer';
-
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
@@ -33,7 +31,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
-    log("ReceiptImpl - ReceiptEntity - $receiptEntity");
+
     await db.transaction((txn) async {
       final POSParameterModel posParameterModel =
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
@@ -114,7 +112,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           tbitmId: e.itemEntity.tbitmId,
         );
       }).toList();
-      log("Inovice Detail - $invoiceDetailModels");
 
       await _appDatabase.invoiceDetailDao
           .bulkCreate(data: invoiceDetailModels, txn: txn);
@@ -155,8 +152,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
       }
 
-      log("VOUCHERS B4 - $vouchers");
-
       vouchers = vouchers.map((voucher) {
         voucher.tinv2Id = paymeansModel.docId;
         return voucher;
@@ -181,18 +176,13 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         );
       }).toList();
 
-      log("VOUCHERS Model - $vouchersModel");
-
       await Future.forEach(vouchersModel, (voucher) async {
-        log("Update Vouchers DB");
         await _appDatabase.vouchersSelectionDao.update(
           docId: voucher.docId,
           data: voucher,
           txn: txn,
         );
-        log("DB UPDATED");
       });
-      log("VOUCHERS AF - $vouchers");
     });
 
     return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId);
@@ -200,7 +190,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
   @override
   Future<ReceiptModel?> getReceiptByInvoiceHeaderDocId(String docId) async {
-    log("RECEIPT REPO IMPL - GETRECEIPT");
     /**
      * 1. Ambil invoice header 
      *  - docnum
@@ -234,7 +223,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     await db.transaction((txn) async {
       final InvoiceHeaderModel? invoiceHeaderModel =
           await _appDatabase.invoiceHeaderDao.readByDocId(docId, txn);
-      log("RECEIPT REPO IMPL - INVOICE HEADER MODEL");
+
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
       }
@@ -242,12 +231,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           ? await _appDatabase.customerDao
               .readByDocId(invoiceHeaderModel.tocusId!, txn)
           : null;
-      log("RECEIPT REPO IMPL - CUSTOMER MODEL");
+
       final EmployeeModel? employeeModel = invoiceHeaderModel.tohemId != null
           ? await _appDatabase.employeeDao
               .readByDocId(invoiceHeaderModel.tohemId!, txn)
           : null;
-      log("RECEIPT REPO IMPL - EMPLOYEE MODEL");
+
       final List<PayMeansModel> payMeansModels =
           await _appDatabase.payMeansDao.readByToinvId(docId, txn);
       final MopSelectionModel? mopSelectionModel = payMeansModels.isNotEmpty
