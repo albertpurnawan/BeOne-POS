@@ -52,8 +52,8 @@ class PromoHargaSpesialBuyModel extends PromoHargaSpesialBuyEntity
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
       topsbId: map['topsbId'] != null ? map['topsbId'] as String : null,
-      qty: map['qty'] as double,
-      price: map['price'] as double,
+      qty: map['qty'] as int,
+      price: map['price'] as int,
     );
   }
 

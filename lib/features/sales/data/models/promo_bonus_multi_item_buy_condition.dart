@@ -79,6 +79,18 @@ class PromoBonusMultiItemBuyConditionModel
       ...map,
       'topmiId': map['topmidocid'] != null ? map['topmidocid'] as String : null,
       'toitmId': map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+      'qtyfrom': map['qtyfrom'] != null
+          ? double.tryParse(map['qtyfrom'].toString())
+          : null,
+      'qtyto': map['qtyto'] != null
+          ? double.tryParse(map['qtyto'].toString())
+          : null,
+      'pricefrom': map['pricefrom'] != null
+          ? double.tryParse(map['pricefrom'].toString())
+          : null,
+      'priceto': map['priceto'] != null
+          ? double.tryParse(map['priceto'].toString())
+          : null,
     });
   }
 

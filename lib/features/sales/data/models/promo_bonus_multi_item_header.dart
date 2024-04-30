@@ -80,7 +80,7 @@ class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
+      'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'promocode': promoCode,
@@ -106,7 +106,7 @@ class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
 
   factory PromoBonusMultiItemHeaderModel.fromMap(Map<String, dynamic> map) {
     return PromoBonusMultiItemHeaderModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
@@ -135,6 +135,25 @@ class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
       promoAlias: map['promoalias'] as int,
       transactionLimit: map['transactionlimit'] as int,
     );
+  }
+
+  factory PromoBonusMultiItemHeaderModel.fromMapRemote(
+      Map<String, dynamic> map) {
+    return PromoBonusMultiItemHeaderModel.fromMap({
+      ...map,
+      "totalqtyfrom": map['totalqtyfrom'] != null
+          ? double.tryParse(map['totalqtyfrom'].toString())
+          : null,
+      "totalqtyto": map['totalqtyto'] != null
+          ? double.tryParse(map['totalqtyto'].toString())
+          : null,
+      "totalpricefrom": map['totalpricefrom'] != null
+          ? double.tryParse(map['totalpricefrom'].toString())
+          : null,
+      "totalpriceto": map['totalpriceto'] != null
+          ? double.tryParse(map['totalpriceto'].toString())
+          : null,
+    });
   }
 
   factory PromoBonusMultiItemHeaderModel.fromEntity(

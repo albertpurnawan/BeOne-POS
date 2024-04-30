@@ -2837,12 +2837,13 @@ CREATE TABLE $tablePromoBonusMultiItemGetCondition (
   ${PromoBonusMultiItemGetConditionFields.updateDate} datetime DEFAULT NULL,
   ${PromoBonusMultiItemGetConditionFields.topmiId} text DEFAULT NULL,
   ${PromoBonusMultiItemGetConditionFields.toitmId} text DEFAULT NULL,
-  ${PromoBonusMultiItemGetConditionFields.quantity} double NOT NULL,
-  ${PromoBonusMultiItemGetConditionFields.price} double NOT NULL,
-  ${PromoBonusMultiItemGetConditionFields.quota} double NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.qtyFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.qtyTo} double DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.priceFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.priceTo} double DEFAULT NULL,
   $createdAtDefinition,
-  CONSTRAINT `tpmi4_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tpmi4_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tpmi1_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 

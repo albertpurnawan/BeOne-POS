@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class PromoBonusMultiItemGetConditionEntity {
   final String docId;
@@ -7,9 +8,19 @@ class PromoBonusMultiItemGetConditionEntity {
   final DateTime? updateDate;
   final String? topmiId;
   final String? toitmId;
-  final double quantity;
-  final double price;
-  final double quota;
+  final double? qtyFrom;
+  final double? qtyTo;
+  final double? priceFrom;
+  final double? priceTo;
+  // ------------ OR ----------
+  // final String docId;
+  // final DateTime createDate;
+  // final DateTime? updateDate;
+  // final String? topmiId;
+  // final String? toitmId;
+  // final double quantity;
+  // final double price;
+  // final double quota;
 
   PromoBonusMultiItemGetConditionEntity({
     required this.docId,
@@ -17,9 +28,10 @@ class PromoBonusMultiItemGetConditionEntity {
     required this.updateDate,
     required this.topmiId,
     required this.toitmId,
-    required this.quantity,
-    required this.price,
-    required this.quota,
+    required this.qtyFrom,
+    required this.qtyTo,
+    required this.priceFrom,
+    required this.priceTo,
   });
 
   PromoBonusMultiItemGetConditionEntity copyWith({
@@ -28,9 +40,10 @@ class PromoBonusMultiItemGetConditionEntity {
     DateTime? updateDate,
     String? topmiId,
     String? toitmId,
-    double? quantity,
-    double? price,
-    double? quota,
+    double? qtyFrom,
+    double? qtyTo,
+    double? priceFrom,
+    double? priceTo,
   }) {
     return PromoBonusMultiItemGetConditionEntity(
       docId: docId ?? this.docId,
@@ -38,9 +51,10 @@ class PromoBonusMultiItemGetConditionEntity {
       updateDate: updateDate ?? this.updateDate,
       topmiId: topmiId ?? this.topmiId,
       toitmId: toitmId ?? this.toitmId,
-      quantity: quantity ?? this.quantity,
-      price: price ?? this.price,
-      quota: quota ?? this.quota,
+      qtyFrom: qtyFrom ?? this.qtyFrom,
+      qtyTo: qtyTo ?? this.qtyTo,
+      priceFrom: priceFrom ?? this.priceFrom,
+      priceTo: priceTo ?? this.priceTo,
     );
   }
 
@@ -51,9 +65,10 @@ class PromoBonusMultiItemGetConditionEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'topmiId': topmiId,
       'toitmId': toitmId,
-      'quantity': quantity,
-      'price': price,
-      'quota': quota,
+      'qtyFrom': qtyFrom,
+      'qtyTo': qtyTo,
+      'priceFrom': priceFrom,
+      'priceTo': priceTo,
     };
   }
 
@@ -67,9 +82,10 @@ class PromoBonusMultiItemGetConditionEntity {
           : null,
       topmiId: map['topmiId'] != null ? map['topmiId'] as String : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
-      quantity: map['quantity'] as double,
-      price: map['price'] as double,
-      quota: map['quota'] as double,
+      qtyFrom: map['qtyFrom'] != null ? map['qtyFrom'] as double : null,
+      qtyTo: map['qtyTo'] != null ? map['qtyTo'] as double : null,
+      priceFrom: map['priceFrom'] != null ? map['priceFrom'] as double : null,
+      priceTo: map['priceTo'] != null ? map['priceTo'] as double : null,
     );
   }
 
@@ -81,7 +97,7 @@ class PromoBonusMultiItemGetConditionEntity {
 
   @override
   String toString() {
-    return 'PromoBonusMultiItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, toitmId: $toitmId, quantity: $quantity, price: $price, quota: $quota)';
+    return 'PromoBonusMultiItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, toitmId: $toitmId, qtyFrom: $qtyFrom, qtyTo: $qtyTo, priceFrom: $priceFrom, priceTo: $priceTo)';
   }
 
   @override
@@ -93,9 +109,10 @@ class PromoBonusMultiItemGetConditionEntity {
         other.updateDate == updateDate &&
         other.topmiId == topmiId &&
         other.toitmId == toitmId &&
-        other.quantity == quantity &&
-        other.price == price &&
-        other.quota == quota;
+        other.qtyFrom == qtyFrom &&
+        other.qtyTo == qtyTo &&
+        other.priceFrom == priceFrom &&
+        other.priceTo == priceTo;
   }
 
   @override
@@ -105,8 +122,9 @@ class PromoBonusMultiItemGetConditionEntity {
         updateDate.hashCode ^
         topmiId.hashCode ^
         toitmId.hashCode ^
-        quantity.hashCode ^
-        price.hashCode ^
-        quota.hashCode;
+        qtyFrom.hashCode ^
+        qtyTo.hashCode ^
+        priceFrom.hashCode ^
+        priceTo.hashCode;
   }
 }

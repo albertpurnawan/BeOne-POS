@@ -6,8 +6,8 @@ class PromoHargaSpesialBuyEntity {
   final DateTime createDate;
   final DateTime? updateDate;
   final String? topsbId;
-  final double qty;
-  final double price;
+  final int qty;
+  final int price;
 
   PromoHargaSpesialBuyEntity({
     required this.docId,
@@ -23,8 +23,8 @@ class PromoHargaSpesialBuyEntity {
     DateTime? createDate,
     DateTime? updateDate,
     String? topsbId,
-    double? qty,
-    double? price,
+    int? qty,
+    int? price,
   }) {
     return PromoHargaSpesialBuyEntity(
       docId: docId ?? this.docId,
@@ -55,8 +55,8 @@ class PromoHargaSpesialBuyEntity {
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
       topsbId: map['topsbId'] != null ? map['topsbId'] as String : null,
-      qty: map['qty'] as double,
-      price: map['price'] as double,
+      qty: map['qty'] as int,
+      price: map['price'] as int,
     );
   }
 

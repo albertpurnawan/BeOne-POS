@@ -74,6 +74,14 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_mast
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_assign_store.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_buy_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_customer_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
@@ -143,6 +151,21 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
   sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
   sl.registerSingleton<PromoHargaSpesialApi>(PromoHargaSpesialApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialBuyApi>(PromoHargaSpesialBuyApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialAssignStoreApi>(
+      PromoHargaSpesialAssignStoreApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialCustomerGroupApi>(
+      PromoHargaSpesialCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemHeaderApi>(
+      PromoBonusMultiItemHeaderApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemBuyConditionApi>(
+      PromoBonusMultiItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemAssignStoreApi>(
+      PromoBonusMultiItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemGetConditionApi>(
+      PromoBonusMultiItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(
+      PromoBonusMultiItemCustomerGroupApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),

@@ -10,9 +10,10 @@ class PromoBonusMultiItemGetConditionFields {
     updateDate,
     topmiId,
     toitmId,
-    quantity,
-    price,
-    quota,
+    qtyFrom,
+    qtyTo,
+    priceFrom,
+    priceTo,
   ];
 
   static const String docId = "docid";
@@ -20,9 +21,10 @@ class PromoBonusMultiItemGetConditionFields {
   static const String updateDate = "updatedate";
   static const String topmiId = "topmiId";
   static const String toitmId = "toitmId";
-  static const String quantity = "quantity";
-  static const String price = "price";
-  static const String quota = "quota";
+  static const String qtyFrom = "qtyfrom";
+  static const String qtyTo = "qtyto";
+  static const String priceFrom = "pricefrom";
+  static const String priceTo = "priceto";
 }
 
 class PromoBonusMultiItemGetConditionModel
@@ -33,9 +35,10 @@ class PromoBonusMultiItemGetConditionModel
     required super.updateDate,
     required super.topmiId,
     required super.toitmId,
-    required super.quantity,
-    required super.price,
-    required super.quota,
+    required super.qtyFrom,
+    required super.qtyTo,
+    required super.priceFrom,
+    required super.priceTo,
   });
 
   @override
@@ -46,9 +49,10 @@ class PromoBonusMultiItemGetConditionModel
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'topmiId': topmiId,
       'toitmId': toitmId,
-      'quantity': quantity,
-      'price': price,
-      'quota': quota,
+      'qtyfrom': qtyFrom,
+      'qtyto': qtyTo,
+      'pricefrom': priceFrom,
+      'priceto': priceTo,
     };
   }
 
@@ -62,9 +66,10 @@ class PromoBonusMultiItemGetConditionModel
           : null,
       topmiId: map['topmiId'] != null ? map['topmiId'] as String : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
-      quantity: map['quantity'] as double,
-      price: map['price'] as double,
-      quota: map['quota'] as double,
+      qtyFrom: map['qtyfrom'] != null ? map['qtyfrom'] as double : null,
+      qtyTo: map['qtyto'] != null ? map['qtyto'] as double : null,
+      priceFrom: map['pricefrom'] != null ? map['pricefrom'] as double : null,
+      priceTo: map['priceto'] != null ? map['priceto'] as double : null,
     );
   }
 
@@ -74,6 +79,18 @@ class PromoBonusMultiItemGetConditionModel
       ...map,
       'topmiId': map['topmidocid'] != null ? map['topmidocid'] as String : null,
       'toitmId': map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+      'qtyfrom': map['qtyfrom'] != null
+          ? double.tryParse(map['qtyfrom'].toString())
+          : null,
+      'qtyto': map['qtyto'] != null
+          ? double.tryParse(map['qtyto'].toString())
+          : null,
+      'pricefrom': map['pricefrom'] != null
+          ? double.tryParse(map['pricefrom'].toString())
+          : null,
+      'priceto': map['priceto'] != null
+          ? double.tryParse(map['priceto'].toString())
+          : null,
     });
   }
 
@@ -85,9 +102,10 @@ class PromoBonusMultiItemGetConditionModel
       updateDate: entity.updateDate,
       topmiId: entity.topmiId,
       toitmId: entity.toitmId,
-      quantity: entity.quantity,
-      price: entity.price,
-      quota: entity.quota,
+      qtyFrom: entity.qtyFrom,
+      qtyTo: entity.qtyTo,
+      priceFrom: entity.priceFrom,
+      priceTo: entity.priceTo,
     );
   }
 }
