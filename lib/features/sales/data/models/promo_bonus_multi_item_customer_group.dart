@@ -16,7 +16,7 @@ class PromoBonusMultiItemCustomerGroupFields {
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
   static const String topmiId = "topmiId";
-  static const String tocrgId = "toitmId";
+  static const String tocrgId = "tocrgId";
 }
 
 class PromoBonusMultiItemCustomerGroupModel
