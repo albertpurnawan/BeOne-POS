@@ -133,6 +133,7 @@ import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_price
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_buy_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_customer_group.dart';
@@ -2757,6 +2758,33 @@ CREATE TABLE $tablePromoHargaSpesialCustomerGroup (
   $createdAtDefinition,
   CONSTRAINT `tpsb2_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpsb2_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemHeader (
+  $uuidDefinition,
+  ${PromoBonusMultiItemHeaderFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.startDate} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.endDate} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.startTime} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.endTime} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.remarks} text DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.statusActive} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.promoType} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.buyCondition} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.getCondition} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalQtyFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalQtyTo} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalPriceFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalPriceTo} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.validMultiply} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.promoAlias} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.transactionLimit} int NOT NULL,
+  $createdAtDefinition
 )
 """);
       });
