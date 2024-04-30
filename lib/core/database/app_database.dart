@@ -159,6 +159,7 @@ import 'package:pos_fe/features/sales/data/models/promo_gwp_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_buy.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_buy.dart';
@@ -2743,6 +2744,19 @@ CREATE TABLE $tablePromoHargaSpesialAssignStore (
   $createdAtDefinition,
   CONSTRAINT `tpsb2_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpsb2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpesialCustomerGroup (
+  $uuidDefinition,
+  ${PromoHargaSpesialCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialCustomerGroupFields.topsbId} text DEFAULT NULL,
+  ${PromoHargaSpesialCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpsb2_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpsb2_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
