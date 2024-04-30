@@ -135,6 +135,7 @@ import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_get_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_buy_condition.dart';
@@ -2825,6 +2826,22 @@ CREATE TABLE $tablePromoBonusMultiItemAssignStore (
   $createdAtDefinition,
   CONSTRAINT `tpmi2_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmi2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemGetCondition (
+  $uuidDefinition,
+  ${PromoBonusMultiItemGetConditionFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.toitmId} text DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.quantity} double NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.price} double NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.quota} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi4_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi4_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
