@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 // import 'package:flutter/material.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
@@ -74,6 +77,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
       );
+      log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
       await _appDatabase.invoiceHeaderDao
           .create(data: invoiceHeaderModel, txn: txn);
@@ -153,7 +157,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       }
 
       vouchers = vouchers.map((voucher) {
-        voucher.tinv2Id = paymeansModel.docId;
+        voucher.tinv2Id = generatedInvoiceHeaderDocId;
         return voucher;
       }).toList();
 
@@ -223,6 +227,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     await db.transaction((txn) async {
       final InvoiceHeaderModel? invoiceHeaderModel =
           await _appDatabase.invoiceHeaderDao.readByDocId(docId, txn);
+      log("INVOICE HEADER MODEL 2 - $invoiceHeaderModel");
 
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
@@ -284,6 +289,23 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                 invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity));
       }
 
+      List<VouchersSelectionModel> voucherModels = [];
+      int totalVoucherAmount = 0;
+
+      for (var payMeansModel in payMeansModels) {
+        if (payMeansModel.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
+          List<VouchersSelectionModel> vouchers =
+              await GetIt.instance<AppDatabase>()
+                  .vouchersSelectionDao
+                  .readBytinv2Id(docId.toString(), txn: txn);
+          voucherModels.addAll(vouchers);
+        }
+      }
+
+      for (var voucherModel in voucherModels) {
+        totalVoucherAmount += voucherModel.voucherAmount;
+      }
+
       print(invoiceHeaderModel.transDateTime);
       print(invoiceHeaderModel.transDateTime?.toLocal());
 
@@ -302,9 +324,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         grandTotal: invoiceHeaderModel.grandTotal,
         totalPayment: invoiceHeaderModel.totalPayment,
         changed: invoiceHeaderModel.changed,
-        vouchers: [], // diambil service vouchers
-        totalVoucher: 0, // diambil service vouchers
-        totalNonVoucher: 0, // diambil service vouchers
+        vouchers: voucherModels,
+        totalVoucher: totalVoucherAmount,
+        totalNonVoucher: invoiceHeaderModel.grandTotal - totalVoucherAmount,
       );
     });
 

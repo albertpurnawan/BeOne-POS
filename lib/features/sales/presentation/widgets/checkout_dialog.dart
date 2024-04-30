@@ -429,7 +429,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                               Opacity(
                                 opacity: 0.6,
                                 child: Text(
-                                  "Rp ${Helpers.parseMoney((_cashAmount + _vouchersAmount) - (context.read<ReceiptCubit>().state.grandTotal.toInt()))}",
+                                  "Rp ${Helpers.parseMoney((context.read<ReceiptCubit>().state.grandTotal.toInt()) - _vouchersAmount - _cashAmount)}",
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w700,
@@ -870,7 +870,7 @@ class __CheckoutSuccessDialogContentState
     extends State<_CheckoutSuccessDialogContent> {
   @override
   Widget build(BuildContext context) {
-    log("${(context.read<ReceiptCubit>().state.vouchers.length)}");
+    log("CHECKOUT STATE - ${context.read<ReceiptCubit>().state}");
     return Theme(
         data: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
@@ -1103,32 +1103,32 @@ class __CheckoutSuccessDialogContentState
                           )
                         ],
                       ),
-                      // if (context
-                      //     .read<ReceiptCubit>()
-                      //     .state
-                      //     .vouchers
-                      //     .isNotEmpty)
-                      TableRow(
-                        children: [
-                          const Text(
-                            "Vouchers",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
+                      if (context
+                          .read<ReceiptCubit>()
+                          .state
+                          .vouchers
+                          .isNotEmpty)
+                        TableRow(
+                          children: [
+                            const Text(
+                              "Vouchers",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalVoucher!.toInt())}",
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
+                            const SizedBox(
+                              width: 5,
                             ),
-                          )
-                        ],
-                      ),
+                            Text(
+                              "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalVoucher!.toInt())}",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          ],
+                        ),
                       TableRow(
                         children: [
                           const Text(
@@ -1164,7 +1164,7 @@ class __CheckoutSuccessDialogContentState
                           ),
                           Text(
                             context.read<ReceiptCubit>().state.changed != null
-                                ? "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.changed!.toInt())}"
+                                ? "Rp ${Helpers.parseMoney(context.read<ReceiptCubit>().state.changed!.toInt() + context.read<ReceiptCubit>().state.totalVoucher!.toInt())}"
                                 : "",
                             style: const TextStyle(
                               fontSize: 18,

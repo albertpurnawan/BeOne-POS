@@ -11,4 +11,14 @@ class VouchersSelectionRepositoryImpl extends VouchersSelectionRepository {
     // TODO: implement getEmployee
     return await _appDatabase.vouchersSelectionDao.checkVoucher(serialno);
   }
+
+  @override
+  Future<List<VouchersSelectionEntity>> readBytinv2Id(String tinv2id) async {
+    try {
+      return await _appDatabase.vouchersSelectionDao.readBytinv2Id(tinv2id);
+    } catch (e) {
+      // Handle errors appropriately
+      throw e;
+    }
+  }
 }
