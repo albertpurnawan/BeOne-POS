@@ -133,6 +133,7 @@ import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_price
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_buy_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
@@ -2803,6 +2804,27 @@ CREATE TABLE $tablePromoBonusMultiItemBuyCondition (
   $createdAtDefinition,
   CONSTRAINT `tpmi1_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemAssignStore (
+  $uuidDefinition,
+  ${PromoBonusMultiItemAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.holiday} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day1} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day2} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day3} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day4} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day5} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day6} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi2_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
