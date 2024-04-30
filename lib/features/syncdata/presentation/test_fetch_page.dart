@@ -57,6 +57,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
@@ -916,7 +917,7 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final data = await GetIt.instance<MOPByStoreApi>().fetchData();
+      final data = await GetIt.instance<PromoHargaSpesialApi>().fetchData();
 
       setState(() {
         // _dataFetched = data.length;
@@ -1061,12 +1062,12 @@ class _FetchScreenState extends State<FetchScreen> {
                   ),
                 ),
               ),
-              // ElevatedButton(
-              //   onPressed: () {
-              //     manualSyncData();
-              //   },
-              //   child: Text('FETCH'),
-              // ),
+              ElevatedButton(
+                onPressed: () {
+                  _fetchData();
+                },
+                child: Text('FETCH'),
+              ),
               // SizedBox(height: 20),
               // Text(
               //   'Data Fetched: [$_dataFetched] $_dataExample',

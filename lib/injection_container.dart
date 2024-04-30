@@ -74,6 +74,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_mast
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
@@ -141,6 +142,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<InvoiceApi>(InvoiceApi(sl()));
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
   sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialApi>(PromoHargaSpesialApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),

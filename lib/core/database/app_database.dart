@@ -2710,7 +2710,7 @@ CREATE TABLE $tablePromoHargaSpecialHeader (
   ${PromoHargaSpesialHeaderFields.maxPurchaseDay} int NOT NULL,
   ${PromoHargaSpesialHeaderFields.maxPurchaseTransaction} int NOT NULL,
   ${PromoHargaSpesialHeaderFields.validMultiply} int NOT NULL,
-  ${PromoHargaSpesialHeaderFields.quota} double NOT NULL,
+  ${PromoHargaSpesialHeaderFields.quota} int NOT NULL,
   ${PromoHargaSpesialHeaderFields.promoAlias} int NOT NULL,
   ${PromoHargaSpesialHeaderFields.toitmId} text DEFAULT NULL,
   $createdAtDefinition,

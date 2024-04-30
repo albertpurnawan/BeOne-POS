@@ -17,7 +17,7 @@ class PromoHargaSpesialHeaderEntity {
   final int maxPurchaseDay;
   final int maxPurchaseTransaction;
   final int validMultiply;
-  final double quota;
+  final int quota;
   final int promoAlias;
   final String? toitmId;
 
@@ -56,7 +56,7 @@ class PromoHargaSpesialHeaderEntity {
     int? maxPurchaseDay,
     int? maxPurchaseTransaction,
     int? validMultiply,
-    double? quota,
+    int? quota,
     int? promoAlias,
     String? toitmId,
   }) {
@@ -122,7 +122,7 @@ class PromoHargaSpesialHeaderEntity {
       maxPurchaseDay: map['maxPurchaseDay'] as int,
       maxPurchaseTransaction: map['maxPurchaseTransaction'] as int,
       validMultiply: map['validMultiply'] as int,
-      quota: map['quota'] as double,
+      quota: map['quota'] as int,
       promoAlias: map['promoAlias'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
     );

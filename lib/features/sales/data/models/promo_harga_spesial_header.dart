@@ -106,7 +106,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       maxPurchaseDay: map['maxpurchaseday'] as int,
       maxPurchaseTransaction: map['maxpurchasetransaction'] as int,
       validMultiply: map['validmultiply'] as int,
-      quota: map['quota'] as double,
+      quota: map['quota'] as int,
       promoAlias: map['promoalias'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
     );
