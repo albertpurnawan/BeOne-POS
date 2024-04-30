@@ -135,6 +135,7 @@ import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_get_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
@@ -2842,6 +2843,19 @@ CREATE TABLE $tablePromoBonusMultiItemGetCondition (
   $createdAtDefinition,
   CONSTRAINT `tpmi4_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmi4_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
+  $uuidDefinition,
+  ${PromoBonusMultiItemCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi5_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });
