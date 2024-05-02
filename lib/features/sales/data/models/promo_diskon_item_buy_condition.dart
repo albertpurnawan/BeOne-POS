@@ -76,7 +76,11 @@ class PromoDiskonItemBuyConditionModel extends PromoDiskonItemBuyConditionEntity
       Map<String, dynamic> map) {
     return PromoDiskonItemBuyConditionModel.fromMap({
       ...map,
-      'pricefrom': map['pricefrom'] != null ? map['pricefrom'] as double : null,
+      'topdiId': map['topdidocid'] != null ? map['topdidocid'] as String : null,
+      'toitmId': map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+      'pricefrom': map['pricefrom'] != null
+          ? double.tryParse(map['pricefrom'].toString())
+          : null,
       'priceto': map['priceto'] != null
           ? double.tryParse(map['priceto'].toString())
           : null,

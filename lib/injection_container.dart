@@ -79,6 +79,11 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_mu
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_customer_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_get_condition_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_assign_store.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_buy_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_customer_group_service.dart';
@@ -166,16 +171,16 @@ Future<void> initializeDependencies() async {
       PromoBonusMultiItemGetConditionApi(sl()));
   sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(
       PromoBonusMultiItemCustomerGroupApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemHeaderApi>(
-      PromoBonusMultiItemHeaderApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemBuyConditionApi>(
-      PromoBonusMultiItemBuyConditionApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemAssignStoreApi>(
-      PromoBonusMultiItemAssignStoreApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemGetConditionApi>(
-      PromoBonusMultiItemGetConditionApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(
-      PromoBonusMultiItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoDiskonItemHeaderApi>(
+      PromoDiskonItemHeaderApi(sl()));
+  sl.registerSingleton<PromoDiskonItemBuyConditionApi>(
+      PromoDiskonItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonItemAssignStoreApi>(
+      PromoDiskonItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoDiskonItemGetConditionApi>(
+      PromoDiskonItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonItemCustomerGroupApi>(
+      PromoDiskonItemCustomerGroupApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),

@@ -79,75 +79,70 @@ class PromoDiskonItemHeaderModel extends PromoDiskonItemHeaderEntity
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
-      'promoCode': promoCode,
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
+      'promocode': promoCode,
       'description': description,
-      'startDate': startDate.toUtc().toIso8601String(),
-      'endDate': endDate.toUtc().toIso8601String(),
-      'startTime': startTime.toUtc().toIso8601String(),
-      'endTime': endTime.toUtc().toIso8601String(),
+      'startdate': startDate.toUtc().toIso8601String(),
+      'enddate': endDate.toUtc().toIso8601String(),
+      'starttime': startTime.toUtc().toIso8601String(),
+      'endtime': endTime.toUtc().toIso8601String(),
       'remarks': remarks,
-      'statusActive': statusActive,
-      'promoType': promoType,
-      'buyCondition': buyCondition,
-      'promoValue': promoValue,
+      'statusactive': statusActive,
+      'promotype': promoType,
+      'buycondition': buyCondition,
+      'promovalue': promoValue,
       'discount1': discount1,
       'discount2': discount2,
       'discount3': discount3,
-      'totalQtyFrom': totalQtyFrom,
-      'totalQtyTo': totalQtyTo,
-      'totalPriceFrom': totalPriceFrom,
-      'totalPriceTo': totalPriceTo,
+      'totalqtyfrom': totalQtyFrom,
+      'totalqtyto': totalQtyTo,
+      'totalpricefrom': totalPriceFrom,
+      'totalpriceto': totalPriceTo,
     };
   }
 
   factory PromoDiskonItemHeaderModel.fromMap(Map<String, dynamic> map) {
     return PromoDiskonItemHeaderModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      promoCode: map['promoCode'] as String,
+      promoCode: map['promocode'] as String,
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
       endDate: DateTime.parse(map['enddate'] as String).toLocal(),
       startTime: DateTime.parse(map['starttime'] as String).toLocal(),
       endTime: DateTime.parse(map['endtime'] as String).toLocal(),
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      statusActive: map['statusActive'] as int,
-      promoType: map['promoType'] as int,
-      buyCondition: map['buyCondition'] as int,
-      promoValue: map['promoValue'] as double,
+      statusActive: map['statusactive'] as int,
+      promoType: map['promotype'] as int,
+      buyCondition: map['buycondition'] as int,
+      promoValue: map['promovalue'] as double,
       discount1: map['discount1'] as double,
       discount2: map['discount2'] as double,
       discount3: map['discount3'] as double,
       totalQtyFrom:
-          map['totalQtyFrom'] != null ? map['totalQtyFrom'] as double : null,
+          map['totalqtyfrom'] != null ? map['totalqtyfrom'] as double : null,
       totalQtyTo:
-          map['totalQtyTo'] != null ? map['totalQtyTo'] as double : null,
-      totalPriceFrom: map['totalPriceFrom'] != null
-          ? map['totalPriceFrom'] as double
+          map['totalqtyto'] != null ? map['totalqtyto'] as double : null,
+      totalPriceFrom: map['totalpricefrom'] != null
+          ? map['totalpricefrom'] as double
           : null,
       totalPriceTo:
-          map['totalPriceTo'] != null ? map['totalPriceTo'] as double : null,
+          map['totalpriceto'] != null ? map['totalpriceto'] as double : null,
     );
   }
 
   factory PromoDiskonItemHeaderModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoDiskonItemHeaderModel.fromMap({
       ...map,
-      "discount1": map['discount1'] != null
-          ? double.tryParse(map['discount1'].toString())
-          : null,
-      "discount2": map['discount2'] != null
-          ? double.tryParse(map['discount2'].toString())
-          : null,
-      "discount3": map['discount3'] != null
-          ? double.tryParse(map['discount3'].toString())
-          : null,
+      "promovalue": double.tryParse(map['promovalue'].toString()),
+      "discount1": double.tryParse(map['discount1'].toString()),
+      "discount2": double.tryParse(map['discount2'].toString()),
+      "discount3": double.tryParse(map['discount3'].toString()),
       "totalqtyfrom": map['totalqtyfrom'] != null
           ? double.tryParse(map['totalqtyfrom'].toString())
           : null,

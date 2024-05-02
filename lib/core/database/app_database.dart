@@ -60,6 +60,11 @@ import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_period_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_buy_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_get_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_header.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_assign_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_buy_dao.dart';
@@ -273,6 +278,11 @@ class AppDatabase {
   late PromoMultiItemAssignStoreDao promoMultiItemAssignStoreDao;
   late PromoMultiItemGetConditionDao promoMultiItemGetConditionDao;
   late PromoMultiItemCustomerGroupDao promoMultiItemCustomerGroupDao;
+  late PromoDiskonItemHeaderDao promoDiskonItemHeaderDao;
+  late PromoDiskonItemBuyConditionDao promoDiskonItemBuyConditionDao;
+  late PromoDiskonItemAssignStoreDao promoDiskonItemAssignStoreDao;
+  late PromoDiskonItemGetConditionDao promoDiskonItemGetConditionDao;
+  late PromoDiskonItemCustomerGroupDao promoDiskonItemCustomerGroupDao;
   late PromosDao promosDao;
 
   AppDatabase._init();
@@ -370,6 +380,11 @@ PRAGMA foreign_keys = ON;
     promoMultiItemAssignStoreDao = PromoMultiItemAssignStoreDao(_database!);
     promoMultiItemGetConditionDao = PromoMultiItemGetConditionDao(_database!);
     promoMultiItemCustomerGroupDao = PromoMultiItemCustomerGroupDao(_database!);
+    promoDiskonItemHeaderDao = PromoDiskonItemHeaderDao(_database!);
+    promoDiskonItemBuyConditionDao = PromoDiskonItemBuyConditionDao(_database!);
+    promoDiskonItemAssignStoreDao = PromoDiskonItemAssignStoreDao(_database!);
+    promoDiskonItemGetConditionDao = PromoDiskonItemGetConditionDao(_database!);
+    promoDiskonItemCustomerGroupDao = PromoDiskonItemCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
 
     receiptContentDao.bulkCreate(
