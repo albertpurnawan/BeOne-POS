@@ -166,6 +166,16 @@ Future<void> initializeDependencies() async {
       PromoBonusMultiItemGetConditionApi(sl()));
   sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(
       PromoBonusMultiItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemHeaderApi>(
+      PromoBonusMultiItemHeaderApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemBuyConditionApi>(
+      PromoBonusMultiItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemAssignStoreApi>(
+      PromoBonusMultiItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemGetConditionApi>(
+      PromoBonusMultiItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(
+      PromoBonusMultiItemCustomerGroupApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),

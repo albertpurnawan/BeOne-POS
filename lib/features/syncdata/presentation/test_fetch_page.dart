@@ -1130,11 +1130,11 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      // final promos = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
-      //     .fetchData();
-      final promos = await GetIt.instance<AppDatabase>()
-          .promosDao
-          .readByToitmId("816902d3-eb12-4d20-862a-3c4c072b49a0");
+      final tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
+          .fetchData();
+      await GetIt.instance<AppDatabase>()
+          .promoMultiItemCustomerGroupDao
+          .bulkCreate(data: tpmi5);
       log("tpmi5 DONE");
 
       setState(() {
