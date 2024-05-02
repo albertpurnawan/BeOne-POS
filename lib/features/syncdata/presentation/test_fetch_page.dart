@@ -1103,7 +1103,16 @@ class _FetchScreenState extends State<FetchScreen> {
           cusCst.length +
           priceByItem.length +
           apmps.length +
-          priceItemBarcode.length;
+          priceItemBarcode.length +
+          topsb.length +
+          tpsb1.length +
+          tpsb2.length +
+          tpsb4.length +
+          topmi.length +
+          tpmi1.length +
+          tpmi2.length +
+          tpmi4.length +
+          tpmi5.length;
 
       await GetIt.instance<AppDatabase>().refreshItemsTable();
 
@@ -1121,11 +1130,11 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      final tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
-          .fetchData();
-      await GetIt.instance<AppDatabase>()
-          .promoMultiItemCustomerGroupDao
-          .bulkCreate(data: tpmi5);
+      // final promos = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
+      //     .fetchData();
+      final promos = await GetIt.instance<AppDatabase>()
+          .promosDao
+          .readByToitmId("816902d3-eb12-4d20-862a-3c4c072b49a0");
       log("tpmi5 DONE");
 
       setState(() {

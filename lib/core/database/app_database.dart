@@ -69,6 +69,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_b
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_get_condition_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promotions_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/province_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_detail_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_header_dao.dart';
@@ -267,6 +268,7 @@ class AppDatabase {
   late PromoMultiItemAssignStoreDao promoMultiItemAssignStoreDao;
   late PromoMultiItemGetConditionDao promoMultiItemGetConditionDao;
   late PromoMultiItemCustomerGroupDao promoMultiItemCustomerGroupDao;
+  late PromosDao promosDao;
 
   AppDatabase._init();
 
@@ -363,6 +365,7 @@ PRAGMA foreign_keys = ON;
     promoMultiItemAssignStoreDao = PromoMultiItemAssignStoreDao(_database!);
     promoMultiItemGetConditionDao = PromoMultiItemGetConditionDao(_database!);
     promoMultiItemCustomerGroupDao = PromoMultiItemCustomerGroupDao(_database!);
+    promosDao = PromosDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
@@ -2893,21 +2896,7 @@ CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
 """);
 
         await txn.execute("""
-CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
-  $uuidDefinition,
-  ${PromoBonusMultiItemCustomerGroupFields.createDate} datetime NOT NULL,
-  ${PromoBonusMultiItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
-  ${PromoBonusMultiItemCustomerGroupFields.topmiId} text DEFAULT NULL,
-  ${PromoBonusMultiItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
-  $createdAtDefinition,
-  CONSTRAINT `tpmi5_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tpmi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
-)
-""");
-
-        await txn.execute("""
 CREATE TABLE $tablePromotions (
-  $uuidDefinition,
   ${PromotionsFields.toitmId} text DEFAULT NULL,
   ${PromotionsFields.promoType} int NOT NULL,
   ${PromotionsFields.promoId} text DEFAULT NULL,
