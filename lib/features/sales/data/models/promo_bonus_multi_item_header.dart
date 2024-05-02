@@ -36,7 +36,7 @@ class PromoBonusMultiItemHeaderFields {
   static const String startDate = "startdate";
   static const String endDate = "enddate";
   static const String startTime = "starttime";
-  static const String endTime = "endttime";
+  static const String endTime = "endtime";
   static const String remarks = "remarks";
   static const String statusActive = "statusactive";
   static const String promoType = "promotype";

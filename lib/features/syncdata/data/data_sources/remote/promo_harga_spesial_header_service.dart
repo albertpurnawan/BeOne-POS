@@ -58,7 +58,7 @@ class PromoHargaSpesialApi {
         // });
 
         List<PromoHargaSpesialHeaderModel> data = (resp.data['data'] as List)
-            .map((e) => PromoHargaSpesialHeaderModel.fromMap(e))
+            .map((e) => PromoHargaSpesialHeaderModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
       }

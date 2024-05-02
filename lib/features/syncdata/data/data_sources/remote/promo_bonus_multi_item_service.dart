@@ -53,9 +53,9 @@ class PromoBonusMultiItemHeaderApi {
         log("--- PROMO BONUS MULTI ITEM - HEADER ---");
         log(resp.data['data'][0].toString());
 
-        resp.data['data'][0].forEach((key, value) {
-          print('$key: ${value.runtimeType} - $value');
-        });
+        // resp.data['data'][0].forEach((key, value) {
+        //   print('$key: ${value.runtimeType} - $value');
+        // });
 
         List<PromoBonusMultiItemHeaderModel> data = (resp.data['data'] as List)
             .map((e) => PromoBonusMultiItemHeaderModel.fromMapRemote(e))

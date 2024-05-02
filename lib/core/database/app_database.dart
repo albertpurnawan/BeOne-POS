@@ -60,6 +60,15 @@ import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_period_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_buy_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_buy_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_get_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/province_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_detail_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_header_dao.dart';
@@ -177,6 +186,7 @@ import 'package:pos_fe/features/sales/data/models/promo_voucher_customer_group.d
 import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_header.dart';
@@ -248,6 +258,15 @@ class AppDatabase {
   late QueuedInvoiceHeaderDao queuedInvoiceHeaderDao;
   late QueuedInvoiceDetailDao queuedInvoiceDetailDao;
   late VouchersSelectionDao vouchersSelectionDao;
+  late PromoHargaSpesialHeaderDao promoHargaSpesialHeaderDao;
+  late PromoHargaSpesialBuyDao promoHargaSpesialBuyDao;
+  late PromoHargaSpesialAssignStoreDao promoHargaSpesialAssignStoreDao;
+  late PromoHargaSpesialCustomerGroupDao promoHargaSpesialCustomerGroupDao;
+  late PromoMultiItemHeaderDao promoMultiItemHeaderDao;
+  late PromoMultiItemBuyConditionDao promoMultiItemBuyConditionDao;
+  late PromoMultiItemAssignStoreDao promoMultiItemAssignStoreDao;
+  late PromoMultiItemGetConditionDao promoMultiItemGetConditionDao;
+  late PromoMultiItemCustomerGroupDao promoMultiItemCustomerGroupDao;
 
   AppDatabase._init();
 
@@ -333,6 +352,17 @@ PRAGMA foreign_keys = ON;
     queuedInvoiceHeaderDao = QueuedInvoiceHeaderDao(_database!);
     queuedInvoiceDetailDao = QueuedInvoiceDetailDao(_database!);
     vouchersSelectionDao = VouchersSelectionDao(_database!);
+    promoHargaSpesialHeaderDao = PromoHargaSpesialHeaderDao(_database!);
+    promoHargaSpesialBuyDao = PromoHargaSpesialBuyDao(_database!);
+    promoHargaSpesialAssignStoreDao =
+        PromoHargaSpesialAssignStoreDao(_database!);
+    promoHargaSpesialCustomerGroupDao =
+        PromoHargaSpesialCustomerGroupDao(_database!);
+    promoMultiItemHeaderDao = PromoMultiItemHeaderDao(_database!);
+    promoMultiItemBuyConditionDao = PromoMultiItemBuyConditionDao(_database!);
+    promoMultiItemAssignStoreDao = PromoMultiItemAssignStoreDao(_database!);
+    promoMultiItemGetConditionDao = PromoMultiItemGetConditionDao(_database!);
+    promoMultiItemCustomerGroupDao = PromoMultiItemCustomerGroupDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
@@ -419,6 +449,7 @@ INNER JOIN (
       await _database!.execute("""
 DELETE FROM items
 """);
+      // refresh table
       await _database!.execute("""
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
 SELECT 
@@ -1305,6 +1336,7 @@ CREATE TABLE $tableUser (
         // CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
         // CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 
+        // create temp table item
         await txn.execute('''
 CREATE TABLE $tableItems (
 ${ItemFields.id} $idTypeAndConstraints,
@@ -2859,6 +2891,36 @@ CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
   CONSTRAINT `tpmi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
+  $uuidDefinition,
+  ${PromoBonusMultiItemCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi5_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromotions (
+  $uuidDefinition,
+  ${PromotionsFields.toitmId} text DEFAULT NULL,
+  ${PromotionsFields.promoType} int NOT NULL,
+  ${PromotionsFields.promoId} text DEFAULT NULL,
+  ${PromotionsFields.date} datetime NOT NULL,
+  ${PromotionsFields.startTime} datetime NOT NULL,
+  ${PromotionsFields.endTime} datetime NOT NULL,
+  ${PromotionsFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toprm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toprm_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+// CONSTRAINT `toprm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
       });
     } catch (e) {
       print(e);
