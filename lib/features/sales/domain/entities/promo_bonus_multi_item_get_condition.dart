@@ -8,19 +8,9 @@ class PromoBonusMultiItemGetConditionEntity {
   final DateTime? updateDate;
   final String? topmiId;
   final String? toitmId;
-  final double? qtyFrom;
-  final double? qtyTo;
-  final double? priceFrom;
-  final double? priceTo;
-  // ------------ OR ----------
-  // final String docId;
-  // final DateTime createDate;
-  // final DateTime? updateDate;
-  // final String? topmiId;
-  // final String? toitmId;
-  // final double quantity;
-  // final double price;
-  // final double quota;
+  final double quantity;
+  final double price;
+  final double quota;
 
   PromoBonusMultiItemGetConditionEntity({
     required this.docId,
@@ -28,10 +18,9 @@ class PromoBonusMultiItemGetConditionEntity {
     required this.updateDate,
     required this.topmiId,
     required this.toitmId,
-    required this.qtyFrom,
-    required this.qtyTo,
-    required this.priceFrom,
-    required this.priceTo,
+    required this.quantity,
+    required this.price,
+    required this.quota,
   });
 
   PromoBonusMultiItemGetConditionEntity copyWith({
@@ -40,10 +29,9 @@ class PromoBonusMultiItemGetConditionEntity {
     DateTime? updateDate,
     String? topmiId,
     String? toitmId,
-    double? qtyFrom,
-    double? qtyTo,
-    double? priceFrom,
-    double? priceTo,
+    double? quantity,
+    double? price,
+    double? quota,
   }) {
     return PromoBonusMultiItemGetConditionEntity(
       docId: docId ?? this.docId,
@@ -51,10 +39,9 @@ class PromoBonusMultiItemGetConditionEntity {
       updateDate: updateDate ?? this.updateDate,
       topmiId: topmiId ?? this.topmiId,
       toitmId: toitmId ?? this.toitmId,
-      qtyFrom: qtyFrom ?? this.qtyFrom,
-      qtyTo: qtyTo ?? this.qtyTo,
-      priceFrom: priceFrom ?? this.priceFrom,
-      priceTo: priceTo ?? this.priceTo,
+      quantity: quantity ?? this.quantity,
+      price: price ?? this.price,
+      quota: quota ?? this.quota,
     );
   }
 
@@ -65,10 +52,9 @@ class PromoBonusMultiItemGetConditionEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'topmiId': topmiId,
       'toitmId': toitmId,
-      'qtyFrom': qtyFrom,
-      'qtyTo': qtyTo,
-      'priceFrom': priceFrom,
-      'priceTo': priceTo,
+      'quantity': quantity,
+      'price': price,
+      'quota': quota,
     };
   }
 
@@ -82,10 +68,9 @@ class PromoBonusMultiItemGetConditionEntity {
           : null,
       topmiId: map['topmiId'] != null ? map['topmiId'] as String : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
-      qtyFrom: map['qtyFrom'] != null ? map['qtyFrom'] as double : null,
-      qtyTo: map['qtyTo'] != null ? map['qtyTo'] as double : null,
-      priceFrom: map['priceFrom'] != null ? map['priceFrom'] as double : null,
-      priceTo: map['priceTo'] != null ? map['priceTo'] as double : null,
+      quantity: map['quantity'] as double,
+      price: map['price'] as double,
+      quota: map['quota'] as double,
     );
   }
 
@@ -97,7 +82,7 @@ class PromoBonusMultiItemGetConditionEntity {
 
   @override
   String toString() {
-    return 'PromoBonusMultiItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, toitmId: $toitmId, qtyFrom: $qtyFrom, qtyTo: $qtyTo, priceFrom: $priceFrom, priceTo: $priceTo)';
+    return 'PromoBonusMultiItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, toitmId: $toitmId, quantity: $quantity, price: $price, quota: $quota)';
   }
 
   @override
@@ -109,10 +94,9 @@ class PromoBonusMultiItemGetConditionEntity {
         other.updateDate == updateDate &&
         other.topmiId == topmiId &&
         other.toitmId == toitmId &&
-        other.qtyFrom == qtyFrom &&
-        other.qtyTo == qtyTo &&
-        other.priceFrom == priceFrom &&
-        other.priceTo == priceTo;
+        other.quantity == quantity &&
+        other.price == price &&
+        other.quota == quota;
   }
 
   @override
@@ -122,9 +106,8 @@ class PromoBonusMultiItemGetConditionEntity {
         updateDate.hashCode ^
         topmiId.hashCode ^
         toitmId.hashCode ^
-        qtyFrom.hashCode ^
-        qtyTo.hashCode ^
-        priceFrom.hashCode ^
-        priceTo.hashCode;
+        quantity.hashCode ^
+        price.hashCode ^
+        quota.hashCode;
   }
 }
