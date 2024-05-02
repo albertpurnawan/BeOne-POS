@@ -171,6 +171,10 @@ import 'package:pos_fe/features/sales/data/models/promo_credit_card_customer_gro
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_buy_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_customer_group.dart';
@@ -384,7 +388,8 @@ PRAGMA foreign_keys = ON;
     promoDiskonItemBuyConditionDao = PromoDiskonItemBuyConditionDao(_database!);
     promoDiskonItemAssignStoreDao = PromoDiskonItemAssignStoreDao(_database!);
     promoDiskonItemGetConditionDao = PromoDiskonItemGetConditionDao(_database!);
-    promoDiskonItemCustomerGroupDao = PromoDiskonItemCustomerGroupDao(_database!);
+    promoDiskonItemCustomerGroupDao =
+        PromoDiskonItemCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
 
     receiptContentDao.bulkCreate(
@@ -3004,6 +3009,80 @@ CREATE TABLE $tablePromoDiskonItemCustomerGroup (
   $createdAtDefinition,
   CONSTRAINT `topdi5_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topdi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemHeader (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemHeaderFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.startDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.endDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.startTime} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.endTime} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.remarks} text DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.statusActive} int NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.promoType} int NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.buyCondition} int NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.promoValue} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.discount1} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.discount2} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.discount3} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalQtyFrom} double DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalQtyTo} double DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalPriceFrom} double DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalPriceTo} double DEFAULT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemBuyCondition (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemBuyConditionFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemBuyConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemBuyConditionFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemBuyConditionFields.tocatId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdg1_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdg1_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemAssignStore (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.holiday} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day1} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day2} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day3} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day4} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day5} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day6} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topdg2_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topdg2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemCustomerGroupFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdg5_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdg5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
