@@ -37,4 +37,31 @@ class PromoMultiItemBuyConditionDao
             PromoBonusMultiItemBuyConditionModel.fromMap(itemData))
         .toList();
   }
+
+  Future<List<PromoBonusMultiItemBuyConditionModel>> readByTopmiId(
+      String topmiid, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topmiid = ?',
+        whereArgs: [topmiid],
+      );
+      return result
+          .map((itemData) =>
+              PromoBonusMultiItemBuyConditionModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topmiid = ?',
+        whereArgs: [topmiid],
+      );
+      return result
+          .map((itemData) =>
+              PromoBonusMultiItemBuyConditionModel.fromMap(itemData))
+          .toList();
+    }
+  }
 }

@@ -29,12 +29,47 @@ class PromoHargaSpesialCustomerGroupDao
   @override
   Future<List<PromoHargaSpesialCustomerGroupModel>> readAll(
       {Transaction? txn}) async {
-    DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    if (txn != null) {
+      final result = await txn.query(tableName);
 
-    return result
-        .map(
-            (itemData) => PromoHargaSpesialCustomerGroupModel.fromMap(itemData))
-        .toList();
+      return result
+          .map((itemData) =>
+              PromoHargaSpesialCustomerGroupModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(tableName);
+
+      return result
+          .map((itemData) =>
+              PromoHargaSpesialCustomerGroupModel.fromMap(itemData))
+          .toList();
+    }
+  }
+
+  Future<List<PromoHargaSpesialCustomerGroupModel>> readByTopsbId(
+      String topsbId, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topsbId = ?',
+        whereArgs: [topsbId],
+      );
+      return result
+          .map((itemData) =>
+              PromoHargaSpesialCustomerGroupModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topsbId = ?',
+        whereArgs: [topsbId],
+      );
+      return result
+          .map((itemData) =>
+              PromoHargaSpesialCustomerGroupModel.fromMap(itemData))
+          .toList();
+    }
   }
 }

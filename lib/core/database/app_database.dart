@@ -3141,7 +3141,7 @@ CREATE TABLE $tablePromoDiskonGroupItemCustomerGroup (
 CREATE TABLE $tablePromotions (
   ${PromotionsFields.toitmId} text DEFAULT NULL,
   ${PromotionsFields.promoType} int NOT NULL,
-  ${PromotionsFields.promoId} text DEFAULT NULL,
+  ${PromotionsFields.promoId} text DEFAULT NULL PRIMARY KEY,
   ${PromotionsFields.date} datetime NOT NULL,
   ${PromotionsFields.startTime} datetime NOT NULL,
   ${PromotionsFields.endTime} datetime NOT NULL,
@@ -3151,7 +3151,6 @@ CREATE TABLE $tablePromotions (
   CONSTRAINT `toprm_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
-// CONSTRAINT `toprm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
       });
     } catch (e) {
       print(e);

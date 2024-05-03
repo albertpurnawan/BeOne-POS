@@ -50,6 +50,7 @@ import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_assign_sto
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_buy.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
+import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/store_master.dart';
 import 'package:pos_fe/features/sales/data/models/tax_master.dart';
@@ -1442,13 +1443,63 @@ class _FetchScreenState extends State<FetchScreen> {
   }
 
   void _fetchData() async {
+    print('Delete Promos ......');
+    await GetIt.instance<AppDatabase>().promosDao.deletePromos();
+    print('Promos Deleted');
     print('Fetching data...');
     try {
-      // final toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData();
-      // await GetIt.instance<AppDatabase>()
-      //     .promoBuyXGetYHeaderDao
-      //     .bulkCreate(data: toprb);
-      // log("toprb DONE");
+      final promos = <PromotionsModel>[];
+
+      final topsb = await GetIt.instance<AppDatabase>()
+          .promoHargaSpesialHeaderDao
+          .readAll();
+
+      for (final header in topsb) {
+        final tpsb4 = await GetIt.instance<AppDatabase>()
+            .promoHargaSpesialCustomerGroupDao
+            .readByTopsbId(header.docId, null);
+
+        for (final customerGroup in tpsb4) {
+          promos.add(PromotionsModel(
+            toitmId: header.toitmId,
+            promoType: header.promoAlias,
+            promoId: header.docId,
+            date: DateTime.now(),
+            startTime: header.startTime,
+            endTime: header.endTime,
+            tocrgId: customerGroup.tocrgId,
+          ));
+        }
+      }
+
+      final topdi =
+          await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
+
+      for (final header in topdi) {
+        final tpdi1 = await GetIt.instance<AppDatabase>()
+            .promoMultiItemBuyConditionDao
+            .readByTopmiId(header.docId, null);
+        final tpdi5 = await GetIt.instance<AppDatabase>()
+            .promoMultiItemCustomerGroupDao
+            .readByTopmiId(header.docId, null);
+
+        for (final buyCondition in tpdi1) {
+          for (final customerGroup in tpdi5) {
+            promos.add(PromotionsModel(
+              toitmId: buyCondition.toitmId,
+              promoType: header.promoType,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: customerGroup.tocrgId,
+            ));
+          }
+        }
+      }
+
+      await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
+      log("TOPSB INSERTED TO PROMOS");
 
       setState(() {
         // _dataFetched = data.length;

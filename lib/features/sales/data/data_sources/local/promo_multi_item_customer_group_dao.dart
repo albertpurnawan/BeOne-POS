@@ -45,4 +45,31 @@ class PromoMultiItemCustomerGroupDao
           .toList();
     }
   }
+
+  Future<List<PromoBonusMultiItemCustomerGroupModel>> readByTopmiId(
+      String topmiid, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topmiid = ?',
+        whereArgs: [topmiid],
+      );
+      return result
+          .map((itemData) =>
+              PromoBonusMultiItemCustomerGroupModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topmiid = ?',
+        whereArgs: [topmiid],
+      );
+      return result
+          .map((itemData) =>
+              PromoBonusMultiItemCustomerGroupModel.fromMap(itemData))
+          .toList();
+    }
+  }
 }
