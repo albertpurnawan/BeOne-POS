@@ -66,12 +66,10 @@ class PromoBuyXGetYGetConditionModel extends PromoBuyXGetYGetConditionEntity
       Map<String, dynamic> map) {
     return PromoBuyXGetYGetConditionModel.fromMap({
       ...map,
-      "toprbId": map['toprb_id']?['docid'] != null
-          ? map['toprb_id']['docid'] as String
-          : null,
-      "toitmId": map['toitm_id']?['docid'] != null
-          ? map['toitm_id']['docid'] as String
-          : null,
+      "toprbId": map['toprbdocid'] != null ? map['toprbdocid'] as String : null,
+      "toitmId": map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
+      "quantity": double.tryParse(map['quantity'].toString()),
+      "sellingprice": double.tryParse(map['sellingprice'].toString()),
     });
   }
 

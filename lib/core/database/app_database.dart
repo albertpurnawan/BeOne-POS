@@ -60,6 +60,16 @@ import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_period_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_buy_conditon_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_get_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_get_condition.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_header.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_assign_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_buy_condition_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_customer_group_dao.dart';
@@ -174,6 +184,7 @@ import 'package:pos_fe/features/sales/data/models/promo_credit_card_valid_days.d
 import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_buy_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_get_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_buy_condition.dart';
@@ -287,6 +298,17 @@ class AppDatabase {
   late PromoDiskonItemAssignStoreDao promoDiskonItemAssignStoreDao;
   late PromoDiskonItemGetConditionDao promoDiskonItemGetConditionDao;
   late PromoDiskonItemCustomerGroupDao promoDiskonItemCustomerGroupDao;
+  late PromoDiskonGroupItemHeaderDao promoDiskonGroupItemHeaderDao;
+  late PromoDiskonGroupItemBuyConditionDao promoDiskonGroupItemBuyConditionDao;
+  late PromoDiskonGroupItemAssignStoreDao promoDiskonGroupItemAssignStoreDao;
+  late PromoDiskonGroupItemGetConditionDao promoDiskonGroupItemGetConditionDao;
+  late PromoDiskonGroupItemCustomerGroupDao
+      promoDiskonGroupItemCustomerGroupDao;
+  late PromoBuyXGetYHeaderDao promoBuyXGetYHeaderDao;
+  late PromoBuyXGetYBuyConditionDao promoBuyXGetYBuyConditionDao;
+  late PromoBuyXGetYAssignStoreDao promoBuyXGetYAssignStoreDao;
+  late PromoBuyXGetYGetConditionDao promoBuyXGetYGetConditionDao;
+  late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
   late PromosDao promosDao;
 
   AppDatabase._init();
@@ -390,6 +412,20 @@ PRAGMA foreign_keys = ON;
     promoDiskonItemGetConditionDao = PromoDiskonItemGetConditionDao(_database!);
     promoDiskonItemCustomerGroupDao =
         PromoDiskonItemCustomerGroupDao(_database!);
+    promoDiskonGroupItemHeaderDao = PromoDiskonGroupItemHeaderDao(_database!);
+    promoDiskonGroupItemBuyConditionDao =
+        PromoDiskonGroupItemBuyConditionDao(_database!);
+    promoDiskonGroupItemAssignStoreDao =
+        PromoDiskonGroupItemAssignStoreDao(_database!);
+    promoDiskonGroupItemGetConditionDao =
+        PromoDiskonGroupItemGetConditionDao(_database!);
+    promoDiskonGroupItemCustomerGroupDao =
+        PromoDiskonGroupItemCustomerGroupDao(_database!);
+    promoBuyXGetYHeaderDao = PromoBuyXGetYHeaderDao(_database!);
+    promoBuyXGetYBuyConditionDao = PromoBuyXGetYBuyConditionDao(_database!);
+    promoBuyXGetYAssignStoreDao = PromoBuyXGetYAssignStoreDao(_database!);
+    promoBuyXGetYGetConditionDao = PromoBuyXGetYGetConditionDao(_database!);
+    promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
 
     receiptContentDao.bulkCreate(
@@ -3068,13 +3104,28 @@ CREATE TABLE $tablePromoDiskonGroupItemAssignStore (
   ${PromoDiskonGroupItemAssignStoreFields.day6} int NOT NULL,
   ${PromoDiskonGroupItemAssignStoreFields.day7} int NOT NULL,
   $createdAtDefinition,
-  CONSTRAINT `topdg2_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `topdg2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tpdg2_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdg2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
         await txn.execute("""
-CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
+CREATE TABLE $tablePromoDiskonGroupItemGetCondition (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemGetConditionFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.promoValue} double NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.discount1} double NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.discount2} double NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.discount3} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdg4_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemCustomerGroup (
   $uuidDefinition,
   ${PromoDiskonGroupItemCustomerGroupFields.createDate} datetime NOT NULL,
   ${PromoDiskonGroupItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,

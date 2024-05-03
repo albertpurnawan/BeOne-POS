@@ -31,6 +31,16 @@ import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_buy_con
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_get_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_get_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_get_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_buy_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_item_customer_group.dart';
@@ -76,6 +86,16 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_mu
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_customer_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_get_condition_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_assign_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_buy_condition_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_customer_group_service.dart';
@@ -360,6 +380,16 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<PromoDiskonItemAssignStoreModel> tpdi2;
     late List<PromoDiskonItemGetConditionModel> tpdi4;
     late List<PromoDiskonItemCustomerGroupModel> tpdi5;
+    late List<PromoDiskonGroupItemHeaderModel> topdg;
+    late List<PromoDiskonGroupItemBuyConditionModel> tpdg1;
+    late List<PromoDiskonGroupItemAssignStoreModel> tpdg2;
+    late List<PromoDiskonGroupItemGetConditionModel> tpdg4;
+    late List<PromoDiskonGroupItemCustomerGroupModel> tpdg5;
+    late List<PromoBuyXGetYHeaderModel> toprb;
+    late List<PromoBuyXGetYBuyConditionModel> tprb1;
+    late List<PromoBuyXGetYAssignStoreModel> tprb2;
+    late List<PromoBuyXGetYGetConditionModel> tprb4;
+    late List<PromoBuyXGetYCustomerGroupModel> tprb5;
 
     print("Synching data...");
     try {
@@ -1145,6 +1175,185 @@ class _FetchScreenState extends State<FetchScreen> {
             }
           }
         },
+        () async {
+          try {
+            topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoDiskonGroupItemHeaderDao
+                .bulkCreate(data: topdg);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoDiskonGroupItemBuyConditionDao
+                .bulkCreate(data: tpdg1);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoDiskonGroupItemAssignStoreDao
+                .bulkCreate(data: tpdg2);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoDiskonGroupItemGetConditionDao
+                .bulkCreate(data: tpdg4);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoDiskonGroupItemCustomerGroupDao
+                .bulkCreate(data: tpdg5);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYHeaderDao
+                .bulkCreate(data: toprb);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYBuyConditionDao
+                .bulkCreate(data: tprb1);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tprb2 =
+                await GetIt.instance<PromoBuyXGetYAssignStoreApi>().fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYAssignStoreDao
+                .bulkCreate(data: tprb2);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYGetConditionDao
+                .bulkCreate(data: tprb4);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
+                .fetchData();
+            await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYCustomerGroupDao
+                .bulkCreate(data: tprb5);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
       ];
       for (final fetchFunction in fetchFunctions) {
         try {
@@ -1235,12 +1444,12 @@ class _FetchScreenState extends State<FetchScreen> {
   void _fetchData() async {
     print('Fetching data...');
     try {
-      // final topdi =
-      //     await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData();
+      // final toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData();
       // await GetIt.instance<AppDatabase>()
-      //     .promoDiskonItemHeaderDao
-      //     .bulkCreate(data: topdi);
-      // log("topdi DONE");
+      //     .promoBuyXGetYHeaderDao
+      //     .bulkCreate(data: toprb);
+      // log("toprb DONE");
+
       setState(() {
         // _dataFetched = data.length;
         // _dataExample = data[0].docId;

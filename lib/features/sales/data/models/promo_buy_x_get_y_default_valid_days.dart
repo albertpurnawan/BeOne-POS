@@ -35,9 +35,9 @@ class PromoBuyXGetYDefaultValidDaysModel
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'toprbId': toprbId,
       'day': day,
       'status': status,
@@ -46,9 +46,9 @@ class PromoBuyXGetYDefaultValidDaysModel
 
   factory PromoBuyXGetYDefaultValidDaysModel.fromMap(Map<String, dynamic> map) {
     return PromoBuyXGetYDefaultValidDaysModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
       toprbId: map['toprbId'] != null ? map['toprbId'] as String : null,
@@ -61,9 +61,7 @@ class PromoBuyXGetYDefaultValidDaysModel
       Map<String, dynamic> map) {
     return PromoBuyXGetYDefaultValidDaysModel.fromMap({
       ...map,
-      "toprbId": map['toprb_id']?['docid'] != null
-          ? map['toprb_id']['docid'] as String
-          : null,
+      "toprbId": map['toprbdocid'] != null ? map['toprbdocid'] as String : null,
     });
   }
 

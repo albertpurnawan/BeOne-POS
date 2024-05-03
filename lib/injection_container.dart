@@ -79,6 +79,16 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_mu
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_customer_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_get_condition_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_assign_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_buy_condition_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_customer_group_service.dart';
@@ -181,6 +191,25 @@ Future<void> initializeDependencies() async {
       PromoDiskonItemGetConditionApi(sl()));
   sl.registerSingleton<PromoDiskonItemCustomerGroupApi>(
       PromoDiskonItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemHeaderApi>(
+      PromoDiskonGroupItemHeaderApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemBuyConditionApi>(
+      PromoDiskonGroupItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemAssignStoreApi>(
+      PromoDiskonGroupItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemGetConditionApi>(
+      PromoDiskonGroupItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemCustomerGroupApi>(
+      PromoDiskonGroupItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYHeaderApi>(PromoBuyXGetYHeaderApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYBuyConditionApi>(
+      PromoBuyXGetYBuyConditionApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYAssignStoreApi>(
+      PromoBuyXGetYAssignStoreApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYGetConditionApi>(
+      PromoBuyXGetYGetConditionApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(
+      PromoBuyXGetYCustomerGroupApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),

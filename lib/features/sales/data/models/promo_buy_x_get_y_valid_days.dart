@@ -60,9 +60,7 @@ class PromoBuyXGetYValidDaysModel extends PromoBuyXGetYValidDaysEntity
   factory PromoBuyXGetYValidDaysModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoBuyXGetYValidDaysModel.fromMap({
       ...map,
-      "tprb2Id": map['tprb2_id']?['docid'] != null
-          ? map['tprb2_id']['docid'] as String
-          : null,
+      "tprb2Id": map['tprb2docid'] != null ? map['tprb2docid'] as String : null,
     });
   }
 

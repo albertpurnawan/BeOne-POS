@@ -71,48 +71,48 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
-      'promoCode': promoCode,
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
+      'promocode': promoCode,
       'description': description,
-      'startDate': startDate.toUtc().toIso8601String(),
-      'endDate': endDate.toUtc().toIso8601String(),
-      'startTime': startTime.toUtc().toIso8601String(),
-      'endTime': endTime.toUtc().toIso8601String(),
+      'startdate': startDate.toUtc().toIso8601String(),
+      'enddate': endDate.toUtc().toIso8601String(),
+      'starttime': startTime.toUtc().toIso8601String(),
+      'endtime': endTime.toUtc().toIso8601String(),
       'remarks': remarks,
-      'minPurchase': minPurchase,
-      'buyCondition': buyCondition,
-      'minBuy': minBuy,
-      'maxMultiply': maxMultiply,
-      'getCondition': getCondition,
-      'maxGet': maxGet,
-      'statusActive': statusActive,
+      'minpurchase': minPurchase,
+      'buycondition': buyCondition,
+      'minbuy': minBuy,
+      'maxmultiply': maxMultiply,
+      'getcondition': getCondition,
+      'maxget': maxGet,
+      'statusactive': statusActive,
       'toplnId': toplnId,
     };
   }
 
   factory PromoBuyXGetYHeaderModel.fromMap(Map<String, dynamic> map) {
     return PromoBuyXGetYHeaderModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
-      promoCode: map['promoCode'] as String,
+      promoCode: map['promocode'] as String,
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
       endDate: DateTime.parse(map['enddate'] as String).toLocal(),
       startTime: DateTime.parse(map['starttime'] as String).toLocal(),
       endTime: DateTime.parse(map['endtime'] as String).toLocal(),
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      minPurchase: map['minPurchase'] as double,
-      buyCondition: map['buyCondition'] as int,
-      minBuy: map['minBuy'] as double,
-      maxMultiply: map['maxMultiply'] as double,
-      getCondition: map['getCondition'] as int,
-      maxGet: map['maxGet'] as double,
-      statusActive: map['statusActive'] as int,
+      minPurchase: map['minpurchase'] as double,
+      buyCondition: map['buycondition'] as int,
+      minBuy: map['minbuy'] as double,
+      maxMultiply: map['maxmultiply'] as double,
+      getCondition: map['getcondition'] as int,
+      maxGet: map['maxget'] as double,
+      statusActive: map['statusactive'] as int,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
     );
   }
@@ -120,9 +120,11 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
   factory PromoBuyXGetYHeaderModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoBuyXGetYHeaderModel.fromMap({
       ...map,
-      "toplnId": map['topln_id']?['docid'] != null
-          ? map['topln_id']['docid'] as String
-          : null,
+      'toplnId': map['toplndocid'] != null ? map['toplndocid'] as String : null,
+      'minpurchase': double.tryParse(map['minpurchase'].toString()),
+      'minbuy': double.tryParse(map['minbuy'].toString()),
+      'maxmultiply': double.tryParse(map['maxmultiply'].toString()),
+      'maxget': double.tryParse(map['maxget'].toString()),
     });
   }
 

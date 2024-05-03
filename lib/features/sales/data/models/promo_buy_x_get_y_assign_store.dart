@@ -96,12 +96,8 @@ class PromoBuyXGetYAssignStoreModel extends PromoBuyXGetYAssignStoreEntity
       Map<String, dynamic> map) {
     return PromoBuyXGetYAssignStoreModel.fromMap({
       ...map,
-      "toprbId": map['toprb_id']?['docid'] != null
-          ? map['toprb_id']['docid'] as String
-          : null,
-      "tostrId": map['tostr_id']?['docid'] != null
-          ? map['tostr_id']['docid'] as String
-          : null,
+      "toprbId": map['toprbdocid'] != null ? map['toprbdocid'] as String : null,
+      "tostrId": map['tostrdocid'] != null ? map['tostrdocid'] as String : null,
     });
   }
 

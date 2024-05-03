@@ -30,11 +30,18 @@ class PromoBuyXGetYBuyConditionDao
   @override
   Future<List<PromoBuyXGetYBuyConditionModel>> readAll(
       {Transaction? txn}) async {
-    DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    if (txn != null) {
+      final result = await txn.query(tableName);
 
-    return result
-        .map((itemData) => PromoBuyXGetYBuyConditionModel.fromMap(itemData))
-        .toList();
+      return result
+          .map((itemData) => PromoBuyXGetYBuyConditionModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(tableName);
+
+      return result
+          .map((itemData) => PromoBuyXGetYBuyConditionModel.fromMap(itemData))
+          .toList();
+    }
   }
 }

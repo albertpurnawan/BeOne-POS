@@ -32,9 +32,9 @@ class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
-      'createDate': createDate.toUtc().toIso8601String(),
-      'updateDate': updateDate?.toUtc().toIso8601String(),
+      'docid': docId,
+      'createdate': createDate.toUtc().toIso8601String(),
+      'updatedate': updateDate?.toUtc().toIso8601String(),
       'toprbId': toprbId,
       'tocrgId': tocrgId,
     };
@@ -42,9 +42,9 @@ class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
 
   factory PromoBuyXGetYCustomerGroupModel.fromMap(Map<String, dynamic> map) {
     return PromoBuyXGetYCustomerGroupModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updateDate'] != null
+      updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
           : null,
       toprbId: map['toprbId'] != null ? map['toprbId'] as String : null,
@@ -56,12 +56,8 @@ class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
       Map<String, dynamic> map) {
     return PromoBuyXGetYCustomerGroupModel.fromMap({
       ...map,
-      "toprbId": map['toprb_id']?['docid'] != null
-          ? map['toprb_id']['docid'] as String
-          : null,
-      "tocrgId": map['tocrg_id']?['docid'] != null
-          ? map['tocrg_id']['docid'] as String
-          : null,
+      "toprbId": map['toprbdocid'] != null ? map['toprbdocid'] as String : null,
+      "tocrgId": map['tocrgdocid'] != null ? map['tocrgdocid'] as String : null,
     });
   }
 
