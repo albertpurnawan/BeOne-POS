@@ -1,7 +1,8 @@
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 
 abstract class PromotionsRepository {
-  Future<List<PromotionsEntity?>> checkPromos();
+  Future<List<PromotionsEntity?>> checkPromos(String toitmId);
 
-  Future<PromotionsEntity?> createPromotion(PromotionsEntity promotionsEntity);
+  Future<List<PromotionsEntity?>> createPromotions(
+      PromotionsEntity promotionsEntity);
 }

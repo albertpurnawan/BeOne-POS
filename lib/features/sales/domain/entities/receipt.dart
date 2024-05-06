@@ -28,6 +28,7 @@ class ReceiptEntity {
   List<VouchersSelectionEntity> vouchers;
   int? totalVoucher;
   double? totalNonVoucher;
+  // List Promo
 
   ReceiptEntity({
     required this.docNum,

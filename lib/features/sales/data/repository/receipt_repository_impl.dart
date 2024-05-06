@@ -259,34 +259,36 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             .readByDocId(invoiceDetailModel.toitmId!, txn);
         if (itemMasterModel == null) throw "Item not found";
         receiptItemModels.add(ReceiptItemModel(
-            quantity: invoiceDetailModel.quantity,
-            totalGross: invoiceDetailModel.totalAmount *
+          quantity: invoiceDetailModel.quantity,
+          totalGross: invoiceDetailModel.totalAmount *
+              100 /
+              (100 + invoiceDetailModel.taxPrctg),
+          taxAmount: invoiceDetailModel.totalAmount *
+              (invoiceDetailModel.taxPrctg / 100),
+          itemEntity: ItemModel(
+            id: null,
+            itemName: itemMasterModel.itemName,
+            itemCode: itemMasterModel.itemCode,
+            barcode: "",
+            price: 0,
+            toitmId: itemMasterModel.docId,
+            tbitmId: invoiceDetailModel.tbitmId!,
+            tpln2Id: "",
+            openPrice: itemMasterModel.openPrice,
+            tovenId: invoiceDetailModel.tovenId!,
+            tovatId: invoiceDetailModel.tovatId!,
+            taxRate: invoiceDetailModel.taxPrctg,
+            dpp: invoiceDetailModel.sellingPrice *
                 100 /
                 (100 + invoiceDetailModel.taxPrctg),
-            taxAmount: invoiceDetailModel.totalAmount *
-                (invoiceDetailModel.taxPrctg / 100),
-            itemEntity: ItemModel(
-              id: null,
-              itemName: itemMasterModel.itemName,
-              itemCode: itemMasterModel.itemCode,
-              barcode: "",
-              price: 0,
-              toitmId: itemMasterModel.docId,
-              tbitmId: invoiceDetailModel.tbitmId!,
-              tpln2Id: "",
-              openPrice: itemMasterModel.openPrice,
-              tovenId: invoiceDetailModel.tovenId!,
-              tovatId: invoiceDetailModel.tovatId!,
-              taxRate: invoiceDetailModel.taxPrctg,
-              dpp: invoiceDetailModel.sellingPrice *
-                  100 /
-                  (100 + invoiceDetailModel.taxPrctg),
-              includeTax: itemMasterModel.includeTax,
-            ),
-            sellingPrice: invoiceDetailModel.sellingPrice,
-            totalAmount: invoiceDetailModel.totalAmount,
-            totalSellBarcode:
-                invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity));
+            includeTax: itemMasterModel.includeTax,
+          ),
+          sellingPrice: invoiceDetailModel.sellingPrice,
+          totalAmount: invoiceDetailModel.totalAmount,
+          totalSellBarcode:
+              invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity,
+          promos: [],
+        ));
       }
 
       List<VouchersSelectionModel> voucherModels = [];

@@ -8,7 +8,7 @@ class CreatePromotionsUseCase implements UseCase<void, PromotionsEntity> {
   CreatePromotionsUseCase(this._promotionsRepository);
 
   @override
-  Future<PromotionsEntity?> call({PromotionsEntity? params}) async {
-    return await _promotionsRepository.createPromotion(params!);
+  Future<List<PromotionsEntity?>> call({PromotionsEntity? params}) async {
+    return await _promotionsRepository.createPromotions(params!);
   }
 }

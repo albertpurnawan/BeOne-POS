@@ -20,6 +20,7 @@ class PromoHargaSpesialHeaderEntity {
   final int quota;
   final int promoAlias;
   final String? toitmId;
+  final int? promoType;
 
   PromoHargaSpesialHeaderEntity({
     required this.docId,
@@ -39,6 +40,7 @@ class PromoHargaSpesialHeaderEntity {
     required this.quota,
     required this.promoAlias,
     required this.toitmId,
+    required this.promoType,
   });
 
   PromoHargaSpesialHeaderEntity copyWith({
@@ -59,6 +61,7 @@ class PromoHargaSpesialHeaderEntity {
     int? quota,
     int? promoAlias,
     String? toitmId,
+    int? promoType,
   }) {
     return PromoHargaSpesialHeaderEntity(
       docId: docId ?? this.docId,
@@ -79,6 +82,7 @@ class PromoHargaSpesialHeaderEntity {
       quota: quota ?? this.quota,
       promoAlias: promoAlias ?? this.promoAlias,
       toitmId: toitmId ?? this.toitmId,
+      promoType: promoType ?? this.promoType,
     );
   }
 
@@ -101,6 +105,7 @@ class PromoHargaSpesialHeaderEntity {
       'quota': quota,
       'promoAlias': promoAlias,
       'toitmId': toitmId,
+      'promoType': promoType,
     };
   }
 
@@ -125,6 +130,7 @@ class PromoHargaSpesialHeaderEntity {
       quota: map['quota'] as int,
       promoAlias: map['promoAlias'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
+      promoType: map['promoType'] != null ? map['promoType'] as int : null,
     );
   }
 
@@ -136,7 +142,7 @@ class PromoHargaSpesialHeaderEntity {
 
   @override
   String toString() {
-    return 'PromoHargaSpesialHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, maxPurchaseDay: $maxPurchaseDay, maxPurchaseTransaction: $maxPurchaseTransaction, validMultiply: $validMultiply, quota: $quota, promoAlias: $promoAlias, toitmId: $toitmId)';
+    return 'PromoHargaSpesialHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, maxPurchaseDay: $maxPurchaseDay, maxPurchaseTransaction: $maxPurchaseTransaction, validMultiply: $validMultiply, quota: $quota, promoAlias: $promoAlias, toitmId: $toitmId, promoType: $promoType)';
   }
 
   @override
@@ -159,7 +165,8 @@ class PromoHargaSpesialHeaderEntity {
         other.validMultiply == validMultiply &&
         other.quota == quota &&
         other.promoAlias == promoAlias &&
-        other.toitmId == toitmId;
+        other.toitmId == toitmId &&
+        other.promoType == promoType;
   }
 
   @override
@@ -180,6 +187,7 @@ class PromoHargaSpesialHeaderEntity {
         validMultiply.hashCode ^
         quota.hashCode ^
         promoAlias.hashCode ^
-        toitmId.hashCode;
+        toitmId.hashCode ^
+        promoType.hashCode;
   }
 }

@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 
 class ReceiptItemEntity {
   double quantity;
@@ -11,6 +13,7 @@ class ReceiptItemEntity {
   final double sellingPrice;
   double totalAmount;
   double totalSellBarcode;
+  List<PromotionsEntity> promos;
 
   ReceiptItemEntity({
     required this.quantity,
@@ -20,6 +23,7 @@ class ReceiptItemEntity {
     required this.sellingPrice,
     required this.totalAmount,
     required this.totalSellBarcode,
+    required this.promos,
   });
 
   ReceiptItemEntity copyWith({
@@ -30,6 +34,7 @@ class ReceiptItemEntity {
     double? sellingPrice,
     double? totalAmount,
     double? totalSellBarcode,
+    List<PromotionsEntity>? promos,
   }) {
     return ReceiptItemEntity(
       quantity: quantity ?? this.quantity,
@@ -39,6 +44,7 @@ class ReceiptItemEntity {
       sellingPrice: sellingPrice ?? this.sellingPrice,
       totalAmount: totalAmount ?? this.totalAmount,
       totalSellBarcode: totalSellBarcode ?? this.totalSellBarcode,
+      promos: promos ?? this.promos,
     );
   }
 
@@ -51,6 +57,7 @@ class ReceiptItemEntity {
       'sellingPrice': sellingPrice,
       'totalAmount': totalAmount,
       'totalSellBarcode': totalSellBarcode,
+      'promos': promos.map((x) => x.toMap()).toList(),
     };
   }
 
@@ -63,6 +70,11 @@ class ReceiptItemEntity {
       sellingPrice: map['sellingPrice'] as double,
       totalAmount: map['totalAmount'] as double,
       totalSellBarcode: map['totalSellBarcode'] as double,
+      promos: List<PromotionsEntity>.from(
+        (map['promos'] as List<int>).map<PromotionsEntity>(
+          (x) => PromotionsEntity.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
     );
   }
 
@@ -73,7 +85,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos)';
   }
 
   @override
@@ -86,7 +98,8 @@ class ReceiptItemEntity {
         other.taxAmount == taxAmount &&
         other.sellingPrice == sellingPrice &&
         other.totalAmount == totalAmount &&
-        other.totalSellBarcode == totalSellBarcode;
+        other.totalSellBarcode == totalSellBarcode &&
+        listEquals(other.promos, promos);
   }
 
   @override
@@ -97,6 +110,7 @@ class ReceiptItemEntity {
         taxAmount.hashCode ^
         sellingPrice.hashCode ^
         totalAmount.hashCode ^
-        totalSellBarcode.hashCode;
+        totalSellBarcode.hashCode ^
+        promos.hashCode;
   }
 }

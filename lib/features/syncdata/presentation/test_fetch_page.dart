@@ -68,7 +68,6 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_maste
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/invoice_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
@@ -137,7 +136,7 @@ class _FetchScreenState extends State<FetchScreen> {
   int _statusCode = 0;
   String _errorMessage = '';
   double _syncProgress = 0.0;
-  int totalTable = 44;
+  int totalTable = 59;
   int fetched = 0;
 
   void _fetchToken() async {
@@ -1363,6 +1362,62 @@ class _FetchScreenState extends State<FetchScreen> {
           handleError(e);
         }
       }
+
+      final promos = <PromotionsModel>[];
+
+      // final topsb = await GetIt.instance<AppDatabase>()
+      //     .promoHargaSpesialHeaderDao
+      //     .readAll();
+
+      for (final header in topsb) {
+        final tpsb4 = await GetIt.instance<AppDatabase>()
+            .promoHargaSpesialCustomerGroupDao
+            .readByTopsbId(header.docId, null);
+
+        for (final customerGroup in tpsb4) {
+          promos.add(PromotionsModel(
+            toitmId: header.toitmId,
+            promoType: header.promoType!,
+            promoId: header.docId,
+            date: DateTime.now(),
+            startTime: header.startTime,
+            endTime: header.endTime,
+            tocrgId: customerGroup.tocrgId,
+            promoDescription: header.description,
+          ));
+        }
+      }
+
+      // final topdi =
+      //     await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
+
+      for (final header in topmi) {
+        final tpdi1 = await GetIt.instance<AppDatabase>()
+            .promoMultiItemBuyConditionDao
+            .readByTopmiId(header.docId, null);
+        final tpdi5 = await GetIt.instance<AppDatabase>()
+            .promoMultiItemCustomerGroupDao
+            .readByTopmiId(header.docId, null);
+
+        for (final buyCondition in tpdi1) {
+          for (final customerGroup in tpdi5) {
+            promos.add(PromotionsModel(
+              toitmId: buyCondition.toitmId,
+              promoType: header.promoType,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: customerGroup.tocrgId,
+              promoDescription: header.description,
+            ));
+          }
+        }
+      }
+
+      await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
+      log("PROMOS INSERTED");
+
       // log("$priceItemBarcode\n");
 
       // final topos =
@@ -1427,7 +1482,22 @@ class _FetchScreenState extends State<FetchScreen> {
           tpmi1.length +
           tpmi2.length +
           tpmi4.length +
-          tpmi5.length;
+          tpmi5.length +
+          topdi.length +
+          tpdi1.length +
+          tpdi2.length +
+          tpdi4.length +
+          tpdi5.length +
+          topdg.length +
+          tpdg1.length +
+          tpdg2.length +
+          tpdg4.length +
+          tpdg5.length +
+          toprb.length +
+          tprb1.length +
+          tprb2.length +
+          tprb4.length +
+          tprb5.length;
 
       await GetIt.instance<AppDatabase>().refreshItemsTable();
 
@@ -1443,63 +1513,68 @@ class _FetchScreenState extends State<FetchScreen> {
   }
 
   void _fetchData() async {
-    print('Delete Promos ......');
-    await GetIt.instance<AppDatabase>().promosDao.deletePromos();
-    print('Promos Deleted');
     print('Fetching data...');
+    await GetIt.instance<AppDatabase>().promosDao.deletePromos();
     try {
-      final promos = <PromotionsModel>[];
+      // final createPromotionsUseCase = GetIt.instance<CreatePromotionsUseCase>();
+      // if (createPromotionsUseCase != null) {
+      //   await createPromotionsUseCase.call();
+      // } else {
+      //   // Handle the case where createPromotionsUseCase is null
+      //   print('Error: createPromotionsUseCase is null');
+      // }
+      // final promos = <PromotionsModel>[];
 
-      final topsb = await GetIt.instance<AppDatabase>()
-          .promoHargaSpesialHeaderDao
-          .readAll();
+      // final topsb = await GetIt.instance<AppDatabase>()
+      //     .promoHargaSpesialHeaderDao
+      //     .readAll();
 
-      for (final header in topsb) {
-        final tpsb4 = await GetIt.instance<AppDatabase>()
-            .promoHargaSpesialCustomerGroupDao
-            .readByTopsbId(header.docId, null);
+      // for (final header in topsb) {
+      //   final tpsb4 = await GetIt.instance<AppDatabase>()
+      //       .promoHargaSpesialCustomerGroupDao
+      //       .readByTopsbId(header.docId, null);
 
-        for (final customerGroup in tpsb4) {
-          promos.add(PromotionsModel(
-            toitmId: header.toitmId,
-            promoType: header.promoAlias,
-            promoId: header.docId,
-            date: DateTime.now(),
-            startTime: header.startTime,
-            endTime: header.endTime,
-            tocrgId: customerGroup.tocrgId,
-          ));
-        }
-      }
+      //   for (final customerGroup in tpsb4) {
+      //     promos.add(PromotionsModel(
+      //       toitmId: header.toitmId,
+      //       promoType: header.promoType!,
+      //       promoId: header.docId,
+      //       date: DateTime.now(),
+      //       startTime: header.startTime,
+      //       endTime: header.endTime,
+      //       tocrgId: customerGroup.tocrgId,
+      //     ));
+      //   }
+      // }
 
-      final topdi =
-          await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
+      // final topdi =
+      //     await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
 
-      for (final header in topdi) {
-        final tpdi1 = await GetIt.instance<AppDatabase>()
-            .promoMultiItemBuyConditionDao
-            .readByTopmiId(header.docId, null);
-        final tpdi5 = await GetIt.instance<AppDatabase>()
-            .promoMultiItemCustomerGroupDao
-            .readByTopmiId(header.docId, null);
+      // for (final header in topdi) {
+      //   final tpdi1 = await GetIt.instance<AppDatabase>()
+      //       .promoMultiItemBuyConditionDao
+      //       .readByTopmiId(header.docId, null);
+      //   final tpdi5 = await GetIt.instance<AppDatabase>()
+      //       .promoMultiItemCustomerGroupDao
+      //       .readByTopmiId(header.docId, null);
 
-        for (final buyCondition in tpdi1) {
-          for (final customerGroup in tpdi5) {
-            promos.add(PromotionsModel(
-              toitmId: buyCondition.toitmId,
-              promoType: header.promoType,
-              promoId: header.docId,
-              date: DateTime.now(),
-              startTime: header.startTime,
-              endTime: header.endTime,
-              tocrgId: customerGroup.tocrgId,
-            ));
-          }
-        }
-      }
+      //   for (final buyCondition in tpdi1) {
+      //     for (final customerGroup in tpdi5) {
+      //       promos.add(PromotionsModel(
+      //         toitmId: buyCondition.toitmId,
+      //         promoType: header.promoType,
+      //         promoId: header.docId,
+      //         date: DateTime.now(),
+      //         startTime: header.startTime,
+      //         endTime: header.endTime,
+      //         tocrgId: customerGroup.tocrgId,
+      //       ));
+      //     }
+      //   }
+      // }
 
-      await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
-      log("TOPSB INSERTED TO PROMOS");
+      // await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
+      // log("PROMOS INSERTED");
 
       setState(() {
         // _dataFetched = data.length;
@@ -1519,15 +1594,16 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
-  void _fetchSingleData(String docid) async {
-    print("Fetching single data...");
+  void _fetchSingleData() async {
+    print("CHECK PROMO");
     try {
-      final datum =
-          await GetIt.instance<InvoiceHeaderApi>().fetchSingleData(docid);
-      print(datum);
-      setState(() {
-        _singleData = datum.docnum;
-      });
+      final promo = await GetIt.instance<AppDatabase>()
+          .promosDao
+          .readByToitmId("816902d3-eb12-4d20-862a-3c4c072b49a0", null);
+      log("PROMO - $promo");
+      // setState(() {
+      //   _singleData = datum.docnum;
+      // });
       print("Data Fetched");
     } catch (error) {
       handleError(error);

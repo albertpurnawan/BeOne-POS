@@ -22,6 +22,7 @@ class PromoHargaSpesialHeaderFields {
     quota,
     promoAlias,
     toitmId,
+    promoType,
   ];
 
   static const String docId = "docid";
@@ -41,6 +42,7 @@ class PromoHargaSpesialHeaderFields {
   static const String quota = "quota";
   static const String promoAlias = "promoalias";
   static const String toitmId = "toitmId";
+  static const String promoType = "promotype";
 }
 
 class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
@@ -63,6 +65,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
     required super.quota,
     required super.promoAlias,
     required super.toitmId,
+    required super.promoType,
   });
 
   @override
@@ -85,6 +88,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       'quota': quota,
       'promoalias': promoAlias,
       'toitmId': toitmId,
+      'promotype': promoType,
     };
   }
 
@@ -109,6 +113,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       quota: map['quota'] as int,
       promoAlias: map['promoalias'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
+      promoType: map['promoType'] != null ? map['promoType'] as int : 301,
     );
   }
 
@@ -139,6 +144,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       quota: entity.quota,
       promoAlias: entity.promoAlias,
       toitmId: entity.toitmId,
+      promoType: entity.promoType,
     );
   }
 }

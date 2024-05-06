@@ -2809,6 +2809,7 @@ CREATE TABLE $tablePromoHargaSpecialHeader (
   ${PromoHargaSpesialHeaderFields.quota} int NOT NULL,
   ${PromoHargaSpesialHeaderFields.promoAlias} int NOT NULL,
   ${PromoHargaSpesialHeaderFields.toitmId} text DEFAULT NULL,
+  ${PromoHargaSpesialHeaderFields.promoType} int DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `topsb_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
@@ -3146,6 +3147,7 @@ CREATE TABLE $tablePromotions (
   ${PromotionsFields.startTime} datetime NOT NULL,
   ${PromotionsFields.endTime} datetime NOT NULL,
   ${PromotionsFields.tocrgId} text DEFAULT NULL,
+  ${PromotionsFields.promoDescription} text NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `toprm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toprm_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE

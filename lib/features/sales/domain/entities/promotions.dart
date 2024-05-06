@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class PromotionsEntity {
   final String? toitmId;
@@ -9,6 +10,7 @@ class PromotionsEntity {
   final DateTime startTime;
   final DateTime endTime;
   final String? tocrgId;
+  final String promoDescription;
 
   PromotionsEntity({
     required this.toitmId,
@@ -18,6 +20,7 @@ class PromotionsEntity {
     required this.startTime,
     required this.endTime,
     required this.tocrgId,
+    required this.promoDescription,
   });
 
   PromotionsEntity copyWith({
@@ -28,6 +31,7 @@ class PromotionsEntity {
     DateTime? startTime,
     DateTime? endTime,
     String? tocrgId,
+    String? promoDescription,
   }) {
     return PromotionsEntity(
       toitmId: toitmId ?? this.toitmId,
@@ -37,6 +41,7 @@ class PromotionsEntity {
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       tocrgId: tocrgId ?? this.tocrgId,
+      promoDescription: promoDescription ?? this.promoDescription,
     );
   }
 
@@ -49,6 +54,7 @@ class PromotionsEntity {
       'startTime': startTime.millisecondsSinceEpoch,
       'endTime': endTime.millisecondsSinceEpoch,
       'tocrgId': tocrgId,
+      'promoDescription': promoDescription,
     };
   }
 
@@ -61,6 +67,7 @@ class PromotionsEntity {
       startTime: DateTime.fromMillisecondsSinceEpoch(map['startTime'] as int),
       endTime: DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int),
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      promoDescription: map['promoDescription'] as String,
     );
   }
 
@@ -71,7 +78,7 @@ class PromotionsEntity {
 
   @override
   String toString() {
-    return 'PromotionsEntity(toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId)';
+    return 'PromotionsEntity(toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription)';
   }
 
   @override
@@ -84,7 +91,8 @@ class PromotionsEntity {
         other.date == date &&
         other.startTime == startTime &&
         other.endTime == endTime &&
-        other.tocrgId == tocrgId;
+        other.tocrgId == tocrgId &&
+        other.promoDescription == promoDescription;
   }
 
   @override
@@ -95,6 +103,7 @@ class PromotionsEntity {
         date.hashCode ^
         startTime.hashCode ^
         endTime.hashCode ^
-        tocrgId.hashCode;
+        tocrgId.hashCode ^
+        promoDescription.hashCode;
   }
 }

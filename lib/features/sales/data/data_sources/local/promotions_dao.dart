@@ -44,20 +44,27 @@ class PromosDao extends BaseDao<PromotionsModel> {
     await db.delete('toprm');
   }
 
-  // Future<List<PromotionsModel>> readByToitmId(String promoId,
-  //     {Transaction? txn}) async {
-  //   if (txn != null) {
-  //     final result = await txn.query(tableName);
+  Future<List<PromotionsModel>> readByToitmId(
+      String toitmId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    if (txn != null) {
+      final res = await dbExecutor.query(
+        tableName,
+        columns: modelFields,
+        where: 'toitmId = ?',
+        whereArgs: [toitmId],
+      );
 
-  //     return result
-  //         .map((itemData) => PromotionsModel.fromMap(itemData))
-  //         .toList();
-  //   } else {
-  //     final result = await db.query(tableName);
+      return res.map((itemData) => PromotionsModel.fromMap(itemData)).toList();
+    } else {
+      final res = await dbExecutor.query(
+        tableName,
+        columns: modelFields,
+        where: 'toitmId = ?',
+        whereArgs: [toitmId],
+      );
 
-  //     return result
-  //         .map((itemData) => PromotionsModel.fromMap(itemData))
-  //         .toList();
-  //   }
-  // }
+      return res.map((itemData) => PromotionsModel.fromMap(itemData)).toList();
+    }
+  }
 }

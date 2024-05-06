@@ -13,6 +13,7 @@ import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.d
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/pos_parameter_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/promos_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/queued_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_content_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_repository_impl.dart';
@@ -23,12 +24,15 @@ import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/pos_paramater_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/promos_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_content_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
+import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
@@ -244,6 +248,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<VouchersSelectionRepository>(
       () => VouchersSelectionRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<PromotionsRepository>(
+      () => PromotionsRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -300,6 +307,12 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<CheckVoucherUseCase>(
       () => CheckVoucherUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CreatePromotionsUseCase>(
+      () => CreatePromotionsUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CheckPromoUseCase>(
+      () => CheckPromoUseCase(sl()),
       dependsOn: [AppDatabase]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 

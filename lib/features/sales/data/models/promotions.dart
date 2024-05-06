@@ -12,6 +12,7 @@ class PromotionsFields {
     startTime,
     endTime,
     tocrgId,
+    promoDescription,
   ];
   static const String toitmId = "toitmId";
   static const String promoType = "promotype";
@@ -20,6 +21,7 @@ class PromotionsFields {
   static const String startTime = "starttime";
   static const String endTime = "endtime";
   static const String tocrgId = "tocrgId";
+  static const String promoDescription = "promodescription";
 }
 
 class PromotionsModel extends PromotionsEntity implements BaseModel {
@@ -31,6 +33,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
     required super.startTime,
     required super.endTime,
     required super.tocrgId,
+    required super.promoDescription,
   });
 
   @override
@@ -43,6 +46,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
       'starttime': startTime.toUtc().toIso8601String(),
       'endtime': endTime.toUtc().toIso8601String(),
       'tocrgId': tocrgId,
+      'promodescription': promoDescription,
     };
   }
 
@@ -55,6 +59,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
       startTime: DateTime.parse(map['starttime'] as String).toLocal(),
       endTime: DateTime.parse(map['endtime'] as String).toLocal(),
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      promoDescription: map['promodescription'] as String,
     );
   }
 
@@ -67,6 +72,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
       startTime: entity.startTime,
       endTime: entity.endTime,
       tocrgId: entity.tocrgId,
+      promoDescription: entity.promoDescription,
     );
   }
 }
