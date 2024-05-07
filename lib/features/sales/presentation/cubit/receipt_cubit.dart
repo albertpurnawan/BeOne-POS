@@ -82,17 +82,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     double taxAmount = 0;
     bool isNewReceiptItem = true;
     ReceiptItemEntity? receiptItemEntityAfterPromoCheck;
+    final now = DateTime.now();
 
     for (final currentReceiptItem in state.receiptItems) {
       if (currentReceiptItem.itemEntity.barcode == itemBarcode) {
         currentReceiptItem.quantity += quantity;
-        dev.log("QTY $quantity");
-        dev.log("QTY ${currentReceiptItem.quantity}");
         receiptItemEntityAfterPromoCheck = currentReceiptItem;
-        // check promo
         final checkPromoUseCase = GetIt.instance<CheckPromoUseCase>();
         final promos = await checkPromoUseCase.call(params: itemEntity.toitmId);
 
+        // check promo
         if (promos.isNotEmpty) {
           for (final promo in promos) {
             if (promo!.toitmId == itemEntity.toitmId) {
@@ -106,29 +105,49 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                       .readAll();
                   bool promoAlreadyApplied =
                       currentReceiptItem.promos.contains(promo);
-                  if (tpsb4.tostrId == topos[0].tostrId) {
-                    // validate for time
 
-                    if (!promoAlreadyApplied) {
-                      final tpsb1 = await GetIt.instance<AppDatabase>()
-                          .promoHargaSpesialBuyDao
-                          .readByTopsbId(promo.promoId!, null);
-                      if (currentReceiptItem.quantity >= tpsb1.qty) {
-                        receiptItemEntityAfterPromoCheck =
-                            currentReceiptItem.copyWith(
-                          itemEntity: currentReceiptItem.itemEntity.copyWith(
-                            price: itemEntity.includeTax == 1
-                                ? (currentReceiptItem.itemEntity.dpp -
-                                        tpsb1.price) *
-                                    ((100 + itemEntity.taxRate) / 100)
-                                : currentReceiptItem.itemEntity.dpp -
-                                    tpsb1.price,
-                            dpp:
-                                currentReceiptItem.itemEntity.dpp - tpsb1.price,
-                          ),
-                          promos: [...currentReceiptItem.promos, promo],
-                        );
-                        promotionsApplied.add(promo);
+                  // check store participated in promo or not
+                  if (tpsb4.tostrId == topos[0].tostrId) {
+                    final startHour = promo.startTime.hour;
+                    final startMinute = promo.startTime.minute;
+                    final startSecond = promo.startTime.second;
+                    DateTime startPromo = DateTime(now.year, now.month, now.day,
+                        startHour, startMinute, startSecond);
+                    final endHour = promo.endTime.hour;
+                    final endMinute = promo.endTime.minute;
+                    final endSecond = promo.endTime.second;
+                    DateTime endPromo = DateTime(now.year, now.month, now.day,
+                        endHour, endMinute, endSecond);
+
+                    // check the time of promo
+                    if (now.millisecondsSinceEpoch >=
+                            startPromo.millisecondsSinceEpoch &&
+                        now.millisecondsSinceEpoch <=
+                            endPromo.millisecondsSinceEpoch) {
+                      // check promo already applied
+                      if (!promoAlreadyApplied) {
+                        final tpsb1 = await GetIt.instance<AppDatabase>()
+                            .promoHargaSpesialBuyDao
+                            .readByTopsbId(promo.promoId!, null);
+
+                        // check promo buy condition: quantity
+                        if (currentReceiptItem.quantity >= tpsb1.qty) {
+                          receiptItemEntityAfterPromoCheck =
+                              currentReceiptItem.copyWith(
+                            itemEntity: currentReceiptItem.itemEntity.copyWith(
+                              price: itemEntity.includeTax == 1
+                                  ? (currentReceiptItem.itemEntity.dpp -
+                                          tpsb1.price) *
+                                      ((100 + itemEntity.taxRate) / 100)
+                                  : currentReceiptItem.itemEntity.dpp -
+                                      tpsb1.price,
+                              dpp: currentReceiptItem.itemEntity.dpp -
+                                  tpsb1.price,
+                            ),
+                            promos: [...currentReceiptItem.promos, promo],
+                          );
+                          promotionsApplied.add(promo);
+                        }
                       }
                     }
                     break;
@@ -160,9 +179,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         receiptItemEntityAfterPromoCheck.totalAmount =
             receiptItemEntityAfterPromoCheck.totalGross +
                 receiptItemEntityAfterPromoCheck.taxAmount;
-        dev.log("$isNewReceiptItem");
         isNewReceiptItem = false;
-        dev.log("$isNewReceiptItem");
         newReceiptItems.add(receiptItemEntityAfterPromoCheck);
       } else {
         dev.log("$isNewReceiptItem");
