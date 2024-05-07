@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 // import 'package:flutter/material.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
@@ -12,8 +15,10 @@ import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
+import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -34,7 +39,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       final POSParameterModel posParameterModel =
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
 
-      print(posParameterModel);
+      final EmployeeModel employee =
+          (await _appDatabase.employeeDao.readByEmpCode("99", txn))!;
+
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1Id = prefs.getString('tcsr1Id');
 
@@ -46,7 +53,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docnum: receiptEntity.docNum, // generate
         orderNo: 1, // generate
         tocusId: receiptEntity.customerEntity?.docId,
-        tohemId: null, // get di sini atau dari awal aja
+        tohemId: employee.docId, // get di sini atau dari awal aja
         transDateTime: null, // dao
         timezone: "GMT+07",
         remarks: null, // sementara hardcode
@@ -70,6 +77,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
       );
+      log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
       await _appDatabase.invoiceHeaderDao
           .create(data: invoiceHeaderModel, txn: txn);
@@ -127,6 +135,58 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       );
 
       await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
+
+      List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
+
+      for (final voucherSelection in vouchers) {
+        final PayMeansModel paymeansModel = PayMeansModel(
+          docId: _uuid.v4(),
+          createDate: null,
+          updateDate: null,
+          toinvId: generatedInvoiceHeaderDocId,
+          lineNum: 1,
+          tpmt3Id: voucherSelection.tpmt3Id,
+          amount: double.parse(voucherSelection.voucherAmount.toString()),
+          tpmt2Id: null,
+          cardNo: null,
+          cardHolder: null,
+          sisaVoucher: 0,
+        );
+
+        await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
+      }
+
+      vouchers = vouchers.map((voucher) {
+        voucher.tinv2Id = generatedInvoiceHeaderDocId;
+        return voucher;
+      }).toList();
+
+      final List<VouchersSelectionModel> vouchersModel =
+          vouchers.asMap().entries.map((entry) {
+        final VouchersSelectionEntity e = entry.value;
+        return VouchersSelectionModel(
+          docId: e.docId,
+          tpmt3Id: e.tpmt3Id,
+          tovcrId: e.tovcrId,
+          voucherAlias: e.voucherAlias,
+          voucherAmount: e.voucherAmount,
+          validFrom: e.validFrom,
+          validTo: e.validTo,
+          serialNo: e.serialNo,
+          voucherStatus: e.voucherStatus,
+          statusActive: e.statusActive,
+          redeemDate: e.redeemDate,
+          tinv2Id: e.tinv2Id,
+        );
+      }).toList();
+
+      await Future.forEach(vouchersModel, (voucher) async {
+        await _appDatabase.vouchersSelectionDao.update(
+          docId: voucher.docId,
+          data: voucher,
+          txn: txn,
+        );
+      });
     });
 
     return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId);
@@ -158,6 +218,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
      * 3. Ambil pay means
      *  - ambil semua relations => mopSelection
      *  - amountReceived
+     * 4. Vouchers
      */
 
     final Database db = await _appDatabase.getDB();
@@ -166,6 +227,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     await db.transaction((txn) async {
       final InvoiceHeaderModel? invoiceHeaderModel =
           await _appDatabase.invoiceHeaderDao.readByDocId(docId, txn);
+      log("INVOICE HEADER MODEL 2 - $invoiceHeaderModel");
+
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
       }
@@ -173,16 +236,19 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           ? await _appDatabase.customerDao
               .readByDocId(invoiceHeaderModel.tocusId!, txn)
           : null;
+
       final EmployeeModel? employeeModel = invoiceHeaderModel.tohemId != null
           ? await _appDatabase.employeeDao
               .readByDocId(invoiceHeaderModel.tohemId!, txn)
           : null;
+
       final List<PayMeansModel> payMeansModels =
           await _appDatabase.payMeansDao.readByToinvId(docId, txn);
       final MopSelectionModel? mopSelectionModel = payMeansModels.isNotEmpty
           ? await _appDatabase.mopByStoreDao
               .readByDocIdIncludeRelations(payMeansModels[0].tpmt3Id!, txn)
           : null;
+
       final List<InvoiceDetailModel> invoiceDetailModels =
           await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
 
@@ -193,34 +259,53 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             .readByDocId(invoiceDetailModel.toitmId!, txn);
         if (itemMasterModel == null) throw "Item not found";
         receiptItemModels.add(ReceiptItemModel(
-            quantity: invoiceDetailModel.quantity,
-            totalGross: invoiceDetailModel.totalAmount *
+          quantity: invoiceDetailModel.quantity,
+          totalGross: invoiceDetailModel.totalAmount *
+              100 /
+              (100 + invoiceDetailModel.taxPrctg),
+          taxAmount: invoiceDetailModel.totalAmount *
+              (invoiceDetailModel.taxPrctg / 100),
+          itemEntity: ItemModel(
+            id: null,
+            itemName: itemMasterModel.itemName,
+            itemCode: itemMasterModel.itemCode,
+            barcode: "",
+            price: 0,
+            toitmId: itemMasterModel.docId,
+            tbitmId: invoiceDetailModel.tbitmId!,
+            tpln2Id: "",
+            openPrice: itemMasterModel.openPrice,
+            tovenId: invoiceDetailModel.tovenId!,
+            tovatId: invoiceDetailModel.tovatId!,
+            taxRate: invoiceDetailModel.taxPrctg,
+            dpp: invoiceDetailModel.sellingPrice *
                 100 /
                 (100 + invoiceDetailModel.taxPrctg),
-            taxAmount: invoiceDetailModel.totalAmount *
-                (invoiceDetailModel.taxPrctg / 100),
-            itemEntity: ItemModel(
-              id: null,
-              itemName: itemMasterModel.itemName,
-              itemCode: itemMasterModel.itemCode,
-              barcode: "",
-              price: 0,
-              toitmId: itemMasterModel.docId,
-              tbitmId: invoiceDetailModel.tbitmId!,
-              tpln2Id: "",
-              openPrice: itemMasterModel.openPrice,
-              tovenId: invoiceDetailModel.tovenId!,
-              tovatId: invoiceDetailModel.tovatId!,
-              taxRate: invoiceDetailModel.taxPrctg,
-              dpp: invoiceDetailModel.sellingPrice *
-                  100 /
-                  (100 + invoiceDetailModel.taxPrctg),
-              includeTax: itemMasterModel.includeTax,
-            ),
-            sellingPrice: invoiceDetailModel.sellingPrice,
-            totalAmount: invoiceDetailModel.totalAmount,
-            totalSellBarcode:
-                invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity));
+            includeTax: itemMasterModel.includeTax,
+          ),
+          sellingPrice: invoiceDetailModel.sellingPrice,
+          totalAmount: invoiceDetailModel.totalAmount,
+          totalSellBarcode:
+              invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity,
+          promos: [],
+        ));
+      }
+
+      List<VouchersSelectionModel> voucherModels = [];
+      int totalVoucherAmount = 0;
+
+      for (var payMeansModel in payMeansModels) {
+        if (payMeansModel.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
+          List<VouchersSelectionModel> vouchers =
+              await GetIt.instance<AppDatabase>()
+                  .vouchersSelectionDao
+                  .readBytinv2Id(docId.toString(), txn: txn);
+          voucherModels.addAll(vouchers);
+        }
+      }
+
+      for (var voucherModel in voucherModels) {
+        totalVoucherAmount += voucherModel.voucherAmount;
       }
 
       print(invoiceHeaderModel.transDateTime);
@@ -241,6 +326,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         grandTotal: invoiceHeaderModel.grandTotal,
         totalPayment: invoiceHeaderModel.totalPayment,
         changed: invoiceHeaderModel.changed,
+        vouchers: voucherModels,
+        totalVoucher: totalVoucherAmount,
+        totalNonVoucher: invoiceHeaderModel.grandTotal - totalVoucherAmount,
       );
     });
 

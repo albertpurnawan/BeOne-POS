@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
@@ -61,6 +60,31 @@ import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/pricelist_period_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/product_hierarchy_master_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_buy_conditon_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_get_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_get_condition.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_header.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_buy_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_get_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_item_header.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_buy_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_harga_spesial_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_buy_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_get_condition_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promotions_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/province_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_detail_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_header_dao.dart';
@@ -71,6 +95,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/user_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/user_roles_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/vendor_daro.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/vendor_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/zipcode_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
@@ -133,6 +158,11 @@ import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_price
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_bertingkat_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_get_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_bonus_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_buy_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_customer_group.dart';
@@ -151,12 +181,26 @@ import 'package:pos_fe/features/sales/data/models/promo_credit_card_customer_gro
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_credit_card_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_get_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_item_buy_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_item_get_condition.dart';
+import 'package:pos_fe/features/sales/data/models/promo_diskon_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_gwp_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_buy.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_buy.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_customer_group.dart';
@@ -168,6 +212,7 @@ import 'package:pos_fe/features/sales/data/models/promo_voucher_customer_group.d
 import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_header.dart';
@@ -180,6 +225,7 @@ import 'package:pos_fe/features/sales/data/models/user_logs.dart';
 import 'package:pos_fe/features/sales/data/models/user_role.dart';
 import 'package:pos_fe/features/sales/data/models/vendor.dart';
 import 'package:pos_fe/features/sales/data/models/vendor_group.dart';
+import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/settings/data/data_sources/local/receipt_content_dao.dart';
 import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
@@ -237,6 +283,33 @@ class AppDatabase {
   late MoneyDenominationDao moneyDenominationDao;
   late QueuedInvoiceHeaderDao queuedInvoiceHeaderDao;
   late QueuedInvoiceDetailDao queuedInvoiceDetailDao;
+  late VouchersSelectionDao vouchersSelectionDao;
+  late PromoHargaSpesialHeaderDao promoHargaSpesialHeaderDao;
+  late PromoHargaSpesialBuyDao promoHargaSpesialBuyDao;
+  late PromoHargaSpesialAssignStoreDao promoHargaSpesialAssignStoreDao;
+  late PromoHargaSpesialCustomerGroupDao promoHargaSpesialCustomerGroupDao;
+  late PromoMultiItemHeaderDao promoMultiItemHeaderDao;
+  late PromoMultiItemBuyConditionDao promoMultiItemBuyConditionDao;
+  late PromoMultiItemAssignStoreDao promoMultiItemAssignStoreDao;
+  late PromoMultiItemGetConditionDao promoMultiItemGetConditionDao;
+  late PromoMultiItemCustomerGroupDao promoMultiItemCustomerGroupDao;
+  late PromoDiskonItemHeaderDao promoDiskonItemHeaderDao;
+  late PromoDiskonItemBuyConditionDao promoDiskonItemBuyConditionDao;
+  late PromoDiskonItemAssignStoreDao promoDiskonItemAssignStoreDao;
+  late PromoDiskonItemGetConditionDao promoDiskonItemGetConditionDao;
+  late PromoDiskonItemCustomerGroupDao promoDiskonItemCustomerGroupDao;
+  late PromoDiskonGroupItemHeaderDao promoDiskonGroupItemHeaderDao;
+  late PromoDiskonGroupItemBuyConditionDao promoDiskonGroupItemBuyConditionDao;
+  late PromoDiskonGroupItemAssignStoreDao promoDiskonGroupItemAssignStoreDao;
+  late PromoDiskonGroupItemGetConditionDao promoDiskonGroupItemGetConditionDao;
+  late PromoDiskonGroupItemCustomerGroupDao
+      promoDiskonGroupItemCustomerGroupDao;
+  late PromoBuyXGetYHeaderDao promoBuyXGetYHeaderDao;
+  late PromoBuyXGetYBuyConditionDao promoBuyXGetYBuyConditionDao;
+  late PromoBuyXGetYAssignStoreDao promoBuyXGetYAssignStoreDao;
+  late PromoBuyXGetYGetConditionDao promoBuyXGetYGetConditionDao;
+  late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
+  late PromosDao promosDao;
 
   AppDatabase._init();
 
@@ -321,6 +394,39 @@ PRAGMA foreign_keys = ON;
     moneyDenominationDao = MoneyDenominationDao(_database!);
     queuedInvoiceHeaderDao = QueuedInvoiceHeaderDao(_database!);
     queuedInvoiceDetailDao = QueuedInvoiceDetailDao(_database!);
+    vouchersSelectionDao = VouchersSelectionDao(_database!);
+    promoHargaSpesialHeaderDao = PromoHargaSpesialHeaderDao(_database!);
+    promoHargaSpesialBuyDao = PromoHargaSpesialBuyDao(_database!);
+    promoHargaSpesialAssignStoreDao =
+        PromoHargaSpesialAssignStoreDao(_database!);
+    promoHargaSpesialCustomerGroupDao =
+        PromoHargaSpesialCustomerGroupDao(_database!);
+    promoMultiItemHeaderDao = PromoMultiItemHeaderDao(_database!);
+    promoMultiItemBuyConditionDao = PromoMultiItemBuyConditionDao(_database!);
+    promoMultiItemAssignStoreDao = PromoMultiItemAssignStoreDao(_database!);
+    promoMultiItemGetConditionDao = PromoMultiItemGetConditionDao(_database!);
+    promoMultiItemCustomerGroupDao = PromoMultiItemCustomerGroupDao(_database!);
+    promoDiskonItemHeaderDao = PromoDiskonItemHeaderDao(_database!);
+    promoDiskonItemBuyConditionDao = PromoDiskonItemBuyConditionDao(_database!);
+    promoDiskonItemAssignStoreDao = PromoDiskonItemAssignStoreDao(_database!);
+    promoDiskonItemGetConditionDao = PromoDiskonItemGetConditionDao(_database!);
+    promoDiskonItemCustomerGroupDao =
+        PromoDiskonItemCustomerGroupDao(_database!);
+    promoDiskonGroupItemHeaderDao = PromoDiskonGroupItemHeaderDao(_database!);
+    promoDiskonGroupItemBuyConditionDao =
+        PromoDiskonGroupItemBuyConditionDao(_database!);
+    promoDiskonGroupItemAssignStoreDao =
+        PromoDiskonGroupItemAssignStoreDao(_database!);
+    promoDiskonGroupItemGetConditionDao =
+        PromoDiskonGroupItemGetConditionDao(_database!);
+    promoDiskonGroupItemCustomerGroupDao =
+        PromoDiskonGroupItemCustomerGroupDao(_database!);
+    promoBuyXGetYHeaderDao = PromoBuyXGetYHeaderDao(_database!);
+    promoBuyXGetYBuyConditionDao = PromoBuyXGetYBuyConditionDao(_database!);
+    promoBuyXGetYAssignStoreDao = PromoBuyXGetYAssignStoreDao(_database!);
+    promoBuyXGetYGetConditionDao = PromoBuyXGetYGetConditionDao(_database!);
+    promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
+    promosDao = PromosDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
@@ -407,6 +513,7 @@ INNER JOIN (
       await _database!.execute("""
 DELETE FROM items
 """);
+      // refresh table
       await _database!.execute("""
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
 SELECT 
@@ -456,108 +563,6 @@ FROM
       ) AS pr ON pr.tpln1Id = pp.tpln1Id 
     WHERE 
       pl.tcurrId = '259eff8d-2105-41ea-978f-45ea417e0799' 
-    GROUP BY 
-      pr.toitmId
-  ) as p 
-  INNER JOIN (
-    SELECT 
-      tbitmId, 
-      price, 
-      tpln2Id 
-    FROM 
-      tpln4
-  ) as b ON p.tpln2Id = b.tpln2Id 
-  INNER JOIN (
-    SELECT 
-      docid, 
-      barcode 
-    FROM 
-      tbitm
-  ) as bc ON bc.docid = b.tbitmId 
-  INNER JOIN (
-    SELECT 
-      docid, 
-      itemcode, 
-      itemname, 
-      touomId, 
-      openprice,
-      includetax 
-    FROM 
-      toitm
-  ) as i ON i.docid = p.toitmId 
-  INNER JOIN (
-    SELECT 
-      docid AS touomId, 
-      uomcode 
-    FROM 
-      touom
-  ) as u ON u.touomId = i.touomId
-  INNER JOIN (
-    SELECT
-      docid AS tsitmId,
-      ${taxByItem ? "tovatId," : ""} 
-      toitmId
-    FROM
-      tsitm
-  ) as s ON s.toitmId = p.toitmId
-  INNER JOIN (
-    SELECT
-      tsitmId,
-      tovenId
-    FROM
-      tvitm
-  ) as v ON v.tsitmId = s.tsitmId
-  ${taxByItem ? taxAdditionalQuery : ""} 
-""");
-      log("""
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
-SELECT 
-  i.itemname, 
-  i.itemcode, 
-  bc.barcode, 
-  b.price, 
-  p.toitmId, 
-  b.tbitmId, 
-  b.tpln2Id, 
-  i.openprice,
-  v.tovenId,
-  i.includetax,
-  ${taxByItem ? "t.tovatId as tovatId" : storeTovatId},
-  ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
-  ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"}
-FROM 
-  (
-    SELECT 
-      docid AS toplnId, 
-      pp.tpln1Id, 
-      pr.tpln2Id, 
-      pr.toitmId, 
-      DATETIME(pp.tpln1createdate) AS tpln1createdate, 
-      MAX(
-        DATETIME(pp.tpln1createdate)
-      ) AS latestPrice 
-    FROM 
-      topln AS pl 
-      INNER JOIN (
-        SELECT 
-          docid AS tpln1Id, 
-          toplnId, 
-          createdate AS tpln1createdate 
-        FROM 
-          tpln1 
-        WHERE 
-          DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
-      ) AS pp ON pl.docid = pp.toplnId 
-      INNER JOIN (
-        SELECT 
-          docid AS tpln2Id, 
-          tpln1Id, 
-          toitmId 
-        FROM 
-          tpln2
-      ) AS pr ON pr.tpln1Id = pp.tpln1Id 
-    WHERE 
-      pl.tcurrId = 'cff4edc0-7612-4681-8d7c-c90e9e97c6dc' 
     GROUP BY 
       pr.toitmId
   ) as p 
@@ -1395,6 +1400,7 @@ CREATE TABLE $tableUser (
         // CONSTRAINT `tousr_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
         // CONSTRAINT `tousr_torolId_fkey` FOREIGN KEY (`torolId`) REFERENCES `torol` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 
+        // create temp table item
         await txn.execute('''
 CREATE TABLE $tableItems (
 ${ItemFields.id} $idTypeAndConstraints,
@@ -2765,6 +2771,391 @@ CREATE TABLE $tableQueuedInvoiceDetail (
 )
 """);
         // CONSTRAINT `tinv1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+
+        await txn.execute("""
+CREATE TABLE $tableVouchersSelection (
+  ${VoucherSelectionFields.docId} text NOT NULL,
+  ${VoucherSelectionFields.tpmt3Id} text NOT NULL,
+  ${VoucherSelectionFields.tovcrId} text NOT NULL,
+  ${VoucherSelectionFields.voucherAlias} text NOT NULL,
+  ${VoucherSelectionFields.voucherAmount} int NOT NULL,
+  ${VoucherSelectionFields.validFrom} datetime NOT NULL,
+  ${VoucherSelectionFields.validTo} datetime NOT NULL,
+  ${VoucherSelectionFields.serialNo} text NOT NULL,
+  ${VoucherSelectionFields.voucherStatus} int NOT NULL,
+  ${VoucherSelectionFields.statusActive} int NOT NULL,
+  ${VoucherSelectionFields.redeemDate} datetime DEFAULT NULL,
+  ${VoucherSelectionFields.tinv2Id} text DEFAULT NULL
+)
+""");
+// CONSTRAINT `tvcr9_tinv2_fkey` FOREIGN KEY (`tinv2Id`) REFERENCES `tinv2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpecialHeader (
+  $uuidDefinition,
+  ${PromoHargaSpesialHeaderFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoHargaSpesialHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoHargaSpesialHeaderFields.startDate} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.endDate} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.startTime} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.endTime} datetime NOT NULL,
+  ${PromoHargaSpesialHeaderFields.remarks} text,
+  ${PromoHargaSpesialHeaderFields.statusActive} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.maxPurchaseDay} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.maxPurchaseTransaction} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.validMultiply} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.quota} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.promoAlias} int NOT NULL,
+  ${PromoHargaSpesialHeaderFields.toitmId} text DEFAULT NULL,
+  ${PromoHargaSpesialHeaderFields.promoType} int DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topsb_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpesialBuy (
+  $uuidDefinition,
+  ${PromoHargaSpesialBuyFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialBuyFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialBuyFields.topsbId} text DEFAULT NULL,
+  ${PromoHargaSpesialBuyFields.qty} double NOT NULL,
+  ${PromoHargaSpesialBuyFields.price} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpsb1_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpesialAssignStore (
+  $uuidDefinition,
+  ${PromoHargaSpesialAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialAssignStoreFields.topsbId} text DEFAULT NULL,
+  ${PromoHargaSpesialAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoHargaSpesialAssignStoreFields.holiday} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day1} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day2} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day3} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day4} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day5} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day6} int NOT NULL,
+  ${PromoHargaSpesialAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpsb2_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpsb2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoHargaSpesialCustomerGroup (
+  $uuidDefinition,
+  ${PromoHargaSpesialCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoHargaSpesialCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoHargaSpesialCustomerGroupFields.topsbId} text DEFAULT NULL,
+  ${PromoHargaSpesialCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpsb2_topsbId_fkey` FOREIGN KEY (`topsbId`) REFERENCES `topsb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpsb2_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemHeader (
+  $uuidDefinition,
+  ${PromoBonusMultiItemHeaderFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.startDate} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.endDate} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.startTime} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.endTime} datetime NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.remarks} text DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.statusActive} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.promoType} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.buyCondition} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.getCondition} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalQtyFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalQtyTo} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalPriceFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.totalPriceTo} double DEFAULT NULL,
+  ${PromoBonusMultiItemHeaderFields.validMultiply} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.promoAlias} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.transactionLimit} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemBuyCondition (
+  $uuidDefinition,
+  ${PromoBonusMultiItemBuyConditionFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.toitmId} text DEFAULT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.qtyFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.qtyTo} double DEFAULT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.priceFrom} double DEFAULT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.priceTo} double DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi1_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemAssignStore (
+  $uuidDefinition,
+  ${PromoBonusMultiItemAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.holiday} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day1} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day2} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day3} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day4} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day5} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day6} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi2_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemGetCondition (
+  $uuidDefinition,
+  ${PromoBonusMultiItemGetConditionFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.toitmId} text DEFAULT NULL,
+  ${PromoBonusMultiItemGetConditionFields.quantity} double NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.price} double NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.quota} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi1_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
+  $uuidDefinition,
+  ${PromoBonusMultiItemCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.topmiId} text DEFAULT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpmi5_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpmi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonItemHeader (
+  $uuidDefinition,
+  ${PromoDiskonItemHeaderFields.createDate} datetime NOT NULL,
+  ${PromoDiskonItemHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonItemHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoDiskonItemHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoDiskonItemHeaderFields.startDate} datetime NOT NULL,
+  ${PromoDiskonItemHeaderFields.endDate} datetime NOT NULL,
+  ${PromoDiskonItemHeaderFields.startTime} datetime NOT NULL,
+  ${PromoDiskonItemHeaderFields.endTime} datetime NOT NULL,
+  ${PromoDiskonItemHeaderFields.remarks} text DEFAULT NULL,
+  ${PromoDiskonItemHeaderFields.statusActive} int NOT NULL,
+  ${PromoDiskonItemHeaderFields.promoType} int NOT NULL,
+  ${PromoDiskonItemHeaderFields.buyCondition} int NOT NULL,
+  ${PromoDiskonItemHeaderFields.promoValue} double NOT NULL,
+  ${PromoDiskonItemHeaderFields.discount1} double NOT NULL,
+  ${PromoDiskonItemHeaderFields.discount2} double NOT NULL,
+  ${PromoDiskonItemHeaderFields.discount3} double NOT NULL,
+  ${PromoDiskonItemHeaderFields.totalQtyFrom} double DEFAULT NULL,
+  ${PromoDiskonItemHeaderFields.totalQtyTo} double DEFAULT NULL,
+  ${PromoDiskonItemHeaderFields.totalPriceFrom} double DEFAULT NULL,
+  ${PromoDiskonItemHeaderFields.totalPriceTo} double DEFAULT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonItemBuyCondition (
+  $uuidDefinition,
+  ${PromoDiskonItemBuyConditionFields.createDate} datetime NOT NULL,
+  ${PromoDiskonItemBuyConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonItemBuyConditionFields.topdiId} text DEFAULT NULL,
+  ${PromoDiskonItemBuyConditionFields.toitmId} text DEFAULT NULL,
+  ${PromoDiskonItemBuyConditionFields.priceFrom} double DEFAULT NULL,
+  ${PromoDiskonItemBuyConditionFields.priceTo} double DEFAULT NULL,
+  ${PromoDiskonItemBuyConditionFields.qtyFrom} double DEFAULT NULL,
+  ${PromoDiskonItemBuyConditionFields.qtyTo} double DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdi1_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonItemAssignStore (
+  $uuidDefinition,
+  ${PromoDiskonItemAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonItemAssignStoreFields.topdiId} text DEFAULT NULL,
+  ${PromoDiskonItemAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoDiskonItemAssignStoreFields.holiday} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.day1} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.day2} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.day3} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.day4} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.day5} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.day6} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdi2_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdi2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonItemGetCondition (
+  $uuidDefinition,
+  ${PromoDiskonItemGetConditionFields.createDate} datetime NOT NULL,
+  ${PromoDiskonItemGetConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonItemGetConditionFields.topdiId} text DEFAULT NULL,
+  ${PromoDiskonItemGetConditionFields.promoValue} double NOT NULL,
+  ${PromoDiskonItemGetConditionFields.discount1} double NOT NULL,
+  ${PromoDiskonItemGetConditionFields.discount2} double NOT NULL,
+  ${PromoDiskonItemGetConditionFields.discount3} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdi4_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonItemCustomerGroup (
+  $uuidDefinition,
+  ${PromoDiskonItemCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoDiskonItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonItemCustomerGroupFields.topdiId} text DEFAULT NULL,
+  ${PromoDiskonItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `topdi5_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `topdi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemHeader (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemHeaderFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.promoCode} varchar(30) NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.description} varchar(200) NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.startDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.endDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.startTime} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.endTime} datetime NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.remarks} text DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.statusActive} int NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.promoType} int NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.buyCondition} int NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.promoValue} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.discount1} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.discount2} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.discount3} double NOT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalQtyFrom} double DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalQtyTo} double DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalPriceFrom} double DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.totalPriceTo} double DEFAULT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemBuyCondition (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemBuyConditionFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemBuyConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemBuyConditionFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemBuyConditionFields.tocatId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdg1_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdg1_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemAssignStore (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemAssignStoreFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.tostrId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.holiday} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day1} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day2} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day3} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day4} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day5} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day6} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.day7} int NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdg2_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdg2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemGetCondition (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemGetConditionFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.promoValue} double NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.discount1} double NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.discount2} double NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.discount3} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdg4_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromoDiskonGroupItemCustomerGroup (
+  $uuidDefinition,
+  ${PromoDiskonGroupItemCustomerGroupFields.createDate} datetime NOT NULL,
+  ${PromoDiskonGroupItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+  ${PromoDiskonGroupItemCustomerGroupFields.topdgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tpdg5_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tpdg5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tablePromotions (
+  ${PromotionsFields.toitmId} text DEFAULT NULL,
+  ${PromotionsFields.promoType} int NOT NULL,
+  ${PromotionsFields.promoId} text DEFAULT NULL PRIMARY KEY,
+  ${PromotionsFields.date} datetime NOT NULL,
+  ${PromotionsFields.startTime} datetime NOT NULL,
+  ${PromotionsFields.endTime} datetime NOT NULL,
+  ${PromotionsFields.tocrgId} text DEFAULT NULL,
+  ${PromotionsFields.promoDescription} text NOT NULL,
+  ${PromotionsFields.tocatId} text DEFAULT NULL,
+  ${PromotionsFields.remarks} text DEFAULT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `toprm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toprm_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `toprm_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
       });
     } catch (e) {
       print(e);

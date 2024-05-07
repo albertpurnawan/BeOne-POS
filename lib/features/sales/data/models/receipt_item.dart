@@ -1,4 +1,3 @@
-import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
 class ReceiptItemModel extends ReceiptItemEntity {
@@ -10,5 +9,6 @@ class ReceiptItemModel extends ReceiptItemEntity {
     required super.sellingPrice,
     required super.totalAmount,
     required super.totalSellBarcode,
+    required super.promos,
   });
 }

@@ -142,34 +142,36 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             .readByDocId(queuedInvoiceDetailModel.toitmId!, txn);
         if (itemMasterModel == null) throw "Item not found";
         receiptItemModels.add(ReceiptItemModel(
-            quantity: queuedInvoiceDetailModel.quantity,
-            totalGross: queuedInvoiceDetailModel.totalAmount *
+          quantity: queuedInvoiceDetailModel.quantity,
+          totalGross: queuedInvoiceDetailModel.totalAmount *
+              100 /
+              (100 + queuedInvoiceDetailModel.taxPrctg),
+          taxAmount: queuedInvoiceDetailModel.totalAmount *
+              queuedInvoiceDetailModel.taxPrctg,
+          itemEntity: ItemModel(
+            id: null,
+            itemName: itemMasterModel.itemName,
+            itemCode: itemMasterModel.itemCode,
+            barcode: "", // nanti dibutuhkan melanjutkan transaksi
+            price: 0,
+            toitmId: itemMasterModel.docId,
+            tbitmId: queuedInvoiceDetailModel.tbitmId!,
+            tpln2Id: "",
+            openPrice: itemMasterModel.openPrice,
+            tovenId: queuedInvoiceDetailModel.tovenId!,
+            tovatId: queuedInvoiceDetailModel.tovatId!,
+            taxRate: queuedInvoiceDetailModel.taxPrctg,
+            dpp: queuedInvoiceDetailModel.sellingPrice *
                 100 /
                 (100 + queuedInvoiceDetailModel.taxPrctg),
-            taxAmount: queuedInvoiceDetailModel.totalAmount *
-                queuedInvoiceDetailModel.taxPrctg,
-            itemEntity: ItemModel(
-              id: null,
-              itemName: itemMasterModel.itemName,
-              itemCode: itemMasterModel.itemCode,
-              barcode: "", // nanti dibutuhkan melanjutkan transaksi
-              price: 0,
-              toitmId: itemMasterModel.docId,
-              tbitmId: queuedInvoiceDetailModel.tbitmId!,
-              tpln2Id: "",
-              openPrice: itemMasterModel.openPrice,
-              tovenId: queuedInvoiceDetailModel.tovenId!,
-              tovatId: queuedInvoiceDetailModel.tovatId!,
-              taxRate: queuedInvoiceDetailModel.taxPrctg,
-              dpp: queuedInvoiceDetailModel.sellingPrice *
-                  100 /
-                  (100 + queuedInvoiceDetailModel.taxPrctg),
-              includeTax: itemMasterModel.includeTax,
-            ),
-            sellingPrice: queuedInvoiceDetailModel.sellingPrice,
-            totalAmount: queuedInvoiceDetailModel.totalAmount,
-            totalSellBarcode: queuedInvoiceDetailModel.sellingPrice *
-                queuedInvoiceDetailModel.quantity));
+            includeTax: itemMasterModel.includeTax,
+          ),
+          sellingPrice: queuedInvoiceDetailModel.sellingPrice,
+          totalAmount: queuedInvoiceDetailModel.totalAmount,
+          totalSellBarcode: queuedInvoiceDetailModel.sellingPrice *
+              queuedInvoiceDetailModel.quantity,
+          promos: [],
+        ));
       }
 
       print(invoiceHeaderModel.transDateTime);
@@ -190,6 +192,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         grandTotal: invoiceHeaderModel.grandTotal,
         totalPayment: invoiceHeaderModel.totalPayment,
         changed: invoiceHeaderModel.changed,
+        vouchers: [], // diambil service vouchers
+        totalVoucher: 0, // diambil service vouchers
+        totalNonVoucher: 0, // diambil service vouchers
       );
     });
 
@@ -238,35 +243,37 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           if (itemBarcodeModel == null) throw "Barcode not found";
 
           receiptItemModels.add(ReceiptItemModel(
-              quantity: queuedInvoiceDetailModel.quantity,
-              totalGross: queuedInvoiceDetailModel.totalAmount *
+            quantity: queuedInvoiceDetailModel.quantity,
+            totalGross: queuedInvoiceDetailModel.totalAmount *
+                100 /
+                (100 + queuedInvoiceDetailModel.taxPrctg),
+            taxAmount: queuedInvoiceDetailModel.totalAmount *
+                (queuedInvoiceDetailModel.taxPrctg / 100),
+            itemEntity: ItemModel(
+              id: null,
+              itemName: itemMasterModel.itemName,
+              itemCode: itemMasterModel.itemCode,
+              barcode: itemBarcodeModel
+                  .barcode, // nanti dibutuhkan melanjutkan transaksi
+              price: 0,
+              toitmId: itemMasterModel.docId,
+              tbitmId: queuedInvoiceDetailModel.tbitmId!,
+              tpln2Id: "",
+              openPrice: itemMasterModel.openPrice,
+              tovenId: queuedInvoiceDetailModel.tovenId!,
+              tovatId: queuedInvoiceDetailModel.tovatId!,
+              taxRate: queuedInvoiceDetailModel.taxPrctg,
+              dpp: queuedInvoiceDetailModel.sellingPrice *
                   100 /
                   (100 + queuedInvoiceDetailModel.taxPrctg),
-              taxAmount: queuedInvoiceDetailModel.totalAmount *
-                  (queuedInvoiceDetailModel.taxPrctg / 100),
-              itemEntity: ItemModel(
-                id: null,
-                itemName: itemMasterModel.itemName,
-                itemCode: itemMasterModel.itemCode,
-                barcode: itemBarcodeModel
-                    .barcode, // nanti dibutuhkan melanjutkan transaksi
-                price: 0,
-                toitmId: itemMasterModel.docId,
-                tbitmId: queuedInvoiceDetailModel.tbitmId!,
-                tpln2Id: "",
-                openPrice: itemMasterModel.openPrice,
-                tovenId: queuedInvoiceDetailModel.tovenId!,
-                tovatId: queuedInvoiceDetailModel.tovatId!,
-                taxRate: queuedInvoiceDetailModel.taxPrctg,
-                dpp: queuedInvoiceDetailModel.sellingPrice *
-                    100 /
-                    (100 + queuedInvoiceDetailModel.taxPrctg),
-                includeTax: itemMasterModel.includeTax,
-              ),
-              sellingPrice: queuedInvoiceDetailModel.sellingPrice,
-              totalAmount: queuedInvoiceDetailModel.totalAmount,
-              totalSellBarcode: queuedInvoiceDetailModel.sellingPrice *
-                  queuedInvoiceDetailModel.quantity));
+              includeTax: itemMasterModel.includeTax,
+            ),
+            sellingPrice: queuedInvoiceDetailModel.sellingPrice,
+            totalAmount: queuedInvoiceDetailModel.totalAmount,
+            totalSellBarcode: queuedInvoiceDetailModel.sellingPrice *
+                queuedInvoiceDetailModel.quantity,
+            promos: [],
+          ));
         }
         queuedReceiptModels.add(ReceiptModel(
           toinvId: queuedInvoiceHeaderModel.docId,
@@ -283,6 +290,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           grandTotal: queuedInvoiceHeaderModel.grandTotal,
           totalPayment: queuedInvoiceHeaderModel.totalPayment,
           changed: queuedInvoiceHeaderModel.changed,
+          vouchers: [], // diambil service vouchers
+          totalVoucher: 0, // diambil service vouchers
+          totalNonVoucher: 0, // diambil service vouchers
         ));
       }
     });

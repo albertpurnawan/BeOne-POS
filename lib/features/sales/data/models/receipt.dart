@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/resources/base_model.dart';
-import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
 class ReceiptModel extends ReceiptEntity implements BaseModel {
@@ -19,6 +18,9 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.totalPayment,
     super.changed,
     super.toinvId,
+    required super.vouchers,
+    super.totalVoucher,
+    super.totalNonVoucher,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -38,6 +40,9 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       totalPayment: entity.totalPayment,
       changed: entity.changed,
       toinvId: entity.toinvId,
+      vouchers: entity.vouchers,
+      totalVoucher: entity.totalVoucher,
+      totalNonVoucher: entity.totalNonVoucher,
     );
   }
 }

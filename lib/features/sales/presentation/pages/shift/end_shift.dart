@@ -100,7 +100,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     setState(() {
       totalCash = total;
     });
-    // log("$totalCash in Parent");
   }
 
   @override
@@ -120,8 +119,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         activeShift!.openValue + activeShift!.cashValue + cashFlow;
     String formattedExpectedCash =
         NumberFormat.decimalPattern().format(expectedCash.toInt());
-
-    double totalCashDouble = double.tryParse(totalCash) ?? 0.0;
 
     final cashier = prefs.getString('username');
 

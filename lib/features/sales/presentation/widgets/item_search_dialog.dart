@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -333,6 +332,5 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
       ],
       actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
     );
-    ;
   }
 }

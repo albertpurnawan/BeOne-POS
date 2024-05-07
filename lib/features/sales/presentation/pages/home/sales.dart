@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -19,7 +18,6 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -363,7 +361,8 @@ class _SalesPageState extends State<SalesPage> {
                               itemCount: state.receiptItems.length,
                               itemBuilder: (context, index) {
                                 final e = state.receiptItems[index];
-
+                                final hasPromos = e.promos.isNotEmpty;
+                                // print("$e <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,");
                                 return GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => setState(() {
@@ -570,45 +569,59 @@ class _SalesPageState extends State<SalesPage> {
                                                         ),
                                                       ],
                                                     ),
-                                                    // index % 3 == 0
-                                                    //     ? const Row(
-                                                    //         mainAxisAlignment:
-                                                    //             MainAxisAlignment
-                                                    //                 .spaceBetween,
-                                                    //         crossAxisAlignment:
-                                                    //             CrossAxisAlignment
-                                                    //                 .start,
-                                                    //         children: [
-                                                    //           Text(
-                                                    //             "Aeon card disc",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromARGB(
-                                                    //                 //         255,
-                                                    //                 //         243,
-                                                    //                 //         109,
-                                                    //                 //         0),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //           Text(
-                                                    //             "-26,568",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromARGB(
-                                                    //                 //         255,
-                                                    //                 //         243,
-                                                    //                 //         109,
-                                                    //                 //         0),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //         ],
-                                                    //       )
-                                                    //     : const SizedBox
-                                                    //         .shrink(),
+                                                    //SHOW PROMO HERE
+                                                    //   index % 3 == 0
+                                                    //       ? Row(
+                                                    //           mainAxisAlignment:
+                                                    //               MainAxisAlignment
+                                                    //                   .spaceBetween,
+                                                    //           crossAxisAlignment:
+                                                    //               CrossAxisAlignment
+                                                    //                   .start,
+                                                    //           children: [
+                                                    //             Text(
+                                                    //               state.receiptItems
+                                                    //                           .isNotEmpty &&
+                                                    //                       state
+                                                    //                           .receiptItems[
+                                                    //                               0]
+                                                    //                           .promos
+                                                    //                           .isNotEmpty
+                                                    //                   ? state
+                                                    //                       .receiptItems[
+                                                    //                           0]
+                                                    //                       .promos[
+                                                    //                           0]
+                                                    //                       .promoDescription
+                                                    //                   : "",
+                                                    //               style: TextStyle(
+                                                    //                   // color: Color
+                                                    //                   //     .fromARGB(
+                                                    //                   //         255,
+                                                    //                   //         243,
+                                                    //                   //         109,
+                                                    //                   //         0),
+                                                    //                   fontSize: 16,
+                                                    //                   fontStyle: FontStyle.italic,
+                                                    //                   fontWeight: FontWeight.w500),
+                                                    //             ),
+                                                    //             Text(
+                                                    //               "-33,000",
+                                                    //               style: TextStyle(
+                                                    //                   // color: Color
+                                                    //                   //     .fromARGB(
+                                                    //                   //         255,
+                                                    //                   //         243,
+                                                    //                   //         109,
+                                                    //                   //         0),
+                                                    //                   fontSize: 16,
+                                                    //                   fontStyle: FontStyle.italic,
+                                                    //                   fontWeight: FontWeight.w500),
+                                                    //             ),
+                                                    //           ],
+                                                    //         )
+                                                    //       : const SizedBox
+                                                    //           .shrink(),
                                                     // index % 4 == 0
                                                     //     ? const Row(
                                                     //         mainAxisAlignment:

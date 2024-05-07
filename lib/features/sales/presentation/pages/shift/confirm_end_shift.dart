@@ -1,14 +1,17 @@
-import 'dart:developer';
+import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmEndShift extends StatelessWidget {
@@ -19,19 +22,53 @@ class ConfirmEndShift extends StatelessWidget {
       : super(
           key: key,
         );
+
   final formKey = GlobalKey<FormState>();
+  final passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
 
-  void checkPassword(String password) async {
+  Future<bool> checkPassword(String password) async {
     final String? username = prefs.getString('username');
+    double totalCashDouble =
+        double.tryParse(totalCash.replaceAll(',', '')) ?? 0.0;
+    String hashedPassword = md5.convert(utf8.encode(password)).toString();
 
     if (username != null) {
       final UserModel? user = await GetIt.instance<AppDatabase>()
           .userDao
           .readByUsername(username, null);
 
-      //  final UserModel? currentUser = users.firstWhereOrNull((user) => user.username == username);
+      if (user != null && user.password == hashedPassword) {
+        CashierBalanceTransactionModel closeShift =
+            CashierBalanceTransactionModel(
+          docId: shift.docId,
+          createDate: shift.createDate,
+          updateDate: DateTime.now(),
+          tocsrId: shift.tocsrId,
+          tousrId: shift.tousrId,
+          docNum: shift.docNum,
+          openDate: shift.openDate,
+          openTime: shift.openTime,
+          calcDate: shift.calcDate,
+          calcTime: shift.calcTime,
+          closeDate: DateTime.now(),
+          closeTime: DateTime.now(),
+          timezone: shift.timezone,
+          openValue: shift.openValue,
+          calcValue: shift.calcValue,
+          cashValue: shift.cashValue,
+          closeValue: totalCashDouble,
+          openedbyId: shift.openedbyId,
+          closedbyId: user.docId,
+          approvalStatus: 1,
+        );
+
+        _updateCashierBalanceTransaction(shift.docId, closeShift);
+
+        return true;
+      }
     }
+    return false;
   }
 
   void _updateCashierBalanceTransaction(
@@ -43,8 +80,6 @@ class ConfirmEndShift extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log(shift.toString());
-    log(totalCash);
     return AlertDialog(
       titlePadding: EdgeInsets.all(0),
       title: Container(
@@ -77,7 +112,9 @@ class ConfirmEndShift extends StatelessWidget {
                     constraints: const BoxConstraints(maxWidth: 300),
                     child: CustomInput(
                       label: "Password",
+                      obscureText: true,
                       hint: "Password",
+                      controller: passwordController,
                       prefixIcon: const Icon(Icons.lock),
                       validator: (val) => val == null || val.isEmpty
                           ? "Password is required"
@@ -92,15 +129,35 @@ class ConfirmEndShift extends StatelessWidget {
                       child: const Text("End Shift"),
                       onTap: () async {
                         if (!formKey.currentState!.validate()) return;
+                        bool passwordCorrect =
+                            await checkPassword(passwordController.text);
 
-                        await prefs.setBool('isOpen', false);
-                        await prefs.setString('tcsr1Id', "");
+                        if (passwordCorrect) {
+                          await prefs.setBool('isOpen', false);
+                          await prefs.setString('tcsr1Id', "");
 
-                        if (!context.mounted) return;
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ShiftsList()));
+                          GetIt.instance<LogoutUseCase>().call();
+
+                          if (!context.mounted) return;
+                          context.goNamed(RouteConstants.welcome);
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Invalid Password'),
+                              content:
+                                  Text('Please enter the correct password.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),

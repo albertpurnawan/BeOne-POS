@@ -72,8 +72,9 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
   @override
   Widget build(BuildContext context) {
     final cashier = prefs.getString('username');
-    return Container(
-      color: Color.fromARGB(255, 234, 234, 234),
+    return Material(
+        child: Container(
+      color: const Color.fromARGB(255, 234, 234, 234),
       child: Center(
         child: ScrollWidget(
           // padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -147,7 +148,7 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -246,8 +247,10 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                     docId: const Uuid().v4(),
                     createDate: DateTime.now(),
                     updateDate: DateTime.now(),
-                    tocsrId: "4ca46d3e-30ff-4441-98f8-3fdcf81dc230",
-                    tousrId: "fab056fa-b206-4360-8c35-568407651827",
+                    tocsrId:
+                        "4ca46d3e-30ff-4441-98f8-3fdcf81dc230", // jangan dihardcode
+                    tousrId:
+                        "fab056fa-b206-4360-8c35-568407651827", // jangan dihardcode
                     docNum: docnum,
                     openDate: DateTime.now(),
                     openTime: DateTime.now(),

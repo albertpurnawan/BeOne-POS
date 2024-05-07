@@ -14,22 +14,21 @@ class Constant {
 
   //TENANTID
   static String gtentId = '';
-  // b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb
+  // TenantId : b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb
 
   //STOREID
   static String tostrId = '';
-  // 878694e6-fdf4-49a7-82e3-d0facb685741
-  // e24bd658-bfb6-404f-b867-3e294b8d5b0b
+  // StoreId : e24bd658-bfb6-404f-b867-3e294b8d5b0b
 
   //CASHIERID
   static String tocsrId = '';
   // 4ca46d3e-30ff-4441-98f8-3fdcf81dc230
-  // 018e3ba4-787b-7d59-bfcb-650396eaf0c3
+  // CashierId : 529c9b55-67c6-47b3-9f9a-74a2b3e485a0
 
   // BASEURL
   static String url = "";
   // http://110.239.68.248:8803
-  // http://110.239.68.248:8902
+  // BaseUrl: http://110.239.68.248:8902
 
   // EMAIL ADMIN
   static String emailAdmin = "";

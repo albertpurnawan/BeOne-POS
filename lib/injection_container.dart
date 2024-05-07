@@ -7,24 +7,32 @@ import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/mop_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/pos_parameter_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/promos_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/queued_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_content_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/store_master_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/vouchers_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/pos_paramater_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/promos_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_content_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
+import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
@@ -70,6 +78,30 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_mast
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/product_hierarchy_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_assign_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_buy_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_get_condition_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_header_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_assign_store.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_buy_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_customer_group_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_header_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
@@ -136,6 +168,52 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<InvoiceDetailApi>(InvoiceDetailApi(sl()));
   sl.registerSingleton<InvoiceApi>(InvoiceApi(sl()));
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
+  sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialApi>(PromoHargaSpesialApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialBuyApi>(PromoHargaSpesialBuyApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialAssignStoreApi>(
+      PromoHargaSpesialAssignStoreApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialCustomerGroupApi>(
+      PromoHargaSpesialCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemHeaderApi>(
+      PromoBonusMultiItemHeaderApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemBuyConditionApi>(
+      PromoBonusMultiItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemAssignStoreApi>(
+      PromoBonusMultiItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemGetConditionApi>(
+      PromoBonusMultiItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(
+      PromoBonusMultiItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoDiskonItemHeaderApi>(
+      PromoDiskonItemHeaderApi(sl()));
+  sl.registerSingleton<PromoDiskonItemBuyConditionApi>(
+      PromoDiskonItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonItemAssignStoreApi>(
+      PromoDiskonItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoDiskonItemGetConditionApi>(
+      PromoDiskonItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonItemCustomerGroupApi>(
+      PromoDiskonItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemHeaderApi>(
+      PromoDiskonGroupItemHeaderApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemBuyConditionApi>(
+      PromoDiskonGroupItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemAssignStoreApi>(
+      PromoDiskonGroupItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemGetConditionApi>(
+      PromoDiskonGroupItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemCustomerGroupApi>(
+      PromoDiskonGroupItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYHeaderApi>(PromoBuyXGetYHeaderApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYBuyConditionApi>(
+      PromoBuyXGetYBuyConditionApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYAssignStoreApi>(
+      PromoBuyXGetYAssignStoreApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYGetConditionApi>(
+      PromoBuyXGetYGetConditionApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(
+      PromoBuyXGetYCustomerGroupApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),
@@ -166,6 +244,12 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<QueuedReceiptRepository>(
       () => QueuedReceiptRepositoryImpl(sl(), sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<VouchersSelectionRepository>(
+      () => VouchersSelectionRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<PromotionsRepository>(
+      () => PromotionsRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
@@ -220,6 +304,15 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase, SharedPreferences]);
   sl.registerSingletonWithDependencies<GetStoreMasterUseCase>(
       () => GetStoreMasterUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CheckVoucherUseCase>(
+      () => CheckVoucherUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CreatePromotionsUseCase>(
+      () => CreatePromotionsUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CheckPromoUseCase>(
+      () => CheckPromoUseCase(sl()),
       dependsOn: [AppDatabase]);
   // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
 

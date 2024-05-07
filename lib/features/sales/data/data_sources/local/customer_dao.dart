@@ -1,5 +1,6 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
+import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CustomerDao extends BaseDao<CustomerModel> {
@@ -7,7 +8,7 @@ class CustomerDao extends BaseDao<CustomerModel> {
       : super(
             db: db,
             tableName: tableCustomer,
-            modelFields: CustomerFields.values);
+            modelFields: CustomerCstFields.values);
 
   @override
   Future<CustomerModel?> readByDocId(String docId, Transaction? txn) async {

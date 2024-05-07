@@ -66,7 +66,6 @@ class _CalculateCashState extends State<CalculateCash> {
 
   void _changeTotalCash(List values) {
     String totalCash = calculateTotalCash(values);
-    // log('Total cash calculated: $totalCash');
     widget.setTotal(totalCash);
   }
 

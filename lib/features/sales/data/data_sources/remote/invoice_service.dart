@@ -3,19 +3,28 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InvoiceApi {
   final Dio _dio;
-  String token = Constant.token;
-  String url = Constant.url;
+  String? url;
+  String? token;
 
   InvoiceApi(this._dio);
 
   Future<void> sendInvoice() async {
     try {
+      log("SEND INVOICE SERVICE");
+      SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      token = prefs.getString('adminToken');
+
+      List<POSParameterModel> pos =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      url = pos[0].baseUrl;
+
       final invHead =
           await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
       log(invHead.toString());
@@ -30,7 +39,33 @@ class InvoiceApi {
           .readByToinvId(invHead[0].docId.toString(), null);
       log(payMean.toString());
 
-      // if (invDet[0].toinvId == invHead[0].docId) {}
+      final vouchers = await GetIt.instance<AppDatabase>()
+          .vouchersSelectionDao
+          .readBytinv2Id(payMean[0].docId.toString(), txn: null);
+      log("$vouchers");
+
+      List<Map<String, dynamic>> invoiceVouchers = [];
+
+      List<Map<String, dynamic>> invoicePayments = [];
+      for (var payment in payMean) {
+        if (payment.tpmt3Id == "07be062c-1b8c-41fd-a16c-9f3d6b228c66") {
+          invoicePayments
+              .add({"tpmt3_id": payment.tpmt3Id, "amount": payment.amount});
+        } else if (payment.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
+          invoicePayments.add({
+            "tpmt3_id": payment.tpmt3Id,
+            "amount": payment.amount,
+            "sisavoucher": 0,
+            "invoice_voucher": [
+              {
+                "serialno":
+                    vouchers.map((voucher) => voucher.serialNo).toList(),
+                "type": 1
+              }
+            ]
+          });
+        }
+      }
 
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
@@ -102,9 +137,7 @@ class InvoiceApi {
             "discamountmember": 0.0
           };
         }).toList(),
-        "invoice_payment": [
-          {"tpmt3_id": payMean[0].tpmt3Id, "amount": payMean[0].amount}
-        ]
+        "invoice_payment": invoicePayments
       };
 
       log("Data2Send: $dataToSend");
