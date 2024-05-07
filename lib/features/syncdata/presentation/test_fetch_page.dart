@@ -1385,6 +1385,7 @@ class _FetchScreenState extends State<FetchScreen> {
             tocrgId: customerGroup.tocrgId,
             promoDescription: header.description,
             tocatId: null,
+            remarks: null,
           ));
         }
       }
@@ -1412,6 +1413,7 @@ class _FetchScreenState extends State<FetchScreen> {
               tocrgId: customerGroup.tocrgId,
               promoDescription: header.description,
               tocatId: null,
+              remarks: null,
             ));
           }
         }
@@ -1437,6 +1439,7 @@ class _FetchScreenState extends State<FetchScreen> {
               tocrgId: customerGroup.tocrgId,
               promoDescription: header.description,
               tocatId: null,
+              remarks: null,
             ));
           }
         }
@@ -1462,6 +1465,7 @@ class _FetchScreenState extends State<FetchScreen> {
               tocrgId: customerGroup.tocrgId,
               promoDescription: header.description,
               tocatId: buyCondition.tocatId,
+              remarks: null,
             ));
           }
         }
@@ -1487,6 +1491,7 @@ class _FetchScreenState extends State<FetchScreen> {
             tocrgId: null,
             promoDescription: header.description,
             tocatId: null,
+            remarks: null,
           ));
           // }
         }

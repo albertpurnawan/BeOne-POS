@@ -12,6 +12,7 @@ class PromotionsEntity {
   final String? tocrgId;
   final String promoDescription;
   final String? tocatId;
+  final String? remarks;
 
   PromotionsEntity({
     required this.toitmId,
@@ -23,6 +24,7 @@ class PromotionsEntity {
     required this.tocrgId,
     required this.promoDescription,
     required this.tocatId,
+    required this.remarks,
   });
 
   PromotionsEntity copyWith({
@@ -35,6 +37,7 @@ class PromotionsEntity {
     String? tocrgId,
     String? promoDescription,
     String? tocatId,
+    String? remarks,
   }) {
     return PromotionsEntity(
       toitmId: toitmId ?? this.toitmId,
@@ -46,6 +49,7 @@ class PromotionsEntity {
       tocrgId: tocrgId ?? this.tocrgId,
       promoDescription: promoDescription ?? this.promoDescription,
       tocatId: tocatId ?? this.tocatId,
+      remarks: remarks ?? this.remarks,
     );
   }
 
@@ -60,6 +64,7 @@ class PromotionsEntity {
       'tocrgId': tocrgId,
       'promoDescription': promoDescription,
       'tocatId': tocatId,
+      'remarks': remarks,
     };
   }
 
@@ -74,6 +79,7 @@ class PromotionsEntity {
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
       promoDescription: map['promoDescription'] as String,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
     );
   }
 
@@ -84,7 +90,7 @@ class PromotionsEntity {
 
   @override
   String toString() {
-    return 'PromotionsEntity(toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId)';
+    return 'PromotionsEntity(toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks)';
   }
 
   @override
@@ -99,7 +105,8 @@ class PromotionsEntity {
         other.endTime == endTime &&
         other.tocrgId == tocrgId &&
         other.promoDescription == promoDescription &&
-        other.tocatId == tocatId;
+        other.tocatId == tocatId &&
+        other.remarks == remarks;
   }
 
   @override
@@ -112,6 +119,7 @@ class PromotionsEntity {
         endTime.hashCode ^
         tocrgId.hashCode ^
         promoDescription.hashCode ^
-        tocatId.hashCode;
+        tocatId.hashCode ^
+        remarks.hashCode;
   }
 }

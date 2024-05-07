@@ -3149,6 +3149,7 @@ CREATE TABLE $tablePromotions (
   ${PromotionsFields.tocrgId} text DEFAULT NULL,
   ${PromotionsFields.promoDescription} text NOT NULL,
   ${PromotionsFields.tocatId} text DEFAULT NULL,
+  ${PromotionsFields.remarks} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `toprm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toprm_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

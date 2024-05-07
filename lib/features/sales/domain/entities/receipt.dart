@@ -6,6 +6,7 @@ import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 
@@ -28,7 +29,7 @@ class ReceiptEntity {
   List<VouchersSelectionEntity> vouchers;
   int? totalVoucher;
   double? totalNonVoucher;
-  // List Promo
+  List<PromotionsEntity>? promos;
 
   ReceiptEntity({
     required this.docNum,
@@ -49,6 +50,7 @@ class ReceiptEntity {
     required this.vouchers,
     this.totalVoucher,
     this.totalNonVoucher,
+    this.promos,
   });
 
   ReceiptEntity copyWith({

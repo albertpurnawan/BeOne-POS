@@ -361,7 +361,8 @@ class _SalesPageState extends State<SalesPage> {
                               itemCount: state.receiptItems.length,
                               itemBuilder: (context, index) {
                                 final e = state.receiptItems[index];
-
+                                final hasPromos = e.promos.isNotEmpty;
+                                // print("$e <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,");
                                 return GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => setState(() {
@@ -569,45 +570,58 @@ class _SalesPageState extends State<SalesPage> {
                                                       ],
                                                     ),
                                                     //SHOW PROMO HERE
-                                                    // index % 3 == 0
-                                                    //     ? const Row(
-                                                    //         mainAxisAlignment:
-                                                    //             MainAxisAlignment
-                                                    //                 .spaceBetween,
-                                                    //         crossAxisAlignment:
-                                                    //             CrossAxisAlignment
-                                                    //                 .start,
-                                                    //         children: [
-                                                    //           Text(
-                                                    //             "Aeon card disc",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromARGB(
-                                                    //                 //         255,
-                                                    //                 //         243,
-                                                    //                 //         109,
-                                                    //                 //         0),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //           Text(
-                                                    //             "-26,568",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromARGB(
-                                                    //                 //         255,
-                                                    //                 //         243,
-                                                    //                 //         109,
-                                                    //                 //         0),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //         ],
-                                                    //       )
-                                                    //     : const SizedBox
-                                                    //         .shrink(),
+                                                    //   index % 3 == 0
+                                                    //       ? Row(
+                                                    //           mainAxisAlignment:
+                                                    //               MainAxisAlignment
+                                                    //                   .spaceBetween,
+                                                    //           crossAxisAlignment:
+                                                    //               CrossAxisAlignment
+                                                    //                   .start,
+                                                    //           children: [
+                                                    //             Text(
+                                                    //               state.receiptItems
+                                                    //                           .isNotEmpty &&
+                                                    //                       state
+                                                    //                           .receiptItems[
+                                                    //                               0]
+                                                    //                           .promos
+                                                    //                           .isNotEmpty
+                                                    //                   ? state
+                                                    //                       .receiptItems[
+                                                    //                           0]
+                                                    //                       .promos[
+                                                    //                           0]
+                                                    //                       .promoDescription
+                                                    //                   : "",
+                                                    //               style: TextStyle(
+                                                    //                   // color: Color
+                                                    //                   //     .fromARGB(
+                                                    //                   //         255,
+                                                    //                   //         243,
+                                                    //                   //         109,
+                                                    //                   //         0),
+                                                    //                   fontSize: 16,
+                                                    //                   fontStyle: FontStyle.italic,
+                                                    //                   fontWeight: FontWeight.w500),
+                                                    //             ),
+                                                    //             Text(
+                                                    //               "-33,000",
+                                                    //               style: TextStyle(
+                                                    //                   // color: Color
+                                                    //                   //     .fromARGB(
+                                                    //                   //         255,
+                                                    //                   //         243,
+                                                    //                   //         109,
+                                                    //                   //         0),
+                                                    //                   fontSize: 16,
+                                                    //                   fontStyle: FontStyle.italic,
+                                                    //                   fontWeight: FontWeight.w500),
+                                                    //             ),
+                                                    //           ],
+                                                    //         )
+                                                    //       : const SizedBox
+                                                    //           .shrink(),
                                                     // index % 4 == 0
                                                     //     ? const Row(
                                                     //         mainAxisAlignment:

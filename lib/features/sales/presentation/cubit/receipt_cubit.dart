@@ -86,6 +86,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     for (final currentReceiptItem in state.receiptItems) {
       if (currentReceiptItem.itemEntity.barcode == itemBarcode) {
         currentReceiptItem.quantity += quantity;
+        dev.log("QTY $quantity");
+        dev.log("QTY ${currentReceiptItem.quantity}");
         receiptItemEntityAfterPromoCheck = currentReceiptItem;
         // check promo
         final checkPromoUseCase = GetIt.instance<CheckPromoUseCase>();
@@ -176,12 +178,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       final checkPromoUseCase = GetIt.instance<CheckPromoUseCase>();
       final promos = await checkPromoUseCase.call(params: itemEntity.toitmId);
       ItemEntity? itemWithPromo = itemEntity.copyWith();
-
+      dev.log("QTY $quantity");
       if (promos.isNotEmpty) {
+        dev.log("HEREEEE");
         for (final promo in promos) {
           if (promo!.toitmId == itemEntity.toitmId) {
             switch (promo.promoType) {
-              case 301:
+              case 202:
                 final tpsb1 = await GetIt.instance<AppDatabase>()
                     .promoHargaSpesialBuyDao
                     .readByTopsbId(promo.promoId!, null);
@@ -233,8 +236,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       grandTotal: subtotal + taxAmount,
     );
     emit(newState);
-    print(newState.taxAmount);
-    print("terjadi");
   }
 
   void addOrUpdateReceiptItemWithOpenPrice(

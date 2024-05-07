@@ -36,6 +36,7 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
             tocrgId: customerGroup.tocrgId,
             promoDescription: header.description,
             tocatId: null,
+            remarks: null,
           ));
         }
       }
@@ -63,6 +64,7 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
               tocrgId: customerGroup.tocrgId,
               promoDescription: header.description,
               tocatId: null,
+              remarks: null,
             ));
           }
         }

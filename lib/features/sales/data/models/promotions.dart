@@ -14,6 +14,7 @@ class PromotionsFields {
     tocrgId,
     promoDescription,
     tocatId,
+    remarks,
   ];
   static const String toitmId = "toitmId";
   static const String promoType = "promotype";
@@ -24,6 +25,7 @@ class PromotionsFields {
   static const String tocrgId = "tocrgId";
   static const String promoDescription = "promodescription";
   static const String tocatId = "tocatId";
+  static const String remarks = "remarks";
 }
 
 class PromotionsModel extends PromotionsEntity implements BaseModel {
@@ -37,6 +39,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
     required super.tocrgId,
     required super.promoDescription,
     required super.tocatId,
+    required super.remarks,
   });
 
   @override
@@ -51,6 +54,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
       'tocrgId': tocrgId,
       'promodescription': promoDescription,
       'tocatId': tocatId,
+      'remarks': remarks,
     };
   }
 
@@ -65,6 +69,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
       promoDescription: map['promodescription'] as String,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
     );
   }
 
@@ -79,6 +84,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
       tocrgId: entity.tocrgId,
       promoDescription: entity.promoDescription,
       tocatId: entity.tocatId,
+      remarks: entity.remarks,
     );
   }
 }
