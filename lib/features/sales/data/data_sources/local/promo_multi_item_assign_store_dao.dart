@@ -37,4 +37,27 @@ class PromoMultiItemAssignStoreDao
             (itemData) => PromoBonusMultiItemAssignStoreModel.fromMap(itemData))
         .toList();
   }
+
+  Future<PromoBonusMultiItemAssignStoreModel> readByTopmiId(
+      String topmiId, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topmiId = ?',
+        whereArgs: [topmiId],
+      );
+
+      return PromoBonusMultiItemAssignStoreModel.fromMap(result.first);
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topmiId = ?',
+        whereArgs: [topmiId],
+      );
+
+      return PromoBonusMultiItemAssignStoreModel.fromMap(result.first);
+    }
+  }
 }

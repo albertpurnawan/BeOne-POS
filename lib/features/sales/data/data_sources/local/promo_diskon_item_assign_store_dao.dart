@@ -44,4 +44,27 @@ class PromoDiskonItemAssignStoreDao
           .toList();
     }
   }
+
+  Future<PromoDiskonItemAssignStoreModel> readByTopdiId(
+      String topdiId, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topdiId = ?',
+        whereArgs: [topdiId],
+      );
+
+      return PromoDiskonItemAssignStoreModel.fromMap(result.first);
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topdiId = ?',
+        whereArgs: [topdiId],
+      );
+
+      return PromoDiskonItemAssignStoreModel.fromMap(result.first);
+    }
+  }
 }

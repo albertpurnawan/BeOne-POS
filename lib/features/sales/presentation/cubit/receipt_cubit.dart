@@ -107,7 +107,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                   bool promoAlreadyApplied =
                       currentReceiptItem.promos.contains(promo);
                   if (tpsb4.tostrId == topos[0].tostrId) {
-                    // validate for days
+                    // validate for time
+
                     if (!promoAlreadyApplied) {
                       final tpsb1 = await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialBuyDao
