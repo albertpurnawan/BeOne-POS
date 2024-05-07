@@ -47,13 +47,13 @@ class PromoMultiItemCustomerGroupDao
   }
 
   Future<List<PromoBonusMultiItemCustomerGroupModel>> readByTopmiId(
-      String topmiid, Transaction? txn) async {
+      String topmiId, Transaction? txn) async {
     if (txn != null) {
       final result = await txn.query(
         tableName,
         columns: modelFields,
-        where: 'topmiid = ?',
-        whereArgs: [topmiid],
+        where: 'topmiId = ?',
+        whereArgs: [topmiId],
       );
       return result
           .map((itemData) =>
@@ -63,8 +63,8 @@ class PromoMultiItemCustomerGroupDao
       final result = await db.query(
         tableName,
         columns: modelFields,
-        where: 'topmiid = ?',
-        whereArgs: [topmiid],
+        where: 'topmiId = ?',
+        whereArgs: [topmiId],
       );
       return result
           .map((itemData) =>

@@ -36,4 +36,27 @@ class PromoHargaSpesialAssignStoreDao
         .map((itemData) => PromoHargaSpesialAssignStoreModel.fromMap(itemData))
         .toList();
   }
+
+  Future<PromoHargaSpesialAssignStoreModel> readByTopsbId(
+      String topsbId, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topsbId = ?',
+        whereArgs: [topsbId],
+      );
+
+      return PromoHargaSpesialAssignStoreModel.fromMap(result.first);
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topsbId = ?',
+        whereArgs: [topsbId],
+      );
+
+      return PromoHargaSpesialAssignStoreModel.fromMap(result.first);
+    }
+  }
 }

@@ -44,4 +44,29 @@ class PromoBuyXGetYCustomerGroupDao
           .toList();
     }
   }
+
+  Future<List<PromoBuyXGetYCustomerGroupModel>> readByToprbid(
+      String toprbId, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'toprbId = ?',
+        whereArgs: [toprbId],
+      );
+      return result
+          .map((itemData) => PromoBuyXGetYCustomerGroupModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'toprbId = ?',
+        whereArgs: [toprbId],
+      );
+      return result
+          .map((itemData) => PromoBuyXGetYCustomerGroupModel.fromMap(itemData))
+          .toList();
+    }
+  }
 }

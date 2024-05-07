@@ -16,7 +16,7 @@ class PromoDiskonItemCustomerGroupFields {
   static const String createDate = "createdate";
   static const String updateDate = "updatedate";
   static const String topdiId = "topdiId";
-  static const String tocrgId = "tocrgid";
+  static const String tocrgId = "tocrgId";
 }
 
 class PromoDiskonItemCustomerGroupModel

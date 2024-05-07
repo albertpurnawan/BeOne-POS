@@ -568,6 +568,7 @@ class _SalesPageState extends State<SalesPage> {
                                                         ),
                                                       ],
                                                     ),
+                                                    //SHOW PROMO HERE
                                                     // index % 3 == 0
                                                     //     ? const Row(
                                                     //         mainAxisAlignment:

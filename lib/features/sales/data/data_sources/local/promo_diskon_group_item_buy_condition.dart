@@ -46,4 +46,31 @@ class PromoDiskonGroupItemBuyConditionDao
           .toList();
     }
   }
+
+  Future<List<PromoDiskonGroupItemBuyConditionModel>> readByTopdgId(
+      String topdgId, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topdgId = ?',
+        whereArgs: [topdgId],
+      );
+      return result
+          .map((itemData) =>
+              PromoDiskonGroupItemBuyConditionModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topdgId = ?',
+        whereArgs: [topdgId],
+      );
+      return result
+          .map((itemData) =>
+              PromoDiskonGroupItemBuyConditionModel.fromMap(itemData))
+          .toList();
+    }
+  }
 }

@@ -113,7 +113,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       quota: map['quota'] as int,
       promoAlias: map['promoalias'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
-      promoType: map['promoType'] != null ? map['promoType'] as int : 301,
+      promoType: map['promoType'] != null ? map['promoType'] as int : null,
     );
   }
 

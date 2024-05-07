@@ -1377,13 +1377,14 @@ class _FetchScreenState extends State<FetchScreen> {
         for (final customerGroup in tpsb4) {
           promos.add(PromotionsModel(
             toitmId: header.toitmId,
-            promoType: header.promoType!,
+            promoType: 202,
             promoId: header.docId,
             date: DateTime.now(),
             startTime: header.startTime,
             endTime: header.endTime,
             tocrgId: customerGroup.tocrgId,
             promoDescription: header.description,
+            tocatId: null,
           ));
         }
       }
@@ -1403,15 +1404,91 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final customerGroup in tpdi5) {
             promos.add(PromotionsModel(
               toitmId: buyCondition.toitmId,
-              promoType: header.promoType,
+              promoType: 206,
               promoId: header.docId,
               date: DateTime.now(),
               startTime: header.startTime,
               endTime: header.endTime,
               tocrgId: customerGroup.tocrgId,
               promoDescription: header.description,
+              tocatId: null,
             ));
           }
+        }
+      }
+
+      for (final header in topdi) {
+        final tpdi1 = await GetIt.instance<AppDatabase>()
+            .promoDiskonItemBuyConditionDao
+            .readByTopdiId(header.docId, null);
+        final tpdi5 = await GetIt.instance<AppDatabase>()
+            .promoDiskonItemCustomerGroupDao
+            .readByTopdiId(header.docId, null);
+
+        for (final buyCondition in tpdi1) {
+          for (final customerGroup in tpdi5) {
+            promos.add(PromotionsModel(
+              toitmId: buyCondition.toitmId,
+              promoType: 203,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: customerGroup.tocrgId,
+              promoDescription: header.description,
+              tocatId: null,
+            ));
+          }
+        }
+      }
+
+      for (final header in topdg) {
+        final tpdg1 = await GetIt.instance<AppDatabase>()
+            .promoDiskonGroupItemBuyConditionDao
+            .readByTopdgId(header.docId, null);
+        final tpdg5 = await GetIt.instance<AppDatabase>()
+            .promoDiskonGroupItemCustomerGroupDao
+            .readByTopdgId(header.docId, null);
+
+        for (final buyCondition in tpdg1) {
+          for (final customerGroup in tpdg5) {
+            promos.add(PromotionsModel(
+              toitmId: null,
+              promoType: 204,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: customerGroup.tocrgId,
+              promoDescription: header.description,
+              tocatId: buyCondition.tocatId,
+            ));
+          }
+        }
+      }
+
+      for (final header in toprb) {
+        final tprb1 = await GetIt.instance<AppDatabase>()
+            .promoBuyXGetYBuyConditionDao
+            .readByToprbid(header.docId, null);
+        // final tprb5 = await GetIt.instance<AppDatabase>()
+        //     .promoBuyXGetYCustomerGroupDao
+        //     .readByToprbid(header.docId, null);
+
+        for (final buyCondition in tprb1) {
+          // for (final customerGroup in tprb5) {
+          promos.add(PromotionsModel(
+            toitmId: buyCondition.toitmId,
+            promoType: 103,
+            promoId: header.docId,
+            date: DateTime.now(),
+            startTime: header.startTime,
+            endTime: header.endTime,
+            tocrgId: null,
+            promoDescription: header.description,
+            tocatId: null,
+          ));
+          // }
         }
       }
 
@@ -1523,54 +1600,33 @@ class _FetchScreenState extends State<FetchScreen> {
       //   // Handle the case where createPromotionsUseCase is null
       //   print('Error: createPromotionsUseCase is null');
       // }
+
       // final promos = <PromotionsModel>[];
 
-      // final topsb = await GetIt.instance<AppDatabase>()
-      //     .promoHargaSpesialHeaderDao
-      //     .readAll();
+      // final toprb =
+      //     await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
+      // for (final header in toprb) {
+      //   final tprb1 = await GetIt.instance<AppDatabase>()
+      //       .promoBuyXGetYBuyConditionDao
+      //       .readByToprbid(header.docId, null);
+      // final tprb5 = await GetIt.instance<AppDatabase>()
+      //     .promoBuyXGetYCustomerGroupDao
+      //     .readByToprbid(header.docId, null);
 
-      // for (final header in topsb) {
-      //   final tpsb4 = await GetIt.instance<AppDatabase>()
-      //       .promoHargaSpesialCustomerGroupDao
-      //       .readByTopsbId(header.docId, null);
-
-      //   for (final customerGroup in tpsb4) {
+      //   for (final buyCondition in tprb1) {
       //     promos.add(PromotionsModel(
-      //       toitmId: header.toitmId,
-      //       promoType: header.promoType!,
+      //       toitmId: buyCondition.toitmId,
+      //       promoType: 103,
       //       promoId: header.docId,
       //       date: DateTime.now(),
       //       startTime: header.startTime,
       //       endTime: header.endTime,
-      //       tocrgId: customerGroup.tocrgId,
+      //       tocrgId: null,
+      //       promoDescription: header.description,
+      //       tocatId: null,
       //     ));
       //   }
-      // }
-
-      // final topdi =
-      //     await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
-
-      // for (final header in topdi) {
-      //   final tpdi1 = await GetIt.instance<AppDatabase>()
-      //       .promoMultiItemBuyConditionDao
-      //       .readByTopmiId(header.docId, null);
-      //   final tpdi5 = await GetIt.instance<AppDatabase>()
-      //       .promoMultiItemCustomerGroupDao
-      //       .readByTopmiId(header.docId, null);
-
-      //   for (final buyCondition in tpdi1) {
-      //     for (final customerGroup in tpdi5) {
-      //       promos.add(PromotionsModel(
-      //         toitmId: buyCondition.toitmId,
-      //         promoType: header.promoType,
-      //         promoId: header.docId,
-      //         date: DateTime.now(),
-      //         startTime: header.startTime,
-      //         endTime: header.endTime,
-      //         tocrgId: customerGroup.tocrgId,
-      //       ));
-      //     }
-      //   }
+      //   log("$promos");
       // }
 
       // await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
