@@ -85,6 +85,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final now = DateTime.now();
 
     for (final currentReceiptItem in state.receiptItems) {
+      double itemSubtotal = 0;
+      double itemTaxAmount = 0;
       if (currentReceiptItem.itemEntity.barcode == itemBarcode) {
         currentReceiptItem.quantity += quantity;
         receiptItemEntityAfterPromoCheck = currentReceiptItem;
@@ -145,6 +147,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                                   tpsb1.price,
                             ),
                             promos: [...currentReceiptItem.promos, promo],
+                            quantity: currentReceiptItem.quantity,
                           );
                           promotionsApplied.add(promo);
                         }
@@ -158,7 +161,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             }
           }
         }
-
         final double priceQty =
             receiptItemEntityAfterPromoCheck!.itemEntity.price *
                 receiptItemEntityAfterPromoCheck.quantity;
@@ -180,15 +182,19 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             receiptItemEntityAfterPromoCheck.totalGross +
                 receiptItemEntityAfterPromoCheck.taxAmount;
         isNewReceiptItem = false;
-        newReceiptItems.add(receiptItemEntityAfterPromoCheck);
+        newReceiptItems
+            .add(receiptItemEntityAfterPromoCheck..promos = promotionsApplied);
+
+        itemSubtotal += receiptItemEntityAfterPromoCheck.totalGross;
+        itemTaxAmount += receiptItemEntityAfterPromoCheck.taxAmount;
       } else {
         dev.log("$isNewReceiptItem");
         newReceiptItems.add(currentReceiptItem);
+        itemSubtotal += currentReceiptItem.totalGross;
+        itemTaxAmount += currentReceiptItem.taxAmount;
       }
-      if (receiptItemEntityAfterPromoCheck != null) {
-        subtotal += receiptItemEntityAfterPromoCheck.totalGross;
-        taxAmount += receiptItemEntityAfterPromoCheck.taxAmount;
-      }
+      subtotal += itemSubtotal;
+      taxAmount += itemTaxAmount;
     }
 
     if (isNewReceiptItem) {
@@ -196,9 +202,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       final checkPromoUseCase = GetIt.instance<CheckPromoUseCase>();
       final promos = await checkPromoUseCase.call(params: itemEntity.toitmId);
       ItemEntity? itemWithPromo = itemEntity.copyWith();
-      dev.log("QTY $quantity");
+      dev.log("ItemEntity $itemEntity");
+      dev.log("ItemWithPromo $itemWithPromo");
       if (promos.isNotEmpty) {
-        dev.log("HEREEEE");
         for (final promo in promos) {
           if (promo!.toitmId == itemEntity.toitmId) {
             switch (promo.promoType) {
@@ -223,12 +229,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           }
         }
       }
-
       final double priceQty = itemWithPromo!.price * quantity;
+      dev.log("PriceQty $priceQty");
       final double totalSellBarcode = priceQty;
       final double totalGross = itemEntity.includeTax == 1
           ? (priceQty * (100 / (100 + itemEntity.taxRate)))
           : priceQty;
+      dev.log("totalGross $totalGross");
       final double taxAmountNewItem = itemEntity.includeTax == 1
           ? (priceQty) - totalGross
           : priceQty * (itemEntity.taxRate / 100);
@@ -243,7 +250,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         totalSellBarcode: totalSellBarcode,
         promos: promotionsApplied,
       ));
+      dev.log("SUBTOT1 $subtotal");
       subtotal += totalGross;
+      dev.log("SubTotal $subtotal");
       taxAmount += taxAmountNewItem;
     }
 
@@ -253,6 +262,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       taxAmount: taxAmount,
       grandTotal: subtotal + taxAmount,
     );
+    dev.log("newState $newState");
     emit(newState);
   }
 
