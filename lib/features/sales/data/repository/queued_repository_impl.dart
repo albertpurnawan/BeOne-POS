@@ -195,6 +195,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         vouchers: [], // diambil service vouchers
         totalVoucher: 0, // diambil service vouchers
         totalNonVoucher: 0, // diambil service vouchers
+        promos: [], // diambil service promos
       );
     });
 
@@ -293,6 +294,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           vouchers: [], // diambil service vouchers
           totalVoucher: 0, // diambil service vouchers
           totalNonVoucher: 0, // diambil service vouchers
+          promos: [], // diambil service promos
         ));
       }
     });

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class VoucherCheckout extends StatefulWidget {
   final Function(
@@ -20,9 +22,13 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
   final _voucherCheckController = TextEditingController();
   List<VouchersSelectionModel> vouchers = [];
   int vouchersAmount = 0;
+  bool minPurchaseFulfilled = true;
+  VouchersSelectionModel? checkMinPurchase;
 
   @override
   Widget build(BuildContext context) {
+    final receiptCubit = context.read<ReceiptCubit>();
+    var checkVoucher;
     return Column(
       children: [
         const Text("Voucher Serial Number"),
@@ -53,22 +59,27 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
             try {
               final voucher = await GetIt.instance<VouchersSelectionApi>()
                   .checkVoucher(value);
-
+              checkVoucher = voucher;
               bool checkSerialNo =
                   vouchers.any((v) => v.serialNo == voucher.serialNo);
 
-              if (!checkSerialNo) {
-                setState(() {
-                  vouchers.add(voucher);
-                  vouchersAmount += voucher.voucherAmount;
-                  _voucherCheckController.clear();
-                });
+              if (receiptCubit.state.subtotal >= voucher.minPurchase) {
+                if (!checkSerialNo) {
+                  setState(() {
+                    vouchers.add(voucher);
+                    vouchersAmount += voucher.voucherAmount;
+                    _voucherCheckController.clear();
+                  });
+                  minPurchaseFulfilled = true;
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Voucher can\'t be used'),
+                    ),
+                  );
+                }
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Voucher can\'t be used'),
-                  ),
-                );
+                minPurchaseFulfilled = false;
               }
             } catch (err) {
               handleError(err);
@@ -81,6 +92,10 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                minPurchaseFulfilled
+                    ? Text("")
+                    : Text(
+                        "Add more purchase to use voucher (min. Rp 500,000)"),
                 Text(
                   "Vouchers Amount: $vouchersAmount",
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -116,60 +131,78 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
             const SizedBox(
               width: 10,
             ),
-            Expanded(
-                child: TextButton(
-              style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
-              onPressed: () async {
-                for (var voucher in vouchers) {
-                  await GetIt.instance<VouchersSelectionApi>()
-                      .redeemVoucher(voucher.serialNo);
+            !minPurchaseFulfilled
+                ? Expanded(
+                    child: TextButton(
+                    style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.black),
+                        overlayColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.white.withOpacity(.2))),
+                    onPressed: () async {},
+                    child: const Center(
+                        child: Text(
+                      "Redeem",
+                      style: TextStyle(color: Colors.white),
+                    )),
+                  ))
+                : Expanded(
+                    child: TextButton(
+                    style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => ProjectColors.primary),
+                        overlayColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.white.withOpacity(.2))),
+                    onPressed: () async {
+                      for (var voucher in vouchers) {
+                        await GetIt.instance<VouchersSelectionApi>()
+                            .redeemVoucher(voucher.serialNo);
 
-                  final checkVoucher = await GetIt.instance<AppDatabase>()
-                      .vouchersSelectionDao
-                      .readByDocId(voucher.docId, null);
+                        final checkVoucher = await GetIt.instance<AppDatabase>()
+                            .vouchersSelectionDao
+                            .readByDocId(voucher.docId, null);
 
-                  if (checkVoucher == null) {
-                    final voucherToSave = VouchersSelectionModel(
-                      docId: voucher.docId,
-                      tpmt3Id: voucher.tpmt3Id,
-                      tovcrId: voucher.tovcrId,
-                      voucherAlias: voucher.voucherAlias,
-                      voucherAmount: voucher.voucherAmount,
-                      validFrom: voucher.validFrom,
-                      validTo: voucher.validTo,
-                      serialNo: voucher.serialNo,
-                      voucherStatus: 1,
-                      statusActive: voucher.statusActive,
-                      redeemDate: voucher.redeemDate,
-                      tinv2Id: "",
-                    );
-                    await GetIt.instance<AppDatabase>()
-                        .vouchersSelectionDao
-                        .create(data: voucherToSave);
-                  }
-                }
+                        if (checkVoucher == null) {
+                          final voucherToSave = VouchersSelectionModel(
+                            docId: voucher.docId,
+                            tpmt3Id: voucher.tpmt3Id,
+                            tovcrId: voucher.tovcrId,
+                            voucherAlias: voucher.voucherAlias,
+                            voucherAmount: voucher.voucherAmount,
+                            validFrom: voucher.validFrom,
+                            validTo: voucher.validTo,
+                            serialNo: voucher.serialNo,
+                            voucherStatus: 1,
+                            statusActive: voucher.statusActive,
+                            minPurchase: voucher.minPurchase,
+                            redeemDate: voucher.redeemDate,
+                            tinv2Id: "",
+                          );
+                          await GetIt.instance<AppDatabase>()
+                              .vouchersSelectionDao
+                              .create(data: voucherToSave);
+                        }
+                      }
 
-                widget.onVouchersRedeemed(vouchers);
+                      widget.onVouchersRedeemed(vouchers);
 
-                setState(() {
-                  vouchers.clear();
-                  vouchersAmount = 0;
-                });
+                      setState(() {
+                        vouchers.clear();
+                        vouchersAmount = 0;
+                      });
 
-                Navigator.of(context).pop();
-              },
-              child: const Center(
-                  child: Text(
-                "Redeem",
-                style: TextStyle(color: Colors.white),
-              )),
-            )),
+                      Navigator.of(context).pop();
+                    },
+                    child: const Center(
+                        child: Text(
+                      "Redeem",
+                      style: TextStyle(color: Colors.white),
+                    )),
+                  )),
           ],
         ),
       ],

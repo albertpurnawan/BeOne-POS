@@ -15,6 +15,7 @@ class VoucherSelectionFields {
     serialNo,
     voucherStatus,
     statusActive,
+    minPurchase,
     redeemDate,
     tinv2Id,
   ];
@@ -29,6 +30,7 @@ class VoucherSelectionFields {
   static const String serialNo = "serialno";
   static const String voucherStatus = "voucherstatus";
   static const String statusActive = "statusactive";
+  static const String minPurchase = "minpurchase";
   static const String redeemDate = "redeemdate";
   static const String tinv2Id = "tinv2Id";
 }
@@ -46,6 +48,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
     required super.serialNo,
     required super.voucherStatus,
     required super.statusActive,
+    required super.minPurchase,
     required super.redeemDate,
     required super.tinv2Id,
   });
@@ -63,6 +66,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
       'serialno': serialNo,
       'voucherstatus': voucherStatus,
       'statusactive': statusActive,
+      'minpurchase': minPurchase,
       'redeemdate': redeemDate?.toUtc().toIso8601String(),
       'tinv2Id': tinv2Id,
     };
@@ -80,6 +84,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
       serialNo: map['serialno'] as String,
       voucherStatus: map['voucherstatus'] as int,
       statusActive: map['statusactive'] as int,
+      minPurchase: map['minpurchase'] as int,
       redeemDate: map['redeemdate'] != null
           ? DateTime.parse(map['redeemdate'] as String).toLocal()
           : null,
@@ -118,6 +123,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
       serialNo: entity.serialNo,
       voucherStatus: entity.voucherStatus,
       statusActive: entity.statusActive,
+      minPurchase: entity.minPurchase,
       redeemDate: entity.redeemDate,
       tinv2Id: entity.tinv2Id,
     );

@@ -20,6 +20,7 @@ class QueuedReceiptModel extends ReceiptEntity implements BaseModel {
     required super.vouchers,
     super.totalVoucher,
     super.totalNonVoucher,
+    required super.promos,
   });
 
   factory QueuedReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -41,6 +42,7 @@ class QueuedReceiptModel extends ReceiptEntity implements BaseModel {
       vouchers: entity.vouchers,
       totalVoucher: entity.totalVoucher,
       totalNonVoucher: entity.totalNonVoucher,
+      promos: entity.promos,
     );
   }
 }

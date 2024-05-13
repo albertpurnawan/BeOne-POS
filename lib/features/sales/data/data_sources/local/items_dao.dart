@@ -67,7 +67,26 @@ class ItemsDao extends BaseDao<ItemModel> {
 
   @override
   Future<ItemModel?> readByDocId(String docId, Transaction? txn) async {
-    // TODO: implement readByDocId
-    throw UnimplementedError();
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'docid = ?',
+      whereArgs: [docId],
+    );
+
+    return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
+  }
+
+  Future<ItemModel?> readByToitmId(String toitmId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'toitmId = ?',
+      whereArgs: [toitmId],
+    );
+
+    return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
   }
 }

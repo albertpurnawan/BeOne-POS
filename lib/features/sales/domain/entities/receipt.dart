@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
@@ -29,7 +30,7 @@ class ReceiptEntity {
   List<VouchersSelectionEntity> vouchers;
   int? totalVoucher;
   double? totalNonVoucher;
-  List<PromotionsEntity>? promos;
+  List<PromotionsEntity> promos;
 
   ReceiptEntity({
     required this.docNum,
@@ -50,7 +51,7 @@ class ReceiptEntity {
     required this.vouchers,
     this.totalVoucher,
     this.totalNonVoucher,
-    this.promos,
+    required this.promos,
   });
 
   ReceiptEntity copyWith({
@@ -72,6 +73,7 @@ class ReceiptEntity {
     List<VouchersSelectionEntity>? vouchers,
     int? totalVoucher,
     double? totalNonVoucher,
+    List<PromotionsEntity>? promos,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -92,6 +94,7 @@ class ReceiptEntity {
       vouchers: vouchers ?? this.vouchers,
       totalVoucher: totalVoucher ?? this.totalVoucher,
       totalNonVoucher: totalNonVoucher ?? this.totalNonVoucher,
+      promos: promos ?? this.promos,
     );
   }
 
@@ -115,6 +118,7 @@ class ReceiptEntity {
       'vouchers': vouchers.map((x) => x.toMap()).toList(),
       'totalVoucher': totalVoucher,
       'totalNonVoucher': totalNonVoucher,
+      'promos': promos.map((x) => x.toMap()).toList(),
     };
   }
 
@@ -163,6 +167,11 @@ class ReceiptEntity {
       totalNonVoucher: map['totalNonVoucher'] != null
           ? map['totalNonVoucher'] as double
           : null,
+      promos: List<PromotionsModel>.from(
+        (map['vouchers'] as List<int>).map<PromotionsModel>(
+          (x) => PromotionsModel.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
     );
   }
 
@@ -173,7 +182,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher)';
+    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos)';
   }
 
   @override
@@ -197,7 +206,8 @@ class ReceiptEntity {
         other.toinvId == toinvId &&
         listEquals(other.vouchers, vouchers) &&
         other.totalVoucher == totalVoucher &&
-        other.totalNonVoucher == totalNonVoucher;
+        other.totalNonVoucher == totalNonVoucher &&
+        other.promos == promos;
   }
 
   @override
@@ -219,6 +229,7 @@ class ReceiptEntity {
         toinvId.hashCode ^
         vouchers.hashCode ^
         totalVoucher.hashCode ^
-        totalNonVoucher.hashCode;
+        totalNonVoucher.hashCode ^
+        promos.hashCode;
   }
 }
