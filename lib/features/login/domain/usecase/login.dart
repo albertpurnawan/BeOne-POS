@@ -27,6 +27,7 @@ class LoginUseCase implements UseCase<bool?, UserAuthEntity> {
 
       if (hashedPassword == user.password) {
         await _prefs.setBool('logStatus', true);
+        await _prefs.setString('tousrId', user.docId!);
         await _prefs.setString('email', user.email!);
         await _prefs.setString('username', user.username!);
         await _prefs.setString('tohemId', user.tohemId ?? "");

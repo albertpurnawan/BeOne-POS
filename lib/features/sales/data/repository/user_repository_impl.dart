@@ -7,8 +7,8 @@ class UserRepositoryImpl extends UserRepository {
   UserRepositoryImpl(this._appDatabase);
 
   @override
-  Future<UserEntity?> getUsername(String username) {
+  Future<UserEntity?> getUser(String docId) {
     // TODO: implement getEmployee
-    return _appDatabase.userDao.readByDocId(username, null);
+    return _appDatabase.userDao.readByDocId(docId, null);
   }
 }
