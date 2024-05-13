@@ -327,8 +327,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                             dev.log("NewReceiptItem - $newReceiptItems");
                             itemSubtotal += totalGross;
                             itemTaxAmount += taxAmount;
-
-                            isNewReceiptItem = false;
                           }
 
                           final double priceQty =
