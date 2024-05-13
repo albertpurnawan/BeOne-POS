@@ -127,7 +127,24 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                         .itemsDao
                         .readByToitmId(tprb4.toitmId!, null);
 
-                    final totalGetItemY = (quantity / toprb!.maxMultiply);
+                    final totalGetItemY =
+                        (currentReceiptItem.quantity / toprb!.maxMultiply);
+
+                    final List<ReceiptItemEntity> itemYReceiptItems = state
+                        .receiptItems
+                        .where((element) =>
+                            element.itemEntity.barcode == itemY!.barcode)
+                        .toList();
+
+                    final int itemYReceiptItemsLength =
+                        itemYReceiptItems.length;
+
+                    final double itemYsumQtyOnReceipt =
+                        itemYReceiptItems.fold<double>(
+                      0,
+                      (previousValue, element) =>
+                          previousValue + element.quantity,
+                    );
 
                     if (tprb2.tostrId == topos[0].tostrId) {
                       // if (now.millisecondsSinceEpoch >=
@@ -150,10 +167,104 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                         newReceiptItems.add(currentReceiptItem.copyWith(
                           totalGross: totalGross,
                         ));
-                        dev.log("NRI - $newReceiptItems");
+
                         itemSubtotal += totalGross;
                         itemTaxAmount += taxAmount;
-                        // if (currentReceiptItem.quantity >= toprb.minBuy) {}
+
+                        if (currentReceiptItem.quantity >= toprb.minBuy &&
+                            itemSubtotal >= toprb.minPurchase &&
+                            itemYsumQtyOnReceipt < toprb.maxGet) {
+                          // GET ITEM Y
+
+                          if (totalGetItemY > toprb.maxGet) {
+                            final double itemYPriceQty = tprb4.sellingPrice *
+                                (tprb4.quantity * toprb.maxGet);
+                            final double itemYTotalSellBarcode = itemYPriceQty;
+                            final double itemYTotalGross =
+                                itemY!.includeTax == 1
+                                    ? (itemYPriceQty *
+                                        (100 / (100 + itemY.taxRate)))
+                                    : itemYPriceQty;
+                            final double itemYTaxAmountNewItem =
+                                itemY.includeTax == 1
+                                    ? (itemYPriceQty) - itemYTotalGross
+                                    : itemYPriceQty * (itemY.taxRate / 100);
+                            final double itemYTotalAmount =
+                                itemYTotalGross + itemYTaxAmountNewItem;
+
+                            newReceiptItems.add(ReceiptItemEntity(
+                              quantity: tprb4.quantity * toprb.maxGet,
+                              totalGross: itemYTotalGross,
+                              itemEntity: itemY,
+                              taxAmount: itemYTaxAmountNewItem,
+                              sellingPrice: tprb4.sellingPrice,
+                              totalAmount: itemYTotalAmount,
+                              totalSellBarcode: itemYTotalSellBarcode,
+                              promos: [promo],
+                            ));
+                            dev.log("$newReceiptItems");
+
+                            itemSubtotal += itemYTotalGross;
+                            itemTaxAmount += itemYTaxAmountNewItem;
+                          } else if (totalGetItemY <= toprb.maxGet &&
+                              totalGetItemY >= 1) {
+                            final double itemYPriceQty = tprb4.sellingPrice *
+                                (tprb4.quantity * totalGetItemY.floor());
+                            final double itemYTotalSellBarcode = itemYPriceQty;
+                            final double itemYTotalGross =
+                                itemY!.includeTax == 1
+                                    ? (itemYPriceQty *
+                                        (100 / (100 + itemY.taxRate)))
+                                    : itemYPriceQty;
+                            final double itemYTaxAmountNewItem =
+                                itemY.includeTax == 1
+                                    ? (itemYPriceQty) - itemYTotalGross
+                                    : itemYPriceQty * (itemY.taxRate / 100);
+                            final double itemYTotalAmount =
+                                itemYTotalGross + itemYTaxAmountNewItem;
+
+                            newReceiptItems.add(ReceiptItemEntity(
+                              quantity: tprb4.quantity * totalGetItemY.floor(),
+                              totalGross: itemYTotalGross,
+                              itemEntity: itemY,
+                              taxAmount: itemYTaxAmountNewItem,
+                              sellingPrice: tprb4.sellingPrice,
+                              totalAmount: itemYTotalAmount,
+                              totalSellBarcode: itemYTotalSellBarcode,
+                              promos: [promo],
+                            ));
+                            itemSubtotal += itemYTotalGross;
+                            itemTaxAmount += itemYTaxAmountNewItem;
+                          } else {
+                            final double itemYPriceQty =
+                                tprb4.sellingPrice * tprb4.quantity;
+                            final double itemYTotalSellBarcode = itemYPriceQty;
+                            final double itemYTotalGross =
+                                itemY!.includeTax == 1
+                                    ? (itemYPriceQty *
+                                        (100 / (100 + itemY.taxRate)))
+                                    : itemYPriceQty;
+                            final double itemYTaxAmountNewItem =
+                                itemY.includeTax == 1
+                                    ? (itemYPriceQty) - itemYTotalGross
+                                    : itemYPriceQty * (itemY.taxRate / 100);
+                            final double itemYTotalAmount =
+                                itemYTotalGross + itemYTaxAmountNewItem;
+
+                            newReceiptItems.add(ReceiptItemEntity(
+                              quantity: tprb4.quantity,
+                              totalGross: itemYTotalGross,
+                              itemEntity: itemY,
+                              taxAmount: itemYTaxAmountNewItem,
+                              sellingPrice: tprb4.sellingPrice,
+                              totalAmount: itemYTotalAmount,
+                              totalSellBarcode: itemYTotalSellBarcode,
+                              promos: [promo],
+                            ));
+                            itemSubtotal += itemYTotalGross;
+                            itemTaxAmount += itemYTaxAmountNewItem;
+                          }
+                        }
                       }
                       // }
                     }
@@ -546,7 +657,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                     ));
                     subtotal += itemYTotalGross;
                     taxAmount += itemYTaxAmountNewItem;
-                  } else if (totalGetItemY <= 3 && totalGetItemY >= 1) {
+                  } else if (totalGetItemY <= toprb.maxGet &&
+                      totalGetItemY >= 1) {
                     final double itemYPriceQty = tprb4.sellingPrice *
                         (tprb4.quantity * totalGetItemY.floor());
                     final double itemYTotalSellBarcode = itemYPriceQty;

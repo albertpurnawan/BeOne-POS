@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -20,6 +21,7 @@ class VoucherCheckout extends StatefulWidget {
 
 class _VoucherCheckoutState extends State<VoucherCheckout> {
   final _voucherCheckController = TextEditingController();
+  final FocusNode _voucherFocusNode = FocusNode();
   List<VouchersSelectionModel> vouchers = [];
   int vouchersAmount = 0;
   bool minPurchaseFulfilled = true;
@@ -28,13 +30,13 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
   @override
   Widget build(BuildContext context) {
     final receiptCubit = context.read<ReceiptCubit>();
-    var checkVoucher;
+    VouchersSelectionModel checkVoucher;
     return Column(
       children: [
         const Text("Voucher Serial Number"),
         TextField(
-          // focusNode: _focusNodeCashAmount,
-          // onTapOutside: (event) => _focusNodeCashAmount.unfocus(),
+          focusNode: _voucherFocusNode,
+          onTapOutside: (event) => _voucherFocusNode.unfocus(),
           controller: _voucherCheckController,
           // onTap: () {
           //   _value = mopsByType[0].tpmt3Id;
@@ -69,8 +71,9 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                     vouchers.add(voucher);
                     vouchersAmount += voucher.voucherAmount;
                     _voucherCheckController.clear();
+                    minPurchaseFulfilled = true;
                   });
-                  minPurchaseFulfilled = true;
+                  _voucherFocusNode.unfocus();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -79,7 +82,12 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                   );
                 }
               } else {
-                minPurchaseFulfilled = false;
+                setState(() {
+                  vouchers.add(voucher);
+                  vouchersAmount += voucher.voucherAmount;
+                  _voucherCheckController.clear();
+                  minPurchaseFulfilled = false;
+                });
               }
             } catch (err) {
               handleError(err);
@@ -93,15 +101,18 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
             child: Column(
               children: [
                 minPurchaseFulfilled
-                    ? Text("")
+                    ? const Text("")
                     : Text(
-                        "Add more purchase to use voucher (min. Rp 500,000)"),
+                        "Add more purchase to use voucher (Rp ${Helpers.parseMoney(vouchers.first.minPurchase - receiptCubit.state.grandTotal)})",
+                        style: TextStyle(color: Colors.red),
+                      ),
                 Text(
                   "Vouchers Amount: $vouchersAmount",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 ...vouchers.map((voucher) {
-                  return Text("${voucher.voucherAmount}");
+                  return Text(
+                      "${voucher.voucherAlias} - ${voucher.voucherAmount}");
                 }).toList(),
               ],
             ),
@@ -131,24 +142,8 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
             const SizedBox(
               width: 10,
             ),
-            !minPurchaseFulfilled
+            minPurchaseFulfilled
                 ? Expanded(
-                    child: TextButton(
-                    style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.black),
-                        overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2))),
-                    onPressed: () async {},
-                    child: const Center(
-                        child: Text(
-                      "Redeem",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                  ))
-                : Expanded(
                     child: TextButton(
                     style: ButtonStyle(
                         shape: MaterialStatePropertyAll(RoundedRectangleBorder(
@@ -197,6 +192,22 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
 
                       Navigator.of(context).pop();
                     },
+                    child: const Center(
+                        child: Text(
+                      "Redeem",
+                      style: TextStyle(color: Colors.white),
+                    )),
+                  ))
+                : Expanded(
+                    child: TextButton(
+                    style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.black),
+                        overlayColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.white.withOpacity(.2))),
+                    onPressed: () async {},
                     child: const Center(
                         child: Text(
                       "Redeem",
