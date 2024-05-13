@@ -363,6 +363,7 @@ class _SalesPageState extends State<SalesPage> {
                                 final e = state.receiptItems[index];
                                 final hasPromos = e.promos.isNotEmpty;
                                 // print("$e <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,");
+                                // e bisa di loop
                                 return GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => setState(() {

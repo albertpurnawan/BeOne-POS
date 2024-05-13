@@ -44,4 +44,27 @@ class PromoBuyXGetYGetConditionDao
           .toList();
     }
   }
+
+  Future<PromoBuyXGetYGetConditionModel> readByToprbId(
+      String toprbId, Transaction? txn) async {
+    if (txn != null) {
+      final result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'toprbId = ?',
+        whereArgs: [toprbId],
+      );
+
+      return PromoBuyXGetYGetConditionModel.fromMap(result.first);
+    } else {
+      final result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'toprbId = ?',
+        whereArgs: [toprbId],
+      );
+
+      return PromoBuyXGetYGetConditionModel.fromMap(result.first);
+    }
+  }
 }

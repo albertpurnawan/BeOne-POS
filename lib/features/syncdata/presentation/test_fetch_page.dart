@@ -1550,7 +1550,7 @@ class _FetchScreenState extends State<FetchScreen> {
       for (final header in toprb) {
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao
-            .readByToprbid(header.docId, null);
+            .readByToprbId(header.docId, null);
         final tprb2 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYAssignStoreDao
             .readByToprbId(header.docId, null);
@@ -1570,22 +1570,22 @@ class _FetchScreenState extends State<FetchScreen> {
 
         final isValid = dayProperties[today] == 1;
         if (isValid) {
-          for (final buyCondition in tprb1) {
-            // for (final customerGroup in tprb5) {
-            promos.add(PromotionsModel(
-              toitmId: buyCondition.toitmId,
-              promoType: 103,
-              promoId: header.docId,
-              date: DateTime.now(),
-              startTime: header.startTime,
-              endTime: header.endTime,
-              tocrgId: null,
-              promoDescription: header.description,
-              tocatId: null,
-              remarks: null,
-            ));
-            // }
-          }
+          // for (final buyCondition in tprb1) {
+          // for (final customerGroup in tprb5) {
+          promos.add(PromotionsModel(
+            toitmId: tprb1.toitmId,
+            promoType: 103,
+            promoId: header.docId,
+            date: DateTime.now(),
+            startTime: header.startTime,
+            endTime: header.endTime,
+            tocrgId: null,
+            promoDescription: header.description,
+            tocatId: null,
+            remarks: null,
+          ));
+          // }
+          // }
         }
       }
 
@@ -1876,7 +1876,7 @@ class _FetchScreenState extends State<FetchScreen> {
       for (final header in toprb) {
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao
-            .readByToprbid(header.docId, null);
+            .readByToprbId(header.docId, null);
         final tprb2 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYAssignStoreDao
             .readByToprbId(header.docId, null);
@@ -1896,22 +1896,22 @@ class _FetchScreenState extends State<FetchScreen> {
 
         final isValid = dayProperties[today] == 1;
         if (isValid) {
-          for (final buyCondition in tprb1) {
-            // for (final customerGroup in tprb5) {
-            promos.add(PromotionsModel(
-              toitmId: buyCondition.toitmId,
-              promoType: 103,
-              promoId: header.docId,
-              date: DateTime.now(),
-              startTime: header.startTime,
-              endTime: header.endTime,
-              tocrgId: null,
-              promoDescription: header.description,
-              tocatId: null,
-              remarks: null,
-            ));
-            // }
-          }
+          // for (final buyCondition in tprb1) {
+          // for (final customerGroup in tprb5) {
+          promos.add(PromotionsModel(
+            toitmId: tprb1.toitmId,
+            promoType: 103,
+            promoId: header.docId,
+            date: DateTime.now(),
+            startTime: header.startTime,
+            endTime: header.endTime,
+            tocrgId: null,
+            promoDescription: header.description,
+            tocatId: null,
+            remarks: null,
+          ));
+          // }
+          // }
         }
       }
 

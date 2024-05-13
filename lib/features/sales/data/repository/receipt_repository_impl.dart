@@ -13,6 +13,7 @@ import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
@@ -175,6 +176,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           serialNo: e.serialNo,
           voucherStatus: e.voucherStatus,
           statusActive: e.statusActive,
+          minPurchase: e.minPurchase,
           redeemDate: e.redeemDate,
           tinv2Id: e.tinv2Id,
         );
@@ -292,6 +294,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       }
 
       List<VouchersSelectionModel> voucherModels = [];
+      List<PromotionsModel> promoModels = [];
       int totalVoucherAmount = 0;
 
       for (var payMeansModel in payMeansModels) {
@@ -329,6 +332,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         vouchers: voucherModels,
         totalVoucher: totalVoucherAmount,
         totalNonVoucher: invoiceHeaderModel.grandTotal - totalVoucherAmount,
+        promos: promoModels,
       );
     });
 
