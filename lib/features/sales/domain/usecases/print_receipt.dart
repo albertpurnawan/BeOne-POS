@@ -1,3 +1,4 @@
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
@@ -31,19 +32,26 @@ class PrintReceiptUseCase implements UseCase<void, ReceiptEntity?> {
      * 3. Langsung jadi bytes
      */
 
-    final POSParameterEntity posParameterEntity =
-        await _posParameterRepository.getPosParameter();
-    final StoreMasterEntity storeMasterEntity =
-        await _storeMasterRepository.getStoreMaster();
-    final List<ReceiptContentEntity?> receiptContentEntities =
-        await _receiptContentRepository.getReceiptContents();
-    final PrintReceiptDetail printReceiptDetail = PrintReceiptDetail(
-      receiptEntity: params!,
-      posParameterEntity: posParameterEntity,
-      storeMasterEntity: storeMasterEntity,
-      receiptContentEntities: receiptContentEntities,
-    );
+    try {
+      final POSParameterEntity posParameterEntity =
+          await _posParameterRepository.getPosParameter();
 
-    await _receiptPrinter.printReceipt(printReceiptDetail);
+      final StoreMasterEntity? storeMasterEntity = await _storeMasterRepository
+          .getStoreMaster(posParameterEntity.tostrId!);
+      if (storeMasterEntity == null) throw "Store not found";
+
+      final List<ReceiptContentEntity?> receiptContentEntities =
+          await _receiptContentRepository.getReceiptContents();
+      final PrintReceiptDetail printReceiptDetail = PrintReceiptDetail(
+        receiptEntity: params!,
+        posParameterEntity: posParameterEntity,
+        storeMasterEntity: storeMasterEntity,
+        receiptContentEntities: receiptContentEntities,
+      );
+
+      await _receiptPrinter.printReceipt(printReceiptDetail);
+    } catch (e) {
+      print(e);
+    }
   }
 }

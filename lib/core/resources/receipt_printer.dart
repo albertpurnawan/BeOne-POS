@@ -4,9 +4,11 @@ import 'dart:io';
 
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/src/commands.dart';
+import 'package:thermal_printer/esc_pos_utils_platform/src/enums.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
@@ -434,42 +436,81 @@ class ReceiptPrinter {
     }
   }
 
-  Future printOpenShift() async {
-    log("PRINT OPEN SHIFT");
+  Future<void> printOpenShift(PrintOpenShiftDetail printOpenShiftDetail) async {
     List<int> bytes = [];
+    final String? paperSize =
+        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(
+        paperSize == null
+            ? PaperSize.mm58
+            : paperSize == "80 mm"
+                ? PaperSize.mm80
+                : PaperSize.mm58,
+        profile);
 
-    final profile = await CapabilityProfile.load(name: 'XP-N160I');
-
-    final generator = Generator(PaperSize.mm58, profile);
     bytes += generator.setGlobalCodeTable('CP1252');
-    bytes += generator.text('Test Open Shift',
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text('Product 1');
-    bytes += generator.text('Product 2');
-
+    bytes += generator.text('Open Shift Success',
+        styles: const PosStyles(
+          align: PosAlign.center,
+          height: PosTextSize.size2,
+          width: PosTextSize.size2,
+          bold: true,
+        ));
+    bytes += generator.emptyLines(1);
+    bytes += generator.hr();
+    bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(
-          width: 8,
-          text: 'CASHIER - UDIN',
+          width: 4,
+          text: 'Store Name',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
-          width: 4,
-          text: 'USD 2.00',
-          styles: const PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
+          width: 8,
+          text: ":  ${printOpenShiftDetail.storeMasterEntity.storeName}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
-
-    // // Chinese characters
     bytes += generator.row([
       PosColumn(
+          width: 4,
+          text: 'Cash Register',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
           width: 8,
-          text: '豚肉・木耳と玉子炒め弁当',
-          styles: const PosStyles(align: PosAlign.left),
-          containsChinese: true),
+          text: ":  ${printOpenShiftDetail.cashRegisterEntity.description}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
       PosColumn(
           width: 4,
-          text: '￥1,990',
-          styles: const PosStyles(align: PosAlign.right),
-          containsChinese: true),
+          text: 'Cashier',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printOpenShiftDetail.userEntity.username}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Opened At',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text:
+              ":  ${Helpers.formatDate(printOpenShiftDetail.cashierBalanceTransactionEntity.openDate)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Opening Balance',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text:
+              ":  ${Helpers.parseMoney(printOpenShiftDetail.cashierBalanceTransactionEntity.openValue)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
 
     _printEscPos(bytes, generator);

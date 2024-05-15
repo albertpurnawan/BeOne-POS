@@ -11,7 +11,9 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
+import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift_success_alert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -137,8 +139,11 @@ class _LoginFormState extends State<LoginForm> {
                   if (isOpen) {
                     if (context.mounted) context.goNamed(RouteConstants.home);
                   } else {
-                    showDialog(
+                    final CashierBalanceTransactionModel? openedShift =
+                        await showDialog(
+                      // return id/tcsr1
                       context: context,
+                      barrierDismissible: false,
                       builder: (BuildContext context) {
                         return AlertDialog(
                           shape: const RoundedRectangleBorder(
@@ -153,9 +158,9 @@ class _LoginFormState extends State<LoginForm> {
                               borderRadius: BorderRadius.vertical(
                                   top: Radius.circular(5.0)),
                             ),
-                            padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                             child: const Text(
-                              'Shift Opening',
+                              'Open Shift',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w500,
@@ -167,9 +172,25 @@ class _LoginFormState extends State<LoginForm> {
                             width: MediaQuery.of(context).size.width * 0.5,
                             child: const OpenShiftDialog(),
                           ),
+                          scrollable: false,
                         );
                       },
                     );
+
+                    bool isOpenShiftConfirmed = false;
+                    if (openedShift != null) {
+                      isOpenShiftConfirmed = await showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return OpenShiftSuccessAlertDialog(
+                              openedShift: openedShift,
+                            );
+                          });
+                    }
+
+                    if (isOpenShiftConfirmed)
+                      context.pushNamed(RouteConstants.home);
                   }
                 } else {
                   // Show error message if login is not successful or null
