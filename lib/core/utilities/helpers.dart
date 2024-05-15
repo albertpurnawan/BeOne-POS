@@ -236,4 +236,10 @@ abstract class Helpers {
     final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy HH:mm');
     return formatter.format(dTime).toString();
   }
+
+  // static String checkDate(DateTime date) {
+  //   final day = "day${date.weekday}";
+  //   print("$day");
+  //   return day;
+  // }
 }

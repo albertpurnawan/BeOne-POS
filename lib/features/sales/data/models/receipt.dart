@@ -2,26 +2,26 @@ import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
 class ReceiptModel extends ReceiptEntity implements BaseModel {
-  ReceiptModel({
-    required super.docNum,
-    required super.receiptItems,
-    super.mopSelection,
-    super.customerEntity,
-    super.employeeEntity,
-    required super.totalTax,
-    super.transDateTime,
-    required super.transStart,
-    super.transEnd,
-    required super.subtotal,
-    required super.taxAmount,
-    required super.grandTotal,
-    super.totalPayment,
-    super.changed,
-    super.toinvId,
-    required super.vouchers,
-    super.totalVoucher,
-    super.totalNonVoucher,
-  });
+  ReceiptModel(
+      {required super.docNum,
+      required super.receiptItems,
+      super.mopSelection,
+      super.customerEntity,
+      super.employeeEntity,
+      required super.totalTax,
+      super.transDateTime,
+      required super.transStart,
+      super.transEnd,
+      required super.subtotal,
+      required super.taxAmount,
+      required super.grandTotal,
+      super.totalPayment,
+      super.changed,
+      super.toinvId,
+      required super.vouchers,
+      super.totalVoucher,
+      super.totalNonVoucher,
+      required super.promos});
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
     return ReceiptModel(
@@ -43,6 +43,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       vouchers: entity.vouchers,
       totalVoucher: entity.totalVoucher,
       totalNonVoucher: entity.totalNonVoucher,
+      promos: entity.promos,
     );
   }
 }

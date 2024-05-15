@@ -55,4 +55,28 @@ class PromoHargaSpesialBuyDao extends BaseDao<PromoHargaSpesialBuyModel> {
       return PromoHargaSpesialBuyModel.fromMap(result.first);
     }
   }
+
+  Future<List<PromoHargaSpesialBuyModel>> readAllByTopsbId(
+      String topsbId, Transaction? txn) async {
+    List<Map<String, dynamic>> result;
+
+    if (txn != null) {
+      result = await txn.query(
+        tableName,
+        columns: modelFields,
+        where: 'topsbId = ?',
+        whereArgs: [topsbId],
+      );
+    } else {
+      result = await db.query(
+        tableName,
+        columns: modelFields,
+        where: 'topsbId = ?',
+        whereArgs: [topsbId],
+      );
+    }
+
+    // Convert the result to a list of PromoHargaSpesialBuyModel
+    return result.map((map) => PromoHargaSpesialBuyModel.fromMap(map)).toList();
+  }
 }

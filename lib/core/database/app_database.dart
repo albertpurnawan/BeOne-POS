@@ -2784,6 +2784,7 @@ CREATE TABLE $tableVouchersSelection (
   ${VoucherSelectionFields.serialNo} text NOT NULL,
   ${VoucherSelectionFields.voucherStatus} int NOT NULL,
   ${VoucherSelectionFields.statusActive} int NOT NULL,
+  ${VoucherSelectionFields.minPurchase} int NOT NULL,
   ${VoucherSelectionFields.redeemDate} datetime DEFAULT NULL,
   ${VoucherSelectionFields.tinv2Id} text DEFAULT NULL
 )

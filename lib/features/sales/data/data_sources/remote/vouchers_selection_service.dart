@@ -50,6 +50,7 @@ class VouchersSelectionApi {
         serialNo: response.data['serialno'],
         voucherStatus: response.data['voucherstatus'],
         statusActive: response.data['statusactive'],
+        minPurchase: response.data['tovcr_id']['minpurchase'],
         redeemDate: DateTime.now(),
         tinv2Id: "", // need Here
       );

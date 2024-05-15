@@ -319,6 +319,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     for (var voucher in vouchers) {
       totalVoucherAmount += voucher.voucherAmount;
     }
+
     setState(() {
       _vouchers.addAll(vouchers);
       _vouchersAmount += totalVoucherAmount;

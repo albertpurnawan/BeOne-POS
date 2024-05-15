@@ -8,8 +8,8 @@ class StoreMasterRepositoryImpl implements StoreMasterRepository {
   StoreMasterRepositoryImpl(this.appDatabase);
 
   @override
-  Future<StoreMasterEntity> getStoreMaster() async {
+  Future<StoreMasterEntity?> getStoreMaster(String docId) async {
     // TODO: implement getStoreMaster
-    return (await appDatabase.storeMasterDao.readAll()).first;
+    return await appDatabase.storeMasterDao.readByDocId(docId, null);
   }
 }

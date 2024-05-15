@@ -27,7 +27,7 @@ class UserAuthModel extends UserAuthEntity implements BaseModel {
 
   factory UserAuthModel.fromMap(Map<String, dynamic> map) {
     return UserAuthModel(
-      docId: map['docId'] != null ? map['docId'] as String : null,
+      docId: map['docid'] != null ? map['docid'] as String : null,
       email: map['email'] != null ? map['email'] as String : null,
       username: map['username'] != null ? map['username'] as String : null,
       password: map['password'] != null ? map['password'] as String : null,

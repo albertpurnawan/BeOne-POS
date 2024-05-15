@@ -13,6 +13,7 @@ class VouchersSelectionEntity {
   final String serialNo;
   final int voucherStatus;
   final int statusActive;
+  final int minPurchase;
   final DateTime? redeemDate;
   String? tinv2Id;
 
@@ -27,6 +28,7 @@ class VouchersSelectionEntity {
     required this.serialNo,
     required this.voucherStatus,
     required this.statusActive,
+    required this.minPurchase,
     this.redeemDate,
     this.tinv2Id,
   });
@@ -42,6 +44,7 @@ class VouchersSelectionEntity {
     String? serialNo,
     int? voucherStatus,
     int? statusActive,
+    int? minPurchase,
     DateTime? redeemDate,
     String? tinv2Id,
   }) {
@@ -56,6 +59,7 @@ class VouchersSelectionEntity {
       serialNo: serialNo ?? this.serialNo,
       voucherStatus: voucherStatus ?? this.voucherStatus,
       statusActive: statusActive ?? this.statusActive,
+      minPurchase: minPurchase ?? this.minPurchase,
       redeemDate: redeemDate ?? this.redeemDate,
       tinv2Id: tinv2Id ?? this.tinv2Id,
     );
@@ -73,6 +77,7 @@ class VouchersSelectionEntity {
       'serialNo': serialNo,
       'voucherStatus': voucherStatus,
       'statusActive': statusActive,
+      'minPurchase': minPurchase,
       'redeemDate': redeemDate?.millisecondsSinceEpoch,
       'tinv2Id': tinv2Id,
     };
@@ -90,6 +95,7 @@ class VouchersSelectionEntity {
       serialNo: map['serialNo'] as String,
       voucherStatus: map['voucherStatus'] as int,
       statusActive: map['statusActive'] as int,
+      minPurchase: map['minPurchase'] as int,
       redeemDate: map['redeemDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['redeemDate'] as int)
           : null,
@@ -105,7 +111,7 @@ class VouchersSelectionEntity {
 
   @override
   String toString() {
-    return 'VouchersSelectionEntity(docId: $docId, tpmt3Id: $tpmt3Id, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
+    return 'VouchersSelectionEntity(docId: $docId, tpmt3Id: $tpmt3Id, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, minPurchase: $minPurchase, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
   }
 
   @override
@@ -122,6 +128,7 @@ class VouchersSelectionEntity {
         other.serialNo == serialNo &&
         other.voucherStatus == voucherStatus &&
         other.statusActive == statusActive &&
+        other.minPurchase == minPurchase &&
         other.redeemDate == redeemDate &&
         other.tinv2Id == tinv2Id;
   }
@@ -138,6 +145,7 @@ class VouchersSelectionEntity {
         serialNo.hashCode ^
         voucherStatus.hashCode ^
         statusActive.hashCode ^
+        minPurchase.hashCode ^
         redeemDate.hashCode ^
         tinv2Id.hashCode;
   }
