@@ -13,18 +13,22 @@ class PromotionsEntity {
   final String promoDescription;
   final String? tocatId;
   final String? remarks;
+  double? discAmount;
+  double? discPrctg;
 
   PromotionsEntity({
-    required this.toitmId,
+    this.toitmId,
     required this.promoType,
-    required this.promoId,
+    this.promoId,
     required this.date,
     required this.startTime,
     required this.endTime,
-    required this.tocrgId,
+    this.tocrgId,
     required this.promoDescription,
-    required this.tocatId,
-    required this.remarks,
+    this.tocatId,
+    this.remarks,
+    this.discAmount,
+    this.discPrctg,
   });
 
   PromotionsEntity copyWith({
@@ -38,6 +42,8 @@ class PromotionsEntity {
     String? promoDescription,
     String? tocatId,
     String? remarks,
+    double? discAmount,
+    double? discPrctg,
   }) {
     return PromotionsEntity(
       toitmId: toitmId ?? this.toitmId,
@@ -50,6 +56,8 @@ class PromotionsEntity {
       promoDescription: promoDescription ?? this.promoDescription,
       tocatId: tocatId ?? this.tocatId,
       remarks: remarks ?? this.remarks,
+      discAmount: discAmount ?? this.discAmount,
+      discPrctg: discPrctg ?? this.discPrctg,
     );
   }
 
@@ -65,6 +73,8 @@ class PromotionsEntity {
       'promoDescription': promoDescription,
       'tocatId': tocatId,
       'remarks': remarks,
+      'discAmount': discAmount,
+      'discPrctg': discPrctg,
     };
   }
 
@@ -80,6 +90,9 @@ class PromotionsEntity {
       promoDescription: map['promoDescription'] as String,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
+      discAmount:
+          map['discAmount'] != null ? map['discAmount'] as double : null,
+      discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
     );
   }
 
@@ -90,7 +103,7 @@ class PromotionsEntity {
 
   @override
   String toString() {
-    return 'PromotionsEntity(toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks)';
+    return 'PromotionsEntity(toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks, discAmount: $discAmount, discPrctg: $discPrctg)';
   }
 
   @override
@@ -106,7 +119,9 @@ class PromotionsEntity {
         other.tocrgId == tocrgId &&
         other.promoDescription == promoDescription &&
         other.tocatId == tocatId &&
-        other.remarks == remarks;
+        other.remarks == remarks &&
+        other.discAmount == discAmount &&
+        other.discPrctg == discPrctg;
   }
 
   @override
@@ -120,6 +135,8 @@ class PromotionsEntity {
         tocrgId.hashCode ^
         promoDescription.hashCode ^
         tocatId.hashCode ^
-        remarks.hashCode;
+        remarks.hashCode ^
+        discAmount.hashCode ^
+        discPrctg.hashCode;
   }
 }

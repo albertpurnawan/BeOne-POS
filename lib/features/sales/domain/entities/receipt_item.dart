@@ -14,6 +14,8 @@ class ReceiptItemEntity {
   double totalAmount;
   double totalSellBarcode;
   List<PromotionsEntity> promos;
+  double? discAmount;
+  double? discPrctg;
 
   ReceiptItemEntity({
     required this.quantity,
@@ -24,6 +26,8 @@ class ReceiptItemEntity {
     required this.totalAmount,
     required this.totalSellBarcode,
     required this.promos,
+    this.discAmount,
+    this.discPrctg,
   });
 
   ReceiptItemEntity copyWith({
@@ -35,6 +39,8 @@ class ReceiptItemEntity {
     double? totalAmount,
     double? totalSellBarcode,
     List<PromotionsEntity>? promos,
+    double? discAmount,
+    double? discPrctg,
   }) {
     return ReceiptItemEntity(
       quantity: quantity ?? this.quantity,
@@ -45,6 +51,8 @@ class ReceiptItemEntity {
       totalAmount: totalAmount ?? this.totalAmount,
       totalSellBarcode: totalSellBarcode ?? this.totalSellBarcode,
       promos: promos ?? this.promos,
+      discAmount: discAmount ?? this.discAmount,
+      discPrctg: discPrctg ?? this.discPrctg,
     );
   }
 
@@ -58,6 +66,8 @@ class ReceiptItemEntity {
       'totalAmount': totalAmount,
       'totalSellBarcode': totalSellBarcode,
       'promos': promos.map((x) => x.toMap()).toList(),
+      'discAmount': discAmount,
+      'discPrctg': discPrctg,
     };
   }
 
@@ -75,6 +85,9 @@ class ReceiptItemEntity {
           (x) => PromotionsEntity.fromMap(x as Map<String, dynamic>),
         ),
       ),
+      discAmount:
+          map['discAmount'] != null ? map['discAmount'] as double : null,
+      discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
     );
   }
 
@@ -85,7 +98,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg)';
   }
 
   @override
@@ -99,7 +112,9 @@ class ReceiptItemEntity {
         other.sellingPrice == sellingPrice &&
         other.totalAmount == totalAmount &&
         other.totalSellBarcode == totalSellBarcode &&
-        listEquals(other.promos, promos);
+        listEquals(other.promos, promos) &&
+        other.discAmount == discAmount &&
+        other.discPrctg == discPrctg;
   }
 
   @override
@@ -111,6 +126,8 @@ class ReceiptItemEntity {
         sellingPrice.hashCode ^
         totalAmount.hashCode ^
         totalSellBarcode.hashCode ^
-        promos.hashCode;
+        promos.hashCode ^
+        discAmount.hashCode ^
+        discPrctg.hashCode;
   }
 }

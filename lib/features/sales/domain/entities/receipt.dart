@@ -31,6 +31,8 @@ class ReceiptEntity {
   int? totalVoucher;
   double? totalNonVoucher;
   List<PromotionsEntity> promos;
+  double? discAmount;
+  double? discPrctg;
 
   ReceiptEntity({
     required this.docNum,
