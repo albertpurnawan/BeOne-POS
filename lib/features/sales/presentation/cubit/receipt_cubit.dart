@@ -81,7 +81,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     double subtotal = 0;
     double taxAmount = 0;
     bool isNewReceiptItem = true;
-    ReceiptItemEntity receiptItemEntityWithTopsb;
     final now = DateTime.now();
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
 
@@ -275,27 +274,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                     final tpsb1 = await GetIt.instance<AppDatabase>()
                         .promoHargaSpesialBuyDao
                         .readByTopsbId(promo.promoId!, null);
-                    final tpsb4 = await GetIt.instance<AppDatabase>()
-                        .promoHargaSpesialAssignStoreDao
-                        .readByTopsbId(promo.promoId!, null);
-                    final topos = await GetIt.instance<AppDatabase>()
-                        .posParameterDao
-                        .readAll();
+                    final tpsb1s = await GetIt.instance<AppDatabase>()
+                        .promoHargaSpesialBuyDao
+                        .readAllByTopsbId(promo.promoId!, null);
+
                     bool promoAlreadyApplied =
                         currentReceiptItem.promos.contains(promo);
-                    double? specialPrice = itemEntity.price - tpsb1.price;
-
-                    // check store participated in promo or not
-                    final startHour = promo.startTime.hour;
-                    final startMinute = promo.startTime.minute;
-                    final startSecond = promo.startTime.second;
-                    DateTime startPromo = DateTime(now.year, now.month, now.day,
-                        startHour, startMinute, startSecond);
-                    final endHour = promo.endTime.hour;
-                    final endMinute = promo.endTime.minute;
-                    final endSecond = promo.endTime.second;
-                    DateTime endPromo = DateTime(now.year, now.month, now.day,
-                        endHour, endMinute, endSecond);
+                    double specialPrice = itemEntity.price - tpsb1.price;
 
                     // check the time of promo
                     if (now.millisecondsSinceEpoch >=
@@ -310,22 +295,33 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                           dev.log("Item Fulfilled Conditions");
 
                           if (topsb!.promoAlias == 1) {
-                            if (currentReceiptItem.quantity >= tpsb1.qty) {
-                              specialPrice *= 1;
-                            } else {
-                              specialPrice = 0;
+                            for (final el in tpsb1s) {
+                              if (currentReceiptItem.quantity >= el.qty) {
+                                specialPrice = (currentReceiptItem.quantity *
+                                        itemEntity.price) -
+                                    ((el.price * el.qty) +
+                                        (itemEntity.price *
+                                            (currentReceiptItem.quantity -
+                                                el.qty)));
+                              }
                             }
                           } else {
                             if (currentReceiptItem.quantity <=
                                 topsb.maxPurchaseTransaction) {
-                              specialPrice *=
-                                  ((currentReceiptItem.quantity / tpsb1.qty)
-                                      .floor());
+                              int fullSets =
+                                  (currentReceiptItem.quantity ~/ tpsb1.qty);
+                              double remainderItems =
+                                  (currentReceiptItem.quantity % tpsb1.qty);
+                              double expectedSubtotal =
+                                  (fullSets * tpsb1.price * tpsb1.qty) +
+                                      (remainderItems * itemEntity.price);
+                              double actualTotalPrice = itemEntity.price *
+                                  currentReceiptItem.quantity;
+                              specialPrice =
+                                  actualTotalPrice - expectedSubtotal;
                             } else if (currentReceiptItem.quantity >
                                 (topsb.maxPurchaseTransaction / tpsb1.qty)) {
-                              specialPrice *=
-                                  ((topsb.maxPurchaseTransaction / tpsb1.qty)
-                                      .floor());
+                              specialPrice *= topsb.maxPurchaseTransaction;
                             } else {
                               specialPrice = 0;
                             }
@@ -402,22 +398,32 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                       } else {
                         dev.log("Promo Apllied");
                         if (topsb!.promoAlias == 1) {
-                          if (currentReceiptItem.quantity >= tpsb1.qty) {
-                            specialPrice *= 1;
-                          } else {
-                            specialPrice = 0;
+                          for (final el in tpsb1s) {
+                            if (currentReceiptItem.quantity >= el.qty) {
+                              specialPrice = (currentReceiptItem.quantity *
+                                      itemEntity.price) -
+                                  ((el.price * el.qty) +
+                                      (itemEntity.price *
+                                          (currentReceiptItem.quantity -
+                                              el.qty)));
+                            }
                           }
                         } else {
                           if (currentReceiptItem.quantity <=
                               topsb.maxPurchaseTransaction) {
-                            specialPrice *=
-                                ((currentReceiptItem.quantity / tpsb1.qty)
-                                    .floor());
+                            int fullSets =
+                                (currentReceiptItem.quantity ~/ tpsb1.qty);
+                            double remainderItems =
+                                (currentReceiptItem.quantity % tpsb1.qty);
+                            double expectedSubtotal =
+                                (fullSets * tpsb1.price * tpsb1.qty) +
+                                    (remainderItems * itemEntity.price);
+                            double actualTotalPrice =
+                                itemEntity.price * currentReceiptItem.quantity;
+                            specialPrice = actualTotalPrice - expectedSubtotal;
                           } else if (currentReceiptItem.quantity >
                               (topsb.maxPurchaseTransaction / tpsb1.qty)) {
-                            specialPrice *=
-                                ((topsb.maxPurchaseTransaction / tpsb1.qty)
-                                    .floor());
+                            specialPrice *= topsb.maxPurchaseTransaction;
                           } else {
                             specialPrice = 0;
                           }
