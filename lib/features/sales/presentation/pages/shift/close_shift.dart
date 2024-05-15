@@ -1,322 +1,386 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/core/widgets/custom_row.dart';
-import 'package:pos_fe/core/widgets/custom_row_input.dart';
-import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_end_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class EndShiftScreen extends StatefulWidget {
+class CloseShiftScreen extends StatefulWidget {
   final String shiftId;
-  const EndShiftScreen({Key? key, required this.shiftId}) : super(key: key);
+  const CloseShiftScreen({Key? key, required this.shiftId}) : super(key: key);
 
   @override
-  State<EndShiftScreen> createState() => _EndShiftScreenState(shiftId: shiftId);
+  State<CloseShiftScreen> createState() =>
+      _CloseShiftScreenState(shiftId: shiftId);
 }
 
-class _EndShiftScreenState extends State<EndShiftScreen> {
+class _CloseShiftScreenState extends State<CloseShiftScreen> {
   final String shiftId;
-  _EndShiftScreenState({required this.shiftId});
+  _CloseShiftScreenState({required this.shiftId});
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: ProjectColors.swatch,
-        statusBarBrightness: Brightness.light,
-        statusBarIconBrightness: Brightness.light));
-
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 234, 234, 234),
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
-        title: const Text('End Current Shift'),
+        title: const Text('Close Shift'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      body: ScrollWidget(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: Column(
-          children: [
-            SizedBox(
-              height: (MediaQuery.of(context).size.height / 2) - 350,
-            ),
-            const Text(
-              'End Current Shift',
-              style: TextStyle(
-                  color: ProjectColors.swatch,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            EndShiftForm(shiftId: shiftId),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            children: [
+              Center(
+                child: Text(
+                  "Close Current Shift",
+                  style: const TextStyle(
+                      color: ProjectColors.swatch,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 30),
+              CloseShiftForm(shiftId: shiftId),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class EndShiftForm extends StatefulWidget {
+class CloseShiftForm extends StatefulWidget {
   final String shiftId;
-  const EndShiftForm({Key? key, required this.shiftId}) : super(key: key);
+  const CloseShiftForm({Key? key, required this.shiftId}) : super(key: key);
 
   @override
-  State<EndShiftForm> createState() => _EndShiftFormState(shiftId: shiftId);
+  State<CloseShiftForm> createState() => _CloseShiftFormState(shiftId: shiftId);
 }
 
-class _EndShiftFormState extends State<EndShiftForm> {
+class _CloseShiftFormState extends State<CloseShiftForm> {
   final String shiftId;
-  late TextEditingController actualCashController;
-  late Future<CashierBalanceTransactionModel?> _openingFuture;
-  late Future<List<InvoiceHeaderModel?>> _transactionsFuture;
-  late CashierBalanceTransactionModel? opening;
+  CashierBalanceTransactionModel? activeShift;
   late List<InvoiceHeaderModel?> transactions;
-  double differences = 0.0;
-  final formKey = GlobalKey<FormState>();
-  final prefs = GetIt.instance<SharedPreferences>();
+  late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  String totalCash = '0';
 
-  _EndShiftFormState({required this.shiftId});
-
-  void _updateCashierBalanceTransaction(
-      String docId, CashierBalanceTransactionModel value) async {
-    await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .update(docId: docId, data: value);
-  }
+  _CloseShiftFormState({required this.shiftId});
 
   @override
   void initState() {
     super.initState();
-    actualCashController = TextEditingController();
-
-    _openingFuture = _fetchOpeningData();
-    _transactionsFuture = _fetchInvoices();
+    fetchActiveShift();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    actualCashController.dispose();
-  }
-
-  Future<CashierBalanceTransactionModel?> _fetchOpeningData() async {
-    // final shiftId = prefs.getString('tcsr1Id');
-    opening = await GetIt.instance<AppDatabase>()
+  Future<void> fetchActiveShift() async {
+    final shift = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .readByDocId(shiftId, null);
-    return opening;
+    setState(() {
+      activeShift = shift;
+    });
   }
 
-  Future<List<InvoiceHeaderModel?>> _fetchInvoices() async {
-    transactions =
+  Future<void> fetchInvoices() async {
+    final transaction =
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
-    return transactions;
+    setState(() {
+      transactions = transaction;
+    });
+  }
+
+  void updateTotalCash(String total) {
+    setState(() {
+      totalCash = total;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    actualCashController.addListener(() {
-      setState(() {
-        final double cashFlow = _calculateCashFlow();
-        final double actualCash =
-            double.tryParse(actualCashController.text) ?? 0.0;
-        differences = actualCash - cashFlow;
-      });
-    });
+    String formattedOpenDate =
+        Helpers.formatDateNoSeconds(activeShift!.openDate);
+    String formattedOpenValue =
+        NumberFormat.decimalPattern().format(activeShift!.openValue.toInt());
+    String formattedCashValue =
+        NumberFormat.decimalPattern().format(activeShift!.cashValue.toInt());
+    String formattedCalcValue =
+        NumberFormat.decimalPattern().format(activeShift!.calcValue.toInt());
+    double cashFlow = 0.0;
+    String formattedCashFlow =
+        NumberFormat.decimalPattern().format(cashFlow.toInt());
+    double expectedCash =
+        activeShift!.openValue + activeShift!.cashValue + cashFlow;
+    String formattedExpectedCash =
+        NumberFormat.decimalPattern().format(expectedCash.toInt());
 
-    // try {
-    return FutureBuilder<CashierBalanceTransactionModel?>(
-      future: _openingFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          opening = snapshot.data!;
-          return FutureBuilder<List<InvoiceHeaderModel?>>(
-            future: _transactionsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                transactions = snapshot.data!;
-                return buildForm(context, formKey);
-              }
-            },
-          );
-        }
-      },
-    );
-    // } catch (e, s) {
-    //   debugPrintStack(stackTrace: s);
-    //   return Placeholder();
-    // }
-  }
+    final cashier = prefs.getString('username');
 
-  Widget buildForm(BuildContext context, GlobalKey<FormState> formKey) {
-    double cashFlow = _calculateCashFlow();
-    final prefs = GetIt.instance<SharedPreferences>();
-    final userLogged = prefs.getString('username');
-
-    return Center(
-      child: Form(
-        key: formKey,
-        child: Column(
-          children: [
-            CustomRow(
-              leftText: "Cashier",
-              rightText: "${opening!.openedbyId} / $userLogged",
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 30.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Cashier",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    cashier!,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
-            CustomRow(
-              leftText: "Shift Started",
-              rightText: Helpers.formatDate(opening!.openDate),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Shift Started",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    formattedOpenDate,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            const CustomRow(
-              leftText: "System Cashier",
-              rightText: "",
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Opening Balance",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    formattedOpenValue,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
-            CustomRow(
-              leftText: "   Start Cash",
-              rightText: Helpers.parseMoney(opening!.openValue.toInt()),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Total Cash Sales",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    formattedCashValue,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
-            CustomRow(
-              leftText: "   Cash Flow",
-              rightText: Helpers.parseMoney(cashFlow.toInt()),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Total Cash Flow",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    formattedCashFlow,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
-            const CustomRow(
-              leftText: "   Cash Sales",
-              rightText: "0.0",
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Total Non Cash",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    formattedCalcValue,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
-            CustomRow(
-              leftText: "   Expected Cash",
-              rightText: Helpers.parseMoney(cashFlow.toInt()),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Expected Cash",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    formattedExpectedCash,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
-            const CustomRow(
-              leftText: "   Non-Cash",
-              rightText: "0.0",
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Calculate Cash",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            const CustomRow(
-              leftText: "Actual Cash",
-              rightText: "",
-            ),
-            CustomRowInput(
-              controller: actualCashController,
-              leftText: "   Actual Cash Earned",
-              hint: "Enter Actual Cash Earned",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a value';
-                }
-                final isNumeric = double.tryParse(value);
-                if (isNumeric == null) {
-                  return 'Please enter a valid number';
-                }
-                return null;
-              },
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 10),
-            CustomRow(
-              leftText: "   Differences",
-              rightText: Helpers.parseMoney(differences.toInt()),
-            ),
-            const SizedBox(height: 30),
-            Container(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: CustomButton(
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: CalculateCash(updateTotalCash),
+          ),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: CustomButton(
                 child: const Text("End Shift"),
                 onTap: () async {
-                  if (!formKey.currentState!.validate()) return;
-
-                  final double inputValue =
-                      double.tryParse(actualCashController.text) ?? 0.0;
-
-                  if (opening != null) {
+                  if (activeShift != null) {
                     final CashierBalanceTransactionModel shift =
                         CashierBalanceTransactionModel(
-                      docId: opening!.docId,
-                      createDate: opening!.createDate,
-                      updateDate: opening!.updateDate,
-                      tocsrId: opening!.tocsrId,
-                      tousrId: opening!.tousrId,
-                      docNum: opening!.docNum,
-                      openDate: opening!.openDate,
-                      openTime: opening!.openTime,
-                      calcDate: opening!.calcDate,
-                      calcTime: opening!.calcTime,
-                      closeDate: DateTime.now(),
-                      closeTime: DateTime.now(),
-                      timezone: opening!.timezone,
-                      openValue: opening!.openValue,
-                      calcValue: 0,
-                      cashValue: 0,
-                      closeValue: inputValue,
-                      openedbyId: "",
-                      closedbyId: "",
-                      approvalStatus: 1,
+                      docId: activeShift!.docId,
+                      createDate: activeShift!.createDate,
+                      updateDate: activeShift!.updateDate,
+                      tocsrId: activeShift!.tocsrId,
+                      tousrId: activeShift!.tousrId,
+                      docNum: activeShift!.docNum,
+                      openDate: activeShift!.openDate,
+                      openTime: activeShift!.openTime,
+                      calcDate: activeShift!.calcDate,
+                      calcTime: activeShift!.calcTime,
+                      closeDate: activeShift!.closeDate,
+                      closeTime: activeShift!.closeTime,
+                      timezone: activeShift!.timezone,
+                      openValue: activeShift!.openValue,
+                      calcValue: activeShift!.calcValue,
+                      cashValue: activeShift!.cashValue,
+                      closeValue: activeShift!.closeValue,
+                      openedbyId: activeShift!.openedbyId,
+                      closedbyId: activeShift!.closedbyId,
+                      approvalStatus: activeShift!.approvalStatus,
                     );
-
-                    _updateCashierBalanceTransaction(opening!.docId, shift);
-
-                    await prefs.setBool('isOpen', false);
-
-                    await prefs.setString('tcsr1Id', "");
 
                     if (!context.mounted) return;
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return ConfirmEndShift(shift, inputValue.toString());
+                          return ConfirmEndShift(shift, totalCash);
                         });
                   }
-                },
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-                width: 400,
-                child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side:
-                              const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.white),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.black.withOpacity(.2))),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Center(
-                      child: Text(
-                    "Cancel",
-                    style: TextStyle(
-                        color: ProjectColors.primary,
-                        fontWeight: FontWeight.w700),
-                  )),
-                )),
-          ],
-        ),
+                }),
+          ),
+        ],
       ),
     );
-  }
-
-  double _calculateCashFlow() {
-    double cashFlow = 0;
-    for (var transaction in transactions) {
-      cashFlow += transaction!.grandTotal;
-    }
-    return cashFlow;
   }
 }
