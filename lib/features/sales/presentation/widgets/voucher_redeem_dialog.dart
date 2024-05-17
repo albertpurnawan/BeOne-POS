@@ -129,7 +129,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                   backgroundColor:
                       MaterialStateColor.resolveWith((states) => Colors.white),
                   overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.black.withOpacity(.2))),
+                      (states) => ProjectColors.primary.withOpacity(.2))),
               onPressed: () {
                 Navigator.of(context).pop();
               },

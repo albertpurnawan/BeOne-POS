@@ -76,7 +76,6 @@ class PromoHargaSpesialBuyDao extends BaseDao<PromoHargaSpesialBuyModel> {
       );
     }
 
-    // Convert the result to a list of PromoHargaSpesialBuyModel
     return result.map((map) => PromoHargaSpesialBuyModel.fromMap(map)).toList();
   }
 }

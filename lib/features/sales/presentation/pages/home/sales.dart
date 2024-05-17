@@ -22,6 +22,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
@@ -361,7 +362,60 @@ class _SalesPageState extends State<SalesPage> {
                               itemCount: state.receiptItems.length,
                               itemBuilder: (context, index) {
                                 final e = state.receiptItems[index];
-                                final hasPromos = e.promos.isNotEmpty;
+                                // final promo = e.promos[index];
+                                final test = e.promos.map(
+                                  (promo) => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: e.itemEntity.toitmId ==
+                                                promo.toitmId
+                                            ? Text(
+                                                promo.promoDescription,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              )
+                                            : Text(
+                                                "",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                      ),
+                                      Expanded(
+                                        child: e.itemEntity.toitmId ==
+                                                promo.toitmId
+                                            ? Text(
+                                                "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(e.discAmount.toString()))}",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                              )
+                                            : Text(
+                                                "",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
                                 // print("$e <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,");
                                 // e bisa di loop
                                 return GestureDetector(
@@ -571,104 +625,90 @@ class _SalesPageState extends State<SalesPage> {
                                                       ],
                                                     ),
                                                     // SHOW PROMO HERE
-                                                    index % 3 == 0
-                                                        ? Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                state.receiptItems
-                                                                            .isNotEmpty &&
-                                                                        state
-                                                                            .receiptItems[
-                                                                                0]
-                                                                            .promos
-                                                                            .isNotEmpty
-                                                                    ? state
-                                                                        .receiptItems[
-                                                                            0]
-                                                                        .promos[
-                                                                            0]
-                                                                        .promoDescription
-                                                                    : "",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromARGB(
-                                                                    //         255,
-                                                                    //         243,
-                                                                    //         109,
-                                                                    //         0),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                              Text(
-                                                                state.receiptItems
-                                                                            .isNotEmpty &&
-                                                                        state
-                                                                            .receiptItems[0]
-                                                                            .promos
-                                                                            .isNotEmpty
-                                                                    ? "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(state.receiptItems[0].discAmount.toString()))}"
-                                                                    : "",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromARGB(
-                                                                    //         255,
-                                                                    //         243,
-                                                                    //         109,
-                                                                    //         0),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                            ],
-                                                          )
-                                                        : const SizedBox
-                                                            .shrink(),
-                                                    // index % 4 == 0
-                                                    //     ? const Row(
-                                                    //         mainAxisAlignment:
-                                                    //             MainAxisAlignment
-                                                    //                 .spaceBetween,
-                                                    //         crossAxisAlignment:
-                                                    //             CrossAxisAlignment
-                                                    //                 .start,
-                                                    //         children: [
-                                                    //           Text(
-                                                    //             "PROMO LEBARAN",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromRGBO(
-                                                    //                 //         14,
-                                                    //                 //         68,
-                                                    //                 //         193,
-                                                    //                 //         1),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //           Text(
-                                                    //             "-32,568",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromRGBO(
-                                                    //                 //         14,
-                                                    //                 //         68,
-                                                    //                 //         193,
-                                                    //                 //         1),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //         ],
-                                                    //       )
-                                                    //     : const SizedBox
-                                                    //         .shrink(),
+                                                    ...test,
+                                                    // Row(
+                                                    //   mainAxisAlignment:
+                                                    //       MainAxisAlignment
+                                                    //           .spaceBetween,
+                                                    //   crossAxisAlignment:
+                                                    //       CrossAxisAlignment
+                                                    //           .start,
+                                                    //   children: [
+                                                    //     Expanded(
+                                                    //       child: e.itemEntity
+                                                    //                   .toitmId ==
+                                                    //               promo.toitmId
+                                                    //           ? Text(
+                                                    //               promo
+                                                    //                   .promoDescription,
+                                                    //               style:
+                                                    //                   TextStyle(
+                                                    //                 fontSize:
+                                                    //                     16,
+                                                    //                 fontStyle:
+                                                    //                     FontStyle
+                                                    //                         .italic,
+                                                    //                 fontWeight:
+                                                    //                     FontWeight
+                                                    //                         .w500,
+                                                    //               ),
+                                                    //             )
+                                                    //           : Text(
+                                                    //               "",
+                                                    //               style:
+                                                    //                   TextStyle(
+                                                    //                 fontSize:
+                                                    //                     16,
+                                                    //                 fontStyle:
+                                                    //                     FontStyle
+                                                    //                         .italic,
+                                                    //                 fontWeight:
+                                                    //                     FontWeight
+                                                    //                         .w500,
+                                                    //               ),
+                                                    //             ),
+                                                    //     ),
+                                                    //     Expanded(
+                                                    //       child: e.itemEntity
+                                                    //                   .toitmId ==
+                                                    //               promo.toitmId
+                                                    //           ? Text(
+                                                    //               "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(e.discAmount.toString()))}",
+                                                    //               style:
+                                                    //                   TextStyle(
+                                                    //                 fontSize:
+                                                    //                     16,
+                                                    //                 fontStyle:
+                                                    //                     FontStyle
+                                                    //                         .italic,
+                                                    //                 fontWeight:
+                                                    //                     FontWeight
+                                                    //                         .w500,
+                                                    //               ),
+                                                    //               textAlign:
+                                                    //                   TextAlign
+                                                    //                       .right,
+                                                    //             )
+                                                    //           : Text(
+                                                    //               "",
+                                                    //               style:
+                                                    //                   TextStyle(
+                                                    //                 fontSize:
+                                                    //                     16,
+                                                    //                 fontStyle:
+                                                    //                     FontStyle
+                                                    //                         .italic,
+                                                    //                 fontWeight:
+                                                    //                     FontWeight
+                                                    //                         .w500,
+                                                    //               ),
+                                                    //               textAlign:
+                                                    //                   TextAlign
+                                                    //                       .right,
+                                                    //             ),
+                                                    //     ),
+                                                    //   ],
+                                                    // ),
                                                   ],
                                                 ),
                                               ),
@@ -1113,7 +1153,21 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          isEditingNewReceiptItemCode = false;
+                          isEditingNewReceiptItemQty = false;
+                          isUpdatingReceiptItemQty = false;
+                        });
+                        showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => InputDiscountManual())
+                            .then((value) => setState(() {
+                                  isEditingNewReceiptItemCode = true;
+                                  _newReceiptItemCodeFocusNode.requestFocus();
+                                }));
+                      },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
@@ -1137,7 +1191,7 @@ class _SalesPageState extends State<SalesPage> {
                       //   ),
                       // ),
                       child: const Text(
-                        "Item Disc.",
+                        "Discount",
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w600),
                       ),
@@ -1373,24 +1427,28 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 25),
-                          // const Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   crossAxisAlignment: CrossAxisAlignment.start,
-                          //   children: [
-                          //     Text(
-                          //       "AKHIRTAHUN20",
-                          //       style: TextStyle(
-                          //           fontSize: 18, fontWeight: FontWeight.w500),
-                          //     ),
-                          //     Text(
-                          //       "- 1.504.468",
-                          //       style: TextStyle(
-                          //           fontSize: 18, fontWeight: FontWeight.w500),
-                          //     ),
-                          //   ],
-                          // ),
-                          // const SizedBox(height: 5),
+                          const SizedBox(height: 15),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Discount",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: FontStyle.italic),
+                              ),
+                              Text(
+                                "- 1.504.468",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    fontStyle: FontStyle.italic),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
                           // const Row(
                           //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           //   crossAxisAlignment: CrossAxisAlignment.start,

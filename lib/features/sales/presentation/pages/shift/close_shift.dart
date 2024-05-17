@@ -76,6 +76,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   @override
   void initState() {
     super.initState();
+    fetchInvoices();
+    updateActiveShift();
     fetchActiveShift();
   }
 
@@ -100,6 +102,48 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     setState(() {
       totalCash = total;
     });
+  }
+
+  void updateActiveShift() async {
+    final shiftId = prefs.getString('tcsr1Id');
+    final shift = await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .readByDocId(shiftId!, null);
+
+    double totalCashValue = shift!.cashValue;
+
+    for (final trx in transactions) {
+      if (trx != null) {
+        totalCashValue += trx.grandTotal;
+
+        CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
+          docId: shift.docId,
+          createDate: shift.createDate,
+          updateDate: shift.updateDate,
+          tocsrId: shift.tocsrId,
+          tousrId: shift.tousrId,
+          docNum: shift.docNum,
+          openDate: shift.openDate,
+          openTime: shift.openTime,
+          calcDate: shift.calcDate,
+          calcTime: shift.calcTime,
+          closeDate: shift.closeDate,
+          closeTime: shift.closeTime,
+          timezone: shift.timezone,
+          openValue: shift.openValue,
+          calcValue: shift.calcValue,
+          cashValue: totalCashValue,
+          closeValue: shift.closeValue,
+          openedbyId: shift.openedbyId,
+          closedbyId: shift.closedbyId,
+          approvalStatus: shift.approvalStatus,
+        );
+
+        await GetIt.instance<AppDatabase>()
+            .cashierBalanceTransactionDao
+            .update(docId: shiftId, data: data);
+      }
+    }
   }
 
   @override

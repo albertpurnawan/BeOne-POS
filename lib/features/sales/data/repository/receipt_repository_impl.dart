@@ -77,6 +77,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
+        discHeaderManual: 0, // get di sini
+        discHeaderPromo: 0, // get di sini
+        syncToBos: 0, // get di sini
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
@@ -115,6 +118,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           includeTax: e.itemEntity.includeTax, // ??
           tovenId: e.itemEntity.tovenId, // belum ada
           tbitmId: e.itemEntity.tbitmId,
+          discHeaderAmount: 0, //get disini
+          subtotalAfterDiscHeader: 0, //get disini
         );
       }).toList();
 

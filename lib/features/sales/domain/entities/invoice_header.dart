@@ -33,19 +33,22 @@ class InvoiceHeaderEntity {
   final int syncCRM;
   final String? toinvTohemId;
   final String? tcsr1Id;
+  final double? discHeaderManual;
+  final double? discHeaderPromo;
+  final int syncToBos;
 
   InvoiceHeaderEntity({
-    required this.docId,
-    required this.createDate,
-    required this.updateDate,
-    required this.tostrId,
+    this.docId,
+    this.createDate,
+    this.updateDate,
+    this.tostrId,
     required this.docnum,
     required this.orderNo,
-    required this.tocusId,
-    required this.tohemId,
-    required this.transDateTime,
+    this.tocusId,
+    this.tohemId,
+    this.transDateTime,
     required this.timezone,
-    required this.remarks,
+    this.remarks,
     required this.subTotal,
     required this.discPrctg,
     required this.discAmount,
@@ -59,12 +62,15 @@ class InvoiceHeaderEntity {
     required this.grandTotal,
     required this.changed,
     required this.totalPayment,
-    required this.tocsrId,
+    this.tocsrId,
     required this.docStatus,
     required this.sync,
     required this.syncCRM,
-    required this.toinvTohemId,
-    required this.tcsr1Id,
+    this.toinvTohemId,
+    this.tcsr1Id,
+    this.discHeaderManual,
+    this.discHeaderPromo,
+    required this.syncToBos,
   });
 
   InvoiceHeaderEntity copyWith({
@@ -98,6 +104,9 @@ class InvoiceHeaderEntity {
     int? syncCRM,
     String? toinvTohemId,
     String? tcsr1Id,
+    double? discHeaderManual,
+    double? discHeaderPromo,
+    int? syncToBos,
   }) {
     return InvoiceHeaderEntity(
       docId: docId ?? this.docId,
@@ -130,6 +139,9 @@ class InvoiceHeaderEntity {
       syncCRM: syncCRM ?? this.syncCRM,
       toinvTohemId: toinvTohemId ?? this.toinvTohemId,
       tcsr1Id: tcsr1Id ?? this.tcsr1Id,
+      discHeaderManual: discHeaderManual ?? this.discHeaderManual,
+      discHeaderPromo: discHeaderPromo ?? this.discHeaderPromo,
+      syncToBos: syncToBos ?? this.syncToBos,
     );
   }
 
@@ -165,6 +177,9 @@ class InvoiceHeaderEntity {
       'syncCRM': syncCRM,
       'toinvTohemId': toinvTohemId,
       'tcsr1Id': tcsr1Id,
+      'discHeaderManual': discHeaderManual,
+      'discHeaderPromo': discHeaderPromo,
+      'syncToBos': syncToBos,
     };
   }
 
@@ -207,6 +222,13 @@ class InvoiceHeaderEntity {
       toinvTohemId:
           map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
+      discHeaderManual: map['discHeaderManual'] != null
+          ? map['discHeaderManual'] as double
+          : null,
+      discHeaderPromo: map['discHeaderPromo'] != null
+          ? map['discHeaderPromo'] as double
+          : null,
+      syncToBos: map['syncToBos'] as int,
     );
   }
 
@@ -217,7 +239,7 @@ class InvoiceHeaderEntity {
 
   @override
   String toString() {
-    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDateTime: $transDateTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, tcsr1Id: $tcsr1Id)';
+    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDateTime: $transDateTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, tcsr1Id: $tcsr1Id, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, syncToBos: $syncToBos)';
   }
 
   @override
@@ -253,7 +275,10 @@ class InvoiceHeaderEntity {
         other.sync == sync &&
         other.syncCRM == syncCRM &&
         other.toinvTohemId == toinvTohemId &&
-        other.tcsr1Id == tcsr1Id;
+        other.tcsr1Id == tcsr1Id &&
+        other.discHeaderManual == discHeaderManual &&
+        other.discHeaderPromo == discHeaderPromo &&
+        other.syncToBos == syncToBos;
   }
 
   @override
@@ -287,6 +312,9 @@ class InvoiceHeaderEntity {
         sync.hashCode ^
         syncCRM.hashCode ^
         toinvTohemId.hashCode ^
-        tcsr1Id.hashCode;
+        tcsr1Id.hashCode ^
+        discHeaderManual.hashCode ^
+        discHeaderPromo.hashCode ^
+        syncToBos.hashCode;
   }
 }

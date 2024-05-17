@@ -116,6 +116,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -1366,10 +1367,6 @@ class _FetchScreenState extends State<FetchScreen> {
       final promos = <PromotionsModel>[];
       final today = DateTime.now().weekday;
 
-      // final topsb = await GetIt.instance<AppDatabase>()
-      //     .promoHargaSpesialHeaderDao
-      //     .readAll();
-
       for (final header in topsb) {
         final tpsb2 = await GetIt.instance<AppDatabase>()
             .promoHargaSpesialAssignStoreDao
@@ -1393,6 +1390,7 @@ class _FetchScreenState extends State<FetchScreen> {
         if (isValid) {
           for (final customerGroup in tpsb4) {
             promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
               toitmId: header.toitmId,
               promoType: 202,
               promoId: header.docId,
@@ -1407,9 +1405,6 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
       }
-
-      // final topmi =
-      //     await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
 
       for (final header in topmi) {
         final tpmi1 = await GetIt.instance<AppDatabase>()
@@ -1437,6 +1432,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpmi1) {
             for (final customerGroup in tpmi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 206,
                 promoId: header.docId,
@@ -1452,10 +1448,6 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
       }
-
-      // final topdi = await GetIt.instance<AppDatabase>()
-      //     .promoDiskonItemHeaderDao
-      //     .readAll();
 
       for (final header in topdi) {
         final tpdi1 = await GetIt.instance<AppDatabase>()
@@ -1483,6 +1475,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdi1) {
             for (final customerGroup in tpdi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 203,
                 promoId: header.docId,
@@ -1499,9 +1492,6 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
-      // final topdg = await GetIt.instance<AppDatabase>()
-      //     .promoDiskonGroupItemHeaderDao
-      //     .readAll();
       for (final header in topdg) {
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
@@ -1528,6 +1518,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdg1) {
             for (final customerGroup in tpdg5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: null,
                 promoType: 204,
                 promoId: header.docId,
@@ -1544,9 +1535,6 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
-      // final toprb =
-      //     await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
-
       for (final header in toprb) {
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao
@@ -1554,9 +1542,6 @@ class _FetchScreenState extends State<FetchScreen> {
         final tprb2 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYAssignStoreDao
             .readByToprbId(header.docId, null);
-        // final tprb5 = await GetIt.instance<AppDatabase>()
-        //     .promoBuyXGetYCustomerGroupDao
-        //     .readByToprbid(header.docId, null);
 
         final dayProperties = {
           1: tprb2.day1,
@@ -1573,6 +1558,7 @@ class _FetchScreenState extends State<FetchScreen> {
           // for (final buyCondition in tprb1) {
           // for (final customerGroup in tprb5) {
           promos.add(PromotionsModel(
+            docId: const Uuid().v4(),
             toitmId: tprb1.toitmId,
             promoType: 103,
             promoId: header.docId,
@@ -1720,6 +1706,7 @@ class _FetchScreenState extends State<FetchScreen> {
         if (isValid) {
           for (final customerGroup in tpsb4) {
             promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
               toitmId: header.toitmId,
               promoType: 202,
               promoId: header.docId,
@@ -1764,6 +1751,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpmi1) {
             for (final customerGroup in tpmi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 206,
                 promoId: header.docId,
@@ -1810,6 +1798,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdi1) {
             for (final customerGroup in tpdi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 203,
                 promoId: header.docId,
@@ -1829,6 +1818,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final topdg = await GetIt.instance<AppDatabase>()
           .promoDiskonGroupItemHeaderDao
           .readAll();
+
       for (final header in topdg) {
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
@@ -1855,6 +1845,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdg1) {
             for (final customerGroup in tpdg5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: null,
                 promoType: 204,
                 promoId: header.docId,
@@ -1899,6 +1890,7 @@ class _FetchScreenState extends State<FetchScreen> {
           // for (final buyCondition in tprb1) {
           // for (final customerGroup in tprb5) {
           promos.add(PromotionsModel(
+            docId: const Uuid().v4(),
             toitmId: tprb1.toitmId,
             promoType: 103,
             promoId: header.docId,
