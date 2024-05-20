@@ -608,8 +608,10 @@ class _SalesPageState extends State<SalesPage> {
                                                             child: Column(
                                                               children: [
                                                                 Text(
-                                                                  Helpers.parseMoney(e
-                                                                      .totalGross
+                                                                  Helpers.parseMoney((e
+                                                                              .itemEntity
+                                                                              .dpp *
+                                                                          e.quantity)
                                                                       .toInt()),
                                                                   style: const TextStyle(
                                                                       fontSize:

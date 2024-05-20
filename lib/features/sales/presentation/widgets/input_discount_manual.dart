@@ -57,15 +57,15 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 24),
-            onEditingComplete: () {
-              double discountValue = Helpers.revertMoneyToDecimalFormat(
-                  _textEditorDiscountController.text);
+            // onEditingComplete: () {
+            //   double discountValue = Helpers.revertMoneyToDecimalFormat(
+            //       _textEditorDiscountController.text);
 
-              context
-                  .read<ReceiptCubit>()
-                  .updateTotalAmountFromDiscount(discountValue);
-              Navigator.of(context).pop();
-            },
+            //   context
+            //       .read<ReceiptCubit>()
+            //       .updateTotalAmountFromDiscount(discountValue);
+            //   Navigator.of(context).pop();
+            // },
             decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
                 hintText: "Enter Discount",
