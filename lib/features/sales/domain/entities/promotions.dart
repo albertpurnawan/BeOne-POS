@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:pos_fe/core/resources/promotion_detail.dart';
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class PromotionsEntity {
+  final String docId;
   final String? toitmId;
   final int promoType;
   final String? promoId;
@@ -15,8 +18,10 @@ class PromotionsEntity {
   final String? remarks;
   double? discAmount;
   double? discPrctg;
+  PromotionDetails? promotionDetails;
 
   PromotionsEntity({
+    required this.docId,
     this.toitmId,
     required this.promoType,
     this.promoId,
@@ -29,9 +34,11 @@ class PromotionsEntity {
     this.remarks,
     this.discAmount,
     this.discPrctg,
+    this.promotionDetails,
   });
 
   PromotionsEntity copyWith({
+    String? docId,
     String? toitmId,
     int? promoType,
     String? promoId,
@@ -44,8 +51,10 @@ class PromotionsEntity {
     String? remarks,
     double? discAmount,
     double? discPrctg,
+    PromotionDetails? promotionDetails,
   }) {
     return PromotionsEntity(
+      docId: docId ?? this.docId,
       toitmId: toitmId ?? this.toitmId,
       promoType: promoType ?? this.promoType,
       promoId: promoId ?? this.promoId,
@@ -58,11 +67,13 @@ class PromotionsEntity {
       remarks: remarks ?? this.remarks,
       discAmount: discAmount ?? this.discAmount,
       discPrctg: discPrctg ?? this.discPrctg,
+      promotionDetails: promotionDetails ?? this.promotionDetails,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'docId': docId,
       'toitmId': toitmId,
       'promoType': promoType,
       'promoId': promoId,
@@ -75,11 +86,13 @@ class PromotionsEntity {
       'remarks': remarks,
       'discAmount': discAmount,
       'discPrctg': discPrctg,
+      // 'promotionDetails': promotionDetails?.toMap(),
     };
   }
 
   factory PromotionsEntity.fromMap(Map<String, dynamic> map) {
     return PromotionsEntity(
+      docId: map['docId'] as String,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       promoType: map['promoType'] as int,
       promoId: map['promoId'] != null ? map['promoId'] as String : null,
@@ -93,6 +106,10 @@ class PromotionsEntity {
       discAmount:
           map['discAmount'] != null ? map['discAmount'] as double : null,
       discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
+      // promotionDetails: map['promotionDetails'] != null
+      //     ? PromotionDetails.fromMap(
+      //         map['promotionDetails'] as Map<String, dynamic>)
+      //     : null,
     );
   }
 
@@ -103,14 +120,15 @@ class PromotionsEntity {
 
   @override
   String toString() {
-    return 'PromotionsEntity(toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks, discAmount: $discAmount, discPrctg: $discPrctg)';
+    return 'PromotionsEntity(docId: $docId, toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks, discAmount: $discAmount, discPrctg: $discPrctg, promotionDetails: $promotionDetails)';
   }
 
   @override
   bool operator ==(covariant PromotionsEntity other) {
     if (identical(this, other)) return true;
 
-    return other.toitmId == toitmId &&
+    return other.docId == docId &&
+        other.toitmId == toitmId &&
         other.promoType == promoType &&
         other.promoId == promoId &&
         other.date == date &&
@@ -121,12 +139,14 @@ class PromotionsEntity {
         other.tocatId == tocatId &&
         other.remarks == remarks &&
         other.discAmount == discAmount &&
-        other.discPrctg == discPrctg;
+        other.discPrctg == discPrctg &&
+        other.promotionDetails == promotionDetails;
   }
 
   @override
   int get hashCode {
-    return toitmId.hashCode ^
+    return docId.hashCode ^
+        toitmId.hashCode ^
         promoType.hashCode ^
         promoId.hashCode ^
         date.hashCode ^
@@ -137,6 +157,7 @@ class PromotionsEntity {
         tocatId.hashCode ^
         remarks.hashCode ^
         discAmount.hashCode ^
-        discPrctg.hashCode;
+        discPrctg.hashCode ^
+        promotionDetails.hashCode;
   }
 }

@@ -116,6 +116,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/fetch_bos_token.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
@@ -1360,6 +1361,7 @@ class _FetchScreenState extends State<FetchScreen> {
           await fetchFunction();
         } catch (e) {
           handleError(e);
+          rethrow;
         }
       }
 
@@ -1393,6 +1395,7 @@ class _FetchScreenState extends State<FetchScreen> {
         if (isValid) {
           for (final customerGroup in tpsb4) {
             promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
               toitmId: header.toitmId,
               promoType: 202,
               promoId: header.docId,
@@ -1437,6 +1440,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpmi1) {
             for (final customerGroup in tpmi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 206,
                 promoId: header.docId,
@@ -1483,6 +1487,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdi1) {
             for (final customerGroup in tpdi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 203,
                 promoId: header.docId,
@@ -1528,6 +1533,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdg1) {
             for (final customerGroup in tpdg5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: null,
                 promoType: 204,
                 promoId: header.docId,
@@ -1570,22 +1576,23 @@ class _FetchScreenState extends State<FetchScreen> {
 
         final isValid = dayProperties[today] == 1;
         if (isValid) {
-          // for (final buyCondition in tprb1) {
-          // for (final customerGroup in tprb5) {
-          promos.add(PromotionsModel(
-            toitmId: tprb1.toitmId,
-            promoType: 103,
-            promoId: header.docId,
-            date: DateTime.now(),
-            startTime: header.startTime,
-            endTime: header.endTime,
-            tocrgId: null,
-            promoDescription: header.description,
-            tocatId: null,
-            remarks: null,
-          ));
-          // }
-          // }
+          for (final buyCondition in tprb1) {
+            // for (final customerGroup in tprb5) {
+            promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
+              toitmId: buyCondition.toitmId,
+              promoType: 103,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: null,
+              promoDescription: header.description,
+              tocatId: null,
+              remarks: null,
+            ));
+            // }
+          }
         }
       }
 
@@ -1720,6 +1727,7 @@ class _FetchScreenState extends State<FetchScreen> {
         if (isValid) {
           for (final customerGroup in tpsb4) {
             promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
               toitmId: header.toitmId,
               promoType: 202,
               promoId: header.docId,
@@ -1764,6 +1772,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpmi1) {
             for (final customerGroup in tpmi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 206,
                 promoId: header.docId,
@@ -1810,6 +1819,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdi1) {
             for (final customerGroup in tpdi5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: buyCondition.toitmId,
                 promoType: 203,
                 promoId: header.docId,
@@ -1855,6 +1865,7 @@ class _FetchScreenState extends State<FetchScreen> {
           for (final buyCondition in tpdg1) {
             for (final customerGroup in tpdg5) {
               promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
                 toitmId: null,
                 promoType: 204,
                 promoId: header.docId,
@@ -1896,22 +1907,23 @@ class _FetchScreenState extends State<FetchScreen> {
 
         final isValid = dayProperties[today] == 1;
         if (isValid) {
-          // for (final buyCondition in tprb1) {
-          // for (final customerGroup in tprb5) {
-          promos.add(PromotionsModel(
-            toitmId: tprb1.toitmId,
-            promoType: 103,
-            promoId: header.docId,
-            date: DateTime.now(),
-            startTime: header.startTime,
-            endTime: header.endTime,
-            tocrgId: null,
-            promoDescription: header.description,
-            tocatId: null,
-            remarks: null,
-          ));
-          // }
-          // }
+          for (final buyCondition in tprb1) {
+            // for (final customerGroup in tprb5) {
+            promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
+              toitmId: buyCondition.toitmId,
+              promoType: 103,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: null,
+              promoDescription: header.description,
+              tocatId: null,
+              remarks: null,
+            ));
+            // }
+          }
         }
       }
 

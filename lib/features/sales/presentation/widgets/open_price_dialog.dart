@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class OpenPriceDialog extends StatefulWidget {
   OpenPriceDialog(
-      {super.key, required this.itemEntity, required this.quantity});
+      {super.key, required this.receiptItemEntity, required this.quantity});
 
-  final ItemEntity itemEntity;
+  final ReceiptItemEntity receiptItemEntity;
   final double quantity;
 
   @override
@@ -26,7 +28,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
   initState() {
     super.initState();
     _textEditingControllerOpenPrice.text =
-        Helpers.parseMoney(widget.itemEntity.dpp.toInt());
+        Helpers.parseMoney(widget.receiptItemEntity.itemEntity.dpp.toInt());
   }
 
   @override
@@ -63,12 +65,8 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 24),
             onEditingComplete: () {
-              context.read<ReceiptCubit>().addOrUpdateReceiptItemWithOpenPrice(
-                  widget.itemEntity,
-                  widget.quantity,
-                  Helpers.revertMoneyToDecimalFormat(
-                      _textEditingControllerOpenPrice.text));
-              Navigator.of(context).pop();
+              context.pop(Helpers.revertMoneyToDecimalFormat(
+                  _textEditingControllerOpenPrice.text));
             },
             decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
@@ -99,14 +97,15 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
                       (states) => Colors.white.withOpacity(.2))),
               onPressed: () {
                 // selectedCustomer = radioValue;
-                context
-                    .read<ReceiptCubit>()
-                    .addOrUpdateReceiptItemWithOpenPrice(
-                        widget.itemEntity,
-                        widget.quantity,
-                        Helpers.revertMoneyToDecimalFormat(
-                            _textEditingControllerOpenPrice.text));
-                Navigator.of(context).pop();
+                // context
+                //     .read<ReceiptCubit>()
+                //     .addOrUpdateReceiptItemWithOpenPrice(
+                //         widget.receiptItemEntity.itemEntity,
+                //         widget.quantity,
+                // Helpers.revertMoneyToDecimalFormat(
+                //     _textEditingControllerOpenPrice.text));
+                context.pop(Helpers.revertMoneyToDecimalFormat(
+                    _textEditingControllerOpenPrice.text));
                 // Future.delayed(
                 //     const Duration(milliseconds: 200),
                 //     () => _newReceiptItemCodeFocusNode

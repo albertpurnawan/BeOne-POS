@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/result.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -20,14 +21,17 @@ class HandleNewReceiptItemUseCase
       {HandleNewReceiptItemUseCaseParams? params}) async {
     // TODO: implement call
     try {
+      // Declare variables
       final ItemEntity? itemEntity;
-      final ReceiptItemEntity receiptItemEntity;
+      ReceiptItemEntity receiptItemEntity;
 
+      // Validate params
       if (params == null) throw "Params required";
       if (params.barcode == null && params.itemEntity == null) {
         throw "Item barcode or item required";
       }
 
+      // Get item entity and validate
       if (params.barcode != null) {
         itemEntity =
             await _getItemByBarcodeUseCase.call(params: params.barcode);
@@ -36,19 +40,11 @@ class HandleNewReceiptItemUseCase
       }
       if (itemEntity == null) throw "Item not found";
 
-      receiptItemEntity = ReceiptItemEntity(
-          quantity: params.quantity,
-          totalGross: 0,
-          itemEntity: itemEntity,
-          taxAmount: 0,
-          sellingPrice: itemEntity.price,
-          totalAmount: 0,
-          totalSellBarcode: 0,
-          promos: []);
+      // Convert item entity to receipt item entity
+      receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(
+          itemEntity, params.quantity);
 
-      if (itemEntity.openPrice == 1) {
-      } else {}
-      ;
+      // Handle open price
     } catch (e) {
       rethrow;
     }

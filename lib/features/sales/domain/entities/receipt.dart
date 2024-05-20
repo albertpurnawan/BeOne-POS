@@ -54,6 +54,8 @@ class ReceiptEntity {
     this.totalVoucher,
     this.totalNonVoucher,
     required this.promos,
+    this.discAmount,
+    this.discPrctg,
   });
 
   ReceiptEntity copyWith({
@@ -76,6 +78,8 @@ class ReceiptEntity {
     int? totalVoucher,
     double? totalNonVoucher,
     List<PromotionsEntity>? promos,
+    double? discAmount,
+    double? discPrctg,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -97,6 +101,8 @@ class ReceiptEntity {
       totalVoucher: totalVoucher ?? this.totalVoucher,
       totalNonVoucher: totalNonVoucher ?? this.totalNonVoucher,
       promos: promos ?? this.promos,
+      discAmount: discAmount ?? this.discAmount,
+      discPrctg: discPrctg ?? this.discPrctg,
     );
   }
 

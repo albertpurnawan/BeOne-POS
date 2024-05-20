@@ -362,6 +362,36 @@ class _SalesPageState extends State<SalesPage> {
                               itemBuilder: (context, index) {
                                 final e = state.receiptItems[index];
                                 final hasPromos = e.promos.isNotEmpty;
+                                final test = e.promos.map(
+                                  (promo) => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                          child: Text(
+                                        promo.promoDescription,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontStyle: FontStyle.italic,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      )),
+                                      Expanded(
+                                          child: Text(
+                                        "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat((e.discAmount ?? 0).toInt().toString()))}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontStyle: FontStyle.italic,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        textAlign: TextAlign.right,
+                                      )),
+                                    ],
+                                  ),
+                                );
+
                                 // print("$e <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,");
                                 // e bisa di loop
                                 return GestureDetector(
@@ -554,9 +584,9 @@ class _SalesPageState extends State<SalesPage> {
                                                             child: Column(
                                                               children: [
                                                                 Text(
-                                                                  Helpers.parseMoney(e
-                                                                      .totalGross
-                                                                      .toInt()),
+                                                                  Helpers.parseMoney(
+                                                                      (e.totalGross)
+                                                                          .toInt()),
                                                                   style: const TextStyle(
                                                                       fontSize:
                                                                           18,
@@ -571,104 +601,7 @@ class _SalesPageState extends State<SalesPage> {
                                                       ],
                                                     ),
                                                     // SHOW PROMO HERE
-                                                    index % 3 == 0
-                                                        ? Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                state.receiptItems
-                                                                            .isNotEmpty &&
-                                                                        state
-                                                                            .receiptItems[
-                                                                                0]
-                                                                            .promos
-                                                                            .isNotEmpty
-                                                                    ? state
-                                                                        .receiptItems[
-                                                                            0]
-                                                                        .promos[
-                                                                            0]
-                                                                        .promoDescription
-                                                                    : "",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromARGB(
-                                                                    //         255,
-                                                                    //         243,
-                                                                    //         109,
-                                                                    //         0),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                              Text(
-                                                                state.receiptItems
-                                                                            .isNotEmpty &&
-                                                                        state
-                                                                            .receiptItems[0]
-                                                                            .promos
-                                                                            .isNotEmpty
-                                                                    ? "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(state.receiptItems[0].discAmount.toString()))}"
-                                                                    : "",
-                                                                style: TextStyle(
-                                                                    // color: Color
-                                                                    //     .fromARGB(
-                                                                    //         255,
-                                                                    //         243,
-                                                                    //         109,
-                                                                    //         0),
-                                                                    fontSize: 16,
-                                                                    fontStyle: FontStyle.italic,
-                                                                    fontWeight: FontWeight.w500),
-                                                              ),
-                                                            ],
-                                                          )
-                                                        : const SizedBox
-                                                            .shrink(),
-                                                    // index % 4 == 0
-                                                    //     ? const Row(
-                                                    //         mainAxisAlignment:
-                                                    //             MainAxisAlignment
-                                                    //                 .spaceBetween,
-                                                    //         crossAxisAlignment:
-                                                    //             CrossAxisAlignment
-                                                    //                 .start,
-                                                    //         children: [
-                                                    //           Text(
-                                                    //             "PROMO LEBARAN",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromRGBO(
-                                                    //                 //         14,
-                                                    //                 //         68,
-                                                    //                 //         193,
-                                                    //                 //         1),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //           Text(
-                                                    //             "-32,568",
-                                                    //             style: TextStyle(
-                                                    //                 // color: Color
-                                                    //                 //     .fromRGBO(
-                                                    //                 //         14,
-                                                    //                 //         68,
-                                                    //                 //         193,
-                                                    //                 //         1),
-                                                    //                 fontSize: 16,
-                                                    //                 fontStyle: FontStyle.italic,
-                                                    //                 fontWeight: FontWeight.w500),
-                                                    //           ),
-                                                    //         ],
-                                                    //       )
-                                                    //     : const SizedBox
-                                                    //         .shrink(),
+                                                    ...test,
                                                   ],
                                                 ),
                                               ),
@@ -676,24 +609,12 @@ class _SalesPageState extends State<SalesPage> {
                                           ),
                                         ),
                                       ),
-                                      // index == indexIsSelect[0] - 1 ||
-                                      //         index == indexIsSelect[0] &&
-                                      //             indexIsSelect[1] == 1
-                                      //     ? const Divider(
-                                      //         height: 1,
-                                      //         thickness: 0.5,
-                                      //         color: Color.fromARGB(
-                                      //             0, 118, 118, 118),
-                                      //       )
                                       const Divider(
                                         height: 1,
                                         thickness: 0.5,
                                         color:
                                             Color.fromARGB(100, 118, 118, 118),
                                       ),
-                                      // if (index !=
-                                      //     state.receiptItems.length - 1)
-                                      //   const SizedBox(height: 5),
                                     ],
                                   ),
                                 );
@@ -1113,7 +1034,22 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // setState(() {
+                        //   isEditingNewReceiptItemCode = false;
+                        //   isEditingNewReceiptItemQty = false;
+                        //   isUpdatingReceiptItemQty = false;
+                        // });
+                        // showDialog(
+                        //         context: context,
+                        //         barrierDismissible: false,
+                        //         builder: (context) => InputDiscountManual())
+                        //     .then((value) => setState(() {
+                        //           isEditingNewReceiptItemCode = true;
+                        //           _newReceiptItemCodeFocusNode.requestFocus();
+                        //         }));
+                      },
+
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
@@ -1137,7 +1073,7 @@ class _SalesPageState extends State<SalesPage> {
                       //   ),
                       // ),
                       child: const Text(
-                        "Item Disc.",
+                        "Discount",
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w600),
                       ),
@@ -1150,33 +1086,49 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         setState(() {
                           isEditingNewReceiptItemCode = false;
                           isEditingNewReceiptItemQty = false;
                           isUpdatingReceiptItemQty = false;
                         });
 
-                        showDialog(
+                        final ItemEntity? itemEntitySearch =
+                            await showDialog<ItemEntity>(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (context) => ItemSearchDialog())
-                            .then((value) {
-                          setState(() {
-                            context.read<ItemsCubit>().clearItems();
-                            isEditingNewReceiptItemCode = true;
-                            _newReceiptItemCodeFocusNode.requestFocus();
-                          });
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            final position = _scrollControllerReceiptItems
-                                    .position.maxScrollExtent +
-                                100;
-                            _scrollControllerReceiptItems.animateTo(
-                              position,
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeOut,
-                            );
-                          });
+                                builder: (context) => ItemSearchDialog());
+
+                        if (itemEntitySearch != null) {
+                          await context
+                              .read<ReceiptCubit>()
+                              .addUpdateReceiptItems(
+                                  AddUpdateReceiptItemsParams(
+                                      barcode: null,
+                                      itemEntity: itemEntitySearch,
+                                      quantity: 1,
+                                      context: context,
+                                      onOpenPriceInputted: () => setState(() {
+                                            isEditingNewReceiptItemCode = true;
+                                            _newReceiptItemCodeFocusNode
+                                                .requestFocus();
+                                          })));
+                        }
+
+                        setState(() {
+                          context.read<ItemsCubit>().clearItems();
+                          isEditingNewReceiptItemCode = true;
+                          _newReceiptItemCodeFocusNode.requestFocus();
+                        });
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          final position = _scrollControllerReceiptItems
+                                  .position.maxScrollExtent +
+                              100;
+                          _scrollControllerReceiptItems.animateTo(
+                            position,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeOut,
+                          );
                         });
                       },
                       style: OutlinedButton.styleFrom(
@@ -1374,46 +1326,29 @@ class _SalesPageState extends State<SalesPage> {
                             ],
                           ),
                           const SizedBox(height: 25),
-                          // const Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   crossAxisAlignment: CrossAxisAlignment.start,
-                          //   children: [
-                          //     Text(
-                          //       "AKHIRTAHUN20",
-                          //       style: TextStyle(
-                          //           fontSize: 18, fontWeight: FontWeight.w500),
-                          //     ),
-                          //     Text(
-                          //       "- 1.504.468",
-                          //       style: TextStyle(
-                          //           fontSize: 18, fontWeight: FontWeight.w500),
-                          //     ),
-                          //   ],
-                          // ),
-                          // const SizedBox(height: 5),
-                          // const Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   crossAxisAlignment: CrossAxisAlignment.start,
-                          //   children: [
-                          //     Text(
-                          //       "Annual Member Disc",
-                          //       style: TextStyle(
-                          //           fontSize: 18, fontWeight: FontWeight.w500),
-                          //     ),
-                          //     Text(
-                          //       "- 262.611",
-                          //       style: TextStyle(
-                          //           fontSize: 18, fontWeight: FontWeight.w500),
-                          //     ),
-                          //   ],
-                          // ),
-                          // const SizedBox(height: 25),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Tax Amount",
+                                "Total Discount",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                "(${Helpers.parseMoney((state.discAmount ?? 0).toInt())})",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Total Tax",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1520,13 +1455,18 @@ class _SalesPageState extends State<SalesPage> {
             Expanded(
               child: SizedBox.expand(
                 child: OutlinedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     setState(() {
                       isEditingNewReceiptItemCode = false;
                       isEditingNewReceiptItemQty = false;
                       isUpdatingReceiptItemQty = false;
                     });
-                    showDialog(
+
+                    await context
+                        .read<ReceiptCubit>()
+                        .processReceiptBeforeCheckout(context);
+
+                    await showDialog(
                             context: context,
                             barrierDismissible: false,
                             builder: (context) => const CheckoutDialog())
@@ -2210,67 +2150,42 @@ class _SalesPageState extends State<SalesPage> {
                     child: FilledButton(
                       onPressed: () async {
                         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                          print(1);
-                          final ItemEntity? itemEntity = await GetIt.instance<
-                                  GetItemByBarcodeUseCase>()
-                              .call(
-                                  params:
+                          await context.read<ReceiptCubit>().addUpdateReceiptItems(
+                              AddUpdateReceiptItemsParams(
+                                  barcode:
                                       _textEditingControllerNewReceiptItemCode
-                                          .text);
-                          if (itemEntity == null) return;
-                          if (itemEntity.openPrice == 1) {
-                            setState(() {
-                              isEditingNewReceiptItemCode = false;
-                              isEditingNewReceiptItemQty = false;
-                              isUpdatingReceiptItemQty = false;
-                            });
-                            showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => OpenPriceDialog(
-                                      itemEntity: itemEntity,
-                                      quantity: double.parse(
-                                          _textEditingControllerNewReceiptItemQuantity
-                                              .text),
-                                    )).then((value) => setState(() {
-                                  isEditingNewReceiptItemCode = true;
-                                  _newReceiptItemCodeFocusNode.requestFocus();
-                                }));
-                          } else {
-                            context.read<ReceiptCubit>().addOrUpdateReceiptItems(
-                                _textEditingControllerNewReceiptItemCode.text,
-                                double.parse(
-                                    _textEditingControllerNewReceiptItemQuantity
-                                        .text));
-
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              final position = _scrollControllerReceiptItems
-                                      .position.maxScrollExtent +
-                                  100;
-                              _scrollControllerReceiptItems.animateTo(
-                                position,
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeOut,
-                              );
-                            });
-                          }
-
+                                          .text,
+                                  itemEntity: null,
+                                  quantity: double.parse(
+                                      _textEditingControllerNewReceiptItemQuantity
+                                          .text),
+                                  context: context,
+                                  onOpenPriceInputted: () => setState(() {
+                                        isEditingNewReceiptItemCode = true;
+                                        _newReceiptItemCodeFocusNode
+                                            .requestFocus();
+                                      })));
                           setState(() {
                             _textEditingControllerNewReceiptItemCode.text = "";
                             _textEditingControllerNewReceiptItemQuantity.text =
                                 "1";
                           });
                         } else if (isUpdatingReceiptItemQty) {
-                          context.read<ReceiptCubit>().addOrUpdateReceiptItems(
-                              context
-                                  .read<ReceiptCubit>()
-                                  .state
-                                  .receiptItems[indexIsSelect[0]]
-                                  .itemEntity
-                                  .barcode,
-                              double.parse(
-                                  _textEditingControllerNewReceiptItemQuantity
-                                      .text));
+                          await context.read<ReceiptCubit>().addUpdateReceiptItems(
+                              AddUpdateReceiptItemsParams(
+                                  barcode:
+                                      _textEditingControllerNewReceiptItemCode
+                                          .text,
+                                  itemEntity: null,
+                                  quantity: double.parse(
+                                      _textEditingControllerNewReceiptItemQuantity
+                                          .text),
+                                  context: context,
+                                  onOpenPriceInputted: () => setState(() {
+                                        isEditingNewReceiptItemCode = true;
+                                        _newReceiptItemCodeFocusNode
+                                            .requestFocus();
+                                      })));
 
                           setState(() {
                             indexIsSelect = [-1, 0];
@@ -2283,21 +2198,18 @@ class _SalesPageState extends State<SalesPage> {
                             _newReceiptItemCodeFocusNode.requestFocus();
                           });
 
-                          // setState(() {
-                          //   isUpdatingReceiptItemQty = false;
-                          //   indexIsSelect = [-1, 0];
-
-                          //   _textEditingControllerNewReceiptItemCode.text = "";
-                          //   _textEditingControllerNewReceiptItemQuantity.text =
-                          //       "1";
-
-                          //   _newReceiptItemQuantityFocusNode.unfocus();
-                          //   _newReceiptItemCodeFocusNode.requestFocus();
-                          // }
-                          // );
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final position = _scrollControllerReceiptItems
+                                    .position.maxScrollExtent +
+                                100;
+                            _scrollControllerReceiptItems.animateTo(
+                              position,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeOut,
+                            );
+                          });
                         } else if (_newReceiptItemQuantityFocusNode
                             .hasPrimaryFocus) {
-                          print(3);
                           setState(() {
                             _textEditingControllerNewReceiptItemQuantity
                                 .text = _textEditingControllerNewReceiptItemQuantity
@@ -2320,7 +2232,6 @@ class _SalesPageState extends State<SalesPage> {
                             _newReceiptItemCodeFocusNode.requestFocus();
                           });
                         }
-                        print(4);
                       },
                       style: FilledButton.styleFrom(
                           padding: const EdgeInsets.all(3),
@@ -2397,65 +2308,34 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.isKeyPressed(LogicalKeyboardKey.enter) ||
           event.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-          final ItemEntity? itemEntity =
-              await GetIt.instance<GetItemByBarcodeUseCase>()
-                  .call(params: _textEditingControllerNewReceiptItemCode.text);
-          if (itemEntity == null) return;
-          if (itemEntity.openPrice == 1) {
-            setState(() {
-              isEditingNewReceiptItemCode = false;
-              isEditingNewReceiptItemQty = false;
-              isUpdatingReceiptItemQty = false;
-            });
-            showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => OpenPriceDialog(
-                      itemEntity: itemEntity,
-                      quantity: double.parse(
-                          _textEditingControllerNewReceiptItemQuantity.text),
-                    )).then((value) => setState(() {
-                  isEditingNewReceiptItemCode = true;
-                  _newReceiptItemCodeFocusNode.requestFocus();
-                }));
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final position =
-                  _scrollControllerReceiptItems.position.maxScrollExtent + 100;
-              _scrollControllerReceiptItems.animateTo(
-                position,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeOut,
-              );
-            });
-          } else {
-            context.read<ReceiptCubit>().addOrUpdateReceiptItems(
-                _textEditingControllerNewReceiptItemCode.text,
-                double.parse(
-                    _textEditingControllerNewReceiptItemQuantity.text));
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final position =
-                  _scrollControllerReceiptItems.position.maxScrollExtent + 100;
-              _scrollControllerReceiptItems.animateTo(
-                position,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeOut,
-              );
-            });
-          }
+          await context.read<ReceiptCubit>().addUpdateReceiptItems(
+              AddUpdateReceiptItemsParams(
+                  barcode: _textEditingControllerNewReceiptItemCode.text,
+                  itemEntity: null,
+                  quantity: double.parse(
+                      _textEditingControllerNewReceiptItemQuantity.text),
+                  context: context,
+                  onOpenPriceInputted: () => setState(() {
+                        isEditingNewReceiptItemCode = true;
+                        _newReceiptItemCodeFocusNode.requestFocus();
+                      })));
 
           setState(() {
             _textEditingControllerNewReceiptItemCode.text = "";
             _textEditingControllerNewReceiptItemQuantity.text = "1";
           });
         } else if (isUpdatingReceiptItemQty) {
-          context.read<ReceiptCubit>().addOrUpdateReceiptItems(
-              context
-                  .read<ReceiptCubit>()
-                  .state
-                  .receiptItems[indexIsSelect[0]]
-                  .itemEntity
-                  .barcode,
-              double.parse(_textEditingControllerNewReceiptItemQuantity.text));
+          await context.read<ReceiptCubit>().addUpdateReceiptItems(
+              AddUpdateReceiptItemsParams(
+                  barcode: _textEditingControllerNewReceiptItemCode.text,
+                  itemEntity: null,
+                  quantity: double.parse(
+                      _textEditingControllerNewReceiptItemQuantity.text),
+                  context: context,
+                  onOpenPriceInputted: () => setState(() {
+                        isEditingNewReceiptItemCode = true;
+                        _newReceiptItemCodeFocusNode.requestFocus();
+                      })));
 
           setState(() {
             indexIsSelect = [-1, 0];
@@ -2465,6 +2345,16 @@ class _SalesPageState extends State<SalesPage> {
             isUpdatingReceiptItemQty = false;
             isEditingNewReceiptItemCode = true;
             _newReceiptItemCodeFocusNode.requestFocus();
+          });
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final position =
+                _scrollControllerReceiptItems.position.maxScrollExtent + 100;
+            _scrollControllerReceiptItems.animateTo(
+              position,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
+            );
           });
         } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
           setState(() {

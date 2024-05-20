@@ -34,6 +34,7 @@ import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart'
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
 import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
@@ -49,10 +50,16 @@ import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart'
@@ -338,7 +345,16 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<GetUserUseCase>(
       () => GetUserUseCase(sl()),
       dependsOn: [AppDatabase]);
-  // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
-
+  sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());
+  sl.registerSingleton<HandleWithoutPromosUseCase>(
+      HandleWithoutPromosUseCase());
+  sl.registerSingleton<HandlePromosUseCase>(HandlePromosUseCase(sl()));
+  sl.registerSingleton<RecalculateReceiptUseCase>(RecalculateReceiptUseCase());
+  sl.registerSingleton<CheckBuyXGetYApplicabilityUseCase>(
+      CheckBuyXGetYApplicabilityUseCase());
+  sl.registerSingleton<HandlePromoBuyXGetYUseCase>(
+      HandlePromoBuyXGetYUseCase());
+  sl.registerSingleton<HandlePromoSpecialPriceUseCase>(
+      HandlePromoSpecialPriceUseCase());
   return;
 }

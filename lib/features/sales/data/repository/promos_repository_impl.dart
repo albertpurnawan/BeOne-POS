@@ -4,6 +4,7 @@ import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/repository/promos_repository.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class PromotionsRepositoryImpl extends PromotionsRepository {
   final AppDatabase _appDatabase;
@@ -27,6 +28,7 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
 
         for (final customerGroup in tpsb4) {
           promos.add(PromotionsModel(
+            docId: const Uuid().v4(),
             toitmId: header.toitmId,
             promoType: header.promoAlias,
             promoId: header.docId,
@@ -55,6 +57,7 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
         for (final buyCondition in tpdi1) {
           for (final customerGroup in tpdi5) {
             promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
               toitmId: buyCondition.toitmId,
               promoType: header.promoType,
               promoId: header.docId,

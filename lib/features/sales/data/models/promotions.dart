@@ -5,6 +5,7 @@ const String tablePromotions = "toprm";
 
 class PromotionsFields {
   static const List<String> values = [
+    docId,
     toitmId,
     promoType,
     promoId,
@@ -16,6 +17,7 @@ class PromotionsFields {
     tocatId,
     remarks,
   ];
+  static const String docId = "docid";
   static const String toitmId = "toitmId";
   static const String promoType = "promotype";
   static const String promoId = "promoId";
@@ -40,11 +42,13 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
     required super.promoDescription,
     required super.tocatId,
     required super.remarks,
+    required super.docId,
   });
 
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'docId': docId,
       'toitmId': toitmId,
       'promotype': promoType,
       'promoId': promoId,
@@ -60,6 +64,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
 
   factory PromotionsModel.fromMap(Map<String, dynamic> map) {
     return PromotionsModel(
+      docId: map['docid'] as String,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       promoType: map['promotype'] as int,
       promoId: map['promoId'] != null ? map['promoId'] as String : null,
@@ -75,6 +80,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
 
   factory PromotionsModel.fromEntity(PromotionsEntity entity) {
     return PromotionsModel(
+      docId: entity.docId,
       toitmId: entity.toitmId,
       promoType: entity.promoType,
       promoId: entity.promoId,

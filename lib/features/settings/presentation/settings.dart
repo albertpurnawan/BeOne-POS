@@ -279,7 +279,7 @@ class SettingsFormFields extends StatelessWidget {
   @override
   Widget build(Object context) {
     return TextFormField(
-      validator: validator,
+      // validator: validator,
       controller: controller,
       obscureText: obscureText,
       decoration: InputDecoration(

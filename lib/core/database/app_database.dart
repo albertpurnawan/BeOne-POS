@@ -1417,9 +1417,9 @@ ${ItemFields.includeTax} INTEGER NOT NULL,
 ${ItemFields.tovatId} STRING NOT NULL,
 ${ItemFields.taxRate} DOUBLE NOT NULL,
 ${ItemFields.dpp} DOUBLE NOT NULL,
-CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
-CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE,
-CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE NO ACTION ON UPDATE CASCADE
+CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 ''');
 
@@ -3141,9 +3141,10 @@ CREATE TABLE $tablePromoDiskonGroupItemCustomerGroup (
 
         await txn.execute("""
 CREATE TABLE $tablePromotions (
+  $uuidDefinition,
   ${PromotionsFields.toitmId} text DEFAULT NULL,
   ${PromotionsFields.promoType} int NOT NULL,
-  ${PromotionsFields.promoId} text DEFAULT NULL PRIMARY KEY,
+  ${PromotionsFields.promoId} text DEFAULT NULL,
   ${PromotionsFields.date} datetime NOT NULL,
   ${PromotionsFields.startTime} datetime NOT NULL,
   ${PromotionsFields.endTime} datetime NOT NULL,
