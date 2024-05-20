@@ -8,5 +8,9 @@ abstract class ReceiptRepository {
 
   Future<List<ReceiptEntity>> getReceipts();
 
+  Future<ReceiptEntity> recalculateTax(ReceiptEntity receiptEntity);
+
+  // Future<ReceiptItemEntity> handlePromoDiskonItem();
+
   // Future<List<ReceiptEntity>> sendReceipt();
 }

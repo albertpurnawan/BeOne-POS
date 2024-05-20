@@ -120,7 +120,7 @@ class PromotionsEntity {
 
   @override
   String toString() {
-    return 'PromotionsEntity(docId: $docId, toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks, discAmount: $discAmount, discPrctg: $discPrctg, promotionDetails: $promotionDetails)';
+    return 'PromotionsEntity(docId: $docId, toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks, discAmount: $discAmount, discPrctg: $discPrctg)';
   }
 
   @override

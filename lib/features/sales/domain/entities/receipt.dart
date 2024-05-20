@@ -2,8 +2,6 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:pos_fe/features/sales/data/models/promotions.dart';
-import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -33,6 +31,8 @@ class ReceiptEntity {
   List<PromotionsEntity> promos;
   double? discAmount;
   double? discPrctg;
+  double? discHeaderManual;
+  double? discHeaderPromo;
 
   ReceiptEntity({
     required this.docNum,
@@ -56,6 +56,8 @@ class ReceiptEntity {
     required this.promos,
     this.discAmount,
     this.discPrctg,
+    this.discHeaderManual,
+    this.discHeaderPromo,
   });
 
   ReceiptEntity copyWith({
@@ -80,6 +82,8 @@ class ReceiptEntity {
     List<PromotionsEntity>? promos,
     double? discAmount,
     double? discPrctg,
+    double? discHeaderManual,
+    double? discHeaderPromo,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -103,6 +107,8 @@ class ReceiptEntity {
       promos: promos ?? this.promos,
       discAmount: discAmount ?? this.discAmount,
       discPrctg: discPrctg ?? this.discPrctg,
+      discHeaderManual: discHeaderManual ?? this.discHeaderManual,
+      discHeaderPromo: discHeaderPromo ?? this.discHeaderPromo,
     );
   }
 
@@ -127,6 +133,10 @@ class ReceiptEntity {
       'totalVoucher': totalVoucher,
       'totalNonVoucher': totalNonVoucher,
       'promos': promos.map((x) => x.toMap()).toList(),
+      'discAmount': discAmount,
+      'discPrctg': discPrctg,
+      'discHeaderManual': discHeaderManual,
+      'discHeaderPromo': discHeaderPromo,
     };
   }
 
@@ -165,9 +175,9 @@ class ReceiptEntity {
           map['totalPayment'] != null ? map['totalPayment'] as double : null,
       changed: map['changed'] != null ? map['changed'] as double : null,
       toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
-      vouchers: List<VouchersSelectionModel>.from(
-        (map['vouchers'] as List<int>).map<VouchersSelectionModel>(
-          (x) => VouchersSelectionModel.fromMap(x as Map<String, dynamic>),
+      vouchers: List<VouchersSelectionEntity>.from(
+        (map['vouchers'] as List<int>).map<VouchersSelectionEntity>(
+          (x) => VouchersSelectionEntity.fromMap(x as Map<String, dynamic>),
         ),
       ),
       totalVoucher:
@@ -175,11 +185,20 @@ class ReceiptEntity {
       totalNonVoucher: map['totalNonVoucher'] != null
           ? map['totalNonVoucher'] as double
           : null,
-      promos: List<PromotionsModel>.from(
-        (map['vouchers'] as List<int>).map<PromotionsModel>(
-          (x) => PromotionsModel.fromMap(x as Map<String, dynamic>),
+      promos: List<PromotionsEntity>.from(
+        (map['promos'] as List<int>).map<PromotionsEntity>(
+          (x) => PromotionsEntity.fromMap(x as Map<String, dynamic>),
         ),
       ),
+      discAmount:
+          map['discAmount'] != null ? map['discAmount'] as double : null,
+      discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
+      discHeaderManual: map['discHeaderManual'] != null
+          ? map['discHeaderManual'] as double
+          : null,
+      discHeaderPromo: map['discHeaderPromo'] != null
+          ? map['discHeaderPromo'] as double
+          : null,
     );
   }
 
@@ -190,7 +209,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos)';
+    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo)';
   }
 
   @override
@@ -215,7 +234,11 @@ class ReceiptEntity {
         listEquals(other.vouchers, vouchers) &&
         other.totalVoucher == totalVoucher &&
         other.totalNonVoucher == totalNonVoucher &&
-        other.promos == promos;
+        listEquals(other.promos, promos) &&
+        other.discAmount == discAmount &&
+        other.discPrctg == discPrctg &&
+        other.discHeaderManual == discHeaderManual &&
+        other.discHeaderPromo == discHeaderPromo;
   }
 
   @override
@@ -238,6 +261,10 @@ class ReceiptEntity {
         vouchers.hashCode ^
         totalVoucher.hashCode ^
         totalNonVoucher.hashCode ^
-        promos.hashCode;
+        promos.hashCode ^
+        discAmount.hashCode ^
+        discPrctg.hashCode ^
+        discHeaderManual.hashCode ^
+        discHeaderPromo.hashCode;
   }
 }

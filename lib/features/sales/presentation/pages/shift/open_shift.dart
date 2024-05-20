@@ -1,35 +1,28 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:pos_fe/core/resources/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/cash_register.dart';
-import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
-import 'package:pos_fe/features/sales/domain/entities/user.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
-import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
-import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
+import 'package:pos_fe/features/sales/domain/entities/user.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
+import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class OpenShiftDialog extends StatefulWidget {
   const OpenShiftDialog({super.key});
@@ -63,8 +56,6 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
 
       final tousrId = prefs.getString("tousrId");
       if (tousrId == null) throw "User ID not found";
-
-      log(tousrId);
 
       final userRes =
           await GetIt.instance<GetUserUseCase>().call(params: tousrId);
@@ -481,7 +472,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                               calcValue: 0,
                               cashValue: 0,
                               closeValue: 0,
-                              openedbyId: "",
+                              openedbyId: widget.user?.docId,
                               closedbyId: "",
                               approvalStatus: 0,
                             );

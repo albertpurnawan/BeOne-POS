@@ -24,6 +24,7 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
@@ -90,6 +91,7 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<CheckBuyXGetYApplicabilityUseCase>(),
                       GetIt.instance<HandlePromoBuyXGetYUseCase>(),
                       GetIt.instance<HandlePromoSpecialPriceUseCase>(),
+                      GetIt.instance<RecalculateTaxUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>

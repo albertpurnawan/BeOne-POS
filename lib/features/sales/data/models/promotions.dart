@@ -32,6 +32,7 @@ class PromotionsFields {
 
 class PromotionsModel extends PromotionsEntity implements BaseModel {
   PromotionsModel({
+    required super.docId,
     required super.toitmId,
     required super.promoType,
     required super.promoId,
@@ -48,7 +49,7 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
+      'docid': docId,
       'toitmId': toitmId,
       'promotype': promoType,
       'promoId': promoId,

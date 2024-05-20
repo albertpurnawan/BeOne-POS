@@ -59,6 +59,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: null, // get di sini
+        discHeaderManual: null, // get di sini
+        discHeaderPromo: null, // get di sini
+        syncToBos: 0, // get di sini
       );
 
       await _appDatabase.queuedInvoiceHeaderDao
@@ -96,6 +99,8 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           includeTax: e.itemEntity.includeTax, // ??
           tovenId: e.itemEntity.tovenId, // belum ada
           tbitmId: e.itemEntity.tbitmId,
+          discHeaderAmount: 0, // need to check
+          subtotalAfterDiscHeader: 0, // need to check
         );
       }).toList();
 

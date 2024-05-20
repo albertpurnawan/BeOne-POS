@@ -22,6 +22,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
@@ -1035,21 +1036,20 @@ class _SalesPageState extends State<SalesPage> {
                   child: SizedBox.expand(
                     child: OutlinedButton(
                       onPressed: () {
-                        // setState(() {
-                        //   isEditingNewReceiptItemCode = false;
-                        //   isEditingNewReceiptItemQty = false;
-                        //   isUpdatingReceiptItemQty = false;
-                        // });
-                        // showDialog(
-                        //         context: context,
-                        //         barrierDismissible: false,
-                        //         builder: (context) => InputDiscountManual())
-                        //     .then((value) => setState(() {
-                        //           isEditingNewReceiptItemCode = true;
-                        //           _newReceiptItemCodeFocusNode.requestFocus();
-                        //         }));
+                        setState(() {
+                          isEditingNewReceiptItemCode = false;
+                          isEditingNewReceiptItemQty = false;
+                          isUpdatingReceiptItemQty = false;
+                        });
+                        showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => InputDiscountManual())
+                            .then((value) => setState(() {
+                                  isEditingNewReceiptItemCode = true;
+                                  _newReceiptItemCodeFocusNode.requestFocus();
+                                }));
                       },
-
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,

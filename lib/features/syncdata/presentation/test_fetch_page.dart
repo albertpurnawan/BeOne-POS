@@ -1368,10 +1368,6 @@ class _FetchScreenState extends State<FetchScreen> {
       final promos = <PromotionsModel>[];
       final today = DateTime.now().weekday;
 
-      // final topsb = await GetIt.instance<AppDatabase>()
-      //     .promoHargaSpesialHeaderDao
-      //     .readAll();
-
       for (final header in topsb) {
         final tpsb2 = await GetIt.instance<AppDatabase>()
             .promoHargaSpesialAssignStoreDao
@@ -1410,9 +1406,6 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
       }
-
-      // final topmi =
-      //     await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
 
       for (final header in topmi) {
         final tpmi1 = await GetIt.instance<AppDatabase>()
@@ -1457,10 +1450,6 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
-      // final topdi = await GetIt.instance<AppDatabase>()
-      //     .promoDiskonItemHeaderDao
-      //     .readAll();
-
       for (final header in topdi) {
         final tpdi1 = await GetIt.instance<AppDatabase>()
             .promoDiskonItemBuyConditionDao
@@ -1504,9 +1493,6 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
-      // final topdg = await GetIt.instance<AppDatabase>()
-      //     .promoDiskonGroupItemHeaderDao
-      //     .readAll();
       for (final header in topdg) {
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
@@ -1550,9 +1536,6 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
-      // final toprb =
-      //     await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
-
       for (final header in toprb) {
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao
@@ -1560,9 +1543,6 @@ class _FetchScreenState extends State<FetchScreen> {
         final tprb2 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYAssignStoreDao
             .readByToprbId(header.docId, null);
-        // final tprb5 = await GetIt.instance<AppDatabase>()
-        //     .promoBuyXGetYCustomerGroupDao
-        //     .readByToprbid(header.docId, null);
 
         final dayProperties = {
           1: tprb2.day1,
@@ -1839,6 +1819,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final topdg = await GetIt.instance<AppDatabase>()
           .promoDiskonGroupItemHeaderDao
           .readAll();
+
       for (final header in topdg) {
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao

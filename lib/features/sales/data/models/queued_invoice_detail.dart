@@ -32,6 +32,8 @@ class QueuedInvoiceDetailFields {
     includeTax,
     tovenId,
     tbitmId,
+    discHeaderAmount,
+    subtotalAfterDiscHeader,
     //maybe need more to send to bos
   ];
 
@@ -62,6 +64,8 @@ class QueuedInvoiceDetailFields {
   static const String includeTax = "includetax";
   static const String tovenId = "tovenId";
   static const String tbitmId = "tbitmId";
+  static const String discHeaderAmount = "discheaderamount";
+  static const String subtotalAfterDiscHeader = "subtotalafterdischeader";
 }
 
 class QueuedInvoiceDetailModel extends InvoiceDetailEntity
@@ -94,6 +98,8 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
     required super.includeTax,
     required super.tovenId,
     required super.tbitmId,
+    required super.discHeaderAmount,
+    required super.subtotalAfterDiscHeader,
   });
 
   @override
@@ -126,6 +132,8 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       'includetax': includeTax,
       'tovenId': tovenId,
       'tbitmId': tbitmId,
+      'discheaderamount': discHeaderAmount,
+      'subtotalafterdischeader': subtotalAfterDiscHeader,
     };
   }
 
@@ -167,6 +175,12 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       includeTax: map['includetax'] as int,
       tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
+      discHeaderAmount: map['discheaderamount'] != null
+          ? map['discheaderamount'] as double
+          : null,
+      subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
+          ? map['subtotalafterdischeader'] as double
+          : null,
     );
   }
 
@@ -227,6 +241,8 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       includeTax: entity.includeTax,
       tovenId: entity.tovenId,
       tbitmId: entity.baseDocId,
+      discHeaderAmount: entity.discHeaderAmount,
+      subtotalAfterDiscHeader: entity.subtotalAfterDiscHeader,
     );
   }
 }
