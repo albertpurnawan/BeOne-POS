@@ -46,6 +46,8 @@ import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart'
+    as sales_get_pos_parameter_use_case;
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
@@ -53,10 +55,9 @@ import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart'
-    as sales_get_pos_parameter_use_case;
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
@@ -338,7 +339,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<GetUserUseCase>(
       () => GetUserUseCase(sl()),
       dependsOn: [AppDatabase]);
-  // sl.registerFactory<ReceiptItemsCubit>(() => ReceiptItemsCubit(sl()));
+  sl.registerSingletonWithDependencies<RecalculateTaxUseCase>(
+      () => RecalculateTaxUseCase(sl()),
+      dependsOn: [AppDatabase]);
 
   return;
 }

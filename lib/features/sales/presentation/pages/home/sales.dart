@@ -1428,26 +1428,31 @@ class _SalesPageState extends State<SalesPage> {
                             ],
                           ),
                           const SizedBox(height: 15),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Discount",
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FontStyle.italic),
-                              ),
-                              Text(
-                                "- 1.504.468",
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FontStyle.italic),
-                              ),
-                            ],
-                          ),
+                          state.discHeaderManual != null
+                              ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Discount",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                    Text(
+                                      Helpers.parseMoney(
+                                          (state.discHeaderManual ?? 0)
+                                              .toInt()),
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ],
+                                )
+                              : SizedBox.shrink(),
                           const SizedBox(height: 15),
                           // const Row(
                           //   mainAxisAlignment: MainAxisAlignment.spaceBetween,

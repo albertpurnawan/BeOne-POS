@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
@@ -57,7 +58,12 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 24),
             onEditingComplete: () {
-              context.read<ReceiptCubit>().updateTotalAmountFromDiscount();
+              double discountValue = Helpers.revertMoneyToDecimalFormat(
+                  _textEditorDiscountController.text);
+
+              context
+                  .read<ReceiptCubit>()
+                  .updateTotalAmountFromDiscount(discountValue);
               Navigator.of(context).pop();
             },
             decoration: const InputDecoration(
@@ -112,6 +118,11 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                     overlayColor: MaterialStateColor.resolveWith(
                         (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
+                  double discountValue = Helpers.revertMoneyToDecimalFormat(
+                      _textEditorDiscountController.text);
+                  context
+                      .read<ReceiptCubit>()
+                      .updateTotalAmountFromDiscount(discountValue);
                   Navigator.of(context).pop();
                 },
                 child: const Center(

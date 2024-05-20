@@ -348,4 +348,19 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   Future<List<ReceiptEntity>> getReceipts() {
     throw UnimplementedError();
   }
+
+  @override
+  Future<ReceiptEntity> recalculateTax(ReceiptEntity receiptEntity) async {
+    log("Recalculate Tax Promo_Impl");
+    double? discHeaderManual = receiptEntity.discHeaderManual ?? 0.0;
+    double? discHeaderPromo = receiptEntity.discHeaderPromo ?? 0.0;
+    double subtotal = receiptEntity.subtotal;
+    double discHprctg = (discHeaderManual + discHeaderPromo) / subtotal;
+
+    log("RE - $receiptEntity");
+    log("discHprctg - $discHprctg");
+
+    // receiptEntity = receiptEntity.copyWith(totalTax: totalTax);
+    return receiptEntity;
+  }
 }

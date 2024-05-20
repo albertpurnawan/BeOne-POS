@@ -9,7 +9,6 @@ import 'package:uuid/uuid.dart';
 class PromotionsRepositoryImpl extends PromotionsRepository {
   final AppDatabase _appDatabase;
   PromotionsRepositoryImpl(this._appDatabase);
-  final String generatedPromoDocId = const Uuid().v4();
 
   @override
   Future<List<PromotionsEntity?>> createPromotions(
@@ -29,7 +28,7 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
 
         for (final customerGroup in tpsb4) {
           promos.add(PromotionsModel(
-            docId: generatedPromoDocId,
+            docId: const Uuid().v4(),
             toitmId: header.toitmId,
             promoType: header.promoAlias,
             promoId: header.docId,
@@ -58,7 +57,7 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
         for (final buyCondition in tpdi1) {
           for (final customerGroup in tpdi5) {
             promos.add(PromotionsModel(
-              docId: generatedPromoDocId,
+              docId: const Uuid().v4(),
               toitmId: buyCondition.toitmId,
               promoType: header.promoType,
               promoId: header.docId,
