@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 
 class TokenApi {
@@ -24,7 +25,8 @@ class TokenApi {
           ));
 
       return response.data['token'];
-    } catch (err) {
+    } catch (err, s) {
+      debugPrintStack(stackTrace: s);
       handleError(err);
       rethrow;
     }

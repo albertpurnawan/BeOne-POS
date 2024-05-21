@@ -77,6 +77,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
+        discHeaderManual: 0, // get di sini
+        discHeaderPromo: 0, // get di sini
+        syncToBos: 0, // get di sini
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
@@ -115,6 +118,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           includeTax: e.itemEntity.includeTax, // ??
           tovenId: e.itemEntity.tovenId, // belum ada
           tbitmId: e.itemEntity.tbitmId,
+          discHeaderAmount: 0, //get disini
+          subtotalAfterDiscHeader: 0, //get disini
         );
       }).toList();
 
@@ -342,5 +347,40 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   @override
   Future<List<ReceiptEntity>> getReceipts() {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<ReceiptEntity> recalculateTax(ReceiptEntity receiptEntity) async {
+    log("Recalculate Tax Promo_Impl");
+    double? discHeaderManual = receiptEntity.discHeaderManual ?? 0.0;
+    double? discHeaderPromo = receiptEntity.discHeaderPromo ?? 0.0;
+    double subtotal = receiptEntity.subtotal;
+    double discHprctg = (discHeaderManual) / (subtotal - discHeaderPromo);
+    double subtotalAfterDiscount = 0;
+    double taxAfterDiscount = 0;
+
+    log("RE - $receiptEntity");
+    log("RE - Subtotal - ${receiptEntity.subtotal}");
+    log("discHprctg - $discHprctg");
+
+    for (final item in receiptEntity.receiptItems) {
+      item.discHeaderAmount =
+          discHprctg * (item.totalGross - (item.discAmount ?? 0));
+      item.subtotalAfterDiscHeader = item.totalGross -
+          (item.discAmount ?? 0) -
+          (item.discHeaderAmount ?? 0);
+      item.taxAmount =
+          item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
+      subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
+      taxAfterDiscount += item.taxAmount;
+      log("Item - $item");
+    }
+    // receiptEntity.subtotal = subtotalAfterDiscount;
+    receiptEntity.taxAmount = taxAfterDiscount;
+    receiptEntity.grandTotal = subtotalAfterDiscount + taxAfterDiscount;
+    log("REDM - ${receiptEntity.subtotal}");
+
+    // receiptEntity = receiptEntity.copyWith(totalTax: totalTax);
+    return receiptEntity;
   }
 }

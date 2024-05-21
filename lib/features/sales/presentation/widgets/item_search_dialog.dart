@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:path/path.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
@@ -279,47 +282,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                       (states) => Colors.white.withOpacity(.2))),
               onPressed: () {
                 if (radioValue == null) return;
-
-                if (radioValue!.openPrice == 1) {
-                  showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => OpenPriceDialog(
-                            itemEntity: radioValue!,
-                            quantity: 1,
-                          )).then((value) => Navigator.of(context).pop());
-                } else {
-                  setState(() {
-                    context
-                        .read<ReceiptCubit>()
-                        .addOrUpdateReceiptItemsBySearch(radioValue!);
-                    Navigator.of(context).pop();
-                    // Future.delayed(const Duration(milliseconds: 200),
-                    //     () => _newReceiptItemCodeFocusNode.requestFocus());
-                  });
-                }
-                // try {
-                //   final response = await api.trading
-                //       .deleteTradingPost(tradingPost.id)
-                //       .timeout(const Duration(seconds: 10));
-                //   if (response.response.success) {
-                //     Helpers.showSnackbar(context,
-                //         content:
-                //             const Text("Delete success"));
-                //   } else {
-                //     Helpers.showSnackbar(context,
-                //         content: const Text("Delete failed"));
-                //   }
-                //   Navigator.of(context).pop();
-                //   refresh();
-                // } catch (e) {
-                //   Navigator.of(context).pop();
-                //   Navigator.of(context).pop();
-                //   Helpers.showSnackbar(context,
-                //       content:
-                //           const Text("Connection timed out"));
-                //   // refresh();
-                // }
+                context.pop(radioValue);
               },
               child: const Center(
                   child: Text(

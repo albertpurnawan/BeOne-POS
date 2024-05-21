@@ -237,9 +237,31 @@ abstract class Helpers {
     return formatter.format(dTime).toString();
   }
 
+  static SplitListResult<Type> splitList<Type>(
+      List<Type> list, bool Function(Type) matchFunction) {
+    final List<Type> falseResult = [];
+    final List<Type> trueResult = [];
+
+    for (final e in list) {
+      if (matchFunction(e)) {
+        trueResult.add(e);
+      } else {
+        falseResult.add(e);
+      }
+    }
+
+    return SplitListResult<Type>(falseResult, trueResult);
+  }
   // static String checkDate(DateTime date) {
   //   final day = "day${date.weekday}";
   //   print("$day");
   //   return day;
   // }
+}
+
+class SplitListResult<T> {
+  final List<T> falseResult;
+  final List<T> trueResult;
+
+  SplitListResult(this.falseResult, this.trueResult);
 }

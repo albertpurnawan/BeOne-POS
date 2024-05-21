@@ -32,6 +32,8 @@ class InvoiceDetailFields {
     includeTax,
     tovenId,
     tbitmId,
+    discHeaderAmount,
+    subtotalAfterDiscHeader,
     //maybe need more to send to bos
   ];
 
@@ -62,6 +64,8 @@ class InvoiceDetailFields {
   static const String includeTax = "includetax";
   static const String tovenId = "tovenId";
   static const String tbitmId = "tbitmId";
+  static const String discHeaderAmount = "discheaderamount";
+  static const String subtotalAfterDiscHeader = "subtotalafterdischeader";
 }
 
 class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
@@ -93,6 +97,8 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
     required super.includeTax,
     required super.tovenId,
     required super.tbitmId,
+    required super.discHeaderAmount,
+    required super.subtotalAfterDiscHeader,
   });
 
   @override
@@ -125,6 +131,8 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
       'includetax': includeTax,
       'tovenId': tovenId,
       'tbitmId': tbitmId,
+      'discheaderamount': discHeaderAmount,
+      'subtotalafterdischeader': subtotalAfterDiscHeader,
     };
   }
 
@@ -166,6 +174,12 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
       includeTax: map['includetax'] as int,
       tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
+      discHeaderAmount: map['discheaderamount'] != null
+          ? map['discheaderamount'] as double
+          : null,
+      subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
+          ? map['subtotalafterdischeader'] as double
+          : null,
     );
   }
 
@@ -226,6 +240,8 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
       includeTax: entity.includeTax,
       tovenId: entity.tovenId,
       tbitmId: entity.baseDocId,
+      discHeaderAmount: entity.discHeaderAmount,
+      subtotalAfterDiscHeader: entity.subtotalAfterDiscHeader,
     );
   }
 }

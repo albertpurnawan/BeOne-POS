@@ -8,15 +8,24 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
@@ -74,6 +83,15 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<OpenCashDrawerUseCase>(),
                       GetIt.instance<QueueReceiptUseCase>(),
                       GetIt.instance<DeleteQueuedReceiptUseCase>(),
+                      GetIt.instance<HandleOpenPriceUseCase>(),
+                      GetIt.instance<CheckPromoUseCase>(),
+                      GetIt.instance<HandlePromosUseCase>(),
+                      GetIt.instance<HandleWithoutPromosUseCase>(),
+                      GetIt.instance<RecalculateReceiptUseCase>(),
+                      GetIt.instance<CheckBuyXGetYApplicabilityUseCase>(),
+                      GetIt.instance<HandlePromoBuyXGetYUseCase>(),
+                      GetIt.instance<HandlePromoSpecialPriceUseCase>(),
+                      GetIt.instance<RecalculateTaxUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>

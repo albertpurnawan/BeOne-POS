@@ -29,16 +29,18 @@ class InvoiceDetailEntity {
   final int includeTax;
   final String? tovenId;
   final String? tbitmId;
+  final double? discHeaderAmount;
+  final double? subtotalAfterDiscHeader;
 
   InvoiceDetailEntity({
     required this.docId,
-    required this.createDate,
-    required this.updateDate,
-    required this.toinvId,
+    this.createDate,
+    this.updateDate,
+    this.toinvId,
     required this.lineNum,
     required this.docNum,
     required this.idNumber,
-    required this.toitmId,
+    this.toitmId,
     required this.quantity,
     required this.sellingPrice,
     required this.discPrctg,
@@ -47,17 +49,19 @@ class InvoiceDetailEntity {
     required this.taxPrctg,
     required this.promotionType,
     required this.promotionId,
-    required this.remarks,
+    this.remarks,
     required this.editTime,
     required this.cogs,
-    required this.tovatId,
-    required this.promotionTingkat,
-    required this.promoVoucherNo,
-    required this.baseDocId,
-    required this.baseLineDocId,
+    this.tovatId,
+    this.promotionTingkat,
+    this.promoVoucherNo,
+    this.baseDocId,
+    this.baseLineDocId,
     required this.includeTax,
-    required this.tovenId,
-    required this.tbitmId,
+    this.tovenId,
+    this.tbitmId,
+    this.discHeaderAmount,
+    this.subtotalAfterDiscHeader,
   });
 
   InvoiceDetailEntity copyWith({
@@ -88,6 +92,8 @@ class InvoiceDetailEntity {
     int? includeTax,
     String? tovenId,
     String? tbitmId,
+    double? discHeaderAmount,
+    double? subtotalAfterDiscHeader,
   }) {
     return InvoiceDetailEntity(
       docId: docId ?? this.docId,
@@ -117,6 +123,9 @@ class InvoiceDetailEntity {
       includeTax: includeTax ?? this.includeTax,
       tovenId: tovenId ?? this.tovenId,
       tbitmId: tbitmId ?? this.tbitmId,
+      discHeaderAmount: discHeaderAmount ?? this.discHeaderAmount,
+      subtotalAfterDiscHeader:
+          subtotalAfterDiscHeader ?? this.subtotalAfterDiscHeader,
     );
   }
 
@@ -149,6 +158,8 @@ class InvoiceDetailEntity {
       'includeTax': includeTax,
       'tovenId': tovenId,
       'tbitmId': tbitmId,
+      'discHeaderAmount': discHeaderAmount,
+      'subtotalAfterDiscHeader': subtotalAfterDiscHeader,
     };
   }
 
@@ -190,6 +201,12 @@ class InvoiceDetailEntity {
       includeTax: map['includeTax'] as int,
       tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
+      discHeaderAmount: map['discHeaderAmount'] != null
+          ? map['discHeaderAmount'] as double
+          : null,
+      subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null
+          ? map['subtotalAfterDiscHeader'] as double
+          : null,
     );
   }
 
@@ -200,7 +217,7 @@ class InvoiceDetailEntity {
 
   @override
   String toString() {
-    return 'InvoiceDetailEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, lineNum: $lineNum, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, discPrctg: $discPrctg, discAmount: $discAmount, totalAmount: $totalAmount, taxPrctg: $taxPrctg, promotionType: $promotionType, promotionId: $promotionId, remarks: $remarks, editTime: $editTime, cogs: $cogs, tovatId: $tovatId, promotionTingkat: $promotionTingkat, promoVoucherNo: $promoVoucherNo, baseDocId: $baseDocId, baseLineDocId: $baseLineDocId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId)';
+    return 'InvoiceDetailEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, lineNum: $lineNum, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, discPrctg: $discPrctg, discAmount: $discAmount, totalAmount: $totalAmount, taxPrctg: $taxPrctg, promotionType: $promotionType, promotionId: $promotionId, remarks: $remarks, editTime: $editTime, cogs: $cogs, tovatId: $tovatId, promotionTingkat: $promotionTingkat, promoVoucherNo: $promoVoucherNo, baseDocId: $baseDocId, baseLineDocId: $baseLineDocId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader)';
   }
 
   @override
@@ -233,7 +250,9 @@ class InvoiceDetailEntity {
         other.baseLineDocId == baseLineDocId &&
         other.includeTax == includeTax &&
         other.tovenId == tovenId &&
-        other.tbitmId == tbitmId;
+        other.tbitmId == tbitmId &&
+        other.discHeaderAmount == discHeaderAmount &&
+        other.subtotalAfterDiscHeader == subtotalAfterDiscHeader;
   }
 
   @override
@@ -264,6 +283,8 @@ class InvoiceDetailEntity {
         baseLineDocId.hashCode ^
         includeTax.hashCode ^
         tovenId.hashCode ^
-        tbitmId.hashCode;
+        tbitmId.hashCode ^
+        discHeaderAmount.hashCode ^
+        subtotalAfterDiscHeader.hashCode;
   }
 }

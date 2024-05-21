@@ -12,13 +12,14 @@ class InvoiceApi {
   final Dio _dio;
   String? url;
   String? token;
+  final SharedPreferences prefs;
 
-  InvoiceApi(this._dio);
+  InvoiceApi(this._dio, this.prefs);
 
   Future<void> sendInvoice() async {
     try {
       log("SEND INVOICE SERVICE");
-      SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      // SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
       List<POSParameterModel> pos =
@@ -84,8 +85,8 @@ class InvoiceApi {
         "coupon": invHead[0].coupon,
         "discountcoupon": invHead[0].discountCoupun,
         "taxprctg": invHead[0].taxPrctg,
-        // "taxamount": double.parse(invHead[0].taxAmount.toStringAsFixed(2)),
-        "taxamount": 0,
+        "taxamount": double.parse(invHead[0].taxAmount.toStringAsFixed(2)),
+        // "taxamount": 0,
         "addcost": invHead[0].addCost,
         "rounding": invHead[0].rounding,
         "grandtotal": invHead[0].grandTotal.toInt(),
@@ -141,8 +142,9 @@ class InvoiceApi {
       };
 
       log("Data2Send: $dataToSend");
-
-      await _dio.post(
+      log(url!);
+      log(token!);
+      final respo = await _dio.post(
         "$url/tenant-invoice/",
         data: dataToSend,
         options: Options(
@@ -151,7 +153,7 @@ class InvoiceApi {
           },
         ),
       );
-      log("Success Post");
+      log("Success Post - $respo");
     } catch (err) {
       handleError(err);
       rethrow;
