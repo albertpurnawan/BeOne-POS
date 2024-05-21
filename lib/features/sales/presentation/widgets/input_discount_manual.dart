@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 
 class InputDiscountManual extends StatefulWidget {
   const InputDiscountManual({super.key});
@@ -48,7 +47,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.5,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
           child: TextFormField(
             focusNode: _discountFocusNode,
             controller: _textEditorDiscountController,
@@ -118,12 +117,20 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                     overlayColor: MaterialStateColor.resolveWith(
                         (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
-                  double discountValue = Helpers.revertMoneyToDecimalFormat(
+                  double input = Helpers.revertMoneyToDecimalFormat(
                       _textEditorDiscountController.text);
-                  context
-                      .read<ReceiptCubit>()
-                      .updateTotalAmountFromDiscount(discountValue);
-                  Navigator.of(context).pop();
+                  // context
+                  //     .read<ReceiptCubit>()
+                  //     .updateTotalAmountFromDiscount(discountValue);
+                  // Navigator.of(context).pop();
+                  // send input to auth
+                  // double inputValue = Helpers.revertMoneyToDecimalFormatDouble(
+                  //     _textEditorDiscountController.text);
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) =>
+                          AuthInputDiscountDialog(discountValue: input));
                 },
                 child: const Center(
                     child: Text(

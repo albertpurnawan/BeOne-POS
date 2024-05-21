@@ -67,6 +67,7 @@ import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_dao.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
@@ -232,6 +233,7 @@ Future<void> initializeDependencies() async {
       PromoBuyXGetYGetConditionApi(sl()));
   sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(
       PromoBuyXGetYCustomerGroupApi(sl()));
+  sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),
