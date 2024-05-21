@@ -1,6 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -52,8 +50,6 @@ class AuthStoreApi {
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-
-      log("${resp.statusMessage}");
 
       if (resp.statusMessage == 'OK') {
         check = "Success Auth";

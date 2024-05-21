@@ -47,7 +47,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.5,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
           child: TextFormField(
             focusNode: _discountFocusNode,
             controller: _textEditorDiscountController,
