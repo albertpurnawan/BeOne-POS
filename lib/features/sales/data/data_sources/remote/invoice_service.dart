@@ -44,7 +44,7 @@ class InvoiceApi {
           .readBytinv2Id(payMean[0].docId.toString(), txn: null);
       log("$vouchers");
 
-      List<Map<String, dynamic>> invoiceVouchers = [];
+      // List<Map<String, dynamic>> invoiceVouchers = [];
 
       List<Map<String, dynamic>> invoicePayments = [];
       for (var payment in payMean) {
@@ -84,8 +84,8 @@ class InvoiceApi {
         "coupon": invHead[0].coupon,
         "discountcoupon": invHead[0].discountCoupun,
         "taxprctg": invHead[0].taxPrctg,
-        // "taxamount": double.parse(invHead[0].taxAmount.toStringAsFixed(2)),
-        "taxamount": 0,
+        "taxamount": double.parse(invHead[0].taxAmount.toStringAsFixed(2)),
+        // "taxamount": 0,
         "addcost": invHead[0].addCost,
         "rounding": invHead[0].rounding,
         "grandtotal": invHead[0].grandTotal.toInt(),
@@ -141,7 +141,6 @@ class InvoiceApi {
       };
 
       log("Data2Send: $dataToSend");
-      log("TOKEN: $token");
 
       await _dio.post(
         "$url/tenant-invoice/",

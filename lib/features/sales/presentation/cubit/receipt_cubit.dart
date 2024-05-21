@@ -1189,6 +1189,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState =
         state.copyWith(changed: state.totalPayment! - state.grandTotal);
 
+    dev.log("ON CHARGE - $newState");
     final ReceiptEntity? createdReceipt =
         await _saveReceiptUseCase.call(params: newState);
 
