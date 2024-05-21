@@ -190,7 +190,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                   .read<ReceiptCubit>()
                                   .updateTotalAmountFromDiscount(
                                       widget.discountValue);
-                              context.goNamed(RouteConstants.sales);
+                              context.pop();
+                              context.pop();
                             } else {
                               showDialog(
                                 context: context,
