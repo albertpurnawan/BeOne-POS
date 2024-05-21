@@ -141,6 +141,7 @@ class InvoiceApi {
       };
 
       log("Data2Send: $dataToSend");
+      log("TOKEN: $token");
 
       await _dio.post(
         "$url/tenant-invoice/",

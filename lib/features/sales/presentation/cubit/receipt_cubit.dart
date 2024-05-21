@@ -302,15 +302,20 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                             for (final el in tpsb1s) {
                               if (currentReceiptItem.quantity >= el.qty) {
                                 discount = (currentReceiptItem.quantity *
-                                        itemEntity.price) -
+                                        currentReceiptItem.itemEntity.price) -
                                     ((el.price * el.qty) +
-                                        (itemEntity.price *
+                                        (currentReceiptItem.itemEntity.price *
                                             (currentReceiptItem.quantity -
                                                 el.qty)));
-                                discountBeforeTax = itemEntity.includeTax == 1
-                                    ? (discount *
-                                        (100 / (100 + itemEntity.taxRate)))
-                                    : discount;
+                                discountBeforeTax =
+                                    currentReceiptItem.itemEntity.includeTax ==
+                                            1
+                                        ? (discount *
+                                            (100 /
+                                                (100 +
+                                                    currentReceiptItem
+                                                        .itemEntity.taxRate)))
+                                        : discount;
                               }
                             }
                           } else {
@@ -322,14 +327,20 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                                   (currentReceiptItem.quantity % tpsb1.qty);
                               double expectedSubtotal =
                                   (fullSets * tpsb1.price * tpsb1.qty) +
-                                      (remainderItems * itemEntity.price);
-                              double actualTotalPrice = itemEntity.price *
-                                  currentReceiptItem.quantity;
+                                      (remainderItems *
+                                          currentReceiptItem.itemEntity.price);
+                              double actualTotalPrice =
+                                  currentReceiptItem.itemEntity.price *
+                                      currentReceiptItem.quantity;
                               discount = actualTotalPrice - expectedSubtotal;
-                              discountBeforeTax = itemEntity.includeTax == 1
-                                  ? (discount *
-                                      (100 / (100 + itemEntity.taxRate)))
-                                  : discount;
+                              discountBeforeTax =
+                                  currentReceiptItem.itemEntity.includeTax == 1
+                                      ? (discount *
+                                          (100 /
+                                              (100 +
+                                                  currentReceiptItem
+                                                      .itemEntity.taxRate)))
+                                      : discount;
                             } else if (currentReceiptItem.quantity >
                                 (topsb.maxPurchaseTransaction / tpsb1.qty)) {
                               discount *= topsb.maxPurchaseTransaction;
@@ -345,14 +356,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                           currentReceiptItem.totalGross =
                               currentReceiptItem.itemEntity.includeTax == 1
                                   ? (priceQty *
-                                      (100 /
-                                          (100 +
-                                              currentReceiptItem
-                                                  .itemEntity.taxRate)))
+                                          (100 /
+                                              (100 +
+                                                  currentReceiptItem
+                                                      .itemEntity.taxRate))) -
+                                      discountBeforeTax
                                   : priceQty;
                           currentReceiptItem.taxAmount =
-                              (currentReceiptItem.totalGross -
-                                      discountBeforeTax) *
+                              currentReceiptItem.totalGross *
                                   (currentReceiptItem.itemEntity.taxRate / 100);
                           currentReceiptItem.totalAmount =
                               currentReceiptItem.totalGross +
@@ -361,8 +372,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
                           newReceiptItems.add(ReceiptItemEntity(
                             quantity: currentReceiptItem.quantity,
-                            totalGross: currentReceiptItem.totalGross -
-                                discountBeforeTax,
+                            totalGross: currentReceiptItem.totalGross,
                             itemEntity: currentReceiptItem.itemEntity,
                             taxAmount: currentReceiptItem.taxAmount,
                             sellingPrice: currentReceiptItem.sellingPrice,
@@ -452,14 +462,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                         currentReceiptItem.totalGross =
                             currentReceiptItem.itemEntity.includeTax == 1
                                 ? (priceQty *
-                                    (100 /
-                                        (100 +
-                                            currentReceiptItem
-                                                .itemEntity.taxRate)))
+                                        (100 /
+                                            (100 +
+                                                currentReceiptItem
+                                                    .itemEntity.taxRate))) -
+                                    discountBeforeTax
                                 : priceQty;
                         currentReceiptItem.taxAmount =
-                            (currentReceiptItem.totalGross -
-                                    discountBeforeTax) *
+                            currentReceiptItem.totalGross *
                                 (currentReceiptItem.itemEntity.taxRate / 100);
                         currentReceiptItem.totalAmount =
                             currentReceiptItem.totalGross +
@@ -468,8 +478,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
                         newReceiptItems.add(ReceiptItemEntity(
                           quantity: currentReceiptItem.quantity,
-                          totalGross:
-                              currentReceiptItem.totalGross - discountBeforeTax,
+                          totalGross: currentReceiptItem.totalGross,
                           itemEntity: currentReceiptItem.itemEntity,
                           taxAmount: currentReceiptItem.taxAmount,
                           sellingPrice: currentReceiptItem.sellingPrice,
