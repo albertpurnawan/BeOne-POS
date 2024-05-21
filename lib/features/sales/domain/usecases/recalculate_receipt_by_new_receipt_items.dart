@@ -18,12 +18,15 @@ class RecalculateReceiptUseCase
 
       double subtotal = 0;
       double discAmount = 0;
+      double discHeaderPromo = 0;
       double taxAmount = 0;
       double grandTotal = 0;
 
       params.receiptItems.forEach((element) {
         subtotal += element.totalGross;
-        discAmount += element.discAmount ?? 0;
+        discAmount +=
+            (element.discAmount ?? 0) + (element.discHeaderAmount ?? 0);
+        discHeaderPromo += element.discAmount ?? 0;
         taxAmount += element.taxAmount;
       });
 
@@ -32,6 +35,7 @@ class RecalculateReceiptUseCase
       final ReceiptEntity newReceipt = params.copyWith(
         subtotal: subtotal,
         discAmount: discAmount,
+        discHeaderPromo: discHeaderPromo,
         taxAmount: taxAmount,
         grandTotal: grandTotal,
       );

@@ -355,7 +355,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     double? discHeaderManual = receiptEntity.discHeaderManual ?? 0.0;
     double? discHeaderPromo = receiptEntity.discHeaderPromo ?? 0.0;
     double subtotal = receiptEntity.subtotal;
-    double discHprctg = (discHeaderManual + discHeaderPromo) / subtotal;
+    double discHprctg = (discHeaderManual) / (subtotal - discHeaderPromo);
     double subtotalAfterDiscount = 0;
     double taxAfterDiscount = 0;
 
@@ -364,9 +364,11 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     log("discHprctg - $discHprctg");
 
     for (final item in receiptEntity.receiptItems) {
-      item.discHeaderAmount = discHprctg * item.totalGross;
-      item.subtotalAfterDiscHeader =
-          (item.totalGross) - (item.discHeaderAmount ?? 0);
+      item.discHeaderAmount =
+          discHprctg * (item.totalGross - (item.discAmount ?? 0));
+      item.subtotalAfterDiscHeader = item.totalGross -
+          (item.discAmount ?? 0) -
+          (item.discHeaderAmount ?? 0);
       item.taxAmount =
           item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
       subtotalAfterDiscount += item.subtotalAfterDiscHeader!;

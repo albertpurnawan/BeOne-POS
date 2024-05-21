@@ -182,7 +182,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PreferredVendorApi>(PreferredVendorApi(sl()));
   sl.registerSingleton<InvoiceHeaderApi>(InvoiceHeaderApi(sl()));
   sl.registerSingleton<InvoiceDetailApi>(InvoiceDetailApi(sl()));
-  sl.registerSingleton<InvoiceApi>(InvoiceApi(sl()));
+  sl.registerSingletonWithDependencies<InvoiceApi>(() => InvoiceApi(sl(), sl()),
+      dependsOn: [SharedPreferences]);
+  // sl.registerSingleton<InvoiceApi>(InvoiceApi(sl(), sl()));
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
   sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
   sl.registerSingleton<PromoHargaSpesialApi>(PromoHargaSpesialApi(sl()));

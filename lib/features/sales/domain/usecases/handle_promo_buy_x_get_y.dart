@@ -70,11 +70,14 @@ class HandlePromoBuyXGetYUseCase
             ReceiptHelper.updateReceiptItemAggregateFields(
                 ReceiptHelper.convertItemEntityToReceiptItemEntity(
                     conditionAndItemY.itemEntity,
-                    conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity)
+                    conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+                        conditionAndItemY.multiply)
                   ..discAmount = (conditionAndItemY.itemEntity.dpp -
                           conditionAndItemY
                               .promoBuyXGetYGetConditionEntity.sellingPrice) *
-                      conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity
+                      conditionAndItemY
+                          .promoBuyXGetYGetConditionEntity.quantity *
+                      conditionAndItemY.multiply
                   ..discPrctg = 0
                   ..promos = [
                     params.promo
@@ -110,18 +113,22 @@ class HandlePromoBuyXGetYUseCase
             ReceiptHelper.updateReceiptItemAggregateFields(
                 existingReceiptItemY.first.copyWith(
               quantity: existingReceiptItemY.first.quantity +
-                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity,
+                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+                      conditionAndItemY.multiply,
               discAmount: existingReceiptItemY.first.discAmount == null
                   ? (existingReceiptItemY.first.itemEntity.dpp -
                           conditionAndItemY
                               .promoBuyXGetYGetConditionEntity.sellingPrice) *
-                      conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity
+                      conditionAndItemY
+                          .promoBuyXGetYGetConditionEntity.quantity *
+                      conditionAndItemY.multiply
                   : existingReceiptItemY.first.discAmount! +
                       ((existingReceiptItemY.first.itemEntity.dpp -
                               conditionAndItemY.promoBuyXGetYGetConditionEntity
                                   .sellingPrice) *
                           conditionAndItemY
-                              .promoBuyXGetYGetConditionEntity.quantity),
+                              .promoBuyXGetYGetConditionEntity.quantity *
+                          conditionAndItemY.multiply),
               promos: finalPromos,
             )),
           );

@@ -244,6 +244,9 @@ class _SettingsFormState extends State<SettingsForm> {
                     urlController.text,
                     emailController.text,
                     passwordController.text);
+                log("token string");
+                log(token.toString());
+
                 prefs.setString('adminToken', token.toString());
 
                 Navigator.pop(context);

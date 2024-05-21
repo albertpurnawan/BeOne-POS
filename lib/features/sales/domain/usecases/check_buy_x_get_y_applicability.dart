@@ -39,6 +39,7 @@ class CheckBuyXGetYApplicabilityUseCase
       List<String> itemXBarcodes = [];
       List<ReceiptItemEntity> existingReceiptItemXs = [];
       double qtySumOfExistingReceiptItemXs = 0;
+      int availableApplyCount = 0;
 
       final List<Function> validations = [
         () async {
@@ -55,6 +56,8 @@ class CheckBuyXGetYApplicabilityUseCase
           // Check multiply
           final existingPromo = params.receiptEntity.promos
               .where((element) => element.promoId == params.promo.promoId);
+          if (existingPromo.isNotEmpty) return isApplicable = false;
+
           if (existingPromo.length > 1) return isApplicable = false;
           if (existingPromo.isNotEmpty) {
             if (existingPromo.first.promotionDetails == null) {
@@ -66,7 +69,12 @@ class CheckBuyXGetYApplicabilityUseCase
             if (applyCount > toprb!.maxMultiply) {
               return isApplicable = false;
             }
+
+            log("$applyCount apply");
           }
+
+          log("Check multiply");
+          log(existingPromo.length.toString());
         },
         () async {
           // Get X condition and validate
@@ -103,6 +111,7 @@ class CheckBuyXGetYApplicabilityUseCase
               conditionAndItemYs.add(PromoBuyXGetYGetConditionAndItemEntity(
                 promoBuyXGetYGetConditionEntity: e,
                 itemEntity: itemY,
+                multiply: 0,
               ));
             }
           }
@@ -138,6 +147,60 @@ class CheckBuyXGetYApplicabilityUseCase
             isApplicable = false;
           }
         },
+        () async {
+          // Find available apply count
+          final List<ReceiptItemEntity> existingReceiptItemXsCopy =
+              existingReceiptItemXs.map((e) => e.copyWith()).toList();
+
+          if (toprb!.buyCondition == 1) {
+            bool isAvailable = true;
+            while (isAvailable) {
+              for (final existingReceiptItemXCopy
+                  in existingReceiptItemXsCopy) {
+                final double conditionQty = conditionAndItemXs
+                    .firstWhere((element) =>
+                        element.itemEntity.barcode ==
+                        existingReceiptItemXCopy.itemEntity.barcode)
+                    .promoBuyXGetYBuyConditionEntity
+                    .quantity;
+                if (conditionQty > existingReceiptItemXCopy.quantity) {
+                  isAvailable = false;
+                  break;
+                }
+                existingReceiptItemXCopy.quantity -= conditionQty;
+              }
+              if (!isAvailable) break;
+              availableApplyCount += 1;
+            }
+          } else {
+            while (true) {
+              List<bool> availability = List<bool>.generate(
+                  existingReceiptItemXsCopy.length, (index) => true);
+              for (int i = 0; i < existingReceiptItemXsCopy.length; i++) {
+                final ReceiptItemEntity existingReceiptItemXCopy =
+                    existingReceiptItemXsCopy[i];
+                final double conditionQty = conditionAndItemXs
+                    .firstWhere((element) =>
+                        element.itemEntity.barcode ==
+                        existingReceiptItemXCopy.itemEntity.barcode)
+                    .promoBuyXGetYBuyConditionEntity
+                    .quantity;
+                if (conditionQty > existingReceiptItemXCopy.quantity) {
+                  availability[i] = false;
+                  continue;
+                }
+                existingReceiptItemXCopy.quantity -= conditionQty;
+                availableApplyCount += 1;
+              }
+              if (availability.every((element) => element == false)) break;
+            }
+          }
+
+          availableApplyCount = toprb!.maxMultiply < availableApplyCount
+              ? toprb!.maxMultiply.toInt()
+              : availableApplyCount;
+          log("AVAILABLE APPLY COUNT $availableApplyCount");
+        }
       ];
 
       for (final validation in validations) {
@@ -158,6 +221,7 @@ class CheckBuyXGetYApplicabilityUseCase
         itemXBarcodes: itemXBarcodes,
         existingReceiptItemXs: existingReceiptItemXs,
         qtySumOfExistingReceiptItemXs: qtySumOfExistingReceiptItemXs,
+        availableApplyCount: availableApplyCount,
       );
     } catch (e) {
       rethrow;
@@ -187,17 +251,20 @@ class CheckBuyXGetYApplicabilityResult {
   final List<String> itemXBarcodes;
   final List<ReceiptItemEntity> existingReceiptItemXs;
   final double qtySumOfExistingReceiptItemXs;
+  final int availableApplyCount;
 
-  CheckBuyXGetYApplicabilityResult(
-      {required this.isApplicable,
-      required this.toprb,
-      required this.tprb1,
-      required this.tprb4,
-      required this.conditionAndItemXs,
-      required this.conditionAndItemYs,
-      required this.itemXBarcodes,
-      required this.existingReceiptItemXs,
-      required this.qtySumOfExistingReceiptItemXs});
+  CheckBuyXGetYApplicabilityResult({
+    required this.isApplicable,
+    required this.toprb,
+    required this.tprb1,
+    required this.tprb4,
+    required this.conditionAndItemXs,
+    required this.conditionAndItemYs,
+    required this.itemXBarcodes,
+    required this.existingReceiptItemXs,
+    required this.qtySumOfExistingReceiptItemXs,
+    required this.availableApplyCount,
+  });
 }
 
 class PromoBuyXGetYBuyConditionAndItemEntity {
@@ -264,20 +331,24 @@ class PromoBuyXGetYBuyConditionAndItemEntity {
 class PromoBuyXGetYGetConditionAndItemEntity {
   final PromoBuyXGetYGetConditionEntity promoBuyXGetYGetConditionEntity;
   final ItemEntity itemEntity;
+  int multiply;
 
   PromoBuyXGetYGetConditionAndItemEntity({
     required this.promoBuyXGetYGetConditionEntity,
     required this.itemEntity,
+    required this.multiply,
   });
 
   PromoBuyXGetYGetConditionAndItemEntity copyWith({
     PromoBuyXGetYGetConditionEntity? promoBuyXGetYGetConditionEntity,
     ItemEntity? itemEntity,
+    int? multiply,
   }) {
     return PromoBuyXGetYGetConditionAndItemEntity(
       promoBuyXGetYGetConditionEntity: promoBuyXGetYGetConditionEntity ??
           this.promoBuyXGetYGetConditionEntity,
       itemEntity: itemEntity ?? this.itemEntity,
+      multiply: multiply ?? this.multiply,
     );
   }
 
@@ -286,6 +357,7 @@ class PromoBuyXGetYGetConditionAndItemEntity {
       'promoBuyXGetYGetConditionEntity':
           promoBuyXGetYGetConditionEntity.toMap(),
       'itemEntity': itemEntity.toMap(),
+      'multiply': multiply,
     };
   }
 
@@ -295,6 +367,7 @@ class PromoBuyXGetYGetConditionAndItemEntity {
       promoBuyXGetYGetConditionEntity: PromoBuyXGetYGetConditionEntity.fromMap(
           map['promoBuyXGetYGetConditionEntity'] as Map<String, dynamic>),
       itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
+      multiply: map['multiply'] as int,
     );
   }
 
@@ -306,7 +379,7 @@ class PromoBuyXGetYGetConditionAndItemEntity {
 
   @override
   String toString() =>
-      'PromoBuyXGetYGetConditionAndItemEntity(promoBuyXGetYGetConditionEntity: $promoBuyXGetYGetConditionEntity, itemEntity: $itemEntity)';
+      'PromoBuyXGetYGetConditionAndItemEntity(promoBuyXGetYGetConditionEntity: $promoBuyXGetYGetConditionEntity, itemEntity: $itemEntity, multiply: $multiply)';
 
   @override
   bool operator ==(covariant PromoBuyXGetYGetConditionAndItemEntity other) {
@@ -314,10 +387,13 @@ class PromoBuyXGetYGetConditionAndItemEntity {
 
     return other.promoBuyXGetYGetConditionEntity ==
             promoBuyXGetYGetConditionEntity &&
-        other.itemEntity == itemEntity;
+        other.itemEntity == itemEntity &&
+        other.multiply == multiply;
   }
 
   @override
   int get hashCode =>
-      promoBuyXGetYGetConditionEntity.hashCode ^ itemEntity.hashCode;
+      promoBuyXGetYGetConditionEntity.hashCode ^
+      itemEntity.hashCode ^
+      multiply.hashCode;
 }

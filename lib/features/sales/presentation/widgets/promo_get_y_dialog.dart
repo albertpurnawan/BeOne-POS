@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_buy_x_get_y_header.dart';
@@ -14,10 +15,12 @@ class PromoGetYDialog extends StatefulWidget {
     super.key,
     required this.conditionAndItemYs,
     required this.toprb,
+    required this.loopTracker,
   });
 
   final List<PromoBuyXGetYGetConditionAndItemEntity> conditionAndItemYs;
   final PromoBuyXGetYHeaderEntity toprb;
+  final LoopTracker loopTracker;
 
   @override
   State<PromoGetYDialog> createState() => _PromoGetYDialog();
@@ -58,10 +61,24 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
         ),
         padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-        child: const Text(
-          'Promo Buy X Get Y',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Promo Buy X Get Y',
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
+            ),
+            Text(
+              '${widget.loopTracker.currentLoop}/${widget.loopTracker.totalLoop}',
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
+            ),
+          ],
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -260,7 +277,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                         overlayColor: MaterialStateColor.resolveWith(
                             (states) => Colors.black.withOpacity(.2))),
                     onPressed: () {
-                      context.pop([]);
+                      context.pop(<PromoBuyXGetYGetConditionAndItemEntity>[]);
                     },
                     child: const Center(
                         child: Text(
@@ -279,9 +296,10 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5))),
                       backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => selectedItemYs.isNotEmpty
-                              ? ProjectColors.primary
-                              : Colors.grey),
+                          (states) =>
+                              selectedItemYs.isNotEmpty && remainingQty >= 0
+                                  ? ProjectColors.primary
+                                  : Colors.grey),
                       overlayColor: MaterialStateColor.resolveWith(
                           (states) => Colors.white.withOpacity(.2))),
                   onPressed: selectedItemYs.isNotEmpty && remainingQty >= 0

@@ -43,7 +43,6 @@ class PromotionsModel extends PromotionsEntity implements BaseModel {
     required super.promoDescription,
     required super.tocatId,
     required super.remarks,
-    required super.docId,
   });
 
   @override

@@ -102,249 +102,249 @@ class HomeScreen extends StatelessWidget {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
+                            // // await GetIt.instance<AppDatabase>()
+                            // //     .refreshItemsTable();
                             // await GetIt.instance<AppDatabase>()
-                            //     .refreshItemsTable();
-                            await GetIt.instance<AppDatabase>()
-                                .promosDao
-                                .deletePromos();
+                            //     .promosDao
+                            //     .deletePromos();
 
-                            final promos = <PromotionsModel>[];
-                            final today = DateTime.now().weekday;
+                            // final promos = <PromotionsModel>[];
+                            // final today = DateTime.now().weekday;
 
-                            final topsb = await GetIt.instance<AppDatabase>()
-                                .promoHargaSpesialHeaderDao
-                                .readAll();
+                            // final topsb = await GetIt.instance<AppDatabase>()
+                            //     .promoHargaSpesialHeaderDao
+                            //     .readAll();
 
-                            for (final header in topsb) {
-                              final tpsb2 = await GetIt.instance<AppDatabase>()
-                                  .promoHargaSpesialAssignStoreDao
-                                  .readByTopsbId(header.docId, null);
-                              final tpsb4 = await GetIt.instance<AppDatabase>()
-                                  .promoHargaSpesialCustomerGroupDao
-                                  .readByTopsbId(header.docId, null);
+                            // for (final header in topsb) {
+                            //   final tpsb2 = await GetIt.instance<AppDatabase>()
+                            //       .promoHargaSpesialAssignStoreDao
+                            //       .readByTopsbId(header.docId, null);
+                            //   final tpsb4 = await GetIt.instance<AppDatabase>()
+                            //       .promoHargaSpesialCustomerGroupDao
+                            //       .readByTopsbId(header.docId, null);
 
-                              final dayProperties = {
-                                1: tpsb2.day1,
-                                2: tpsb2.day2,
-                                3: tpsb2.day3,
-                                4: tpsb2.day4,
-                                5: tpsb2.day5,
-                                6: tpsb2.day6,
-                                7: tpsb2.day7,
-                              };
+                            //   final dayProperties = {
+                            //     1: tpsb2.day1,
+                            //     2: tpsb2.day2,
+                            //     3: tpsb2.day3,
+                            //     4: tpsb2.day4,
+                            //     5: tpsb2.day5,
+                            //     6: tpsb2.day6,
+                            //     7: tpsb2.day7,
+                            //   };
 
-                              final isValid = dayProperties[today] == 1;
+                            //   final isValid = dayProperties[today] == 1;
 
-                              if (isValid) {
-                                for (final customerGroup in tpsb4) {
-                                  promos.add(PromotionsModel(
-                                    docId: const Uuid().v4(),
-                                    toitmId: header.toitmId,
-                                    promoType: 202,
-                                    promoId: header.docId,
-                                    date: DateTime.now(),
-                                    startTime: header.startTime,
-                                    endTime: header.endTime,
-                                    tocrgId: customerGroup.tocrgId,
-                                    promoDescription: header.description,
-                                    tocatId: null,
-                                    remarks: null,
-                                  ));
-                                }
-                              }
-                            }
+                            //   if (isValid) {
+                            //     for (final customerGroup in tpsb4) {
+                            //       promos.add(PromotionsModel(
+                            //         docId: const Uuid().v4(),
+                            //         toitmId: header.toitmId,
+                            //         promoType: 202,
+                            //         promoId: header.docId,
+                            //         date: DateTime.now(),
+                            //         startTime: header.startTime,
+                            //         endTime: header.endTime,
+                            //         tocrgId: customerGroup.tocrgId,
+                            //         promoDescription: header.description,
+                            //         tocatId: null,
+                            //         remarks: null,
+                            //       ));
+                            //     }
+                            //   }
+                            // }
 
-                            final topmi = await GetIt.instance<AppDatabase>()
-                                .promoMultiItemHeaderDao
-                                .readAll();
+                            // final topmi = await GetIt.instance<AppDatabase>()
+                            //     .promoMultiItemHeaderDao
+                            //     .readAll();
 
-                            for (final header in topmi) {
-                              final tpmi1 = await GetIt.instance<AppDatabase>()
-                                  .promoMultiItemBuyConditionDao
-                                  .readByTopmiId(header.docId, null);
-                              final tpmi2 = await GetIt.instance<AppDatabase>()
-                                  .promoMultiItemAssignStoreDao
-                                  .readByTopmiId(header.docId, null);
-                              final tpmi5 = await GetIt.instance<AppDatabase>()
-                                  .promoMultiItemCustomerGroupDao
-                                  .readByTopmiId(header.docId, null);
+                            // for (final header in topmi) {
+                            //   final tpmi1 = await GetIt.instance<AppDatabase>()
+                            //       .promoMultiItemBuyConditionDao
+                            //       .readByTopmiId(header.docId, null);
+                            //   final tpmi2 = await GetIt.instance<AppDatabase>()
+                            //       .promoMultiItemAssignStoreDao
+                            //       .readByTopmiId(header.docId, null);
+                            //   final tpmi5 = await GetIt.instance<AppDatabase>()
+                            //       .promoMultiItemCustomerGroupDao
+                            //       .readByTopmiId(header.docId, null);
 
-                              final dayProperties = {
-                                1: tpmi2.day1,
-                                2: tpmi2.day2,
-                                3: tpmi2.day3,
-                                4: tpmi2.day4,
-                                5: tpmi2.day5,
-                                6: tpmi2.day6,
-                                7: tpmi2.day7,
-                              };
+                            //   final dayProperties = {
+                            //     1: tpmi2.day1,
+                            //     2: tpmi2.day2,
+                            //     3: tpmi2.day3,
+                            //     4: tpmi2.day4,
+                            //     5: tpmi2.day5,
+                            //     6: tpmi2.day6,
+                            //     7: tpmi2.day7,
+                            //   };
 
-                              final isValid = dayProperties[today] == 1;
-                              if (isValid) {
-                                for (final buyCondition in tpmi1) {
-                                  for (final customerGroup in tpmi5) {
-                                    promos.add(PromotionsModel(
-                                      docId: const Uuid().v4(),
-                                      toitmId: buyCondition.toitmId,
-                                      promoType: 206,
-                                      promoId: header.docId,
-                                      date: DateTime.now(),
-                                      startTime: header.startTime,
-                                      endTime: header.endTime,
-                                      tocrgId: customerGroup.tocrgId,
-                                      promoDescription: header.description,
-                                      tocatId: null,
-                                      remarks: null,
-                                    ));
-                                  }
-                                }
-                              }
-                            }
+                            //   final isValid = dayProperties[today] == 1;
+                            //   if (isValid) {
+                            //     for (final buyCondition in tpmi1) {
+                            //       for (final customerGroup in tpmi5) {
+                            //         promos.add(PromotionsModel(
+                            //           docId: const Uuid().v4(),
+                            //           toitmId: buyCondition.toitmId,
+                            //           promoType: 206,
+                            //           promoId: header.docId,
+                            //           date: DateTime.now(),
+                            //           startTime: header.startTime,
+                            //           endTime: header.endTime,
+                            //           tocrgId: customerGroup.tocrgId,
+                            //           promoDescription: header.description,
+                            //           tocatId: null,
+                            //           remarks: null,
+                            //         ));
+                            //       }
+                            //     }
+                            //   }
+                            // }
 
-                            final topdi = await GetIt.instance<AppDatabase>()
-                                .promoDiskonItemHeaderDao
-                                .readAll();
+                            // final topdi = await GetIt.instance<AppDatabase>()
+                            //     .promoDiskonItemHeaderDao
+                            //     .readAll();
 
-                            for (final header in topdi) {
-                              final tpdi1 = await GetIt.instance<AppDatabase>()
-                                  .promoDiskonItemBuyConditionDao
-                                  .readByTopdiId(header.docId, null);
-                              final tpdi2 = await GetIt.instance<AppDatabase>()
-                                  .promoDiskonItemAssignStoreDao
-                                  .readByTopdiId(header.docId, null);
-                              final tpdi5 = await GetIt.instance<AppDatabase>()
-                                  .promoDiskonItemCustomerGroupDao
-                                  .readByTopdiId(header.docId, null);
+                            // for (final header in topdi) {
+                            //   final tpdi1 = await GetIt.instance<AppDatabase>()
+                            //       .promoDiskonItemBuyConditionDao
+                            //       .readByTopdiId(header.docId, null);
+                            //   final tpdi2 = await GetIt.instance<AppDatabase>()
+                            //       .promoDiskonItemAssignStoreDao
+                            //       .readByTopdiId(header.docId, null);
+                            //   final tpdi5 = await GetIt.instance<AppDatabase>()
+                            //       .promoDiskonItemCustomerGroupDao
+                            //       .readByTopdiId(header.docId, null);
 
-                              final dayProperties = {
-                                1: tpdi2.day1,
-                                2: tpdi2.day2,
-                                3: tpdi2.day3,
-                                4: tpdi2.day4,
-                                5: tpdi2.day5,
-                                6: tpdi2.day6,
-                                7: tpdi2.day7,
-                              };
+                            //   final dayProperties = {
+                            //     1: tpdi2.day1,
+                            //     2: tpdi2.day2,
+                            //     3: tpdi2.day3,
+                            //     4: tpdi2.day4,
+                            //     5: tpdi2.day5,
+                            //     6: tpdi2.day6,
+                            //     7: tpdi2.day7,
+                            //   };
 
-                              final isValid = dayProperties[today] == 1;
-                              if (isValid) {
-                                for (final buyCondition in tpdi1) {
-                                  for (final customerGroup in tpdi5) {
-                                    promos.add(PromotionsModel(
-                                      docId: const Uuid().v4(),
-                                      toitmId: buyCondition.toitmId,
-                                      promoType: 203,
-                                      promoId: header.docId,
-                                      date: DateTime.now(),
-                                      startTime: header.startTime,
-                                      endTime: header.endTime,
-                                      tocrgId: customerGroup.tocrgId,
-                                      promoDescription: header.description,
-                                      tocatId: null,
-                                      remarks: null,
-                                    ));
-                                  }
-                                }
-                              }
-                            }
+                            //   final isValid = dayProperties[today] == 1;
+                            //   if (isValid) {
+                            //     for (final buyCondition in tpdi1) {
+                            //       for (final customerGroup in tpdi5) {
+                            //         promos.add(PromotionsModel(
+                            //           docId: const Uuid().v4(),
+                            //           toitmId: buyCondition.toitmId,
+                            //           promoType: 203,
+                            //           promoId: header.docId,
+                            //           date: DateTime.now(),
+                            //           startTime: header.startTime,
+                            //           endTime: header.endTime,
+                            //           tocrgId: customerGroup.tocrgId,
+                            //           promoDescription: header.description,
+                            //           tocatId: null,
+                            //           remarks: null,
+                            //         ));
+                            //       }
+                            //     }
+                            //   }
+                            // }
 
-                            final topdg = await GetIt.instance<AppDatabase>()
-                                .promoDiskonGroupItemHeaderDao
-                                .readAll();
-                            for (final header in topdg) {
-                              final tpdg1 = await GetIt.instance<AppDatabase>()
-                                  .promoDiskonGroupItemBuyConditionDao
-                                  .readByTopdgId(header.docId, null);
-                              final tpdg2 = await GetIt.instance<AppDatabase>()
-                                  .promoDiskonGroupItemAssignStoreDao
-                                  .readByTodgId(header.docId, null);
-                              final tpdg5 = await GetIt.instance<AppDatabase>()
-                                  .promoDiskonGroupItemCustomerGroupDao
-                                  .readByTopdgId(header.docId, null);
+                            // final topdg = await GetIt.instance<AppDatabase>()
+                            //     .promoDiskonGroupItemHeaderDao
+                            //     .readAll();
+                            // for (final header in topdg) {
+                            //   final tpdg1 = await GetIt.instance<AppDatabase>()
+                            //       .promoDiskonGroupItemBuyConditionDao
+                            //       .readByTopdgId(header.docId, null);
+                            //   final tpdg2 = await GetIt.instance<AppDatabase>()
+                            //       .promoDiskonGroupItemAssignStoreDao
+                            //       .readByTodgId(header.docId, null);
+                            //   final tpdg5 = await GetIt.instance<AppDatabase>()
+                            //       .promoDiskonGroupItemCustomerGroupDao
+                            //       .readByTopdgId(header.docId, null);
 
-                              final dayProperties = {
-                                1: tpdg2.day1,
-                                2: tpdg2.day2,
-                                3: tpdg2.day3,
-                                4: tpdg2.day4,
-                                5: tpdg2.day5,
-                                6: tpdg2.day6,
-                                7: tpdg2.day7,
-                              };
+                            //   final dayProperties = {
+                            //     1: tpdg2.day1,
+                            //     2: tpdg2.day2,
+                            //     3: tpdg2.day3,
+                            //     4: tpdg2.day4,
+                            //     5: tpdg2.day5,
+                            //     6: tpdg2.day6,
+                            //     7: tpdg2.day7,
+                            //   };
 
-                              final isValid = dayProperties[today] == 1;
-                              if (isValid) {
-                                for (final buyCondition in tpdg1) {
-                                  for (final customerGroup in tpdg5) {
-                                    promos.add(PromotionsModel(
-                                      docId: const Uuid().v4(),
-                                      toitmId: null,
-                                      promoType: 204,
-                                      promoId: header.docId,
-                                      date: DateTime.now(),
-                                      startTime: header.startTime,
-                                      endTime: header.endTime,
-                                      tocrgId: customerGroup.tocrgId,
-                                      promoDescription: header.description,
-                                      tocatId: buyCondition.tocatId,
-                                      remarks: null,
-                                    ));
-                                  }
-                                }
-                              }
-                            }
+                            //   final isValid = dayProperties[today] == 1;
+                            //   if (isValid) {
+                            //     for (final buyCondition in tpdg1) {
+                            //       for (final customerGroup in tpdg5) {
+                            //         promos.add(PromotionsModel(
+                            //           docId: const Uuid().v4(),
+                            //           toitmId: null,
+                            //           promoType: 204,
+                            //           promoId: header.docId,
+                            //           date: DateTime.now(),
+                            //           startTime: header.startTime,
+                            //           endTime: header.endTime,
+                            //           tocrgId: customerGroup.tocrgId,
+                            //           promoDescription: header.description,
+                            //           tocatId: buyCondition.tocatId,
+                            //           remarks: null,
+                            //         ));
+                            //       }
+                            //     }
+                            //   }
+                            // }
 
-                            final toprb = await GetIt.instance<AppDatabase>()
-                                .promoBuyXGetYHeaderDao
-                                .readAll();
+                            // final toprb = await GetIt.instance<AppDatabase>()
+                            //     .promoBuyXGetYHeaderDao
+                            //     .readAll();
 
-                            for (final header in toprb) {
-                              final tprb1 = await GetIt.instance<AppDatabase>()
-                                  .promoBuyXGetYBuyConditionDao
-                                  .readByToprbId(header.docId, null);
-                              final tprb2 = await GetIt.instance<AppDatabase>()
-                                  .promoBuyXGetYAssignStoreDao
-                                  .readByToprbId(header.docId, null);
-                              // final tprb5 = await GetIt.instance<AppDatabase>()
-                              //     .promoBuyXGetYCustomerGroupDao
-                              //     .readByToprbid(header.docId, null);
+                            // for (final header in toprb) {
+                            //   final tprb1 = await GetIt.instance<AppDatabase>()
+                            //       .promoBuyXGetYBuyConditionDao
+                            //       .readByToprbId(header.docId, null);
+                            //   final tprb2 = await GetIt.instance<AppDatabase>()
+                            //       .promoBuyXGetYAssignStoreDao
+                            //       .readByToprbId(header.docId, null);
+                            //   // final tprb5 = await GetIt.instance<AppDatabase>()
+                            //   //     .promoBuyXGetYCustomerGroupDao
+                            //   //     .readByToprbid(header.docId, null);
 
-                              final dayProperties = {
-                                1: tprb2.day1,
-                                2: tprb2.day2,
-                                3: tprb2.day3,
-                                4: tprb2.day4,
-                                5: tprb2.day5,
-                                6: tprb2.day6,
-                                7: tprb2.day7,
-                              };
+                            //   final dayProperties = {
+                            //     1: tprb2.day1,
+                            //     2: tprb2.day2,
+                            //     3: tprb2.day3,
+                            //     4: tprb2.day4,
+                            //     5: tprb2.day5,
+                            //     6: tprb2.day6,
+                            //     7: tprb2.day7,
+                            //   };
 
-                              final isValid = dayProperties[today] == 1;
-                              if (isValid) {
-                                for (final buyCondition in tprb1) {
-                                  // for (final customerGroup in tprb5) {
-                                  promos.add(PromotionsModel(
-                                    docId: const Uuid().v4(),
-                                    toitmId: buyCondition.toitmId,
-                                    promoType: 103,
-                                    promoId: header.docId,
-                                    date: DateTime.now(),
-                                    startTime: header.startTime,
-                                    endTime: header.endTime,
-                                    tocrgId: null,
-                                    promoDescription: header.description,
-                                    tocatId: null,
-                                    remarks: null,
-                                  ));
-                                  // }
-                                }
-                              }
-                            }
+                            //   final isValid = dayProperties[today] == 1;
+                            //   if (isValid) {
+                            //     for (final buyCondition in tprb1) {
+                            //       // for (final customerGroup in tprb5) {
+                            //       promos.add(PromotionsModel(
+                            //         docId: const Uuid().v4(),
+                            //         toitmId: buyCondition.toitmId,
+                            //         promoType: 103,
+                            //         promoId: header.docId,
+                            //         date: DateTime.now(),
+                            //         startTime: header.startTime,
+                            //         endTime: header.endTime,
+                            //         tocrgId: null,
+                            //         promoDescription: header.description,
+                            //         tocatId: null,
+                            //         remarks: null,
+                            //       ));
+                            //       // }
+                            //     }
+                            //   }
+                            // }
 
-                            await GetIt.instance<AppDatabase>()
-                                .promosDao
-                                .bulkCreate(data: promos);
-                            log("PROMOS INSERTED");
+                            // await GetIt.instance<AppDatabase>()
+                            //     .promosDao
+                            //     .bulkCreate(data: promos);
+                            // log("PROMOS INSERTED");
 
                             context.pushNamed(RouteConstants.sales);
                           },

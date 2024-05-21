@@ -14,11 +14,13 @@ abstract class ReceiptHelper {
         : priceQty;
     newReceiptItem.discPrctg =
         newReceiptItem.discAmount ?? 0 / newReceiptItem.totalGross;
-    newReceiptItem.taxAmount =
-        (newReceiptItem.totalGross - (newReceiptItem.discAmount ?? 0)) *
-            (newReceiptItem.itemEntity.taxRate / 100);
+    newReceiptItem.taxAmount = (newReceiptItem.totalGross -
+            (newReceiptItem.discAmount ?? 0) -
+            (newReceiptItem.discHeaderAmount ?? 0)) *
+        (newReceiptItem.itemEntity.taxRate / 100);
     newReceiptItem.totalAmount = newReceiptItem.totalGross -
-        (newReceiptItem.discAmount ?? 0) +
+        (newReceiptItem.discAmount ?? 0) -
+        (newReceiptItem.discHeaderAmount ?? 0) +
         newReceiptItem.taxAmount;
     return newReceiptItem;
   }
