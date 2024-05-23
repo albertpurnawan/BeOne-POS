@@ -87,7 +87,8 @@ class ReceiptEntity {
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
-      receiptItems: receiptItems ?? this.receiptItems,
+      receiptItems:
+          receiptItems ?? this.receiptItems.map((e) => e.copyWith()).toList(),
       mopSelection: mopSelection ?? this.mopSelection,
       customerEntity: customerEntity ?? this.customerEntity,
       employeeEntity: employeeEntity ?? this.employeeEntity,

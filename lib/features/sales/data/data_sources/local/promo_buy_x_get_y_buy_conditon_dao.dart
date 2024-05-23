@@ -45,26 +45,18 @@ class PromoBuyXGetYBuyConditionDao
     }
   }
 
-  Future<PromoBuyXGetYBuyConditionModel> readByToprbId(
+  Future<List<PromoBuyXGetYBuyConditionModel>> readByToprbId(
       String toprbId, Transaction? txn) async {
-    if (txn != null) {
-      final result = await txn.query(
-        tableName,
-        columns: modelFields,
-        where: 'toprbId = ?',
-        whereArgs: [toprbId],
-      );
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'toprbId = ?',
+      whereArgs: [toprbId],
+    );
 
-      return PromoBuyXGetYBuyConditionModel.fromMap(result.first);
-    } else {
-      final result = await db.query(
-        tableName,
-        columns: modelFields,
-        where: 'toprbId = ?',
-        whereArgs: [toprbId],
-      );
-
-      return PromoBuyXGetYBuyConditionModel.fromMap(result.first);
-    }
+    return result
+        .map((e) => PromoBuyXGetYBuyConditionModel.fromMap(e))
+        .toList();
   }
 }

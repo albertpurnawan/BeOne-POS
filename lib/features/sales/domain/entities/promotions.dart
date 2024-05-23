@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:pos_fe/core/resources/promotion_detail.dart';
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class PromotionsEntity {
@@ -16,6 +18,7 @@ class PromotionsEntity {
   final String? remarks;
   double? discAmount;
   double? discPrctg;
+  PromotionDetails? promotionDetails;
 
   PromotionsEntity({
     required this.docId,
@@ -31,6 +34,7 @@ class PromotionsEntity {
     this.remarks,
     this.discAmount,
     this.discPrctg,
+    this.promotionDetails,
   });
 
   PromotionsEntity copyWith({
@@ -47,6 +51,7 @@ class PromotionsEntity {
     String? remarks,
     double? discAmount,
     double? discPrctg,
+    PromotionDetails? promotionDetails,
   }) {
     return PromotionsEntity(
       docId: docId ?? this.docId,
@@ -62,6 +67,7 @@ class PromotionsEntity {
       remarks: remarks ?? this.remarks,
       discAmount: discAmount ?? this.discAmount,
       discPrctg: discPrctg ?? this.discPrctg,
+      promotionDetails: promotionDetails ?? this.promotionDetails,
     );
   }
 
@@ -80,6 +86,7 @@ class PromotionsEntity {
       'remarks': remarks,
       'discAmount': discAmount,
       'discPrctg': discPrctg,
+      // 'promotionDetails': promotionDetails?.toMap(),
     };
   }
 
@@ -99,6 +106,10 @@ class PromotionsEntity {
       discAmount:
           map['discAmount'] != null ? map['discAmount'] as double : null,
       discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
+      // promotionDetails: map['promotionDetails'] != null
+      //     ? PromotionDetails.fromMap(
+      //         map['promotionDetails'] as Map<String, dynamic>)
+      //     : null,
     );
   }
 
@@ -128,7 +139,8 @@ class PromotionsEntity {
         other.tocatId == tocatId &&
         other.remarks == remarks &&
         other.discAmount == discAmount &&
-        other.discPrctg == discPrctg;
+        other.discPrctg == discPrctg &&
+        other.promotionDetails == promotionDetails;
   }
 
   @override
@@ -145,6 +157,7 @@ class PromotionsEntity {
         tocatId.hashCode ^
         remarks.hashCode ^
         discAmount.hashCode ^
-        discPrctg.hashCode;
+        discPrctg.hashCode ^
+        promotionDetails.hashCode;
   }
 }

@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
@@ -60,6 +61,7 @@ import 'package:pos_fe/features/sales/data/models/user_role.dart';
 import 'package:pos_fe/features/sales/data/models/vendor.dart';
 import 'package:pos_fe/features/sales/data/models/vendor_group.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/webview_page.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
@@ -1361,6 +1363,7 @@ class _FetchScreenState extends State<FetchScreen> {
           await fetchFunction();
         } catch (e) {
           handleError(e);
+          rethrow;
         }
       }
 
@@ -1555,23 +1558,23 @@ class _FetchScreenState extends State<FetchScreen> {
 
         final isValid = dayProperties[today] == 1;
         if (isValid) {
-          // for (final buyCondition in tprb1) {
-          // for (final customerGroup in tprb5) {
-          promos.add(PromotionsModel(
-            docId: const Uuid().v4(),
-            toitmId: tprb1.toitmId,
-            promoType: 103,
-            promoId: header.docId,
-            date: DateTime.now(),
-            startTime: header.startTime,
-            endTime: header.endTime,
-            tocrgId: null,
-            promoDescription: header.description,
-            tocatId: null,
-            remarks: null,
-          ));
-          // }
-          // }
+          for (final buyCondition in tprb1) {
+            // for (final customerGroup in tprb5) {
+            promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
+              toitmId: buyCondition.toitmId,
+              promoType: 103,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: null,
+              promoDescription: header.description,
+              tocatId: null,
+              remarks: null,
+            ));
+            // }
+          }
         }
       }
 
@@ -1887,23 +1890,23 @@ class _FetchScreenState extends State<FetchScreen> {
 
         final isValid = dayProperties[today] == 1;
         if (isValid) {
-          // for (final buyCondition in tprb1) {
-          // for (final customerGroup in tprb5) {
-          promos.add(PromotionsModel(
-            docId: const Uuid().v4(),
-            toitmId: tprb1.toitmId,
-            promoType: 103,
-            promoId: header.docId,
-            date: DateTime.now(),
-            startTime: header.startTime,
-            endTime: header.endTime,
-            tocrgId: null,
-            promoDescription: header.description,
-            tocatId: null,
-            remarks: null,
-          ));
-          // }
-          // }
+          for (final buyCondition in tprb1) {
+            // for (final customerGroup in tprb5) {
+            promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
+              toitmId: buyCondition.toitmId,
+              promoType: 103,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: null,
+              promoDescription: header.description,
+              tocatId: null,
+              remarks: null,
+            ));
+            // }
+          }
         }
       }
 
@@ -1928,17 +1931,24 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
-  void _fetchSingleData() async {
-    print("CHECK PROMO");
+  Future<String> _fetchSingleData() async {
+    print("CHECK NETZME");
     try {
-      final promo = await GetIt.instance<AppDatabase>()
-          .promosDao
-          .readByToitmId("816902d3-eb12-4d20-862a-3c4c072b49a0", null);
-      log("PROMO - $promo");
-      // setState(() {
-      //   _singleData = datum.docnum;
-      // });
+      final signature = await GetIt.instance<NetzmeApi>().createSignature();
+      log(signature);
+      final accessToken =
+          await GetIt.instance<NetzmeApi>().requestAccessToken(signature);
+      log(accessToken);
+      final serviceSignature =
+          await GetIt.instance<NetzmeApi>().createSignatureService(accessToken);
+      log(serviceSignature);
+      final transactionQris = await GetIt.instance<NetzmeApi>()
+          .createTransactionQRIS(serviceSignature);
+      log("$transactionQris");
+
       print("Data Fetched");
+
+      return transactionQris;
     } catch (error) {
       handleError(error);
       setState(() {
@@ -1946,6 +1956,7 @@ class _FetchScreenState extends State<FetchScreen> {
         _errorMessage = handleError(error)['message'];
         _clearErrorMessageAfterDelay();
       });
+      rethrow;
     }
   }
 
@@ -2055,10 +2066,16 @@ class _FetchScreenState extends State<FetchScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
-                  _fetchData();
+                onPressed: () async {
+                  final qrisUrl = await _fetchSingleData();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WebViewApp(url: qrisUrl),
+                    ),
+                  );
                 },
-                child: Text('FETCH'),
+                child: Text('Show WebView'),
               ),
             ],
           ),

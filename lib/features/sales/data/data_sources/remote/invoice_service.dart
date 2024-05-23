@@ -12,13 +12,14 @@ class InvoiceApi {
   final Dio _dio;
   String? url;
   String? token;
+  final SharedPreferences prefs;
 
-  InvoiceApi(this._dio);
+  InvoiceApi(this._dio, this.prefs);
 
   Future<void> sendInvoice() async {
     try {
       log("SEND INVOICE SERVICE");
-      SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      // SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
       List<POSParameterModel> pos =

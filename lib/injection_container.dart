@@ -7,6 +7,7 @@ import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/cash_register_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
@@ -34,6 +35,7 @@ import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart'
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
 import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
@@ -51,10 +53,16 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart'
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
@@ -176,7 +184,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PreferredVendorApi>(PreferredVendorApi(sl()));
   sl.registerSingleton<InvoiceHeaderApi>(InvoiceHeaderApi(sl()));
   sl.registerSingleton<InvoiceDetailApi>(InvoiceDetailApi(sl()));
-  sl.registerSingleton<InvoiceApi>(InvoiceApi(sl()));
+  sl.registerSingletonWithDependencies<InvoiceApi>(() => InvoiceApi(sl(), sl()),
+      dependsOn: [SharedPreferences]);
+  // sl.registerSingleton<InvoiceApi>(InvoiceApi(sl(), sl()));
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
   sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
   sl.registerSingleton<PromoHargaSpesialApi>(PromoHargaSpesialApi(sl()));
@@ -225,6 +235,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(
       PromoBuyXGetYCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
+  sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),
@@ -345,5 +356,16 @@ Future<void> initializeDependencies() async {
       () => RecalculateTaxUseCase(sl()),
       dependsOn: [AppDatabase]);
 
+  sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());
+  sl.registerSingleton<HandleWithoutPromosUseCase>(
+      HandleWithoutPromosUseCase());
+  sl.registerSingleton<HandlePromosUseCase>(HandlePromosUseCase(sl()));
+  sl.registerSingleton<RecalculateReceiptUseCase>(RecalculateReceiptUseCase());
+  sl.registerSingleton<CheckBuyXGetYApplicabilityUseCase>(
+      CheckBuyXGetYApplicabilityUseCase());
+  sl.registerSingleton<HandlePromoBuyXGetYUseCase>(
+      HandlePromoBuyXGetYUseCase());
+  sl.registerSingleton<HandlePromoSpecialPriceUseCase>(
+      HandlePromoSpecialPriceUseCase());
   return;
 }

@@ -361,36 +361,38 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     throw UnimplementedError();
   }
 
-  // @override
-  // Future<ReceiptEntity> recalculateTax(ReceiptEntity receiptEntity) async {
-  //   log("Recalculate Tax Promo_Impl");
-  //   // double? discHeaderManual = receiptEntity.discHeaderManual ?? 0.0;
-  //   // double? discHeaderPromo = receiptEntity.discHeaderPromo ?? 0.0;
-  //   // double subtotal = receiptEntity.subtotal;
-  //   // double discHprctg = (discHeaderManual + discHeaderPromo) / subtotal;
-  //   // double subtotalAfterDiscount = 0;
-  //   // double taxAfterDiscount = 0;
+  @override
+  Future<ReceiptEntity> recalculateTax(ReceiptEntity receiptEntity) async {
+    log("Recalculate Tax Promo_Impl");
+    double? discHeaderManual = receiptEntity.discHeaderManual ?? 0.0;
+    double? discHeaderPromo = receiptEntity.discHeaderPromo ?? 0.0;
+    double subtotal = receiptEntity.subtotal;
+    double discHprctg = (discHeaderManual) / (subtotal - discHeaderPromo);
+    double subtotalAfterDiscount = 0;
+    double taxAfterDiscount = 0;
 
-  //   // log("RE - $receiptEntity");
-  //   // log("RE - Subtotal - ${receiptEntity.subtotal}");
-  //   // log("discHprctg - $discHprctg");
+    log("RE - $receiptEntity");
+    log("RE - Subtotal - ${receiptEntity.subtotal}");
+    log("discHprctg - $discHprctg");
 
-  //   // for (final item in receiptEntity.receiptItems) {
-  //   //   item.discHeaderAmount = discHprctg * item.totalGross;
-  //   //   item.subtotalAfterDiscHeader =
-  //   //       (item.totalGross) - (item.discHeaderAmount ?? 0);
-  //   //   item.taxAmount =
-  //   //       item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
-  //   //   subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
-  //   //   taxAfterDiscount += item.taxAmount;
-  //   //   log("Item - $item");
-  //   // }
-  //   // // receiptEntity.subtotal = subtotalAfterDiscount;
-  //   // receiptEntity.taxAmount = taxAfterDiscount;
-  //   // receiptEntity.grandTotal = subtotalAfterDiscount + taxAfterDiscount;
-  //   // log("REDM - ${receiptEntity.subtotal}");
+    for (final item in receiptEntity.receiptItems) {
+      item.discHeaderAmount =
+          discHprctg * (item.totalGross - (item.discAmount ?? 0));
+      item.subtotalAfterDiscHeader = item.totalGross -
+          (item.discAmount ?? 0) -
+          (item.discHeaderAmount ?? 0);
+      item.taxAmount =
+          item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
+      subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
+      taxAfterDiscount += item.taxAmount;
+      log("Item - $item");
+    }
+    // receiptEntity.subtotal = subtotalAfterDiscount;
+    receiptEntity.taxAmount = taxAfterDiscount;
+    receiptEntity.grandTotal = subtotalAfterDiscount + taxAfterDiscount;
+    log("REDM - ${receiptEntity.subtotal}");
 
-  //   // // receiptEntity = receiptEntity.copyWith(totalTax: totalTax);
-  //   return receiptEntity;
-  // }
+    // receiptEntity = receiptEntity.copyWith(totalTax: totalTax);
+    return receiptEntity;
+  }
 }

@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -190,7 +189,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                   .read<ReceiptCubit>()
                                   .updateTotalAmountFromDiscount(
                                       widget.discountValue);
-                              context.goNamed(RouteConstants.sales);
+                              context.pop();
+                              context.pop();
                             } else {
                               showDialog(
                                 context: context,
