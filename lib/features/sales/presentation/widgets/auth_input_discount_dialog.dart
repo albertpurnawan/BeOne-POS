@@ -9,7 +9,6 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
@@ -29,20 +28,32 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   final prefs = GetIt.instance<SharedPreferences>();
   bool _obscureText = true;
 
-  Future<bool> checkPassword(String username, String password) async {
+  Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
-
-    await GetIt.instance<AuthStoreApi>().authUser(username, hashedPassword);
+    String check = "";
 
     final UserModel? user = await GetIt.instance<AppDatabase>()
         .userDao
         .readByUsername(username, null);
 
-    if (user != null && user.password == hashedPassword) {
-      return true;
-    }
+    if (user != null) {
+      final tastr = await GetIt.instance<AppDatabase>()
+          .authStoreDao
+          .readByTousrId(user.docId, null);
 
-    return false;
+      if (tastr != null && tastr.tousrdocid == user.docId) {
+        if (user.password == hashedPassword) {
+          check = "Success";
+        } else {
+          check = "Wrong Password";
+        }
+      } else {
+        check = "Unauthorized";
+      }
+    } else {
+      check = "Unauthorized";
+    }
+    return check;
   }
 
   @override
@@ -180,24 +191,40 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
                             if (!formKey.currentState!.validate()) return;
-                            bool passwordCorrect = await checkPassword(
+                            String passwordCorrect = await checkPassword(
                                 usernameController.text,
                                 passwordController.text);
-
-                            if (passwordCorrect) {
+                            String warning = '';
+                            if (passwordCorrect == "Success") {
                               context
                                   .read<ReceiptCubit>()
                                   .updateTotalAmountFromDiscount(
                                       widget.discountValue);
                               context.pop();
                               context.pop();
-                            } else {
+                            } else if (passwordCorrect == "Wrong Password") {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   title: Text('Invalid Password'),
                                   content: Text(
                                       'Please enter the correct password.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Unauthorized'),
+                                  content: Text('You\'re not authorized.'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {

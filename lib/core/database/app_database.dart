@@ -28,6 +28,7 @@ import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
 // import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/auth_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/authorization_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/cash_register_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/cashier_balance_transaction_dao.dart';
@@ -98,6 +99,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/vendor_group_dao.d
 import 'package:pos_fe/features/sales/data/data_sources/local/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/zipcode_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
+import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
 import 'package:pos_fe/features/sales/data/models/batch_credit_memo.dart';
@@ -310,6 +312,7 @@ class AppDatabase {
   late PromoBuyXGetYGetConditionDao promoBuyXGetYGetConditionDao;
   late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
   late PromosDao promosDao;
+  late AuthStoreDao authStoreDao;
 
   AppDatabase._init();
 
@@ -427,6 +430,7 @@ PRAGMA foreign_keys = ON;
     promoBuyXGetYGetConditionDao = PromoBuyXGetYGetConditionDao(_database!);
     promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
+    authStoreDao = AuthStoreDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
@@ -3163,6 +3167,17 @@ CREATE TABLE $tablePromotions (
   CONSTRAINT `toprm_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toprm_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toprm_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableAuthStore (
+  $uuidDefinition,
+  ${AuthStoreFields.createdate} datetime NOT NULL,
+  ${AuthStoreFields.updatedate} datetime NOT NULL,
+  ${AuthStoreFields.tostrdocid} text NOT NULL,
+  ${AuthStoreFields.tousrdocid} text NOT NULL,
+  $createdAtDefinition
 )
 """);
       });
