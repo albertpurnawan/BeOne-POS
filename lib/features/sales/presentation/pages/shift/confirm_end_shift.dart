@@ -7,8 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -18,57 +16,66 @@ class ConfirmEndShift extends StatelessWidget {
   final CashierBalanceTransactionModel shift;
   final String totalCash;
 
-  ConfirmEndShift(this.shift, this.totalCash, {Key? key})
-      : super(
-          key: key,
-        );
+  ConfirmEndShift(this.shift, this.totalCash, {Key? key}) : super(key: key);
 
   final formKey = GlobalKey<FormState>();
+  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
 
-  Future<bool> checkPassword(String password) async {
-    final String? username = prefs.getString('username');
+  Future<String> checkPassword(String username, String password) async {
     double totalCashDouble =
         double.tryParse(totalCash.replaceAll(',', '')) ?? 0.0;
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
+    String check = "";
 
-    if (username != null) {
-      final UserModel? user = await GetIt.instance<AppDatabase>()
-          .userDao
-          .readByUsername(username, null);
+    final UserModel? user = await GetIt.instance<AppDatabase>()
+        .userDao
+        .readByUsername(username, null);
 
-      if (user != null && user.password == hashedPassword) {
-        CashierBalanceTransactionModel closeShift =
-            CashierBalanceTransactionModel(
-          docId: shift.docId,
-          createDate: shift.createDate,
-          updateDate: DateTime.now(),
-          tocsrId: shift.tocsrId,
-          tousrId: shift.tousrId,
-          docNum: shift.docNum,
-          openDate: shift.openDate,
-          openTime: shift.openTime,
-          calcDate: shift.calcDate,
-          calcTime: shift.calcTime,
-          closeDate: DateTime.now(),
-          closeTime: DateTime.now(),
-          timezone: shift.timezone,
-          openValue: shift.openValue,
-          calcValue: shift.calcValue,
-          cashValue: shift.cashValue,
-          closeValue: totalCashDouble,
-          openedbyId: shift.openedbyId,
-          closedbyId: user.docId,
-          approvalStatus: 1,
-        );
+    if (user != null) {
+      final tastr = await GetIt.instance<AppDatabase>()
+          .authStoreDao
+          .readByTousrId(user.docId, null);
 
-        _updateCashierBalanceTransaction(shift.docId, closeShift);
+      if (tastr != null && tastr.tousrdocid == user.docId) {
+        if (user.password == hashedPassword) {
+          CashierBalanceTransactionModel closeShift =
+              CashierBalanceTransactionModel(
+            docId: shift.docId,
+            createDate: shift.createDate,
+            updateDate: DateTime.now(),
+            tocsrId: shift.tocsrId,
+            tousrId: shift.tousrId,
+            docNum: shift.docNum,
+            openDate: shift.openDate,
+            openTime: shift.openTime,
+            calcDate: shift.calcDate,
+            calcTime: shift.calcTime,
+            closeDate: DateTime.now(),
+            closeTime: DateTime.now(),
+            timezone: shift.timezone,
+            openValue: shift.openValue,
+            calcValue: shift.calcValue,
+            cashValue: shift.cashValue,
+            closeValue: totalCashDouble,
+            openedbyId: shift.openedbyId,
+            closedbyId: user.docId,
+            approvalStatus: 1,
+          );
 
-        return true;
+          _updateCashierBalanceTransaction(shift.docId, closeShift);
+          check = "Success";
+        } else {
+          check = "Wrong Password";
+        }
+      } else {
+        check = "Unauthorized";
       }
+    } else {
+      check = "Unauthorized";
     }
-    return false;
+    return check;
   }
 
   void _updateCashierBalanceTransaction(
@@ -80,115 +87,225 @@ class ConfirmEndShift extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      titlePadding: EdgeInsets.all(0),
-      title: Container(
-        decoration: const BoxDecoration(
-          color: ProjectColors.primary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+    final obscureTextNotifier = ValueNotifier<bool>(true);
+
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        title: Container(
+          decoration: const BoxDecoration(
+            color: ProjectColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+          ),
+          padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+          child: const Text(
+            'Confirm Discount',
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          ),
         ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: const Text(
-          'End Shift Confirmation',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-        ),
-      ),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-      ),
-      contentPadding: EdgeInsets.all(0),
-      content: Center(
-        child: Container(
-            color: Color.fromARGB(255, 234, 234, 234),
+        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        contentPadding: const EdgeInsets.all(0),
+        content: SingleChildScrollView(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width * 0.5,
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 15),
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    child: CustomInput(
-                      label: "Password",
-                      obscureText: true,
-                      hint: "Password",
-                      controller: passwordController,
-                      prefixIcon: const Icon(Icons.lock),
-                      validator: (val) => val == null || val.isEmpty
-                          ? "Password is required"
-                          : null,
-                      type: CustomInputType.password,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      child: TextFormField(
+                        controller: usernameController,
+                        autofocus: true,
+                        keyboardType: TextInputType.text,
+                        validator: (val) => val == null || val.isEmpty
+                            ? "Username is required"
+                            : null,
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(fontSize: 20),
+                        decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.all(10),
+                            hintText: "Username",
+                            hintStyle: TextStyle(
+                                fontStyle: FontStyle.italic, fontSize: 20),
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(
+                              Icons.person_4,
+                              size: 20,
+                            )),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    child: CustomButton(
-                      child: const Text("End Shift"),
-                      onTap: () async {
-                        if (!formKey.currentState!.validate()) return;
-                        bool passwordCorrect =
-                            await checkPassword(passwordController.text);
-
-                        if (passwordCorrect) {
-                          await prefs.setBool('isOpen', false);
-                          await prefs.setString('tcsr1Id', "");
-
-                          GetIt.instance<LogoutUseCase>().call();
-
-                          if (!context.mounted) return;
-                          context.goNamed(RouteConstants.welcome);
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text('Invalid Password'),
-                              content:
-                                  Text('Please enter the correct password.'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('OK'),
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: obscureTextNotifier,
+                        builder: (context, obscureText, child) {
+                          return TextFormField(
+                            controller: passwordController,
+                            obscureText: obscureText,
+                            autofocus: true,
+                            keyboardType: TextInputType.text,
+                            validator: (val) => val == null || val.isEmpty
+                                ? "Password is required"
+                                : null,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 20),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(10),
+                              hintText: "Password",
+                              hintStyle: const TextStyle(
+                                  fontStyle: FontStyle.italic, fontSize: 20),
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(
+                                Icons.lock,
+                                size: 20,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  obscureText
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  size: 20,
                                 ),
-                              ],
+                                onPressed: () {
+                                  obscureTextNotifier.value =
+                                      !obscureTextNotifier.value;
+                                },
+                              ),
                             ),
                           );
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                      width: 300,
-                      child: TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(
-                                        color: ProjectColors.primary))),
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.white),
-                            overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.black.withOpacity(.2))),
-                        onPressed: () {
-                          Navigator.of(context).pop();
                         },
-                        child: const Center(
-                            child: Text(
-                          "Cancel",
-                          style: TextStyle(
-                              color: ProjectColors.primary,
-                              fontWeight: FontWeight.w700),
-                        )),
-                      )),
-                ],
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: TextButton(
+                            style: ButtonStyle(
+                                shape: MaterialStatePropertyAll(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: const BorderSide(
+                                            color: ProjectColors.primary))),
+                                backgroundColor: MaterialStateColor.resolveWith(
+                                    (states) => Colors.white),
+                                overlayColor: MaterialStateColor.resolveWith(
+                                    (states) =>
+                                        ProjectColors.primary.withOpacity(.2))),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Center(
+                                child: Text(
+                              "Cancel",
+                              style: TextStyle(color: ProjectColors.primary),
+                            )),
+                          )),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: TextButton(
+                            style: ButtonStyle(
+                                shape: MaterialStatePropertyAll(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: const BorderSide(
+                                            color: ProjectColors.primary))),
+                                backgroundColor: MaterialStateColor.resolveWith(
+                                    (states) => ProjectColors.primary),
+                                overlayColor: MaterialStateColor.resolveWith(
+                                    (states) => Colors.white.withOpacity(.2))),
+                            onPressed: () async {
+                              if (!formKey.currentState!.validate()) return;
+                              String passwordCorrect = await checkPassword(
+                                  usernameController.text,
+                                  passwordController.text);
+                              if (passwordCorrect == "Success") {
+                                await prefs.setBool('isOpen', false);
+                                await prefs.setString('tcsr1Id', "");
+
+                                GetIt.instance<LogoutUseCase>().call();
+
+                                if (!context.mounted) return;
+                                context.goNamed(RouteConstants.welcome);
+                              } else {
+                                final message =
+                                    passwordCorrect == "Wrong Password"
+                                        ? "Invalid Password"
+                                        : "Unauthorized";
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor: Colors.white,
+                                    surfaceTintColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: ProjectColors.primary,
+                                          width: 1),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    title: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.error,
+                                          color: ProjectColors.mediumBlack,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          message,
+                                          style: TextStyle(
+                                            color: ProjectColors.primary,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          'OK',
+                                          style: TextStyle(
+                                            color: ProjectColors.mediumBlack,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Center(
+                                child: Text(
+                              "Confirm",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )),
+            ),
+          ),
+        ),
       ),
     );
   }
