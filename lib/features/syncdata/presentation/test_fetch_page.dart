@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
@@ -22,6 +21,7 @@ import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
 import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
+import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/data/models/preferred_vendor.dart';
 import 'package:pos_fe/features/sales/data/models/price_by_item.dart';
@@ -395,6 +395,7 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<PromoBuyXGetYGetConditionModel> tprb4;
     late List<PromoBuyXGetYCustomerGroupModel> tprb5;
     late List<AuthStoreModel> tastr;
+    late List<NetzmeModel> tntzm;
 
     print("Synching data...");
     try {
@@ -1377,6 +1378,32 @@ class _FetchScreenState extends State<FetchScreen> {
             }
           }
         },
+        () async {
+          try {
+            tntzm = [
+              NetzmeModel(
+                  docId: const Uuid().v4(),
+                  url: "http://tokoapisnap-stg.netzme.com",
+                  clientKey: "pt_bak",
+                  clientSecret: "61272364208846ee9366dc204f81fce6",
+                  privateKey:
+                      "MIIBOgIBAAJBAMjxtB9QVz9KLCe5DAqJoLlz7e9ZhS5EE5YhC0E1F7+a14GLpm7mqcSN0alAmOK5DQZW4JufhzFmDpwB3a4+vskCAwEAAQJAfDYkcILaG64+0yMo1U6zwk9uEdkVYT8FmHS+n0Uxc+cqgs9UGb8uFoZmswGhs5HpfxpgEOckucwqi4SrgqXWMQIhAM4DOyj8SVCbvieRjOruhLjuh6S9wQmingB7A9+b58bVAiEA+bOjL0CothyHnfNgaY2IBT9TIO0FefTE1IfcukbH+iUCIHeyTOdNXlOlieB3owbFOvwwK0O+tLAieecRkniTnyFZAiA5uQsqKzpVDvdSziYlgHBHNkJTRDeV3714nAeskBw+eQIhAKkIuZjqXadPACYDNUXrfm5GGWZ2BKUjujJIZXjaRLnA",
+                  custIdMerchant: "M_b7uJH43W")
+            ];
+            await GetIt.instance<AppDatabase>()
+                .netzmeDao
+                .bulkCreate(data: tntzm);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
       ];
       for (final fetchFunction in fetchFunctions) {
         try {
@@ -1722,23 +1749,22 @@ class _FetchScreenState extends State<FetchScreen> {
   }
 
   Future<String> _fetchSingleData() async {
-    print("CHECK NETZME");
     try {
-      final signature = await GetIt.instance<NetzmeApi>().createSignature();
-      log(signature);
-      final accessToken =
-          await GetIt.instance<NetzmeApi>().requestAccessToken(signature);
-      log(accessToken);
-      final serviceSignature =
-          await GetIt.instance<NetzmeApi>().createSignatureService(accessToken);
-      log(serviceSignature);
-      final transactionQris = await GetIt.instance<NetzmeApi>()
-          .createTransactionQRIS(serviceSignature);
-      log("$transactionQris");
+      // final signature = await GetIt.instance<NetzmeApi>().createSignature();
+      // log(signature);
+      // final accessToken =
+      //     await GetIt.instance<NetzmeApi>().requestAccessToken(signature);
+      // log(accessToken);
+      // final serviceSignature =
+      //     await GetIt.instance<NetzmeApi>().createSignatureService(accessToken);
+      // log(serviceSignature);
+      // final transactionQris = await GetIt.instance<NetzmeApi>()
+      //     .createTransactionQRIS(serviceSignature);
+      // log("$transactionQris");
 
-      print("Data Fetched");
+      // print("Data Fetched");
 
-      return transactionQris;
+      return "";
     } catch (error) {
       handleError(error);
       setState(() {

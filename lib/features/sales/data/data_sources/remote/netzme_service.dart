@@ -6,14 +6,7 @@ import 'package:pos_fe/core/usecases/error_handler.dart';
 
 class NetzmeApi {
   final Dio _dio;
-  String url = "http://tokoapisnap-stg.netzme.com";
-  // String? token;
-  // final SharedPreferences prefs;
-  String clientKey = 'pt_bak';
-  String privateKey =
-      'MIIBOgIBAAJBAMjxtB9QVz9KLCe5DAqJoLlz7e9ZhS5EE5YhC0E1F7+a14GLpm7mqcSN0alAmOK5DQZW4JufhzFmDpwB3a4+vskCAwEAAQJAfDYkcILaG64+0yMo1U6zwk9uEdkVYT8FmHS+n0Uxc+cqgs9UGb8uFoZmswGhs5HpfxpgEOckucwqi4SrgqXWMQIhAM4DOyj8SVCbvieRjOruhLjuh6S9wQmingB7A9+b58bVAiEA+bOjL0CothyHnfNgaY2IBT9TIO0FefTE1IfcukbH+iUCIHeyTOdNXlOlieB3owbFOvwwK0O+tLAieecRkniTnyFZAiA5uQsqKzpVDvdSziYlgHBHNkJTRDeV3714nAeskBw+eQIhAKkIuZjqXadPACYDNUXrfm5GGWZ2BKUjujJIZXjaRLnA';
-  String clientSecret = '61272364208846ee9366dc204f81fce6';
-  String externalId = (Random().nextDouble() * pow(10, 21)).floor().toString();
+  String externalId = '';
   String channelId = '95221';
   String timestamp = '';
   String signature = '';
@@ -51,7 +44,11 @@ class NetzmeApi {
     ));
   }
 
-  Future<String> createSignature() async {
+  Future<String> createSignature(
+    String url,
+    String clientKey,
+    String privateKey,
+  ) async {
     try {
       timestamp = getTimestamp();
       dev.log("Timestamp - $timestamp");
@@ -87,7 +84,12 @@ class NetzmeApi {
     }
   }
 
-  Future<String> requestAccessToken(String xsignature) async {
+  Future<String> requestAccessToken(
+    String url,
+    String clientKey,
+    String privateKey,
+    String xsignature,
+  ) async {
     try {
       final header = {
         "X-TIMESTAMP": timestamp,
@@ -129,7 +131,14 @@ class NetzmeApi {
     }
   }
 
-  Future<String> createSignatureService(String xaccessToken) async {
+  Future<String> createSignatureService(
+    String url,
+    String clientKey,
+    String clientSecret,
+    String privateKey,
+    String xaccessToken,
+    Map<String, dynamic> bodyDetail,
+  ) async {
     try {
       String serviceSignature = "";
       String serviceUrl = "api/v1.0/invoice/create-transaction";
@@ -141,34 +150,6 @@ class NetzmeApi {
         "Content-Type": "application/json",
         "HttpMethod": "POST",
         "EndpointUrl": "/$serviceUrl",
-      };
-
-      partnerReferenceNo = generateRandomString(10);
-
-      final bodyDetail = {
-        "custIdMerchant": "M_b7uJH43W", // constant
-        "partnerReferenceNo": partnerReferenceNo, // no unique cust aka random
-        "amount": {"value": "10000", "currency": "IDR"}, // value grandtotal idr
-        "amountDetail": {
-          "basicAmount": {
-            "value": "10000",
-            "currency": "IDR"
-          }, // total semua item
-          "shippingAmount": {"value": "0", "currency": "IDR"}
-        },
-        "PayMethod": "QRIS", // constant
-        "commissionPercentage": "0",
-        "expireInSecond": "3600",
-        "feeType": "on_buyer",
-        "apiSource": "topup_deposit",
-        "additionalInfo": {
-          "email": "testabc@gmail.com",
-          "notes": "desc",
-          "description": "description",
-          "phoneNumber": "+6285270427851",
-          "imageUrl": "a",
-          "fullname": "Tester 213@"
-        }
       };
 
       final response = await _dio.post(
@@ -200,9 +181,17 @@ class NetzmeApi {
     }
   }
 
-  Future<String> createTransactionQRIS(String xsignature) async {
+  Future<String> createTransactionQRIS(
+    String url,
+    String clientKey,
+    String clientSecret,
+    String privateKey,
+    String xsignature,
+    Map<String, dynamic> bodyDetail,
+  ) async {
     try {
       String transactionQRIS = '';
+      externalId = (Random().nextDouble() * pow(10, 21)).floor().toString();
       final header = {
         "X-TIMESTAMP": timestamp,
         "X-CLIENT-SECRET": clientSecret,
@@ -212,32 +201,6 @@ class NetzmeApi {
         "X-EXTERNAL-ID": externalId,
         "CHANNEL-ID": channelId,
         "X-SIGNATURE": xsignature,
-      };
-
-      final bodyDetail = {
-        "custIdMerchant": "M_b7uJH43W", // constant
-        "partnerReferenceNo": partnerReferenceNo, // no unique cust aka random
-        "amount": {"value": "10000", "currency": "IDR"}, // value grandtotal idr
-        "amountDetail": {
-          "basicAmount": {
-            "value": "10000",
-            "currency": "IDR"
-          }, // total semua item
-          "shippingAmount": {"value": "0", "currency": "IDR"}
-        },
-        "PayMethod": "QRIS", // constant
-        "commissionPercentage": "0",
-        "expireInSecond": "3600",
-        "feeType": "on_buyer",
-        "apiSource": "topup_deposit",
-        "additionalInfo": {
-          "email": "testabc@gmail.com",
-          "notes": "desc",
-          "description": "description",
-          "phoneNumber": "+6285270427851",
-          "imageUrl": "a",
-          "fullname": "Tester 213@"
-        }
       };
 
       final response = await _dio.post(

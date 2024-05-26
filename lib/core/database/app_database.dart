@@ -51,6 +51,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/means_of_payment_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/money_denomination_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/netzme_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pay_means_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/payment_type_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pos_parameter_dao.dart';
@@ -141,6 +142,7 @@ import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_detail.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
+import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
@@ -313,6 +315,7 @@ class AppDatabase {
   late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
   late PromosDao promosDao;
   late AuthStoreDao authStoreDao;
+  late NetzmeDao netzmeDao;
 
   AppDatabase._init();
 
@@ -431,6 +434,7 @@ PRAGMA foreign_keys = ON;
     promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
     authStoreDao = AuthStoreDao(_database!);
+    netzmeDao = NetzmeDao(_database!);
 
     receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
@@ -3177,6 +3181,18 @@ CREATE TABLE $tableAuthStore (
   ${AuthStoreFields.updatedate} datetime NOT NULL,
   ${AuthStoreFields.tostrdocid} text NOT NULL,
   ${AuthStoreFields.tousrdocid} text NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableNetzme (
+  $uuidDefinition,
+  ${NetzmeFields.url} text NOT NULL,
+  ${NetzmeFields.clientKey} text NOT NULL,
+  ${NetzmeFields.clientSecret} text NOT NULL,
+  ${NetzmeFields.privateKey} text NOT NULL,
+  ${NetzmeFields.custIdMerchant} text NOT NULL,
   $createdAtDefinition
 )
 """);
