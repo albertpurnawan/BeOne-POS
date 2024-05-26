@@ -4,7 +4,6 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -194,43 +193,59 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                             String passwordCorrect = await checkPassword(
                                 usernameController.text,
                                 passwordController.text);
-                            String warning = '';
                             if (passwordCorrect == "Success") {
                               context
                                   .read<ReceiptCubit>()
                                   .updateTotalAmountFromDiscount(
                                       widget.discountValue);
-                              context.pop();
-                              context.pop();
-                            } else if (passwordCorrect == "Wrong Password") {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text('Invalid Password'),
-                                  content: Text(
-                                      'Please enter the correct password.'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text('OK'),
-                                    ),
-                                  ],
-                                ),
-                              );
+                              Navigator.of(context).pop(); // Close the dialog
+                              Navigator.of(context)
+                                  .pop(); // Close the previous screen if needed
                             } else {
+                              final message =
+                                  passwordCorrect == "Wrong Password"
+                                      ? "Invalid Password"
+                                      : "Unauthorized";
+                              // ErrorHandler.presentErrorSnackBar(
+                              //     snackBarMessage);
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: Text('Unauthorized'),
-                                  content: Text('You\'re not authorized.'),
+                                  backgroundColor: Colors.white,
+                                  surfaceTintColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: ProjectColors.primary, width: 1),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  title: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.error,
+                                        color: ProjectColors.mediumBlack,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        message,
+                                        style: TextStyle(
+                                          color: ProjectColors.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                       },
-                                      child: Text('OK'),
+                                      child: Text(
+                                        'OK',
+                                        style: TextStyle(
+                                          color: ProjectColors.mediumBlack,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
