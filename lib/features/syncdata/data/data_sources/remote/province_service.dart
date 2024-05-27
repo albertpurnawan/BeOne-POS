@@ -16,9 +16,9 @@ class ProvinceApi {
 
   ProvinceApi(this._dio);
 
-  Future<List<ProvinceModel>> fetchData() async {
+  Future<List<ProvinceModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-PROVINCE";
+      String apiName = "API-TOPRV";
       Map<String, dynamic> exeData = {};
       List<ProvinceModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -42,7 +42,11 @@ class ProvinceApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tenantId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
           };
         }
       }

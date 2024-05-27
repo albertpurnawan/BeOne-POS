@@ -29,35 +29,37 @@ class EmployeeEntity {
   final String empTitle;
   final String empWorkplace;
   final double empDebt;
+  final String form;
 
   EmployeeEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.empCode,
     required this.empName,
     required this.email,
     required this.phone,
     required this.addr1,
-    required this.addr2,
-    required this.addr3,
+    this.addr2,
+    this.addr3,
     required this.city,
-    required this.remarks,
-    required this.toprvId,
-    required this.tocryId,
-    required this.tozcdId,
+    this.remarks,
+    this.toprvId,
+    this.tocryId,
+    this.tozcdId,
     required this.idCard,
     required this.gender,
     required this.birthdate,
     required this.photo,
     required this.joinDate,
-    required this.resignDate,
+    this.resignDate,
     required this.statusActive,
     required this.activated,
     required this.empDept,
     required this.empTitle,
     required this.empWorkplace,
     required this.empDebt,
+    required this.form,
   });
 
   EmployeeEntity copyWith({
@@ -79,7 +81,7 @@ class EmployeeEntity {
     String? idCard,
     String? gender,
     DateTime? birthdate,
-    dynamic photo,
+    dynamic? photo,
     DateTime? joinDate,
     DateTime? resignDate,
     int? statusActive,
@@ -88,6 +90,7 @@ class EmployeeEntity {
     String? empTitle,
     String? empWorkplace,
     double? empDebt,
+    String? form,
   }) {
     return EmployeeEntity(
       docId: docId ?? this.docId,
@@ -117,6 +120,7 @@ class EmployeeEntity {
       empTitle: empTitle ?? this.empTitle,
       empWorkplace: empWorkplace ?? this.empWorkplace,
       empDebt: empDebt ?? this.empDebt,
+      form: form ?? this.form,
     );
   }
 
@@ -149,6 +153,7 @@ class EmployeeEntity {
       'empTitle': empTitle,
       'empWorkplace': empWorkplace,
       'empDebt': empDebt,
+      'form': form,
     };
   }
 
@@ -174,7 +179,7 @@ class EmployeeEntity {
       idCard: map['idCard'] as String,
       gender: map['gender'] as String,
       birthdate: DateTime.fromMillisecondsSinceEpoch(map['birthdate'] as int),
-      photo: map['photo'] != null ? map['photo'] as dynamic : null,
+      photo: map['photo'] as dynamic,
       joinDate: DateTime.fromMillisecondsSinceEpoch(map['joinDate'] as int),
       resignDate: map['resignDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['resignDate'] as int)
@@ -185,6 +190,7 @@ class EmployeeEntity {
       empTitle: map['empTitle'] as String,
       empWorkplace: map['empWorkplace'] as String,
       empDebt: map['empDebt'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -195,7 +201,7 @@ class EmployeeEntity {
 
   @override
   String toString() {
-    return 'EmployeeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, empCode: $empCode, empName: $empName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, idCard: $idCard, gender: $gender, birthdate: $birthdate, photo: $photo, joinDate: $joinDate, resignDate: $resignDate, statusActive: $statusActive, activated: $activated, empDept: $empDept, empTitle: $empTitle, empWorkplace: $empWorkplace, empDebt: $empDebt)';
+    return 'EmployeeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, empCode: $empCode, empName: $empName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, idCard: $idCard, gender: $gender, birthdate: $birthdate, photo: $photo, joinDate: $joinDate, resignDate: $resignDate, statusActive: $statusActive, activated: $activated, empDept: $empDept, empTitle: $empTitle, empWorkplace: $empWorkplace, empDebt: $empDebt, form: $form)';
   }
 
   @override
@@ -228,7 +234,8 @@ class EmployeeEntity {
         other.empDept == empDept &&
         other.empTitle == empTitle &&
         other.empWorkplace == empWorkplace &&
-        other.empDebt == empDebt;
+        other.empDebt == empDebt &&
+        other.form == form;
   }
 
   @override
@@ -259,6 +266,7 @@ class EmployeeEntity {
         empDept.hashCode ^
         empTitle.hashCode ^
         empWorkplace.hashCode ^
-        empDebt.hashCode;
+        empDebt.hashCode ^
+        form.hashCode;
   }
 }

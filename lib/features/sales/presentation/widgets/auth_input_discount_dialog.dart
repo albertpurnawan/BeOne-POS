@@ -4,14 +4,11 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
@@ -31,20 +28,32 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   final prefs = GetIt.instance<SharedPreferences>();
   bool _obscureText = true;
 
-  Future<bool> checkPassword(String username, String password) async {
+  Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
-
-    await GetIt.instance<AuthStoreApi>().authUser(username, hashedPassword);
+    String check = "";
 
     final UserModel? user = await GetIt.instance<AppDatabase>()
         .userDao
         .readByUsername(username, null);
 
-    if (user != null && user.password == hashedPassword) {
-      return true;
-    }
+    if (user != null) {
+      final tastr = await GetIt.instance<AppDatabase>()
+          .authStoreDao
+          .readByTousrId(user.docId, null);
 
-    return false;
+      if (tastr != null && tastr.tousrdocid == user.docId) {
+        if (user.password == hashedPassword) {
+          check = "Success";
+        } else {
+          check = "Wrong Password";
+        }
+      } else {
+        check = "Unauthorized";
+      }
+    } else {
+      check = "Unauthorized";
+    }
+    return check;
   }
 
   @override
@@ -181,42 +190,67 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
-                            try {
-                              if (!formKey.currentState!.validate()) return;
-                              bool passwordCorrect = await checkPassword(
-                                  usernameController.text,
-                                  passwordController.text);
-
-                              if (passwordCorrect) {
-                                await context
-                                    .read<ReceiptCubit>()
-                                    .updateTotalAmountFromDiscount(
-                                        widget.discountValue);
-                                context.pop();
-                                context.pop();
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Text('Invalid Password'),
-                                    content: Text(
-                                        'Please enter the correct password.'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text('OK'),
+                            if (!formKey.currentState!.validate()) return;
+                            String passwordCorrect = await checkPassword(
+                                usernameController.text,
+                                passwordController.text);
+                            if (passwordCorrect == "Success") {
+                              context
+                                  .read<ReceiptCubit>()
+                                  .updateTotalAmountFromDiscount(
+                                      widget.discountValue);
+                              Navigator.of(context).pop(); // Close the dialog
+                              Navigator.of(context)
+                                  .pop(); // Close the previous screen if needed
+                            } else {
+                              final message =
+                                  passwordCorrect == "Wrong Password"
+                                      ? "Invalid Password"
+                                      : "Unauthorized";
+                              // ErrorHandler.presentErrorSnackBar(
+                              //     snackBarMessage);
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  surfaceTintColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: ProjectColors.primary, width: 1),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  title: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.error,
+                                        color: ProjectColors.mediumBlack,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        message,
+                                        style: TextStyle(
+                                          color: ProjectColors.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
                                     ],
                                   ),
-                                );
-                              }
-                            } catch (e) {
-                              context.pop();
-                              context.pop();
-                              ErrorHandler.presentErrorSnackBar(
-                                  context, e.toString());
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        'OK',
+                                        style: TextStyle(
+                                          color: ProjectColors.mediumBlack,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
                             }
                           },
                           child: const Center(

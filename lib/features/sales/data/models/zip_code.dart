@@ -14,6 +14,7 @@ class ZipCodeFields {
     urban,
     subDistrict,
     toprvId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -25,6 +26,7 @@ class ZipCodeFields {
   static const String urban = "urban";
   static const String subDistrict = "subdistrict";
   static const String toprvId = "toprvId";
+  static const String form = "form";
 }
 
 class ZipCodeModel extends ZipCodeEntity implements BaseModel {
@@ -38,6 +40,7 @@ class ZipCodeModel extends ZipCodeEntity implements BaseModel {
     required super.urban,
     required super.subDistrict,
     required super.toprvId,
+    required super.form,
   });
 
   @override
@@ -52,6 +55,7 @@ class ZipCodeModel extends ZipCodeEntity implements BaseModel {
       'urban': urban,
       'subdistrict': subDistrict,
       'toprvId': toprvId,
+      'form': form,
     };
   }
 
@@ -69,6 +73,7 @@ class ZipCodeModel extends ZipCodeEntity implements BaseModel {
       subDistrict:
           map['subdistrict'] != null ? map['subdistrict'] as String : "",
       toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -90,6 +95,7 @@ class ZipCodeModel extends ZipCodeEntity implements BaseModel {
       urban: entity.urban,
       subDistrict: entity.subDistrict,
       toprvId: entity.toprvId,
+      form: entity.form,
     );
   }
 }

@@ -46,6 +46,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1Id = prefs.getString('tcsr1Id');
 
+      double promosDiscountAmount = 0;
+      for (final prm in receiptEntity.promos) {
+        log("prm - ${prm.discAmount}");
+        promosDiscountAmount += prm.discAmount!;
+      }
+
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
         createDate: null, // null kah? ini kan bosr punya
@@ -59,8 +65,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         timezone: "GMT+07",
         remarks: null, // sementara hardcode
         subTotal: receiptEntity.subtotal,
-        discPrctg: 0,
-        discAmount: 0,
+        discPrctg: receiptEntity.discPrctg ?? 0,
+        discAmount: (receiptEntity.discHeaderManual ?? 0) +
+            (receiptEntity.discHeaderPromo ?? 0) +
+            promosDiscountAmount,
         discountCard: 0,
         coupon: "",
         discountCoupun: 0,
@@ -77,8 +85,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: tcsr1Id, // get di sini
-        discHeaderManual: 0, // get di sini
-        discHeaderPromo: 0, // get di sini
+        discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
+        discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
         syncToBos: 0, // get di sini
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
@@ -101,12 +109,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           toitmId: e.itemEntity.toitmId,
           quantity: e.quantity,
           sellingPrice: e.sellingPrice,
-          discPrctg: 0,
-          discAmount: 0,
+          discPrctg: e.discPrctg ?? 0,
+          discAmount: e.discAmount ?? 0,
           totalAmount: e.totalAmount,
           taxPrctg: e.itemEntity.taxRate,
-          promotionType: "",
-          promotionId: "",
+          promotionType: "", // kalau promo > 1?
+          promotionId: "", // kalau promo > 1?
           remarks: null,
           editTime: DateTime.now(), // ?
           cogs: 0,
@@ -118,10 +126,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           includeTax: e.itemEntity.includeTax, // ??
           tovenId: e.itemEntity.tovenId, // belum ada
           tbitmId: e.itemEntity.tbitmId,
-          discHeaderAmount: 0, //get disini
-          subtotalAfterDiscHeader: 0, //get disini
+          discHeaderAmount: e.discHeaderAmount, //get disini
+          subtotalAfterDiscHeader: e.subtotalAfterDiscHeader, //get disini
         );
       }).toList();
+
+      log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
 
       await _appDatabase.invoiceDetailDao
           .bulkCreate(data: invoiceDetailModels, txn: txn);
@@ -339,6 +349,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         totalVoucher: totalVoucherAmount,
         totalNonVoucher: invoiceHeaderModel.grandTotal - totalVoucherAmount,
         promos: promoModels,
+        discHeaderManual: invoiceHeaderModel.discHeaderManual,
+        discHeaderPromo: invoiceHeaderModel.discHeaderPromo,
       );
     });
 

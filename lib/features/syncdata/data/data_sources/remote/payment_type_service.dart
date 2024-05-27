@@ -10,14 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentTypeApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   PaymentTypeApi(this._dio);
 
-  Future<List<PaymentTypeModel>> fetchData() async {
+  Future<List<PaymentTypeModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-PAYMENTTYPE";
+      String apiName = "API-TOPMT";
       Map<String, dynamic> exeData = {};
       List<PaymentTypeModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -25,6 +26,7 @@ class PaymentTypeApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +40,14 @@ class PaymentTypeApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
+          };
         }
       }
 
@@ -49,7 +58,7 @@ class PaymentTypeApi {
           }));
 
       if (resp.data['data'].isNotEmpty) {
-        log("--- Currency ---");
+        log("--- PAY TYPE ---");
         log(resp.data['data'][0].toString());
 
         List<PaymentTypeModel> data = (resp.data['data'] as List)

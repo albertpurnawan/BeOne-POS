@@ -13,6 +13,7 @@ class CountryFields {
     descriptionFrgn,
     phoneCode,
     tcurrId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -23,6 +24,7 @@ class CountryFields {
   static const String descriptionFrgn = "descriptionfrgn";
   static const String phoneCode = "phonecode";
   static const String tcurrId = "tcurrId";
+  static const String form = "form";
 }
 
 class CountryModel extends CountryEntity implements BaseModel {
@@ -35,6 +37,7 @@ class CountryModel extends CountryEntity implements BaseModel {
     required super.descriptionFrgn,
     required super.phoneCode,
     required super.tcurrId,
+    required super.form,
   });
 
   @override
@@ -48,6 +51,7 @@ class CountryModel extends CountryEntity implements BaseModel {
       'descriptionfrgn': descriptionFrgn,
       'phonecode': phoneCode,
       'tcurrId': tcurrId,
+      'form': form,
     };
   }
 
@@ -70,6 +74,7 @@ class CountryModel extends CountryEntity implements BaseModel {
       descriptionFrgn: map['descriptionfrgn'] as String,
       phoneCode: map['phonecode'] as String,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -83,6 +88,7 @@ class CountryModel extends CountryEntity implements BaseModel {
       descriptionFrgn: entity.descriptionFrgn,
       phoneCode: entity.phoneCode,
       tcurrId: entity.tcurrId,
+      form: entity.form,
     );
   }
 }

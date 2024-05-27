@@ -15,6 +15,7 @@ class ItemBarcodesFields {
     quantity,
     touomId,
     dflt,
+    form,
   ];
 
   static const String docId = 'docid';
@@ -27,6 +28,7 @@ class ItemBarcodesFields {
   static const String quantity = 'quantity';
   static const String touomId = 'touomId';
   static const String dflt = 'dflt';
+  static const String form = 'form';
 }
 
 class ItemBarcodeModel extends ItemBarcodeEntity implements BaseModel {
@@ -41,6 +43,7 @@ class ItemBarcodeModel extends ItemBarcodeEntity implements BaseModel {
     required super.quantity,
     required super.touomId,
     required super.dflt,
+    required super.form,
   });
 
   factory ItemBarcodeModel.fromMapRemote(Map<String, dynamic> map) {
@@ -65,6 +68,7 @@ class ItemBarcodeModel extends ItemBarcodeEntity implements BaseModel {
       'quantity': quantity,
       'touomId': touomId,
       'dflt': dflt,
+      'form': form,
     };
   }
 
@@ -82,6 +86,7 @@ class ItemBarcodeModel extends ItemBarcodeEntity implements BaseModel {
       quantity: map['quantity'] as double,
       touomId: map['touomId'] != null ? map['touomId'] as String : null,
       dflt: map['dflt'] != null ? map['dflt'] as int : null,
+      form: map['form'] as String,
     );
   }
 
@@ -97,6 +102,7 @@ class ItemBarcodeModel extends ItemBarcodeEntity implements BaseModel {
       quantity: entity.quantity,
       touomId: entity.touomId,
       dflt: entity.dflt,
+      form: entity.form,
     );
   }
 }

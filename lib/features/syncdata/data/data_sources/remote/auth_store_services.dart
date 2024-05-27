@@ -1,8 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,22 +13,22 @@ class AuthStoreApi {
   final Dio _dio;
   String? url;
   String? token;
+  String? tenantId;
   String? tostrId;
-  String? username;
-  String? password;
 
   AuthStoreApi(this._dio);
 
-  Future<String> authUser(String username, String password) async {
+  Future<List<AuthStoreModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-STOREAUTH";
+      String apiName = "API-TASTR";
       Map<String, dynamic> exeData = {};
-      String check;
+      List<AuthStoreModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
@@ -40,7 +43,12 @@ class AuthStoreApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId, username, password]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              tostrId,
+            ]
           };
         }
       }
@@ -51,13 +59,17 @@ class AuthStoreApi {
             'Authorization': 'Bearer $token',
           }));
 
-      if (resp.statusMessage == 'OK') {
-        check = "Success Auth";
-      } else {
-        check = "Auth Failed";
+      if (resp.data['data'].isNotEmpty) {
+        log("--- Auth Store ---");
+        log(resp.data['data'][0].toString());
+
+        List<AuthStoreModel> data = (resp.data['data'] as List)
+            .map((e) => AuthStoreModel.fromMap(e))
+            .toList();
+        allData.addAll(data);
       }
 
-      return check;
+      return allData;
     } catch (err) {
       handleError(err);
       rethrow;

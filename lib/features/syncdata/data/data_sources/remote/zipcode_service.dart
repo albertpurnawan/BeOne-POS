@@ -16,13 +16,14 @@ class ZipcodeApi {
 
   ZipcodeApi(this._dio);
 
-  Future<List<ZipCodeModel>> fetchData() async {
+  Future<List<ZipCodeModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-ZIPCODE";
+      String apiName = "API-TOZCD";
       Map<String, dynamic> exeData = {};
       List<ZipCodeModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -42,7 +43,11 @@ class ZipcodeApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tenantId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
           };
         }
       }

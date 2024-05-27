@@ -10,14 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PricelistPeriodApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   PricelistPeriodApi(this._dio);
 
-  Future<List<PricelistPeriodModel>> fetchData() async {
+  Future<List<PricelistPeriodModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-PRICEPERIOD";
+      String apiName = "API-TPLN1";
       Map<String, dynamic> exeData = {};
       List<PricelistPeriodModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -25,6 +26,7 @@ class PricelistPeriodApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +40,14 @@ class PricelistPeriodApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
+          };
         }
       }
 

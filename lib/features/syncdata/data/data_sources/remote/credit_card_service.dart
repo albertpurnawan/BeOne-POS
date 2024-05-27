@@ -10,14 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CreditCardApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   CreditCardApi(this._dio);
 
-  Future<List<CreditCardModel>> fetchData() async {
+  Future<List<CreditCardModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-CREDITCARD";
+      String apiName = "API-TPMT2";
       Map<String, dynamic> exeData = {};
       List<CreditCardModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -25,6 +26,7 @@ class CreditCardApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +40,14 @@ class CreditCardApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
+          };
         }
       }
 

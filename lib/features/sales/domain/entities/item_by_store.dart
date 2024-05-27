@@ -17,23 +17,25 @@ class ItemByStoreEntity {
   final double? marginPrice;
   final int? multiplyOrder;
   final double? price;
+  final String form;
 
   ItemByStoreEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toitmId,
-    required this.tostrId,
+    this.updateDate,
+    this.toitmId,
+    this.tostrId,
     required this.statusActive,
     required this.activated,
-    required this.tovatId,
-    required this.tovatIdPur,
-    required this.maxStock,
-    required this.minStock,
-    required this.marginPercentage,
-    required this.marginPrice,
-    required this.multiplyOrder,
-    required this.price,
+    this.tovatId,
+    this.tovatIdPur,
+    this.maxStock,
+    this.minStock,
+    this.marginPercentage,
+    this.marginPrice,
+    this.multiplyOrder,
+    this.price,
+    required this.form,
   });
 
   ItemByStoreEntity copyWith({
@@ -52,6 +54,7 @@ class ItemByStoreEntity {
     double? marginPrice,
     int? multiplyOrder,
     double? price,
+    String? form,
   }) {
     return ItemByStoreEntity(
       docId: docId ?? this.docId,
@@ -69,6 +72,7 @@ class ItemByStoreEntity {
       marginPrice: marginPrice ?? this.marginPrice,
       multiplyOrder: multiplyOrder ?? this.multiplyOrder,
       price: price ?? this.price,
+      form: form ?? this.form,
     );
   }
 
@@ -89,6 +93,7 @@ class ItemByStoreEntity {
       'marginPrice': marginPrice,
       'multiplyOrder': multiplyOrder,
       'price': price,
+      'form': form,
     };
   }
 
@@ -116,6 +121,7 @@ class ItemByStoreEntity {
       multiplyOrder:
           map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
       price: map['price'] != null ? map['price'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -126,7 +132,7 @@ class ItemByStoreEntity {
 
   @override
   String toString() {
-    return 'ItemByStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, tostrId: $tostrId, statusActive: $statusActive, activated: $activated, tovatId: $tovatId, tovatIdPur: $tovatIdPur, maxStock: $maxStock, minStock: $minStock, marginPercentage: $marginPercentage, marginPrice: $marginPrice, multiplyOrder: $multiplyOrder, price: $price)';
+    return 'ItemByStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, tostrId: $tostrId, statusActive: $statusActive, activated: $activated, tovatId: $tovatId, tovatIdPur: $tovatIdPur, maxStock: $maxStock, minStock: $minStock, marginPercentage: $marginPercentage, marginPrice: $marginPrice, multiplyOrder: $multiplyOrder, price: $price, form: $form)';
   }
 
   @override
@@ -147,7 +153,8 @@ class ItemByStoreEntity {
         other.marginPercentage == marginPercentage &&
         other.marginPrice == marginPrice &&
         other.multiplyOrder == multiplyOrder &&
-        other.price == price;
+        other.price == price &&
+        other.form == form;
   }
 
   @override
@@ -166,6 +173,7 @@ class ItemByStoreEntity {
         marginPercentage.hashCode ^
         marginPrice.hashCode ^
         multiplyOrder.hashCode ^
-        price.hashCode;
+        price.hashCode ^
+        form.hashCode;
   }
 }

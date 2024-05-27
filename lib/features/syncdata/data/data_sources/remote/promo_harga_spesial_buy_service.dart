@@ -10,22 +10,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PromoHargaSpesialBuyApi {
   final Dio _dio;
+  String? tenantId;
   String? tostrId;
   String? url;
   String? token;
 
   PromoHargaSpesialBuyApi(this._dio);
 
-  Future<List<PromoHargaSpesialBuyModel>> fetchData() async {
+  Future<List<PromoHargaSpesialBuyModel>> initializeData() async {
     try {
-      String apiName = "API-SPECIALPRICE1";
+      String apiName = "API-TPSB1";
       Map<String, dynamic> exeData = {};
       List<PromoHargaSpesialBuyModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
@@ -38,7 +41,12 @@ class PromoHargaSpesialBuyApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId]
+            "parameter": [
+              tenantId,
+              date,
+              date,
+              tostrId,
+            ]
           };
         }
       }

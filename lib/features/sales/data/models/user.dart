@@ -18,6 +18,7 @@ class UserFields {
     superUser,
     userType,
     tostrId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -33,6 +34,7 @@ class UserFields {
   static const String superUser = "superuser";
   static const String userType = "usertype";
   static const String tostrId = "tostrId";
+  static const String form = "form";
 }
 
 class UserModel extends UserEntity implements BaseModel {
@@ -50,6 +52,7 @@ class UserModel extends UserEntity implements BaseModel {
     required super.superUser,
     required super.userType,
     required super.tostrId,
+    required super.form,
   });
 
   @override
@@ -68,6 +71,7 @@ class UserModel extends UserEntity implements BaseModel {
       'superuser': superUser,
       'usertype': userType,
       'tostrId': tostrId,
+      'form': form,
     };
   }
 
@@ -88,6 +92,7 @@ class UserModel extends UserEntity implements BaseModel {
       superUser: map['superuser'] as int,
       userType: map['usertype'] != null ? map['usertype'] as int : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -115,6 +120,7 @@ class UserModel extends UserEntity implements BaseModel {
       superUser: entity.superUser,
       userType: entity.userType,
       tostrId: entity.tostrId,
+      form: entity.form,
     );
   }
 }

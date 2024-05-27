@@ -11,17 +11,19 @@ class ItemCategoryEntity {
   final String? parentId;
   final int level;
   final String? phir1Id;
+  final String form;
 
   ItemCategoryEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.catCode,
     required this.catName,
     required this.catNameFrgn,
-    required this.parentId,
+    this.parentId,
     required this.level,
-    required this.phir1Id,
+    this.phir1Id,
+    required this.form,
   });
 
   ItemCategoryEntity copyWith({
@@ -34,6 +36,7 @@ class ItemCategoryEntity {
     String? parentId,
     int? level,
     String? phir1Id,
+    String? form,
   }) {
     return ItemCategoryEntity(
       docId: docId ?? this.docId,
@@ -45,6 +48,7 @@ class ItemCategoryEntity {
       parentId: parentId ?? this.parentId,
       level: level ?? this.level,
       phir1Id: phir1Id ?? this.phir1Id,
+      form: form ?? this.form,
     );
   }
 
@@ -59,6 +63,7 @@ class ItemCategoryEntity {
       'parentId': parentId,
       'level': level,
       'phir1Id': phir1Id,
+      'form': form,
     };
   }
 
@@ -75,6 +80,7 @@ class ItemCategoryEntity {
       parentId: map['parentId'] != null ? map['parentId'] as String : null,
       level: map['level'] as int,
       phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -85,7 +91,7 @@ class ItemCategoryEntity {
 
   @override
   String toString() {
-    return 'ItemCategoryEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, catCode: $catCode, catName: $catName, catNameFrgn: $catNameFrgn, parentId: $parentId, level: $level, phir1Id: $phir1Id)';
+    return 'ItemCategoryEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, catCode: $catCode, catName: $catName, catNameFrgn: $catNameFrgn, parentId: $parentId, level: $level, phir1Id: $phir1Id, form: $form)';
   }
 
   @override
@@ -100,7 +106,8 @@ class ItemCategoryEntity {
         other.catNameFrgn == catNameFrgn &&
         other.parentId == parentId &&
         other.level == level &&
-        other.phir1Id == phir1Id;
+        other.phir1Id == phir1Id &&
+        other.form == form;
   }
 
   @override
@@ -113,6 +120,7 @@ class ItemCategoryEntity {
         catNameFrgn.hashCode ^
         parentId.hashCode ^
         level.hashCode ^
-        phir1Id.hashCode;
+        phir1Id.hashCode ^
+        form.hashCode;
   }
 }

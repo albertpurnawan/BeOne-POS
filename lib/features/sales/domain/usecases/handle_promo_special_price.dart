@@ -2,13 +2,11 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 
 class HandlePromoSpecialPriceUseCase

@@ -27,6 +27,12 @@ abstract class Helpers {
     return stringVal.substring(0, i);
   }
 
+  static String revertMoneyToString(double value) {
+    int intValue = value.toInt();
+    String stringValue = intValue.toString();
+    return stringValue;
+  }
+
   static Future<T?> showDialog<T>(BuildContext context,
       {EdgeInsetsGeometry? padding, required Widget child}) async {
     if (kIsWeb) {

@@ -29,35 +29,17 @@ class VendorEntity {
   // final int activated;
   // final String? tohemId;
   // final int sync;
+  final String form;
 
   VendorEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.vendCode,
     required this.vendName,
-    required this.tovdgId,
-    // required this.idCard,
-    // required this.taxNo,
-    // required this.gender,
-    // required this.birthdate,
-    // required this.addr1,
-    // required this.addr2,
-    // required this.addr3,
-    // required this.city,
-    // required this.toprvId,
-    // required this.tocryId,
-    // required this.tozcdId,
-    // required this.phone,
-    // required this.email,
-    required this.remarks,
-    // required this.toptrId,
-    // required this.toplnId,
-    // required this.maxDiscount,
-    // required this.statusActive,
-    // required this.activated,
-    // required this.tohemId,
-    // required this.sync,
+    this.tovdgId,
+    this.remarks,
+    required this.form,
   });
 
   VendorEntity copyWith({
@@ -67,27 +49,8 @@ class VendorEntity {
     String? vendCode,
     String? vendName,
     String? tovdgId,
-    // String? idCard,
-    // String? taxNo,
-    // String? gender,
-    // DateTime? birthdate,
-    // String? addr1,
-    // String? addr2,
-    // String? addr3,
-    // String? city,
-    // String? toprvId,
-    // String? tocryId,
-    // String? tozcdId,
-    // String? phone,
-    // String? email,
     String? remarks,
-    // String? toptrId,
-    // String? toplnId,
-    // double? maxDiscount,
-    // int? statusActive,
-    // int? activated,
-    // String? tohemId,
-    // int? sync,
+    String? form,
   }) {
     return VendorEntity(
       docId: docId ?? this.docId,
@@ -96,27 +59,8 @@ class VendorEntity {
       vendCode: vendCode ?? this.vendCode,
       vendName: vendName ?? this.vendName,
       tovdgId: tovdgId ?? this.tovdgId,
-      // idCard: idCard ?? this.idCard,
-      // taxNo: taxNo ?? this.taxNo,
-      // gender: gender ?? this.gender,
-      // birthdate: birthdate ?? this.birthdate,
-      // addr1: addr1 ?? this.addr1,
-      // addr2: addr2 ?? this.addr2,
-      // addr3: addr3 ?? this.addr3,
-      // city: city ?? this.city,
-      // toprvId: toprvId ?? this.toprvId,
-      // tocryId: tocryId ?? this.tocryId,
-      // tozcdId: tozcdId ?? this.tozcdId,
-      // phone: phone ?? this.phone,
-      // email: email ?? this.email,
       remarks: remarks ?? this.remarks,
-      // toptrId: toptrId ?? this.toptrId,
-      // toplnId: toplnId ?? this.toplnId,
-      // maxDiscount: maxDiscount ?? this.maxDiscount,
-      // statusActive: statusActive ?? this.statusActive,
-      // activated: activated ?? this.activated,
-      // tohemId: tohemId ?? this.tohemId,
-      // sync: sync ?? this.sync,
+      form: form ?? this.form,
     );
   }
 
@@ -128,27 +72,8 @@ class VendorEntity {
       'vendCode': vendCode,
       'vendName': vendName,
       'tovdgId': tovdgId,
-      // 'idCard': idCard,
-      // 'taxNo': taxNo,
-      // 'gender': gender,
-      // 'birthdate': birthdate?.millisecondsSinceEpoch,
-      // 'addr1': addr1,
-      // 'addr2': addr2,
-      // 'addr3': addr3,
-      // 'city': city,
-      // 'toprvId': toprvId,
-      // 'tocryId': tocryId,
-      // 'tozcdId': tozcdId,
-      // 'phone': phone,
-      // 'email': email,
       'remarks': remarks,
-      // 'toptrId': toptrId,
-      // 'toplnId': toplnId,
-      // 'maxDiscount': maxDiscount,
-      // 'statusActive': statusActive,
-      // 'activated': activated,
-      // 'tohemId': tohemId,
-      // 'sync': sync,
+      'form': form,
     };
   }
 
@@ -162,29 +87,8 @@ class VendorEntity {
       vendCode: map['vendCode'] as String,
       vendName: map['vendName'] as String,
       tovdgId: map['tovdgId'] != null ? map['tovdgId'] as String : null,
-      // idCard: map['idCard'] as String,
-      // taxNo: map['taxNo'] as String,
-      // gender: map['gender'] as String,
-      // birthdate: map['birthdate'] != null
-      //     ? DateTime.fromMillisecondsSinceEpoch(map['birthdate'] as int)
-      //     : null,
-      // addr1: map['addr1'] as String,
-      // addr2: map['addr2'] != null ? map['addr2'] as String : null,
-      // addr3: map['addr3'] != null ? map['addr3'] as String : null,
-      // city: map['city'] as String,
-      // toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
-      // tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
-      // tozcdId: map['tozcdId'] != null ? map['tozcdId'] as String : null,
-      // phone: map['phone'] as String,
-      // email: map['email'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      // toptrId: map['toptrId'] != null ? map['toptrId'] as String : null,
-      // toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      // maxDiscount: map['maxDiscount'] as double,
-      // statusActive: map['statusActive'] as int,
-      // activated: map['activated'] as int,
-      // tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      // sync: map['sync'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -195,7 +99,7 @@ class VendorEntity {
 
   @override
   String toString() {
-    return 'VendorEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, vendCode: $vendCode, vendName: $vendName, tovdgId: $tovdgId, remarks: $remarks)';
+    return 'VendorEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, vendCode: $vendCode, vendName: $vendName, tovdgId: $tovdgId, remarks: $remarks, form: $form)';
   }
 
   @override
@@ -208,27 +112,8 @@ class VendorEntity {
         other.vendCode == vendCode &&
         other.vendName == vendName &&
         other.tovdgId == tovdgId &&
-        // other.idCard == idCard &&
-        // other.taxNo == taxNo &&
-        // other.gender == gender &&
-        // other.birthdate == birthdate &&
-        // other.addr1 == addr1 &&
-        // other.addr2 == addr2 &&
-        // other.addr3 == addr3 &&
-        // other.city == city &&
-        // other.toprvId == toprvId &&
-        // other.tocryId == tocryId &&
-        // other.tozcdId == tozcdId &&
-        // other.phone == phone &&
-        // other.email == email &&
-        other.remarks == remarks;
-    // other.toptrId == toptrId &&
-    // other.toplnId == toplnId &&
-    // other.maxDiscount == maxDiscount &&
-    // other.statusActive == statusActive &&
-    // other.activated == activated &&
-    // other.tohemId == tohemId &&
-    // other.sync == sync;
+        other.remarks == remarks &&
+        other.form == form;
   }
 
   @override
@@ -239,26 +124,7 @@ class VendorEntity {
         vendCode.hashCode ^
         vendName.hashCode ^
         tovdgId.hashCode ^
-        // idCard.hashCode ^
-        // taxNo.hashCode ^
-        // gender.hashCode ^
-        // birthdate.hashCode ^
-        // addr1.hashCode ^
-        // addr2.hashCode ^
-        // addr3.hashCode ^
-        // city.hashCode ^
-        // toprvId.hashCode ^
-        // tocryId.hashCode ^
-        // tozcdId.hashCode ^
-        // phone.hashCode ^
-        // email.hashCode ^
-        remarks.hashCode;
-    // toptrId.hashCode ^
-    // toplnId.hashCode ^
-    // maxDiscount.hashCode ^
-    // statusActive.hashCode ^
-    // activated.hashCode ^
-    // tohemId.hashCode ^
-    // sync.hashCode;
+        remarks.hashCode ^
+        form.hashCode;
   }
 }

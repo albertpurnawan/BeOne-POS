@@ -30,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         statusBarColor: ProjectColors.primary,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Setup'),
@@ -78,6 +79,7 @@ class _SettingsFormState extends State<SettingsForm> {
       passwordController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  String dflDate = "2000-01-01 00:00:00";
 
   // needed to change
   String emailAdmin = "interfacing@topgolf.com";
@@ -221,19 +223,14 @@ class _SettingsFormState extends State<SettingsForm> {
                     docId: const Uuid().v4(),
                     createDate: DateTime.now(),
                     updateDate: DateTime.now(),
-                    // gtentId: gtentController.text,
-                    gtentId: "b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb",
-                    // tostrId: tostrController.text,
-                    tostrId: "e24bd658-bfb6-404f-b867-3e294b8d5b0b",
+                    gtentId: gtentController.text,
+                    tostrId: tostrController.text,
                     storeName: "TopGolf's Store 01", //need to edit
-                    // tocsrId: tocsrController.text,
-                    tocsrId: "529c9b55-67c6-47b3-9f9a-74a2b3e485a0",
-                    // baseUrl: urlController.text,
-                    baseUrl: "http://110.239.68.248:8902",
-                    // usernameAdmin: emailController.text,
-                    usernameAdmin: "interfacing@topgolf.com",
-
+                    tocsrId: tocsrController.text,
+                    baseUrl: urlController.text,
+                    usernameAdmin: emailController.text,
                     passwordAdmin: hashedPass,
+                    lastSync: '2000-01-01 00:00:00',
                   );
                   log(topos.toString());
 
@@ -244,18 +241,19 @@ class _SettingsFormState extends State<SettingsForm> {
                   log("TOPOS CREATED");
 
                   Constant.updateTopos(
-                      gtentController.text,
-                      tostrController.text,
-                      tocsrController.text,
-                      urlController.text,
-                      emailAdmin,
-                      passwordAdmin);
+                    gtentController.text,
+                    tostrController.text,
+                    tocsrController.text,
+                    urlController.text,
+                    emailAdmin,
+                    passwordAdmin,
+                    dflDate,
+                  );
 
                   final token = await GetIt.instance<TokenApi>().getToken(
-                      // urlController.text,
-                      "http://110.239.68.248:8902",
-                      "interfacing@topgolf.com",
-                      "BeOne\$\$123");
+                      urlController.text,
+                      emailController.text,
+                      passwordController.text);
                   log("token string");
                   log(token.toString());
 

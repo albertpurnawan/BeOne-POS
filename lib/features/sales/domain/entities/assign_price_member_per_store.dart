@@ -9,15 +9,17 @@ class AssignPriceMemberPerStoreEntity {
   final String? tostrId;
   final int statusActive;
   final int activated;
+  final String form;
 
   AssignPriceMemberPerStoreEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toplnId,
-    required this.tostrId,
+    this.updateDate,
+    this.toplnId,
+    this.tostrId,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   AssignPriceMemberPerStoreEntity copyWith({
@@ -28,6 +30,7 @@ class AssignPriceMemberPerStoreEntity {
     String? tostrId,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return AssignPriceMemberPerStoreEntity(
       docId: docId ?? this.docId,
@@ -37,6 +40,7 @@ class AssignPriceMemberPerStoreEntity {
       tostrId: tostrId ?? this.tostrId,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -49,6 +53,7 @@ class AssignPriceMemberPerStoreEntity {
       'tostrId': tostrId,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -63,6 +68,7 @@ class AssignPriceMemberPerStoreEntity {
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -74,7 +80,7 @@ class AssignPriceMemberPerStoreEntity {
 
   @override
   String toString() {
-    return 'AssignPriceMemberPerStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toplnId: $toplnId, tostrId: $tostrId, statusActive: $statusActive, activated: $activated)';
+    return 'AssignPriceMemberPerStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toplnId: $toplnId, tostrId: $tostrId, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -87,7 +93,8 @@ class AssignPriceMemberPerStoreEntity {
         other.toplnId == toplnId &&
         other.tostrId == tostrId &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -98,6 +105,7 @@ class AssignPriceMemberPerStoreEntity {
         toplnId.hashCode ^
         tostrId.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

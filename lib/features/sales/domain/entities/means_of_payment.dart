@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class MeansOfPaymentEntity {
   final String docId;
@@ -14,6 +15,7 @@ class MeansOfPaymentEntity {
   final int credit;
   final int subType;
   final int validForEmp;
+  final String form;
 
   MeansOfPaymentEntity({
     required this.docId,
@@ -28,6 +30,7 @@ class MeansOfPaymentEntity {
     required this.credit,
     required this.subType,
     required this.validForEmp,
+    required this.form,
   });
 
   MeansOfPaymentEntity copyWith({
@@ -43,6 +46,7 @@ class MeansOfPaymentEntity {
     int? credit,
     int? subType,
     int? validForEmp,
+    String? form,
   }) {
     return MeansOfPaymentEntity(
       docId: docId ?? this.docId,
@@ -57,6 +61,7 @@ class MeansOfPaymentEntity {
       credit: credit ?? this.credit,
       subType: subType ?? this.subType,
       validForEmp: validForEmp ?? this.validForEmp,
+      form: form ?? this.form,
     );
   }
 
@@ -74,6 +79,7 @@ class MeansOfPaymentEntity {
       'credit': credit,
       'subType': subType,
       'validForEmp': validForEmp,
+      'form': form,
     };
   }
 
@@ -93,6 +99,7 @@ class MeansOfPaymentEntity {
       credit: map['credit'] as int,
       subType: map['subType'] as int,
       validForEmp: map['validForEmp'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -103,7 +110,7 @@ class MeansOfPaymentEntity {
 
   @override
   String toString() {
-    return 'MeansOfPaymentEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmtId: $topmtId, mopCode: $mopCode, description: $description, mopAlias: $mopAlias, bankCharge: $bankCharge, consolidation: $consolidation, credit: $credit, subType: $subType, validForEmp: $validForEmp)';
+    return 'MeansOfPaymentEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmtId: $topmtId, mopCode: $mopCode, description: $description, mopAlias: $mopAlias, bankCharge: $bankCharge, consolidation: $consolidation, credit: $credit, subType: $subType, validForEmp: $validForEmp, form: $form)';
   }
 
   @override
@@ -121,7 +128,8 @@ class MeansOfPaymentEntity {
         other.consolidation == consolidation &&
         other.credit == credit &&
         other.subType == subType &&
-        other.validForEmp == validForEmp;
+        other.validForEmp == validForEmp &&
+        other.form == form;
   }
 
   @override
@@ -137,6 +145,7 @@ class MeansOfPaymentEntity {
         consolidation.hashCode ^
         credit.hashCode ^
         subType.hashCode ^
-        validForEmp.hashCode;
+        validForEmp.hashCode ^
+        form.hashCode;
   }
 }

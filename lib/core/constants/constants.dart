@@ -37,12 +37,14 @@ class Constant {
   static String passwordAdmin = "";
 
   static void updateTopos(
-      String tenantId,
-      String storeId,
-      String cashRegisterId,
-      String baseUrl,
-      String emailAdmin,
-      String passwordAdmin) async {
+    String tenantId,
+    String storeId,
+    String cashRegisterId,
+    String baseUrl,
+    String emailAdmin,
+    String passwordAdmin,
+    String defaultDate,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('gtentId', tenantId);
     prefs.setString('tostrId', storeId);
@@ -50,6 +52,7 @@ class Constant {
     prefs.setString('baseUrl', baseUrl);
     prefs.setString('emailAdmin', emailAdmin);
     prefs.setString('passwordAdmin', passwordAdmin);
+    prefs.setString('defaultDate', defaultDate);
 
     gtentId = tenantId;
     tostrId = storeId;

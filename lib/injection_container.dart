@@ -7,6 +7,7 @@ import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/cash_register_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_group_repository_impl.dart';
@@ -244,6 +245,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(
       PromoBuyXGetYCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
+  sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),

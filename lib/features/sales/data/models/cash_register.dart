@@ -22,6 +22,7 @@ class CashRegisterFields {
     strukType,
     bigHeader,
     syncCloud,
+    form,
   ];
 
   static const String docId = "docid";
@@ -41,6 +42,7 @@ class CashRegisterFields {
   static const String strukType = "struktype";
   static const String bigHeader = "bigheader";
   static const String syncCloud = "synccloud";
+  static const String form = "form";
 }
 
 class CashRegisterModel extends CashRegisterEntity implements BaseModel {
@@ -62,6 +64,7 @@ class CashRegisterModel extends CashRegisterEntity implements BaseModel {
     required super.strukType,
     required super.bigHeader,
     required super.syncCloud,
+    required super.form,
   });
 
   @override
@@ -84,6 +87,7 @@ class CashRegisterModel extends CashRegisterEntity implements BaseModel {
       'struktype': strukType,
       'bigheader': bigHeader,
       'synccloud': syncCloud,
+      'form': form,
     };
   }
 
@@ -110,6 +114,7 @@ class CashRegisterModel extends CashRegisterEntity implements BaseModel {
       strukType: map['struktype'] != null ? map['struktype'] as int : null,
       bigHeader: map['bigheader'] != null ? map['bigheader'] as int : null,
       syncCloud: map['synccloud'] != null ? map['synccloud'] as int : null,
+      form: map['form'] as String,
     );
   }
 
@@ -139,6 +144,7 @@ class CashRegisterModel extends CashRegisterEntity implements BaseModel {
       strukType: entity.strukType,
       bigHeader: entity.bigHeader,
       syncCloud: entity.syncCloud,
+      form: entity.form,
     );
   }
 }
