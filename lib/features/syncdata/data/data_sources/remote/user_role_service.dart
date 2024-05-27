@@ -16,14 +16,13 @@ class UserRoleApi {
 
   UserRoleApi(this._dio);
 
-  Future<List<UserRoleModel>> initializeData() async {
+  Future<List<UserRoleModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOROL";
       Map<String, dynamic> exeData = {};
       List<UserRoleModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class UserRoleApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

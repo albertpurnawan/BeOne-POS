@@ -17,14 +17,13 @@ class ItemByStoreApi {
 
   ItemByStoreApi(this._dio);
 
-  Future<List<ItemByStoreModel>> initializeData() async {
+  Future<List<ItemByStoreModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TSITM";
       Map<String, dynamic> exeData = {};
       List<ItemByStoreModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -47,8 +46,8 @@ class ItemByStoreApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
               storeId,
             ]
           };

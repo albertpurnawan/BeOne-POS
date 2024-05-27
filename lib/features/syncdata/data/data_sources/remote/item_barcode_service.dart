@@ -17,14 +17,13 @@ class ItemBarcodeApi {
 
   ItemBarcodeApi(this._dio);
 
-  Future<List<ItemBarcodeModel>> initializeData() async {
+  Future<List<ItemBarcodeModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TBITM";
       Map<String, dynamic> exeData = {};
       List<ItemBarcodeModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -47,8 +46,8 @@ class ItemBarcodeApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
               storeId,
             ]
           };

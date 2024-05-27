@@ -16,7 +16,7 @@ class ZipcodeApi {
 
   ZipcodeApi(this._dio);
 
-  Future<List<ZipCodeModel>> initializeData() async {
+  Future<List<ZipCodeModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOZCD";
       Map<String, dynamic> exeData = {};
@@ -45,8 +45,8 @@ class ZipcodeApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

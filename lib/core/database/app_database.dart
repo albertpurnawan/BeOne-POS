@@ -3211,10 +3211,12 @@ CREATE TABLE $tablePromotions (
         await txn.execute("""
 CREATE TABLE $tableAuthStore (
   $uuidDefinition,
-  ${AuthStoreFields.createdate} datetime NOT NULL,
-  ${AuthStoreFields.updatedate} datetime NOT NULL,
+  ${AuthStoreFields.createDate} datetime NOT NULL,
+  ${AuthStoreFields.updateDate} datetime NOT NULL,
   ${AuthStoreFields.tostrdocid} text NOT NULL,
   ${AuthStoreFields.tousrdocid} text NOT NULL,
+  ${AuthStoreFields.statusActive} int NOT NULL,
+  ${AuthStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
 """);

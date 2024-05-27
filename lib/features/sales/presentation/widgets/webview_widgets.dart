@@ -35,21 +35,8 @@ class _WebViewStackState extends State<WebViewStack> {
           });
           await controller.runJavaScript('''
             (function() {
-              var style = document.createElement('style');
-              style.innerHTML = `
-                body, html {
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 100%;
-                  margin: 0;
-                  overflow: hidden;
-                }
-                body > * {
-                  flex-shrink: 0;
-                }
-              `;
-              document.head.appendChild(style);
+              var height = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+              window.scrollTo(0, (height - window.innerHeight) / 2);
             })();
           ''');
         },
@@ -65,8 +52,8 @@ class _WebViewStackState extends State<WebViewStack> {
       children: [
         Center(
           child: SizedBox(
-            width: 500,
-            height: 600,
+            width: 500, // Specify the width you want
+            height: 700, // Specify the height you want
             child: WebViewWidget(
               controller: controller,
             ),

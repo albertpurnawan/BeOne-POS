@@ -16,14 +16,13 @@ class PricelistPeriodApi {
 
   PricelistPeriodApi(this._dio);
 
-  Future<List<PricelistPeriodModel>> initializeData() async {
+  Future<List<PricelistPeriodModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPLN1";
       Map<String, dynamic> exeData = {};
       List<PricelistPeriodModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class PricelistPeriodApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

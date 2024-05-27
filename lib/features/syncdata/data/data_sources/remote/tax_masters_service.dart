@@ -16,14 +16,13 @@ class TaxMasterApi {
 
   TaxMasterApi(this._dio);
 
-  Future<List<TaxMasterModel>> initializeData() async {
+  Future<List<TaxMasterModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOVAT";
       Map<String, dynamic> exeData = {};
       List<TaxMasterModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -43,7 +42,11 @@ class TaxMasterApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tenantId, date, date]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
           };
         }
       }

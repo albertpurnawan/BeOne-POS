@@ -16,14 +16,13 @@ class PaymentTypeApi {
 
   PaymentTypeApi(this._dio);
 
-  Future<List<PaymentTypeModel>> initializeData() async {
+  Future<List<PaymentTypeModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOPMT";
       Map<String, dynamic> exeData = {};
       List<PaymentTypeModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class PaymentTypeApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

@@ -17,7 +17,7 @@ class ItemMasterApi {
 
   ItemMasterApi(this._dio);
 
-  Future<List<ItemMasterModel>> initializeData() async {
+  Future<List<ItemMasterModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOITM";
       Map<String, dynamic> exeData = {};
@@ -47,8 +47,8 @@ class ItemMasterApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
               storeId,
             ]
           };

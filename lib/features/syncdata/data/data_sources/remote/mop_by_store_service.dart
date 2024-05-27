@@ -17,14 +17,13 @@ class MOPByStoreApi {
 
   MOPByStoreApi(this._dio);
 
-  Future<List<MOPByStoreModel>> initializeData() async {
+  Future<List<MOPByStoreModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPMT3";
       Map<String, dynamic> exeData = {};
       List<MOPByStoreModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -47,8 +46,8 @@ class MOPByStoreApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
               storeId,
             ]
           };

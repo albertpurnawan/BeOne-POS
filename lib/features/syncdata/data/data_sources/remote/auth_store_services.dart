@@ -13,16 +13,14 @@ class AuthStoreApi {
   final Dio _dio;
   String? url;
   String? token;
+  String? tenantId;
   String? tostrId;
-  String? username;
-  String? password;
 
   AuthStoreApi(this._dio);
 
-  Future<List<AuthStoreModel>> authUser(
-      String username, String password) async {
+  Future<List<AuthStoreModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-STOREAUTH";
+      String apiName = "API-TASTR";
       Map<String, dynamic> exeData = {};
       List<AuthStoreModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -30,6 +28,7 @@ class AuthStoreApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
@@ -44,7 +43,12 @@ class AuthStoreApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId, username, password]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              tostrId,
+            ]
           };
         }
       }

@@ -16,14 +16,13 @@ class UoMApi {
 
   UoMApi(this._dio);
 
-  Future<List<UomModel>> initializeData() async {
+  Future<List<UomModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOUOM";
       Map<String, dynamic> exeData = {};
       List<UomModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class UoMApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

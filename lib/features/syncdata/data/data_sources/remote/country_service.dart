@@ -16,14 +16,13 @@ class CountryApi {
 
   CountryApi(this._dio);
 
-  Future<List<CountryModel>> initializeData() async {
+  Future<List<CountryModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOCRY";
       Map<String, dynamic> exeData = {};
       List<CountryModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class CountryApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

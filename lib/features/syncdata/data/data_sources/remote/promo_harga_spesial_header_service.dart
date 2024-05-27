@@ -17,7 +17,7 @@ class PromoHargaSpesialApi {
 
   PromoHargaSpesialApi(this._dio);
 
-  Future<List<PromoHargaSpesialHeaderModel>> initializeData() async {
+  Future<List<PromoHargaSpesialHeaderModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOPSB";
       Map<String, dynamic> exeData = {};
@@ -44,7 +44,7 @@ class PromoHargaSpesialApi {
             "parameter": [
               tenantId,
               date,
-              date,
+              lastSync,
               tostrId,
             ]
           };

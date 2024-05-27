@@ -16,14 +16,13 @@ class MOPApi {
 
   MOPApi(this._dio);
 
-  Future<List<MeansOfPaymentModel>> initializeData() async {
+  Future<List<MeansOfPaymentModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPMT1";
       Map<String, dynamic> exeData = {};
       List<MeansOfPaymentModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -43,7 +42,11 @@ class MOPApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tenantId, date, date]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
           };
         }
       }

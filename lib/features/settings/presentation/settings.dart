@@ -225,7 +225,7 @@ class _SettingsFormState extends State<SettingsForm> {
                   baseUrl: urlController.text,
                   usernameAdmin: emailController.text,
                   passwordAdmin: hashedPass,
-                  lastSync: '',
+                  lastSync: '2000-01-01 00:00:00',
                 );
                 log(topos.toString());
 

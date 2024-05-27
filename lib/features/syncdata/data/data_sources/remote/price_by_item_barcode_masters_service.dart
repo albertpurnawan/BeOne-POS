@@ -16,14 +16,13 @@ class PriceByItemBarcodeApi {
 
   PriceByItemBarcodeApi(this._dio);
 
-  Future<List<PriceByItemBarcodeModel>> initializeData() async {
+  Future<List<PriceByItemBarcodeModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPLN4";
       Map<String, dynamic> exeData = {};
       List<PriceByItemBarcodeModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class PriceByItemBarcodeApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

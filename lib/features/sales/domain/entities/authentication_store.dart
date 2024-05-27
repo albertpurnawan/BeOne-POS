@@ -1,54 +1,69 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+
 class AuthStoreEntity {
-  final String docid;
-  final DateTime createdate;
-  final DateTime updatedate;
+  final String docId;
+  final DateTime createDate;
+  final DateTime? updateDate;
   final String tostrdocid;
   final String tousrdocid;
+  final int statusActive;
+  final String form;
 
   AuthStoreEntity({
-    required this.docid,
-    required this.createdate,
-    required this.updatedate,
+    required this.docId,
+    required this.createDate,
+    required this.updateDate,
     required this.tostrdocid,
     required this.tousrdocid,
+    required this.statusActive,
+    required this.form,
   });
 
   AuthStoreEntity copyWith({
-    String? docid,
-    DateTime? createdate,
-    DateTime? updatedate,
+    String? docId,
+    DateTime? createDate,
+    DateTime? updateDate,
     String? tostrdocid,
     String? tousrdocid,
+    int? statusActive,
+    String? form,
   }) {
     return AuthStoreEntity(
-      docid: docid ?? this.docid,
-      createdate: createdate ?? this.createdate,
-      updatedate: updatedate ?? this.updatedate,
+      docId: docId ?? this.docId,
+      createDate: createDate ?? this.createDate,
+      updateDate: updateDate ?? this.updateDate,
       tostrdocid: tostrdocid ?? this.tostrdocid,
       tousrdocid: tousrdocid ?? this.tousrdocid,
+      statusActive: statusActive ?? this.statusActive,
+      form: form ?? this.form,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docid': docid,
-      'createdate': createdate.millisecondsSinceEpoch,
-      'updatedate': updatedate.millisecondsSinceEpoch,
+      'docId': docId,
+      'createDate': createDate.millisecondsSinceEpoch,
+      'updateDate': updateDate?.millisecondsSinceEpoch,
       'tostrdocid': tostrdocid,
       'tousrdocid': tousrdocid,
+      'statusActive': statusActive,
+      'form': form,
     };
   }
 
   factory AuthStoreEntity.fromMap(Map<String, dynamic> map) {
     return AuthStoreEntity(
-      docid: map['docid'] as String,
-      createdate: DateTime.fromMillisecondsSinceEpoch(map['createdate'] as int),
-      updatedate: DateTime.fromMillisecondsSinceEpoch(map['updatedate'] as int),
+      docId: map['docId'] as String,
+      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       tostrdocid: map['tostrdocid'] as String,
       tousrdocid: map['tousrdocid'] as String,
+      statusActive: map['statusActive'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -59,26 +74,30 @@ class AuthStoreEntity {
 
   @override
   String toString() {
-    return 'AuthStoreEntity(docid: $docid, createdate: $createdate, updatedate: $updatedate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid)';
+    return 'AuthStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid, statusActive: $statusActive, form: $form)';
   }
 
   @override
   bool operator ==(covariant AuthStoreEntity other) {
     if (identical(this, other)) return true;
 
-    return other.docid == docid &&
-        other.createdate == createdate &&
-        other.updatedate == updatedate &&
+    return other.docId == docId &&
+        other.createDate == createDate &&
+        other.updateDate == updateDate &&
         other.tostrdocid == tostrdocid &&
-        other.tousrdocid == tousrdocid;
+        other.tousrdocid == tousrdocid &&
+        other.statusActive == statusActive &&
+        other.form == form;
   }
 
   @override
   int get hashCode {
-    return docid.hashCode ^
-        createdate.hashCode ^
-        updatedate.hashCode ^
+    return docId.hashCode ^
+        createDate.hashCode ^
+        updateDate.hashCode ^
         tostrdocid.hashCode ^
-        tousrdocid.hashCode;
+        tousrdocid.hashCode ^
+        statusActive.hashCode ^
+        form.hashCode;
   }
 }

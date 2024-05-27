@@ -17,14 +17,13 @@ class PreferredVendorApi {
 
   PreferredVendorApi(this._dio);
 
-  Future<List<PreferredVendorModel>> initializeData() async {
+  Future<List<PreferredVendorModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TVITM";
       Map<String, dynamic> exeData = {};
       List<PreferredVendorModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -47,8 +46,8 @@ class PreferredVendorApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
               storeId,
             ]
           };

@@ -16,14 +16,13 @@ class CustomerApi {
 
   CustomerApi(this._dio);
 
-  Future<List<CustomerCstModel>> initializeData() async {
+  Future<List<CustomerCstModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOCUS";
       Map<String, dynamic> exeData = {};
       List<CustomerCstModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class CustomerApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

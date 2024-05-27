@@ -16,14 +16,13 @@ class UserApi {
 
   UserApi(this._dio);
 
-  Future<List<UserModel>> initializeData() async {
+  Future<List<UserModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOUSR";
       Map<String, dynamic> exeData = {};
       List<UserModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class UserApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }

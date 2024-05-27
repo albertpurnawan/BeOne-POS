@@ -81,7 +81,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
           map['usernameadmin'] != null ? map['usernameadmin'] as String : null,
       passwordAdmin:
           map['passwordadmin'] != null ? map['passwordadmin'] as String : null,
-      lastSync: map['lastync'] != null ? map['lastync'] as String : null,
+      lastSync: map['lastsync'] != null ? map['lastsync'] as String : null,
     );
   }
 

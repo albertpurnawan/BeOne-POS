@@ -16,14 +16,13 @@ class VendorGroupApi {
 
   VendorGroupApi(this._dio);
 
-  Future<List<VendorGroupModel>> initializeData() async {
+  Future<List<VendorGroupModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TOVDG";
       Map<String, dynamic> exeData = {};
       List<VendorGroupModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -45,8 +44,8 @@ class VendorGroupApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
             ]
           };
         }
