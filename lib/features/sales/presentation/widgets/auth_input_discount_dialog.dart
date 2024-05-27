@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
@@ -180,35 +181,42 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
-                            if (!formKey.currentState!.validate()) return;
-                            bool passwordCorrect = await checkPassword(
-                                usernameController.text,
-                                passwordController.text);
+                            try {
+                              if (!formKey.currentState!.validate()) return;
+                              bool passwordCorrect = await checkPassword(
+                                  usernameController.text,
+                                  passwordController.text);
 
-                            if (passwordCorrect) {
-                              context
-                                  .read<ReceiptCubit>()
-                                  .updateTotalAmountFromDiscount(
-                                      widget.discountValue);
+                              if (passwordCorrect) {
+                                await context
+                                    .read<ReceiptCubit>()
+                                    .updateTotalAmountFromDiscount(
+                                        widget.discountValue);
+                                context.pop();
+                                context.pop();
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text('Invalid Password'),
+                                    content: Text(
+                                        'Please enter the correct password.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            } catch (e) {
                               context.pop();
                               context.pop();
-                            } else {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text('Invalid Password'),
-                                  content: Text(
-                                      'Please enter the correct password.'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text('OK'),
-                                    ),
-                                  ],
-                                ),
-                              );
+                              ErrorHandler.presentErrorSnackBar(
+                                  context, e.toString());
                             }
                           },
                           child: const Center(

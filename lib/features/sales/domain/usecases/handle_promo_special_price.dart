@@ -141,7 +141,7 @@ class HandlePromoSpecialPriceUseCase
                   sellingPrice: currentReceiptItem.sellingPrice,
                   totalAmount: currentReceiptItem.totalAmount,
                   totalSellBarcode: currentReceiptItem.totalSellBarcode,
-                  promos: [promo],
+                  promos: [promo.copyWith(discAmount: discountBeforeTax)],
                   discAmount: discountBeforeTax,
                 ));
 
@@ -149,8 +149,8 @@ class HandlePromoSpecialPriceUseCase
                 taxAmount += currentReceiptItem.taxAmount;
               } else {
                 log("Promo Not Apllied, Conditions Not Met");
-                final double priceQty =
-                    tpsb1.price * currentReceiptItem.quantity;
+                final double priceQty = currentReceiptItem.itemEntity.price *
+                    currentReceiptItem.quantity;
                 currentReceiptItem.totalSellBarcode = priceQty;
                 currentReceiptItem.totalGross =
                     currentReceiptItem.itemEntity.includeTax == 1
@@ -233,7 +233,7 @@ class HandlePromoSpecialPriceUseCase
                 sellingPrice: currentReceiptItem.sellingPrice,
                 totalAmount: currentReceiptItem.totalAmount,
                 totalSellBarcode: currentReceiptItem.totalSellBarcode,
-                promos: [promo],
+                promos: [promo.copyWith(discAmount: discountBeforeTax)],
                 discAmount: discountBeforeTax,
               ));
 
@@ -266,7 +266,6 @@ class HandlePromoSpecialPriceUseCase
             .readAllByTopsbId(promo.promoId!, null);
 
         double discount = itemEntity.dpp - tpsb1.price;
-        ;
         double discountBeforeTax = 0;
 
         final startHour = promo.startTime.hour;
@@ -329,7 +328,7 @@ class HandlePromoSpecialPriceUseCase
                 ? (priceQty * (100 / (100 + itemEntity.taxRate)))
                 : priceQty;
             final double taxAmountNewItem =
-                totalGross * (itemEntity.taxRate / 100);
+                (totalGross - discountBeforeTax) * (itemEntity.taxRate / 100);
 
             final double totalAmount = totalGross + taxAmountNewItem;
 
@@ -342,7 +341,7 @@ class HandlePromoSpecialPriceUseCase
               sellingPrice: itemWithPromo.price,
               totalAmount: totalAmount,
               totalSellBarcode: totalSellBarcode,
-              promos: [promo],
+              promos: [promo.copyWith(discAmount: discountBeforeTax)],
               discAmount: discountBeforeTax,
             ));
 

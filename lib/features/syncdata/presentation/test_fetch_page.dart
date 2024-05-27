@@ -60,6 +60,7 @@ import 'package:pos_fe/features/sales/data/models/user_role.dart';
 import 'package:pos_fe/features/sales/data/models/vendor.dart';
 import 'package:pos_fe/features/sales/data/models/vendor_group.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
+import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
@@ -1518,19 +1519,26 @@ class _FetchScreenState extends State<FetchScreen> {
         if (isValid) {
           for (final buyCondition in tpdg1) {
             for (final customerGroup in tpdg5) {
-              promos.add(PromotionsModel(
-                docId: const Uuid().v4(),
-                toitmId: null,
-                promoType: 204,
-                promoId: header.docId,
-                date: DateTime.now(),
-                startTime: header.startTime,
-                endTime: header.endTime,
-                tocrgId: customerGroup.tocrgId,
-                promoDescription: header.description,
-                tocatId: buyCondition.tocatId,
-                remarks: null,
-              ));
+              final List<ItemMasterEntity> itemMastersByTocatId =
+                  await GetIt.instance<AppDatabase>()
+                      .itemMasterDao
+                      .readAllByTocatId(tocatId: buyCondition.tocatId!);
+
+              for (final itemMaster in itemMastersByTocatId) {
+                promos.add(PromotionsModel(
+                  docId: const Uuid().v4(),
+                  toitmId: itemMaster.docId,
+                  promoType: 204,
+                  promoId: header.docId,
+                  date: DateTime.now(),
+                  startTime: header.startTime,
+                  endTime: header.endTime,
+                  tocrgId: customerGroup.tocrgId,
+                  promoDescription: header.description,
+                  tocatId: buyCondition.tocatId,
+                  remarks: null,
+                ));
+              }
             }
           }
         }

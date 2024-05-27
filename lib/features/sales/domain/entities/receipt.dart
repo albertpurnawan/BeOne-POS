@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -33,6 +34,7 @@ class ReceiptEntity {
   double? discPrctg;
   double? discHeaderManual;
   double? discHeaderPromo;
+  ReceiptEntity? previousReceiptEntity;
 
   ReceiptEntity({
     required this.docNum,
@@ -58,6 +60,7 @@ class ReceiptEntity {
     this.discPrctg,
     this.discHeaderManual,
     this.discHeaderPromo,
+    this.previousReceiptEntity,
   });
 
   ReceiptEntity copyWith({
@@ -84,11 +87,11 @@ class ReceiptEntity {
     double? discPrctg,
     double? discHeaderManual,
     double? discHeaderPromo,
+    ReceiptEntity? previousReceiptEntity,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
-      receiptItems:
-          receiptItems ?? this.receiptItems.map((e) => e.copyWith()).toList(),
+      receiptItems: receiptItems ?? this.receiptItems,
       mopSelection: mopSelection ?? this.mopSelection,
       customerEntity: customerEntity ?? this.customerEntity,
       employeeEntity: employeeEntity ?? this.employeeEntity,
@@ -110,6 +113,7 @@ class ReceiptEntity {
       discPrctg: discPrctg ?? this.discPrctg,
       discHeaderManual: discHeaderManual ?? this.discHeaderManual,
       discHeaderPromo: discHeaderPromo ?? this.discHeaderPromo,
+      previousReceiptEntity: previousReceiptEntity,
     );
   }
 
@@ -210,7 +214,9 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return 'ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo)';
+    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo,
+    
+    previousReceiptEntity: $previousReceiptEntity)""";
   }
 
   @override
@@ -240,6 +246,7 @@ class ReceiptEntity {
         other.discPrctg == discPrctg &&
         other.discHeaderManual == discHeaderManual &&
         other.discHeaderPromo == discHeaderPromo;
+    // other.previousReceiptEntity == previousReceiptEntity; kalau tidak ada perubahan apa2 previous gak ke emit
   }
 
   @override
@@ -267,5 +274,6 @@ class ReceiptEntity {
         discPrctg.hashCode ^
         discHeaderManual.hashCode ^
         discHeaderPromo.hashCode;
+    // previousReceiptEntity.hashCode;
   }
 }

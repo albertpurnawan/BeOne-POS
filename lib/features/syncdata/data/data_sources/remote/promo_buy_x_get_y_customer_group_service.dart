@@ -48,7 +48,7 @@ class PromoBuyXGetYCustomerGroupApi {
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-
+      log(resp.toString());
       if (resp.data['data'].isNotEmpty) {
         log("--- PROMO BUY X GET Y - CUSTOMER GROUP ---");
         log(resp.data['data'][0].toString());
@@ -64,7 +64,8 @@ class PromoBuyXGetYCustomerGroupApi {
       }
 
       return allData;
-    } catch (err) {
+    } catch (err, s) {
+      log("$err $s");
       handleError(err);
       rethrow;
     }

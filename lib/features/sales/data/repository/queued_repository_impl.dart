@@ -170,6 +170,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
                 100 /
                 (100 + queuedInvoiceDetailModel.taxPrctg),
             includeTax: itemMasterModel.includeTax,
+            tocatId: itemMasterModel.tocatId,
           ),
           sellingPrice: queuedInvoiceDetailModel.sellingPrice,
           totalAmount: queuedInvoiceDetailModel.totalAmount,
@@ -273,6 +274,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
                   100 /
                   (100 + queuedInvoiceDetailModel.taxPrctg),
               includeTax: itemMasterModel.includeTax,
+              tocatId: itemMasterModel.tocatId,
             ),
             sellingPrice: queuedInvoiceDetailModel.sellingPrice,
             totalAmount: queuedInvoiceDetailModel.totalAmount,

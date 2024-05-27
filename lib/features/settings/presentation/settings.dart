@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
@@ -208,48 +209,62 @@ class _SettingsFormState extends State<SettingsForm> {
             child: CustomButton(
               child: const Text("Save"),
               onTap: () async {
-                final hashedPass = md5
-                    .convert(utf8.encode(passwordController.text))
-                    .toString();
+                try {
+                  await prefs.clear();
 
-                final topos = POSParameterModel(
-                  docId: const Uuid().v4(),
-                  createDate: DateTime.now(),
-                  updateDate: DateTime.now(),
-                  gtentId: gtentController.text,
-                  tostrId: tostrController.text,
-                  storeName: "TopGolf's Store 01", //need to edit
-                  tocsrId: tocsrController.text,
-                  baseUrl: urlController.text,
-                  usernameAdmin: emailController.text,
-                  passwordAdmin: hashedPass,
-                );
-                log(topos.toString());
+                  final hashedPass = md5
+                      // .convert(utf8.encode(passwordController.text))
+                      .convert(utf8.encode("BeOne\$\$123"))
+                      .toString();
 
-                await GetIt.instance<AppDatabase>()
-                    .posParameterDao
-                    .create(data: topos);
+                  final topos = POSParameterModel(
+                    docId: const Uuid().v4(),
+                    createDate: DateTime.now(),
+                    updateDate: DateTime.now(),
+                    // gtentId: gtentController.text,
+                    gtentId: "b563ee74-03fd-4ea3-b6a5-0dc0607ef8fb",
+                    // tostrId: tostrController.text,
+                    tostrId: "e24bd658-bfb6-404f-b867-3e294b8d5b0b",
+                    storeName: "TopGolf's Store 01", //need to edit
+                    // tocsrId: tocsrController.text,
+                    tocsrId: "529c9b55-67c6-47b3-9f9a-74a2b3e485a0",
+                    // baseUrl: urlController.text,
+                    baseUrl: "http://110.239.68.248:8902",
+                    // usernameAdmin: emailController.text,
+                    usernameAdmin: "interfacing@topgolf.com",
 
-                log("TOPOS CREATED");
+                    passwordAdmin: hashedPass,
+                  );
+                  log(topos.toString());
 
-                Constant.updateTopos(
-                    gtentController.text,
-                    tostrController.text,
-                    tocsrController.text,
-                    urlController.text,
-                    emailAdmin,
-                    passwordAdmin);
+                  await GetIt.instance<AppDatabase>()
+                      .posParameterDao
+                      .create(data: topos);
 
-                final token = await GetIt.instance<TokenApi>().getToken(
-                    urlController.text,
-                    emailController.text,
-                    passwordController.text);
-                log("token string");
-                log(token.toString());
+                  log("TOPOS CREATED");
 
-                prefs.setString('adminToken', token.toString());
+                  Constant.updateTopos(
+                      gtentController.text,
+                      tostrController.text,
+                      tocsrController.text,
+                      urlController.text,
+                      emailAdmin,
+                      passwordAdmin);
 
-                Navigator.pop(context);
+                  final token = await GetIt.instance<TokenApi>().getToken(
+                      // urlController.text,
+                      "http://110.239.68.248:8902",
+                      "interfacing@topgolf.com",
+                      "BeOne\$\$123");
+                  log("token string");
+                  log(token.toString());
+
+                  prefs.setString('adminToken', token.toString());
+
+                  Navigator.pop(context);
+                } catch (e, s) {
+                  ErrorHandler.presentErrorSnackBar(context, "$e $s");
+                }
               },
             ),
           ),

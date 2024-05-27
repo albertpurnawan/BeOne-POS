@@ -66,43 +66,73 @@ class HandlePromoBuyXGetYUseCase
             e.itemEntity.barcode == conditionAndItemY.itemEntity.barcode);
 
         if (existingReceiptItemY.isEmpty) {
+          final double discAmount = (conditionAndItemY.itemEntity.dpp -
+                  conditionAndItemY
+                      .promoBuyXGetYGetConditionEntity.sellingPrice) *
+              conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+              conditionAndItemY.multiply;
           receiptItemYs.add(
             ReceiptHelper.updateReceiptItemAggregateFields(
                 ReceiptHelper.convertItemEntityToReceiptItemEntity(
                     conditionAndItemY.itemEntity,
                     conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                         conditionAndItemY.multiply)
-                  ..discAmount = (conditionAndItemY.itemEntity.dpp -
+                  ..discAmount = discAmount
+                  ..discPrctg = 0
+                  ..promos = [
+                    params.promo.copyWith(
+                        promotionDetails: PromoBuyXGetYDetails(
+                            applyCount: 1, xGroups: [], yGroups: []),
+                        discAmount: discAmount)
+                  ]),
+          );
+        } else {
+          final double thisDiscAmount = existingReceiptItemY.first.discAmount ==
+                  null
+              ? (existingReceiptItemY.first.itemEntity.dpp -
+                      conditionAndItemY
+                          .promoBuyXGetYGetConditionEntity.sellingPrice) *
+                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+                  conditionAndItemY.multiply
+              : ((existingReceiptItemY.first.itemEntity.dpp -
+                      conditionAndItemY
+                          .promoBuyXGetYGetConditionEntity.sellingPrice) *
+                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+                  conditionAndItemY.multiply);
+          final double discAmount = existingReceiptItemY.first.discAmount ==
+                  null
+              ? (existingReceiptItemY.first.itemEntity.dpp -
+                      conditionAndItemY
+                          .promoBuyXGetYGetConditionEntity.sellingPrice) *
+                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+                  conditionAndItemY.multiply
+              : existingReceiptItemY.first.discAmount! +
+                  ((existingReceiptItemY.first.itemEntity.dpp -
                           conditionAndItemY
                               .promoBuyXGetYGetConditionEntity.sellingPrice) *
                       conditionAndItemY
                           .promoBuyXGetYGetConditionEntity.quantity *
-                      conditionAndItemY.multiply
-                  ..discPrctg = 0
-                  ..promos = [
-                    params.promo
-                      ..promotionDetails = PromoBuyXGetYDetails(
-                          applyCount: 1, xGroups: [], yGroups: [])
-                  ]),
-          );
-        } else {
+                      conditionAndItemY.multiply);
+
           List<PromotionsEntity> finalPromos = [];
           if (existingReceiptItemY.first.promos
               .where((element) => element.promoId == params.promo.promoId)
               .isEmpty) {
             finalPromos = [
               ...existingReceiptItemY.first.promos,
-              params.promo
-                ..promotionDetails = PromoBuyXGetYDetails(
-                    applyCount: 1, xGroups: [], yGroups: [])
+              params.promo.copyWith(
+                  discAmount: thisDiscAmount,
+                  promotionDetails: PromoBuyXGetYDetails(
+                      applyCount: 1, xGroups: [], yGroups: []))
             ];
           } else {
             finalPromos = existingReceiptItemY.first.promos.map((e) {
               if (e.promoId == params.promo.promoId) {
-                return e
-                  ..promotionDetails =
-                      ((e.promotionDetails as PromoBuyXGetYDetails)
-                        ..applyCount += 1);
+                return e.copyWith(
+                    discAmount: thisDiscAmount,
+                    promotionDetails:
+                        ((e.promotionDetails as PromoBuyXGetYDetails)
+                          ..applyCount += 1));
               }
 
               return e;
@@ -115,20 +145,7 @@ class HandlePromoBuyXGetYUseCase
               quantity: existingReceiptItemY.first.quantity +
                   conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                       conditionAndItemY.multiply,
-              discAmount: existingReceiptItemY.first.discAmount == null
-                  ? (existingReceiptItemY.first.itemEntity.dpp -
-                          conditionAndItemY
-                              .promoBuyXGetYGetConditionEntity.sellingPrice) *
-                      conditionAndItemY
-                          .promoBuyXGetYGetConditionEntity.quantity *
-                      conditionAndItemY.multiply
-                  : existingReceiptItemY.first.discAmount! +
-                      ((existingReceiptItemY.first.itemEntity.dpp -
-                              conditionAndItemY.promoBuyXGetYGetConditionEntity
-                                  .sellingPrice) *
-                          conditionAndItemY
-                              .promoBuyXGetYGetConditionEntity.quantity *
-                          conditionAndItemY.multiply),
+              discAmount: discAmount,
               promos: finalPromos,
             )),
           );

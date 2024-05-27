@@ -18,7 +18,8 @@ class ItemFields {
     includeTax,
     tovatId,
     taxRate,
-    dpp
+    dpp,
+    tocatId,
   ];
 
   static const String id = "_id";
@@ -35,6 +36,7 @@ class ItemFields {
   static const String tovatId = "tovatId";
   static const String taxRate = "taxrate";
   static const String dpp = "dpp";
+  static const String tocatId = "tocatId";
 }
 
 class ItemModel extends ItemEntity implements BaseModel {
@@ -53,6 +55,7 @@ class ItemModel extends ItemEntity implements BaseModel {
     required super.taxRate,
     required super.dpp,
     required super.includeTax,
+    required super.tocatId,
   });
 
   @override
@@ -72,6 +75,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       'tovatId': tovatId,
       'taxrate': taxRate,
       'dpp': dpp,
+      'tocatId': tocatId
     };
   }
 
@@ -91,6 +95,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       tovatId: map['tovatId'] as String,
       taxRate: map['taxrate'] as double,
       dpp: map['dpp'] as double,
+      tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
     );
   }
 
@@ -110,6 +115,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       tovatId: entity.tovatId,
       taxRate: entity.taxRate,
       dpp: entity.dpp,
+      tocatId: entity.tocatId,
     );
   }
 }

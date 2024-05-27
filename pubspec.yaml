@@ -92,6 +92,7 @@ flutter:
     - assets/images/inventory.svg
     - assets/images/icon-success.svg
     - assets/images/supermarket-illustration.png
+    - assets/images/caution.png
     - assets/ic_launcher.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
