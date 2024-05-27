@@ -16,6 +16,7 @@ class ItemEntity {
   final String tovatId;
   final double taxRate;
   final double dpp;
+  final String? tocatId;
 
   ItemEntity({
     required this.id,
@@ -32,6 +33,7 @@ class ItemEntity {
     required this.tovatId,
     required this.taxRate,
     required this.dpp,
+    required this.tocatId,
   });
 
   ItemEntity copyWith({
@@ -49,6 +51,7 @@ class ItemEntity {
     String? tovatId,
     double? taxRate,
     double? dpp,
+    String? tocatId,
   }) {
     return ItemEntity(
       id: id ?? this.id,
@@ -65,6 +68,7 @@ class ItemEntity {
       tovatId: tovatId ?? this.tovatId,
       taxRate: taxRate ?? this.taxRate,
       dpp: dpp ?? this.dpp,
+      tocatId: tocatId ?? this.tocatId,
     );
   }
 
@@ -84,6 +88,7 @@ class ItemEntity {
       'tovatId': tovatId,
       'taxRate': taxRate,
       'dpp': dpp,
+      'tocatId': tocatId,
     };
   }
 
@@ -103,6 +108,7 @@ class ItemEntity {
       tovatId: map['tovatId'] as String,
       taxRate: map['taxRate'] as double,
       dpp: map['dpp'] as double,
+      tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
     );
   }
 
@@ -113,7 +119,7 @@ class ItemEntity {
 
   @override
   String toString() {
-    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id, openPrice: $openPrice, tovenId: $tovenId, includeTax: $includeTax, tovatId: $tovatId, taxRate: $taxRate, dpp: $dpp)';
+    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id, openPrice: $openPrice, tovenId: $tovenId, includeTax: $includeTax, tovatId: $tovatId, taxRate: $taxRate, dpp: $dpp, tocatId: $tocatId)';
   }
 
   @override
@@ -133,7 +139,8 @@ class ItemEntity {
         other.includeTax == includeTax &&
         other.tovatId == tovatId &&
         other.taxRate == taxRate &&
-        other.dpp == dpp;
+        other.dpp == dpp &&
+        other.tocatId == tocatId;
   }
 
   @override
@@ -151,6 +158,7 @@ class ItemEntity {
         includeTax.hashCode ^
         tovatId.hashCode ^
         taxRate.hashCode ^
-        dpp.hashCode;
+        dpp.hashCode ^
+        tocatId.hashCode;
   }
 }

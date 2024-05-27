@@ -139,7 +139,7 @@ class HandlePromoSpecialPriceUseCase
                   sellingPrice: currentReceiptItem.sellingPrice,
                   totalAmount: currentReceiptItem.totalAmount,
                   totalSellBarcode: currentReceiptItem.totalSellBarcode,
-                  promos: [promo],
+                  promos: [promo.copyWith(discAmount: discountBeforeTax)],
                   discAmount: discountBeforeTax,
                 ));
 
@@ -231,7 +231,7 @@ class HandlePromoSpecialPriceUseCase
                 sellingPrice: currentReceiptItem.sellingPrice,
                 totalAmount: currentReceiptItem.totalAmount,
                 totalSellBarcode: currentReceiptItem.totalSellBarcode,
-                promos: [promo],
+                promos: [promo.copyWith(discAmount: discountBeforeTax)],
                 discAmount: discountBeforeTax,
               ));
 
@@ -264,7 +264,6 @@ class HandlePromoSpecialPriceUseCase
             .readAllByTopsbId(promo.promoId!, null);
 
         double discount = itemEntity.dpp - tpsb1.price;
-        ;
         double discountBeforeTax = 0;
 
         final startHour = promo.startTime.hour;
@@ -340,7 +339,7 @@ class HandlePromoSpecialPriceUseCase
               sellingPrice: itemWithPromo.price,
               totalAmount: totalAmount,
               totalSellBarcode: totalSellBarcode,
-              promos: [promo],
+              promos: [promo.copyWith(discAmount: discountBeforeTax)],
               discAmount: discountBeforeTax,
             ));
 

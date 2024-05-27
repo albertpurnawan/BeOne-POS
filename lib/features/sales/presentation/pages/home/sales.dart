@@ -17,14 +17,12 @@ import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -380,11 +378,11 @@ class _SalesPageState extends State<SalesPage> {
                                         ),
                                       )),
                                       Expanded(
-                                          child: e.discAmount == null ||
-                                                  e.discAmount == 0
+                                          child: promo.discAmount == null ||
+                                                  promo.discAmount == 0
                                               ? SizedBox.shrink()
                                               : Text(
-                                                  "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat((e.discAmount!).toInt().toString()))}",
+                                                  "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat((promo.discAmount!).toInt().toString()))}",
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                     fontStyle: FontStyle.italic,
@@ -572,7 +570,7 @@ class _SalesPageState extends State<SalesPage> {
                                                             child: Column(
                                                               children: [
                                                                 Text(
-                                                                  "@ ${Helpers.parseMoney(e.itemEntity.dpp.toInt())}",
+                                                                  "@ ${Helpers.parseMoney(e.itemEntity.dpp.round())}",
                                                                   textAlign:
                                                                       TextAlign
                                                                           .right,
@@ -1774,18 +1772,18 @@ class _SalesPageState extends State<SalesPage> {
                                         MaterialStateColor.resolveWith(
                                             (states) =>
                                                 Colors.white.withOpacity(.2))),
-                                onPressed: () {
-                                  setState(() {
-                                    selectedCustomer = radioValue;
-                                    context
-                                        .read<ReceiptCubit>()
-                                        .updateCustomer(selectedCustomer!);
-                                    Navigator.of(context).pop();
-                                    Future.delayed(
-                                        const Duration(milliseconds: 200),
-                                        () => _newReceiptItemCodeFocusNode
-                                            .requestFocus());
-                                  });
+                                onPressed: () async {
+                                  selectedCustomer = radioValue;
+                                  await context
+                                      .read<ReceiptCubit>()
+                                      .updateCustomer(
+                                          selectedCustomer!, context);
+                                  Navigator.of(context).pop();
+                                  Future.delayed(
+                                      const Duration(milliseconds: 200),
+                                      () => _newReceiptItemCodeFocusNode
+                                          .requestFocus());
+                                  setState(() {});
                                   // try {
                                   //   final response = await api.trading
                                   //       .deleteTradingPost(tradingPost.id)
@@ -1874,7 +1872,7 @@ class _SalesPageState extends State<SalesPage> {
 
                     context
                         .read<ReceiptCubit>()
-                        .removeReceiptItem(receiptItemTarget);
+                        .removeReceiptItem(receiptItemTarget, context);
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(7),

@@ -19,6 +19,8 @@ import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdg.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
@@ -33,6 +35,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
@@ -92,6 +95,8 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<HandlePromoBuyXGetYUseCase>(),
                       GetIt.instance<HandlePromoSpecialPriceUseCase>(),
                       GetIt.instance<RecalculateTaxUseCase>(),
+                      GetIt.instance<HandlePromoTopdgUseCase>(),
+                      GetIt.instance<HandlePromoTopdiUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>

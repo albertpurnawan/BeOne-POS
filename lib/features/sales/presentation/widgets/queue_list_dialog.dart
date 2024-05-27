@@ -370,7 +370,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                   },
                   child: const Center(
                       child: Text(
-                    "Return",
+                    "Done",
                     style: TextStyle(color: Colors.white),
                   )),
                 )),

@@ -299,6 +299,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                 100 /
                 (100 + invoiceDetailModel.taxPrctg),
             includeTax: itemMasterModel.includeTax,
+            tocatId: itemMasterModel.tocatId,
           ),
           sellingPrice: invoiceDetailModel.sellingPrice,
           totalAmount: invoiceDetailModel.totalAmount,

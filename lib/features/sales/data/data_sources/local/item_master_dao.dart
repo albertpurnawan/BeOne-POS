@@ -29,4 +29,13 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
 
     return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
   }
+
+  Future<List<ItemMasterModel>> readAllByTocatId(
+      {required String tocatId, Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result =
+        await db.query(tableName, where: "tocatId = ?", whereArgs: [tocatId]);
+
+    return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
+  }
 }

@@ -10,6 +10,7 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.d
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/cash_register_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/customer_group_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/item_repository_impl.dart';
@@ -23,6 +24,7 @@ import 'package:pos_fe/features/sales/data/repository/store_master_repository_im
 import 'package:pos_fe/features/sales/data/repository/user_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/vouchers_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/domain/repository/cash_register_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/customer_group_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
@@ -35,7 +37,11 @@ import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart'
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdg_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdi_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
 import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
@@ -50,12 +56,16 @@ import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart'
     as sales_get_pos_parameter_use_case;
+import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and_detail.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdg.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
@@ -279,6 +289,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<UserRepository>(
       () => UserRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CustomerGroupRepository>(
+      () => CustomerGroupRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
@@ -361,11 +374,34 @@ Future<void> initializeDependencies() async {
       HandleWithoutPromosUseCase());
   sl.registerSingleton<HandlePromosUseCase>(HandlePromosUseCase(sl()));
   sl.registerSingleton<RecalculateReceiptUseCase>(RecalculateReceiptUseCase());
+  // toprb usecases
   sl.registerSingleton<CheckBuyXGetYApplicabilityUseCase>(
       CheckBuyXGetYApplicabilityUseCase());
   sl.registerSingleton<HandlePromoBuyXGetYUseCase>(
       HandlePromoBuyXGetYUseCase());
+  // topsb usecases
   sl.registerSingleton<HandlePromoSpecialPriceUseCase>(
       HandlePromoSpecialPriceUseCase());
+  // topdg usecases
+  sl.registerSingleton<GetPromoTopdgHeaderAndDetailUseCase>(
+      GetPromoTopdgHeaderAndDetailUseCase());
+  sl.registerSingletonWithDependencies<CheckPromoTopdgApplicabilityUseCase>(
+      () => CheckPromoTopdgApplicabilityUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingleton<ApplyPromoTopdgUseCase>(ApplyPromoTopdgUseCase());
+  sl.registerSingletonWithDependencies<HandlePromoTopdgUseCase>(
+      () => HandlePromoTopdgUseCase(sl(), sl(), sl(), sl()),
+      dependsOn: [CheckPromoTopdgApplicabilityUseCase]);
+  // topdi usecases
+  sl.registerSingleton<GetPromoTopdiHeaderAndDetailUseCase>(
+      GetPromoTopdiHeaderAndDetailUseCase());
+  sl.registerSingletonWithDependencies<CheckPromoTopdiApplicabilityUseCase>(
+      () => CheckPromoTopdiApplicabilityUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingleton<ApplyPromoTopdiUseCase>(ApplyPromoTopdiUseCase());
+  sl.registerSingletonWithDependencies<HandlePromoTopdiUseCase>(
+      () => HandlePromoTopdiUseCase(sl(), sl(), sl(), sl()),
+      dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
+
   return;
 }

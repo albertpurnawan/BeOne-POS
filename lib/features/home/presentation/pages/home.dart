@@ -14,8 +14,43 @@ import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late DateTime now;
+  late int morningEpoch;
+  late int afternoonEpoch;
+  late int eveningEpoch;
+  late String timeOfDay;
+  late String symbol;
+
+  @override
+  void initState() {
+    super.initState();
+    now = DateTime.now();
+    morningEpoch =
+        DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
+    afternoonEpoch =
+        DateTime(now.year, now.month, now.day, 11, 0, 0).millisecondsSinceEpoch;
+    eveningEpoch =
+        DateTime(now.year, now.month, now.day, 18, 0, 0).millisecondsSinceEpoch;
+    final nowEpoch = now.millisecondsSinceEpoch;
+    if (nowEpoch < morningEpoch || nowEpoch >= eveningEpoch) {
+      timeOfDay = "evening";
+      symbol = "🌆";
+    } else if (nowEpoch >= morningEpoch && nowEpoch < afternoonEpoch) {
+      timeOfDay = "morning";
+      symbol = "☕";
+    } else if (nowEpoch >= afternoonEpoch && nowEpoch < eveningEpoch) {
+      timeOfDay = "afternoon";
+      symbol = "☀️";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +76,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.1,
@@ -53,7 +88,7 @@ class HomeScreen extends StatelessWidget {
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: "Good Afternoon ",
+                                  text: "Good $timeOfDay ",
                                 ),
                                 TextSpan(
                                     text: GetIt.instance<SharedPreferences>()
@@ -61,7 +96,7 @@ class HomeScreen extends StatelessWidget {
                                     style:
                                         TextStyle(fontWeight: FontWeight.w700)),
                                 TextSpan(
-                                  text: " ☀️",
+                                  text: " $symbol",
                                 )
                               ],
                               style: TextStyle(
@@ -73,7 +108,7 @@ class HomeScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 30),
                         child: Text(
-                          "Have a Great Day!",
+                          "Have a great day!",
                           textAlign: TextAlign.left,
                           style: TextStyle(color: Colors.white, fontSize: 28),
                         ),
@@ -102,8 +137,8 @@ class HomeScreen extends StatelessWidget {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
-                            // // await GetIt.instance<AppDatabase>()
-                            // //     .refreshItemsTable();
+                            await GetIt.instance<AppDatabase>()
+                                .refreshItemsTable();
                             // await GetIt.instance<AppDatabase>()
                             //     .promosDao
                             //     .deletePromos();

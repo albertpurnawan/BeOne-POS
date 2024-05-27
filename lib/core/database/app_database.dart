@@ -522,7 +522,7 @@ DELETE FROM items
 """);
       // refresh table
       await _database!.execute("""
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp)
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId)
 SELECT 
   i.itemname, 
   i.itemcode, 
@@ -536,7 +536,8 @@ SELECT
   i.includetax,
   ${taxByItem ? "t.tovatId as tovatId" : storeTovatId},
   ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
-  ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"}
+  ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"},
+  i.tocatId
 FROM 
   (
     SELECT 
@@ -595,7 +596,8 @@ FROM
       itemname, 
       touomId, 
       openprice,
-      includetax 
+      includetax,
+      tocatId
     FROM 
       toitm
   ) as i ON i.docid = p.toitmId 
@@ -1450,9 +1452,11 @@ ${ItemFields.includeTax} INTEGER NOT NULL,
 ${ItemFields.tovatId} STRING NOT NULL,
 ${ItemFields.taxRate} DOUBLE NOT NULL,
 ${ItemFields.dpp} DOUBLE NOT NULL,
+${ItemFields.tocatId} TEXT,
 CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+CONSTRAINT `items_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 ''');
 
