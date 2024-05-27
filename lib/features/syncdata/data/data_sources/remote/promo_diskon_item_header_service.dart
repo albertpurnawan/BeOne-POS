@@ -10,15 +10,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PromoDiskonItemHeaderApi {
   final Dio _dio;
+  String? tenantId;
   String? tostrId;
   String? url;
   String? token;
 
   PromoDiskonItemHeaderApi(this._dio);
 
-  Future<List<PromoDiskonItemHeaderModel>> fetchData() async {
+  Future<List<PromoDiskonItemHeaderModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-DISCITEM";
+      String apiName = "API-TOPDI";
       Map<String, dynamic> exeData = {};
       List<PromoDiskonItemHeaderModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -26,6 +27,7 @@ class PromoDiskonItemHeaderApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
@@ -38,7 +40,12 @@ class PromoDiskonItemHeaderApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              tostrId,
+            ]
           };
         }
       }

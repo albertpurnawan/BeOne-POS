@@ -26,6 +26,7 @@ class PromoDiskonItemHeaderFields {
     totalQtyTo,
     totalPriceFrom,
     totalPriceTo,
+    form,
   ];
   static const String docId = "docid";
   static const String createDate = "createdate";
@@ -48,6 +49,7 @@ class PromoDiskonItemHeaderFields {
   static const String totalQtyTo = "totalqtyto";
   static const String totalPriceFrom = "totalpricefrom";
   static const String totalPriceTo = "totalpriceto";
+  static const String form = "form";
 }
 
 class PromoDiskonItemHeaderModel extends PromoDiskonItemHeaderEntity
@@ -74,6 +76,7 @@ class PromoDiskonItemHeaderModel extends PromoDiskonItemHeaderEntity
     required super.totalQtyTo,
     required super.totalPriceFrom,
     required super.totalPriceTo,
+    required super.form,
   });
 
   @override
@@ -100,6 +103,7 @@ class PromoDiskonItemHeaderModel extends PromoDiskonItemHeaderEntity
       'totalqtyto': totalQtyTo,
       'totalpricefrom': totalPriceFrom,
       'totalpriceto': totalPriceTo,
+      'form': form,
     };
   }
 
@@ -133,6 +137,7 @@ class PromoDiskonItemHeaderModel extends PromoDiskonItemHeaderEntity
           : null,
       totalPriceTo:
           map['totalpriceto'] != null ? map['totalpriceto'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -182,6 +187,7 @@ class PromoDiskonItemHeaderModel extends PromoDiskonItemHeaderEntity
       totalQtyTo: entity.totalQtyTo,
       totalPriceFrom: entity.totalPriceFrom,
       totalPriceTo: entity.totalPriceTo,
+      form: entity.form,
     );
   }
 }

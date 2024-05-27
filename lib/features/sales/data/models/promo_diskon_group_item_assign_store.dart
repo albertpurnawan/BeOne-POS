@@ -18,6 +18,7 @@ class PromoDiskonGroupItemAssignStoreFields {
     day5,
     day6,
     day7,
+    form,
   ];
 
   static const String docId = "docid";
@@ -33,6 +34,7 @@ class PromoDiskonGroupItemAssignStoreFields {
   static const String day5 = "day5";
   static const String day6 = "day6";
   static const String day7 = "day7";
+  static const String form = "form";
 }
 
 class PromoDiskonGroupItemAssignStoreModel
@@ -51,6 +53,7 @@ class PromoDiskonGroupItemAssignStoreModel
     required super.day5,
     required super.day6,
     required super.day7,
+    required super.form,
   });
 
   @override
@@ -69,6 +72,7 @@ class PromoDiskonGroupItemAssignStoreModel
       'day5': day5,
       'day6': day6,
       'day7': day7,
+      'form': form,
     };
   }
 
@@ -90,6 +94,7 @@ class PromoDiskonGroupItemAssignStoreModel
       day5: map['day5'] as int,
       day6: map['day6'] as int,
       day7: map['day7'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -118,6 +123,7 @@ class PromoDiskonGroupItemAssignStoreModel
       day5: entity.day5,
       day6: entity.day6,
       day7: entity.day7,
+      form: entity.form,
     );
   }
 }

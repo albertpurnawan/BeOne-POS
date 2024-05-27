@@ -24,7 +24,6 @@ class PromoHargaSpesialApi {
       List<PromoHargaSpesialHeaderModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -43,7 +42,7 @@ class PromoHargaSpesialApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
+              lastSync,
               lastSync,
               tostrId,
             ]

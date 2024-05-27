@@ -11,16 +11,18 @@ class PromoBonusMultiItemGetConditionEntity {
   final double quantity;
   final double price;
   final double quota;
+  final String form;
 
   PromoBonusMultiItemGetConditionEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.topmiId,
-    required this.toitmId,
+    this.updateDate,
+    this.topmiId,
+    this.toitmId,
     required this.quantity,
     required this.price,
     required this.quota,
+    required this.form,
   });
 
   PromoBonusMultiItemGetConditionEntity copyWith({
@@ -32,6 +34,7 @@ class PromoBonusMultiItemGetConditionEntity {
     double? quantity,
     double? price,
     double? quota,
+    String? form,
   }) {
     return PromoBonusMultiItemGetConditionEntity(
       docId: docId ?? this.docId,
@@ -42,6 +45,7 @@ class PromoBonusMultiItemGetConditionEntity {
       quantity: quantity ?? this.quantity,
       price: price ?? this.price,
       quota: quota ?? this.quota,
+      form: form ?? this.form,
     );
   }
 
@@ -55,6 +59,7 @@ class PromoBonusMultiItemGetConditionEntity {
       'quantity': quantity,
       'price': price,
       'quota': quota,
+      'form': form,
     };
   }
 
@@ -71,6 +76,7 @@ class PromoBonusMultiItemGetConditionEntity {
       quantity: map['quantity'] as double,
       price: map['price'] as double,
       quota: map['quota'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -82,7 +88,7 @@ class PromoBonusMultiItemGetConditionEntity {
 
   @override
   String toString() {
-    return 'PromoBonusMultiItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, toitmId: $toitmId, quantity: $quantity, price: $price, quota: $quota)';
+    return 'PromoBonusMultiItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, toitmId: $toitmId, quantity: $quantity, price: $price, quota: $quota, form: $form)';
   }
 
   @override
@@ -96,7 +102,8 @@ class PromoBonusMultiItemGetConditionEntity {
         other.toitmId == toitmId &&
         other.quantity == quantity &&
         other.price == price &&
-        other.quota == quota;
+        other.quota == quota &&
+        other.form == form;
   }
 
   @override
@@ -108,6 +115,7 @@ class PromoBonusMultiItemGetConditionEntity {
         toitmId.hashCode ^
         quantity.hashCode ^
         price.hashCode ^
-        quota.hashCode;
+        quota.hashCode ^
+        form.hashCode;
   }
 }

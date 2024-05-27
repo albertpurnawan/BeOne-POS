@@ -14,6 +14,7 @@ class PromoBonusMultiItemBuyConditionFields {
     qtyTo,
     priceFrom,
     priceTo,
+    form,
   ];
 
   static const String docId = "docid";
@@ -25,6 +26,7 @@ class PromoBonusMultiItemBuyConditionFields {
   static const String qtyTo = "qtyto";
   static const String priceFrom = "pricefrom";
   static const String priceTo = "priceto";
+  static const String form = "form";
 }
 
 class PromoBonusMultiItemBuyConditionModel
@@ -39,6 +41,7 @@ class PromoBonusMultiItemBuyConditionModel
     required super.qtyTo,
     required super.priceFrom,
     required super.priceTo,
+    required super.form,
   });
 
   @override
@@ -53,6 +56,7 @@ class PromoBonusMultiItemBuyConditionModel
       'qtyto': qtyTo,
       'pricefrom': priceFrom,
       'priceto': priceTo,
+      'form': form,
     };
   }
 
@@ -70,6 +74,7 @@ class PromoBonusMultiItemBuyConditionModel
       qtyTo: map['qtyto'] != null ? map['qtyto'] as double : null,
       priceFrom: map['pricefrom'] != null ? map['pricefrom'] as double : null,
       priceTo: map['priceto'] != null ? map['priceto'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -106,6 +111,7 @@ class PromoBonusMultiItemBuyConditionModel
       qtyTo: entity.qtyTo,
       priceFrom: entity.priceFrom,
       priceTo: entity.priceTo,
+      form: entity.form,
     );
   }
 }

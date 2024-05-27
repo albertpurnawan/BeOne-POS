@@ -14,6 +14,7 @@ class PromoDiskonItemBuyConditionFields {
     priceTo,
     qtyFrom,
     qtyTo,
+    form,
   ];
 
   static const String docId = "docid";
@@ -25,6 +26,7 @@ class PromoDiskonItemBuyConditionFields {
   static const String priceTo = "priceto";
   static const String qtyFrom = "qtyfrom";
   static const String qtyTo = "qtyto";
+  static const String form = "form";
 }
 
 class PromoDiskonItemBuyConditionModel extends PromoDiskonItemBuyConditionEntity
@@ -39,6 +41,7 @@ class PromoDiskonItemBuyConditionModel extends PromoDiskonItemBuyConditionEntity
     required super.priceTo,
     required super.qtyFrom,
     required super.qtyTo,
+    required super.form,
   });
 
   @override
@@ -53,6 +56,7 @@ class PromoDiskonItemBuyConditionModel extends PromoDiskonItemBuyConditionEntity
       'priceto': priceTo,
       'qtyfrom': qtyFrom,
       'qtyto': qtyTo,
+      'form': form,
     };
   }
 
@@ -69,6 +73,7 @@ class PromoDiskonItemBuyConditionModel extends PromoDiskonItemBuyConditionEntity
       priceTo: map['priceto'] != null ? map['priceto'] as double : null,
       qtyFrom: map['qtyfrom'] != null ? map['qtyfrom'] as double : null,
       qtyTo: map['qtyto'] != null ? map['qtyto'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -105,6 +110,7 @@ class PromoDiskonItemBuyConditionModel extends PromoDiskonItemBuyConditionEntity
       priceTo: entity.priceTo,
       qtyFrom: entity.qtyFrom,
       qtyTo: entity.qtyTo,
+      form: entity.form,
     );
   }
 }

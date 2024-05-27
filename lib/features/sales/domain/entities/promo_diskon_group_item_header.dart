@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class PromoDiskonGroupItemHeaderEntity {
   final String docId;
@@ -23,6 +24,7 @@ class PromoDiskonGroupItemHeaderEntity {
   final double? totalQtyTo;
   final double? totalPriceFrom;
   final double? totalPriceTo;
+  final String form;
 
   PromoDiskonGroupItemHeaderEntity({
     required this.docId,
@@ -46,6 +48,7 @@ class PromoDiskonGroupItemHeaderEntity {
     required this.totalQtyTo,
     required this.totalPriceFrom,
     required this.totalPriceTo,
+    required this.form,
   });
 
   PromoDiskonGroupItemHeaderEntity copyWith({
@@ -70,6 +73,7 @@ class PromoDiskonGroupItemHeaderEntity {
     double? totalQtyTo,
     double? totalPriceFrom,
     double? totalPriceTo,
+    String? form,
   }) {
     return PromoDiskonGroupItemHeaderEntity(
       docId: docId ?? this.docId,
@@ -93,6 +97,7 @@ class PromoDiskonGroupItemHeaderEntity {
       totalQtyTo: totalQtyTo ?? this.totalQtyTo,
       totalPriceFrom: totalPriceFrom ?? this.totalPriceFrom,
       totalPriceTo: totalPriceTo ?? this.totalPriceTo,
+      form: form ?? this.form,
     );
   }
 
@@ -119,6 +124,7 @@ class PromoDiskonGroupItemHeaderEntity {
       'totalQtyTo': totalQtyTo,
       'totalPriceFrom': totalPriceFrom,
       'totalPriceTo': totalPriceTo,
+      'form': form,
     };
   }
 
@@ -152,6 +158,7 @@ class PromoDiskonGroupItemHeaderEntity {
           : null,
       totalPriceTo:
           map['totalPriceTo'] != null ? map['totalPriceTo'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -163,7 +170,7 @@ class PromoDiskonGroupItemHeaderEntity {
 
   @override
   String toString() {
-    return 'PromoDiskonGroupItemHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, promoType: $promoType, buyCondition: $buyCondition, promoValue: $promoValue, discount1: $discount1, discount2: $discount2, discount3: $discount3, totalQtyFrom: $totalQtyFrom, totalQtyTo: $totalQtyTo, totalPriceFrom: $totalPriceFrom, totalPriceTo: $totalPriceTo)';
+    return 'PromoDiskonGroupItemHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, promoType: $promoType, buyCondition: $buyCondition, promoValue: $promoValue, discount1: $discount1, discount2: $discount2, discount3: $discount3, totalQtyFrom: $totalQtyFrom, totalQtyTo: $totalQtyTo, totalPriceFrom: $totalPriceFrom, totalPriceTo: $totalPriceTo, form: $form)';
   }
 
   @override
@@ -190,7 +197,8 @@ class PromoDiskonGroupItemHeaderEntity {
         other.totalQtyFrom == totalQtyFrom &&
         other.totalQtyTo == totalQtyTo &&
         other.totalPriceFrom == totalPriceFrom &&
-        other.totalPriceTo == totalPriceTo;
+        other.totalPriceTo == totalPriceTo &&
+        other.form == form;
   }
 
   @override
@@ -215,6 +223,7 @@ class PromoDiskonGroupItemHeaderEntity {
         totalQtyFrom.hashCode ^
         totalQtyTo.hashCode ^
         totalPriceFrom.hashCode ^
-        totalPriceTo.hashCode;
+        totalPriceTo.hashCode ^
+        form.hashCode;
   }
 }
