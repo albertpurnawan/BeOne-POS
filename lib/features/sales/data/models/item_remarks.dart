@@ -10,6 +10,7 @@ class ItemRemarksFields {
     updateDate,
     toitmId,
     remarks,
+    form,
   ];
 
   static const String docId = "docid";
@@ -17,6 +18,7 @@ class ItemRemarksFields {
   static const String updateDate = "updatedate";
   static const String toitmId = "toitmId";
   static const String remarks = "remarks";
+  static const String form = "form";
 }
 
 class ItemRemarksModel extends ItemRemarkEntity implements BaseModel {
@@ -26,6 +28,7 @@ class ItemRemarksModel extends ItemRemarkEntity implements BaseModel {
     required super.updateDate,
     required super.toitmId,
     required super.remarks,
+    required super.form,
   });
 
   @override
@@ -36,6 +39,7 @@ class ItemRemarksModel extends ItemRemarkEntity implements BaseModel {
       'updatedate': updateDate?.toLocal().toIso8601String(),
       'toitmId': toitmId,
       'remarks': remarks,
+      'form': form,
     };
   }
 
@@ -48,6 +52,7 @@ class ItemRemarksModel extends ItemRemarkEntity implements BaseModel {
           : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -65,6 +70,7 @@ class ItemRemarksModel extends ItemRemarkEntity implements BaseModel {
       updateDate: entity.updateDate,
       toitmId: entity.toitmId,
       remarks: entity.remarks,
+      form: entity.form,
     );
   }
 }

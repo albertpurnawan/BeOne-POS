@@ -11,6 +11,7 @@ class CurrencyFields {
     curCode,
     description,
     descriptionFrgn,
+    form,
   ];
 
   static const String docId = "docid";
@@ -19,6 +20,7 @@ class CurrencyFields {
   static const String curCode = "curcode";
   static const String description = "description";
   static const String descriptionFrgn = "descriptionfrgn";
+  static const String form = "form";
 }
 
 class CurrencyModel extends CurrencyEntity implements BaseModel {
@@ -29,6 +31,7 @@ class CurrencyModel extends CurrencyEntity implements BaseModel {
     required super.curCode,
     required super.description,
     required super.descriptionFrgn,
+    required super.form,
   });
 
   @override
@@ -40,6 +43,7 @@ class CurrencyModel extends CurrencyEntity implements BaseModel {
       'curcode': curCode,
       'description': description,
       'descriptionfrgn': descriptionFrgn,
+      'form': form,
     };
   }
 
@@ -53,6 +57,7 @@ class CurrencyModel extends CurrencyEntity implements BaseModel {
       curCode: map['curcode'] as String,
       description: map['description'] as String,
       descriptionFrgn: map['descriptionfrgn'] as String,
+      form: map['form'] as String,
     );
   }
 
@@ -64,6 +69,7 @@ class CurrencyModel extends CurrencyEntity implements BaseModel {
       curCode: entity.curCode,
       description: entity.description,
       descriptionFrgn: entity.descriptionFrgn,
+      form: entity.descriptionFrgn,
     );
   }
 }

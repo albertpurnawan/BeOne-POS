@@ -10,22 +10,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferredVendorApi {
   final Dio _dio;
+  String? tenantId;
   String? storeId;
   String? url;
   String? token;
 
   PreferredVendorApi(this._dio);
 
-  Future<List<PreferredVendorModel>> fetchData() async {
+  Future<List<PreferredVendorModel>> initializeData() async {
     try {
-      String apiName = "API-ITEMPREFEREDVENDOR";
+      String apiName = "API-TVITM";
       Map<String, dynamic> exeData = {};
       List<PreferredVendorModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       storeId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
@@ -42,7 +45,12 @@ class PreferredVendorApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [storeId]
+            "parameter": [
+              tenantId,
+              date,
+              date,
+              storeId,
+            ]
           };
         }
       }

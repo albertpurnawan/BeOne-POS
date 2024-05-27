@@ -43,6 +43,7 @@ class ItemMasterFields {
     multiplyOrder,
     syncCRM,
     mergeQuantity,
+    form,
   ];
 
   static const String docId = "docid";
@@ -83,6 +84,7 @@ class ItemMasterFields {
   static const String multiplyOrder = "multiplyorder";
   static const String syncCRM = "synccrm";
   static const String mergeQuantity = "mergequantity";
+  static const String form = "form";
 }
 
 class ItemMasterModel extends ItemMasterEntity implements BaseModel {
@@ -125,6 +127,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
     required super.multiplyOrder,
     required super.syncCRM,
     required super.mergeQuantity,
+    required super.form,
   });
 
   @override
@@ -168,6 +171,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       'multiplyorder': multiplyOrder,
       'synccrm': syncCRM,
       'mergequantity': mergeQuantity,
+      'form': form,
     };
   }
 
@@ -231,6 +235,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
           map['multiplyorder'] != null ? map['multiplyorder'] as int : null,
       syncCRM: map['synccrm'] as int,
       mergeQuantity: map['mergequantity'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -295,6 +300,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       multiplyOrder: entity.multiplyOrder,
       syncCRM: entity.syncCRM,
       mergeQuantity: entity.mergeQuantity,
+      form: entity.form,
     );
   }
 }

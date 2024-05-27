@@ -11,17 +11,19 @@ class VendorGroupEntity {
   final int statusActive;
   final int activated;
   final int sync;
+  final String form;
 
   VendorGroupEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.vendorGroupCode,
     required this.description,
     required this.maxDiscount,
     required this.statusActive,
     required this.activated,
     required this.sync,
+    required this.form,
   });
 
   VendorGroupEntity copyWith({
@@ -34,6 +36,7 @@ class VendorGroupEntity {
     int? statusActive,
     int? activated,
     int? sync,
+    String? form,
   }) {
     return VendorGroupEntity(
       docId: docId ?? this.docId,
@@ -45,6 +48,7 @@ class VendorGroupEntity {
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
       sync: sync ?? this.sync,
+      form: form ?? this.form,
     );
   }
 
@@ -59,6 +63,7 @@ class VendorGroupEntity {
       'statusActive': statusActive,
       'activated': activated,
       'sync': sync,
+      'form': form,
     };
   }
 
@@ -75,6 +80,7 @@ class VendorGroupEntity {
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
       sync: map['sync'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -85,7 +91,7 @@ class VendorGroupEntity {
 
   @override
   String toString() {
-    return 'VendorGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, vendorGroupCode: $vendorGroupCode, description: $description, maxDiscount: $maxDiscount, statusActive: $statusActive, activated: $activated, sync: $sync)';
+    return 'VendorGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, vendorGroupCode: $vendorGroupCode, description: $description, maxDiscount: $maxDiscount, statusActive: $statusActive, activated: $activated, sync: $sync, form: $form)';
   }
 
   @override
@@ -100,7 +106,8 @@ class VendorGroupEntity {
         other.maxDiscount == maxDiscount &&
         other.statusActive == statusActive &&
         other.activated == activated &&
-        other.sync == sync;
+        other.sync == sync &&
+        other.form == form;
   }
 
   @override
@@ -113,6 +120,7 @@ class VendorGroupEntity {
         maxDiscount.hashCode ^
         statusActive.hashCode ^
         activated.hashCode ^
-        sync.hashCode;
+        sync.hashCode ^
+        form.hashCode;
   }
 }

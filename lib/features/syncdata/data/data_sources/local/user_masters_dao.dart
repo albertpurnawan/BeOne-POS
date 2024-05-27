@@ -11,7 +11,7 @@ class UsersDao {
   Future<List<UsersModel>> upsertDataFromAPI() async {
     try {
       final List<dynamic> usersData =
-          await GetIt.instance<UserApi>().fetchData();
+          await GetIt.instance<UserApi>().initializeData();
 
       for (final UsersModel user in usersData) {
         final Map<String, dynamic> userMap = user.toJson();

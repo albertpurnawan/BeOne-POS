@@ -65,6 +65,7 @@ class StoreMasterFields {
     mtxline02,
     mtxline03,
     mtxline04,
+    form,
   ];
 
   static const String docId = 'docid';
@@ -127,6 +128,7 @@ class StoreMasterFields {
   static const String mtxline02 = 'mtxline02';
   static const String mtxline03 = 'mtxline03';
   static const String mtxline04 = 'mtxline04';
+  static const String form = 'form';
 }
 
 class StoreMasterModel extends StoreMasterEntity implements BaseModel {
@@ -191,6 +193,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     required super.mtxline02,
     required super.mtxline03,
     required super.mtxline04,
+    required super.form,
   });
 
   @override
@@ -256,6 +259,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'mtxline02': mtxline02,
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
+      'form': form,
     };
   }
 
@@ -331,6 +335,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       mtxline02: map['mtxline02'] != null ? map['mtxline02'] as String : null,
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -423,6 +428,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       mtxline02: entity.mtxline02,
       mtxline03: entity.mtxline03,
       mtxline04: entity.mtxline04,
+      form: entity.form,
     );
   }
 }

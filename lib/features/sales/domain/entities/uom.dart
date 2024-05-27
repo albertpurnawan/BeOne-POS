@@ -9,15 +9,17 @@ class UomEntity {
   final String uomDesc;
   final int statusActive;
   final int activated;
+  final String form;
 
   UomEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.uomCode,
     required this.uomDesc,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   UomEntity copyWith({
@@ -28,6 +30,7 @@ class UomEntity {
     String? uomDesc,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return UomEntity(
       docId: docId ?? this.docId,
@@ -37,6 +40,7 @@ class UomEntity {
       uomDesc: uomDesc ?? this.uomDesc,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -49,6 +53,7 @@ class UomEntity {
       'uomDesc': uomDesc,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -63,6 +68,7 @@ class UomEntity {
       uomDesc: map['uomDesc'] as String,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -73,7 +79,7 @@ class UomEntity {
 
   @override
   String toString() {
-    return 'UomEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, uomCode: $uomCode, uomDesc: $uomDesc, statusActive: $statusActive, activated: $activated)';
+    return 'UomEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, uomCode: $uomCode, uomDesc: $uomDesc, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -86,7 +92,8 @@ class UomEntity {
         other.uomCode == uomCode &&
         other.uomDesc == uomDesc &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -97,6 +104,7 @@ class UomEntity {
         uomCode.hashCode ^
         uomDesc.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

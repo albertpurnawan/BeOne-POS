@@ -7,13 +7,15 @@ class PaymentTypeEntity {
   final DateTime? updateDate;
   final String payTypeCode;
   final String description;
+  final String form;
 
   PaymentTypeEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.payTypeCode,
     required this.description,
+    required this.form,
   });
 
   PaymentTypeEntity copyWith({
@@ -22,6 +24,7 @@ class PaymentTypeEntity {
     DateTime? updateDate,
     String? payTypeCode,
     String? description,
+    String? form,
   }) {
     return PaymentTypeEntity(
       docId: docId ?? this.docId,
@@ -29,6 +32,7 @@ class PaymentTypeEntity {
       updateDate: updateDate ?? this.updateDate,
       payTypeCode: payTypeCode ?? this.payTypeCode,
       description: description ?? this.description,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +43,7 @@ class PaymentTypeEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'payTypeCode': payTypeCode,
       'description': description,
+      'form': form,
     };
   }
 
@@ -51,6 +56,7 @@ class PaymentTypeEntity {
           : null,
       payTypeCode: map['payTypeCode'] as String,
       description: map['description'] as String,
+      form: map['form'] as String,
     );
   }
 
@@ -61,7 +67,7 @@ class PaymentTypeEntity {
 
   @override
   String toString() {
-    return 'PaymentTypeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, payTypeCode: $payTypeCode, description: $description)';
+    return 'PaymentTypeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, payTypeCode: $payTypeCode, description: $description, form: $form)';
   }
 
   @override
@@ -72,7 +78,8 @@ class PaymentTypeEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.payTypeCode == payTypeCode &&
-        other.description == description;
+        other.description == description &&
+        other.form == form;
   }
 
   @override
@@ -81,6 +88,7 @@ class PaymentTypeEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         payTypeCode.hashCode ^
-        description.hashCode;
+        description.hashCode ^
+        form.hashCode;
   }
 }

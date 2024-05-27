@@ -10,6 +10,7 @@ class MOPByStoreFields {
     updateDate,
     tpmt1Id,
     tostrId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -17,6 +18,7 @@ class MOPByStoreFields {
   static const String updateDate = "updatedate";
   static const String tpmt1Id = "tpmt1Id";
   static const String tostrId = "tostrId";
+  static const String form = "form";
 }
 
 class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
@@ -26,6 +28,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
     required super.updateDate,
     required super.tpmt1Id,
     required super.tostrId,
+    required super.form,
   });
 
   @override
@@ -36,6 +39,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
       'updatedate': updateDate?.toLocal().toIso8601String(),
       'tpmt1Id': tpmt1Id,
       'tostrId': tostrId,
+      'form': form,
     };
   }
 
@@ -48,6 +52,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
           : null,
       tpmt1Id: map['tpmt1Id'] != null ? map['tpmt1Id'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -66,6 +71,7 @@ class MOPByStoreModel extends MOPByStoreEntity implements BaseModel {
       updateDate: entity.updateDate,
       tpmt1Id: entity.tpmt1Id,
       tostrId: entity.tostrId,
+      form: entity.form,
     );
   }
 }

@@ -10,16 +10,18 @@ class CreditCardEntity {
   final int cardType;
   final int statusActive;
   final int activated;
+  final String form;
 
   CreditCardEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.ccCode,
     required this.description,
     required this.cardType,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   CreditCardEntity copyWith({
@@ -31,6 +33,7 @@ class CreditCardEntity {
     int? cardType,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return CreditCardEntity(
       docId: docId ?? this.docId,
@@ -41,6 +44,7 @@ class CreditCardEntity {
       cardType: cardType ?? this.cardType,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -54,6 +58,7 @@ class CreditCardEntity {
       'cardType': cardType,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -69,6 +74,7 @@ class CreditCardEntity {
       cardType: map['cardType'] as int,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -79,7 +85,7 @@ class CreditCardEntity {
 
   @override
   String toString() {
-    return 'CreditCardEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, ccCode: $ccCode, description: $description, cardType: $cardType, statusActive: $statusActive, activated: $activated)';
+    return 'CreditCardEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, ccCode: $ccCode, description: $description, cardType: $cardType, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -93,7 +99,8 @@ class CreditCardEntity {
         other.description == description &&
         other.cardType == cardType &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -105,6 +112,7 @@ class CreditCardEntity {
         description.hashCode ^
         cardType.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

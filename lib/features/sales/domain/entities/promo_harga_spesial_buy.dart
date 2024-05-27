@@ -8,14 +8,16 @@ class PromoHargaSpesialBuyEntity {
   final String? topsbId;
   final double qty;
   final double price;
+  final String form;
 
   PromoHargaSpesialBuyEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.topsbId,
+    this.updateDate,
+    this.topsbId,
     required this.qty,
     required this.price,
+    required this.form,
   });
 
   PromoHargaSpesialBuyEntity copyWith({
@@ -25,6 +27,7 @@ class PromoHargaSpesialBuyEntity {
     String? topsbId,
     double? qty,
     double? price,
+    String? form,
   }) {
     return PromoHargaSpesialBuyEntity(
       docId: docId ?? this.docId,
@@ -33,6 +36,7 @@ class PromoHargaSpesialBuyEntity {
       topsbId: topsbId ?? this.topsbId,
       qty: qty ?? this.qty,
       price: price ?? this.price,
+      form: form ?? this.form,
     );
   }
 
@@ -44,6 +48,7 @@ class PromoHargaSpesialBuyEntity {
       'topsbId': topsbId,
       'qty': qty,
       'price': price,
+      'form': form,
     };
   }
 
@@ -57,6 +62,7 @@ class PromoHargaSpesialBuyEntity {
       topsbId: map['topsbId'] != null ? map['topsbId'] as String : null,
       qty: map['qty'] as double,
       price: map['price'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -68,7 +74,7 @@ class PromoHargaSpesialBuyEntity {
 
   @override
   String toString() {
-    return 'PromoHargaSpesialBuyEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topsbId: $topsbId, qty: $qty, price: $price)';
+    return 'PromoHargaSpesialBuyEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topsbId: $topsbId, qty: $qty, price: $price, form: $form)';
   }
 
   @override
@@ -80,7 +86,8 @@ class PromoHargaSpesialBuyEntity {
         other.updateDate == updateDate &&
         other.topsbId == topsbId &&
         other.qty == qty &&
-        other.price == price;
+        other.price == price &&
+        other.form == form;
   }
 
   @override
@@ -90,6 +97,7 @@ class PromoHargaSpesialBuyEntity {
         updateDate.hashCode ^
         topsbId.hashCode ^
         qty.hashCode ^
-        price.hashCode;
+        price.hashCode ^
+        form.hashCode;
   }
 }

@@ -403,7 +403,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final fetchFunctions = [
         () async {
           try {
-            currencies = await GetIt.instance<CurrencyApi>().fetchData();
+            currencies = await GetIt.instance<CurrencyApi>().initializeData();
 
             await GetIt.instance<AppDatabase>()
                 .currencyDao
@@ -421,7 +421,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            countries = await GetIt.instance<CountryApi>().fetchData();
+            countries = await GetIt.instance<CountryApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .countryDao
                 .bulkCreate(data: countries);
@@ -438,7 +438,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            provinces = await GetIt.instance<ProvinceApi>().fetchData();
+            provinces = await GetIt.instance<ProvinceApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .provinceDao
                 .bulkCreate(data: provinces);
@@ -455,7 +455,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            zipcodes = await GetIt.instance<ZipcodeApi>().fetchData();
+            zipcodes = await GetIt.instance<ZipcodeApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .zipcodeDao
                 .bulkCreate(data: zipcodes);
@@ -472,7 +472,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            employees = await GetIt.instance<EmployeeApi>().fetchData();
+            employees = await GetIt.instance<EmployeeApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .employeeDao
                 .bulkCreate(data: employees);
@@ -489,7 +489,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            taxes = await GetIt.instance<TaxMasterApi>().fetchData();
+            taxes = await GetIt.instance<TaxMasterApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .taxMasterDao
                 .bulkCreate(data: taxes);
@@ -506,7 +506,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            payTypes = await GetIt.instance<PaymentTypeApi>().fetchData();
+            payTypes = await GetIt.instance<PaymentTypeApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .paymentTypeDao
                 .bulkCreate(data: payTypes);
@@ -523,7 +523,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            mops = await GetIt.instance<MOPApi>().fetchData();
+            mops = await GetIt.instance<MOPApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .meansOfPaymentDao
                 .bulkCreate(data: mops);
@@ -540,7 +540,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            ccs = await GetIt.instance<CreditCardApi>().fetchData();
+            ccs = await GetIt.instance<CreditCardApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .creditCardDao
                 .bulkCreate(data: ccs);
@@ -557,7 +557,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            pricelists = await GetIt.instance<PricelistApi>().fetchData();
+            pricelists = await GetIt.instance<PricelistApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .pricelistDao
                 .bulkCreate(data: pricelists);
@@ -574,7 +574,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            stores = await GetIt.instance<StoreMasterApi>().fetchData();
+            stores = await GetIt.instance<StoreMasterApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .storeMasterDao
                 .bulkCreate(data: stores);
@@ -591,7 +591,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            mopStores = await GetIt.instance<MOPByStoreApi>().fetchData();
+            mopStores = await GetIt.instance<MOPByStoreApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .mopByStoreDao
                 .bulkCreate(data: mopStores);
@@ -608,7 +608,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            cashiers = await GetIt.instance<CashRegisterApi>().fetchData();
+            cashiers = await GetIt.instance<CashRegisterApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .cashRegisterDao
                 .bulkCreate(data: cashiers);
@@ -625,7 +625,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            uoms = await GetIt.instance<UoMApi>().fetchData();
+            uoms = await GetIt.instance<UoMApi>().initializeData();
             await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: uoms);
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -640,7 +640,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            roles = await GetIt.instance<UserRoleApi>().fetchData();
+            roles = await GetIt.instance<UserRoleApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .userRoleDao
                 .bulkCreate(data: roles);
@@ -657,7 +657,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            users = await GetIt.instance<UserApi>().fetchData();
+            users = await GetIt.instance<UserApi>().initializeData();
             await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: users);
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -673,7 +673,7 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             pricelistPeriod =
-                await GetIt.instance<PricelistPeriodApi>().fetchData();
+                await GetIt.instance<PricelistPeriodApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .pricelistPeriodDao
                 .bulkCreate(data: pricelistPeriod);
@@ -690,7 +690,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            itemCat = await GetIt.instance<ItemCategoryApi>().fetchData();
+            itemCat = await GetIt.instance<ItemCategoryApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .itemCategoryDao
                 .bulkCreate(data: itemCat);
@@ -707,7 +707,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            items = await GetIt.instance<ItemMasterApi>().fetchData();
+            items = await GetIt.instance<ItemMasterApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .itemMasterDao
                 .bulkCreate(data: items);
@@ -725,7 +725,8 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            itemsStores = await GetIt.instance<ItemByStoreApi>().fetchData();
+            itemsStores =
+                await GetIt.instance<ItemByStoreApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .itemByStoreDao
                 .bulkCreate(data: itemsStores);
@@ -742,7 +743,8 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            itemBarcodes = await GetIt.instance<ItemBarcodeApi>().fetchData();
+            itemBarcodes =
+                await GetIt.instance<ItemBarcodeApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .itemBarcodeDao
                 .bulkCreate(data: itemBarcodes);
@@ -760,7 +762,8 @@ class _FetchScreenState extends State<FetchScreen> {
         // // ---
         () async {
           try {
-            itemRemarks = await GetIt.instance<ItemRemarksApi>().fetchData();
+            itemRemarks =
+                await GetIt.instance<ItemRemarksApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .itemRemarkDao
                 .bulkCreate(data: itemRemarks);
@@ -777,7 +780,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            venGroups = await GetIt.instance<VendorGroupApi>().fetchData();
+            venGroups = await GetIt.instance<VendorGroupApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .vendorGroupDao
                 .bulkCreate(data: venGroups);
@@ -794,7 +797,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            vendor = await GetIt.instance<VendorApi>().fetchData();
+            vendor = await GetIt.instance<VendorApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .vendorDao
                 .bulkCreate(data: vendor);
@@ -811,7 +814,8 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            prefVendor = await GetIt.instance<PreferredVendorApi>().fetchData();
+            prefVendor =
+                await GetIt.instance<PreferredVendorApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .preferredVendorDao
                 .bulkCreate(data: prefVendor);
@@ -829,7 +833,8 @@ class _FetchScreenState extends State<FetchScreen> {
         // // ---
         () async {
           try {
-            cusGroup = await GetIt.instance<CustomerGroupApi>().fetchData();
+            cusGroup =
+                await GetIt.instance<CustomerGroupApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .customerGroupDao
                 .bulkCreate(data: cusGroup);
@@ -846,7 +851,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            cusCst = await GetIt.instance<CustomerApi>().fetchData();
+            cusCst = await GetIt.instance<CustomerApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .customerCstDao
                 .bulkCreate(data: cusCst);
@@ -863,7 +868,8 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            priceByItem = await GetIt.instance<PriceByItemApi>().fetchData();
+            priceByItem =
+                await GetIt.instance<PriceByItemApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .priceByItemDao
                 .bulkCreate(data: priceByItem);
@@ -880,7 +886,7 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            apmps = await GetIt.instance<APMPSApi>().fetchData();
+            apmps = await GetIt.instance<APMPSApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .assignPriceMemberPerStoreDao
                 .bulkCreate(data: apmps);
@@ -898,7 +904,7 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             priceItemBarcode =
-                await GetIt.instance<PriceByItemBarcodeApi>().fetchData();
+                await GetIt.instance<PriceByItemBarcodeApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .priceByItemBarcodeDao
                 .bulkCreate(data: priceItemBarcode);
@@ -933,7 +939,8 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData();
+            topsb =
+                await GetIt.instance<PromoHargaSpesialApi>().initializeData();
             await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialHeaderDao
                 .bulkCreate(data: topsb);
@@ -950,7 +957,8 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>().fetchData();
+            tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>()
+                .initializeData();
             await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialBuyDao
                 .bulkCreate(data: tpsb1);
@@ -968,7 +976,7 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
-                .fetchData();
+                .initializeData();
             await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialAssignStoreDao
                 .bulkCreate(data: tpsb2);
@@ -986,25 +994,7 @@ class _FetchScreenState extends State<FetchScreen> {
         () async {
           try {
             tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
-                .fetchData();
-            await GetIt.instance<AppDatabase>()
-                .promoHargaSpesialCustomerGroupDao
-                .bulkCreate(data: tpsb4);
-            setState(() {
-              _syncProgress += 1 / totalTable;
-            });
-          } catch (e) {
-            if (e is DatabaseException) {
-              log('DatabaseException occurred: $e');
-            } else {
-              rethrow;
-            }
-          }
-        },
-        () async {
-          try {
-            tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
-                .fetchData();
+                .initializeData();
             await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialCustomerGroupDao
                 .bulkCreate(data: tpsb4);
@@ -1724,18 +1714,11 @@ class _FetchScreenState extends State<FetchScreen> {
 
   void _fetchData() async {
     print('Fetching data...');
-    await GetIt.instance<AppDatabase>().promosDao.deletePromos();
     try {
-      final tastr = await GetIt.instance<AuthStoreApi>()
-          .authUser("admin", "75dd6fb87c1c218786aab5d5a20e64a0");
-      log("$tastr");
-      await GetIt.instance<AppDatabase>().authStoreDao.bulkCreate(data: tastr);
-      setState(() {
-        // _dataFetched = data.length;
-        // _dataExample = data[0].docId;
-        _errorMessage = '';
-      });
-      // print(data);
+      final apmps = await GetIt.instance<APMPSApi>().initializeData();
+      await GetIt.instance<AppDatabase>()
+          .assignPriceMemberPerStoreDao
+          .bulkCreate(data: apmps);
       print("Data Fetched");
     } catch (error) {
       print('Error: $error');

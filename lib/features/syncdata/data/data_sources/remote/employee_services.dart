@@ -10,21 +10,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class EmployeeApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   EmployeeApi(this._dio);
 
-  Future<List<EmployeeModel>> fetchData() async {
+  Future<List<EmployeeModel>> initializeData() async {
     try {
-      String apiName = "API-EMPLOYEE";
+      String apiName = "API-TOHEM";
       Map<String, dynamic> exeData = {};
       List<EmployeeModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +41,10 @@ class EmployeeApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [tenantId, date, date]
+          };
         }
       }
 

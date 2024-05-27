@@ -16,13 +16,14 @@ class CurrencyApi {
 
   CurrencyApi(this._dio);
 
-  Future<List<CurrencyModel>> fetchData() async {
+  Future<List<CurrencyModel>> initializeData() async {
     try {
-      String apiName = "API-CURRENCY";
+      String apiName = "API-TCURR";
       Map<String, dynamic> exeData = {};
       List<CurrencyModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -42,7 +43,11 @@ class CurrencyApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tenantId]
+            "parameter": [
+              tenantId,
+              date,
+              date,
+            ]
           };
         }
       }

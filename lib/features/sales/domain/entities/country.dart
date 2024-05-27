@@ -10,16 +10,18 @@ class CountryEntity {
   final String descriptionFrgn;
   final String phoneCode;
   final String? tcurrId;
+  final String form;
 
   CountryEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.countryCode,
     required this.description,
     required this.descriptionFrgn,
     required this.phoneCode,
-    required this.tcurrId,
+    this.tcurrId,
+    required this.form,
   });
 
   CountryEntity copyWith({
@@ -31,6 +33,7 @@ class CountryEntity {
     String? descriptionFrgn,
     String? phoneCode,
     String? tcurrId,
+    String? form,
   }) {
     return CountryEntity(
       docId: docId ?? this.docId,
@@ -41,6 +44,7 @@ class CountryEntity {
       descriptionFrgn: descriptionFrgn ?? this.descriptionFrgn,
       phoneCode: phoneCode ?? this.phoneCode,
       tcurrId: tcurrId ?? this.tcurrId,
+      form: form ?? this.form,
     );
   }
 
@@ -54,6 +58,7 @@ class CountryEntity {
       'descriptionFrgn': descriptionFrgn,
       'phoneCode': phoneCode,
       'tcurrId': tcurrId,
+      'form': form,
     };
   }
 
@@ -69,6 +74,7 @@ class CountryEntity {
       descriptionFrgn: map['descriptionFrgn'] as String,
       phoneCode: map['phoneCode'] as String,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -79,7 +85,7 @@ class CountryEntity {
 
   @override
   String toString() {
-    return 'CountryEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, countryCode: $countryCode, description: $description, descriptionFrgn: $descriptionFrgn, phoneCode: $phoneCode, tcurrId: $tcurrId)';
+    return 'CountryEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, countryCode: $countryCode, description: $description, descriptionFrgn: $descriptionFrgn, phoneCode: $phoneCode, tcurrId: $tcurrId, form: $form)';
   }
 
   @override
@@ -93,7 +99,8 @@ class CountryEntity {
         other.description == description &&
         other.descriptionFrgn == descriptionFrgn &&
         other.phoneCode == phoneCode &&
-        other.tcurrId == tcurrId;
+        other.tcurrId == tcurrId &&
+        other.form == form;
   }
 
   @override
@@ -105,6 +112,7 @@ class CountryEntity {
         description.hashCode ^
         descriptionFrgn.hashCode ^
         phoneCode.hashCode ^
-        tcurrId.hashCode;
+        tcurrId.hashCode ^
+        form.hashCode;
   }
 }

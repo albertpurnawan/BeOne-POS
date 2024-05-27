@@ -11,17 +11,19 @@ class ZipCodeEntity {
   final String? urban;
   final String subDistrict;
   final String? toprvId;
+  final String form;
 
   ZipCodeEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.zipCode,
     required this.city,
     required this.district,
-    required this.urban,
+    this.urban,
     required this.subDistrict,
-    required this.toprvId,
+    this.toprvId,
+    required this.form,
   });
 
   ZipCodeEntity copyWith({
@@ -34,6 +36,7 @@ class ZipCodeEntity {
     String? urban,
     String? subDistrict,
     String? toprvId,
+    String? form,
   }) {
     return ZipCodeEntity(
       docId: docId ?? this.docId,
@@ -45,6 +48,7 @@ class ZipCodeEntity {
       urban: urban ?? this.urban,
       subDistrict: subDistrict ?? this.subDistrict,
       toprvId: toprvId ?? this.toprvId,
+      form: form ?? this.form,
     );
   }
 
@@ -59,6 +63,7 @@ class ZipCodeEntity {
       'urban': urban,
       'subDistrict': subDistrict,
       'toprvId': toprvId,
+      'form': form,
     };
   }
 
@@ -72,10 +77,10 @@ class ZipCodeEntity {
       zipCode: map['zipCode'] as String,
       city: map['city'] as String,
       district: map['district'] as String,
-      urban: map['urban'] as String,
-      subDistrict:
-          map['subDistrict'] != null ? map['subDistrict'] as String : "",
+      urban: map['urban'] != null ? map['urban'] as String : null,
+      subDistrict: map['subDistrict'] as String,
       toprvId: map['toprvId'] != null ? map['toprvId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -86,7 +91,7 @@ class ZipCodeEntity {
 
   @override
   String toString() {
-    return 'ZipCodeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, zipCode: $zipCode, city: $city, district: $district, urban: $urban, subDistrict: $subDistrict, toprvId: $toprvId)';
+    return 'ZipCodeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, zipCode: $zipCode, city: $city, district: $district, urban: $urban, subDistrict: $subDistrict, toprvId: $toprvId, form: $form)';
   }
 
   @override
@@ -101,7 +106,8 @@ class ZipCodeEntity {
         other.district == district &&
         other.urban == urban &&
         other.subDistrict == subDistrict &&
-        other.toprvId == toprvId;
+        other.toprvId == toprvId &&
+        other.form == form;
   }
 
   @override
@@ -114,6 +120,7 @@ class ZipCodeEntity {
         district.hashCode ^
         urban.hashCode ^
         subDistrict.hashCode ^
-        toprvId.hashCode;
+        toprvId.hashCode ^
+        form.hashCode;
   }
 }

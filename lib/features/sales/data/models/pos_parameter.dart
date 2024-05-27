@@ -15,6 +15,7 @@ class POSParameterFields {
     baseUrl,
     usernameAdmin,
     passwordAdmin,
+    lastSync,
   ];
 
   static const String docId = 'docid';
@@ -27,6 +28,7 @@ class POSParameterFields {
   static const String baseUrl = "baseurl";
   static const String usernameAdmin = "usernameadmin";
   static const String passwordAdmin = "passwordadmin";
+  static const String lastSync = "lastsync";
 }
 
 class POSParameterModel extends POSParameterEntity implements BaseModel {
@@ -41,6 +43,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
     required super.baseUrl,
     required super.usernameAdmin,
     required super.passwordAdmin,
+    required super.lastSync,
   });
 
   @override
@@ -56,6 +59,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       'baseurl': baseUrl,
       'usernameadmin': usernameAdmin,
       'passwordadmin': passwordAdmin,
+      'lastsync': lastSync, // toIsoString
     };
   }
 
@@ -77,6 +81,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
           map['usernameadmin'] != null ? map['usernameadmin'] as String : null,
       passwordAdmin:
           map['passwordadmin'] != null ? map['passwordadmin'] as String : null,
+      lastSync: map['lastync'] != null ? map['lastync'] as String : null,
     );
   }
 
@@ -92,6 +97,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       baseUrl: entity.baseUrl,
       usernameAdmin: entity.usernameAdmin,
       passwordAdmin: entity.passwordAdmin,
+      lastSync: entity.lastSync,
     );
   }
 }

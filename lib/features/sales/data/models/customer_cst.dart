@@ -22,6 +22,7 @@ class CustomerCstFields {
     docid_crm,
     statusActive,
     activated,
+    form,
   ];
 
   static const String docId = "docid";
@@ -41,6 +42,7 @@ class CustomerCstFields {
   static const String docid_crm = "docid_crm";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
+  static const String form = "form";
 }
 
 class CustomerCstModel extends CustomerCstEntity implements BaseModel {
@@ -62,6 +64,7 @@ class CustomerCstModel extends CustomerCstEntity implements BaseModel {
     required super.docid_crm,
     required super.statusActive,
     required super.activated,
+    required super.form,
   });
 
   @override
@@ -84,6 +87,7 @@ class CustomerCstModel extends CustomerCstEntity implements BaseModel {
       'docid_crm': docid_crm,
       'statusactive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -110,6 +114,7 @@ class CustomerCstModel extends CustomerCstEntity implements BaseModel {
       docid_crm: map['docid_crm'] != null ? map['docid_crm'] as String : null,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -142,6 +147,7 @@ class CustomerCstModel extends CustomerCstEntity implements BaseModel {
       docid_crm: entity.docid_crm,
       statusActive: entity.statusActive,
       activated: entity.activated,
+      form: entity.form,
     );
   }
 }

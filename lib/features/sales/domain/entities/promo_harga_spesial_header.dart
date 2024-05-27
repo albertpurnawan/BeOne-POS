@@ -21,26 +21,28 @@ class PromoHargaSpesialHeaderEntity {
   final int promoAlias;
   final String? toitmId;
   final int? promoType;
+  final String form;
 
   PromoHargaSpesialHeaderEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.promoCode,
     required this.description,
     required this.startDate,
     required this.endDate,
     required this.startTime,
     required this.endTime,
-    required this.remarks,
+    this.remarks,
     required this.statusActive,
     required this.maxPurchaseDay,
     required this.maxPurchaseTransaction,
     required this.validMultiply,
     required this.quota,
     required this.promoAlias,
-    required this.toitmId,
-    required this.promoType,
+    this.toitmId,
+    this.promoType,
+    required this.form,
   });
 
   PromoHargaSpesialHeaderEntity copyWith({
@@ -62,6 +64,7 @@ class PromoHargaSpesialHeaderEntity {
     int? promoAlias,
     String? toitmId,
     int? promoType,
+    String? form,
   }) {
     return PromoHargaSpesialHeaderEntity(
       docId: docId ?? this.docId,
@@ -83,6 +86,7 @@ class PromoHargaSpesialHeaderEntity {
       promoAlias: promoAlias ?? this.promoAlias,
       toitmId: toitmId ?? this.toitmId,
       promoType: promoType ?? this.promoType,
+      form: form ?? this.form,
     );
   }
 
@@ -106,6 +110,7 @@ class PromoHargaSpesialHeaderEntity {
       'promoAlias': promoAlias,
       'toitmId': toitmId,
       'promoType': promoType,
+      'form': form,
     };
   }
 
@@ -131,6 +136,7 @@ class PromoHargaSpesialHeaderEntity {
       promoAlias: map['promoAlias'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       promoType: map['promoType'] != null ? map['promoType'] as int : null,
+      form: map['form'] as String,
     );
   }
 
@@ -142,7 +148,7 @@ class PromoHargaSpesialHeaderEntity {
 
   @override
   String toString() {
-    return 'PromoHargaSpesialHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, maxPurchaseDay: $maxPurchaseDay, maxPurchaseTransaction: $maxPurchaseTransaction, validMultiply: $validMultiply, quota: $quota, promoAlias: $promoAlias, toitmId: $toitmId, promoType: $promoType)';
+    return 'PromoHargaSpesialHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, maxPurchaseDay: $maxPurchaseDay, maxPurchaseTransaction: $maxPurchaseTransaction, validMultiply: $validMultiply, quota: $quota, promoAlias: $promoAlias, toitmId: $toitmId, promoType: $promoType, form: $form)';
   }
 
   @override
@@ -166,7 +172,8 @@ class PromoHargaSpesialHeaderEntity {
         other.quota == quota &&
         other.promoAlias == promoAlias &&
         other.toitmId == toitmId &&
-        other.promoType == promoType;
+        other.promoType == promoType &&
+        other.form == form;
   }
 
   @override
@@ -188,6 +195,7 @@ class PromoHargaSpesialHeaderEntity {
         quota.hashCode ^
         promoAlias.hashCode ^
         toitmId.hashCode ^
-        promoType.hashCode;
+        promoType.hashCode ^
+        form.hashCode;
   }
 }

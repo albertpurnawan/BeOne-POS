@@ -32,6 +32,7 @@ class VendorFields {
     // activated,
     // tohemId,
     // sync,
+    form,
   ];
 
   static const String docId = "docid";
@@ -61,6 +62,7 @@ class VendorFields {
   // static const String activated = "activated";
   // static const String tohemId = "tohemId";
   // static const String sync = "sync";
+  static const String form = "form";
 }
 
 class VendorModel extends VendorEntity implements BaseModel {
@@ -92,6 +94,7 @@ class VendorModel extends VendorEntity implements BaseModel {
     // required super.activated,
     // required super.tohemId,
     // required super.sync,
+    required super.form,
   });
 
   @override
@@ -124,6 +127,7 @@ class VendorModel extends VendorEntity implements BaseModel {
       // 'activated': activated,
       // 'tohemId': tohemId,
       // 'sync': sync,
+      'form': form,
     };
   }
 
@@ -160,6 +164,7 @@ class VendorModel extends VendorEntity implements BaseModel {
       // activated: map['activated'] as int,
       // tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       // sync: map['sync'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -204,6 +209,7 @@ class VendorModel extends VendorEntity implements BaseModel {
       // activated: entity.activated,
       // tohemId: entity.tohemId,
       // sync: entity.sync,
+      form: entity.form,
     );
   }
 }

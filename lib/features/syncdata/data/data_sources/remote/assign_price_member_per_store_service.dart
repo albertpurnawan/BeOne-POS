@@ -10,21 +10,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class APMPSApi {
   final Dio _dio;
+  String? tenantId;
+  String? storeId;
   String? url;
   String? token;
 
   APMPSApi(this._dio);
 
-  Future<List<AssignPriceMemberPerStoreModel>> fetchData() async {
+  Future<List<AssignPriceMemberPerStoreModel>> initializeData() async {
     try {
-      String apiName = "API-PRICEMEMBERBSTORE";
+      String apiName = "API-TPLN3";
       Map<String, dynamic> exeData = {};
       List<AssignPriceMemberPerStoreModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
+      storeId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +43,15 @@ class APMPSApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              date,
+              date,
+              storeId,
+            ]
+          };
         }
       }
 

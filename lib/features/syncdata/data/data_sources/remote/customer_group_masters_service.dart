@@ -10,21 +10,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerGroupApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   CustomerGroupApi(this._dio);
 
-  Future<List<CustomerGroupModel>> fetchData() async {
+  Future<List<CustomerGroupModel>> initializeData() async {
     try {
-      String apiName = "API-CUSTGROUP";
+      String apiName = "API-TOCRG";
       Map<String, dynamic> exeData = {};
       List<CustomerGroupModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +41,14 @@ class CustomerGroupApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              date,
+              date,
+            ]
+          };
         }
       }
 

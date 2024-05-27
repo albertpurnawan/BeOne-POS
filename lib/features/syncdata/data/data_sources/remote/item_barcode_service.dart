@@ -10,22 +10,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ItemBarcodeApi {
   final Dio _dio;
+  String? tenantId;
   String? storeId;
   String? url;
   String? token;
 
   ItemBarcodeApi(this._dio);
 
-  Future<List<ItemBarcodeModel>> fetchData() async {
+  Future<List<ItemBarcodeModel>> initializeData() async {
     try {
-      String apiName = "API-ITEMBARCODE";
+      String apiName = "API-TBITM";
       Map<String, dynamic> exeData = {};
       List<ItemBarcodeModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       storeId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
@@ -42,7 +45,12 @@ class ItemBarcodeApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [storeId]
+            "parameter": [
+              tenantId,
+              date,
+              date,
+              storeId,
+            ]
           };
         }
       }

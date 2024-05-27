@@ -6,18 +6,20 @@ class PriceByItemBarcodeEntity {
   final DateTime createDate;
   final DateTime? updateDate;
   final String? tpln2Id;
-  final String? tbitmId;
   final String? tcurrId;
+  final String? tbitmId;
   final double price;
+  final String form;
 
   PriceByItemBarcodeEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.tpln2Id,
-    required this.tbitmId,
-    required this.tcurrId,
+    this.updateDate,
+    this.tpln2Id,
+    this.tcurrId,
+    this.tbitmId,
     required this.price,
+    required this.form,
   });
 
   PriceByItemBarcodeEntity copyWith({
@@ -25,18 +27,20 @@ class PriceByItemBarcodeEntity {
     DateTime? createDate,
     DateTime? updateDate,
     String? tpln2Id,
-    String? tbitmId,
     String? tcurrId,
+    String? tbitmId,
     double? price,
+    String? form,
   }) {
     return PriceByItemBarcodeEntity(
       docId: docId ?? this.docId,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
       tpln2Id: tpln2Id ?? this.tpln2Id,
-      tbitmId: tbitmId ?? this.tbitmId,
       tcurrId: tcurrId ?? this.tcurrId,
+      tbitmId: tbitmId ?? this.tbitmId,
       price: price ?? this.price,
+      form: form ?? this.form,
     );
   }
 
@@ -46,9 +50,10 @@ class PriceByItemBarcodeEntity {
       'createDate': createDate.millisecondsSinceEpoch,
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'tpln2Id': tpln2Id,
-      'tbitmId': tbitmId,
       'tcurrId': tcurrId,
+      'tbitmId': tbitmId,
       'price': price,
+      'form': form,
     };
   }
 
@@ -60,9 +65,10 @@ class PriceByItemBarcodeEntity {
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
       tpln2Id: map['tpln2Id'] != null ? map['tpln2Id'] as String : null,
-      tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
+      tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       price: map['price'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -74,7 +80,7 @@ class PriceByItemBarcodeEntity {
 
   @override
   String toString() {
-    return 'PriceByItemBarcodeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln2Id: $tpln2Id, tbitmId: $tbitmId, tcurrId: $tcurrId, price: $price)';
+    return 'PriceByItemBarcodeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpln2Id: $tpln2Id, tcurrId: $tcurrId, tbitmId: $tbitmId, price: $price, form: $form)';
   }
 
   @override
@@ -85,9 +91,10 @@ class PriceByItemBarcodeEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.tpln2Id == tpln2Id &&
-        other.tbitmId == tbitmId &&
         other.tcurrId == tcurrId &&
-        other.price == price;
+        other.tbitmId == tbitmId &&
+        other.price == price &&
+        other.form == form;
   }
 
   @override
@@ -96,8 +103,9 @@ class PriceByItemBarcodeEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         tpln2Id.hashCode ^
-        tbitmId.hashCode ^
         tcurrId.hashCode ^
-        price.hashCode;
+        tbitmId.hashCode ^
+        price.hashCode ^
+        form.hashCode;
   }
 }

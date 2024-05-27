@@ -10,22 +10,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ItemRemarksApi {
   final Dio _dio;
+  String? tenantId;
   String? storeId;
   String? url;
   String? token;
 
   ItemRemarksApi(this._dio);
 
-  Future<List<ItemRemarksModel>> fetchData() async {
+  Future<List<ItemRemarksModel>> initializeData() async {
     try {
-      String apiName = "API-ITEMREMARK";
+      String apiName = "API-TRITM";
       Map<String, dynamic> exeData = {};
       List<ItemRemarksModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       storeId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
@@ -42,7 +45,12 @@ class ItemRemarksApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [storeId]
+            "parameter": [
+              tenantId,
+              date,
+              date,
+              storeId,
+            ]
           };
         }
       }

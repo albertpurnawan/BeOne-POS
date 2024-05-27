@@ -10,16 +10,18 @@ class CustomerGroupEntity {
   final double maxDiscount;
   final int statusActive;
   final int activated;
+  final String form;
 
   CustomerGroupEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.custgroupCode,
     required this.description,
     required this.maxDiscount,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   CustomerGroupEntity copyWith({
@@ -31,6 +33,7 @@ class CustomerGroupEntity {
     double? maxDiscount,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return CustomerGroupEntity(
       docId: docId ?? this.docId,
@@ -41,6 +44,7 @@ class CustomerGroupEntity {
       maxDiscount: maxDiscount ?? this.maxDiscount,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -54,6 +58,7 @@ class CustomerGroupEntity {
       'maxDiscount': maxDiscount,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -69,6 +74,7 @@ class CustomerGroupEntity {
       maxDiscount: map['maxDiscount'] as double,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -79,7 +85,7 @@ class CustomerGroupEntity {
 
   @override
   String toString() {
-    return 'CustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, custgroupCode: $custgroupCode, description: $description, maxDiscount: $maxDiscount, statusActive: $statusActive, activated: $activated)';
+    return 'CustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, custgroupCode: $custgroupCode, description: $description, maxDiscount: $maxDiscount, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -93,7 +99,8 @@ class CustomerGroupEntity {
         other.description == description &&
         other.maxDiscount == maxDiscount &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -105,6 +112,7 @@ class CustomerGroupEntity {
         description.hashCode ^
         maxDiscount.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

@@ -20,6 +20,7 @@ class PriceByItemFields {
     // afterRounding,
     // beforeRounding,
     // roundingDiff,
+    form,
   ];
 
   static const String docId = 'docid';
@@ -37,6 +38,7 @@ class PriceByItemFields {
   // static const String afterRounding = 'afterrounding';
   // static const String beforeRounding = 'beforerounding';
   // static const String roundingDiff = 'roundingdiff';
+  static const String form = 'form';
 }
 
 class PriceByItemModel extends PriceByItemEntity implements BaseModel {
@@ -56,6 +58,7 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
     // required super.afterRounding,
     // required super.beforeRounding,
     // required super.roundingDiff,
+    required super.form,
   });
 
   @override
@@ -76,6 +79,7 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       // 'afterrounding': afterRounding,
       // 'beforerounding': beforeRounding,
       // 'roundingdiff': roundingDiff,
+      'form': form,
     };
   }
 
@@ -108,6 +112,7 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       //     : null,
       // roundingDiff:
       //     map['roundingdiff'] != null ? map['roundingdiff'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -162,6 +167,7 @@ class PriceByItemModel extends PriceByItemEntity implements BaseModel {
       // afterRounding: entity.afterRounding,
       // beforeRounding: entity.beforeRounding,
       // roundingDiff: entity.roundingDiff,
+      form: entity.form,
     );
   }
 }

@@ -10,21 +10,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UoMApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   UoMApi(this._dio);
 
-  Future<List<UomModel>> fetchData() async {
+  Future<List<UomModel>> initializeData() async {
     try {
-      String apiName = "API-UOM";
+      String apiName = "API-TOUOM";
       Map<String, dynamic> exeData = {};
       List<UomModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
+      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +41,14 @@ class UoMApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              date,
+              date,
+            ]
+          };
         }
       }
 

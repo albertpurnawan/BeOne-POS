@@ -12,6 +12,7 @@ class UomFields {
     uomDesc,
     statusActive,
     activated,
+    form,
   ];
 
   static const String docId = "docid";
@@ -21,6 +22,7 @@ class UomFields {
   static const String uomDesc = "uomdesc";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
+  static const String form = "form";
 }
 
 class UomModel extends UomEntity implements BaseModel {
@@ -32,6 +34,7 @@ class UomModel extends UomEntity implements BaseModel {
     required super.uomDesc,
     required super.statusActive,
     required super.activated,
+    required super.form,
   });
 
   @override
@@ -44,6 +47,7 @@ class UomModel extends UomEntity implements BaseModel {
       'uomDesc': uomDesc,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -58,6 +62,7 @@ class UomModel extends UomEntity implements BaseModel {
       uomDesc: map['uomdesc'] as String,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 }

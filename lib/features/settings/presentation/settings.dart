@@ -29,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         statusBarColor: ProjectColors.primary,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Setup'),
@@ -77,6 +78,7 @@ class _SettingsFormState extends State<SettingsForm> {
       passwordController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  String dflDate = "2000-01-01 00:00:00";
 
   // needed to change
   String emailAdmin = "interfacing@topgolf.com";
@@ -223,6 +225,7 @@ class _SettingsFormState extends State<SettingsForm> {
                   baseUrl: urlController.text,
                   usernameAdmin: emailController.text,
                   passwordAdmin: hashedPass,
+                  lastSync: '',
                 );
                 log(topos.toString());
 
@@ -233,12 +236,14 @@ class _SettingsFormState extends State<SettingsForm> {
                 log("TOPOS CREATED");
 
                 Constant.updateTopos(
-                    gtentController.text,
-                    tostrController.text,
-                    tocsrController.text,
-                    urlController.text,
-                    emailAdmin,
-                    passwordAdmin);
+                  gtentController.text,
+                  tostrController.text,
+                  tocsrController.text,
+                  urlController.text,
+                  emailAdmin,
+                  passwordAdmin,
+                  dflDate,
+                );
 
                 final token = await GetIt.instance<TokenApi>().getToken(
                     urlController.text,

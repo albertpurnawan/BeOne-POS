@@ -15,6 +15,7 @@ class PreferredVendorFields {
     multipyOrder,
     canOrder,
     dflt,
+    form,
   ];
 
   static const String docId = "docid";
@@ -27,6 +28,7 @@ class PreferredVendorFields {
   static const String multipyOrder = "multipyorder";
   static const String canOrder = "canorder";
   static const String dflt = "dflt";
+  static const String form = "form";
 }
 
 class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
@@ -41,6 +43,7 @@ class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
     required super.multipyOrder,
     required super.canOrder,
     required super.dflt,
+    required super.form,
   });
 
   @override
@@ -56,6 +59,7 @@ class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
       'multipyorder': multipyOrder,
       'canorder': canOrder,
       'dflt': dflt,
+      'form': form,
     };
   }
 
@@ -83,6 +87,7 @@ class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
       multipyOrder: map['multipyorder'] as double,
       canOrder: map['canorder'] as int,
       dflt: map['dflt'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -98,6 +103,7 @@ class PreferredVendorModel extends PreferredVendorEntity implements BaseModel {
       multipyOrder: entity.multipyOrder,
       canOrder: entity.canOrder,
       dflt: entity.dflt,
+      form: entity.form,
     );
   }
 }

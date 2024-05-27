@@ -12,6 +12,7 @@ class UserRoleFields {
     roleName,
     statusActive,
     activated,
+    form,
   ];
 
   static const String docId = "docid";
@@ -21,6 +22,7 @@ class UserRoleFields {
   static const String roleName = "rolename";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
+  static const String form = "form";
 }
 
 class UserRoleModel extends UserRoleEntity implements BaseModel {
@@ -32,6 +34,7 @@ class UserRoleModel extends UserRoleEntity implements BaseModel {
     required super.roleName,
     required super.statusActive,
     required super.activated,
+    required super.form,
   });
 
   @override
@@ -44,6 +47,7 @@ class UserRoleModel extends UserRoleEntity implements BaseModel {
       'rolename': roleName,
       'statusactive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -58,6 +62,7 @@ class UserRoleModel extends UserRoleEntity implements BaseModel {
       roleName: map['rolename'] as String,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -70,6 +75,7 @@ class UserRoleModel extends UserRoleEntity implements BaseModel {
       roleName: entity.roleName,
       statusActive: entity.statusActive,
       activated: entity.activated,
+      form: entity.form,
     );
   }
 }

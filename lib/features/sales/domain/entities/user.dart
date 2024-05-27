@@ -15,21 +15,23 @@ class UserEntity {
   final int superUser;
   final int? userType;
   final String? tostrId;
+  final String form;
 
   UserEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.email,
     required this.username,
     required this.password,
-    required this.tohemId,
-    required this.torolId,
+    this.tohemId,
+    this.torolId,
     required this.statusActive,
     required this.activated,
     required this.superUser,
-    required this.userType,
-    required this.tostrId,
+    this.userType,
+    this.tostrId,
+    required this.form,
   });
 
   UserEntity copyWith({
@@ -46,6 +48,7 @@ class UserEntity {
     int? superUser,
     int? userType,
     String? tostrId,
+    String? form,
   }) {
     return UserEntity(
       docId: docId ?? this.docId,
@@ -61,6 +64,7 @@ class UserEntity {
       superUser: superUser ?? this.superUser,
       userType: userType ?? this.userType,
       tostrId: tostrId ?? this.tostrId,
+      form: form ?? this.form,
     );
   }
 
@@ -79,6 +83,7 @@ class UserEntity {
       'superUser': superUser,
       'userType': userType,
       'tostrId': tostrId,
+      'form': form,
     };
   }
 
@@ -99,6 +104,7 @@ class UserEntity {
       superUser: map['superUser'] as int,
       userType: map['userType'] != null ? map['userType'] as int : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -109,7 +115,7 @@ class UserEntity {
 
   @override
   String toString() {
-    return 'UserEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, email: $email, username: $username, password: $password, tohemId: $tohemId, torolId: $torolId, statusActive: $statusActive, activated: $activated, superUser: $superUser, userType: $userType, tostrId: $tostrId)';
+    return 'UserEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, email: $email, username: $username, password: $password, tohemId: $tohemId, torolId: $torolId, statusActive: $statusActive, activated: $activated, superUser: $superUser, userType: $userType, tostrId: $tostrId, form: $form)';
   }
 
   @override
@@ -128,7 +134,8 @@ class UserEntity {
         other.activated == activated &&
         other.superUser == superUser &&
         other.userType == userType &&
-        other.tostrId == tostrId;
+        other.tostrId == tostrId &&
+        other.form == form;
   }
 
   @override
@@ -145,6 +152,7 @@ class UserEntity {
         activated.hashCode ^
         superUser.hashCode ^
         userType.hashCode ^
-        tostrId.hashCode;
+        tostrId.hashCode ^
+        form.hashCode;
   }
 }
