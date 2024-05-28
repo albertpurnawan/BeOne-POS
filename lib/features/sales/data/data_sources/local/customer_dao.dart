@@ -33,4 +33,17 @@ class CustomerDao extends BaseDao<CustomerModel> {
 
     return result.map((itemData) => CustomerModel.fromMap(itemData)).toList();
   }
+
+  Future<CustomerModel?> readByCustCode(
+      String custCode, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'custcode = ?',
+      whereArgs: [custCode],
+    );
+
+    return res.isNotEmpty ? CustomerModel.fromMap(res[0]) : null;
+  }
 }

@@ -11,11 +11,14 @@ import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
@@ -97,6 +100,9 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<RecalculateTaxUseCase>(),
                       GetIt.instance<HandlePromoTopdgUseCase>(),
                       GetIt.instance<HandlePromoTopdiUseCase>(),
+                      GetIt.instance<GetPosParameterUseCase>(),
+                      GetIt.instance<GetStoreMasterUseCase>(),
+                      GetIt.instance<GetCashRegisterUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>

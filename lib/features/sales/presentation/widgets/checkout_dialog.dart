@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -198,6 +201,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             (states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
                       try {
+                        final ReceiptEntity state =
+                            context.read<ReceiptCubit>().state;
+                        if ((state.totalPayment ?? 0) < state.grandTotal) {
+                          context.pop(false);
+                          return ErrorHandler.presentErrorSnackBar(context,
+                              "Payment must be greater than grand total");
+                        }
+
                         // Edit to QRIS here
                         final mopSelected =
                             context.read<ReceiptCubit>().state.mopSelection;

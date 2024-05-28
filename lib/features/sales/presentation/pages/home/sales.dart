@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
@@ -1421,6 +1422,14 @@ class _SalesPageState extends State<SalesPage> {
               child: SizedBox.expand(
                 child: OutlinedButton(
                   onPressed: () {
+                    if (context
+                        .read<ReceiptCubit>()
+                        .state
+                        .receiptItems
+                        .isEmpty) {
+                      return ErrorHandler.presentErrorSnackBar(
+                          context, "Receipt cannot be empty");
+                    }
                     context.read<ReceiptCubit>().queueReceipt();
                   },
                   style: OutlinedButton.styleFrom(
@@ -1463,6 +1472,15 @@ class _SalesPageState extends State<SalesPage> {
               child: SizedBox.expand(
                 child: OutlinedButton(
                   onPressed: () async {
+                    if (context
+                        .read<ReceiptCubit>()
+                        .state
+                        .receiptItems
+                        .isEmpty) {
+                      return ErrorHandler.presentErrorSnackBar(
+                          context, "Receipt cannot be empty");
+                    }
+
                     setState(() {
                       isEditingNewReceiptItemCode = false;
                       isEditingNewReceiptItemQty = false;
