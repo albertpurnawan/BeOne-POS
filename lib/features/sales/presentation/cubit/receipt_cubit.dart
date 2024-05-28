@@ -13,19 +13,27 @@ import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
+import 'package:pos_fe/features/sales/domain/entities/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
@@ -42,6 +50,7 @@ import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_promo_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promo_get_y_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'receipt_state.dart';
 
@@ -64,6 +73,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final RecalculateTaxUseCase _recalculateTaxUseCase;
   final HandlePromoTopdgUseCase _handlePromoTopdgUseCase;
   final HandlePromoTopdiUseCase _handlePromoTopdiUseCase;
+  final GetPosParameterUseCase _getPosParameterUseCase;
+  final GetStoreMasterUseCase _getStoreMasterUseCase;
+  final GetCashRegisterUseCase _getCashRegisterUseCase;
 
   ReceiptCubit(
     this._getItemByBarcodeUseCase,
@@ -84,6 +96,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._recalculateTaxUseCase,
     this._handlePromoTopdgUseCase,
     this._handlePromoTopdiUseCase,
+    this._getPosParameterUseCase,
+    this._getStoreMasterUseCase,
+    this._getCashRegisterUseCase,
   ) : super(ReceiptEntity(
             docNum:
                 "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
@@ -328,19 +343,39 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
   }
 
-  void resetReceipt() {
-    emit(ReceiptEntity(
-      docNum:
-          "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
-      receiptItems: [],
-      subtotal: 0,
-      totalTax: 0,
-      transStart: DateTime.now(),
-      taxAmount: 0,
-      grandTotal: 0,
-      vouchers: [],
-      promos: [],
-    ));
+  Future<void> resetReceipt() async {
+    try {
+      final EmployeeEntity? employeeEntity = await _getEmployeeUseCase.call();
+      final CustomerEntity? customerEntity = await GetIt.instance<AppDatabase>()
+          .customerDao
+          .readByCustCode("99", null);
+      final List<InvoiceHeaderEntity> invoiceHeaderEntities =
+          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
+      final POSParameterEntity? posParameterEntity =
+          await _getPosParameterUseCase.call();
+      final StoreMasterEntity? storeMasterEntity = await _getStoreMasterUseCase
+          .call(params: posParameterEntity!.tostrId);
+      final CashRegisterEntity? cashRegisterEntity =
+          await _getCashRegisterUseCase.call(
+              params: posParameterEntity.tocsrId!);
+
+      emit(ReceiptEntity(
+        docNum:
+            "${storeMasterEntity!.storeCode}-${DateFormat('yyMMdd').format(DateTime.now())}${ReceiptHelper.convertIntegerToFourDigitString(invoiceHeaderEntities.length)}/INV${cashRegisterEntity!.idKassa}",
+        employeeEntity: employeeEntity,
+        customerEntity: customerEntity,
+        receiptItems: [],
+        subtotal: 0,
+        totalTax: 0,
+        transStart: DateTime.now(),
+        taxAmount: 0,
+        grandTotal: 0,
+        vouchers: [],
+        promos: [],
+      ));
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void queueReceipt() async {
@@ -356,7 +391,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   void retrieveFromQueue(
       ReceiptEntity receiptEntity, BuildContext context) async {
-    resetReceipt();
+    await resetReceipt();
 
     for (final receiptItem in receiptEntity.receiptItems) {
       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
@@ -367,9 +402,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           onOpenPriceInputted: () => receiptItem.itemEntity.price));
     }
     emit(state
-      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
-      ..docNum =
-          "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1");
+      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId);
   }
 
   Future<void> updateTotalAmountFromDiscount(double discValue) async {
