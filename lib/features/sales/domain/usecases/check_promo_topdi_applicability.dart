@@ -55,20 +55,24 @@ class CheckPromoTopdiApplicabilityUseCase
             now.year,
             now.month,
             now.day,
-            topdi.startDate.hour,
-            topdi.startDate.minute,
-            topdi.startDate.second,
+            topdi.startTime.hour,
+            topdi.startTime.minute,
+            topdi.startTime.second,
           );
           final DateTime endPromo = DateTime(
             now.year,
             now.month,
             now.day,
-            topdi.startDate.hour,
-            topdi.startDate.minute,
-            topdi.startDate.second,
+            topdi.endTime.hour,
+            topdi.endTime.minute,
+            topdi.endTime.second,
           );
 
-          if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch &&
+          log("${topdi.startDate} ${topdi.endDate}");
+          log("${topdi.endDate.hour}, ${topdi.endDate.minute}, ${topdi.endDate.second},");
+          log("waktu $startPromo $endPromo");
+
+          if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
               now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
             return isApplicable = false;
           }
@@ -108,6 +112,8 @@ class CheckPromoTopdiApplicabilityUseCase
             return isApplicable = false;
           }
 
+          log("Unique toitmId ${!tpdi1.every((element) => element.priceFrom != null && element.priceTo != null)}");
+
           Set<String> uniqueToitmId = {};
           for (final receiptItem in receiptEntity.receiptItems) {
             if (tpdi1
@@ -119,6 +125,8 @@ class CheckPromoTopdiApplicabilityUseCase
               uniqueToitmId.add(receiptItem.itemEntity.toitmId);
             }
           }
+
+          log("Unique toitmId $uniqueToitmId");
 
           if (topdi.buyCondition == 1 &&
               (uniqueToitmId.length < tpdi1.length)) {

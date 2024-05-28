@@ -2771,6 +2771,8 @@ CREATE TABLE $tableQueuedInvoiceHeader (
   ${QueuedInvoiceHeaderFields.syncCRM} int NOT NULL DEFAULT '0',
   ${QueuedInvoiceHeaderFields.toinvTohemId} text DEFAULT NULL,
   ${QueuedInvoiceHeaderFields.tcsr1Id} text DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.discHeaderManual} double NOT NULL,
+  ${QueuedInvoiceHeaderFields.discHeaderPromo} double NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
@@ -2810,8 +2812,7 @@ CREATE TABLE $tableQueuedInvoiceDetail (
   ${QueuedInvoiceDetailFields.includeTax} int NOT NULL,
   ${QueuedInvoiceDetailFields.tovenId} text DEFAULT NULL,
   ${QueuedInvoiceDetailFields.tbitmId} text DEFAULT NULL,
-  ${QueuedInvoiceDetailFields.discHeaderAmount} double DEFAULT NULL,
-  ${QueuedInvoiceDetailFields.subtotalAfterDiscHeader} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.discHeaderAmount} double NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `queuedInvoiceDetails_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `queuedInvoiceHeaders` (`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `queuedInvoiceDetails_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

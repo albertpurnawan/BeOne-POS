@@ -51,6 +51,34 @@ class CheckBuyXGetYApplicabilityUseCase
           if (params.receiptEntity.grandTotal < toprb!.minPurchase) {
             isApplicable = false;
           }
+
+          // Check header: waktu, amount vs %
+          final DateTime now = DateTime.now();
+          final DateTime startPromo = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            toprb!.startTime.hour,
+            toprb!.startTime.minute,
+            toprb!.startTime.second,
+          );
+          final DateTime endPromo = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            toprb!.endTime.hour,
+            toprb!.endTime.minute,
+            toprb!.endTime.second,
+          );
+
+          log("${toprb!.startDate} ${toprb!.endDate}");
+          log("${toprb!.endDate.hour}, ${toprb!.endDate.minute}, ${toprb!.endDate.second},");
+          log("waktu $startPromo $endPromo");
+
+          if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
+              now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
+            return isApplicable = false;
+          }
         },
         () async {
           // Check multiply

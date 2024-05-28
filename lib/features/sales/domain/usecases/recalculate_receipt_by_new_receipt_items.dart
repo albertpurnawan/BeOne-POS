@@ -1,11 +1,5 @@
-import 'package:flutter/rendering.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
-import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
-import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
-import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
-import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RecalculateReceiptUseCase
     implements UseCase<ReceiptEntity, ReceiptEntity> {

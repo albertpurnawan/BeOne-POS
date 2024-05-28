@@ -2242,45 +2242,52 @@ class _FetchScreenState extends State<FetchScreen> {
       final promos = <PromotionsModel>[];
       final today = DateTime.now().weekday;
 
-      // for (final header in topsb) {
-      //   final tpsb2 = await GetIt.instance<AppDatabase>()
-      //       .promoHargaSpesialAssignStoreDao
-      //       .readByTopsbId(header.docId, null);
-      //   final tpsb4 = await GetIt.instance<AppDatabase>()
-      //       .promoHargaSpesialCustomerGroupDao
-      //       .readByTopsbId(header.docId, null);
+      await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
-      //   final dayProperties = {
-      //     1: tpsb2.day1,
-      //     2: tpsb2.day2,
-      //     3: tpsb2.day3,
-      //     4: tpsb2.day4,
-      //     5: tpsb2.day5,
-      //     6: tpsb2.day6,
-      //     7: tpsb2.day7,
-      //   };
+      topsb = await GetIt.instance<AppDatabase>()
+          .promoHargaSpesialHeaderDao
+          .readAll();
+      for (final header in topsb) {
+        final tpsb2 = await GetIt.instance<AppDatabase>()
+            .promoHargaSpesialAssignStoreDao
+            .readByTopsbId(header.docId, null);
+        final tpsb4 = await GetIt.instance<AppDatabase>()
+            .promoHargaSpesialCustomerGroupDao
+            .readByTopsbId(header.docId, null);
 
-      //   final isValid = dayProperties[today] == 1;
+        final dayProperties = {
+          1: tpsb2.day1,
+          2: tpsb2.day2,
+          3: tpsb2.day3,
+          4: tpsb2.day4,
+          5: tpsb2.day5,
+          6: tpsb2.day6,
+          7: tpsb2.day7,
+        };
 
-      //   if (isValid) {
-      //     for (final customerGroup in tpsb4) {
-      //       promos.add(PromotionsModel(
-      //         docId: const Uuid().v4(),
-      //         toitmId: header.toitmId,
-      //         promoType: 202,
-      //         promoId: header.docId,
-      //         date: DateTime.now(),
-      //         startTime: header.startTime,
-      //         endTime: header.endTime,
-      //         tocrgId: customerGroup.tocrgId,
-      //         promoDescription: header.description,
-      //         tocatId: null,
-      //         remarks: null,
-      //       ));
-      //     }
-      //   }
-      // }
+        final isValid = dayProperties[today] == 1;
 
+        if (isValid) {
+          for (final customerGroup in tpsb4) {
+            promos.add(PromotionsModel(
+              docId: const Uuid().v4(),
+              toitmId: header.toitmId,
+              promoType: 202,
+              promoId: header.docId,
+              date: DateTime.now(),
+              startTime: header.startTime,
+              endTime: header.endTime,
+              tocrgId: customerGroup.tocrgId,
+              promoDescription: header.description,
+              tocatId: null,
+              remarks: null,
+            ));
+          }
+        }
+      }
+
+      topmi =
+          await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
       for (final header in topmi) {
         final tpmi1 = await GetIt.instance<AppDatabase>()
             .promoMultiItemBuyConditionDao
@@ -2324,6 +2331,9 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
+      topdi = await GetIt.instance<AppDatabase>()
+          .promoDiskonItemHeaderDao
+          .readAll();
       for (final header in topdi) {
         final tpdi1 = await GetIt.instance<AppDatabase>()
             .promoDiskonItemBuyConditionDao
@@ -2367,6 +2377,9 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
+      topdg = await GetIt.instance<AppDatabase>()
+          .promoDiskonGroupItemHeaderDao
+          .readAll();
       for (final header in topdg) {
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
@@ -2417,6 +2430,8 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
+      toprb =
+          await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
       for (final header in toprb) {
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao

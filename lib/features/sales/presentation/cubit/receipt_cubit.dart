@@ -98,6 +98,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
+      // Validate params
+      if (params.context == null) {
+        throw "Params invalid";
+      }
+      if (params.barcode == null && params.itemEntity == null) {
+        throw "Item barcode or item required";
+      }
+
       // Check qty
       if (params.quantity <= 0) {
         throw "Quantity must be greater than 0";
@@ -119,7 +127,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       if (state.previousReceiptEntity != null) {
         final bool? isProceed = await showDialog<bool>(
-          context: params.context,
+          context: params.context!,
           barrierDismissible: false,
           builder: (context) => ConfirmResetPromoDialog(),
         );
@@ -127,11 +135,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         if (!isProceed) return;
       }
       ReceiptEntity newReceipt = state.previousReceiptEntity ?? state;
-
-      // Validate params
-      if (params.barcode == null && params.itemEntity == null) {
-        throw "Item barcode or item required";
-      }
 
       // Get item entity and validate
       if (params.barcode != null) {
@@ -162,7 +165,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                   itemEntity: existingItem[0].itemEntity));
         } else {
           final double? newPrice = await showDialog<double>(
-            context: params.context,
+            context: params.context!,
             barrierDismissible: false,
             builder: (context) => OpenPriceDialog(
                 receiptItemEntity: receiptItemEntity,
@@ -177,6 +180,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Handle promos
+      dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
       availablePromos = await _checkPromoUseCase(
           params: receiptItemEntity.itemEntity.toitmId);
       bool anyPromoApplied = false;
@@ -184,6 +188,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         for (final availablePromo in availablePromos) {
           switch (availablePromo!.promoType) {
             case 202:
+              dev.log("CASE 202");
               newReceipt = await _handlePromoSpecialPriceUseCase.call(
                   params: HandlePromosUseCaseParams(
                 receiptItemEntity: receiptItemEntity,
@@ -213,7 +218,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       emit(newReceipt.copyWith(previousReceiptEntity: null));
     } catch (e, s) {
       dev.log(s.toString());
-      ErrorHandler.presentErrorSnackBar(params.context, e.toString());
+      if (params.context != null) {
+        ErrorHandler.presentErrorSnackBar(params.context!, e.toString());
+      }
     }
   }
 
@@ -305,6 +312,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (state.toinvId != null) {
         await _deleteQueuedReceiptUseCase.call(params: state.toinvId);
       }
+      if (newState.queuedInvoiceHeaderDocId != null) {
+        await GetIt.instance<AppDatabase>()
+            .queuedInvoiceHeaderDao
+            .deleteByDocId(newState.queuedInvoiceHeaderDocId!, null);
+      }
       emit(createdReceipt);
       try {
         await _printReceiptUsecase.call(params: createdReceipt);
@@ -332,12 +344,30 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void queueReceipt() async {
-    await _queueReceiptUseCase.call(params: state);
+    if (state.queuedInvoiceHeaderDocId != null) {
+      await GetIt.instance<AppDatabase>()
+          .queuedInvoiceHeaderDao
+          .deleteByDocId(state.queuedInvoiceHeaderDocId!, null);
+    }
+    await _queueReceiptUseCase.call(
+        params: state.previousReceiptEntity ?? state);
     resetReceipt();
   }
 
-  void retrieveFromQueue(ReceiptEntity receiptEntity) {
-    emit(receiptEntity
+  void retrieveFromQueue(
+      ReceiptEntity receiptEntity, BuildContext context) async {
+    resetReceipt();
+
+    for (final receiptItem in receiptEntity.receiptItems) {
+      await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+          barcode: receiptItem.itemEntity.barcode,
+          itemEntity: null,
+          quantity: receiptItem.quantity,
+          context: context,
+          onOpenPriceInputted: () => receiptItem.itemEntity.price));
+    }
+    emit(state
+      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
       ..docNum =
           "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1");
   }
@@ -532,7 +562,7 @@ class AddUpdateReceiptItemsParams {
   final String? barcode;
   final ItemEntity? itemEntity;
   final double quantity;
-  final BuildContext context;
+  final BuildContext? context;
   final void Function() onOpenPriceInputted;
 
   AddUpdateReceiptItemsParams({
