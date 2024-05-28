@@ -2210,6 +2210,7 @@ CREATE TABLE $tablePromoBuyXGetYHeader (
   ${PromoBuyXGetYHeaderFields.maxGet} double NOT NULL,
   ${PromoBuyXGetYHeaderFields.statusActive} int NOT NULL,
   ${PromoBuyXGetYHeaderFields.toplnId} text DEFAULT NULL,
+  ${PromoBuyXGetYHeaderFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `toprb_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
@@ -2224,6 +2225,7 @@ CREATE TABLE $tablePromoBuyXGetYBuyCondition (
   ${PromoBuyXGetYBuyConditionFields.toitmId} text DEFAULT NULL,
   ${PromoBuyXGetYBuyConditionFields.quantity} double NOT NULL,
   ${PromoBuyXGetYBuyConditionFields.itemPrice} double DEFAULT '0',
+  ${PromoBuyXGetYBuyConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprb1_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tprb1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2245,6 +2247,7 @@ CREATE TABLE $tablePromoBuyXGetYAssignStore (
   ${PromoBuyXGetYAssignStoreFields.day5} int NOT NULL,
   ${PromoBuyXGetYAssignStoreFields.day6} int NOT NULL,
   ${PromoBuyXGetYAssignStoreFields.day7} int NOT NULL,
+  ${PromoBuyXGetYAssignStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprb2_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tprb2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2273,6 +2276,7 @@ CREATE TABLE $tablePromoBuyXGetYGetCondition (
   ${PromoBuyXGetYGetConditionFields.toitmId} text DEFAULT NULL,
   ${PromoBuyXGetYGetConditionFields.quantity} double NOT NULL,
   ${PromoBuyXGetYGetConditionFields.sellingPrice} double NOT NULL,
+  ${PromoBuyXGetYGetConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprb4_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tprb4_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2286,6 +2290,7 @@ CREATE TABLE $tablePromoBuyXGetYCustomerGroup (
   ${PromoBuyXGetYCustomerGroupFields.updateDate} datetime DEFAULT NULL,
   ${PromoBuyXGetYCustomerGroupFields.toprbId} text DEFAULT NULL,
   ${PromoBuyXGetYCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  ${PromoBuyXGetYCustomerGroupFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprb5_toprbId_fkey` FOREIGN KEY (`toprbId`) REFERENCES `toprb` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tprb5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2940,6 +2945,7 @@ CREATE TABLE $tablePromoBonusMultiItemHeader (
   ${PromoBonusMultiItemHeaderFields.validMultiply} int NOT NULL,
   ${PromoBonusMultiItemHeaderFields.promoAlias} int NOT NULL,
   ${PromoBonusMultiItemHeaderFields.transactionLimit} int NOT NULL,
+  ${PromoBonusMultiItemHeaderFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
 """);
@@ -2955,6 +2961,7 @@ CREATE TABLE $tablePromoBonusMultiItemBuyCondition (
   ${PromoBonusMultiItemBuyConditionFields.qtyTo} double DEFAULT NULL,
   ${PromoBonusMultiItemBuyConditionFields.priceFrom} double DEFAULT NULL,
   ${PromoBonusMultiItemBuyConditionFields.priceTo} double DEFAULT NULL,
+  ${PromoBonusMultiItemBuyConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmi1_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2976,6 +2983,7 @@ CREATE TABLE $tablePromoBonusMultiItemAssignStore (
   ${PromoBonusMultiItemAssignStoreFields.day5} int NOT NULL,
   ${PromoBonusMultiItemAssignStoreFields.day6} int NOT NULL,
   ${PromoBonusMultiItemAssignStoreFields.day7} int NOT NULL,
+  ${PromoBonusMultiItemAssignStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmi2_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmi2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2992,6 +3000,7 @@ CREATE TABLE $tablePromoBonusMultiItemGetCondition (
   ${PromoBonusMultiItemGetConditionFields.quantity} double NOT NULL,
   ${PromoBonusMultiItemGetConditionFields.price} double NOT NULL,
   ${PromoBonusMultiItemGetConditionFields.quota} double NOT NULL,
+  ${PromoBonusMultiItemGetConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmi1_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3005,6 +3014,7 @@ CREATE TABLE $tablePromoBonusMultiItemCustomerGroup (
   ${PromoBonusMultiItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
   ${PromoBonusMultiItemCustomerGroupFields.topmiId} text DEFAULT NULL,
   ${PromoBonusMultiItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  ${PromoBonusMultiItemCustomerGroupFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmi5_topmiId_fkey` FOREIGN KEY (`topmiId`) REFERENCES `topmi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpmi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3034,6 +3044,7 @@ CREATE TABLE $tablePromoDiskonItemHeader (
   ${PromoDiskonItemHeaderFields.totalQtyTo} double DEFAULT NULL,
   ${PromoDiskonItemHeaderFields.totalPriceFrom} double DEFAULT NULL,
   ${PromoDiskonItemHeaderFields.totalPriceTo} double DEFAULT NULL,
+  ${PromoDiskonItemHeaderFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
 """);
@@ -3049,6 +3060,7 @@ CREATE TABLE $tablePromoDiskonItemBuyCondition (
   ${PromoDiskonItemBuyConditionFields.priceTo} double DEFAULT NULL,
   ${PromoDiskonItemBuyConditionFields.qtyFrom} double DEFAULT NULL,
   ${PromoDiskonItemBuyConditionFields.qtyTo} double DEFAULT NULL,
+  ${PromoDiskonItemBuyConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpdi1_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpdi1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3070,6 +3082,7 @@ CREATE TABLE $tablePromoDiskonItemAssignStore (
   ${PromoDiskonItemAssignStoreFields.day5} int NOT NULL,
   ${PromoDiskonItemAssignStoreFields.day6} int NOT NULL,
   ${PromoDiskonItemAssignStoreFields.day7} int NOT NULL,
+  ${PromoDiskonItemAssignStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpdi2_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpdi2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3086,6 +3099,7 @@ CREATE TABLE $tablePromoDiskonItemGetCondition (
   ${PromoDiskonItemGetConditionFields.discount1} double NOT NULL,
   ${PromoDiskonItemGetConditionFields.discount2} double NOT NULL,
   ${PromoDiskonItemGetConditionFields.discount3} double NOT NULL,
+  ${PromoDiskonItemGetConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpdi4_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
@@ -3098,6 +3112,7 @@ CREATE TABLE $tablePromoDiskonItemCustomerGroup (
   ${PromoDiskonItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
   ${PromoDiskonItemCustomerGroupFields.topdiId} text DEFAULT NULL,
   ${PromoDiskonItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  ${PromoDiskonItemCustomerGroupFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `topdi5_topdiId_fkey` FOREIGN KEY (`topdiId`) REFERENCES `topdi` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `topdi5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3127,6 +3142,7 @@ CREATE TABLE $tablePromoDiskonGroupItemHeader (
   ${PromoDiskonGroupItemHeaderFields.totalQtyTo} double DEFAULT NULL,
   ${PromoDiskonGroupItemHeaderFields.totalPriceFrom} double DEFAULT NULL,
   ${PromoDiskonGroupItemHeaderFields.totalPriceTo} double DEFAULT NULL,
+  ${PromoDiskonGroupItemHeaderFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
 """);
@@ -3138,6 +3154,7 @@ CREATE TABLE $tablePromoDiskonGroupItemBuyCondition (
   ${PromoDiskonGroupItemBuyConditionFields.updateDate} datetime DEFAULT NULL,
   ${PromoDiskonGroupItemBuyConditionFields.topdgId} text DEFAULT NULL,
   ${PromoDiskonGroupItemBuyConditionFields.tocatId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemBuyConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpdg1_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpdg1_tocatId_fkey` FOREIGN KEY (`tocatId`) REFERENCES `tocat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3159,6 +3176,7 @@ CREATE TABLE $tablePromoDiskonGroupItemAssignStore (
   ${PromoDiskonGroupItemAssignStoreFields.day5} int NOT NULL,
   ${PromoDiskonGroupItemAssignStoreFields.day6} int NOT NULL,
   ${PromoDiskonGroupItemAssignStoreFields.day7} int NOT NULL,
+  ${PromoDiskonGroupItemAssignStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpdg2_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpdg2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3175,6 +3193,7 @@ CREATE TABLE $tablePromoDiskonGroupItemGetCondition (
   ${PromoDiskonGroupItemGetConditionFields.discount1} double NOT NULL,
   ${PromoDiskonGroupItemGetConditionFields.discount2} double NOT NULL,
   ${PromoDiskonGroupItemGetConditionFields.discount3} double NOT NULL,
+  ${PromoDiskonGroupItemGetConditionFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpdg4_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
@@ -3187,6 +3206,7 @@ CREATE TABLE $tablePromoDiskonGroupItemCustomerGroup (
   ${PromoDiskonGroupItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
   ${PromoDiskonGroupItemCustomerGroupFields.topdgId} text DEFAULT NULL,
   ${PromoDiskonGroupItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  ${PromoDiskonGroupItemCustomerGroupFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpdg5_topdgId_fkey` FOREIGN KEY (`topdgId`) REFERENCES `topdg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpdg5_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE

@@ -7,13 +7,15 @@ class PromoBuyXGetYCustomerGroupEntity {
   final DateTime? updateDate;
   final String? toprbId;
   final String? tocrgId;
+  final String form;
 
   PromoBuyXGetYCustomerGroupEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toprbId,
-    required this.tocrgId,
+    this.updateDate,
+    this.toprbId,
+    this.tocrgId,
+    required this.form,
   });
 
   PromoBuyXGetYCustomerGroupEntity copyWith({
@@ -22,6 +24,7 @@ class PromoBuyXGetYCustomerGroupEntity {
     DateTime? updateDate,
     String? toprbId,
     String? tocrgId,
+    String? form,
   }) {
     return PromoBuyXGetYCustomerGroupEntity(
       docId: docId ?? this.docId,
@@ -29,6 +32,7 @@ class PromoBuyXGetYCustomerGroupEntity {
       updateDate: updateDate ?? this.updateDate,
       toprbId: toprbId ?? this.toprbId,
       tocrgId: tocrgId ?? this.tocrgId,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +43,7 @@ class PromoBuyXGetYCustomerGroupEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'toprbId': toprbId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -51,6 +56,7 @@ class PromoBuyXGetYCustomerGroupEntity {
           : null,
       toprbId: map['toprbId'] != null ? map['toprbId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -62,7 +68,7 @@ class PromoBuyXGetYCustomerGroupEntity {
 
   @override
   String toString() {
-    return 'PromoBuyXGetYCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toprbId: $toprbId, tocrgId: $tocrgId)';
+    return 'PromoBuyXGetYCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toprbId: $toprbId, tocrgId: $tocrgId, form: $form)';
   }
 
   @override
@@ -73,7 +79,8 @@ class PromoBuyXGetYCustomerGroupEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.toprbId == toprbId &&
-        other.tocrgId == tocrgId;
+        other.tocrgId == tocrgId &&
+        other.form == form;
   }
 
   @override
@@ -82,6 +89,7 @@ class PromoBuyXGetYCustomerGroupEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         toprbId.hashCode ^
-        tocrgId.hashCode;
+        tocrgId.hashCode ^
+        form.hashCode;
   }
 }

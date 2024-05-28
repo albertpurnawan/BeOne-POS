@@ -23,18 +23,19 @@ class PromoDiskonItemHeaderEntity {
   final double? totalQtyTo;
   final double? totalPriceFrom;
   final double? totalPriceTo;
+  final String form;
 
   PromoDiskonItemHeaderEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.promoCode,
     required this.description,
     required this.startDate,
     required this.endDate,
     required this.startTime,
     required this.endTime,
-    required this.remarks,
+    this.remarks,
     required this.statusActive,
     required this.promoType,
     required this.buyCondition,
@@ -42,10 +43,11 @@ class PromoDiskonItemHeaderEntity {
     required this.discount1,
     required this.discount2,
     required this.discount3,
-    required this.totalQtyFrom,
-    required this.totalQtyTo,
-    required this.totalPriceFrom,
-    required this.totalPriceTo,
+    this.totalQtyFrom,
+    this.totalQtyTo,
+    this.totalPriceFrom,
+    this.totalPriceTo,
+    required this.form,
   });
 
   PromoDiskonItemHeaderEntity copyWith({
@@ -70,6 +72,7 @@ class PromoDiskonItemHeaderEntity {
     double? totalQtyTo,
     double? totalPriceFrom,
     double? totalPriceTo,
+    String? form,
   }) {
     return PromoDiskonItemHeaderEntity(
       docId: docId ?? this.docId,
@@ -93,6 +96,7 @@ class PromoDiskonItemHeaderEntity {
       totalQtyTo: totalQtyTo ?? this.totalQtyTo,
       totalPriceFrom: totalPriceFrom ?? this.totalPriceFrom,
       totalPriceTo: totalPriceTo ?? this.totalPriceTo,
+      form: form ?? this.form,
     );
   }
 
@@ -119,6 +123,7 @@ class PromoDiskonItemHeaderEntity {
       'totalQtyTo': totalQtyTo,
       'totalPriceFrom': totalPriceFrom,
       'totalPriceTo': totalPriceTo,
+      'form': form,
     };
   }
 
@@ -152,6 +157,7 @@ class PromoDiskonItemHeaderEntity {
           : null,
       totalPriceTo:
           map['totalPriceTo'] != null ? map['totalPriceTo'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -163,7 +169,7 @@ class PromoDiskonItemHeaderEntity {
 
   @override
   String toString() {
-    return 'PromoDiskonItemHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, promoType: $promoType, buyCondition: $buyCondition, promoValue: $promoValue, discount1: $discount1, discount2: $discount2, discount3: $discount3, totalQtyFrom: $totalQtyFrom, totalQtyTo: $totalQtyTo, totalPriceFrom: $totalPriceFrom, totalPriceTo: $totalPriceTo)';
+    return 'PromoDiskonItemHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, promoType: $promoType, buyCondition: $buyCondition, promoValue: $promoValue, discount1: $discount1, discount2: $discount2, discount3: $discount3, totalQtyFrom: $totalQtyFrom, totalQtyTo: $totalQtyTo, totalPriceFrom: $totalPriceFrom, totalPriceTo: $totalPriceTo, form: $form)';
   }
 
   @override
@@ -190,7 +196,8 @@ class PromoDiskonItemHeaderEntity {
         other.totalQtyFrom == totalQtyFrom &&
         other.totalQtyTo == totalQtyTo &&
         other.totalPriceFrom == totalPriceFrom &&
-        other.totalPriceTo == totalPriceTo;
+        other.totalPriceTo == totalPriceTo &&
+        other.form == form;
   }
 
   @override
@@ -215,6 +222,7 @@ class PromoDiskonItemHeaderEntity {
         totalQtyFrom.hashCode ^
         totalQtyTo.hashCode ^
         totalPriceFrom.hashCode ^
-        totalPriceTo.hashCode;
+        totalPriceTo.hashCode ^
+        form.hashCode;
   }
 }

@@ -12,6 +12,7 @@ class PromoBuyXGetYBuyConditionFields {
     toitmId,
     quantity,
     itemPrice,
+    form,
   ];
 
   static const String docId = "docid";
@@ -21,6 +22,7 @@ class PromoBuyXGetYBuyConditionFields {
   static const String toitmId = "toitmId";
   static const String quantity = "quantity";
   static const String itemPrice = "itemprice";
+  static const String form = "form";
 }
 
 class PromoBuyXGetYBuyConditionModel extends PromoBuyXGetYBuyConditionEntity
@@ -33,6 +35,7 @@ class PromoBuyXGetYBuyConditionModel extends PromoBuyXGetYBuyConditionEntity
     required super.toitmId,
     required super.quantity,
     required super.itemPrice,
+    required super.form,
   });
 
   @override
@@ -45,6 +48,7 @@ class PromoBuyXGetYBuyConditionModel extends PromoBuyXGetYBuyConditionEntity
       'toitmId': toitmId,
       'quantity': quantity,
       'itemprice': itemPrice,
+      'form': form,
     };
   }
 
@@ -59,6 +63,7 @@ class PromoBuyXGetYBuyConditionModel extends PromoBuyXGetYBuyConditionEntity
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       quantity: map['quantity'] as double,
       itemPrice: map['itemprice'] != null ? map['itemprice'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -85,6 +90,7 @@ class PromoBuyXGetYBuyConditionModel extends PromoBuyXGetYBuyConditionEntity
       toitmId: entity.toitmId,
       quantity: entity.quantity,
       itemPrice: entity.itemPrice,
+      form: entity.form,
     );
   }
 }

@@ -13,6 +13,7 @@ class PromoDiskonItemGetConditionFields {
     discount1,
     discount2,
     discount3,
+    form,
   ];
 
   static const String docId = "docid";
@@ -23,6 +24,7 @@ class PromoDiskonItemGetConditionFields {
   static const String discount1 = "discount1";
   static const String discount2 = "discount2";
   static const String discount3 = "discount3";
+  static const String form = "form";
 }
 
 class PromoDiskonItemGetConditionModel extends PromoDiskonItemGetConditionEntity
@@ -36,6 +38,7 @@ class PromoDiskonItemGetConditionModel extends PromoDiskonItemGetConditionEntity
     required super.discount1,
     required super.discount2,
     required super.discount3,
+    required super.form,
   });
 
   @override
@@ -49,6 +52,7 @@ class PromoDiskonItemGetConditionModel extends PromoDiskonItemGetConditionEntity
       'discount1': discount1,
       'discount2': discount2,
       'discount3': discount3,
+      'form': form,
     };
   }
 
@@ -64,6 +68,7 @@ class PromoDiskonItemGetConditionModel extends PromoDiskonItemGetConditionEntity
       discount1: map['discount1'] as double,
       discount2: map['discount2'] as double,
       discount3: map['discount3'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -90,6 +95,7 @@ class PromoDiskonItemGetConditionModel extends PromoDiskonItemGetConditionEntity
       discount1: entity.discount1,
       discount2: entity.discount2,
       discount3: entity.discount3,
+      form: entity.form,
     );
   }
 }

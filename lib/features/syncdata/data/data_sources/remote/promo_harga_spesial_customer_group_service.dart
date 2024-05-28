@@ -17,14 +17,14 @@ class PromoHargaSpesialCustomerGroupApi {
 
   PromoHargaSpesialCustomerGroupApi(this._dio);
 
-  Future<List<PromoHargaSpesialCustomerGroupModel>> initializeData() async {
+  Future<List<PromoHargaSpesialCustomerGroupModel>> fetchData(
+      String lastSync) async {
     try {
       String apiName = "API-TPSB4";
       Map<String, dynamic> exeData = {};
       List<PromoHargaSpesialCustomerGroupModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
-      String date = "2000-01-01 00:00:00";
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -43,8 +43,8 @@ class PromoHargaSpesialCustomerGroupApi {
             "docid": api["docid"],
             "parameter": [
               tenantId,
-              date,
-              date,
+              lastSync,
+              lastSync,
               tostrId,
             ]
           };

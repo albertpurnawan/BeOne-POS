@@ -10,6 +10,7 @@ class PromoBonusMultiItemCustomerGroupFields {
     updateDate,
     topmiId,
     tocrgId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -17,6 +18,7 @@ class PromoBonusMultiItemCustomerGroupFields {
   static const String updateDate = "updatedate";
   static const String topmiId = "topmiId";
   static const String tocrgId = "tocrgId";
+  static const String form = "form";
 }
 
 class PromoBonusMultiItemCustomerGroupModel
@@ -27,6 +29,7 @@ class PromoBonusMultiItemCustomerGroupModel
     required super.updateDate,
     required super.topmiId,
     required super.tocrgId,
+    required super.form,
   });
 
   @override
@@ -37,6 +40,7 @@ class PromoBonusMultiItemCustomerGroupModel
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'topmiId': topmiId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -50,6 +54,7 @@ class PromoBonusMultiItemCustomerGroupModel
           : null,
       topmiId: map['topmiId'] != null ? map['topmiId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -70,6 +75,7 @@ class PromoBonusMultiItemCustomerGroupModel
       updateDate: entity.updateDate,
       topmiId: entity.topmiId,
       tocrgId: entity.tocrgId,
+      form: entity.form,
     );
   }
 }

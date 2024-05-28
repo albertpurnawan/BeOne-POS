@@ -10,15 +10,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PromoBuyXGetYGetConditionApi {
   final Dio _dio;
+  String? tenantId;
   String? tostrId;
   String? url;
   String? token;
 
   PromoBuyXGetYGetConditionApi(this._dio);
 
-  Future<List<PromoBuyXGetYGetConditionModel>> fetchData() async {
+  Future<List<PromoBuyXGetYGetConditionModel>> fetchData(
+      String lastSync) async {
     try {
-      String apiName = "API-BUYXGETY4";
+      String apiName = "API-TPRB4";
       Map<String, dynamic> exeData = {};
       List<PromoBuyXGetYGetConditionModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -26,8 +28,10 @@ class PromoBuyXGetYGetConditionApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
+
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
         options: Options(headers: {
@@ -38,7 +42,12 @@ class PromoBuyXGetYGetConditionApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              tostrId,
+            ]
           };
         }
       }

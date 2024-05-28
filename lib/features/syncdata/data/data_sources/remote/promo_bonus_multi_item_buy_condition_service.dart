@@ -10,15 +10,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PromoBonusMultiItemBuyConditionApi {
   final Dio _dio;
+  String? tenantId;
   String? tostrId;
   String? url;
   String? token;
 
   PromoBonusMultiItemBuyConditionApi(this._dio);
 
-  Future<List<PromoBonusMultiItemBuyConditionModel>> fetchData() async {
+  Future<List<PromoBonusMultiItemBuyConditionModel>> fetchData(
+      String lastSync) async {
     try {
-      String apiName = "API-BONUSMULTIITEM1";
+      String apiName = "API-TPMI1";
       Map<String, dynamic> exeData = {};
       List<PromoBonusMultiItemBuyConditionModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -26,6 +28,7 @@ class PromoBonusMultiItemBuyConditionApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
@@ -38,7 +41,12 @@ class PromoBonusMultiItemBuyConditionApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              tostrId,
+            ]
           };
         }
       }

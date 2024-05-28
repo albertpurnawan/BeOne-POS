@@ -20,18 +20,19 @@ class PromoBuyXGetYHeaderEntity {
   final double maxGet;
   final int statusActive;
   final String? toplnId;
+  final String form;
 
   PromoBuyXGetYHeaderEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.promoCode,
     required this.description,
     required this.startDate,
     required this.endDate,
     required this.startTime,
     required this.endTime,
-    required this.remarks,
+    this.remarks,
     required this.minPurchase,
     required this.buyCondition,
     required this.minBuy,
@@ -39,7 +40,8 @@ class PromoBuyXGetYHeaderEntity {
     required this.getCondition,
     required this.maxGet,
     required this.statusActive,
-    required this.toplnId,
+    this.toplnId,
+    required this.form,
   });
 
   PromoBuyXGetYHeaderEntity copyWith({
@@ -61,6 +63,7 @@ class PromoBuyXGetYHeaderEntity {
     double? maxGet,
     int? statusActive,
     String? toplnId,
+    String? form,
   }) {
     return PromoBuyXGetYHeaderEntity(
       docId: docId ?? this.docId,
@@ -81,6 +84,7 @@ class PromoBuyXGetYHeaderEntity {
       maxGet: maxGet ?? this.maxGet,
       statusActive: statusActive ?? this.statusActive,
       toplnId: toplnId ?? this.toplnId,
+      form: form ?? this.form,
     );
   }
 
@@ -104,6 +108,7 @@ class PromoBuyXGetYHeaderEntity {
       'maxGet': maxGet,
       'statusActive': statusActive,
       'toplnId': toplnId,
+      'form': form,
     };
   }
 
@@ -129,6 +134,7 @@ class PromoBuyXGetYHeaderEntity {
       maxGet: map['maxGet'] as double,
       statusActive: map['statusActive'] as int,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -140,7 +146,7 @@ class PromoBuyXGetYHeaderEntity {
 
   @override
   String toString() {
-    return 'PromoBuyXGetYHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, minPurchase: $minPurchase, buyCondition: $buyCondition, minBuy: $minBuy, maxMultiply: $maxMultiply, getCondition: $getCondition, maxGet: $maxGet, statusActive: $statusActive, toplnId: $toplnId)';
+    return 'PromoBuyXGetYHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, minPurchase: $minPurchase, buyCondition: $buyCondition, minBuy: $minBuy, maxMultiply: $maxMultiply, getCondition: $getCondition, maxGet: $maxGet, statusActive: $statusActive, toplnId: $toplnId, form: $form)';
   }
 
   @override
@@ -164,7 +170,8 @@ class PromoBuyXGetYHeaderEntity {
         other.getCondition == getCondition &&
         other.maxGet == maxGet &&
         other.statusActive == statusActive &&
-        other.toplnId == toplnId;
+        other.toplnId == toplnId &&
+        other.form == form;
   }
 
   @override
@@ -186,6 +193,7 @@ class PromoBuyXGetYHeaderEntity {
         getCondition.hashCode ^
         maxGet.hashCode ^
         statusActive.hashCode ^
-        toplnId.hashCode;
+        toplnId.hashCode ^
+        form.hashCode;
   }
 }

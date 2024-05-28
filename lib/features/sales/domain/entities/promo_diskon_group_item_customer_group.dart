@@ -7,13 +7,15 @@ class PromoDiskonGroupItemCustomerGroupEntity {
   final DateTime? updateDate;
   final String? topdgId;
   final String? tocrgId;
+  final String form;
 
   PromoDiskonGroupItemCustomerGroupEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.topdgId,
-    required this.tocrgId,
+    this.updateDate,
+    this.topdgId,
+    this.tocrgId,
+    required this.form,
   });
 
   PromoDiskonGroupItemCustomerGroupEntity copyWith({
@@ -22,6 +24,7 @@ class PromoDiskonGroupItemCustomerGroupEntity {
     DateTime? updateDate,
     String? topdgId,
     String? tocrgId,
+    String? form,
   }) {
     return PromoDiskonGroupItemCustomerGroupEntity(
       docId: docId ?? this.docId,
@@ -29,6 +32,7 @@ class PromoDiskonGroupItemCustomerGroupEntity {
       updateDate: updateDate ?? this.updateDate,
       topdgId: topdgId ?? this.topdgId,
       tocrgId: tocrgId ?? this.tocrgId,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +43,7 @@ class PromoDiskonGroupItemCustomerGroupEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'topdgId': topdgId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -52,6 +57,7 @@ class PromoDiskonGroupItemCustomerGroupEntity {
           : null,
       topdgId: map['topdgId'] != null ? map['topdgId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -63,7 +69,7 @@ class PromoDiskonGroupItemCustomerGroupEntity {
 
   @override
   String toString() {
-    return 'PromoDiskonGroupItemCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topdgId: $topdgId, tocrgId: $tocrgId)';
+    return 'PromoDiskonGroupItemCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topdgId: $topdgId, tocrgId: $tocrgId, form: $form)';
   }
 
   @override
@@ -74,7 +80,8 @@ class PromoDiskonGroupItemCustomerGroupEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.topdgId == topdgId &&
-        other.tocrgId == tocrgId;
+        other.tocrgId == tocrgId &&
+        other.form == form;
   }
 
   @override
@@ -83,6 +90,7 @@ class PromoDiskonGroupItemCustomerGroupEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         topdgId.hashCode ^
-        tocrgId.hashCode;
+        tocrgId.hashCode ^
+        form.hashCode;
   }
 }

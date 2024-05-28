@@ -13,6 +13,7 @@ class PromoBonusMultiItemGetConditionFields {
     quantity,
     price,
     quota,
+    form,
   ];
 
   static const String docId = "docid";
@@ -23,6 +24,7 @@ class PromoBonusMultiItemGetConditionFields {
   static const String quantity = "quantity";
   static const String price = "price";
   static const String quota = "quota";
+  static const String form = "form";
 }
 
 class PromoBonusMultiItemGetConditionModel
@@ -36,6 +38,7 @@ class PromoBonusMultiItemGetConditionModel
     required super.quantity,
     required super.price,
     required super.quota,
+    required super.form,
   });
 
   @override
@@ -49,6 +52,7 @@ class PromoBonusMultiItemGetConditionModel
       'quantity': quantity,
       'price': price,
       'quota': quota,
+      'form': form,
     };
   }
 
@@ -65,6 +69,7 @@ class PromoBonusMultiItemGetConditionModel
       quantity: map['quantity'] as double,
       price: map['price'] as double,
       quota: map['quota'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -91,6 +96,7 @@ class PromoBonusMultiItemGetConditionModel
       quantity: entity.quantity,
       price: entity.price,
       quota: entity.quota,
+      form: entity.form,
     );
   }
 }
