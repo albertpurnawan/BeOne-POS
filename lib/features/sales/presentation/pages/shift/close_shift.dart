@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -37,10 +39,10 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
             children: [
-              Center(
+              const Center(
                 child: Text(
                   "Close Current Shift",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ProjectColors.swatch,
                       fontSize: 24,
                       fontWeight: FontWeight.bold),
@@ -76,9 +78,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   @override
   void initState() {
     super.initState();
-    fetchInvoices();
     updateActiveShift();
-    fetchActiveShift();
   }
 
   Future<void> fetchActiveShift() async {
@@ -93,6 +93,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   Future<void> fetchInvoices() async {
     final transaction =
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
+    log("transaction - $transaction");
     setState(() {
       transactions = transaction;
     });
@@ -105,43 +106,46 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   void updateActiveShift() async {
+    await fetchActiveShift();
+    await fetchInvoices();
     final shiftId = prefs.getString('tcsr1Id');
-    final shift = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readByDocId(shiftId!, null);
+    log("activeShift - $activeShift");
+    log("transactions - $transactions");
+    // final shift = await GetIt.instance<AppDatabase>()
+    //     .cashierBalanceTransactionDao
+    //     .readByDocId(shiftId!, null);
 
-    double totalCashValue = shift!.cashValue;
+    double totalCashValue = activeShift!.cashValue;
 
     for (final trx in transactions) {
       if (trx != null) {
         totalCashValue += trx.grandTotal;
-
         CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
-          docId: shift.docId,
-          createDate: shift.createDate,
-          updateDate: shift.updateDate,
-          tocsrId: shift.tocsrId,
-          tousrId: shift.tousrId,
-          docNum: shift.docNum,
-          openDate: shift.openDate,
-          openTime: shift.openTime,
-          calcDate: shift.calcDate,
-          calcTime: shift.calcTime,
-          closeDate: shift.closeDate,
-          closeTime: shift.closeTime,
-          timezone: shift.timezone,
-          openValue: shift.openValue,
-          calcValue: shift.calcValue,
+          docId: activeShift!.docId,
+          createDate: activeShift!.createDate,
+          updateDate: activeShift!.updateDate,
+          tocsrId: activeShift!.tocsrId,
+          tousrId: activeShift!.tousrId,
+          docNum: activeShift!.docNum,
+          openDate: activeShift!.openDate,
+          openTime: activeShift!.openTime,
+          calcDate: activeShift!.calcDate,
+          calcTime: activeShift!.calcTime,
+          closeDate: activeShift!.closeDate,
+          closeTime: activeShift!.closeTime,
+          timezone: activeShift!.timezone,
+          openValue: activeShift!.openValue,
+          calcValue: activeShift!.calcValue,
           cashValue: totalCashValue,
-          closeValue: shift.closeValue,
-          openedbyId: shift.openedbyId,
-          closedbyId: shift.closedbyId,
-          approvalStatus: shift.approvalStatus,
+          closeValue: activeShift!.closeValue,
+          openedbyId: activeShift!.openedbyId,
+          closedbyId: activeShift!.closedbyId,
+          approvalStatus: activeShift!.approvalStatus,
         );
 
-        await GetIt.instance<AppDatabase>()
-            .cashierBalanceTransactionDao
-            .update(docId: shiftId, data: data);
+        // await GetIt.instance<AppDatabase>()
+        //     .cashierBalanceTransactionDao
+        //     .update(docId: shiftId!, data: data);
       }
     }
   }
@@ -177,7 +181,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     "Cashier",
                     style: TextStyle(
@@ -189,7 +193,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Expanded(
                   child: Text(
                     cashier!,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.end,
@@ -204,7 +208,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     "Shift Started",
                     style: TextStyle(
@@ -216,7 +220,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Expanded(
                   child: Text(
                     formattedOpenDate,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.end,
@@ -232,7 +236,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     "Opening Balance",
                     style: TextStyle(
@@ -244,7 +248,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Expanded(
                   child: Text(
                     formattedOpenValue,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.end,
@@ -259,7 +263,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     "Total Cash Sales",
                     style: TextStyle(
@@ -271,7 +275,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Expanded(
                   child: Text(
                     formattedCashValue,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.end,
@@ -286,7 +290,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     "Total Cash Flow",
                     style: TextStyle(
@@ -298,7 +302,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Expanded(
                   child: Text(
                     formattedCashFlow,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.end,
@@ -313,7 +317,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     "Total Non Cash",
                     style: TextStyle(
@@ -325,7 +329,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Expanded(
                   child: Text(
                     formattedCalcValue,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.end,
@@ -340,7 +344,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     "Expected Cash",
                     style: TextStyle(
@@ -352,7 +356,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Expanded(
                   child: Text(
                     formattedExpectedCash,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.end,
@@ -362,8 +366,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ),
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 100.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
