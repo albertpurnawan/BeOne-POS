@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -78,6 +76,13 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   @override
   void initState() {
     super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    prefs = await SharedPreferences.getInstance();
+    await fetchActiveShift();
+    await fetchInvoices();
     updateActiveShift();
   }
 
@@ -93,7 +98,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   Future<void> fetchInvoices() async {
     final transaction =
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
-    log("transaction - $transaction");
     setState(() {
       transactions = transaction;
     });
@@ -106,52 +110,52 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   void updateActiveShift() async {
-    await fetchActiveShift();
-    await fetchInvoices();
-    final shiftId = prefs.getString('tcsr1Id');
-    log("activeShift - $activeShift");
-    log("transactions - $transactions");
-    // final shift = await GetIt.instance<AppDatabase>()
-    //     .cashierBalanceTransactionDao
-    //     .readByDocId(shiftId!, null);
+    if (activeShift != null && transactions.isNotEmpty) {
+      double totalCashValue = 0;
 
-    double totalCashValue = activeShift!.cashValue;
+      for (final trx in transactions) {
+        if (trx != null) {
+          totalCashValue += trx.grandTotal;
+          CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
+            docId: activeShift!.docId,
+            createDate: activeShift!.createDate,
+            updateDate: activeShift!.updateDate,
+            tocsrId: activeShift!.tocsrId,
+            tousrId: activeShift!.tousrId,
+            docNum: activeShift!.docNum,
+            openDate: activeShift!.openDate,
+            openTime: activeShift!.openTime,
+            calcDate: activeShift!.calcDate,
+            calcTime: activeShift!.calcTime,
+            closeDate: activeShift!.closeDate,
+            closeTime: activeShift!.closeTime,
+            timezone: activeShift!.timezone,
+            openValue: activeShift!.openValue,
+            calcValue: activeShift!.calcValue,
+            cashValue: totalCashValue,
+            closeValue: activeShift!.closeValue,
+            openedbyId: activeShift!.openedbyId,
+            closedbyId: activeShift!.closedbyId,
+            approvalStatus: activeShift!.approvalStatus,
+          );
 
-    for (final trx in transactions) {
-      if (trx != null) {
-        totalCashValue += trx.grandTotal;
-        CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
-          docId: activeShift!.docId,
-          createDate: activeShift!.createDate,
-          updateDate: activeShift!.updateDate,
-          tocsrId: activeShift!.tocsrId,
-          tousrId: activeShift!.tousrId,
-          docNum: activeShift!.docNum,
-          openDate: activeShift!.openDate,
-          openTime: activeShift!.openTime,
-          calcDate: activeShift!.calcDate,
-          calcTime: activeShift!.calcTime,
-          closeDate: activeShift!.closeDate,
-          closeTime: activeShift!.closeTime,
-          timezone: activeShift!.timezone,
-          openValue: activeShift!.openValue,
-          calcValue: activeShift!.calcValue,
-          cashValue: totalCashValue,
-          closeValue: activeShift!.closeValue,
-          openedbyId: activeShift!.openedbyId,
-          closedbyId: activeShift!.closedbyId,
-          approvalStatus: activeShift!.approvalStatus,
-        );
-
-        // await GetIt.instance<AppDatabase>()
-        //     .cashierBalanceTransactionDao
-        //     .update(docId: shiftId!, data: data);
+          await GetIt.instance<AppDatabase>()
+              .cashierBalanceTransactionDao
+              .update(docId: shiftId, data: data);
+          setState(() {
+            activeShift = data;
+          });
+        }
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (activeShift == null || transactions.isEmpty) {
+      return Center(child: CircularProgressIndicator());
+    }
+
     String formattedOpenDate =
         Helpers.formatDateNoSeconds(activeShift!.openDate);
     String formattedOpenValue =

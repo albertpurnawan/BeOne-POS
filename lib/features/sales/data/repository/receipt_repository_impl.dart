@@ -114,9 +114,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           discAmount: e.discAmount ?? 0,
           totalAmount: e.totalAmount,
           taxPrctg: e.itemEntity.taxRate,
-          promotionType:
-              e.promos.first.promoType.toString(), // kalau promo > 1?
-          promotionId: e.promos.first.promoId.toString(), // kalau promo > 1?
+          promotionType: e.promos.isEmpty
+              ? ""
+              : e.promos.first.promoType.toString(), // kalau promo > 1?
+          promotionId: e.promos.isEmpty
+              ? ""
+              : e.promos.first.promoId.toString(), // kalau promo > 1?
           remarks: null,
           editTime: DateTime.now(), // ?
           cogs: 0,
