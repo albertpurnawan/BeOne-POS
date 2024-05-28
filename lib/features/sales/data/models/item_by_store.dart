@@ -20,6 +20,7 @@ class ItemsByStoreFields {
     marginPrice,
     multiplyOrder,
     price,
+    form,
   ];
 
   static const String docId = "docid";
@@ -37,25 +38,28 @@ class ItemsByStoreFields {
   static const String marginPrice = "marginprice";
   static const String multiplyOrder = "multiplyorder";
   static const String price = "price";
+  static const String form = "form";
 }
 
 class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
-  ItemByStoreModel(
-      {required super.docId,
-      required super.createDate,
-      required super.updateDate,
-      required super.toitmId,
-      required super.tostrId,
-      required super.statusActive,
-      required super.activated,
-      required super.tovatId,
-      required super.tovatIdPur,
-      required super.maxStock,
-      required super.minStock,
-      required super.marginPercentage,
-      required super.marginPrice,
-      required super.multiplyOrder,
-      required super.price});
+  ItemByStoreModel({
+    required super.docId,
+    required super.createDate,
+    required super.updateDate,
+    required super.toitmId,
+    required super.tostrId,
+    required super.statusActive,
+    required super.activated,
+    required super.tovatId,
+    required super.tovatIdPur,
+    required super.maxStock,
+    required super.minStock,
+    required super.marginPercentage,
+    required super.marginPrice,
+    required super.multiplyOrder,
+    required super.price,
+    required super.form,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -75,6 +79,7 @@ class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
       'marginprice': marginPrice,
       'multiplyorder': multiplyOrder,
       'price': price,
+      'form': form,
     };
   }
 
@@ -124,6 +129,7 @@ class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
       multiplyOrder:
           map['multiplyorder'] != null ? map['multiplyorder'] as int : null,
       price: map['price'] != null ? map['price'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -144,6 +150,7 @@ class ItemByStoreModel extends ItemByStoreEntity implements BaseModel {
       marginPrice: entity.marginPrice,
       multiplyOrder: entity.multiplyOrder,
       price: entity.price,
+      form: entity.form,
     );
   }
 }

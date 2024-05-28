@@ -11,6 +11,7 @@ class PromoHargaSpesialBuyFields {
     topsbId,
     qty,
     price,
+    form,
   ];
 
   static const String docId = "docid";
@@ -19,6 +20,7 @@ class PromoHargaSpesialBuyFields {
   static const String topsbId = "topsbId";
   static const String qty = "qty";
   static const String price = "price";
+  static const String form = "form";
 }
 
 class PromoHargaSpesialBuyModel extends PromoHargaSpesialBuyEntity
@@ -30,6 +32,7 @@ class PromoHargaSpesialBuyModel extends PromoHargaSpesialBuyEntity
     required super.topsbId,
     required super.qty,
     required super.price,
+    required super.form,
   });
 
   @override
@@ -41,6 +44,7 @@ class PromoHargaSpesialBuyModel extends PromoHargaSpesialBuyEntity
       'topsbId': topsbId,
       'qty': qty,
       'price': price,
+      'form': form,
     };
   }
 
@@ -54,6 +58,7 @@ class PromoHargaSpesialBuyModel extends PromoHargaSpesialBuyEntity
       topsbId: map['topsbId'] != null ? map['topsbId'] as String : null,
       qty: map['qty'] as double,
       price: map['price'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -75,6 +80,7 @@ class PromoHargaSpesialBuyModel extends PromoHargaSpesialBuyEntity
       topsbId: entity.topsbId,
       qty: entity.qty,
       price: entity.price,
+      form: entity.form,
     );
   }
 }

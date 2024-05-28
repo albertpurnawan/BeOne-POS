@@ -11,17 +11,19 @@ class PromoDiskonItemBuyConditionEntity {
   final double? priceTo;
   final double? qtyFrom;
   final double? qtyTo;
+  final String form;
 
   PromoDiskonItemBuyConditionEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.topdiId,
-    required this.toitmId,
-    required this.priceFrom,
-    required this.priceTo,
-    required this.qtyFrom,
-    required this.qtyTo,
+    this.updateDate,
+    this.topdiId,
+    this.toitmId,
+    this.priceFrom,
+    this.priceTo,
+    this.qtyFrom,
+    this.qtyTo,
+    required this.form,
   });
 
   PromoDiskonItemBuyConditionEntity copyWith({
@@ -34,6 +36,7 @@ class PromoDiskonItemBuyConditionEntity {
     double? priceTo,
     double? qtyFrom,
     double? qtyTo,
+    String? form,
   }) {
     return PromoDiskonItemBuyConditionEntity(
       docId: docId ?? this.docId,
@@ -45,6 +48,7 @@ class PromoDiskonItemBuyConditionEntity {
       priceTo: priceTo ?? this.priceTo,
       qtyFrom: qtyFrom ?? this.qtyFrom,
       qtyTo: qtyTo ?? this.qtyTo,
+      form: form ?? this.form,
     );
   }
 
@@ -59,6 +63,7 @@ class PromoDiskonItemBuyConditionEntity {
       'priceTo': priceTo,
       'qtyFrom': qtyFrom,
       'qtyTo': qtyTo,
+      'form': form,
     };
   }
 
@@ -75,6 +80,7 @@ class PromoDiskonItemBuyConditionEntity {
       priceTo: map['priceTo'] != null ? map['priceTo'] as double : null,
       qtyFrom: map['qtyFrom'] != null ? map['qtyFrom'] as double : null,
       qtyTo: map['qtyTo'] != null ? map['qtyTo'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -86,7 +92,7 @@ class PromoDiskonItemBuyConditionEntity {
 
   @override
   String toString() {
-    return 'PromoDiskonItemBuyConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topdiId: $topdiId, toitmId: $toitmId, priceFrom: $priceFrom, priceTo: $priceTo, qtyFrom: $qtyFrom, qtyTo: $qtyTo)';
+    return 'PromoDiskonItemBuyConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topdiId: $topdiId, toitmId: $toitmId, priceFrom: $priceFrom, priceTo: $priceTo, qtyFrom: $qtyFrom, qtyTo: $qtyTo, form: $form)';
   }
 
   @override
@@ -101,7 +107,8 @@ class PromoDiskonItemBuyConditionEntity {
         other.priceFrom == priceFrom &&
         other.priceTo == priceTo &&
         other.qtyFrom == qtyFrom &&
-        other.qtyTo == qtyTo;
+        other.qtyTo == qtyTo &&
+        other.form == form;
   }
 
   @override
@@ -114,6 +121,7 @@ class PromoDiskonItemBuyConditionEntity {
         priceFrom.hashCode ^
         priceTo.hashCode ^
         qtyFrom.hashCode ^
-        qtyTo.hashCode;
+        qtyTo.hashCode ^
+        form.hashCode;
   }
 }

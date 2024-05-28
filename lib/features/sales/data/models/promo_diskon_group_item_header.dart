@@ -26,6 +26,7 @@ class PromoDiskonGroupItemHeaderFields {
     totalQtyTo,
     totalPriceFrom,
     totalPriceTo,
+    form,
   ];
   static const String docId = "docid";
   static const String createDate = "createdate";
@@ -48,6 +49,7 @@ class PromoDiskonGroupItemHeaderFields {
   static const String totalQtyTo = "totalqtyto";
   static const String totalPriceFrom = "totalpricefrom";
   static const String totalPriceTo = "totalpriceto";
+  static const String form = "form";
 }
 
 class PromoDiskonGroupItemHeaderModel extends PromoDiskonGroupItemHeaderEntity
@@ -74,6 +76,7 @@ class PromoDiskonGroupItemHeaderModel extends PromoDiskonGroupItemHeaderEntity
     required super.totalQtyTo,
     required super.totalPriceFrom,
     required super.totalPriceTo,
+    required super.form,
   });
 
   @override
@@ -100,6 +103,7 @@ class PromoDiskonGroupItemHeaderModel extends PromoDiskonGroupItemHeaderEntity
       'totalqtyto': totalQtyTo,
       'totalpricefrom': totalPriceFrom,
       'totalpriceto': totalPriceTo,
+      'form': form,
     };
   }
 
@@ -114,8 +118,8 @@ class PromoDiskonGroupItemHeaderModel extends PromoDiskonGroupItemHeaderEntity
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
       endDate: DateTime.parse(map['enddate'] as String).toLocal(),
-      startTime: DateTime.parse(map['starttime'] as String).toLocal(),
-      endTime: DateTime.parse(map['endtime'] as String).toLocal(),
+      startTime: DateTime.parse(map['starttime'] as String),
+      endTime: DateTime.parse(map['endtime'] as String),
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       statusActive: map['statusactive'] as int,
       promoType: map['promotype'] as int,
@@ -133,6 +137,7 @@ class PromoDiskonGroupItemHeaderModel extends PromoDiskonGroupItemHeaderEntity
           : null,
       totalPriceTo:
           map['totalpriceto'] != null ? map['totalpriceto'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -183,6 +188,7 @@ class PromoDiskonGroupItemHeaderModel extends PromoDiskonGroupItemHeaderEntity
       totalQtyTo: entity.totalQtyTo,
       totalPriceFrom: entity.totalPriceFrom,
       totalPriceTo: entity.totalPriceTo,
+      form: entity.form,
     );
   }
 }

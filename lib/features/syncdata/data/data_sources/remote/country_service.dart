@@ -16,9 +16,9 @@ class CountryApi {
 
   CountryApi(this._dio);
 
-  Future<List<CountryModel>> fetchData() async {
+  Future<List<CountryModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-COUNTRY";
+      String apiName = "API-TOCRY";
       Map<String, dynamic> exeData = {};
       List<CountryModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -42,7 +42,11 @@ class CountryApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tenantId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
           };
         }
       }

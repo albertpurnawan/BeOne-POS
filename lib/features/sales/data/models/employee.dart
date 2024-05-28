@@ -32,6 +32,7 @@ class EmployeeFields {
     empTitle,
     empWorkplace,
     empDebt,
+    form,
   ];
   static const String docId = 'docid';
   static const String createDate = 'createdate';
@@ -60,6 +61,7 @@ class EmployeeFields {
   static const String empTitle = 'emptitle';
   static const String empWorkplace = 'empworkplace';
   static const String empDebt = 'empdebt';
+  static const String form = 'form';
 }
 
 class EmployeeModel extends EmployeeEntity implements BaseModel {
@@ -91,6 +93,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
     required super.empTitle,
     required super.empWorkplace,
     required super.empDebt,
+    required super.form,
   });
 
   @override
@@ -123,6 +126,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       'emptitle': empTitle,
       'empworkplace': empWorkplace,
       'empdebt': empDebt,
+      'form': form,
     };
   }
 
@@ -159,6 +163,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       empTitle: map['emptitle'] as String,
       empWorkplace: map['empworkplace'] as String,
       empDebt: map['empdebt'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -202,6 +207,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       empTitle: entity.empTitle,
       empWorkplace: entity.empWorkplace,
       empDebt: entity.empDebt,
+      form: entity.form,
     );
   }
 }

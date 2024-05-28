@@ -12,18 +12,20 @@ class ItemBarcodeEntity {
   final double quantity;
   final String? touomId;
   final int? dflt;
+  final String form;
 
   ItemBarcodeEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toitmId,
+    this.updateDate,
+    this.toitmId,
     required this.barcode,
     required this.statusActive,
     required this.activated,
     required this.quantity,
-    required this.touomId,
-    required this.dflt,
+    this.touomId,
+    this.dflt,
+    required this.form,
   });
 
   ItemBarcodeEntity copyWith({
@@ -37,6 +39,7 @@ class ItemBarcodeEntity {
     double? quantity,
     String? touomId,
     int? dflt,
+    String? form,
   }) {
     return ItemBarcodeEntity(
       docId: docId ?? this.docId,
@@ -49,6 +52,7 @@ class ItemBarcodeEntity {
       quantity: quantity ?? this.quantity,
       touomId: touomId ?? this.touomId,
       dflt: dflt ?? this.dflt,
+      form: form ?? this.form,
     );
   }
 
@@ -64,6 +68,7 @@ class ItemBarcodeEntity {
       'quantity': quantity,
       'touomId': touomId,
       'dflt': dflt,
+      'form': form,
     };
   }
 
@@ -81,6 +86,7 @@ class ItemBarcodeEntity {
       quantity: map['quantity'] as double,
       touomId: map['touomId'] != null ? map['touomId'] as String : null,
       dflt: map['dflt'] != null ? map['dflt'] as int : null,
+      form: map['form'] as String,
     );
   }
 
@@ -91,7 +97,7 @@ class ItemBarcodeEntity {
 
   @override
   String toString() {
-    return 'ItemBarcodeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, barcode: $barcode, statusActive: $statusActive, activated: $activated, quantity: $quantity, touomId: $touomId, dflt: $dflt)';
+    return 'ItemBarcodeEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, barcode: $barcode, statusActive: $statusActive, activated: $activated, quantity: $quantity, touomId: $touomId, dflt: $dflt, form: $form)';
   }
 
   @override
@@ -107,7 +113,8 @@ class ItemBarcodeEntity {
         other.activated == activated &&
         other.quantity == quantity &&
         other.touomId == touomId &&
-        other.dflt == dflt;
+        other.dflt == dflt &&
+        other.form == form;
   }
 
   @override
@@ -121,6 +128,7 @@ class ItemBarcodeEntity {
         activated.hashCode ^
         quantity.hashCode ^
         touomId.hashCode ^
-        dflt.hashCode;
+        dflt.hashCode ^
+        form.hashCode;
   }
 }

@@ -13,6 +13,7 @@ class CustomerGroupFields {
     maxDiscount,
     statusActive,
     activated,
+    form,
   ];
 
   static const String docId = "docid";
@@ -23,6 +24,7 @@ class CustomerGroupFields {
   static const String maxDiscount = "maxdiscount";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
+  static const String form = "form";
 }
 
 class CustomerGroupModel extends CustomerGroupEntity implements BaseModel {
@@ -35,6 +37,7 @@ class CustomerGroupModel extends CustomerGroupEntity implements BaseModel {
     required super.maxDiscount,
     required super.statusActive,
     required super.activated,
+    required super.form,
   });
 
   @override
@@ -48,6 +51,7 @@ class CustomerGroupModel extends CustomerGroupEntity implements BaseModel {
       'maxdiscount': maxDiscount,
       'statusactive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -63,6 +67,7 @@ class CustomerGroupModel extends CustomerGroupEntity implements BaseModel {
       maxDiscount: map['maxdiscount'].toDouble(),
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -83,6 +88,7 @@ class CustomerGroupModel extends CustomerGroupEntity implements BaseModel {
       maxDiscount: entity.maxDiscount,
       statusActive: entity.statusActive,
       activated: entity.activated,
+      form: entity.form,
     );
   }
 }

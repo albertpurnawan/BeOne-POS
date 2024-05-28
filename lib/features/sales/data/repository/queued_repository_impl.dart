@@ -59,8 +59,8 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         tcsr1Id: null, // get di sini
-        discHeaderManual: null, // get di sini
-        discHeaderPromo: null, // get di sini
+        discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
+        discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
         syncToBos: 0, // get di sini
       );
 
@@ -99,8 +99,8 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           includeTax: e.itemEntity.includeTax, // ??
           tovenId: e.itemEntity.tovenId, // belum ada
           tbitmId: e.itemEntity.tbitmId,
-          discHeaderAmount: 0, // need to check
-          subtotalAfterDiscHeader: 0, // need to check
+          discHeaderAmount: e.discHeaderAmount ?? 0, // need to check
+          // subtotalAfterDiscHeader: 0, // need to check
         );
       }).toList();
 
@@ -159,7 +159,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             itemCode: itemMasterModel.itemCode,
             barcode: "", // nanti dibutuhkan melanjutkan transaksi
             price: 0,
-            toitmId: itemMasterModel.docId,
+            toitmId: queuedInvoiceDetailModel.toitmId!,
             tbitmId: queuedInvoiceDetailModel.tbitmId!,
             tpln2Id: "",
             openPrice: itemMasterModel.openPrice,
@@ -170,6 +170,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
                 100 /
                 (100 + queuedInvoiceDetailModel.taxPrctg),
             includeTax: itemMasterModel.includeTax,
+            tocatId: itemMasterModel.tocatId,
           ),
           sellingPrice: queuedInvoiceDetailModel.sellingPrice,
           totalAmount: queuedInvoiceDetailModel.totalAmount,
@@ -201,6 +202,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         totalVoucher: 0, // diambil service vouchers
         totalNonVoucher: 0, // diambil service vouchers
         promos: [], // diambil service promos
+        queuedInvoiceHeaderDocId: invoiceHeaderModel.docId,
       );
     });
 
@@ -273,6 +275,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
                   100 /
                   (100 + queuedInvoiceDetailModel.taxPrctg),
               includeTax: itemMasterModel.includeTax,
+              tocatId: itemMasterModel.tocatId,
             ),
             sellingPrice: queuedInvoiceDetailModel.sellingPrice,
             totalAmount: queuedInvoiceDetailModel.totalAmount,
@@ -300,6 +303,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           totalVoucher: 0, // diambil service vouchers
           totalNonVoucher: 0, // diambil service vouchers
           promos: [], // diambil service promos
+          queuedInvoiceHeaderDocId: queuedInvoiceHeaderModel.docId,
         ));
       }
     });

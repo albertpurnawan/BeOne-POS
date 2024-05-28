@@ -12,18 +12,20 @@ class PreferredVendorEntity {
   final double multipyOrder;
   final int canOrder;
   final int dflt;
+  final String form;
 
   PreferredVendorEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.tsitmId,
-    required this.tovenId,
+    this.updateDate,
+    this.tsitmId,
+    this.tovenId,
     required this.listing,
     required this.minOrder,
     required this.multipyOrder,
     required this.canOrder,
     required this.dflt,
+    required this.form,
   });
 
   PreferredVendorEntity copyWith({
@@ -37,6 +39,7 @@ class PreferredVendorEntity {
     double? multipyOrder,
     int? canOrder,
     int? dflt,
+    String? form,
   }) {
     return PreferredVendorEntity(
       docId: docId ?? this.docId,
@@ -49,6 +52,7 @@ class PreferredVendorEntity {
       multipyOrder: multipyOrder ?? this.multipyOrder,
       canOrder: canOrder ?? this.canOrder,
       dflt: dflt ?? this.dflt,
+      form: form ?? this.form,
     );
   }
 
@@ -64,6 +68,7 @@ class PreferredVendorEntity {
       'multipyOrder': multipyOrder,
       'canOrder': canOrder,
       'dflt': dflt,
+      'form': form,
     };
   }
 
@@ -81,6 +86,7 @@ class PreferredVendorEntity {
       multipyOrder: map['multipyOrder'] as double,
       canOrder: map['canOrder'] as int,
       dflt: map['dflt'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -92,7 +98,7 @@ class PreferredVendorEntity {
 
   @override
   String toString() {
-    return 'PreferredVendorEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tsitmId: $tsitmId, tovenId: $tovenId, listing: $listing, minOrder: $minOrder, multipyOrder: $multipyOrder, canOrder: $canOrder, dflt: $dflt)';
+    return 'PreferredVendorEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tsitmId: $tsitmId, tovenId: $tovenId, listing: $listing, minOrder: $minOrder, multipyOrder: $multipyOrder, canOrder: $canOrder, dflt: $dflt, form: $form)';
   }
 
   @override
@@ -108,7 +114,8 @@ class PreferredVendorEntity {
         other.minOrder == minOrder &&
         other.multipyOrder == multipyOrder &&
         other.canOrder == canOrder &&
-        other.dflt == dflt;
+        other.dflt == dflt &&
+        other.form == form;
   }
 
   @override
@@ -122,6 +129,7 @@ class PreferredVendorEntity {
         minOrder.hashCode ^
         multipyOrder.hashCode ^
         canOrder.hashCode ^
-        dflt.hashCode;
+        dflt.hashCode ^
+        form.hashCode;
   }
 }

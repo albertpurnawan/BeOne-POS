@@ -8,14 +8,16 @@ class CurrencyEntity {
   final String curCode;
   final String description;
   final String descriptionFrgn;
+  final String form;
 
   CurrencyEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.curCode,
     required this.description,
     required this.descriptionFrgn,
+    required this.form,
   });
 
   CurrencyEntity copyWith({
@@ -25,6 +27,7 @@ class CurrencyEntity {
     String? curCode,
     String? description,
     String? descriptionFrgn,
+    String? form,
   }) {
     return CurrencyEntity(
       docId: docId ?? this.docId,
@@ -33,6 +36,7 @@ class CurrencyEntity {
       curCode: curCode ?? this.curCode,
       description: description ?? this.description,
       descriptionFrgn: descriptionFrgn ?? this.descriptionFrgn,
+      form: form ?? this.form,
     );
   }
 
@@ -44,6 +48,7 @@ class CurrencyEntity {
       'curCode': curCode,
       'description': description,
       'descriptionFrgn': descriptionFrgn,
+      'form': form,
     };
   }
 
@@ -57,6 +62,7 @@ class CurrencyEntity {
       curCode: map['curCode'] as String,
       description: map['description'] as String,
       descriptionFrgn: map['descriptionFrgn'] as String,
+      form: map['form'] as String,
     );
   }
 
@@ -67,7 +73,7 @@ class CurrencyEntity {
 
   @override
   String toString() {
-    return 'CurrencyEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, curCode: $curCode, description: $description, descriptionFrgn: $descriptionFrgn)';
+    return 'CurrencyEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, curCode: $curCode, description: $description, descriptionFrgn: $descriptionFrgn, form: $form)';
   }
 
   @override
@@ -79,7 +85,8 @@ class CurrencyEntity {
         other.updateDate == updateDate &&
         other.curCode == curCode &&
         other.description == description &&
-        other.descriptionFrgn == descriptionFrgn;
+        other.descriptionFrgn == descriptionFrgn &&
+        other.form == form;
   }
 
   @override
@@ -89,6 +96,7 @@ class CurrencyEntity {
         updateDate.hashCode ^
         curCode.hashCode ^
         description.hashCode ^
-        descriptionFrgn.hashCode;
+        descriptionFrgn.hashCode ^
+        form.hashCode;
   }
 }

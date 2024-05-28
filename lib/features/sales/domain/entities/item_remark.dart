@@ -7,13 +7,15 @@ class ItemRemarkEntity {
   final DateTime? updateDate;
   final String? toitmId;
   final String? remarks;
+  final String form;
 
   ItemRemarkEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toitmId,
-    required this.remarks,
+    this.updateDate,
+    this.toitmId,
+    this.remarks,
+    required this.form,
   });
 
   ItemRemarkEntity copyWith({
@@ -22,6 +24,7 @@ class ItemRemarkEntity {
     DateTime? updateDate,
     String? toitmId,
     String? remarks,
+    String? form,
   }) {
     return ItemRemarkEntity(
       docId: docId ?? this.docId,
@@ -29,6 +32,7 @@ class ItemRemarkEntity {
       updateDate: updateDate ?? this.updateDate,
       toitmId: toitmId ?? this.toitmId,
       remarks: remarks ?? this.remarks,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +43,7 @@ class ItemRemarkEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'toitmId': toitmId,
       'remarks': remarks,
+      'form': form,
     };
   }
 
@@ -51,6 +56,7 @@ class ItemRemarkEntity {
           : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -61,7 +67,7 @@ class ItemRemarkEntity {
 
   @override
   String toString() {
-    return 'ItemRemarkEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, remarks: $remarks)';
+    return 'ItemRemarkEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, remarks: $remarks, form: $form)';
   }
 
   @override
@@ -72,7 +78,8 @@ class ItemRemarkEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.toitmId == toitmId &&
-        other.remarks == remarks;
+        other.remarks == remarks &&
+        other.form == form;
   }
 
   @override
@@ -81,6 +88,7 @@ class ItemRemarkEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         toitmId.hashCode ^
-        remarks.hashCode;
+        remarks.hashCode ^
+        form.hashCode;
   }
 }

@@ -14,6 +14,7 @@ class ItemCategoryFields {
     parentId,
     level,
     phir1Id,
+    form,
   ];
 
   static const String docId = "docid";
@@ -25,6 +26,7 @@ class ItemCategoryFields {
   static const String parentId = "parentId";
   static const String level = "level";
   static const String phir1Id = "phir1Id";
+  static const String form = "form";
 }
 
 class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
@@ -38,6 +40,7 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
     required super.parentId,
     required super.level,
     required super.phir1Id,
+    required super.form,
   });
 
   @override
@@ -52,6 +55,7 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
       'parentId': parentId,
       'level': level,
       'phir1Id': phir1Id,
+      'form': form,
     };
   }
 
@@ -68,6 +72,7 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
       parentId: map['parentId'] != null ? map['parentId'] as String : null,
       level: map['level'] as int,
       phir1Id: map['phir1Id'] != null ? map['phir1Id'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -92,6 +97,7 @@ class ItemCategoryModel extends ItemCategoryEntity implements BaseModel {
       parentId: entity.parentId,
       level: entity.level,
       phir1Id: entity.phir1Id,
+      form: entity.form,
     );
   }
 }

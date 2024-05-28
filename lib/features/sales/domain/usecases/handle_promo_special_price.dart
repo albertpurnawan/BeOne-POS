@@ -2,13 +2,11 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 
 class HandlePromoSpecialPriceUseCase
@@ -141,7 +139,7 @@ class HandlePromoSpecialPriceUseCase
                   sellingPrice: currentReceiptItem.sellingPrice,
                   totalAmount: currentReceiptItem.totalAmount,
                   totalSellBarcode: currentReceiptItem.totalSellBarcode,
-                  promos: [promo],
+                  promos: [promo.copyWith(discAmount: discountBeforeTax)],
                   discAmount: discountBeforeTax,
                 ));
 
@@ -149,8 +147,8 @@ class HandlePromoSpecialPriceUseCase
                 taxAmount += currentReceiptItem.taxAmount;
               } else {
                 log("Promo Not Apllied, Conditions Not Met");
-                final double priceQty =
-                    tpsb1.price * currentReceiptItem.quantity;
+                final double priceQty = currentReceiptItem.itemEntity.price *
+                    currentReceiptItem.quantity;
                 currentReceiptItem.totalSellBarcode = priceQty;
                 currentReceiptItem.totalGross =
                     currentReceiptItem.itemEntity.includeTax == 1
@@ -233,7 +231,7 @@ class HandlePromoSpecialPriceUseCase
                 sellingPrice: currentReceiptItem.sellingPrice,
                 totalAmount: currentReceiptItem.totalAmount,
                 totalSellBarcode: currentReceiptItem.totalSellBarcode,
-                promos: [promo],
+                promos: [promo.copyWith(discAmount: discountBeforeTax)],
                 discAmount: discountBeforeTax,
               ));
 
@@ -242,6 +240,37 @@ class HandlePromoSpecialPriceUseCase
             }
           } else {
             log("Time Not Fulfilled");
+
+            final double priceQty = currentReceiptItem.itemEntity.price *
+                currentReceiptItem.quantity;
+            currentReceiptItem.totalSellBarcode = priceQty;
+            currentReceiptItem.totalGross =
+                currentReceiptItem.itemEntity.includeTax == 1
+                    ? (priceQty *
+                        (100 / (100 + currentReceiptItem.itemEntity.taxRate)))
+                    : priceQty;
+            currentReceiptItem.taxAmount =
+                (currentReceiptItem.totalGross - discountBeforeTax) *
+                    (currentReceiptItem.itemEntity.taxRate / 100);
+
+            currentReceiptItem.totalAmount =
+                currentReceiptItem.totalGross + currentReceiptItem.taxAmount;
+            isNewReceiptItem = false;
+
+            newReceiptItems.add(ReceiptItemEntity(
+              quantity: currentReceiptItem.quantity,
+              totalGross: currentReceiptItem.totalGross,
+              itemEntity: currentReceiptItem.itemEntity,
+              taxAmount: currentReceiptItem.taxAmount,
+              sellingPrice: currentReceiptItem.sellingPrice,
+              totalAmount: currentReceiptItem.totalAmount,
+              totalSellBarcode: currentReceiptItem.totalSellBarcode,
+              promos: [],
+              discAmount: discountBeforeTax,
+            ));
+
+            subtotal += currentReceiptItem.totalGross;
+            taxAmount += currentReceiptItem.taxAmount;
           }
         } else {
           newReceiptItems.add(currentReceiptItem);
@@ -266,7 +295,6 @@ class HandlePromoSpecialPriceUseCase
             .readAllByTopsbId(promo.promoId!, null);
 
         double discount = itemEntity.dpp - tpsb1.price;
-        ;
         double discountBeforeTax = 0;
 
         final startHour = promo.startTime.hour;
@@ -329,7 +357,7 @@ class HandlePromoSpecialPriceUseCase
                 ? (priceQty * (100 / (100 + itemEntity.taxRate)))
                 : priceQty;
             final double taxAmountNewItem =
-                totalGross * (itemEntity.taxRate / 100);
+                (totalGross - discountBeforeTax) * (itemEntity.taxRate / 100);
 
             final double totalAmount = totalGross + taxAmountNewItem;
 
@@ -342,7 +370,7 @@ class HandlePromoSpecialPriceUseCase
               sellingPrice: itemWithPromo.price,
               totalAmount: totalAmount,
               totalSellBarcode: totalSellBarcode,
-              promos: [promo],
+              promos: [promo.copyWith(discAmount: discountBeforeTax)],
               discAmount: discountBeforeTax,
             ));
 
@@ -378,17 +406,41 @@ class HandlePromoSpecialPriceUseCase
             subtotal += totalGross;
             taxAmount += taxAmountNewItem;
           }
+        } else {
+          final double priceQty = itemEntity.price * quantity;
+          final double totalSellBarcode = priceQty;
+          final double totalGross = itemEntity.includeTax == 1
+              ? (priceQty * (100 / (100 + itemEntity.taxRate)))
+              : priceQty;
+          final double taxAmountNewItem = itemEntity.includeTax == 1
+              ? (priceQty) - totalGross
+              : priceQty * (itemEntity.taxRate / 100);
+          final double totalAmount = totalGross + taxAmountNewItem;
+
+          // Create ReceiptItemEntity and add it to newReceiptItems
+          newReceiptItems.add(ReceiptItemEntity(
+            quantity: quantity,
+            totalGross: totalGross,
+            itemEntity: itemEntity,
+            taxAmount: taxAmountNewItem,
+            sellingPrice: itemEntity.price,
+            totalAmount: totalAmount,
+            totalSellBarcode: totalSellBarcode,
+            promos: [],
+          ));
+          promotionsApplied.add(promo);
+
+          subtotal += totalGross;
+          taxAmount += taxAmountNewItem;
         }
       }
 
+      log("result handle promo special price ${params.receiptEntity.copyWith(
+        receiptItems: newReceiptItems,
+      )}");
       return params.receiptEntity.copyWith(
-          receiptItems: newReceiptItems,
-          subtotal: subtotal,
-          taxAmount: taxAmount,
-          grandTotal: subtotal + taxAmount,
-          discHeaderPromo: newReceiptItems
-              .map((e) => e.discAmount ?? 0)
-              .reduce((value, element) => value + element));
+        receiptItems: newReceiptItems,
+      );
     } catch (e) {
       rethrow;
     }

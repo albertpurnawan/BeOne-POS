@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, non_constant_identifier_names
 import 'dart:convert';
 
 class CustomerCstEntity {
@@ -19,25 +19,27 @@ class CustomerCstEntity {
   final String? docid_crm;
   final int statusActive;
   final int activated;
+  final String form;
 
   CustomerCstEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.custCode,
     required this.custName,
-    required this.tocrgId,
+    this.tocrgId,
     required this.phone,
     required this.email,
     required this.taxNo,
     required this.maxDiscount,
-    required this.toplnId,
-    required this.joinDate,
+    this.toplnId,
+    this.joinDate,
     required this.isEmployee,
-    required this.tohemId,
-    required this.docid_crm,
+    this.tohemId,
+    this.docid_crm,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   CustomerCstEntity copyWith({
@@ -58,6 +60,7 @@ class CustomerCstEntity {
     String? docid_crm,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return CustomerCstEntity(
       docId: docId ?? this.docId,
@@ -77,6 +80,7 @@ class CustomerCstEntity {
       docid_crm: docid_crm ?? this.docid_crm,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -99,6 +103,7 @@ class CustomerCstEntity {
       'docid_crm': docid_crm,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -125,6 +130,7 @@ class CustomerCstEntity {
       docid_crm: map['docid_crm'] != null ? map['docid_crm'] as String : null,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -135,7 +141,7 @@ class CustomerCstEntity {
 
   @override
   String toString() {
-    return 'CustomerCstEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, custCode: $custCode, custName: $custName, tocrgId: $tocrgId, phone: $phone, email: $email, taxNo: $taxNo, maxDiscount: $maxDiscount, toplnId: $toplnId, joinDate: $joinDate, isEmployee: $isEmployee, tohemId: $tohemId, docid_crm: $docid_crm, statusActive: $statusActive, activated: $activated)';
+    return 'CustomerCstEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, custCode: $custCode, custName: $custName, tocrgId: $tocrgId, phone: $phone, email: $email, taxNo: $taxNo, maxDiscount: $maxDiscount, toplnId: $toplnId, joinDate: $joinDate, isEmployee: $isEmployee, tohemId: $tohemId, docid_crm: $docid_crm, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -158,7 +164,8 @@ class CustomerCstEntity {
         other.tohemId == tohemId &&
         other.docid_crm == docid_crm &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -179,6 +186,7 @@ class CustomerCstEntity {
         tohemId.hashCode ^
         docid_crm.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

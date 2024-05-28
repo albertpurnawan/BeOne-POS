@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class PromoBonusMultiItemCustomerGroupEntity {
   final String docId;
@@ -7,6 +8,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
   final DateTime? updateDate;
   final String? topmiId;
   final String? tocrgId;
+  final String form;
 
   PromoBonusMultiItemCustomerGroupEntity({
     required this.docId,
@@ -14,6 +16,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
     required this.updateDate,
     required this.topmiId,
     required this.tocrgId,
+    required this.form,
   });
 
   PromoBonusMultiItemCustomerGroupEntity copyWith({
@@ -22,6 +25,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
     DateTime? updateDate,
     String? topmiId,
     String? tocrgId,
+    String? form,
   }) {
     return PromoBonusMultiItemCustomerGroupEntity(
       docId: docId ?? this.docId,
@@ -29,6 +33,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
       updateDate: updateDate ?? this.updateDate,
       topmiId: topmiId ?? this.topmiId,
       tocrgId: tocrgId ?? this.tocrgId,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +44,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'topmiId': topmiId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -52,6 +58,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
           : null,
       topmiId: map['topmiId'] != null ? map['topmiId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -63,7 +70,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
 
   @override
   String toString() {
-    return 'PromoBonusMultiItemCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, tocrgId: $tocrgId)';
+    return 'PromoBonusMultiItemCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmiId: $topmiId, tocrgId: $tocrgId, form: $form)';
   }
 
   @override
@@ -74,7 +81,8 @@ class PromoBonusMultiItemCustomerGroupEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.topmiId == topmiId &&
-        other.tocrgId == tocrgId;
+        other.tocrgId == tocrgId &&
+        other.form == form;
   }
 
   @override
@@ -83,6 +91,7 @@ class PromoBonusMultiItemCustomerGroupEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         topmiId.hashCode ^
-        tocrgId.hashCode;
+        tocrgId.hashCode ^
+        form.hashCode;
   }
 }

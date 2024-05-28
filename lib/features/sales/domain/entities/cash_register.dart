@@ -19,25 +19,27 @@ class CashRegisterEntity {
   final int? strukType;
   final int? bigHeader;
   final int? syncCloud;
+  final String form;
 
   CashRegisterEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.tostrId,
+    this.updateDate,
+    this.tostrId,
     required this.hwkey,
     required this.token,
     required this.email,
     required this.statusActive,
     required this.activated,
     required this.description,
-    required this.ipKassa,
-    required this.idKassa,
-    required this.printerCode,
-    required this.printerLogo,
-    required this.strukType,
-    required this.bigHeader,
-    required this.syncCloud,
+    this.ipKassa,
+    this.idKassa,
+    this.printerCode,
+    this.printerLogo,
+    this.strukType,
+    this.bigHeader,
+    this.syncCloud,
+    required this.form,
   });
 
   CashRegisterEntity copyWith({
@@ -58,6 +60,7 @@ class CashRegisterEntity {
     int? strukType,
     int? bigHeader,
     int? syncCloud,
+    String? form,
   }) {
     return CashRegisterEntity(
       docId: docId ?? this.docId,
@@ -77,6 +80,7 @@ class CashRegisterEntity {
       strukType: strukType ?? this.strukType,
       bigHeader: bigHeader ?? this.bigHeader,
       syncCloud: syncCloud ?? this.syncCloud,
+      form: form ?? this.form,
     );
   }
 
@@ -99,6 +103,7 @@ class CashRegisterEntity {
       'strukType': strukType,
       'bigHeader': bigHeader,
       'syncCloud': syncCloud,
+      'form': form,
     };
   }
 
@@ -125,6 +130,7 @@ class CashRegisterEntity {
       strukType: map['strukType'] != null ? map['strukType'] as int : null,
       bigHeader: map['bigHeader'] != null ? map['bigHeader'] as int : null,
       syncCloud: map['syncCloud'] != null ? map['syncCloud'] as int : null,
+      form: map['form'] as String,
     );
   }
 
@@ -135,7 +141,7 @@ class CashRegisterEntity {
 
   @override
   String toString() {
-    return 'CashRegisterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, hwkey: $hwkey, token: $token, email: $email, statusActive: $statusActive, activated: $activated, description: $description, ipKassa: $ipKassa, idKassa: $idKassa, printerCode: $printerCode, printerLogo: $printerLogo, strukType: $strukType, bigHeader: $bigHeader, syncCloud: $syncCloud)';
+    return 'CashRegisterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, hwkey: $hwkey, token: $token, email: $email, statusActive: $statusActive, activated: $activated, description: $description, ipKassa: $ipKassa, idKassa: $idKassa, printerCode: $printerCode, printerLogo: $printerLogo, strukType: $strukType, bigHeader: $bigHeader, syncCloud: $syncCloud, form: $form)';
   }
 
   @override
@@ -158,7 +164,8 @@ class CashRegisterEntity {
         other.printerLogo == printerLogo &&
         other.strukType == strukType &&
         other.bigHeader == bigHeader &&
-        other.syncCloud == syncCloud;
+        other.syncCloud == syncCloud &&
+        other.form == form;
   }
 
   @override
@@ -179,6 +186,7 @@ class CashRegisterEntity {
         printerLogo.hashCode ^
         strukType.hashCode ^
         bigHeader.hashCode ^
-        syncCloud.hashCode;
+        syncCloud.hashCode ^
+        form.hashCode;
   }
 }

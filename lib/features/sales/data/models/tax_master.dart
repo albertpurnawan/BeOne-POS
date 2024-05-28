@@ -15,7 +15,8 @@ class TaxMasterFields {
     periodTo,
     taxType,
     statusActive,
-    activated
+    activated,
+    form,
   ];
 
   static const String docId = "docId";
@@ -29,21 +30,24 @@ class TaxMasterFields {
   static const String taxType = "taxtype";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
+  static const String form = "form";
 }
 
 class TaxMasterModel extends TaxMasterEntity implements BaseModel {
-  TaxMasterModel(
-      {required super.docId,
-      required super.createDate,
-      required super.updateDate,
-      required super.taxCode,
-      required super.description,
-      required super.rate,
-      required super.periodFrom,
-      required super.periodTo,
-      required super.taxType,
-      required super.statusActive,
-      required super.activated});
+  TaxMasterModel({
+    required super.docId,
+    required super.createDate,
+    required super.updateDate,
+    required super.taxCode,
+    required super.description,
+    required super.rate,
+    required super.periodFrom,
+    required super.periodTo,
+    required super.taxType,
+    required super.statusActive,
+    required super.activated,
+    required super.form,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -59,6 +63,7 @@ class TaxMasterModel extends TaxMasterEntity implements BaseModel {
       'taxtype': taxType,
       'statusactive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -77,6 +82,7 @@ class TaxMasterModel extends TaxMasterEntity implements BaseModel {
       taxType: map['taxtype'] as String,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 

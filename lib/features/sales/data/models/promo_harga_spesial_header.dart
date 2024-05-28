@@ -23,6 +23,7 @@ class PromoHargaSpesialHeaderFields {
     promoAlias,
     toitmId,
     promoType,
+    form,
   ];
 
   static const String docId = "docid";
@@ -43,6 +44,7 @@ class PromoHargaSpesialHeaderFields {
   static const String promoAlias = "promoalias";
   static const String toitmId = "toitmId";
   static const String promoType = "promotype";
+  static const String form = "form";
 }
 
 class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
@@ -66,6 +68,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
     required super.promoAlias,
     required super.toitmId,
     required super.promoType,
+    required super.form,
   });
 
   @override
@@ -89,6 +92,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       'promoalias': promoAlias,
       'toitmId': toitmId,
       'promotype': promoType,
+      'form': form,
     };
   }
 
@@ -103,8 +107,8 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
       endDate: DateTime.parse(map['enddate'] as String).toLocal(),
-      startTime: DateTime.parse(map['starttime'] as String).toLocal(),
-      endTime: DateTime.parse(map['endtime'] as String).toLocal(),
+      startTime: DateTime.parse(map['starttime'] as String),
+      endTime: DateTime.parse(map['endtime'] as String),
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       statusActive: map['statusactive'] as int,
       maxPurchaseDay: map['maxpurchaseday'] as int,
@@ -114,6 +118,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       promoAlias: map['promoalias'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       promoType: map['promoType'] != null ? map['promoType'] as int : null,
+      form: map['form'] as String,
     );
   }
 
@@ -145,6 +150,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       promoAlias: entity.promoAlias,
       toitmId: entity.toitmId,
       promoType: entity.promoType,
+      form: entity.form,
     );
   }
 }

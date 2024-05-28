@@ -24,29 +24,31 @@ class PromoBonusMultiItemHeaderEntity {
   final int validMultiply;
   final int promoAlias;
   final int transactionLimit;
+  final String form;
 
   PromoBonusMultiItemHeaderEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.promoCode,
     required this.description,
     required this.startDate,
     required this.endDate,
     required this.startTime,
     required this.endTime,
-    required this.remarks,
+    this.remarks,
     required this.statusActive,
     required this.promoType,
     required this.buyCondition,
     required this.getCondition,
-    required this.totalQtyFrom,
-    required this.totalQtyTo,
-    required this.totalPriceFrom,
-    required this.totalPriceTo,
+    this.totalQtyFrom,
+    this.totalQtyTo,
+    this.totalPriceFrom,
+    this.totalPriceTo,
     required this.validMultiply,
     required this.promoAlias,
     required this.transactionLimit,
+    required this.form,
   });
 
   PromoBonusMultiItemHeaderEntity copyWith({
@@ -71,6 +73,7 @@ class PromoBonusMultiItemHeaderEntity {
     int? validMultiply,
     int? promoAlias,
     int? transactionLimit,
+    String? form,
   }) {
     return PromoBonusMultiItemHeaderEntity(
       docId: docId ?? this.docId,
@@ -94,6 +97,7 @@ class PromoBonusMultiItemHeaderEntity {
       validMultiply: validMultiply ?? this.validMultiply,
       promoAlias: promoAlias ?? this.promoAlias,
       transactionLimit: transactionLimit ?? this.transactionLimit,
+      form: form ?? this.form,
     );
   }
 
@@ -120,6 +124,7 @@ class PromoBonusMultiItemHeaderEntity {
       'validMultiply': validMultiply,
       'promoAlias': promoAlias,
       'transactionLimit': transactionLimit,
+      'form': form,
     };
   }
 
@@ -153,6 +158,7 @@ class PromoBonusMultiItemHeaderEntity {
       validMultiply: map['validMultiply'] as int,
       promoAlias: map['promoAlias'] as int,
       transactionLimit: map['transactionLimit'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -164,7 +170,7 @@ class PromoBonusMultiItemHeaderEntity {
 
   @override
   String toString() {
-    return 'PromoBonusMultiItemHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, promoType: $promoType, buyCondition: $buyCondition, getCondition: $getCondition, totalQtyFrom: $totalQtyFrom, totalQtyTo: $totalQtyTo, totalPriceFrom: $totalPriceFrom, totalPriceTo: $totalPriceTo, validMultiply: $validMultiply, promoAlias: $promoAlias, transactionLimit: $transactionLimit)';
+    return 'PromoBonusMultiItemHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, promoCode: $promoCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, statusActive: $statusActive, promoType: $promoType, buyCondition: $buyCondition, getCondition: $getCondition, totalQtyFrom: $totalQtyFrom, totalQtyTo: $totalQtyTo, totalPriceFrom: $totalPriceFrom, totalPriceTo: $totalPriceTo, validMultiply: $validMultiply, promoAlias: $promoAlias, transactionLimit: $transactionLimit, form: $form)';
   }
 
   @override
@@ -191,7 +197,8 @@ class PromoBonusMultiItemHeaderEntity {
         other.totalPriceTo == totalPriceTo &&
         other.validMultiply == validMultiply &&
         other.promoAlias == promoAlias &&
-        other.transactionLimit == transactionLimit;
+        other.transactionLimit == transactionLimit &&
+        other.form == form;
   }
 
   @override
@@ -216,6 +223,7 @@ class PromoBonusMultiItemHeaderEntity {
         totalPriceTo.hashCode ^
         validMultiply.hashCode ^
         promoAlias.hashCode ^
-        transactionLimit.hashCode;
+        transactionLimit.hashCode ^
+        form.hashCode;
   }
 }

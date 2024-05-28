@@ -19,11 +19,7 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
     double subtotalAfterDiscount = 0;
     double taxAfterDiscount = 0;
 
-    log("RE - $params");
-    log("RE - Subtotal - ${params.subtotal}");
-    log("discHprctg - $discHprctg");
-
-    for (final item in params.receiptItems) {
+    for (final item in params.receiptItems.map((e) => e.copyWith())) {
       item.discHeaderAmount =
           discHprctg * (item.totalGross - (item.discAmount ?? 0));
       item.subtotalAfterDiscHeader = item.totalGross -
@@ -33,14 +29,11 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
           item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
       subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
       taxAfterDiscount += item.taxAmount;
-      log("Item - $item");
     }
-    // params.subtotal = subtotalAfterDiscount;
+
     params.taxAmount = taxAfterDiscount;
     params.grandTotal = subtotalAfterDiscount + taxAfterDiscount;
-    log("REDM - ${params.subtotal}");
 
-    // params = params.copyWith(totalTax: totalTax);
     return params;
   }
 }

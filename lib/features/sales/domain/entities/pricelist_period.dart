@@ -13,12 +13,13 @@ class PricelistPeriodEntity {
   final double factor;
   final int statusActive;
   final int activated;
+  final String form;
 
   PricelistPeriodEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toplnId,
+    this.updateDate,
+    this.toplnId,
     required this.periodFr,
     required this.periodTo,
     required this.basePrice,
@@ -26,6 +27,7 @@ class PricelistPeriodEntity {
     required this.factor,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   PricelistPeriodEntity copyWith({
@@ -40,6 +42,7 @@ class PricelistPeriodEntity {
     double? factor,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return PricelistPeriodEntity(
       docId: docId ?? this.docId,
@@ -53,6 +56,7 @@ class PricelistPeriodEntity {
       factor: factor ?? this.factor,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -69,6 +73,7 @@ class PricelistPeriodEntity {
       'factor': factor,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -87,6 +92,7 @@ class PricelistPeriodEntity {
       factor: map['factor'] as double,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -98,7 +104,7 @@ class PricelistPeriodEntity {
 
   @override
   String toString() {
-    return 'PricelistPeriodEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toplnId: $toplnId, periodFr: $periodFr, periodTo: $periodTo, basePrice: $basePrice, periodPrice: $periodPrice, factor: $factor, statusActive: $statusActive, activated: $activated)';
+    return 'PricelistPeriodEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toplnId: $toplnId, periodFr: $periodFr, periodTo: $periodTo, basePrice: $basePrice, periodPrice: $periodPrice, factor: $factor, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -115,7 +121,8 @@ class PricelistPeriodEntity {
         other.periodPrice == periodPrice &&
         other.factor == factor &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -130,6 +137,7 @@ class PricelistPeriodEntity {
         periodPrice.hashCode ^
         factor.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

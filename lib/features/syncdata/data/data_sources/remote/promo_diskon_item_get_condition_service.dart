@@ -10,15 +10,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PromoDiskonItemGetConditionApi {
   final Dio _dio;
+  String? tenantId;
   String? tostrId;
   String? url;
   String? token;
 
   PromoDiskonItemGetConditionApi(this._dio);
 
-  Future<List<PromoDiskonItemGetConditionModel>> fetchData() async {
+  Future<List<PromoDiskonItemGetConditionModel>> fetchData(
+      String lastSync) async {
     try {
-      String apiName = "API-DISCITEM4";
+      String apiName = "API-TPDI4";
       Map<String, dynamic> exeData = {};
       List<PromoDiskonItemGetConditionModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -26,6 +28,7 @@ class PromoDiskonItemGetConditionApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
@@ -38,7 +41,12 @@ class PromoDiskonItemGetConditionApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              tostrId,
+            ]
           };
         }
       }

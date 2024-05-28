@@ -10,16 +10,18 @@ class PromoDiskonGroupItemGetConditionEntity {
   final double discount1;
   final double discount2;
   final double discount3;
+  final String form;
 
   PromoDiskonGroupItemGetConditionEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.topdgId,
+    this.updateDate,
+    this.topdgId,
     required this.promoValue,
     required this.discount1,
     required this.discount2,
     required this.discount3,
+    required this.form,
   });
 
   PromoDiskonGroupItemGetConditionEntity copyWith({
@@ -31,6 +33,7 @@ class PromoDiskonGroupItemGetConditionEntity {
     double? discount1,
     double? discount2,
     double? discount3,
+    String? form,
   }) {
     return PromoDiskonGroupItemGetConditionEntity(
       docId: docId ?? this.docId,
@@ -41,6 +44,7 @@ class PromoDiskonGroupItemGetConditionEntity {
       discount1: discount1 ?? this.discount1,
       discount2: discount2 ?? this.discount2,
       discount3: discount3 ?? this.discount3,
+      form: form ?? this.form,
     );
   }
 
@@ -54,6 +58,7 @@ class PromoDiskonGroupItemGetConditionEntity {
       'discount1': discount1,
       'discount2': discount2,
       'discount3': discount3,
+      'form': form,
     };
   }
 
@@ -70,6 +75,7 @@ class PromoDiskonGroupItemGetConditionEntity {
       discount1: map['discount1'] as double,
       discount2: map['discount2'] as double,
       discount3: map['discount3'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -81,7 +87,7 @@ class PromoDiskonGroupItemGetConditionEntity {
 
   @override
   String toString() {
-    return 'PromoDiskonGroupItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topdgId: $topdgId, promoValue: $promoValue, discount1: $discount1, discount2: $discount2, discount3: $discount3)';
+    return 'PromoDiskonGroupItemGetConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topdgId: $topdgId, promoValue: $promoValue, discount1: $discount1, discount2: $discount2, discount3: $discount3, form: $form)';
   }
 
   @override
@@ -95,7 +101,8 @@ class PromoDiskonGroupItemGetConditionEntity {
         other.promoValue == promoValue &&
         other.discount1 == discount1 &&
         other.discount2 == discount2 &&
-        other.discount3 == discount3;
+        other.discount3 == discount3 &&
+        other.form == form;
   }
 
   @override
@@ -107,6 +114,7 @@ class PromoDiskonGroupItemGetConditionEntity {
         promoValue.hashCode ^
         discount1.hashCode ^
         discount2.hashCode ^
-        discount3.hashCode;
+        discount3.hashCode ^
+        form.hashCode;
   }
 }

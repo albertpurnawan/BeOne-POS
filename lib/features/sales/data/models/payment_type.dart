@@ -10,6 +10,7 @@ class PaymentTypeFields {
     updateDate,
     payTypeCode,
     description,
+    form,
   ];
 
   static const String docId = "docid";
@@ -17,6 +18,7 @@ class PaymentTypeFields {
   static const String updateDate = "updatedate";
   static const String payTypeCode = "paytypecode";
   static const String description = "description";
+  static const String form = "form";
 }
 
 class PaymentTypeModel extends PaymentTypeEntity implements BaseModel {
@@ -26,6 +28,7 @@ class PaymentTypeModel extends PaymentTypeEntity implements BaseModel {
     required super.updateDate,
     required super.payTypeCode,
     required super.description,
+    required super.form,
   });
 
   @override
@@ -36,6 +39,7 @@ class PaymentTypeModel extends PaymentTypeEntity implements BaseModel {
       'updatedate': updateDate?.toLocal().toIso8601String(),
       'paytypecode': payTypeCode,
       'description': description,
+      'form': form,
     };
   }
 
@@ -48,6 +52,7 @@ class PaymentTypeModel extends PaymentTypeEntity implements BaseModel {
           : null,
       payTypeCode: map['paytypecode'] as String,
       description: map['description'] as String,
+      form: map['form'] as String,
     );
   }
 
@@ -58,6 +63,7 @@ class PaymentTypeModel extends PaymentTypeEntity implements BaseModel {
       updateDate: entity.updateDate,
       payTypeCode: entity.payTypeCode,
       description: entity.description,
+      form: entity.form,
     );
   }
 }

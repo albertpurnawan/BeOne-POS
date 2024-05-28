@@ -10,6 +10,7 @@ class PromoBuyXGetYCustomerGroupFields {
     updateDate,
     toprbId,
     tocrgId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -17,6 +18,7 @@ class PromoBuyXGetYCustomerGroupFields {
   static const String updateDate = "updatedate";
   static const String toprbId = "toprbId";
   static const String tocrgId = "tocrgId";
+  static const String form = "form";
 }
 
 class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
@@ -27,6 +29,7 @@ class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
     required super.updateDate,
     required super.toprbId,
     required super.tocrgId,
+    required super.form,
   });
 
   @override
@@ -37,6 +40,7 @@ class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'toprbId': toprbId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -49,6 +53,7 @@ class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
           : null,
       toprbId: map['toprbId'] != null ? map['toprbId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -69,6 +74,7 @@ class PromoBuyXGetYCustomerGroupModel extends PromoBuyXGetYCustomerGroupEntity
       updateDate: entity.updateDate,
       toprbId: entity.toprbId,
       tocrgId: entity.tocrgId,
+      form: entity.form,
     );
   }
 }

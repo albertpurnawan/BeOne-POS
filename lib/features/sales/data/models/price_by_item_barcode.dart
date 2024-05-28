@@ -12,6 +12,7 @@ class PriceByItemBarcodeFields {
     tbitmId,
     tcurrId,
     price,
+    form,
   ];
 
   static const String docId = 'docid';
@@ -21,6 +22,7 @@ class PriceByItemBarcodeFields {
   static const String tbitmId = 'tbitmId';
   static const String tcurrId = 'tcurrId';
   static const String price = 'price';
+  static const String form = 'form';
 }
 
 class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
@@ -33,6 +35,7 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
     required super.tbitmId,
     required super.tcurrId,
     required super.price,
+    required super.form,
   });
 
   @override
@@ -45,6 +48,7 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
       'tbitmId': tbitmId,
       'tcurrId': tcurrId,
       'price': price,
+      'form': form,
     };
   }
 
@@ -59,6 +63,7 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -74,12 +79,14 @@ class PriceByItemBarcodeModel extends PriceByItemBarcodeEntity
 
   factory PriceByItemBarcodeModel.fromEntity(PriceByItemBarcodeEntity entity) {
     return PriceByItemBarcodeModel(
-        docId: entity.docId,
-        createDate: entity.createDate,
-        updateDate: entity.updateDate,
-        tpln2Id: entity.tpln2Id,
-        tbitmId: entity.tbitmId,
-        tcurrId: entity.tcurrId,
-        price: entity.price);
+      docId: entity.docId,
+      createDate: entity.createDate,
+      updateDate: entity.updateDate,
+      tpln2Id: entity.tpln2Id,
+      tbitmId: entity.tbitmId,
+      tcurrId: entity.tcurrId,
+      price: entity.price,
+      form: entity.form,
+    );
   }
 }

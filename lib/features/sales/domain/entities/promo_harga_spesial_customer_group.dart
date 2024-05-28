@@ -7,13 +7,15 @@ class PromoHargaSpesialCustomerGroupEntity {
   final DateTime? updateDate;
   final String? topsbId;
   final String? tocrgId;
+  final String form;
 
   PromoHargaSpesialCustomerGroupEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.topsbId,
-    required this.tocrgId,
+    this.updateDate,
+    this.topsbId,
+    this.tocrgId,
+    required this.form,
   });
 
   PromoHargaSpesialCustomerGroupEntity copyWith({
@@ -22,6 +24,7 @@ class PromoHargaSpesialCustomerGroupEntity {
     DateTime? updateDate,
     String? topsbId,
     String? tocrgId,
+    String? form,
   }) {
     return PromoHargaSpesialCustomerGroupEntity(
       docId: docId ?? this.docId,
@@ -29,6 +32,7 @@ class PromoHargaSpesialCustomerGroupEntity {
       updateDate: updateDate ?? this.updateDate,
       topsbId: topsbId ?? this.topsbId,
       tocrgId: tocrgId ?? this.tocrgId,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +43,7 @@ class PromoHargaSpesialCustomerGroupEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'topsbId': topsbId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -52,6 +57,7 @@ class PromoHargaSpesialCustomerGroupEntity {
           : null,
       topsbId: map['topsbId'] != null ? map['topsbId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -63,7 +69,7 @@ class PromoHargaSpesialCustomerGroupEntity {
 
   @override
   String toString() {
-    return 'PromoHargaSpesialCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topsbId: $topsbId, tocrgId: $tocrgId)';
+    return 'PromoHargaSpesialCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topsbId: $topsbId, tocrgId: $tocrgId, form: $form)';
   }
 
   @override
@@ -74,7 +80,8 @@ class PromoHargaSpesialCustomerGroupEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.topsbId == topsbId &&
-        other.tocrgId == tocrgId;
+        other.tocrgId == tocrgId &&
+        other.form == form;
   }
 
   @override
@@ -83,6 +90,7 @@ class PromoHargaSpesialCustomerGroupEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         topsbId.hashCode ^
-        tocrgId.hashCode;
+        tocrgId.hashCode ^
+        form.hashCode;
   }
 }

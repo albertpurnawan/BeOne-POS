@@ -10,14 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MOPApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   MOPApi(this._dio);
 
-  Future<List<MeansOfPaymentModel>> fetchData() async {
+  Future<List<MeansOfPaymentModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "APi-MOP";
+      String apiName = "API-TPMT1";
       Map<String, dynamic> exeData = {};
       List<MeansOfPaymentModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -25,6 +26,7 @@ class MOPApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +40,14 @@ class MOPApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
+          };
         }
       }
 

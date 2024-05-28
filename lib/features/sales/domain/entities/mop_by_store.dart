@@ -7,13 +7,15 @@ class MOPByStoreEntity {
   final DateTime? updateDate;
   final String? tpmt1Id;
   final String? tostrId;
+  final String form;
 
   MOPByStoreEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.tpmt1Id,
-    required this.tostrId,
+    this.updateDate,
+    this.tpmt1Id,
+    this.tostrId,
+    required this.form,
   });
 
   MOPByStoreEntity copyWith({
@@ -22,6 +24,7 @@ class MOPByStoreEntity {
     DateTime? updateDate,
     String? tpmt1Id,
     String? tostrId,
+    String? form,
   }) {
     return MOPByStoreEntity(
       docId: docId ?? this.docId,
@@ -29,6 +32,7 @@ class MOPByStoreEntity {
       updateDate: updateDate ?? this.updateDate,
       tpmt1Id: tpmt1Id ?? this.tpmt1Id,
       tostrId: tostrId ?? this.tostrId,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +43,7 @@ class MOPByStoreEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'tpmt1Id': tpmt1Id,
       'tostrId': tostrId,
+      'form': form,
     };
   }
 
@@ -51,6 +56,7 @@ class MOPByStoreEntity {
           : null,
       tpmt1Id: map['tpmt1Id'] != null ? map['tpmt1Id'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -61,7 +67,7 @@ class MOPByStoreEntity {
 
   @override
   String toString() {
-    return 'MOPByStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpmt1Id: $tpmt1Id, tostrId: $tostrId)';
+    return 'MOPByStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tpmt1Id: $tpmt1Id, tostrId: $tostrId, form: $form)';
   }
 
   @override
@@ -72,7 +78,8 @@ class MOPByStoreEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.tpmt1Id == tpmt1Id &&
-        other.tostrId == tostrId;
+        other.tostrId == tostrId &&
+        other.form == form;
   }
 
   @override
@@ -81,6 +88,7 @@ class MOPByStoreEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         tpmt1Id.hashCode ^
-        tostrId.hashCode;
+        tostrId.hashCode ^
+        form.hashCode;
   }
 }

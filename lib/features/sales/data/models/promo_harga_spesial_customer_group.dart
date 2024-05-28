@@ -10,6 +10,7 @@ class PromoHargaSpesialCustomerGroupFields {
     updateDate,
     topsbId,
     tocrgId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -17,6 +18,7 @@ class PromoHargaSpesialCustomerGroupFields {
   static const String updateDate = "updatedate";
   static const String topsbId = "topsbId";
   static const String tocrgId = "tocrgId";
+  static const String form = "form";
 }
 
 class PromoHargaSpesialCustomerGroupModel
@@ -27,6 +29,7 @@ class PromoHargaSpesialCustomerGroupModel
     required super.updateDate,
     required super.topsbId,
     required super.tocrgId,
+    required super.form,
   });
 
   @override
@@ -37,6 +40,7 @@ class PromoHargaSpesialCustomerGroupModel
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'topsbId': topsbId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -50,6 +54,7 @@ class PromoHargaSpesialCustomerGroupModel
           : null,
       topsbId: map['topsbId'] != null ? map['topsbId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -70,6 +75,7 @@ class PromoHargaSpesialCustomerGroupModel
       updateDate: entity.updateDate,
       topsbId: entity.topsbId,
       tocrgId: entity.tocrgId,
+      form: entity.form,
     );
   }
 }

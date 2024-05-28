@@ -13,11 +13,12 @@ class TaxMasterEntity {
   final String taxType;
   final int statusActive;
   final int activated;
+  final String form;
 
   TaxMasterEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.taxCode,
     required this.description,
     required this.rate,
@@ -26,6 +27,7 @@ class TaxMasterEntity {
     required this.taxType,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   TaxMasterEntity copyWith({
@@ -40,6 +42,7 @@ class TaxMasterEntity {
     String? taxType,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return TaxMasterEntity(
       docId: docId ?? this.docId,
@@ -53,6 +56,7 @@ class TaxMasterEntity {
       taxType: taxType ?? this.taxType,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -69,6 +73,7 @@ class TaxMasterEntity {
       'taxType': taxType,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -87,6 +92,7 @@ class TaxMasterEntity {
       taxType: map['taxType'] as String,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -97,7 +103,7 @@ class TaxMasterEntity {
 
   @override
   String toString() {
-    return 'TaxMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, taxCode: $taxCode, description: $description, rate: $rate, periodFrom: $periodFrom, periodTo: $periodTo, taxType: $taxType, statusActive: $statusActive, activated: $activated)';
+    return 'TaxMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, taxCode: $taxCode, description: $description, rate: $rate, periodFrom: $periodFrom, periodTo: $periodTo, taxType: $taxType, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -114,7 +120,8 @@ class TaxMasterEntity {
         other.periodTo == periodTo &&
         other.taxType == taxType &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -129,6 +136,7 @@ class TaxMasterEntity {
         periodTo.hashCode ^
         taxType.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

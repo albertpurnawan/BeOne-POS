@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
@@ -29,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         statusBarColor: ProjectColors.primary,
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.light));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Setup'),
@@ -77,6 +79,7 @@ class _SettingsFormState extends State<SettingsForm> {
       passwordController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  String dflDate = "2000-01-01 00:00:00";
 
   // needed to change
   String emailAdmin = "interfacing@topgolf.com";
@@ -208,48 +211,58 @@ class _SettingsFormState extends State<SettingsForm> {
             child: CustomButton(
               child: const Text("Save"),
               onTap: () async {
-                final hashedPass = md5
-                    .convert(utf8.encode(passwordController.text))
-                    .toString();
+                try {
+                  await prefs.clear();
 
-                final topos = POSParameterModel(
-                  docId: const Uuid().v4(),
-                  createDate: DateTime.now(),
-                  updateDate: DateTime.now(),
-                  gtentId: gtentController.text,
-                  tostrId: tostrController.text,
-                  storeName: "TopGolf's Store 01", //need to edit
-                  tocsrId: tocsrController.text,
-                  baseUrl: urlController.text,
-                  usernameAdmin: emailController.text,
-                  passwordAdmin: hashedPass,
-                );
-                log(topos.toString());
+                  final hashedPass = md5
+                      // .convert(utf8.encode(passwordController.text))
+                      .convert(utf8.encode("BeOne\$\$123"))
+                      .toString();
 
-                await GetIt.instance<AppDatabase>()
-                    .posParameterDao
-                    .create(data: topos);
+                  final topos = POSParameterModel(
+                    docId: const Uuid().v4(),
+                    createDate: DateTime.now(),
+                    updateDate: DateTime.now(),
+                    gtentId: gtentController.text,
+                    tostrId: tostrController.text,
+                    storeName: "TopGolf's Store 01", //need to edit
+                    tocsrId: tocsrController.text,
+                    baseUrl: urlController.text,
+                    usernameAdmin: emailController.text,
+                    passwordAdmin: hashedPass,
+                    lastSync: '2000-01-01 00:00:00',
+                  );
+                  log(topos.toString());
 
-                log("TOPOS CREATED");
+                  await GetIt.instance<AppDatabase>()
+                      .posParameterDao
+                      .create(data: topos);
 
-                Constant.updateTopos(
+                  log("TOPOS CREATED");
+
+                  Constant.updateTopos(
                     gtentController.text,
                     tostrController.text,
                     tocsrController.text,
                     urlController.text,
                     emailAdmin,
-                    passwordAdmin);
+                    passwordAdmin,
+                    dflDate,
+                  );
 
-                final token = await GetIt.instance<TokenApi>().getToken(
-                    urlController.text,
-                    emailController.text,
-                    passwordController.text);
-                log("token string");
-                log(token.toString());
+                  final token = await GetIt.instance<TokenApi>().getToken(
+                      urlController.text,
+                      emailController.text,
+                      passwordController.text);
+                  log("token string");
+                  log(token.toString());
 
-                prefs.setString('adminToken', token.toString());
+                  prefs.setString('adminToken', token.toString());
 
-                Navigator.pop(context);
+                  Navigator.pop(context);
+                } catch (e, s) {
+                  ErrorHandler.presentErrorSnackBar(context, "$e $s");
+                }
               },
             ),
           ),

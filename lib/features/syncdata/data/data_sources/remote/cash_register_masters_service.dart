@@ -10,15 +10,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CashRegisterApi {
   final Dio _dio;
+  String? tenantId;
   String? storeId;
   String? url;
   String? token;
 
   CashRegisterApi(this._dio);
 
-  Future<List<CashRegisterModel>> fetchData() async {
+  Future<List<CashRegisterModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-CASHIER";
+      String apiName = "API-TOCSR";
       Map<String, dynamic> exeData = {};
       List<CashRegisterModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -26,6 +27,7 @@ class CashRegisterApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       storeId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
@@ -42,7 +44,12 @@ class CashRegisterApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [storeId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              storeId,
+            ]
           };
         }
       }

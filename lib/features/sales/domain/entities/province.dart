@@ -9,15 +9,17 @@ class ProvinceEntity {
   final String description;
   final String descriptionFrgn;
   final String? tocryId;
+  final String form;
 
   ProvinceEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.provncCode,
     required this.description,
     required this.descriptionFrgn,
-    required this.tocryId,
+    this.tocryId,
+    required this.form,
   });
 
   ProvinceEntity copyWith({
@@ -28,6 +30,7 @@ class ProvinceEntity {
     String? description,
     String? descriptionFrgn,
     String? tocryId,
+    String? form,
   }) {
     return ProvinceEntity(
       docId: docId ?? this.docId,
@@ -37,6 +40,7 @@ class ProvinceEntity {
       description: description ?? this.description,
       descriptionFrgn: descriptionFrgn ?? this.descriptionFrgn,
       tocryId: tocryId ?? this.tocryId,
+      form: form ?? this.form,
     );
   }
 
@@ -48,7 +52,8 @@ class ProvinceEntity {
       'provncCode': provncCode,
       'description': description,
       'descriptionFrgn': descriptionFrgn,
-      'tocrydocid': tocryId,
+      'tocryId': tocryId,
+      'form': form,
     };
   }
 
@@ -62,7 +67,8 @@ class ProvinceEntity {
       provncCode: map['provncCode'] as String,
       description: map['description'] as String,
       descriptionFrgn: map['descriptionFrgn'] as String,
-      tocryId: map['tocrydocid'] != null ? map['tocrydocid'] as String : null,
+      tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -73,7 +79,7 @@ class ProvinceEntity {
 
   @override
   String toString() {
-    return 'ProvinceEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, provncCode: $provncCode, description: $description, descriptionFrgn: $descriptionFrgn, tocryid: $tocryId)';
+    return 'ProvinceEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, provncCode: $provncCode, description: $description, descriptionFrgn: $descriptionFrgn, tocryId: $tocryId, form: $form)';
   }
 
   @override
@@ -86,7 +92,8 @@ class ProvinceEntity {
         other.provncCode == provncCode &&
         other.description == description &&
         other.descriptionFrgn == descriptionFrgn &&
-        other.tocryId == tocryId;
+        other.tocryId == tocryId &&
+        other.form == form;
   }
 
   @override
@@ -97,6 +104,7 @@ class ProvinceEntity {
         provncCode.hashCode ^
         description.hashCode ^
         descriptionFrgn.hashCode ^
-        tocryId.hashCode;
+        tocryId.hashCode ^
+        form.hashCode;
   }
 }

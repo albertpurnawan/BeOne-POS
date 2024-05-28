@@ -1,17 +1,22 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/webview_page.dart';
 
 final List<MopType> mopTypes = [
   MopType(name: "Tunai", payTypeCodes: ["1"]),
@@ -38,6 +43,16 @@ class CheckoutDialog extends StatefulWidget {
 
 class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharged = false;
+
+  String generateRandomString(int length) {
+    const characters =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    Random random = Random();
+    return String.fromCharCodes(Iterable.generate(
+      length,
+      (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,12 +198,106 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             (states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
                       try {
-                        context.read<ReceiptCubit>().charge();
-                        Future.delayed(Duration(milliseconds: 600), () {
-                          setState(() {
-                            isCharged = true;
+                        // Edit to QRIS here
+                        final mopSelected =
+                            context.read<ReceiptCubit>().state.mopSelection;
+                        final grandTotal = Helpers.revertMoneyToString(
+                            context.read<ReceiptCubit>().state.grandTotal);
+                        dev.log(grandTotal);
+
+                        if (mopSelected!.payTypeCode == '5') {
+                          final netzme = await GetIt.instance<AppDatabase>()
+                              .netzmeDao
+                              .readAll();
+                          final url = netzme[0].url;
+                          final clientKey = netzme[0].clientKey;
+                          final clientSecret = netzme[0].clientSecret;
+                          final privateKey = netzme[0].privateKey;
+
+                          final signature = await GetIt.instance<NetzmeApi>()
+                              .createSignature(url, clientKey, privateKey);
+                          dev.log(signature);
+
+                          final accessToken = await GetIt.instance<NetzmeApi>()
+                              .requestAccessToken(
+                                  url, clientKey, privateKey, signature);
+                          dev.log(accessToken);
+
+                          final bodyDetail = {
+                            "custIdMerchant":
+                                netzme[0].custIdMerchant, // constant
+                            "partnerReferenceNo": generateRandomString(
+                                10), // no unique cust aka random
+                            "amount": {
+                              "value": grandTotal,
+                              "currency": "IDR"
+                            }, // value grandtotal idr
+                            "amountDetail": {
+                              "basicAmount": {
+                                "value": grandTotal,
+                                "currency": "IDR"
+                              }, // total semua item
+                              "shippingAmount": {
+                                "value": "0",
+                                "currency": "IDR"
+                              }
+                            },
+                            "PayMethod": "QRIS", // constant
+                            "commissionPercentage": "0",
+                            "expireInSecond": "3600",
+                            "feeType": "on_buyer",
+                            "apiSource": "topup_deposit",
+                            "additionalInfo": {
+                              "email": "testabc@gmail.com",
+                              "notes": "desc",
+                              "description": "description",
+                              "phoneNumber": "+6285270427851",
+                              "imageUrl": "a",
+                              "fullname": "Tester 213@"
+                            }
+                          };
+                          final serviceSignature =
+                              await GetIt.instance<NetzmeApi>()
+                                  .createSignatureService(
+                                      url,
+                                      clientKey,
+                                      clientSecret,
+                                      privateKey,
+                                      accessToken,
+                                      bodyDetail);
+                          dev.log(serviceSignature);
+                          final transactionQris =
+                              await GetIt.instance<NetzmeApi>()
+                                  .createTransactionQRIS(
+                                      url,
+                                      clientKey,
+                                      clientSecret,
+                                      privateKey,
+                                      serviceSignature,
+                                      bodyDetail);
+                          dev.log("$transactionQris");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  WebViewApp(url: transactionQris),
+                            ),
+                          );
+                          // if qris payment success, go
+                          // context.read<ReceiptCubit>().charge();
+                          // Future.delayed(Duration(milliseconds: 600), () {
+                          //   setState(() {
+                          //     isCharged = true;
+                          //   });
+                          // });
+                        } else {
+                          context.read<ReceiptCubit>().charge();
+                          Future.delayed(Duration(milliseconds: 600), () {
+                            setState(() {
+                              isCharged = true;
+                            });
                           });
-                        });
+                        }
                       } catch (e, s) {
                         print(e);
                         debugPrintStack(stackTrace: s);
@@ -808,6 +917,14 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                               },
                                             );
                                             _voucherMopSelections.add(mop);
+                                            setState(() {
+                                              _value =
+                                                  selected ? mop.tpmt3Id : "";
+                                              _cashAmount = 0;
+                                              _textEditingControllerCashAmount
+                                                  .text = "";
+                                              updateReceiptMop();
+                                            });
                                           }
                                           setState(() {
                                             _value =
@@ -871,7 +988,7 @@ class __CheckoutSuccessDialogContentState
     extends State<_CheckoutSuccessDialogContent> {
   @override
   Widget build(BuildContext context) {
-    log("CHECKOUT STATE - ${context.read<ReceiptCubit>().state}");
+    dev.log("CHECKOUT STATE - ${context.read<ReceiptCubit>().state}");
     return Theme(
         data: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),

@@ -9,15 +9,17 @@ class PromoBuyXGetYBuyConditionEntity {
   final String? toitmId;
   final double quantity;
   final double? itemPrice;
+  final String form;
 
   PromoBuyXGetYBuyConditionEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toprbId,
-    required this.toitmId,
+    this.updateDate,
+    this.toprbId,
+    this.toitmId,
     required this.quantity,
-    required this.itemPrice,
+    this.itemPrice,
+    required this.form,
   });
 
   PromoBuyXGetYBuyConditionEntity copyWith({
@@ -28,6 +30,7 @@ class PromoBuyXGetYBuyConditionEntity {
     String? toitmId,
     double? quantity,
     double? itemPrice,
+    String? form,
   }) {
     return PromoBuyXGetYBuyConditionEntity(
       docId: docId ?? this.docId,
@@ -37,6 +40,7 @@ class PromoBuyXGetYBuyConditionEntity {
       toitmId: toitmId ?? this.toitmId,
       quantity: quantity ?? this.quantity,
       itemPrice: itemPrice ?? this.itemPrice,
+      form: form ?? this.form,
     );
   }
 
@@ -49,6 +53,7 @@ class PromoBuyXGetYBuyConditionEntity {
       'toitmId': toitmId,
       'quantity': quantity,
       'itemPrice': itemPrice,
+      'form': form,
     };
   }
 
@@ -63,6 +68,7 @@ class PromoBuyXGetYBuyConditionEntity {
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       quantity: map['quantity'] as double,
       itemPrice: map['itemPrice'] != null ? map['itemPrice'] as double : null,
+      form: map['form'] as String,
     );
   }
 
@@ -74,7 +80,7 @@ class PromoBuyXGetYBuyConditionEntity {
 
   @override
   String toString() {
-    return 'PromoBuyXGetYBuyConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toprbId: $toprbId, toitmId: $toitmId, quantity: $quantity, itemPrice: $itemPrice)';
+    return 'PromoBuyXGetYBuyConditionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toprbId: $toprbId, toitmId: $toitmId, quantity: $quantity, itemPrice: $itemPrice, form: $form)';
   }
 
   @override
@@ -87,7 +93,8 @@ class PromoBuyXGetYBuyConditionEntity {
         other.toprbId == toprbId &&
         other.toitmId == toitmId &&
         other.quantity == quantity &&
-        other.itemPrice == itemPrice;
+        other.itemPrice == itemPrice &&
+        other.form == form;
   }
 
   @override
@@ -98,6 +105,7 @@ class PromoBuyXGetYBuyConditionEntity {
         toprbId.hashCode ^
         toitmId.hashCode ^
         quantity.hashCode ^
-        itemPrice.hashCode;
+        itemPrice.hashCode ^
+        form.hashCode;
   }
 }

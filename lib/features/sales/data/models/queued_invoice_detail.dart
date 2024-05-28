@@ -33,7 +33,7 @@ class QueuedInvoiceDetailFields {
     tovenId,
     tbitmId,
     discHeaderAmount,
-    subtotalAfterDiscHeader,
+    // subtotalAfterDiscHeader,
     //maybe need more to send to bos
   ];
 
@@ -65,7 +65,7 @@ class QueuedInvoiceDetailFields {
   static const String tovenId = "tovenId";
   static const String tbitmId = "tbitmId";
   static const String discHeaderAmount = "discheaderamount";
-  static const String subtotalAfterDiscHeader = "subtotalafterdischeader";
+  // static const String subtotalAfterDiscHeader = "subtotalafterdischeader";
 }
 
 class QueuedInvoiceDetailModel extends InvoiceDetailEntity
@@ -99,7 +99,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
     required super.tovenId,
     required super.tbitmId,
     required super.discHeaderAmount,
-    required super.subtotalAfterDiscHeader,
+    // required super.subtotalAfterDiscHeader,
   });
 
   @override
@@ -133,7 +133,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       'tovenId': tovenId,
       'tbitmId': tbitmId,
       'discheaderamount': discHeaderAmount,
-      'subtotalafterdischeader': subtotalAfterDiscHeader,
+      // 'subtotalafterdischeader': subtotalAfterDiscHeader,
     };
   }
 
@@ -178,9 +178,9 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       discHeaderAmount: map['discheaderamount'] != null
           ? map['discheaderamount'] as double
           : null,
-      subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
-          ? map['subtotalafterdischeader'] as double
-          : null,
+      // subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
+      //     ? map['subtotalafterdischeader'] as double
+      //     : null,
     );
   }
 
@@ -242,7 +242,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       tovenId: entity.tovenId,
       tbitmId: entity.baseDocId,
       discHeaderAmount: entity.discHeaderAmount,
-      subtotalAfterDiscHeader: entity.subtotalAfterDiscHeader,
+      // subtotalAfterDiscHeader: entity.subtotalAfterDiscHeader,
     );
   }
 }

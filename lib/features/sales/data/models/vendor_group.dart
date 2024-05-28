@@ -14,6 +14,7 @@ class VendorGroupFields {
     statusActive,
     activated,
     sync,
+    form,
   ];
 
   static const String docId = "docid";
@@ -25,6 +26,7 @@ class VendorGroupFields {
   static const String statusActive = "statusactive";
   static const String activated = "activated";
   static const String sync = "sync";
+  static const String form = "form";
 }
 
 class VendorGroupModel extends VendorGroupEntity implements BaseModel {
@@ -38,6 +40,7 @@ class VendorGroupModel extends VendorGroupEntity implements BaseModel {
     required super.statusActive,
     required super.activated,
     required super.sync,
+    required super.form,
   });
 
   @override
@@ -52,6 +55,7 @@ class VendorGroupModel extends VendorGroupEntity implements BaseModel {
       'statusactive': statusActive,
       'activated': activated,
       'sync': sync,
+      'form': form,
     };
   }
 
@@ -68,6 +72,7 @@ class VendorGroupModel extends VendorGroupEntity implements BaseModel {
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       sync: map['sync'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -89,6 +94,7 @@ class VendorGroupModel extends VendorGroupEntity implements BaseModel {
       statusActive: entity.statusActive,
       activated: entity.activated,
       sync: entity.sync,
+      form: entity.form,
     );
   }
 }

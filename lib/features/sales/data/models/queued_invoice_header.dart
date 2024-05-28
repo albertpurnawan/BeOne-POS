@@ -152,7 +152,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       'tcsr1Id': tcsr1Id,
       'discheadermanual': discHeaderManual,
       'discheaderpromo': discHeaderPromo,
-      'synctobos': syncToBos,
+      // 'synctobos': 1,
     };
     if (transDateTime == null) {
       return map;
@@ -210,7 +210,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       discHeaderPromo: map['discheaderpromo'] != null
           ? map['discheaderpromo'] as double
           : null,
-      syncToBos: map['synctobos'] as int,
+      syncToBos: 0,
     );
   }
 

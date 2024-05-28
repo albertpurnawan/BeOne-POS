@@ -10,14 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ItemCategoryApi {
   final Dio _dio;
+  String? tenantId;
   String? url;
   String? token;
 
   ItemCategoryApi(this._dio);
 
-  Future<List<ItemCategoryModel>> fetchData() async {
+  Future<List<ItemCategoryModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-PRODCATEGORY";
+      String apiName = "API-TOCAT";
       Map<String, dynamic> exeData = {};
       List<ItemCategoryModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -25,6 +26,7 @@ class ItemCategoryApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -38,7 +40,14 @@ class ItemCategoryApi {
 
       for (var api in response.data) {
         if (api["name"] == apiName) {
-          exeData = {"docid": api["docid"], "parameter": []};
+          exeData = {
+            "docid": api["docid"],
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
+          };
         }
       }
 

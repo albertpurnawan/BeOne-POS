@@ -12,6 +12,7 @@ class ProvinceFields {
     description,
     descriptionFrgn,
     tocryId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -21,6 +22,7 @@ class ProvinceFields {
   static const String description = "description";
   static const String descriptionFrgn = "descriptionfrgn";
   static const String tocryId = "tocryId";
+  static const String form = "form";
 }
 
 class ProvinceModel extends ProvinceEntity implements BaseModel {
@@ -32,6 +34,7 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
     required super.description,
     required super.descriptionFrgn,
     required super.tocryId,
+    required super.form,
   });
 
   @override
@@ -44,6 +47,7 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
       'description': description,
       'descriptionfrgn': descriptionFrgn,
       'tocryId': tocryId,
+      'form': form,
     };
   }
 
@@ -65,6 +69,7 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
       description: map['description'] as String,
       descriptionFrgn: map['descriptionfrgn'] as String,
       tocryId: map['tocryId'] != null ? map['tocryId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -77,6 +82,7 @@ class ProvinceModel extends ProvinceEntity implements BaseModel {
       description: entity.description,
       descriptionFrgn: entity.descriptionFrgn,
       tocryId: entity.tocryId,
+      form: entity.form,
     );
   }
 }

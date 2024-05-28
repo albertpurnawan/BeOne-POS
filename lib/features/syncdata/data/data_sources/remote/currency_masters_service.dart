@@ -16,9 +16,9 @@ class CurrencyApi {
 
   CurrencyApi(this._dio);
 
-  Future<List<CurrencyModel>> fetchData() async {
+  Future<List<CurrencyModel>> fetchData(String lastSync) async {
     try {
-      String apiName = "API-CURRENCY";
+      String apiName = "API-TCURR";
       Map<String, dynamic> exeData = {};
       List<CurrencyModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -42,7 +42,11 @@ class CurrencyApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tenantId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+            ]
           };
         }
       }

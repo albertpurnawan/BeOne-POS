@@ -23,6 +23,7 @@ class PromoBuyXGetYHeaderFields {
     maxGet,
     statusActive,
     toplnId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -43,6 +44,7 @@ class PromoBuyXGetYHeaderFields {
   static const String maxGet = "maxget";
   static const String statusActive = "statusactive";
   static const String toplnId = "toplnId";
+  static const String form = "form";
 }
 
 class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
@@ -66,6 +68,7 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
     required super.maxGet,
     required super.statusActive,
     required super.toplnId,
+    required super.form,
   });
 
   @override
@@ -89,6 +92,7 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
       'maxget': maxGet,
       'statusactive': statusActive,
       'toplnId': toplnId,
+      'form': form,
     };
   }
 
@@ -103,8 +107,8 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
       endDate: DateTime.parse(map['enddate'] as String).toLocal(),
-      startTime: DateTime.parse(map['starttime'] as String).toLocal(),
-      endTime: DateTime.parse(map['endtime'] as String).toLocal(),
+      startTime: DateTime.parse(map['starttime'] as String),
+      endTime: DateTime.parse(map['endtime'] as String),
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       minPurchase: map['minpurchase'] as double,
       buyCondition: map['buycondition'] as int,
@@ -114,6 +118,7 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
       maxGet: map['maxget'] as double,
       statusActive: map['statusactive'] as int,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -149,6 +154,7 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
       maxGet: entity.maxGet,
       statusActive: entity.statusActive,
       toplnId: entity.toplnId,
+      form: entity.form,
     );
   }
 }

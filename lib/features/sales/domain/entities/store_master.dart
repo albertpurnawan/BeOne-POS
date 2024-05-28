@@ -62,68 +62,70 @@ class StoreMasterEntity {
   final String? mtxline02;
   final String? mtxline03;
   final String? mtxline04;
+  final String form;
 
   StoreMasterEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.storeCode,
     required this.storeName,
     required this.email,
     required this.phone,
-    required this.addr1,
-    required this.addr2,
-    required this.addr3,
+    this.addr1,
+    this.addr2,
+    this.addr3,
     required this.city,
-    required this.remarks,
-    required this.toprvId,
-    required this.tocryId,
-    required this.tozcdId,
-    required this.tohemId,
+    this.remarks,
+    this.toprvId,
+    this.tocryId,
+    this.tozcdId,
+    this.tohemId,
     required this.sqm,
-    required this.tcurrId,
-    required this.toplnId,
-    required this.storePic,
-    required this.tovatId,
+    this.tcurrId,
+    this.toplnId,
+    this.storePic,
+    this.tovatId,
     required this.storeOpening,
     required this.statusActive,
     required this.activated,
-    required this.prefixDoc,
-    required this.header01,
-    required this.header02,
-    required this.header03,
-    required this.header04,
-    required this.header05,
-    required this.footer01,
-    required this.footer02,
-    required this.footer03,
-    required this.footer04,
-    required this.footer05,
-    required this.sellingTax,
-    required this.openingBalance,
-    required this.autoRounding,
-    required this.roundingValue,
-    required this.totalMinus,
-    required this.totalZero,
-    required this.holdStruck,
-    required this.holdClose,
-    required this.autoPrintStruk,
-    required this.barcode1,
-    required this.barcode2,
-    required this.barcode3,
-    required this.barcode4,
-    required this.connectBack,
-    required this.maxUserKassa,
+    this.prefixDoc,
+    this.header01,
+    this.header02,
+    this.header03,
+    this.header04,
+    this.header05,
+    this.footer01,
+    this.footer02,
+    this.footer03,
+    this.footer04,
+    this.footer05,
+    this.sellingTax,
+    this.openingBalance,
+    this.autoRounding,
+    this.roundingValue,
+    this.totalMinus,
+    this.totalZero,
+    this.holdStruck,
+    this.holdClose,
+    this.autoPrintStruk,
+    this.barcode1,
+    this.barcode2,
+    this.barcode3,
+    this.barcode4,
+    this.connectBack,
+    this.maxUserKassa,
     required this.stockLevel,
     required this.minConst,
     required this.maxConst,
     required this.orderCycle,
     required this.taxBy,
-    required this.tpmt1Id,
-    required this.mtxline01,
-    required this.mtxline02,
-    required this.mtxline03,
-    required this.mtxline04,
+    this.tpmt1Id,
+    this.mtxline01,
+    this.mtxline02,
+    this.mtxline03,
+    this.mtxline04,
+    required this.form,
   });
 
   StoreMasterEntity copyWith({
@@ -187,6 +189,7 @@ class StoreMasterEntity {
     String? mtxline02,
     String? mtxline03,
     String? mtxline04,
+    String? form,
   }) {
     return StoreMasterEntity(
       docId: docId ?? this.docId,
@@ -249,6 +252,7 @@ class StoreMasterEntity {
       mtxline02: mtxline02 ?? this.mtxline02,
       mtxline03: mtxline03 ?? this.mtxline03,
       mtxline04: mtxline04 ?? this.mtxline04,
+      form: form ?? this.form,
     );
   }
 
@@ -314,6 +318,7 @@ class StoreMasterEntity {
       'mtxline02': mtxline02,
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
+      'form': form,
     };
   }
 
@@ -390,6 +395,7 @@ class StoreMasterEntity {
       mtxline02: map['mtxline02'] != null ? map['mtxline02'] as String : null,
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -400,7 +406,7 @@ class StoreMasterEntity {
 
   @override
   String toString() {
-    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04)';
+    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, form: $form)';
   }
 
   @override
@@ -466,7 +472,8 @@ class StoreMasterEntity {
         other.mtxline01 == mtxline01 &&
         other.mtxline02 == mtxline02 &&
         other.mtxline03 == mtxline03 &&
-        other.mtxline04 == mtxline04;
+        other.mtxline04 == mtxline04 &&
+        other.form == form;
   }
 
   @override
@@ -530,6 +537,7 @@ class StoreMasterEntity {
         mtxline01.hashCode ^
         mtxline02.hashCode ^
         mtxline03.hashCode ^
-        mtxline04.hashCode;
+        mtxline04.hashCode ^
+        form.hashCode;
   }
 }

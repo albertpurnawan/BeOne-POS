@@ -10,15 +10,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PromoDiskonGroupItemCustomerGroupApi {
   final Dio _dio;
+  String? tenantId;
   String? tostrId;
   String? url;
   String? token;
 
   PromoDiskonGroupItemCustomerGroupApi(this._dio);
 
-  Future<List<PromoDiskonGroupItemCustomerGroupModel>> fetchData() async {
+  Future<List<PromoDiskonGroupItemCustomerGroupModel>> fetchData(
+      String lastSync) async {
     try {
-      String apiName = "API-DISCITEMGRP5";
+      String apiName = "API-TPDG5";
       Map<String, dynamic> exeData = {};
       List<PromoDiskonGroupItemCustomerGroupModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -38,7 +40,12 @@ class PromoDiskonGroupItemCustomerGroupApi {
         if (api["name"] == apiName) {
           exeData = {
             "docid": api["docid"],
-            "parameter": [tostrId]
+            "parameter": [
+              tenantId,
+              lastSync,
+              lastSync,
+              tostrId,
+            ]
           };
         }
       }

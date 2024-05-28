@@ -11,14 +11,29 @@ class ItemCategoryDao extends BaseDao<ItemCategoryModel> {
 
   @override
   Future<List<ItemCategoryModel>> readAll({Transaction? txn}) async {
-    // TODO: implement readAll
-    throw UnimplementedError();
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.query(tableName);
+
+    return result
+        .map((itemData) => ItemCategoryModel.fromMap(itemData))
+        .toList();
   }
 
   @override
   Future<ItemCategoryModel?> readByDocId(String docId, Transaction? txn) async {
-    // TODO: implement readByDocId
-    throw UnimplementedError();
+    try {
+      DatabaseExecutor dbExecutor = txn ?? db;
+      final res = await dbExecutor.query(
+        tableName,
+        columns: modelFields,
+        where: 'docid = ?',
+        whereArgs: [docId],
+      );
+
+      return res.isNotEmpty ? ItemCategoryModel.fromMap(res[0]) : null;
+    } catch (e) {
+      return null;
+    }
   }
   // final Database db;
   // final String tableName = tableItemCategories;

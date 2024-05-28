@@ -26,6 +26,7 @@ class PromoBonusMultiItemHeaderFields {
     validMultiply,
     promoAlias,
     transactionLimit,
+    form,
   ];
 
   static const String docId = "docid";
@@ -49,6 +50,7 @@ class PromoBonusMultiItemHeaderFields {
   static const String validMultiply = "validmultiply";
   static const String promoAlias = "promoalias";
   static const String transactionLimit = "transactionlimit";
+  static const String form = "form";
 }
 
 class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
@@ -75,6 +77,7 @@ class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
     required super.validMultiply,
     required super.promoAlias,
     required super.transactionLimit,
+    required super.form,
   });
 
   @override
@@ -101,6 +104,7 @@ class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
       'validmultiply': validMultiply,
       'promoalias': promoAlias,
       'transactionlimit': transactionLimit,
+      'form': form,
     };
   }
 
@@ -134,6 +138,7 @@ class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
       validMultiply: map['validmultiply'] as int,
       promoAlias: map['promoalias'] as int,
       transactionLimit: map['transactionlimit'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -180,6 +185,7 @@ class PromoBonusMultiItemHeaderModel extends PromoBonusMultiItemHeaderEntity
       validMultiply: entity.validMultiply,
       promoAlias: entity.promoAlias,
       transactionLimit: entity.transactionLimit,
+      form: entity.form,
     );
   }
 }

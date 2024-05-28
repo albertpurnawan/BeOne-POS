@@ -10,6 +10,7 @@ class PromoDiskonItemCustomerGroupFields {
     updateDate,
     topdiId,
     tocrgId,
+    form,
   ];
 
   static const String docId = "docid";
@@ -17,6 +18,7 @@ class PromoDiskonItemCustomerGroupFields {
   static const String updateDate = "updatedate";
   static const String topdiId = "topdiId";
   static const String tocrgId = "tocrgId";
+  static const String form = "form";
 }
 
 class PromoDiskonItemCustomerGroupModel
@@ -27,6 +29,7 @@ class PromoDiskonItemCustomerGroupModel
     required super.updateDate,
     required super.topdiId,
     required super.tocrgId,
+    required super.form,
   });
 
   @override
@@ -37,6 +40,7 @@ class PromoDiskonItemCustomerGroupModel
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'topdiId': topdiId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -49,6 +53,7 @@ class PromoDiskonItemCustomerGroupModel
           : null,
       topdiId: map['topdiId'] != null ? map['topdiId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
@@ -69,6 +74,7 @@ class PromoDiskonItemCustomerGroupModel
       updateDate: entity.updateDate,
       topdiId: entity.topdiId,
       tocrgId: entity.tocrgId,
+      form: entity.form,
     );
   }
 }

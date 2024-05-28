@@ -17,6 +17,7 @@ class MeansOfPaymentFields {
     credit,
     subType,
     validForEmp,
+    form,
   ];
 
   static const String docId = "docid";
@@ -31,6 +32,7 @@ class MeansOfPaymentFields {
   static const String credit = "credit";
   static const String subType = "subtype";
   static const String validForEmp = "validforemp";
+  static const String form = "form";
 }
 
 class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
@@ -47,6 +49,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
     required super.credit,
     required super.subType,
     required super.validForEmp,
+    required super.form,
   });
 
   @override
@@ -64,6 +67,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
       'credit': credit,
       'subtype': subType,
       'validforemp': validForEmp,
+      'form': form,
     };
   }
 
@@ -83,6 +87,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
       credit: map['credit'] as int,
       subType: map['subtype'] as int,
       validForEmp: map['validforemp'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -108,6 +113,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
       credit: entity.credit,
       subType: entity.subType,
       validForEmp: entity.validForEmp,
+      form: entity.form,
     );
   }
 }

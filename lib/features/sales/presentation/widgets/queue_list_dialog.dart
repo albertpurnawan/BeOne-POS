@@ -103,7 +103,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                         onTap: () {
                           context
                               .read<ReceiptCubit>()
-                              .retrieveFromQueue(queuedReceipt);
+                              .retrieveFromQueue(queuedReceipt, context);
                           Navigator.pop(context);
                         },
                         child: Column(
@@ -370,7 +370,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                   },
                   child: const Center(
                       child: Text(
-                    "Return",
+                    "Done",
                     style: TextStyle(color: Colors.white),
                   )),
                 )),

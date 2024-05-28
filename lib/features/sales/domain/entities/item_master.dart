@@ -40,46 +40,47 @@ class ItemMasterEntity {
   final int? multiplyOrder;
   final int syncCRM;
   final int mergeQuantity;
+  final String form;
 
   ItemMasterEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.itemCode,
     required this.itemName,
     required this.invItem,
-    // required this.serialNo,
-    required this.tocatId,
-    required this.touomId,
+    this.tocatId,
+    this.touomId,
     required this.minStock,
     required this.maxStock,
     required this.includeTax,
-    required this.remarks,
+    this.remarks,
     required this.statusActive,
     required this.activated,
     required this.isBatch,
     required this.sync,
-    required this.internalCode_1,
-    required this.internalCode_2,
-    required this.property1,
-    required this.property2,
-    required this.property3,
-    required this.property4,
-    required this.property5,
-    required this.property6,
-    required this.property7,
-    required this.property8,
-    required this.property9,
-    required this.property10,
+    this.internalCode_1,
+    this.internalCode_2,
+    this.property1,
+    this.property2,
+    this.property3,
+    this.property4,
+    this.property5,
+    this.property6,
+    this.property7,
+    this.property8,
+    this.property9,
+    this.property10,
     required this.openPrice,
     required this.popItem,
-    required this.bpom,
-    required this.expDate,
-    required this.margin,
-    required this.memberDiscount,
-    required this.multiplyOrder,
+    this.bpom,
+    this.expDate,
+    this.margin,
+    this.memberDiscount,
+    this.multiplyOrder,
     required this.syncCRM,
     required this.mergeQuantity,
+    required this.form,
   });
 
   ItemMasterEntity copyWith({
@@ -89,7 +90,6 @@ class ItemMasterEntity {
     String? itemCode,
     String? itemName,
     int? invItem,
-    // int? serialNo,
     String? tocatId,
     String? touomId,
     double? minStock,
@@ -121,6 +121,7 @@ class ItemMasterEntity {
     int? multiplyOrder,
     int? syncCRM,
     int? mergeQuantity,
+    String? form,
   }) {
     return ItemMasterEntity(
       docId: docId ?? this.docId,
@@ -129,7 +130,6 @@ class ItemMasterEntity {
       itemCode: itemCode ?? this.itemCode,
       itemName: itemName ?? this.itemName,
       invItem: invItem ?? this.invItem,
-      // serialNo: serialNo ?? this.serialNo,
       tocatId: tocatId ?? this.tocatId,
       touomId: touomId ?? this.touomId,
       minStock: minStock ?? this.minStock,
@@ -161,6 +161,7 @@ class ItemMasterEntity {
       multiplyOrder: multiplyOrder ?? this.multiplyOrder,
       syncCRM: syncCRM ?? this.syncCRM,
       mergeQuantity: mergeQuantity ?? this.mergeQuantity,
+      form: form ?? this.form,
     );
   }
 
@@ -172,7 +173,6 @@ class ItemMasterEntity {
       'itemCode': itemCode,
       'itemName': itemName,
       'invItem': invItem,
-      // 'serialNo': serialNo,
       'tocatId': tocatId,
       'touomId': touomId,
       'minStock': minStock,
@@ -204,6 +204,7 @@ class ItemMasterEntity {
       'multiplyOrder': multiplyOrder,
       'syncCRM': syncCRM,
       'mergeQuantity': mergeQuantity,
+      'form': form,
     };
   }
 
@@ -217,7 +218,6 @@ class ItemMasterEntity {
       itemCode: map['itemCode'] as String,
       itemName: map['itemName'] as String,
       invItem: map['invItem'] as int,
-      // serialNo: map['serialNo'] as int,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       touomId: map['touomId'] != null ? map['touomId'] as String : null,
       minStock: map['minStock'] as double,
@@ -256,6 +256,7 @@ class ItemMasterEntity {
           map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
       syncCRM: map['syncCRM'] as int,
       mergeQuantity: map['mergeQuantity'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -266,7 +267,7 @@ class ItemMasterEntity {
 
   @override
   String toString() {
-    return 'ItemMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, itemCode: $itemCode, itemName: $itemName, invItem: $invItem, serialNo: , tocatId: $tocatId, touomId: $touomId, minStock: $minStock, maxStock: $maxStock, includeTax: $includeTax, remarks: $remarks, statusActive: $statusActive, activated: $activated, isBatch: $isBatch, sync: $sync, internalCode_1: $internalCode_1, internalCode_2: $internalCode_2, property1: $property1, property2: $property2, property3: $property3, property4: $property4, property5: $property5, property6: $property6, property7: $property7, property8: $property8, property9: $property9, property10: $property10, openPrice: $openPrice, popItem: $popItem, bpom: $bpom, expDate: $expDate, margin: $margin, memberDiscount: $memberDiscount, multiplyOrder: $multiplyOrder, syncCRM: $syncCRM, mergeQuantity: $mergeQuantity)';
+    return 'ItemMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, itemCode: $itemCode, itemName: $itemName, invItem: $invItem, tocatId: $tocatId, touomId: $touomId, minStock: $minStock, maxStock: $maxStock, includeTax: $includeTax, remarks: $remarks, statusActive: $statusActive, activated: $activated, isBatch: $isBatch, sync: $sync, internalCode_1: $internalCode_1, internalCode_2: $internalCode_2, property1: $property1, property2: $property2, property3: $property3, property4: $property4, property5: $property5, property6: $property6, property7: $property7, property8: $property8, property9: $property9, property10: $property10, openPrice: $openPrice, popItem: $popItem, bpom: $bpom, expDate: $expDate, margin: $margin, memberDiscount: $memberDiscount, multiplyOrder: $multiplyOrder, syncCRM: $syncCRM, mergeQuantity: $mergeQuantity, form: $form)';
   }
 
   @override
@@ -279,7 +280,6 @@ class ItemMasterEntity {
         other.itemCode == itemCode &&
         other.itemName == itemName &&
         other.invItem == invItem &&
-        // other.serialNo == serialNo &&
         other.tocatId == tocatId &&
         other.touomId == touomId &&
         other.minStock == minStock &&
@@ -310,7 +310,8 @@ class ItemMasterEntity {
         other.memberDiscount == memberDiscount &&
         other.multiplyOrder == multiplyOrder &&
         other.syncCRM == syncCRM &&
-        other.mergeQuantity == mergeQuantity;
+        other.mergeQuantity == mergeQuantity &&
+        other.form == form;
   }
 
   @override
@@ -321,7 +322,6 @@ class ItemMasterEntity {
         itemCode.hashCode ^
         itemName.hashCode ^
         invItem.hashCode ^
-        // serialNo.hashCode ^
         tocatId.hashCode ^
         touomId.hashCode ^
         minStock.hashCode ^
@@ -352,6 +352,7 @@ class ItemMasterEntity {
         memberDiscount.hashCode ^
         multiplyOrder.hashCode ^
         syncCRM.hashCode ^
-        mergeQuantity.hashCode;
+        mergeQuantity.hashCode ^
+        form.hashCode;
   }
 }

@@ -11,12 +11,12 @@ class PricelistFields {
     priceCode,
     description,
     basePrice,
-    // periodPrice,
     factor,
     tcurrId,
     type,
     statusactive,
     activated,
+    form,
   ];
 
   static const String docId = "docid";
@@ -25,12 +25,12 @@ class PricelistFields {
   static const String priceCode = "pricecode";
   static const String description = "description";
   static const String basePrice = "baseprice";
-  // static const String periodPrice = "periodprice";
   static const String factor = "factor";
   static const String tcurrId = "tcurrId";
   static const String type = "type";
   static const String statusactive = "statusactive";
   static const String activated = "activated";
+  static const String form = "form";
 }
 
 class PricelistModel extends PricelistEntity implements BaseModel {
@@ -41,12 +41,12 @@ class PricelistModel extends PricelistEntity implements BaseModel {
     required super.priceCode,
     required super.description,
     required super.basePrice,
-    // required super.periodPrice,
     required super.factor,
     required super.tcurrId,
     required super.type,
     required super.statusactive,
     required super.activated,
+    required super.form,
   });
 
   @override
@@ -58,12 +58,12 @@ class PricelistModel extends PricelistEntity implements BaseModel {
       'pricecode': priceCode,
       'description': description,
       'baseprice': basePrice,
-      // 'periodprice': periodPrice,
       'factor': factor,
       'tcurrId': tcurrId,
       'type': type,
       'statusactive': statusactive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -85,12 +85,12 @@ class PricelistModel extends PricelistEntity implements BaseModel {
       priceCode: map['pricecode'] as String,
       description: map['description'] as String,
       basePrice: map['baseprice'] as int,
-      // periodPrice: map['periodprice'] as int,
       factor: map['factor'] as double,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       type: map['type'] as int,
       statusactive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -102,12 +102,12 @@ class PricelistModel extends PricelistEntity implements BaseModel {
       priceCode: entity.priceCode,
       description: entity.description,
       basePrice: entity.basePrice,
-      // periodPrice: entity.periodPrice,
       factor: entity.factor,
       tcurrId: entity.tcurrId,
       type: entity.type,
       statusactive: entity.statusactive,
       activated: entity.activated,
+      form: entity.form,
     );
   }
 }

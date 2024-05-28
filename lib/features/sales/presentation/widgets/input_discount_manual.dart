@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 
 class InputDiscountManual extends StatefulWidget {
@@ -119,6 +124,13 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                 onPressed: () {
                   double input = Helpers.revertMoneyToDecimalFormat(
                       _textEditorDiscountController.text);
+                  final ReceiptEntity state =
+                      context.read<ReceiptCubit>().state;
+                  if (input > state.subtotal - (state.discAmount ?? 0)) {
+                    context.pop();
+                    return ErrorHandler.presentErrorSnackBar(
+                        context, "Invalid discount amount");
+                  }
                   // context
                   //     .read<ReceiptCubit>()
                   //     .updateTotalAmountFromDiscount(discountValue);

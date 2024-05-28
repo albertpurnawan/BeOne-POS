@@ -9,15 +9,17 @@ class UserRoleEntity {
   final String roleName;
   final int statusActive;
   final int activated;
+  final String form;
 
   UserRoleEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.roleCode,
     required this.roleName,
     required this.statusActive,
     required this.activated,
+    required this.form,
   });
 
   UserRoleEntity copyWith({
@@ -28,6 +30,7 @@ class UserRoleEntity {
     String? roleName,
     int? statusActive,
     int? activated,
+    String? form,
   }) {
     return UserRoleEntity(
       docId: docId ?? this.docId,
@@ -37,6 +40,7 @@ class UserRoleEntity {
       roleName: roleName ?? this.roleName,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      form: form ?? this.form,
     );
   }
 
@@ -49,6 +53,7 @@ class UserRoleEntity {
       'roleName': roleName,
       'statusActive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -63,6 +68,7 @@ class UserRoleEntity {
       roleName: map['roleName'] as String,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -73,7 +79,7 @@ class UserRoleEntity {
 
   @override
   String toString() {
-    return 'UserRoleEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, roleCode: $roleCode, roleName: $roleName, statusActive: $statusActive, activated: $activated)';
+    return 'UserRoleEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, roleCode: $roleCode, roleName: $roleName, statusActive: $statusActive, activated: $activated, form: $form)';
   }
 
   @override
@@ -86,7 +92,8 @@ class UserRoleEntity {
         other.roleCode == roleCode &&
         other.roleName == roleName &&
         other.statusActive == statusActive &&
-        other.activated == activated;
+        other.activated == activated &&
+        other.form == form;
   }
 
   @override
@@ -97,6 +104,7 @@ class UserRoleEntity {
         roleCode.hashCode ^
         roleName.hashCode ^
         statusActive.hashCode ^
-        activated.hashCode;
+        activated.hashCode ^
+        form.hashCode;
   }
 }

@@ -10,8 +10,8 @@ class ItemsDaoTest {
 
   Future<List<dynamic>> upsertDataFromAPI() async {
     try {
-      final List<dynamic> data =
-          await GetIt.instance<ItemMasterApi>().fetchData();
+      final List<dynamic> data = await GetIt.instance<ItemMasterApi>()
+          .fetchData(DateTime.now().toIso8601String());
 
       for (final datum in data) {
         final ItemMasterModel item = ItemMasterModel.fromMap(datum);

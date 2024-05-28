@@ -12,6 +12,7 @@ class AssignPriceMemberPerStoreFields {
     tostrId,
     statusActive,
     activated,
+    form,
   ];
 
   static const String docId = "docid";
@@ -21,6 +22,7 @@ class AssignPriceMemberPerStoreFields {
   static const String tostrId = "tostrId";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
+  static const String form = "form";
 }
 
 class AssignPriceMemberPerStoreModel extends AssignPriceMemberPerStoreEntity
@@ -33,6 +35,7 @@ class AssignPriceMemberPerStoreModel extends AssignPriceMemberPerStoreEntity
     required super.tostrId,
     required super.statusActive,
     required super.activated,
+    required super.form,
   });
 
   @override
@@ -45,6 +48,7 @@ class AssignPriceMemberPerStoreModel extends AssignPriceMemberPerStoreEntity
       'tostrId': tostrId,
       'statusactive': statusActive,
       'activated': activated,
+      'form': form,
     };
   }
 
@@ -59,6 +63,7 @@ class AssignPriceMemberPerStoreModel extends AssignPriceMemberPerStoreEntity
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -81,6 +86,7 @@ class AssignPriceMemberPerStoreModel extends AssignPriceMemberPerStoreEntity
       tostrId: entity.tostrId,
       statusActive: entity.statusActive,
       activated: entity.activated,
+      form: entity.form,
     );
   }
 }
