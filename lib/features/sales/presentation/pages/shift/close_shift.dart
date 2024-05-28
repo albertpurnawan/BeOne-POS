@@ -67,7 +67,7 @@ class CloseShiftForm extends StatefulWidget {
 class _CloseShiftFormState extends State<CloseShiftForm> {
   final String shiftId;
   CashierBalanceTransactionModel? activeShift;
-  late List<InvoiceHeaderModel?> transactions;
+  late List<InvoiceHeaderModel?> transactions = [];
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCash = '0';
 
@@ -77,6 +77,11 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   void initState() {
     super.initState();
     fetchData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> fetchData() async {
