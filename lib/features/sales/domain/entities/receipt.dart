@@ -35,6 +35,7 @@ class ReceiptEntity {
   double? discHeaderManual;
   double? discHeaderPromo;
   ReceiptEntity? previousReceiptEntity;
+  String? queuedInvoiceHeaderDocId;
 
   ReceiptEntity({
     required this.docNum,
@@ -61,6 +62,7 @@ class ReceiptEntity {
     this.discHeaderManual,
     this.discHeaderPromo,
     this.previousReceiptEntity,
+    this.queuedInvoiceHeaderDocId,
   });
 
   ReceiptEntity copyWith({
@@ -88,6 +90,7 @@ class ReceiptEntity {
     double? discHeaderManual,
     double? discHeaderPromo,
     ReceiptEntity? previousReceiptEntity,
+    String? queuedInvoiceHeaderDocId,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -114,6 +117,8 @@ class ReceiptEntity {
       discHeaderManual: discHeaderManual ?? this.discHeaderManual,
       discHeaderPromo: discHeaderPromo ?? this.discHeaderPromo,
       previousReceiptEntity: previousReceiptEntity,
+      queuedInvoiceHeaderDocId:
+          queuedInvoiceHeaderDocId ?? this.queuedInvoiceHeaderDocId,
     );
   }
 

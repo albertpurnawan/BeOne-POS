@@ -2961,6 +2961,11 @@ class _FetchScreenState extends State<FetchScreen> {
       final promos = <PromotionsModel>[];
       final today = DateTime.now().weekday;
 
+      await GetIt.instance<AppDatabase>().promosDao.deletePromos();
+
+      topsb = await GetIt.instance<AppDatabase>()
+          .promoHargaSpesialHeaderDao
+          .readAll();
       for (final header in topsb) {
         final tpsb2 = await GetIt.instance<AppDatabase>()
             .promoHargaSpesialAssignStoreDao
@@ -3000,6 +3005,8 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
+      topmi =
+          await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
       for (final header in topmi) {
         final tpmi1 = await GetIt.instance<AppDatabase>()
             .promoMultiItemBuyConditionDao
@@ -3043,6 +3050,9 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
+      topdi = await GetIt.instance<AppDatabase>()
+          .promoDiskonItemHeaderDao
+          .readAll();
       for (final header in topdi) {
         final tpdi1 = await GetIt.instance<AppDatabase>()
             .promoDiskonItemBuyConditionDao
@@ -3086,6 +3096,9 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
+      topdg = await GetIt.instance<AppDatabase>()
+          .promoDiskonGroupItemHeaderDao
+          .readAll();
       for (final header in topdg) {
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
@@ -3136,6 +3149,8 @@ class _FetchScreenState extends State<FetchScreen> {
         }
       }
 
+      toprb =
+          await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
       for (final header in toprb) {
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao

@@ -103,7 +103,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                         onTap: () {
                           context
                               .read<ReceiptCubit>()
-                              .retrieveFromQueue(queuedReceipt);
+                              .retrieveFromQueue(queuedReceipt, context);
                           Navigator.pop(context);
                         },
                         child: Column(

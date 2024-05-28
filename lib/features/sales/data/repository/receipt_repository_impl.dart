@@ -49,7 +49,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       double promosDiscountAmount = 0;
       for (final prm in receiptEntity.promos) {
         log("prm - ${prm.discAmount}");
-        promosDiscountAmount += prm.discAmount!;
+        promosDiscountAmount += prm.discAmount ?? 0;
       }
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(

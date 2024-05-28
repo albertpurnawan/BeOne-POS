@@ -24,6 +24,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     required super.promos,
     super.discHeaderManual,
     super.discHeaderPromo,
+    super.queuedInvoiceHeaderDocId,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -49,6 +50,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       promos: entity.promos,
       discHeaderManual: entity.discHeaderManual,
       discHeaderPromo: entity.discHeaderPromo,
+      queuedInvoiceHeaderDocId: entity.queuedInvoiceHeaderDocId,
     );
   }
 }

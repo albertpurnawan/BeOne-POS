@@ -59,20 +59,20 @@ class CheckPromoTopdgApplicabilityUseCase
             now.year,
             now.month,
             now.day,
-            topdg.startDate.hour,
-            topdg.startDate.minute,
-            topdg.startDate.second,
+            topdg.startTime.hour,
+            topdg.startTime.minute,
+            topdg.startTime.second,
           );
           final DateTime endPromo = DateTime(
             now.year,
             now.month,
             now.day,
-            topdg.startDate.hour,
-            topdg.startDate.minute,
-            topdg.startDate.second,
+            topdg.endTime.hour,
+            topdg.endTime.minute,
+            topdg.endTime.second,
           );
 
-          if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch &&
+          if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
               now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
             return isApplicable = false;
           }
