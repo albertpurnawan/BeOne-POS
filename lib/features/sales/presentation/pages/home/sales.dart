@@ -888,7 +888,7 @@ class _SalesPageState extends State<SalesPage> {
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: ProjectColors.primary,
+                        backgroundColor: ProjectColors.lightBlack,
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -987,7 +987,7 @@ class _SalesPageState extends State<SalesPage> {
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
+                              backgroundColor: ProjectColors.lightBlack,
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(

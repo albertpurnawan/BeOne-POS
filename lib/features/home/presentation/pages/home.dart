@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,12 +8,10 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
-import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
-import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -139,8 +136,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
-                            await context.read<ReceiptCubit>().resetReceipt();
-                            context.pushNamed(RouteConstants.sales);
+                            try {
+                              await context.read<ReceiptCubit>().resetReceipt();
+                              context.pushNamed(RouteConstants.sales);
+                            } catch (e) {
+                              ErrorHandler.presentErrorSnackBar(
+                                  context, e.toString());
+                            }
                           },
                           child: const Text(
                             "Sales",
