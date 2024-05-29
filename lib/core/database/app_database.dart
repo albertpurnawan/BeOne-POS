@@ -30,6 +30,8 @@ import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/auth_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/authorization_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/bill_of_material_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/bill_of_material_line_item_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/cash_register_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/cashier_balance_transaction_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/country_dao.dart';
@@ -315,6 +317,8 @@ class AppDatabase {
   late PromosDao promosDao;
   late AuthStoreDao authStoreDao;
   late NetzmeDao netzmeDao;
+  late BillOfMaterialDao billOfMaterialDao;
+  late BillOfMaterialLineItemDao billOfMaterialLineItemDao;
 
   AppDatabase._init();
 
@@ -434,8 +438,11 @@ PRAGMA foreign_keys = ON;
     promosDao = PromosDao(_database!);
     authStoreDao = AuthStoreDao(_database!);
     netzmeDao = NetzmeDao(_database!);
+    billOfMaterialDao = BillOfMaterialDao(_database!);
+    billOfMaterialLineItemDao = BillOfMaterialLineItemDao(_database!);
 
-    receiptContentDao.bulkCreate(
+    await receiptContentDao.deleteAll();
+    await receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
       return ReceiptContentModel.fromMap(e);
     }).toList());
@@ -1635,16 +1642,15 @@ CREATE TABLE $tableBillOfMaterial (
   ${BillOfMaterialFields.updateDate} datetime DEFAULT NULL,
   ${BillOfMaterialFields.toitmId} text DEFAULT NULL,
   ${BillOfMaterialFields.quantity} double NOT NULL,
-  ${BillOfMaterialFields.touomId} text DEFAULT NULL,
   ${BillOfMaterialFields.tipe} int NOT NULL,
   ${BillOfMaterialFields.tcurrId} text DEFAULT NULL,
   ${BillOfMaterialFields.price} double NOT NULL,
   ${BillOfMaterialFields.statusActive} int NOT NULL,
   ${BillOfMaterialFields.sync} int NOT NULL DEFAULT '0',
+  ${BillOfMaterialFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `toitt_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitt_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `toitt_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `toitt_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
@@ -1656,13 +1662,12 @@ CREATE TABLE $tableBOMLineItem (
   ${BillOfMaterialLineItemFields.toittId} text DEFAULT NULL,
   ${BillOfMaterialLineItemFields.toitmId} text DEFAULT NULL,
   ${BillOfMaterialLineItemFields.quantity} double NOT NULL,
-  ${BillOfMaterialLineItemFields.touomId} text DEFAULT NULL,
   ${BillOfMaterialLineItemFields.tcurrId} text DEFAULT NULL,
   ${BillOfMaterialLineItemFields.price} double NOT NULL,
+  ${BillOfMaterialLineItemFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `titt1_toittId_fkey` FOREIGN KEY (`toittId`) REFERENCES `toitt` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `titt1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `titt1_touomId_fkey` FOREIGN KEY (`touomId`) REFERENCES `touom` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `titt1_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);

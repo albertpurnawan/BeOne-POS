@@ -63,19 +63,9 @@ class NetzmeApi {
         "$url/api/v1/utilities/signature-auth",
         options: Options(headers: header),
       );
+      dev.log("$response");
+      signature = response.data['signature'];
 
-      if (response.statusCode == 308) {
-        final newUrl = response.headers['location']?.first;
-        if (newUrl != null) {
-          final redirectedResponse = await _dio.post(newUrl,
-              options: Options(
-                headers: header,
-              ));
-          signature = redirectedResponse.data['signature'];
-        } else {
-          throw Exception("Redirect URL not found in the response headers");
-        }
-      }
       dev.log("Signature Created");
       return signature;
     } catch (err) {
@@ -108,21 +98,7 @@ class NetzmeApi {
         options: Options(headers: header),
       );
 
-      if (response.statusCode == 308) {
-        final newUrl = response.headers['location']?.first;
-
-        if (newUrl != null) {
-          final redirectedResponse = await _dio.post(newUrl,
-              data: body,
-              options: Options(
-                headers: header,
-                validateStatus: (_) => true,
-              ));
-          accessToken = redirectedResponse.data['accessToken'];
-        } else {
-          throw Exception("Redirect URL not found in the response headers");
-        }
-      }
+      accessToken = response.data['accessToken'];
       dev.log("AccessToken Done");
       return accessToken;
     } catch (err) {
@@ -141,7 +117,7 @@ class NetzmeApi {
   ) async {
     try {
       String serviceSignature = "";
-      String serviceUrl = "api/v1.0/invoice/create-transaction";
+      String serviceUrl = "api/v1/invoice/create-transaction";
 
       final header = {
         "X-TIMESTAMP": timestamp,
@@ -158,21 +134,8 @@ class NetzmeApi {
         options: Options(headers: header),
       );
 
-      if (response.statusCode == 308) {
-        final newUrl = response.headers['location']?.first;
+      serviceSignature = response.data['signature'];
 
-        if (newUrl != null) {
-          final redirectedResponse = await _dio.post(newUrl,
-              data: bodyDetail,
-              options: Options(
-                headers: header,
-                validateStatus: (_) => true,
-              ));
-          serviceSignature = redirectedResponse.data['signature'];
-        } else {
-          throw Exception("Redirect URL not found in the response headers");
-        }
-      }
       dev.log("ServiceSignature Done");
       return serviceSignature;
     } catch (err) {
@@ -200,33 +163,21 @@ class NetzmeApi {
         "X-PARTNER-ID": clientKey,
         "X-EXTERNAL-ID": externalId,
         "CHANNEL-ID": channelId,
+        // "X-callback-token": '',
         "X-SIGNATURE": xsignature,
       };
-
+      dev.log("$header");
+      dev.log("$bodyDetail");
       final response = await _dio.post(
         "$url/api/v1.0/invoice/create-transaction",
         data: bodyDetail,
         options: Options(headers: header),
       );
+      dev.log("$response");
 
-      if (response.statusCode == 308) {
-        final newUrl = response.headers['location']?.first;
+      transactionQRIS = response.data['paymentUrl'];
 
-        if (newUrl != null) {
-          final redirectedResponse = await _dio.post(newUrl,
-              data: bodyDetail,
-              options: Options(
-                headers: header,
-                validateStatus: (_) => true,
-              ));
-          dev.log("$redirectedResponse");
-          transactionQRIS = redirectedResponse.data['paymentUrl'];
-        } else {
-          throw Exception("Redirect URL not found in the response headers");
-        }
-      }
       dev.log("CreateTransaction Done");
-
       return transactionQRIS;
     } catch (err) {
       handleError(err);

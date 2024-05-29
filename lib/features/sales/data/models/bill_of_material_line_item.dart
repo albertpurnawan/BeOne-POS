@@ -11,9 +11,9 @@ class BillOfMaterialLineItemFields {
     toittId,
     toitmId,
     quantity,
-    touomId,
     tcurrId,
     price,
+    form,
   ];
 
   static const String docId = "docid";
@@ -22,9 +22,9 @@ class BillOfMaterialLineItemFields {
   static const String toittId = "toittId";
   static const String toitmId = "toitmId";
   static const String quantity = "quantity";
-  static const String touomId = "touomId";
   static const String tcurrId = "tcurrId";
   static const String price = "price";
+  static const String form = "form";
 }
 
 class BillOfMaterialLineItemModel extends BillOfMaterialLineItemEntity
@@ -36,9 +36,9 @@ class BillOfMaterialLineItemModel extends BillOfMaterialLineItemEntity
     required super.toittId,
     required super.toitmId,
     required super.quantity,
-    required super.touomId,
     required super.tcurrId,
     required super.price,
+    required super.form,
   });
 
   @override
@@ -50,9 +50,9 @@ class BillOfMaterialLineItemModel extends BillOfMaterialLineItemEntity
       'toittId': toittId,
       'toitmId': toitmId,
       'quantity': quantity,
-      'touomId': touomId,
       'tcurrId': tcurrId,
       'price': price,
+      'form': form,
     };
   }
 
@@ -66,9 +66,9 @@ class BillOfMaterialLineItemModel extends BillOfMaterialLineItemEntity
       toittId: map['toittId'] != null ? map['toittId'] as String : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       quantity: map['quantity'] as double,
-      touomId: map['touomId'] != null ? map['touomId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -82,13 +82,11 @@ class BillOfMaterialLineItemModel extends BillOfMaterialLineItemEntity
           ? map['toitm_id']['docid'] as String
           : null,
       "quantity": map['quantity'].toDouble() as double,
-      "touomId": map['touom_id']?['docid'] != null
-          ? map['touom_id']['docid'] as String
-          : null,
       "tcurrId": map['tcurr_id']?['docid'] != null
           ? map['tcurr_id']['docid'] as String
           : null,
       "price": map['price'].toDouble() as double,
+      "form": map['form'].toDouble() as String,
     });
   }
 
@@ -101,9 +99,9 @@ class BillOfMaterialLineItemModel extends BillOfMaterialLineItemEntity
       toittId: entity.toittId,
       toitmId: entity.toitmId,
       quantity: entity.quantity,
-      touomId: entity.touomId,
       tcurrId: entity.tcurrId,
       price: entity.price,
+      form: entity.form,
     );
   }
 }

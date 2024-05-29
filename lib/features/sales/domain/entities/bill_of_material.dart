@@ -7,25 +7,25 @@ class BillOfMaterialEntity {
   final DateTime? updateDate;
   final String? toitmId;
   final double quantity;
-  final String? touomId;
   final int tipe;
   final String? tcurrId;
   final double price;
   final int statusActive;
   final int sync;
+  final String form;
 
   BillOfMaterialEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toitmId,
+    this.updateDate,
+    this.toitmId,
     required this.quantity,
-    required this.touomId,
     required this.tipe,
-    required this.tcurrId,
+    this.tcurrId,
     required this.price,
     required this.statusActive,
     required this.sync,
+    required this.form,
   });
 
   BillOfMaterialEntity copyWith({
@@ -34,12 +34,12 @@ class BillOfMaterialEntity {
     DateTime? updateDate,
     String? toitmId,
     double? quantity,
-    String? touomId,
     int? tipe,
     String? tcurrId,
     double? price,
     int? statusActive,
     int? sync,
+    String? form,
   }) {
     return BillOfMaterialEntity(
       docId: docId ?? this.docId,
@@ -47,12 +47,12 @@ class BillOfMaterialEntity {
       updateDate: updateDate ?? this.updateDate,
       toitmId: toitmId ?? this.toitmId,
       quantity: quantity ?? this.quantity,
-      touomId: touomId ?? this.touomId,
       tipe: tipe ?? this.tipe,
       tcurrId: tcurrId ?? this.tcurrId,
       price: price ?? this.price,
       statusActive: statusActive ?? this.statusActive,
       sync: sync ?? this.sync,
+      form: form ?? this.form,
     );
   }
 
@@ -63,12 +63,12 @@ class BillOfMaterialEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'toitmId': toitmId,
       'quantity': quantity,
-      'touomId': touomId,
       'tipe': tipe,
       'tcurrId': tcurrId,
       'price': price,
       'statusActive': statusActive,
       'sync': sync,
+      'form': form,
     };
   }
 
@@ -81,12 +81,12 @@ class BillOfMaterialEntity {
           : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       quantity: map['quantity'] as double,
-      touomId: map['touomId'] != null ? map['touomId'] as String : null,
       tipe: map['tipe'] as int,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
       statusActive: map['statusActive'] as int,
       sync: map['sync'] as int,
+      form: map['form'] as String,
     );
   }
 
@@ -97,7 +97,7 @@ class BillOfMaterialEntity {
 
   @override
   String toString() {
-    return 'BillOfMaterialEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, quantity: $quantity, touomId: $touomId, tipe: $tipe, tcurrId: $tcurrId, price: $price, statusActive: $statusActive, sync: $sync)';
+    return 'BillOfMaterialEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toitmId: $toitmId, quantity: $quantity, tipe: $tipe, tcurrId: $tcurrId, price: $price, statusActive: $statusActive, sync: $sync, form: $form)';
   }
 
   @override
@@ -109,12 +109,12 @@ class BillOfMaterialEntity {
         other.updateDate == updateDate &&
         other.toitmId == toitmId &&
         other.quantity == quantity &&
-        other.touomId == touomId &&
         other.tipe == tipe &&
         other.tcurrId == tcurrId &&
         other.price == price &&
         other.statusActive == statusActive &&
-        other.sync == sync;
+        other.sync == sync &&
+        other.form == form;
   }
 
   @override
@@ -124,11 +124,11 @@ class BillOfMaterialEntity {
         updateDate.hashCode ^
         toitmId.hashCode ^
         quantity.hashCode ^
-        touomId.hashCode ^
         tipe.hashCode ^
         tcurrId.hashCode ^
         price.hashCode ^
         statusActive.hashCode ^
-        sync.hashCode;
+        sync.hashCode ^
+        form.hashCode;
   }
 }

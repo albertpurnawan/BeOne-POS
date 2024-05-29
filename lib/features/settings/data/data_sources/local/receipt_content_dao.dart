@@ -33,4 +33,11 @@ class ReceiptContentDao extends BaseDao<ReceiptContentModel> {
         .map((itemData) => ReceiptContentModel.fromMap(itemData))
         .toList();
   }
+
+  Future<void> deleteAll({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await db.delete(tableName);
+
+    return;
+  }
 }

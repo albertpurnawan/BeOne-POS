@@ -7,6 +7,8 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
+import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
+import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
@@ -66,6 +68,8 @@ import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/bill_of_material_line_item_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/bill_of_material_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/credit_card_service.dart';
@@ -214,6 +218,8 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<PromoBuyXGetYCustomerGroupModel> tprb5;
     late List<AuthStoreModel> tastr;
     late List<NetzmeModel> tntzm;
+    late List<BillOfMaterialModel> toitt;
+    late List<BillOfMaterialLineItemModel> titt1;
 
     print("Synching data...");
     try {
@@ -2868,6 +2874,129 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
+            final toittDb =
+                await GetIt.instance<AppDatabase>().billOfMaterialDao.readAll();
+
+            if (toittDb.isNotEmpty) {
+              final toittDbMap = {
+                for (var datum in toittDb) datum.docId: datum
+              };
+
+              toitt = await GetIt.instance<BillOfMaterialApi>()
+                  .fetchData(lastSyncDate);
+              for (final datumBos in toitt) {
+                final datumDb = toittDbMap[datumBos.docId];
+
+                if (datumDb != null) {
+                  if (datumBos.form == "U" &&
+                      (datumBos.updateDate
+                              ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                          false)) {
+                    await GetIt.instance<AppDatabase>()
+                        .billOfMaterialDao
+                        .update(docId: datumDb.docId, data: datumBos);
+                  }
+                } else {
+                  await GetIt.instance<AppDatabase>()
+                      .billOfMaterialDao
+                      .create(data: datumBos);
+                }
+              }
+            } else {
+              toitt = await GetIt.instance<BillOfMaterialApi>()
+                  .fetchData("2000-01-01 00:00:00");
+              await GetIt.instance<AppDatabase>()
+                  .billOfMaterialDao
+                  .bulkCreate(data: toitt);
+            }
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            final titt1Db = await GetIt.instance<AppDatabase>()
+                .billOfMaterialLineItemDao
+                .readAll();
+
+            if (titt1Db.isNotEmpty) {
+              final titt1DbMap = {
+                for (var datum in titt1Db) datum.docId: datum
+              };
+
+              titt1 = await GetIt.instance<BillOfMaterialLineItemApi>()
+                  .fetchData(lastSyncDate);
+              for (final datumBos in titt1) {
+                final datumDb = titt1DbMap[datumBos.docId];
+
+                if (datumDb != null) {
+                  if (datumBos.form == "U" &&
+                      (datumBos.updateDate
+                              ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                          false)) {
+                    await GetIt.instance<AppDatabase>()
+                        .billOfMaterialLineItemDao
+                        .update(docId: datumDb.docId, data: datumBos);
+                  }
+                } else {
+                  await GetIt.instance<AppDatabase>()
+                      .billOfMaterialLineItemDao
+                      .create(data: datumBos);
+                }
+              }
+            } else {
+              titt1 = await GetIt.instance<BillOfMaterialLineItemApi>()
+                  .fetchData("2000-01-01 00:00:00");
+              await GetIt.instance<AppDatabase>()
+                  .billOfMaterialLineItemDao
+                  .bulkCreate(data: titt1);
+            }
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
+            tntzm = [
+              NetzmeModel(
+                  docId: const Uuid().v4(),
+                  url: "https://tokoapisnap-stg.netzme.com",
+                  clientKey: "pt_bak",
+                  clientSecret: "61272364208846ee9366dc204f81fce6",
+                  privateKey:
+                      "MIIBOgIBAAJBAMjxtB9QVz9KLCe5DAqJoLlz7e9ZhS5EE5YhC0E1F7+a14GLpm7mqcSN0alAmOK5DQZW4JufhzFmDpwB3a4+vskCAwEAAQJAfDYkcILaG64+0yMo1U6zwk9uEdkVYT8FmHS+n0Uxc+cqgs9UGb8uFoZmswGhs5HpfxpgEOckucwqi4SrgqXWMQIhAM4DOyj8SVCbvieRjOruhLjuh6S9wQmingB7A9+b58bVAiEA+bOjL0CothyHnfNgaY2IBT9TIO0FefTE1IfcukbH+iUCIHeyTOdNXlOlieB3owbFOvwwK0O+tLAieecRkniTnyFZAiA5uQsqKzpVDvdSziYlgHBHNkJTRDeV3714nAeskBw+eQIhAKkIuZjqXadPACYDNUXrfm5GGWZ2BKUjujJIZXjaRLnA",
+                  custIdMerchant: "M_b7uJH43W")
+            ];
+            await GetIt.instance<AppDatabase>()
+                .netzmeDao
+                .bulkCreate(data: tntzm);
+            setState(() {
+              _syncProgress += 1 / totalTable;
+            });
+          } catch (e) {
+            if (e is DatabaseException) {
+              log('DatabaseException occurred: $e');
+            } else {
+              rethrow;
+            }
+          }
+        },
+        () async {
+          try {
             final tprb5Db = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYCustomerGroupDao
                 .readAll();
@@ -2904,32 +3033,6 @@ class _FetchScreenState extends State<FetchScreen> {
                   .promoBuyXGetYCustomerGroupDao
                   .bulkCreate(data: tprb5);
             }
-            setState(() {
-              _syncProgress += 1 / totalTable;
-            });
-          } catch (e) {
-            if (e is DatabaseException) {
-              log('DatabaseException occurred: $e');
-            } else {
-              rethrow;
-            }
-          }
-        },
-        () async {
-          try {
-            tntzm = [
-              NetzmeModel(
-                  docId: const Uuid().v4(),
-                  url: "http://tokoapisnap-stg.netzme.com",
-                  clientKey: "pt_bak",
-                  clientSecret: "61272364208846ee9366dc204f81fce6",
-                  privateKey:
-                      "MIIBOgIBAAJBAMjxtB9QVz9KLCe5DAqJoLlz7e9ZhS5EE5YhC0E1F7+a14GLpm7mqcSN0alAmOK5DQZW4JufhzFmDpwB3a4+vskCAwEAAQJAfDYkcILaG64+0yMo1U6zwk9uEdkVYT8FmHS+n0Uxc+cqgs9UGb8uFoZmswGhs5HpfxpgEOckucwqi4SrgqXWMQIhAM4DOyj8SVCbvieRjOruhLjuh6S9wQmingB7A9+b58bVAiEA+bOjL0CothyHnfNgaY2IBT9TIO0FefTE1IfcukbH+iUCIHeyTOdNXlOlieB3owbFOvwwK0O+tLAieecRkniTnyFZAiA5uQsqKzpVDvdSziYlgHBHNkJTRDeV3714nAeskBw+eQIhAKkIuZjqXadPACYDNUXrfm5GGWZ2BKUjujJIZXjaRLnA",
-                  custIdMerchant: "M_b7uJH43W")
-            ];
-            await GetIt.instance<AppDatabase>()
-                .netzmeDao
-                .bulkCreate(data: tntzm);
             setState(() {
               _syncProgress += 1 / totalTable;
             });
@@ -3316,9 +3419,9 @@ class _FetchScreenState extends State<FetchScreen> {
       final lastSyncDate = topos[0].lastSync!;
 
       final tocus =
-          await GetIt.instance<AuthStoreApi>().fetchData(lastSyncDate);
+          await GetIt.instance<BillOfMaterialApi>().fetchData(lastSyncDate);
       final tocusDb =
-          await GetIt.instance<AppDatabase>().authStoreDao.readAll();
+          await GetIt.instance<AppDatabase>().billOfMaterialDao.readAll();
       log("tocusDb $tocusDb");
 
       if (tocusDb.isNotEmpty) {
@@ -3333,21 +3436,21 @@ class _FetchScreenState extends State<FetchScreen> {
                 (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ??
                     false)) {
               await GetIt.instance<AppDatabase>()
-                  .authStoreDao
+                  .billOfMaterialDao
                   .update(docId: datumDb.docId, data: datumBos);
             }
           } else {
             await GetIt.instance<AppDatabase>()
-                .authStoreDao
+                .billOfMaterialDao
                 .create(data: datumBos);
           }
         }
       } else {
         log("DB EMPTY - $tocus");
-        final allData = await GetIt.instance<AuthStoreApi>()
+        final allData = await GetIt.instance<BillOfMaterialApi>()
             .fetchData("2000-01-01 00:00:00");
         await GetIt.instance<AppDatabase>()
-            .authStoreDao
+            .billOfMaterialDao
             .bulkCreate(data: allData);
       }
 

@@ -193,7 +193,7 @@ class InvoiceApi {
           tcsr1Id: invHead[0].tcsr1Id,
           discHeaderManual: invHead[0].discHeaderManual,
           discHeaderPromo: invHead[0].discHeaderPromo,
-          syncToBos: response.data['description'],
+          syncToBos: response.data['docid'],
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
