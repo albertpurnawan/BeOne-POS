@@ -58,4 +58,13 @@ abstract class ReceiptHelper {
       rethrow;
     }
   }
+
+  static String convertIntegerToFourDigitString(int value) {
+    return switch (value.toString().length) {
+      1 => "000$value",
+      2 => "00$value",
+      3 => "0$value",
+      _ => "$value",
+    };
+  }
 }

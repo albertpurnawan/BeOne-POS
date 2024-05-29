@@ -41,7 +41,7 @@ class QueuedInvoiceHeaderFields {
     tcsr1Id,
     discHeaderManual,
     discHeaderPromo,
-    syncToBos,
+    // syncToBos,
   ];
 
   static const String docId = "docid";
