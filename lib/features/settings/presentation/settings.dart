@@ -81,11 +81,6 @@ class _SettingsFormState extends State<SettingsForm> {
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String dflDate = "2000-01-01 00:00:00";
 
-  // needed to change
-  String emailAdmin = "interfacing@topgolf.com";
-  String passwordAdmin = "BeOne\$\$123";
-  // md5.convert(utf8.encode("BeOne\$\$123")).toString();
-
   @override
   void initState() {
     super.initState();
@@ -214,10 +209,8 @@ class _SettingsFormState extends State<SettingsForm> {
                 try {
                   await prefs.clear();
 
-                  final hashedPass = md5
-                      // .convert(utf8.encode(passwordController.text))
-                      .convert(utf8.encode("BeOne\$\$123"))
-                      .toString();
+                  final hashedPass =
+                      md5.convert(utf8.encode("BeOne\$\$123")).toString();
 
                   final topos = POSParameterModel(
                     docId: const Uuid().v4(),
@@ -225,14 +218,13 @@ class _SettingsFormState extends State<SettingsForm> {
                     updateDate: DateTime.now(),
                     gtentId: gtentController.text,
                     tostrId: tostrController.text,
-                    storeName: "TopGolf's Store 01", //need to edit
+                    storeName: "",
                     tocsrId: tocsrController.text,
                     baseUrl: urlController.text,
                     usernameAdmin: emailController.text,
                     passwordAdmin: hashedPass,
                     lastSync: '2000-01-01 00:00:00',
                   );
-                  log(topos.toString());
 
                   await GetIt.instance<AppDatabase>()
                       .posParameterDao
@@ -245,8 +237,8 @@ class _SettingsFormState extends State<SettingsForm> {
                     tostrController.text,
                     tocsrController.text,
                     urlController.text,
-                    emailAdmin,
-                    passwordAdmin,
+                    emailController.text,
+                    hashedPass,
                     dflDate,
                   );
 
@@ -254,8 +246,6 @@ class _SettingsFormState extends State<SettingsForm> {
                       urlController.text,
                       emailController.text,
                       passwordController.text);
-                  log("token string");
-                  log(token.toString());
 
                   prefs.setString('adminToken', token.toString());
 

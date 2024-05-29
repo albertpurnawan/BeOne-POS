@@ -226,7 +226,6 @@ class _FetchScreenState extends State<FetchScreen> {
       final fetchFunctions = [
         () async {
           try {
-            tcurr = await GetIt.instance<CurrencyApi>().fetchData(lastSyncDate);
             final tcurrDb =
                 await GetIt.instance<AppDatabase>().currencyDao.readAll();
 
@@ -234,7 +233,8 @@ class _FetchScreenState extends State<FetchScreen> {
               final tcurrDbMap = {
                 for (var datum in tcurrDb) datum.docId: datum
               };
-
+              tcurr =
+                  await GetIt.instance<CurrencyApi>().fetchData(lastSyncDate);
               for (final datumBos in tcurr) {
                 final datumDb = tcurrDbMap[datumBos.docId];
 
@@ -254,11 +254,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<CurrencyApi>()
+              tcurr = await GetIt.instance<CurrencyApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .currencyDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tcurr);
             }
 
             setState(() {
@@ -274,7 +274,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tocry = await GetIt.instance<CountryApi>().fetchData(lastSyncDate);
             final tocryDb =
                 await GetIt.instance<AppDatabase>().countryDao.readAll();
 
@@ -283,6 +282,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tocryDb) datum.docId: datum
               };
 
+              tocry =
+                  await GetIt.instance<CountryApi>().fetchData(lastSyncDate);
               for (final datumBos in tocry) {
                 final datumDb = tocryDbMap[datumBos.docId];
 
@@ -302,11 +303,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<CountryApi>()
+              tocry = await GetIt.instance<CountryApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .countryDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tocry);
             }
 
             setState(() {
@@ -322,7 +323,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            toprv = await GetIt.instance<ProvinceApi>().fetchData(lastSyncDate);
             final toprvDb =
                 await GetIt.instance<AppDatabase>().provinceDao.readAll();
 
@@ -331,6 +331,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in toprvDb) datum.docId: datum
               };
 
+              toprv =
+                  await GetIt.instance<ProvinceApi>().fetchData(lastSyncDate);
               for (final datumBos in toprv) {
                 final datumDb = toprvDbMap[datumBos.docId];
 
@@ -350,11 +352,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<ProvinceApi>()
+              toprv = await GetIt.instance<ProvinceApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .provinceDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: toprv);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -369,7 +371,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tozcd = await GetIt.instance<ZipcodeApi>().fetchData(lastSyncDate);
             final tozcdDb =
                 await GetIt.instance<AppDatabase>().zipcodeDao.readAll();
 
@@ -378,6 +379,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tozcdDb) datum.docId: datum
               };
 
+              tozcd =
+                  await GetIt.instance<ZipcodeApi>().fetchData(lastSyncDate);
               for (final datumBos in tozcd) {
                 final datumDb = tozcdDbMap[datumBos.docId];
 
@@ -397,11 +400,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<ZipcodeApi>()
+              tozcd = await GetIt.instance<ZipcodeApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .zipcodeDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tozcd);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -416,7 +419,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tohem = await GetIt.instance<EmployeeApi>().fetchData(lastSyncDate);
             final tohemDb =
                 await GetIt.instance<AppDatabase>().employeeDao.readAll();
 
@@ -425,6 +427,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tohemDb) datum.docId: datum
               };
 
+              tohem =
+                  await GetIt.instance<EmployeeApi>().fetchData(lastSyncDate);
               for (final datumBos in tohem) {
                 final datumDb = tohemDbMap[datumBos.docId];
 
@@ -444,11 +448,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<EmployeeApi>()
+              tohem = await GetIt.instance<EmployeeApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .employeeDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tohem);
             }
 
             setState(() {
@@ -464,8 +468,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tovat =
-                await GetIt.instance<TaxMasterApi>().fetchData(lastSyncDate);
             final tovatDb =
                 await GetIt.instance<AppDatabase>().taxMasterDao.readAll();
 
@@ -474,6 +476,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tovatDb) datum.docId: datum
               };
 
+              tovat =
+                  await GetIt.instance<TaxMasterApi>().fetchData(lastSyncDate);
               for (final datumBos in tovat) {
                 final datumDb = tovatDbMap[datumBos.docId];
 
@@ -493,11 +497,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<TaxMasterApi>()
+              tovat = await GetIt.instance<TaxMasterApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .taxMasterDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tovat);
             }
 
             setState(() {
@@ -513,8 +517,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            topmt =
-                await GetIt.instance<PaymentTypeApi>().fetchData(lastSyncDate);
             final topmtDb =
                 await GetIt.instance<AppDatabase>().paymentTypeDao.readAll();
 
@@ -523,6 +525,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in topmtDb) datum.docId: datum
               };
 
+              topmt = await GetIt.instance<PaymentTypeApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in topmt) {
                 final datumDb = topmtDbMap[datumBos.docId];
 
@@ -542,11 +546,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PaymentTypeApi>()
+              topmt = await GetIt.instance<PaymentTypeApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .paymentTypeDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: topmt);
             }
 
             setState(() {
@@ -562,7 +566,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpmt1 = await GetIt.instance<MOPApi>().fetchData(lastSyncDate);
             final tpmt1Db =
                 await GetIt.instance<AppDatabase>().meansOfPaymentDao.readAll();
 
@@ -571,6 +574,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpmt1Db) datum.docId: datum
               };
 
+              tpmt1 = await GetIt.instance<MOPApi>().fetchData(lastSyncDate);
               for (final datumBos in tpmt1) {
                 final datumDb = tpmt1DbMap[datumBos.docId];
 
@@ -590,11 +594,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<MOPApi>()
+              tpmt1 = await GetIt.instance<MOPApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .meansOfPaymentDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpmt1);
             }
 
             setState(() {
@@ -610,8 +614,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpmt2 =
-                await GetIt.instance<CreditCardApi>().fetchData(lastSyncDate);
             final tpmt2Db =
                 await GetIt.instance<AppDatabase>().creditCardDao.readAll();
 
@@ -620,6 +622,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpmt2Db) datum.docId: datum
               };
 
+              tpmt2 =
+                  await GetIt.instance<CreditCardApi>().fetchData(lastSyncDate);
               for (final datumBos in tpmt2) {
                 final datumDb = tpmt2DbMap[datumBos.docId];
 
@@ -639,11 +643,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<CreditCardApi>()
+              tpmt2 = await GetIt.instance<CreditCardApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .creditCardDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpmt2);
             }
 
             setState(() {
@@ -659,8 +663,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            topln =
-                await GetIt.instance<PricelistApi>().fetchData(lastSyncDate);
             final toplnDb =
                 await GetIt.instance<AppDatabase>().pricelistDao.readAll();
 
@@ -669,6 +671,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in toplnDb) datum.docId: datum
               };
 
+              topln =
+                  await GetIt.instance<PricelistApi>().fetchData(lastSyncDate);
               for (final datumBos in topln) {
                 final datumDb = toplnDbMap[datumBos.docId];
 
@@ -688,11 +692,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PricelistApi>()
+              topln = await GetIt.instance<PricelistApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .pricelistDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: topln);
             }
 
             setState(() {
@@ -708,8 +712,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tostr =
-                await GetIt.instance<StoreMasterApi>().fetchData(lastSyncDate);
             final tostrDb =
                 await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
 
@@ -718,6 +720,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tostrDb) datum.docId: datum
               };
 
+              tostr = await GetIt.instance<StoreMasterApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tostr) {
                 final datumDb = tostrDbMap[datumBos.docId];
 
@@ -737,11 +741,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<StoreMasterApi>()
+              tostr = await GetIt.instance<StoreMasterApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .storeMasterDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tostr);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -756,8 +760,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpmt3 =
-                await GetIt.instance<MOPByStoreApi>().fetchData(lastSyncDate);
             final tpmt3Db =
                 await GetIt.instance<AppDatabase>().mopByStoreDao.readAll();
 
@@ -766,6 +768,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpmt3Db) datum.docId: datum
               };
 
+              tpmt3 =
+                  await GetIt.instance<MOPByStoreApi>().fetchData(lastSyncDate);
               for (final datumBos in tpmt3) {
                 final datumDb = tpmt3DbMap[datumBos.docId];
 
@@ -785,11 +789,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<MOPByStoreApi>()
+              tpmt3 = await GetIt.instance<MOPByStoreApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .mopByStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpmt3);
             }
 
             setState(() {
@@ -805,8 +809,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tocsr =
-                await GetIt.instance<CashRegisterApi>().fetchData(lastSyncDate);
             final tocsrDb =
                 await GetIt.instance<AppDatabase>().cashRegisterDao.readAll();
 
@@ -815,6 +817,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tocsrDb) datum.docId: datum
               };
 
+              tocsr = await GetIt.instance<CashRegisterApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tocsr) {
                 final datumDb = tocsrDbMap[datumBos.docId];
 
@@ -834,11 +838,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<CashRegisterApi>()
+              tocsr = await GetIt.instance<CashRegisterApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .cashRegisterDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tocsr);
             }
 
             setState(() {
@@ -854,7 +858,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            touom = await GetIt.instance<UoMApi>().fetchData(lastSyncDate);
             final touomDb =
                 await GetIt.instance<AppDatabase>().uomDao.readAll();
 
@@ -863,6 +866,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in touomDb) datum.docId: datum
               };
 
+              touom = await GetIt.instance<UoMApi>().fetchData(lastSyncDate);
               for (final datumBos in touom) {
                 final datumDb = touomDbMap[datumBos.docId];
 
@@ -882,11 +886,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<UoMApi>()
+              touom = await GetIt.instance<UoMApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .uomDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: touom);
             }
 
             setState(() {
@@ -902,7 +906,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            torol = await GetIt.instance<UserRoleApi>().fetchData(lastSyncDate);
             final torolDb =
                 await GetIt.instance<AppDatabase>().userRoleDao.readAll();
 
@@ -911,6 +914,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in torolDb) datum.docId: datum
               };
 
+              torol =
+                  await GetIt.instance<UserRoleApi>().fetchData(lastSyncDate);
               for (final datumBos in torol) {
                 final datumDb = torolDbMap[datumBos.docId];
 
@@ -930,11 +935,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<UserRoleApi>()
+              torol = await GetIt.instance<UserRoleApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .userRoleDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: torol);
             }
 
             setState(() {
@@ -950,7 +955,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tousr = await GetIt.instance<UserApi>().fetchData(lastSyncDate);
             final tousrDb =
                 await GetIt.instance<AppDatabase>().userDao.readAll();
 
@@ -959,6 +963,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tousrDb) datum.docId: datum
               };
 
+              tousr = await GetIt.instance<UserApi>().fetchData(lastSyncDate);
               for (final datumBos in tousr) {
                 final datumDb = tousrDbMap[datumBos.docId];
 
@@ -978,11 +983,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<UserApi>()
+              tousr = await GetIt.instance<UserApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .userDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tousr);
             }
 
             setState(() {
@@ -998,8 +1003,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpln1 = await GetIt.instance<PricelistPeriodApi>()
-                .fetchData(lastSyncDate);
             final tpln1Db = await GetIt.instance<AppDatabase>()
                 .pricelistPeriodDao
                 .readAll();
@@ -1009,6 +1012,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpln1Db) datum.docId: datum
               };
 
+              tpln1 = await GetIt.instance<PricelistPeriodApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpln1) {
                 final datumDb = tpln1DbMap[datumBos.docId];
 
@@ -1028,11 +1033,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PricelistPeriodApi>()
+              tpln1 = await GetIt.instance<PricelistPeriodApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .pricelistPeriodDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpln1);
             }
 
             setState(() {
@@ -1048,8 +1053,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tocat =
-                await GetIt.instance<ItemCategoryApi>().fetchData(lastSyncDate);
             final tocatDb =
                 await GetIt.instance<AppDatabase>().itemCategoryDao.readAll();
 
@@ -1058,6 +1061,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tocatDb) datum.docId: datum
               };
 
+              tocat = await GetIt.instance<ItemCategoryApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tocat) {
                 final datumDb = tocatDbMap[datumBos.docId];
 
@@ -1077,11 +1082,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<ItemCategoryApi>()
+              tocat = await GetIt.instance<ItemCategoryApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemCategoryDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tocat);
             }
 
             setState(() {
@@ -1097,8 +1102,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            toitm =
-                await GetIt.instance<ItemMasterApi>().fetchData(lastSyncDate);
             final toitmDb =
                 await GetIt.instance<AppDatabase>().itemMasterDao.readAll();
 
@@ -1107,6 +1110,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in toitmDb) datum.docId: datum
               };
 
+              toitm =
+                  await GetIt.instance<ItemMasterApi>().fetchData(lastSyncDate);
               for (final datumBos in toitm) {
                 final datumDb = toitmDbMap[datumBos.docId];
 
@@ -1126,11 +1131,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<ItemMasterApi>()
+              toitm = await GetIt.instance<ItemMasterApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemMasterDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: toitm);
             }
 
             setState(() {
@@ -1147,8 +1152,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tsitm =
-                await GetIt.instance<ItemByStoreApi>().fetchData(lastSyncDate);
             final tsitmDb =
                 await GetIt.instance<AppDatabase>().itemByStoreDao.readAll();
 
@@ -1157,6 +1160,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tsitmDb) datum.docId: datum
               };
 
+              tsitm = await GetIt.instance<ItemByStoreApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tsitm) {
                 final datumDb = tsitmDbMap[datumBos.docId];
 
@@ -1176,11 +1181,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<ItemByStoreApi>()
+              tsitm = await GetIt.instance<ItemByStoreApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemByStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tsitm);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1195,8 +1200,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tbitm =
-                await GetIt.instance<ItemBarcodeApi>().fetchData(lastSyncDate);
             final tbitmDb =
                 await GetIt.instance<AppDatabase>().itemBarcodeDao.readAll();
 
@@ -1205,6 +1208,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tbitmDb) datum.docId: datum
               };
 
+              tbitm = await GetIt.instance<ItemBarcodeApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tbitm) {
                 final datumDb = tbitmDbMap[datumBos.docId];
 
@@ -1224,11 +1229,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<ItemBarcodeApi>()
+              tbitm = await GetIt.instance<ItemBarcodeApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemBarcodeDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tbitm);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1241,11 +1246,8 @@ class _FetchScreenState extends State<FetchScreen> {
             }
           }
         },
-        // // ---
         () async {
           try {
-            tritm =
-                await GetIt.instance<ItemRemarksApi>().fetchData(lastSyncDate);
             final tritmDb =
                 await GetIt.instance<AppDatabase>().itemRemarkDao.readAll();
 
@@ -1254,6 +1256,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tritmDb) datum.docId: datum
               };
 
+              tritm = await GetIt.instance<ItemRemarksApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tritm) {
                 final datumDb = tritmDbMap[datumBos.docId];
 
@@ -1273,11 +1277,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<ItemRemarksApi>()
+              tritm = await GetIt.instance<ItemRemarksApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemRemarkDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tritm);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1292,8 +1296,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tovdg =
-                await GetIt.instance<VendorGroupApi>().fetchData(lastSyncDate);
             final tovdgDb =
                 await GetIt.instance<AppDatabase>().vendorGroupDao.readAll();
 
@@ -1302,6 +1304,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tovdgDb) datum.docId: datum
               };
 
+              tovdg = await GetIt.instance<VendorGroupApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tovdg) {
                 final datumDb = tovdgDbMap[datumBos.docId];
 
@@ -1321,11 +1325,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<VendorGroupApi>()
+              tovdg = await GetIt.instance<VendorGroupApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .vendorGroupDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tovdg);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1340,7 +1344,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            toven = await GetIt.instance<VendorApi>().fetchData(lastSyncDate);
             final tovenDb =
                 await GetIt.instance<AppDatabase>().vendorDao.readAll();
 
@@ -1349,6 +1352,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tovenDb) datum.docId: datum
               };
 
+              toven = await GetIt.instance<VendorApi>().fetchData(lastSyncDate);
               for (final datumBos in toven) {
                 final datumDb = tovenDbMap[datumBos.docId];
 
@@ -1368,11 +1372,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<VendorApi>()
+              toven = await GetIt.instance<VendorApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .vendorDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: toven);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1387,8 +1391,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tvitm = await GetIt.instance<PreferredVendorApi>()
-                .fetchData(lastSyncDate);
             final tvitmDb = await GetIt.instance<AppDatabase>()
                 .preferredVendorDao
                 .readAll();
@@ -1398,6 +1400,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tvitmDb) datum.docId: datum
               };
 
+              tvitm = await GetIt.instance<PreferredVendorApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tvitm) {
                 final datumDb = tvitmDbMap[datumBos.docId];
 
@@ -1417,11 +1421,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PreferredVendorApi>()
+              tvitm = await GetIt.instance<PreferredVendorApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .preferredVendorDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tvitm);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1434,11 +1438,8 @@ class _FetchScreenState extends State<FetchScreen> {
             }
           }
         },
-        // // ---
         () async {
           try {
-            tocrg = await GetIt.instance<CustomerGroupApi>()
-                .fetchData(lastSyncDate);
             final tocrgDb =
                 await GetIt.instance<AppDatabase>().customerGroupDao.readAll();
 
@@ -1447,6 +1448,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tocrgDb) datum.docId: datum
               };
 
+              tocrg = await GetIt.instance<CustomerGroupApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tocrg) {
                 final datumDb = tocrgDbMap[datumBos.docId];
 
@@ -1466,11 +1469,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<CustomerGroupApi>()
+              tocrg = await GetIt.instance<CustomerGroupApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .customerGroupDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tocrg);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1485,7 +1488,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tocus = await GetIt.instance<CustomerApi>().fetchData(lastSyncDate);
             final tocusDb = await GetIt.instance<AppDatabase>()
                 .customerCstDao
                 .readAll(searchKeyword: '');
@@ -1495,6 +1497,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tocusDb) datum.docId: datum
               };
 
+              tocus =
+                  await GetIt.instance<CustomerApi>().fetchData(lastSyncDate);
               for (final datumBos in tocus) {
                 final datumDb = tocusDbMap[datumBos.docId];
 
@@ -1514,11 +1518,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<CustomerApi>()
+              tocus = await GetIt.instance<CustomerApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .customerCstDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tocus);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1533,8 +1537,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpln2 =
-                await GetIt.instance<PriceByItemApi>().fetchData(lastSyncDate);
             final tpln2Db =
                 await GetIt.instance<AppDatabase>().priceByItemDao.readAll();
 
@@ -1543,6 +1545,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpln2Db) datum.docId: datum
               };
 
+              tpln2 = await GetIt.instance<PriceByItemApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpln2) {
                 final datumDb = tpln2DbMap[datumBos.docId];
 
@@ -1562,11 +1566,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PriceByItemApi>()
+              tpln2 = await GetIt.instance<PriceByItemApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .priceByItemDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpln2);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1581,7 +1585,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpln3 = await GetIt.instance<APMPSApi>().fetchData(lastSyncDate);
             final tpln3Db = await GetIt.instance<AppDatabase>()
                 .assignPriceMemberPerStoreDao
                 .readAll();
@@ -1591,6 +1594,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpln3Db) datum.docId: datum
               };
 
+              tpln3 = await GetIt.instance<APMPSApi>().fetchData(lastSyncDate);
               for (final datumBos in tpln3) {
                 final datumDb = tpln3DbMap[datumBos.docId];
 
@@ -1610,11 +1614,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<APMPSApi>()
+              tpln3 = await GetIt.instance<APMPSApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .assignPriceMemberPerStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpln3);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1629,8 +1633,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpln4 = await GetIt.instance<PriceByItemBarcodeApi>()
-                .fetchData(lastSyncDate);
             final tpln4Db = await GetIt.instance<AppDatabase>()
                 .priceByItemBarcodeDao
                 .readAll();
@@ -1640,6 +1642,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpln4Db) datum.docId: datum
               };
 
+              tpln4 = await GetIt.instance<PriceByItemBarcodeApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpln4) {
                 final datumDb = tpln4DbMap[datumBos.docId];
 
@@ -1659,11 +1663,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PriceByItemBarcodeApi>()
+              tpln4 = await GetIt.instance<PriceByItemBarcodeApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .priceByItemBarcodeDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpln4);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1678,8 +1682,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tastr =
-                await GetIt.instance<AuthStoreApi>().fetchData(lastSyncDate);
             final tastrDb =
                 await GetIt.instance<AppDatabase>().authStoreDao.readAll();
 
@@ -1688,6 +1690,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tastrDb) datum.docId: datum
               };
 
+              tastr =
+                  await GetIt.instance<AuthStoreApi>().fetchData(lastSyncDate);
               for (final datumBos in tastr) {
                 final datumDb = tastrDbMap[datumBos.docId];
 
@@ -1707,11 +1711,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<AuthStoreApi>()
+              tastr = await GetIt.instance<AuthStoreApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .authStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tastr);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1726,8 +1730,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            topsb = await GetIt.instance<PromoHargaSpesialApi>()
-                .fetchData(lastSyncDate);
             final topsbDb = await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialHeaderDao
                 .readAll();
@@ -1737,6 +1739,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in topsbDb) datum.docId: datum
               };
 
+              topsb = await GetIt.instance<PromoHargaSpesialApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in topsb) {
                 final datumDb = topsbDbMap[datumBos.docId];
 
@@ -1756,11 +1760,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PromoHargaSpesialApi>()
+              topsb = await GetIt.instance<PromoHargaSpesialApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialHeaderDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: topsb);
             }
 
             setState(() {
@@ -1776,8 +1780,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>()
-                .fetchData(lastSyncDate);
             final tpsb1Db = await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialBuyDao
                 .readAll();
@@ -1787,6 +1789,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpsb1Db) datum.docId: datum
               };
 
+              tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpsb1) {
                 final datumDb = tpsb1DbMap[datumBos.docId];
 
@@ -1806,11 +1810,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PromoHargaSpesialBuyApi>()
+              tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialBuyDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpsb1);
             }
 
             setState(() {
@@ -1826,8 +1830,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
-                .fetchData(lastSyncDate);
             final tpsb2Db = await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialAssignStoreDao
                 .readAll();
@@ -1837,6 +1839,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpsb2Db) datum.docId: datum
               };
 
+              tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpsb2) {
                 final datumDb = tpsb2DbMap[datumBos.docId];
 
@@ -1856,12 +1860,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialAssignStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpsb2);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1876,8 +1879,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
-                .fetchData(lastSyncDate);
             final tpsb4Db = await GetIt.instance<AppDatabase>()
                 .promoHargaSpesialCustomerGroupDao
                 .readAll();
@@ -1887,6 +1888,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpsb4Db) datum.docId: datum
               };
 
+              tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpsb4) {
                 final datumDb = tpsb4DbMap[datumBos.docId];
 
@@ -1906,12 +1909,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialCustomerGroupDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpsb4);
             }
 
             setState(() {
@@ -1927,8 +1929,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>()
-                .fetchData(lastSyncDate);
             final topmiDb = await GetIt.instance<AppDatabase>()
                 .promoMultiItemHeaderDao
                 .readAll();
@@ -1938,6 +1938,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in topmiDb) datum.docId: datum
               };
 
+              topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in topmi) {
                 final datumDb = topmiDbMap[datumBos.docId];
 
@@ -1957,12 +1959,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBonusMultiItemHeaderApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemHeaderDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: topmi);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1977,8 +1978,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
-                .fetchData(lastSyncDate);
             final tpmi1Db = await GetIt.instance<AppDatabase>()
                 .promoMultiItemBuyConditionDao
                 .readAll();
@@ -1988,6 +1987,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpmi1Db) datum.docId: datum
               };
 
+              tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpmi1) {
                 final datumDb = tpmi1DbMap[datumBos.docId];
 
@@ -2007,12 +2008,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemBuyConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpmi1);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2027,8 +2027,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
-                .fetchData(lastSyncDate);
             final tpmi2Db = await GetIt.instance<AppDatabase>()
                 .promoMultiItemAssignStoreDao
                 .readAll();
@@ -2038,6 +2036,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpmi2Db) datum.docId: datum
               };
 
+              tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpmi2) {
                 final datumDb = tpmi2DbMap[datumBos.docId];
 
@@ -2057,12 +2057,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemAssignStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpmi2);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2077,8 +2076,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
-                .fetchData(lastSyncDate);
             final tpmi4Db = await GetIt.instance<AppDatabase>()
                 .promoMultiItemGetConditionDao
                 .readAll();
@@ -2088,6 +2085,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpmi4Db) datum.docId: datum
               };
 
+              tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpmi4) {
                 final datumDb = tpmi4DbMap[datumBos.docId];
 
@@ -2107,12 +2106,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemGetConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpmi4);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2127,8 +2125,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
-                .fetchData(lastSyncDate);
             final tpmi5Db = await GetIt.instance<AppDatabase>()
                 .promoMultiItemCustomerGroupDao
                 .readAll();
@@ -2138,6 +2134,9 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpmi5Db) datum.docId: datum
               };
 
+              tpmi5 =
+                  await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
+                      .fetchData(lastSyncDate);
               for (final datumBos in tpmi5) {
                 final datumDb = tpmi5DbMap[datumBos.docId];
 
@@ -2157,12 +2156,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
+              tpmi5 =
                   await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
                       .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemCustomerGroupDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpmi5);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2177,8 +2176,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            topdi = await GetIt.instance<PromoDiskonItemHeaderApi>()
-                .fetchData(lastSyncDate);
             final topdiDb = await GetIt.instance<AppDatabase>()
                 .promoDiskonItemHeaderDao
                 .readAll();
@@ -2188,6 +2185,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in topdiDb) datum.docId: datum
               };
 
+              topdi = await GetIt.instance<PromoDiskonItemHeaderApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in topdi) {
                 final datumDb = topdiDbMap[datumBos.docId];
 
@@ -2207,11 +2206,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PromoDiskonItemHeaderApi>()
+              topdi = await GetIt.instance<PromoDiskonItemHeaderApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemHeaderDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: topdi);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2226,8 +2225,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>()
-                .fetchData(lastSyncDate);
             final tpdi1Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonItemBuyConditionDao
                 .readAll();
@@ -2237,6 +2234,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdi1Db) datum.docId: datum
               };
 
+              tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpdi1) {
                 final datumDb = tpdi1DbMap[datumBos.docId];
 
@@ -2256,12 +2255,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoDiskonItemBuyConditionApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemBuyConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdi1);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2276,8 +2274,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>()
-                .fetchData(lastSyncDate);
             final tpdi2Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonItemAssignStoreDao
                 .readAll();
@@ -2287,6 +2283,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdi2Db) datum.docId: datum
               };
 
+              tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpdi2) {
                 final datumDb = tpdi2DbMap[datumBos.docId];
 
@@ -2306,12 +2304,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoDiskonItemAssignStoreApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemAssignStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdi2);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2326,8 +2323,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>()
-                .fetchData(lastSyncDate);
             final tpdi4Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonItemGetConditionDao
                 .readAll();
@@ -2337,6 +2332,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdi4Db) datum.docId: datum
               };
 
+              tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpdi4) {
                 final datumDb = tpdi4DbMap[datumBos.docId];
 
@@ -2356,12 +2353,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoDiskonItemGetConditionApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemGetConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdi4);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2376,8 +2372,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>()
-                .fetchData(lastSyncDate);
             final tpdi5Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonItemCustomerGroupDao
                 .readAll();
@@ -2387,6 +2381,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdi5Db) datum.docId: datum
               };
 
+              tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpdi5) {
                 final datumDb = tpdi5DbMap[datumBos.docId];
 
@@ -2406,12 +2402,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoDiskonItemCustomerGroupApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemCustomerGroupDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdi5);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2426,8 +2421,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
-                .fetchData(lastSyncDate);
             final topdgDb = await GetIt.instance<AppDatabase>()
                 .promoDiskonGroupItemHeaderDao
                 .readAll();
@@ -2437,6 +2430,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in topdgDb) datum.docId: datum
               };
 
+              topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in topdg) {
                 final datumDb = topdgDbMap[datumBos.docId];
 
@@ -2456,12 +2451,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemHeaderDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: topdg);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2476,8 +2470,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>()
-                .fetchData(lastSyncDate);
             final tpdg1Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonGroupItemBuyConditionDao
                 .readAll();
@@ -2487,6 +2479,9 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdg1Db) datum.docId: datum
               };
 
+              tpdg1 =
+                  await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>()
+                      .fetchData(lastSyncDate);
               for (final datumBos in tpdg1) {
                 final datumDb = tpdg1DbMap[datumBos.docId];
 
@@ -2506,12 +2501,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
+              tpdg1 =
                   await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>()
                       .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemBuyConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdg1);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2526,8 +2521,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
-                .fetchData(lastSyncDate);
             final tpdg2Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonGroupItemAssignStoreDao
                 .readAll();
@@ -2537,6 +2530,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdg2Db) datum.docId: datum
               };
 
+              tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tpdg2) {
                 final datumDb = tpdg2DbMap[datumBos.docId];
 
@@ -2556,12 +2551,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemAssignStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdg2);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2576,8 +2570,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
-                .fetchData(lastSyncDate);
             final tpdg4Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonGroupItemGetConditionDao
                 .readAll();
@@ -2587,6 +2579,9 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdg4Db) datum.docId: datum
               };
 
+              tpdg4 =
+                  await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
+                      .fetchData(lastSyncDate);
               for (final datumBos in tpdg4) {
                 final datumDb = tpdg4DbMap[datumBos.docId];
 
@@ -2606,12 +2601,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
+              tpdg4 =
                   await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
                       .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemGetConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdg4);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2626,8 +2621,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
-                .fetchData(lastSyncDate);
             final tpdg5Db = await GetIt.instance<AppDatabase>()
                 .promoDiskonGroupItemCustomerGroupDao
                 .readAll();
@@ -2637,6 +2630,9 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tpdg5Db) datum.docId: datum
               };
 
+              tpdg5 =
+                  await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
+                      .fetchData(lastSyncDate);
               for (final datumBos in tpdg5) {
                 final datumDb = tpdg5DbMap[datumBos.docId];
 
@@ -2656,12 +2652,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
+              tpdg5 =
                   await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
                       .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemCustomerGroupDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tpdg5);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2676,8 +2672,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>()
-                .fetchData(lastSyncDate);
             final toprbDb = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYHeaderDao
                 .readAll();
@@ -2687,6 +2681,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in toprbDb) datum.docId: datum
               };
 
+              toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in toprb) {
                 final datumDb = toprbDbMap[datumBos.docId];
 
@@ -2706,11 +2702,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData = await GetIt.instance<PromoBuyXGetYHeaderApi>()
+              toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>()
                   .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYHeaderDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: toprb);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2725,8 +2721,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
-                .fetchData(lastSyncDate);
             final tprb1Db = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYBuyConditionDao
                 .readAll();
@@ -2736,6 +2730,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tprb1Db) datum.docId: datum
               };
 
+              tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tprb1) {
                 final datumDb = tprb1DbMap[datumBos.docId];
 
@@ -2755,12 +2751,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYBuyConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tprb1);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2775,8 +2770,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>()
-                .fetchData(lastSyncDate);
             final tprb2Db = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYAssignStoreDao
                 .readAll();
@@ -2786,6 +2779,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tprb2Db) datum.docId: datum
               };
 
+              tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tprb2) {
                 final datumDb = tprb2DbMap[datumBos.docId];
 
@@ -2805,12 +2800,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBuyXGetYAssignStoreApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYAssignStoreDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tprb2);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2825,8 +2819,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>()
-                .fetchData(lastSyncDate);
             final tprb4Db = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYGetConditionDao
                 .readAll();
@@ -2836,6 +2828,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tprb4Db) datum.docId: datum
               };
 
+              tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tprb4) {
                 final datumDb = tprb4DbMap[datumBos.docId];
 
@@ -2855,12 +2849,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBuyXGetYGetConditionApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYGetConditionDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tprb4);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2875,8 +2868,6 @@ class _FetchScreenState extends State<FetchScreen> {
         },
         () async {
           try {
-            tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
-                .fetchData(lastSyncDate);
             final tprb5Db = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYCustomerGroupDao
                 .readAll();
@@ -2886,6 +2877,8 @@ class _FetchScreenState extends State<FetchScreen> {
                 for (var datum in tprb5Db) datum.docId: datum
               };
 
+              tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
+                  .fetchData(lastSyncDate);
               for (final datumBos in tprb5) {
                 final datumDb = tprb5DbMap[datumBos.docId];
 
@@ -2905,12 +2898,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              final allData =
-                  await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
-                      .fetchData("2000-01-01 00:00:00");
+              tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYCustomerGroupDao
-                  .bulkCreate(data: allData);
+                  .bulkCreate(data: tprb5);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2955,13 +2947,19 @@ class _FetchScreenState extends State<FetchScreen> {
           await fetchFunction();
           final nextSyncDate = DateTime.now().toUtc().toIso8601String();
 
+          final store = await (GetIt.instance<AppDatabase>()
+              .storeMasterDao
+              .readByDocId(singleTopos.tostrId!, null));
+
+          final strName = store?.storeName;
+
           final toposData = POSParameterModel(
             docId: toposId,
             createDate: singleTopos.createDate,
             updateDate: singleTopos.updateDate,
             gtentId: singleTopos.gtentId,
             tostrId: singleTopos.tostrId,
-            storeName: singleTopos.storeName,
+            storeName: strName,
             tocsrId: singleTopos.tocsrId,
             baseUrl: singleTopos.baseUrl,
             usernameAdmin: singleTopos.usernameAdmin,
