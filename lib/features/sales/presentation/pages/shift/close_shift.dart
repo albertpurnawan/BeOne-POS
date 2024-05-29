@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -92,6 +94,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchActiveShift() async {
+    log("shiftId $shiftId");
     final shift = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .readByDocId(shiftId, null);
@@ -157,7 +160,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (activeShift == null || transactions.isEmpty) {
+    if (activeShift == null) {
       return Center(child: CircularProgressIndicator());
     }
 

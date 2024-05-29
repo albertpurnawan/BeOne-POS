@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,8 +9,11 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
+import 'package:pos_fe/features/home/presentation/widgets/confirm_active_shift_dialog.dart';
+import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,10 +31,18 @@ class _HomeScreenState extends State<HomeScreen> {
   late int eveningEpoch;
   late String timeOfDay;
   late String symbol;
+  CashierBalanceTransactionModel? activeShift;
+
+  Future<void> fetchActiveShift() async {
+    activeShift = await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .readLastValue();
+  }
 
   @override
   void initState() {
     super.initState();
+    fetchActiveShift();
     now = DateTime.now();
     morningEpoch =
         DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
@@ -292,7 +304,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Color.fromARGB(255, 255, 255, 255)),
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
-                          onPressed: () {
+                          onPressed: () async {
+                            log(activeShift.toString());
+                            if (activeShift != null) {
+                              if (activeShift!.approvalStatus == 0) {
+                                await showDialog<bool>(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) =>
+                                      ConfirmActiveShiftDialog(
+                                    currentShiftDocId: activeShift!.docId,
+                                  ),
+                                );
+
+                                return;
+                              }
+                            }
+
                             context.goNamed(RouteConstants.welcome);
                             GetIt.instance<LogoutUseCase>().call();
                           },
