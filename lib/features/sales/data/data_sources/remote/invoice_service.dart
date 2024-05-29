@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -143,7 +144,7 @@ class InvoiceApi {
 
       log("Data2Send: $dataToSend");
 
-      await _dio.post(
+      Response response = await _dio.post(
         "$url/tenant-invoice/",
         data: dataToSend,
         options: Options(
@@ -152,7 +153,50 @@ class InvoiceApi {
           },
         ),
       );
-      log("Success Post");
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        log("Success Post");
+        final invHeaderSuccess = InvoiceHeaderModel(
+          docId: invHead[0].docId,
+          createDate: invHead[0].createDate,
+          updateDate: invHead[0].updateDate,
+          tostrId: invHead[0].tostrId,
+          docnum: invHead[0].docnum,
+          orderNo: invHead[0].orderNo,
+          tocusId: invHead[0].tocusId,
+          tohemId: invHead[0].tohemId,
+          transDateTime: invHead[0].transDateTime,
+          timezone: invHead[0].timezone,
+          remarks: invHead[0].remarks,
+          subTotal: invHead[0].subTotal,
+          discPrctg: invHead[0].discPrctg,
+          discAmount: invHead[0].discAmount,
+          discountCard: invHead[0].discountCard,
+          coupon: invHead[0].coupon,
+          discountCoupun: invHead[0].discountCoupun,
+          taxPrctg: invHead[0].taxPrctg,
+          taxAmount: invHead[0].taxAmount,
+          addCost: invHead[0].addCost,
+          rounding: invHead[0].rounding,
+          grandTotal: invHead[0].grandTotal,
+          changed: invHead[0].changed,
+          totalPayment: invHead[0].totalPayment,
+          tocsrId: invHead[0].tocsrId,
+          docStatus: invHead[0].docStatus,
+          sync: invHead[0].sync,
+          syncCRM: invHead[0].syncCRM,
+          toinvTohemId: invHead[0].toinvTohemId,
+          tcsr1Id: invHead[0].tcsr1Id,
+          discHeaderManual: invHead[0].discHeaderManual,
+          discHeaderPromo: invHead[0].discHeaderPromo,
+          syncToBos: 1,
+        );
+
+        await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
+              docId: invHead[0].docId!,
+              data: invHeaderSuccess,
+            );
+      }
     } catch (err) {
       handleError(err);
       rethrow;

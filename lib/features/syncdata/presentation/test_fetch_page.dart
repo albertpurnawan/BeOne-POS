@@ -254,11 +254,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<CurrencyApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<CurrencyApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .currencyDao
-                  .bulkCreate(data: tcurr);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -302,11 +302,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<CountryApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<CountryApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .countryDao
-                  .bulkCreate(data: tocry);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -350,11 +350,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<ProvinceApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<ProvinceApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .provinceDao
-                  .bulkCreate(data: toprv);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -397,11 +397,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<ZipcodeApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<ZipcodeApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .zipcodeDao
-                  .bulkCreate(data: tozcd);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -444,11 +444,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<EmployeeApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<EmployeeApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .employeeDao
-                  .bulkCreate(data: tohem);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -493,11 +493,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<TaxMasterApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<TaxMasterApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .taxMasterDao
-                  .bulkCreate(data: tovat);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -542,11 +542,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PaymentTypeApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PaymentTypeApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .paymentTypeDao
-                  .bulkCreate(data: topmt);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -590,11 +590,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<MOPApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<MOPApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .meansOfPaymentDao
-                  .bulkCreate(data: tpmt1);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -639,11 +639,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<CreditCardApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<CreditCardApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .creditCardDao
-                  .bulkCreate(data: tpmt2);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -688,11 +688,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PricelistApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PricelistApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .pricelistDao
-                  .bulkCreate(data: topln);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -737,11 +737,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<StoreMasterApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<StoreMasterApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .storeMasterDao
-                  .bulkCreate(data: tostr);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -785,11 +785,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<MOPByStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<MOPByStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .mopByStoreDao
-                  .bulkCreate(data: tpmt3);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -834,11 +834,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<CashRegisterApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<CashRegisterApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .cashRegisterDao
-                  .bulkCreate(data: tocsr);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -882,11 +882,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<UoMApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<UoMApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .uomDao
-                  .bulkCreate(data: touom);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -930,11 +930,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<UserRoleApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<UserRoleApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .userRoleDao
-                  .bulkCreate(data: torol);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -978,11 +978,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<UserApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<UserApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .userDao
-                  .bulkCreate(data: tousr);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -1028,11 +1028,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PricelistPeriodApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PricelistPeriodApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .pricelistPeriodDao
-                  .bulkCreate(data: tpln1);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -1077,11 +1077,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<ItemCategoryApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<ItemCategoryApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemCategoryDao
-                  .bulkCreate(data: tocat);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -1126,11 +1126,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<ItemMasterApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<ItemMasterApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemMasterDao
-                  .bulkCreate(data: toitm);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -1176,11 +1176,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<ItemByStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<ItemByStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemByStoreDao
-                  .bulkCreate(data: tsitm);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1224,11 +1224,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<ItemBarcodeApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<ItemBarcodeApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemBarcodeDao
-                  .bulkCreate(data: tbitm);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1273,11 +1273,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<ItemRemarksApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<ItemRemarksApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .itemRemarkDao
-                  .bulkCreate(data: tritm);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1321,11 +1321,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<VendorGroupApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<VendorGroupApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .vendorGroupDao
-                  .bulkCreate(data: tovdg);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1368,11 +1368,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<VendorApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<VendorApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .vendorDao
-                  .bulkCreate(data: toven);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1417,11 +1417,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PreferredVendorApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PreferredVendorApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .preferredVendorDao
-                  .bulkCreate(data: tvitm);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1466,11 +1466,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<CustomerGroupApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<CustomerGroupApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .customerGroupDao
-                  .bulkCreate(data: tocrg);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1514,11 +1514,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<CustomerApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<CustomerApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .customerCstDao
-                  .bulkCreate(data: tocus);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1562,11 +1562,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PriceByItemApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PriceByItemApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .priceByItemDao
-                  .bulkCreate(data: tpln2);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1610,11 +1610,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<APMPSApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<APMPSApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .assignPriceMemberPerStoreDao
-                  .bulkCreate(data: tpln3);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1659,11 +1659,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PriceByItemBarcodeApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PriceByItemBarcodeApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .priceByItemBarcodeDao
-                  .bulkCreate(data: tpln4);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1707,11 +1707,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<AuthStoreApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .authStoreDao
-                  .bulkCreate(data: tastr);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1756,11 +1756,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoHargaSpesialApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PromoHargaSpesialApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialHeaderDao
-                  .bulkCreate(data: topsb);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -1806,11 +1806,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoHargaSpesialBuyApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PromoHargaSpesialBuyApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialBuyDao
-                  .bulkCreate(data: tpsb1);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -1856,11 +1856,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialAssignStoreDao
-                  .bulkCreate(data: tpsb2);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -1905,11 +1906,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoHargaSpesialCustomerGroupDao
-                  .bulkCreate(data: tpsb4);
+                  .bulkCreate(data: allData);
             }
 
             setState(() {
@@ -1955,11 +1957,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBonusMultiItemHeaderApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemHeaderDao
-                  .bulkCreate(data: topmi);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2004,11 +2007,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemBuyConditionDao
-                  .bulkCreate(data: tpmi1);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2053,11 +2057,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemAssignStoreDao
-                  .bulkCreate(data: tpmi2);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2102,11 +2107,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemGetConditionDao
-                  .bulkCreate(data: tpmi4);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2151,11 +2157,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoMultiItemCustomerGroupDao
-                  .bulkCreate(data: tpmi5);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2200,11 +2207,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoDiskonItemHeaderApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PromoDiskonItemHeaderApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemHeaderDao
-                  .bulkCreate(data: topdi);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2249,11 +2256,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoDiskonItemBuyConditionApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonItemBuyConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemBuyConditionDao
-                  .bulkCreate(data: tpdi1);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2298,11 +2306,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoDiskonItemAssignStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonItemAssignStoreApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemAssignStoreDao
-                  .bulkCreate(data: tpdi2);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2347,11 +2356,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonItemGetConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemGetConditionDao
-                  .bulkCreate(data: tpdi4);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2396,11 +2406,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonItemCustomerGroupApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonItemCustomerGroupDao
-                  .bulkCreate(data: tpdi5);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2445,11 +2456,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemHeaderDao
-                  .bulkCreate(data: topdg);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2494,11 +2506,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemBuyConditionDao
-                  .bulkCreate(data: tpdg1);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2543,11 +2556,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemAssignStoreDao
-                  .bulkCreate(data: tpdg2);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2592,11 +2606,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemGetConditionDao
-                  .bulkCreate(data: tpdg4);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2641,11 +2656,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemCustomerGroupDao
-                  .bulkCreate(data: tpdg5);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2690,11 +2706,11 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData = await GetIt.instance<PromoBuyXGetYHeaderApi>()
+                  .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYHeaderDao
-                  .bulkCreate(data: toprb);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2739,11 +2755,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYBuyConditionDao
-                  .bulkCreate(data: tprb1);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2788,11 +2805,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<AuthStoreApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBuyXGetYAssignStoreApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYAssignStoreDao
-                  .bulkCreate(data: tprb2);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2837,11 +2855,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoBuyXGetYGetConditionApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBuyXGetYGetConditionApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYGetConditionDao
-                  .bulkCreate(data: tprb4);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;
@@ -2886,11 +2905,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 }
               }
             } else {
-              // final allData = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
-              //     .fetchData("2000-01-01 00:00:00");
+              final allData =
+                  await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
+                      .fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>()
                   .promoBuyXGetYCustomerGroupDao
-                  .bulkCreate(data: tprb5);
+                  .bulkCreate(data: allData);
             }
             setState(() {
               _syncProgress += 1 / totalTable;

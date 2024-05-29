@@ -98,6 +98,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           receiptEntity.receiptItems.asMap().entries.map((entry) {
         final int index = entry.key;
         final ReceiptItemEntity e = entry.value;
+        log("receiptEntity E - $e");
         return InvoiceDetailModel(
           docId: _uuid.v4(), // dao
           createDate: null, // null
@@ -113,8 +114,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           discAmount: e.discAmount ?? 0,
           totalAmount: e.totalAmount,
           taxPrctg: e.itemEntity.taxRate,
-          promotionType: "", // kalau promo > 1?
-          promotionId: "", // kalau promo > 1?
+          promotionType: e.promos.isEmpty
+              ? ""
+              : e.promos.first.promoType.toString(), // kalau promo > 1?
+          promotionId: e.promos.isEmpty
+              ? ""
+              : e.promos.first.promoId.toString(), // kalau promo > 1?
           remarks: null,
           editTime: DateTime.now(), // ?
           cogs: 0,

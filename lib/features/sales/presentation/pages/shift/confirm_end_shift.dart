@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmEndShift extends StatelessWidget {
@@ -63,8 +65,10 @@ class ConfirmEndShift extends StatelessWidget {
             closedbyId: user.docId,
             approvalStatus: 1,
           );
-
+          log("closeShift - $closeShift");
           _updateCashierBalanceTransaction(shift.docId, closeShift);
+          _sendTransactions(closeShift);
+
           check = "Success";
         } else {
           check = "Wrong Password";
@@ -83,6 +87,11 @@ class ConfirmEndShift extends StatelessWidget {
     await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .update(docId: docId, data: value);
+  }
+
+  void _sendTransactions(CashierBalanceTransactionModel approved) async {
+    await GetIt.instance<CashierBalanceTransactionApi>()
+        .sendTransactions(approved);
   }
 
   @override
@@ -236,7 +245,6 @@ class ConfirmEndShift extends StatelessWidget {
                               if (passwordCorrect == "Success") {
                                 await prefs.setBool('isOpen', false);
                                 await prefs.setString('tcsr1Id', "");
-
                                 GetIt.instance<LogoutUseCase>().call();
 
                                 if (!context.mounted) return;

@@ -234,67 +234,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Divider(
                             height: 0,
                           ),
-                          InkWell(
-                            onTap: () => {},
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Icon(Icons
-                                            .admin_panel_settings_outlined),
-                                        SizedBox(
-                                          width: 30,
-                                        ),
-                                        Text(
-                                          "Role",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Staff",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
-                                              fontSize: 16),
-                                        ),
-                                        // SizedBox(
-                                        //   width: 15,
-                                        // ),
-                                        // Icon(
-                                        //   Icons.navigate_next,
-                                        //   color:
-                                        //       Color.fromARGB(255, 66, 66, 66),
-                                        // ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(
-                            height: 0,
-                          ),
+                          // InkWell(
+                          //   onTap: () => {},
+                          //   child: Column(
+                          //     children: [
+                          //       SizedBox(
+                          //         height: 20,
+                          //       ),
+                          //       Row(
+                          //         mainAxisAlignment:
+                          //             MainAxisAlignment.spaceBetween,
+                          //         children: [
+                          //           Row(
+                          //             children: [
+                          //               SizedBox(
+                          //                 width: 5,
+                          //               ),
+                          //               Icon(Icons
+                          //                   .admin_panel_settings_outlined),
+                          //               SizedBox(
+                          //                 width: 30,
+                          //               ),
+                          //               Text(
+                          //                 "Role",
+                          //                 style: TextStyle(fontSize: 16),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //           Row(
+                          //             children: [
+                          //               Text(
+                          //                 "Staff",
+                          //                 style: TextStyle(
+                          //                     fontWeight: FontWeight.w700,
+                          //                     color: Color.fromARGB(
+                          //                         255, 66, 66, 66),
+                          //                     fontSize: 16),
+                          //               ),
+                          //               // SizedBox(
+                          //               //   width: 15,
+                          //               // ),
+                          //               // Icon(
+                          //               //   Icons.navigate_next,
+                          //               //   color:
+                          //               //       Color.fromARGB(255, 66, 66, 66),
+                          //               // ),
+                          //               SizedBox(
+                          //                 width: 5,
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         ],
+                          //       ),
+                          //       SizedBox(
+                          //         height: 20,
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+                          // Divider(
+                          //   height: 0,
+                          // ),
                         ],
                       ),
                       SizedBox(
@@ -352,7 +352,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          "99999-99999-99999" ?? "Not Set",
+                                          "${_posParameterEntity?.gtentId}" ??
+                                              "Not Set",
                                           style: TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
@@ -534,7 +535,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          Constant.url ?? "Not Set",
+                                          _posParameterEntity?.baseUrl ??
+                                              "Not Set",
                                           style: TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
