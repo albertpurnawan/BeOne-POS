@@ -7,6 +7,7 @@ import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
+import 'package:pos_fe/features/home/presentation/widgets/confirm_queued_invoice_dialog.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
@@ -85,6 +86,16 @@ class _ActiveShiftState extends State<ActiveShift> {
     setState(() {
       activeShift = shift;
     });
+  }
+
+  Future<bool> checkQueuedInvoice() async {
+    final invoice =
+        await GetIt.instance<AppDatabase>().queuedInvoiceHeaderDao.readAll();
+    if (invoice.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @override
@@ -187,14 +198,23 @@ class _ActiveShiftState extends State<ActiveShift> {
                   ? CustomButton(
                       color: ProjectColors.primary,
                       child: const Text("CLOSE SHIFT"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                CloseShiftScreen(shiftId: activeShift!.docId),
-                          ),
-                        );
+                      onTap: () async {
+                        final checkInv = await checkQueuedInvoice();
+                        if (checkInv == true) {
+                          await showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => ConfirmQueuedInvoiceDialog(),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CloseShiftScreen(shiftId: activeShift!.docId),
+                            ),
+                          );
+                        }
                       },
                     )
                   : CustomButton(

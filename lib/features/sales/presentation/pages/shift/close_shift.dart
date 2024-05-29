@@ -157,7 +157,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (activeShift == null || transactions.isEmpty) {
+    if (activeShift == null) {
       return Center(child: CircularProgressIndicator());
     }
 
@@ -401,7 +401,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
                 child: const Text("End Shift"),
-                onTap: () async {
+                onTap: () {
                   if (activeShift != null) {
                     final CashierBalanceTransactionModel shift =
                         CashierBalanceTransactionModel(

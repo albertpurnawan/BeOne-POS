@@ -353,11 +353,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
       final POSParameterEntity? posParameterEntity =
           await _getPosParameterUseCase.call();
+      if (posParameterEntity == null) throw "POS Parameter not found";
       final StoreMasterEntity? storeMasterEntity = await _getStoreMasterUseCase
           .call(params: posParameterEntity!.tostrId);
+      if (storeMasterEntity == null) throw "Store master not found";
       final CashRegisterEntity? cashRegisterEntity =
           await _getCashRegisterUseCase.call(
               params: posParameterEntity.tocsrId!);
+      if (cashRegisterEntity == null) throw "Cash register not found";
 
       emit(ReceiptEntity(
         docNum:
