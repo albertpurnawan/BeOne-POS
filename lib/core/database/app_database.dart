@@ -435,7 +435,8 @@ PRAGMA foreign_keys = ON;
     authStoreDao = AuthStoreDao(_database!);
     netzmeDao = NetzmeDao(_database!);
 
-    receiptContentDao.bulkCreate(
+    await receiptContentDao.deleteAll();
+    await receiptContentDao.bulkCreate(
         data: receiptcontents.map((e) {
       return ReceiptContentModel.fromMap(e);
     }).toList());

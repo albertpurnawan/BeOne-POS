@@ -67,4 +67,21 @@ abstract class ReceiptHelper {
       _ => "$value",
     };
   }
+
+  static String convertIntegerToThreeDigitString(int value) {
+    return switch (value.toString().length) {
+      1 => "00$value",
+      2 => "0$value",
+      3 => "$value",
+      _ => "999",
+    };
+  }
+
+  static String convertIntegerToTwoDigitString(int value) {
+    return switch (value.toString().length) {
+      1 => "0$value",
+      2 => "$value",
+      _ => "99",
+    };
+  }
 }
