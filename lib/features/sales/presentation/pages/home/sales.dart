@@ -361,7 +361,7 @@ class _SalesPageState extends State<SalesPage> {
                               itemCount: state.receiptItems.length,
                               itemBuilder: (context, index) {
                                 final e = state.receiptItems[index];
-                                final hasPromos = e.promos.isNotEmpty;
+                                // final hasPromos = e.promos.isNotEmpty;
                                 final test = e.promos.map(
                                   (promo) => Row(
                                     mainAxisAlignment:

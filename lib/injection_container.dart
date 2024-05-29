@@ -81,6 +81,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_m
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/credit_card_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
@@ -402,6 +403,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<HandlePromoTopdiUseCase>(
       () => HandlePromoTopdiUseCase(sl(), sl(), sl(), sl()),
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
+  sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(
+      () => CashierBalanceTransactionApi(sl(), sl()),
+      dependsOn: [SharedPreferences]);
 
   return;
 }
