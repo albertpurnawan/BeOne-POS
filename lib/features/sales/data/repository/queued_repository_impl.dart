@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
@@ -11,6 +12,7 @@ import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,6 +27,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
     // TODO: implement createQueuedReceipt
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
+
+    final prefs = GetIt.instance<SharedPreferences>();
+    final tcsr1IdPref = prefs.getString('tcsr1Id');
 
     await db.transaction((txn) async {
       final QueuedInvoiceHeaderModel queuedInvoiceHeaderModel =
@@ -58,10 +63,12 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         sync: 0,
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
-        tcsr1Id: null, // get di sini
+        refpos1: tcsr1IdPref, // get di sini
+        refpos2: '', // get di sini
+        tcsr1Id: tcsr1IdPref, // get di sini
         discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
-        syncToBos: 0, // get di sini
+        syncToBos: '', // get di sini
       );
 
       await _appDatabase.queuedInvoiceHeaderDao

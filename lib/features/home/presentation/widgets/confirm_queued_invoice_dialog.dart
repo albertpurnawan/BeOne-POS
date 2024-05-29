@@ -104,7 +104,7 @@ class _ConfirmQueuedInvoiceDialogState
                     style: TextStyle(color: ProjectColors.primary),
                   )),
                 )),
-            SizedBox(
+            const SizedBox(
               width: 10,
             ),
             Expanded(

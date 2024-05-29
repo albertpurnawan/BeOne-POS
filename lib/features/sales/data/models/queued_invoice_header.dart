@@ -36,6 +36,8 @@ class QueuedInvoiceHeaderFields {
     sync,
     syncCRM,
     toinvTohemId,
+    refpos1,
+    refpos2,
     tcsr1Id,
     tcsr1Id,
     tcsr1Id,
@@ -74,6 +76,8 @@ class QueuedInvoiceHeaderFields {
   static const String sync = "sync";
   static const String syncCRM = "synccrm";
   static const String toinvTohemId = "toinvTohemId";
+  static const String refpos1 = "refpos1";
+  static const String refpos2 = "refpos2";
   static const String tcsr1Id = "tcsr1Id";
   static const String discHeaderManual = "discheadermanual";
   static const String discHeaderPromo = "discheaderpromo";
@@ -112,6 +116,8 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
     required super.sync,
     required super.syncCRM,
     required super.toinvTohemId,
+    required super.refpos1,
+    required super.refpos2,
     required super.tcsr1Id,
     required super.discHeaderManual,
     required super.discHeaderPromo,
@@ -152,7 +158,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       'tcsr1Id': tcsr1Id,
       'discheadermanual': discHeaderManual,
       'discheaderpromo': discHeaderPromo,
-      // 'synctobos': 1,
+      'synctobos': '',
     };
     if (transDateTime == null) {
       return map;
@@ -203,6 +209,8 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       syncCRM: map['synccrm'] as int,
       toinvTohemId:
           map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
       discHeaderManual: map['discheadermanual'] != null
           ? map['discheadermanual'] as double
@@ -210,7 +218,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       discHeaderPromo: map['discheaderpromo'] != null
           ? map['discheaderpromo'] as double
           : null,
-      syncToBos: 0,
+      syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
     );
   }
 
@@ -278,6 +286,8 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       sync: entity.sync,
       syncCRM: entity.syncCRM,
       toinvTohemId: entity.toinvTohemId,
+      refpos1: entity.refpos1,
+      refpos2: entity.refpos2,
       tcsr1Id: entity.tcsr1Id,
       discHeaderManual: entity.discHeaderManual,
       discHeaderPromo: entity.discHeaderPromo,

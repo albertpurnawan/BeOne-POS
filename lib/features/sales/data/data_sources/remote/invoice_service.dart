@@ -95,6 +95,7 @@ class InvoiceApi {
         "totalpayment": invHead[0].totalPayment.toInt(),
         "tocsr_id": invHead[0].tocsrId,
         "toinv_tohem_id": invHead[0].toinvTohemId,
+        "refpos1": invHead[0].refpos1,
         "invoice_item": invDet.map((item) {
           return {
             "docnum": item.docNum,
@@ -153,6 +154,7 @@ class InvoiceApi {
           },
         ),
       );
+      log("response - $response");
 
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         log("Success Post");
@@ -186,10 +188,12 @@ class InvoiceApi {
           sync: invHead[0].sync,
           syncCRM: invHead[0].syncCRM,
           toinvTohemId: invHead[0].toinvTohemId,
+          refpos1: invHead[0].refpos1,
+          refpos2: invHead[0].refpos2,
           tcsr1Id: invHead[0].tcsr1Id,
           discHeaderManual: invHead[0].discHeaderManual,
           discHeaderPromo: invHead[0].discHeaderPromo,
-          syncToBos: 1,
+          syncToBos: response.data['description'],
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(

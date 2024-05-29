@@ -44,7 +44,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           (await _appDatabase.employeeDao.readByEmpCode("99", txn))!;
 
       final prefs = GetIt.instance<SharedPreferences>();
-      final tcsr1Id = prefs.getString('tcsr1Id');
+      final tcsr1IdPref = prefs.getString('tcsr1Id');
 
       double promosDiscountAmount = 0;
       for (final prm in receiptEntity.promos) {
@@ -84,10 +84,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         sync: 0,
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
-        tcsr1Id: tcsr1Id, // get di sini
+        refpos1: tcsr1IdPref, // get di sini
+        refpos2: '', //
+        tcsr1Id: tcsr1IdPref, // get di sini
         discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
-        syncToBos: 0, // get di sini
+        syncToBos: '', // get di sini
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
