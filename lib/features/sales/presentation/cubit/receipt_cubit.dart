@@ -300,7 +300,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
     for (final currentReceiptItem
         in receiptEntity.receiptItems.map((e) => e.copyWith())) {
-      if (receiptItemEntity != currentReceiptItem) {
+      if (receiptItemEntity.itemEntity.barcode !=
+          currentReceiptItem.itemEntity.barcode) {
         newReceiptItems.add(currentReceiptItem);
       }
     }
