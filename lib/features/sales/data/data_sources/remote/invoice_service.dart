@@ -196,7 +196,7 @@ class InvoiceApi {
               docId: invHead[0].docId!,
               data: invHeaderSuccess,
             );
-      } else {}
+      }
     } catch (err) {
       handleError(err);
       rethrow;
