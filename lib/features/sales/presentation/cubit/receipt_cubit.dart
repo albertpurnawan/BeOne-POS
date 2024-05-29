@@ -100,8 +100,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._getStoreMasterUseCase,
     this._getCashRegisterUseCase,
   ) : super(ReceiptEntity(
-            docNum:
-                "S0001-${DateFormat('yyMMdd').format(DateTime.now())}${Random().nextInt(999) + 1000}/INV1",
+            docNum: "-",
             receiptItems: [],
             subtotal: 0,
             totalTax: 0,
@@ -127,10 +126,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Initialize some values
-      if (state.receiptItems.isEmpty) {
-        final EmployeeEntity? employeeEntity = await _getEmployeeUseCase.call();
-        emit(state.copyWith(employeeEntity: employeeEntity));
-      }
+      // if (state.receiptItems.isEmpty &&
+      //     state.customerEntity?.custCode != "99") {
+      //   await resetReceipt();
+      // }
 
       // Declare variables
       final ItemEntity? itemEntity;
@@ -300,7 +299,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
     for (final currentReceiptItem
         in receiptEntity.receiptItems.map((e) => e.copyWith())) {
-      if (receiptItemEntity != currentReceiptItem) {
+      if (receiptItemEntity.itemEntity.barcode !=
+          currentReceiptItem.itemEntity.barcode) {
         newReceiptItems.add(currentReceiptItem);
       }
     }
@@ -364,7 +364,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       emit(ReceiptEntity(
         docNum:
-            "${storeMasterEntity!.storeCode}-${DateFormat('yyMMdd').format(DateTime.now())}${ReceiptHelper.convertIntegerToFourDigitString(invoiceHeaderEntities.length)}/INV${cashRegisterEntity!.idKassa}",
+            "${storeMasterEntity.storeCode}-${DateFormat('yyMMddHHmmss').format(DateTime.now())}${ReceiptHelper.convertIntegerToTwoDigitString(invoiceHeaderEntities.length + 1)}/${ReceiptHelper.convertIntegerToThreeDigitString(int.parse(cashRegisterEntity.idKassa!))}",
         employeeEntity: employeeEntity,
         customerEntity: customerEntity,
         receiptItems: [],
