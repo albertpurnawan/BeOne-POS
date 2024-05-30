@@ -50,6 +50,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/item_master_dao.da
 import 'package:pos_fe/features/sales/data/data_sources/local/item_picture_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_remark_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/log_error_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/means_of_payment_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/money_denomination_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
@@ -138,6 +139,7 @@ import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:pos_fe/features/sales/data/models/item_picture.dart';
 import 'package:pos_fe/features/sales/data/models/item_property.dart';
 import 'package:pos_fe/features/sales/data/models/item_remarks.dart';
+import 'package:pos_fe/features/sales/data/models/log_error.dart';
 import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_detail.dart';
@@ -319,6 +321,7 @@ class AppDatabase {
   late NetzmeDao netzmeDao;
   late BillOfMaterialDao billOfMaterialDao;
   late BillOfMaterialLineItemDao billOfMaterialLineItemDao;
+  late LogErrorDao logErrorDao;
 
   AppDatabase._init();
 
@@ -440,6 +443,7 @@ PRAGMA foreign_keys = ON;
     netzmeDao = NetzmeDao(_database!);
     billOfMaterialDao = BillOfMaterialDao(_database!);
     billOfMaterialLineItemDao = BillOfMaterialLineItemDao(_database!);
+    logErrorDao = LogErrorDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -3264,6 +3268,17 @@ CREATE TABLE $tableNetzme (
   ${NetzmeFields.clientSecret} text NOT NULL,
   ${NetzmeFields.privateKey} text NOT NULL,
   ${NetzmeFields.custIdMerchant} text NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableLogError (
+  $uuidDefinition,
+  ${LogErrorFields.createDate} datetime NOT NULL,
+  ${LogErrorFields.updateDate} datetime DEFAULT NULL,
+  ${LogErrorFields.processInfo} text NOT NULL,
+  ${LogErrorFields.description} text NOT NULL,
   $createdAtDefinition
 )
 """);

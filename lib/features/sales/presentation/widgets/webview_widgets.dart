@@ -52,8 +52,8 @@ class _WebViewStackState extends State<WebViewStack> {
       children: [
         Center(
           child: SizedBox(
-            width: 500, // Specify the width you want
-            height: 700, // Specify the height you want
+            width: 500,
+            height: 700,
             child: WebViewWidget(
               controller: controller,
             ),

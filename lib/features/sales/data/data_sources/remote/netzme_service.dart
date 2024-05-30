@@ -117,7 +117,7 @@ class NetzmeApi {
   ) async {
     try {
       String serviceSignature = "";
-      String serviceUrl = "api/v1/invoice/create-transaction";
+      String serviceUrl = "api/v1.0/invoice/create-transaction";
 
       final header = {
         "X-TIMESTAMP": timestamp,
@@ -163,7 +163,7 @@ class NetzmeApi {
         "X-PARTNER-ID": clientKey,
         "X-EXTERNAL-ID": externalId,
         "CHANNEL-ID": channelId,
-        // "X-callback-token": '',
+        "x-callback-token": "UIEFnYhIPHP43s5tRYJPR4ZU/gPBdwtS5n5ONN8F/3g=",
         "X-SIGNATURE": xsignature,
       };
       dev.log("$header");
