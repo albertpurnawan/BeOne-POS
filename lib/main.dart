@@ -36,7 +36,6 @@ import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/syncdata/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -50,7 +49,7 @@ void main() async {
   await initializeDependencies();
   await GetIt.instance.allReady();
   await Constant.loadTopos();
-  await syncWithBOS();
+  // await syncWithBOS();
   runApp(const MyApp());
 }
 
