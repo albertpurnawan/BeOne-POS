@@ -16,6 +16,7 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.da
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
@@ -287,6 +288,15 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                       serviceSignature,
                                       bodyDetail);
                           dev.log("$transactionQris");
+
+                          final ReceiptEntity receipt =
+                              context.read<ReceiptCubit>().state;
+
+                          GetIt.instance<SaveReceiptUseCase>()
+                              .call(params: receipt);
+
+                          dev.log("receipt - $receipt");
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(

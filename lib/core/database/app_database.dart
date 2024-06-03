@@ -1741,6 +1741,7 @@ CREATE TABLE $tableInvoiceHeader (
   ${InvoiceHeaderFields.discHeaderManual} double DEFAULT NULL,
   ${InvoiceHeaderFields.discHeaderPromo} double DEFAULT NULL,
   ${InvoiceHeaderFields.syncToBos} text DEFAULT NULL,
+  ${InvoiceHeaderFields.paymentSuccess} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `toinv_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

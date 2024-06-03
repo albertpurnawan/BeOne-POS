@@ -1,3 +1,5 @@
+import 'dart:async'; // Import for Future.delayed
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -23,6 +25,7 @@ class _WebViewStackState extends State<WebViewStack> {
           setState(() {
             loadingPercentage = 0;
           });
+          print('Page started loading: $url'); // Add logging
         },
         onProgress: (progress) {
           setState(() {
@@ -33,12 +36,26 @@ class _WebViewStackState extends State<WebViewStack> {
           setState(() {
             loadingPercentage = 100;
           });
-          await controller.runJavaScript('''
+          print('Page finished loading: $url'); // Add logging
+
+          // Inject JavaScript to check for payment success indication
+          final success = await controller.runJavaScriptReturningResult('''
             (function() {
-              var height = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-              window.scrollTo(0, (height - window.innerHeight) / 2);
+              // Example: check if certain text is present on the page
+              return document.body.innerText.includes('Pembayaran Berhasil');
             })();
           ''');
+
+          if (success == true) {
+            print('Payment success detected'); // Add logging
+            // Delay for 5 seconds before navigating to the success screen
+            Future.delayed(Duration(seconds: 5), () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => SuccessScreen()),
+              );
+            });
+          }
         },
       ))
       ..loadRequest(
@@ -69,6 +86,23 @@ class _WebViewStackState extends State<WebViewStack> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class SuccessScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Payment Successful'),
+      ),
+      body: Center(
+        child: Text(
+          'Payment was successful!',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+      ),
     );
   }
 }

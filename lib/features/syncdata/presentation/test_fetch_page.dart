@@ -2989,6 +2989,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 tpdg5 =
                     await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
                         .fetchData("2000-01-01 00:00:00");
+
                 await GetIt.instance<AppDatabase>()
                     .promoDiskonGroupItemCustomerGroupDao
                     .bulkCreate(data: tpdg5);
@@ -3578,6 +3579,7 @@ class _FetchScreenState extends State<FetchScreen> {
         topdg = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemHeaderDao
             .readAll();
+
         for (final header in topdg) {
           final tpdg1 = await GetIt.instance<AppDatabase>()
               .promoDiskonGroupItemBuyConditionDao
@@ -3588,7 +3590,6 @@ class _FetchScreenState extends State<FetchScreen> {
           final tpdg5 = await GetIt.instance<AppDatabase>()
               .promoDiskonGroupItemCustomerGroupDao
               .readByTopdgId(header.docId, null);
-
           final dayProperties = {
             1: tpdg2.day1,
             2: tpdg2.day2,

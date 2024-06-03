@@ -51,6 +51,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         log("prm - ${prm.discAmount}");
         promosDiscountAmount += prm.discAmount ?? 0;
       }
+      log("HERE");
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -77,7 +78,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         addCost: 0,
         rounding: 0,
         grandTotal: receiptEntity.grandTotal,
-        changed: receiptEntity.changed!,
+        changed: receiptEntity.changed ?? 0,
         totalPayment: receiptEntity.totalPayment!,
         tocsrId: posParameterModel.tocsrId, // get di sini
         docStatus: 0,
@@ -90,6 +91,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
         syncToBos: '', // get di sini
+        paymentSuccess: '0', // get di sini
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 

@@ -43,7 +43,8 @@ class QueuedInvoiceHeaderFields {
     tcsr1Id,
     discHeaderManual,
     discHeaderPromo,
-    // syncToBos,
+    syncToBos,
+    paymentSuccess,
   ];
 
   static const String docId = "docid";
@@ -82,6 +83,7 @@ class QueuedInvoiceHeaderFields {
   static const String discHeaderManual = "discheadermanual";
   static const String discHeaderPromo = "discheaderpromo";
   static const String syncToBos = "synctobos";
+  static const String paymentSuccess = "paymentsuccess";
 }
 
 class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
@@ -122,6 +124,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
     required super.discHeaderManual,
     required super.discHeaderPromo,
     required super.syncToBos,
+    required super.paymentSuccess,
   });
 
   @override
@@ -159,6 +162,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       'discheadermanual': discHeaderManual,
       'discheaderpromo': discHeaderPromo,
       'synctobos': '',
+      'paymentsuccess': '0',
     };
     if (transDateTime == null) {
       return map;
@@ -219,6 +223,9 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
           ? map['discheaderpromo'] as double
           : null,
       syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
+      paymentSuccess: map['paymentsuccess'] != null
+          ? map['paymentsuccess'] as String
+          : null,
     );
   }
 
@@ -292,6 +299,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       discHeaderManual: entity.discHeaderManual,
       discHeaderPromo: entity.discHeaderPromo,
       syncToBos: entity.syncToBos,
+      paymentSuccess: entity.paymentSuccess,
     );
   }
 }

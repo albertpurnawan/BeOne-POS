@@ -42,6 +42,7 @@ class InvoiceHeaderFields {
     discHeaderManual,
     discHeaderPromo,
     syncToBos,
+    paymentSuccess,
   ];
 
   static const String docId = "docid";
@@ -80,6 +81,7 @@ class InvoiceHeaderFields {
   static const String discHeaderManual = "discheadermanual";
   static const String discHeaderPromo = "discheaderpromo";
   static const String syncToBos = "synctobos";
+  static const String paymentSuccess = "paymentsuccess";
 }
 
 class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
@@ -119,6 +121,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
     required super.discHeaderManual,
     required super.discHeaderPromo,
     required super.syncToBos,
+    required super.paymentSuccess,
   });
 
   @override
@@ -158,6 +161,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'discheadermanual': discHeaderManual,
       'discheaderpromo': discHeaderPromo,
       'synctobos': syncToBos,
+      'paymentsuccess': paymentSuccess,
     };
     if (transDateTime == null) {
       return map;
@@ -218,6 +222,9 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
           ? map['discheaderpromo'] as double
           : null,
       syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
+      paymentSuccess: map['paymentsuccess'] != null
+          ? map['paymentsuccess'] as String
+          : null,
     );
   }
 
@@ -291,6 +298,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       discHeaderManual: entity.discHeaderManual,
       discHeaderPromo: entity.discHeaderPromo,
       syncToBos: entity.syncToBos,
+      paymentSuccess: entity.paymentSuccess,
     );
   }
 }

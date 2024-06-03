@@ -69,6 +69,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
         syncToBos: '', // get di sini
+        paymentSuccess: '0', // get di sini
       );
 
       await _appDatabase.queuedInvoiceHeaderDao

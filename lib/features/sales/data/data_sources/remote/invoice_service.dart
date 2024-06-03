@@ -193,6 +193,7 @@ class InvoiceApi {
           discHeaderManual: invHead[0].discHeaderManual,
           discHeaderPromo: invHead[0].discHeaderPromo,
           syncToBos: response.data['docid'],
+          paymentSuccess: invHead[0].paymentSuccess,
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
@@ -322,62 +323,65 @@ class InvoiceApi {
 
       log("Data2Send: $dataToSend");
 
-      Response response = await _dio.post(
-        "$url/tenant-invoice/",
-        data: dataToSend,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      log("response - $response");
-
-      if (response.statusCode! >= 200 && response.statusCode! < 300) {
-        log("Success Post");
-        final invHeaderSuccess = InvoiceHeaderModel(
-          docId: invHead.docId,
-          createDate: invHead.createDate,
-          updateDate: invHead.updateDate,
-          tostrId: invHead.tostrId,
-          docnum: invHead.docnum,
-          orderNo: invHead.orderNo,
-          tocusId: invHead.tocusId,
-          tohemId: invHead.tohemId,
-          transDateTime: invHead.transDateTime,
-          timezone: invHead.timezone,
-          remarks: invHead.remarks,
-          subTotal: invHead.subTotal,
-          discPrctg: invHead.discPrctg,
-          discAmount: invHead.discAmount,
-          discountCard: invHead.discountCard,
-          coupon: invHead.coupon,
-          discountCoupun: invHead.discountCoupun,
-          taxPrctg: invHead.taxPrctg,
-          taxAmount: invHead.taxAmount,
-          addCost: invHead.addCost,
-          rounding: invHead.rounding,
-          grandTotal: invHead.grandTotal,
-          changed: invHead.changed,
-          totalPayment: invHead.totalPayment,
-          tocsrId: invHead.tocsrId,
-          docStatus: invHead.docStatus,
-          sync: invHead.sync,
-          syncCRM: invHead.syncCRM,
-          toinvTohemId: invHead.toinvTohemId,
-          refpos1: invHead.refpos1,
-          refpos2: invHead.refpos2,
-          tcsr1Id: invHead.tcsr1Id,
-          discHeaderManual: invHead.discHeaderManual,
-          discHeaderPromo: invHead.discHeaderPromo,
-          syncToBos: response.data['docid'],
+      if (invHead.paymentSuccess == '1') {
+        Response response = await _dio.post(
+          "$url/tenant-invoice/",
+          data: dataToSend,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          ),
         );
+        log("response - $response");
 
-        await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
-              docId: invHead.docId!,
-              data: invHeaderSuccess,
-            );
+        if (response.statusCode! >= 200 && response.statusCode! < 300) {
+          log("Success Post");
+          final invHeaderSuccess = InvoiceHeaderModel(
+            docId: invHead.docId,
+            createDate: invHead.createDate,
+            updateDate: invHead.updateDate,
+            tostrId: invHead.tostrId,
+            docnum: invHead.docnum,
+            orderNo: invHead.orderNo,
+            tocusId: invHead.tocusId,
+            tohemId: invHead.tohemId,
+            transDateTime: invHead.transDateTime,
+            timezone: invHead.timezone,
+            remarks: invHead.remarks,
+            subTotal: invHead.subTotal,
+            discPrctg: invHead.discPrctg,
+            discAmount: invHead.discAmount,
+            discountCard: invHead.discountCard,
+            coupon: invHead.coupon,
+            discountCoupun: invHead.discountCoupun,
+            taxPrctg: invHead.taxPrctg,
+            taxAmount: invHead.taxAmount,
+            addCost: invHead.addCost,
+            rounding: invHead.rounding,
+            grandTotal: invHead.grandTotal,
+            changed: invHead.changed,
+            totalPayment: invHead.totalPayment,
+            tocsrId: invHead.tocsrId,
+            docStatus: invHead.docStatus,
+            sync: invHead.sync,
+            syncCRM: invHead.syncCRM,
+            toinvTohemId: invHead.toinvTohemId,
+            refpos1: invHead.refpos1,
+            refpos2: invHead.refpos2,
+            tcsr1Id: invHead.tcsr1Id,
+            discHeaderManual: invHead.discHeaderManual,
+            discHeaderPromo: invHead.discHeaderPromo,
+            syncToBos: response.data['docid'],
+            paymentSuccess: invHead.paymentSuccess,
+          );
+          await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
+                docId: invHead.docId!,
+                data: invHeaderSuccess,
+              );
+        }
       }
+      // handle payment == 0
     } catch (err) {
       handleError(err);
       rethrow;

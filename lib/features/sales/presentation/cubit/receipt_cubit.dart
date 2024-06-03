@@ -1,13 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer' as dev;
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
@@ -50,7 +48,6 @@ import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_promo_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promo_get_y_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'receipt_state.dart';
 
@@ -339,6 +336,49 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       } catch (e) {
         print(e);
       }
+      final invHead =
+          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
+      final invHeadSuccess = InvoiceHeaderModel(
+        docId: invHead[0].docId,
+        createDate: invHead[0].createDate,
+        updateDate: invHead[0].updateDate,
+        tostrId: invHead[0].tostrId,
+        docnum: invHead[0].docnum,
+        orderNo: invHead[0].orderNo,
+        tocusId: invHead[0].tocusId,
+        tohemId: invHead[0].tohemId,
+        transDateTime: invHead[0].transDateTime,
+        timezone: invHead[0].timezone,
+        remarks: invHead[0].remarks,
+        subTotal: invHead[0].subTotal,
+        discPrctg: invHead[0].discPrctg,
+        discAmount: invHead[0].discAmount,
+        discountCard: invHead[0].discountCard,
+        coupon: invHead[0].coupon,
+        discountCoupun: invHead[0].discountCoupun,
+        taxPrctg: invHead[0].taxPrctg,
+        taxAmount: invHead[0].taxAmount,
+        addCost: invHead[0].addCost,
+        rounding: invHead[0].rounding,
+        grandTotal: invHead[0].grandTotal,
+        changed: invHead[0].changed,
+        totalPayment: invHead[0].totalPayment,
+        tocsrId: invHead[0].tocsrId,
+        docStatus: invHead[0].docStatus,
+        sync: invHead[0].sync,
+        syncCRM: invHead[0].syncCRM,
+        tcsr1Id: invHead[0].tcsr1Id,
+        toinvTohemId: invHead[0].toinvTohemId,
+        refpos1: invHead[0].refpos1,
+        refpos2: invHead[0].refpos2,
+        discHeaderManual: invHead[0].discHeaderManual,
+        discHeaderPromo: invHead[0].discHeaderPromo,
+        syncToBos: invHead[0].syncToBos,
+        paymentSuccess: '1',
+      );
+      await GetIt.instance<AppDatabase>()
+          .invoiceHeaderDao
+          .update(docId: invHead[0].docId!, data: invHeadSuccess);
       await GetIt.instance<InvoiceApi>().sendInvoice();
     }
   }

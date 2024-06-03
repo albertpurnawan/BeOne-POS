@@ -55,210 +55,270 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
         foregroundColor: Colors.white,
         title: const Text('Reports'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    border: Border.all(color: ProjectColors.primary)),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.13,
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  mainAxisSpacing: 8.0,
-                  crossAxisSpacing: 8.0,
-                  childAspectRatio: 10 / 0.5,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          height: 50,
-                          child: Text(
-                            "From",
-                            style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                          child: Text(
-                            ":",
-                            style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => selectDate(context, true),
-                          child: SizedBox(
-                            width: 300,
-                            child: Text(
-                              selectedFromDate == null
-                                  ? Helpers.dateToString(
-                                      DateTime.now().toLocal())
-                                  : '${selectedFromDate!.toLocal()}'
-                                      .split(' ')[0],
-                              style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                              ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: ProjectColors.primary)),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.13,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                SizedBox(
+                                  width: 100,
+                                  height: 30,
+                                  child: Text(
+                                    "From",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                  height: 30,
+                                  child: Text(
+                                    ":",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => selectDate(context, true),
+                                  child: SizedBox(
+                                    width: 300,
+                                    height: 30,
+                                    child: Text(
+                                      selectedFromDate == null
+                                          ? Helpers.dateToString(
+                                              DateTime.now().toLocal())
+                                          : '${selectedFromDate!.toLocal()}'
+                                              .split(' ')[0],
+                                      style: TextStyle(
+                                        color: ProjectColors.mediumBlack,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize:
-                                  18, // Set the font size to match other text elements
-                              color: ProjectColors.mediumBlack,
-                              fontWeight: FontWeight.w700,
+                            SizedBox(height: 20), // Add spacing between rows
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 100,
+                                  height: 30,
+                                  child: Text(
+                                    "To",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                  height: 30,
+                                  child: Text(
+                                    ":",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => selectDate(context, false),
+                                  child: SizedBox(
+                                    width: 300,
+                                    height: 30,
+                                    child: Text(
+                                      selectedToDate == null
+                                          ? Helpers.dateToString(
+                                              DateTime.now().toLocal())
+                                          : '${selectedToDate!.toLocal()}'
+                                              .split(' ')[0],
+                                      style: TextStyle(
+                                        color: ProjectColors.mediumBlack,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            decoration: InputDecoration(
-                              hintText: "Search...",
-                              border: InputBorder.none,
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 20), // Add space between columns
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 100,
+                                  height: 30,
+                                  child: Text(
+                                    "Report By",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                  height: 30,
+                                  child: Text(
+                                    ":",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 300,
+                                  height: 30,
+                                  child: DropdownButton<String>(
+                                    value: selectedFilter,
+                                    isExpanded: true,
+                                    icon: null,
+                                    elevation: 18,
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    underline: SizedBox(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedFilter = newValue!;
+                                      });
+                                    },
+                                    items: filterOptions
+                                        .map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          child: Text(
-                            "To",
-                            style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                          child: Text(
-                            ":",
-                            style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => selectDate(context, false),
-                          child: SizedBox(
-                            width: 300,
-                            child: Text(
-                              selectedToDate == null
-                                  ? Helpers.dateToString(
-                                      DateTime.now().toLocal())
-                                  : '${selectedToDate!.toLocal()}'
-                                      .split(' ')[0],
-                              style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                              ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 100,
+                                  height: 30,
+                                  child: Text(
+                                    "Search",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                  height: 30,
+                                  child: Text(
+                                    ":",
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 300,
+                                  height: 30,
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 0, horizontal: 8),
+                                      border: OutlineInputBorder(),
+                                      hintText: 'Enter search term',
+                                    ),
+                                    style: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    onChanged: (value) {
+                                      // Add search logic here
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          child: Text(
-                            "Report By",
-                            style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                          child: Text(
-                            ":",
-                            style: TextStyle(
-                                color: ProjectColors.mediumBlack,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 300,
-                          child: DropdownButton<String>(
-                            value: selectedFilter,
-                            isExpanded: true,
-                            icon: null,
-                            elevation: 18,
-                            style: TextStyle(
-                              color: ProjectColors.mediumBlack,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            underline: SizedBox(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedFilter = newValue!;
-                              });
-                            },
-                            items: filterOptions
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 5.0,
-                decoration: BoxDecoration(
-                  color: ProjectColors.primary,
-                  borderRadius: BorderRadius.circular(2.5),
+                // Content
+                Container(
+                  width: double.infinity,
+                  height: 5.0,
+                  decoration: BoxDecoration(
+                    color: ProjectColors.primary,
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
                 ),
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.6,
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                child: selectedFilter == "Invoice"
-                    ? TableReportShift(
-                        fromDate: selectedFromDate,
-                        toDate: selectedToDate,
-                      )
-                    : selectedFilter == "MOP"
-                        ? const TableReportMop()
-                        : selectedFilter == "Item"
-                            ? const TableReportItem()
-                            : null, // Handle other cases or null
-              ),
-            ],
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                  child: selectedFilter == "Invoice"
+                      ? TableReportShift(
+                          fromDate: selectedFromDate,
+                          toDate: selectedToDate,
+                        )
+                      : selectedFilter == "MOP"
+                          ? const TableReportMop()
+                          : selectedFilter == "Item"
+                              ? const TableReportItem()
+                              : null,
+                ),
+              ],
+            ),
           ),
         ),
       ),
