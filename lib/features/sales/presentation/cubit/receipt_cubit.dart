@@ -26,6 +26,7 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
@@ -76,6 +77,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetPosParameterUseCase _getPosParameterUseCase;
   final GetStoreMasterUseCase _getStoreMasterUseCase;
   final GetCashRegisterUseCase _getCashRegisterUseCase;
+  final ApplyRoundingUseCase _applyRoundingUseCase;
 
   ReceiptCubit(
     this._getItemByBarcodeUseCase,
@@ -99,6 +101,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._getPosParameterUseCase,
     this._getStoreMasterUseCase,
     this._getCashRegisterUseCase,
+    this._applyRoundingUseCase,
   ) : super(ReceiptEntity(
             docNum: "-",
             receiptItems: [],
@@ -126,10 +129,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Initialize some values
-      // if (state.receiptItems.isEmpty &&
-      //     state.customerEntity?.custCode != "99") {
-      //   await resetReceipt();
-      // }
+      if (state.receiptItems.isEmpty &&
+          state.customerEntity?.custCode != "99") {
+        await resetReceipt();
+      }
 
       // Declare variables
       final ItemEntity? itemEntity;
@@ -244,6 +247,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState = state.copyWith(
         mopSelection: mopSelectionEntity,
         totalPayment: amountReceived,
+        totalNonVoucher: mopSelectionEntity.amount,
         previousReceiptEntity: state.previousReceiptEntity);
     emit(newState);
   }
@@ -255,6 +259,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState = state.copyWith(
       vouchers: vouchersSelectionEntity,
       totalVoucher: vouchersAmount,
+      totalPayment: (state.mopSelection?.amount ?? 0) + vouchersAmount,
       previousReceiptEntity: state.previousReceiptEntity,
     );
 
@@ -315,7 +320,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  void charge() async {
+  Future<void> charge() async {
     final newState =
         state.copyWith(changed: state.totalPayment! - state.grandTotal);
 
@@ -333,6 +338,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             .deleteByDocId(newState.queuedInvoiceHeaderDocId!, null);
       }
       emit(createdReceipt);
+      dev.log("createdReceipt $createdReceipt");
       try {
         await _printReceiptUsecase.call(params: createdReceipt);
         await _openCashDrawerUseCase.call();
@@ -437,7 +443,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     try {
       ReceiptEntity newReceipt = state.copyWith(
         receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
-      );
+        previousReceiptEntity: state.previousReceiptEntity,
+
+        // Reset MOP related fields
+        vouchers: [],
+        totalPayment: 0,
+        changed: 0,
+        totalVoucher: 0,
+        totalNonVoucher: 0,
+      )..mopSelection = null;
       List<String> skippedPromoIds = [];
 
       dev.log("First entry $newReceipt");
@@ -575,6 +589,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       dev.log("Process reapply discount header $newReceipt");
+
+      newReceipt = await _applyRoundingUseCase.call(params: newReceipt);
+
       dev.log("To emit ${newReceipt.copyWith(
         previousReceiptEntity: state.copyWith(
             receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
@@ -588,9 +605,36 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                     state.receiptItems.map((e) => e.copyWith()).toList(),
                 previousReceiptEntity: null),
       ));
+      return;
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<void> resetMopAndVoucher() async {
+    emit(
+      state.copyWith(
+        previousReceiptEntity: state.previousReceiptEntity,
+        vouchers: [],
+        totalPayment: 0,
+        changed: 0,
+        totalVoucher: 0,
+        totalNonVoucher: 0,
+      )..mopSelection = null,
+    );
+    return;
+  }
+
+  Future<void> resetMop() async {
+    emit(
+      state.copyWith(
+        previousReceiptEntity: state.previousReceiptEntity,
+        totalPayment: state.totalVoucher?.toDouble() ?? 0,
+        changed: 0,
+        totalNonVoucher: 0,
+      )..mopSelection = null,
+    );
+    return;
   }
 }
 

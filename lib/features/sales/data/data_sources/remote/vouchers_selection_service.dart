@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -26,6 +28,11 @@ class VouchersSelectionApi {
       url = pos[0].baseUrl;
       tostrId = pos[0].tostrId;
 
+      log("token $token");
+      log("url $url");
+      log("tostrId $tostrId");
+      log("serialno $serialno");
+
       final response = await _dio.get(
         "$url/tenant-check-register-voucher",
         queryParameters: {
@@ -39,9 +46,11 @@ class VouchersSelectionApi {
         ),
       );
 
+      log(response.toString());
+      if (response.data == null) throw "Voucher not found";
       voucher = VouchersSelectionModel(
-        docId: Uuid().v4(),
-        tpmt3Id: "532da15b-1e97-4616-9ea3-ee9072bbc6b1",
+        docId: response.data['docid'],
+        tpmt3Id: null,
         tovcrId: response.data['tovcr_id']['docid'],
         voucherAlias: response.data['tovcr_id']['remarks'],
         voucherAmount: response.data['tovcr_id']['voucheramount'],
@@ -53,6 +62,7 @@ class VouchersSelectionApi {
         minPurchase: response.data['tovcr_id']['minpurchase'],
         redeemDate: DateTime.now(),
         tinv2Id: "", // need Here
+        type: response.data['tovcr_id']['type'],
       );
 
       return voucher;

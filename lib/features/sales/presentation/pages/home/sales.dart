@@ -24,6 +24,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -383,7 +384,7 @@ class _SalesPageState extends State<SalesPage> {
                                                   promo.discAmount == 0
                                               ? SizedBox.shrink()
                                               : Text(
-                                                  "- ${Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat((promo.discAmount!).toInt().toString()))}",
+                                                  "- ${Helpers.parseMoney(promo.discAmount!.round())}",
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                     fontStyle: FontStyle.italic,
@@ -595,7 +596,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                   Text(
                                                                     Helpers.parseMoney(
                                                                         (e.totalGross)
-                                                                            .toInt()),
+                                                                            .round()),
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             18,
@@ -1327,7 +1328,7 @@ class _SalesPageState extends State<SalesPage> {
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(state.subtotal.toInt()),
+                                Helpers.parseMoney(state.subtotal.round()),
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1344,13 +1345,13 @@ class _SalesPageState extends State<SalesPage> {
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                "(${Helpers.parseMoney((state.discAmount ?? 0).toInt())})",
+                                "(${Helpers.parseMoney((state.discAmount ?? 0).round())})",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1361,7 +1362,24 @@ class _SalesPageState extends State<SalesPage> {
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(state.taxAmount.toInt()),
+                                Helpers.parseMoney(state.taxAmount.round()),
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Rounding",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                Helpers.parseMoney(state.rounding.round()),
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1394,7 +1412,7 @@ class _SalesPageState extends State<SalesPage> {
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          Helpers.parseMoney(state.grandTotal.toInt()),
+                          Helpers.parseMoney(state.grandTotal.round()),
                           style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
@@ -1491,19 +1509,35 @@ class _SalesPageState extends State<SalesPage> {
                         .read<ReceiptCubit>()
                         .processReceiptBeforeCheckout(context);
 
+                    final ReceiptEntity receiptEntity =
+                        context.read<ReceiptCubit>().state;
+
+                    if (receiptEntity.promos.length !=
+                        receiptEntity.previousReceiptEntity?.promos.length) {
+                      await showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => PromotionSummaryDialog(
+                                receiptEntity:
+                                    context.read<ReceiptCubit>().state,
+                              ));
+                    }
+
                     await showDialog(
                             context: context,
                             barrierDismissible: false,
                             builder: (context) => const CheckoutDialog())
-                        .then((value) => setState(() {
-                              isEditingNewReceiptItemCode = true;
-                              _newReceiptItemCodeFocusNode.requestFocus();
-                            }));
+                        .then((value) {
+                      setState(() {
+                        isEditingNewReceiptItemCode = true;
+                        _newReceiptItemCodeFocusNode.requestFocus();
+                      });
+                    });
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
                     // elevation: 5,
-                    backgroundColor: const Color.fromARGB(255, 47, 143, 8),
+                    backgroundColor: Color.fromARGB(255, 57, 131, 73),
                     // 48, 107, 52
                     foregroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(
@@ -2223,6 +2257,17 @@ class _SalesPageState extends State<SalesPage> {
                                 _textEditingControllerNewReceiptItemQuantity
                                     .text = "1";
                               });
+
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                final position = _scrollControllerReceiptItems
+                                        .position.maxScrollExtent +
+                                    100;
+                                _scrollControllerReceiptItems.animateTo(
+                                  position,
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeOut,
+                                );
+                              });
                             } else if (isUpdatingReceiptItemQty) {
                               await context.read<ReceiptCubit>().addUpdateReceiptItems(
                                   AddUpdateReceiptItemsParams(
@@ -2380,6 +2425,16 @@ class _SalesPageState extends State<SalesPage> {
           setState(() {
             _textEditingControllerNewReceiptItemCode.text = "";
             _textEditingControllerNewReceiptItemQuantity.text = "1";
+          });
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final position =
+                _scrollControllerReceiptItems.position.maxScrollExtent + 100;
+            _scrollControllerReceiptItems.animateTo(
+              position,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
+            );
           });
         } else if (isUpdatingReceiptItemQty) {
           await context.read<ReceiptCubit>().addUpdateReceiptItems(

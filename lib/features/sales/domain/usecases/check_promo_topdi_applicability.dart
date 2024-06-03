@@ -214,7 +214,9 @@ class CheckPromoTopdiApplicabilityUseCase
           Set<String> uniqueToitmId = {};
           double totalQtyOfSelectedItem = 0;
           for (final receiptItem in receiptEntity.receiptItems) {
-            if (tpdi1.contains(receiptItem.itemEntity.toitmId)) {
+            if (tpdi1
+                .map((e) => e.toitmId)
+                .contains(receiptItem.itemEntity.toitmId)) {
               totalQtyOfSelectedItem += receiptItem.quantity;
               uniqueToitmId.add(receiptItem.itemEntity.toitmId);
             }

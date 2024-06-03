@@ -66,6 +66,9 @@ class InvoiceApi {
               }
             ]
           });
+        } else {
+          invoicePayments
+              .add({"tpmt3_id": payment.tpmt3Id, "amount": payment.amount});
         }
       }
 

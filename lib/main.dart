@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
@@ -103,6 +104,7 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<GetPosParameterUseCase>(),
                       GetIt.instance<GetStoreMasterUseCase>(),
                       GetIt.instance<GetCashRegisterUseCase>(),
+                      GetIt.instance<ApplyRoundingUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>

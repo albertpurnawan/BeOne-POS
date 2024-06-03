@@ -28,6 +28,7 @@ class PromoDiskonGroupItemCustomerGroupApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
