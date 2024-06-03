@@ -206,165 +206,162 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                     width: 10,
                   ),
                   Expanded(
-                      child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      isPaymentSufficient
-                          ? const SizedBox.shrink()
-                          : const Text(
-                              "Insufficient total payment",
-                              style: TextStyle(
-                                  color: ProjectColors.primary,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                      TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5))),
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => ProjectColors.primary),
-                            overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.white.withOpacity(.2))),
-                        onPressed: () async {
-                          try {
-                            final ReceiptEntity state =
-                                context.read<ReceiptCubit>().state;
-                            if ((state.totalPayment ?? 0) < state.grandTotal) {
-                              // context.pop(false);
-                              setState(() {
-                                isPaymentSufficient = false;
-                              });
-                              Future.delayed(
-                                  const Duration(milliseconds: 2000),
-                                  () => setState(
-                                      () => isPaymentSufficient = true));
-                              return;
-                            }
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    isPaymentSufficient
+                        ? const SizedBox.shrink()
+                        : const Text(
+                            "Insufficient total payment",
+                            style: TextStyle(
+                                color: ProjectColors.primary,
+                                fontWeight: FontWeight.w700),
+                          ),
+                    TextButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5))),
+                          backgroundColor: MaterialStateColor.resolveWith(
+                              (states) => ProjectColors.primary),
+                          overlayColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.white.withOpacity(.2))),
+                      onPressed: () async {
+                        try {
+                          final ReceiptEntity state =
+                              context.read<ReceiptCubit>().state;
+                          if ((state.totalPayment ?? 0) < state.grandTotal) {
+                            // context.pop(false);
+                            setState(() {
+                              isPaymentSufficient = false;
+                            });
+                            Future.delayed(
+                                const Duration(milliseconds: 2000),
+                                () =>
+                                    setState(() => isPaymentSufficient = true));
+                            return;
+                          }
 
-                            // Edit to QRIS here
-                            final mopSelected =
-                                context.read<ReceiptCubit>().state.mopSelection;
-                            final grandTotal = Helpers.revertMoneyToString(
-                                context.read<ReceiptCubit>().state.grandTotal);
-                            dev.log(grandTotal);
+                          // Edit to QRIS here
+                          final mopSelected =
+                              context.read<ReceiptCubit>().state.mopSelection;
+                          final grandTotal = Helpers.revertMoneyToString(
+                              context.read<ReceiptCubit>().state.grandTotal);
+                          dev.log(grandTotal);
 
-                            if (mopSelected!.payTypeCode == '5') {
-                              final netzme = await GetIt.instance<AppDatabase>()
-                                  .netzmeDao
-                                  .readAll();
-                              final url = netzme[0].url;
-                              final clientKey = netzme[0].clientKey;
-                              final clientSecret = netzme[0].clientSecret;
-                              final privateKey = netzme[0].privateKey;
+                          if (mopSelected!.payTypeCode == '5') {
+                            final netzme = await GetIt.instance<AppDatabase>()
+                                .netzmeDao
+                                .readAll();
+                            final url = netzme[0].url;
+                            final clientKey = netzme[0].clientKey;
+                            final clientSecret = netzme[0].clientSecret;
+                            final privateKey = netzme[0].privateKey;
 
-                              final signature =
-                                  await GetIt.instance<NetzmeApi>()
-                                      .createSignature(
-                                          url, clientKey, privateKey);
-                              dev.log(signature);
+                            final signature = await GetIt.instance<NetzmeApi>()
+                                .createSignature(url, clientKey, privateKey);
+                            dev.log(signature);
 
-                              final accessToken =
-                                  await GetIt.instance<NetzmeApi>()
-                                      .requestAccessToken(url, clientKey,
-                                          privateKey, signature);
-                              dev.log(accessToken);
+                            final accessToken =
+                                await GetIt.instance<NetzmeApi>()
+                                    .requestAccessToken(
+                                        url, clientKey, privateKey, signature);
+                            dev.log(accessToken);
 
-                          final bodyDetail = {
-                            "custIdMerchant":
-                                netzme[0].custIdMerchant, // constant
-                            "partnerReferenceNo": generateRandomString(
-                                10), // no unique cust aka random
-                            "amount": {
-                              "value": grandTotal,
-                              "currency": "IDR"
-                            }, // value grandtotal idr
-                            "amountDetail": {
-                              "basicAmount": {
+                            final bodyDetail = {
+                              "custIdMerchant":
+                                  netzme[0].custIdMerchant, // constant
+                              "partnerReferenceNo": generateRandomString(
+                                  10), // no unique cust aka random
+                              "amount": {
                                 "value": grandTotal,
                                 "currency": "IDR"
-                              }, // total semua item
-                              "shippingAmount": {
-                                "value": "0",
-                                "currency": "IDR"
+                              }, // value grandtotal idr
+                              "amountDetail": {
+                                "basicAmount": {
+                                  "value": grandTotal,
+                                  "currency": "IDR"
+                                }, // total semua item
+                                "shippingAmount": {
+                                  "value": "0",
+                                  "currency": "IDR"
+                                }
+                              },
+                              "PayMethod": "QRIS", // constant
+                              "commissionPercentage": "0",
+                              "expireInSecond": "3600",
+                              "feeType": "on_buyer",
+                              "apiSource": "topup_deposit",
+                              "additionalInfo": {
+                                "email": "testabc@gmail.com",
+                                "notes": "desc",
+                                "description": "description",
+                                "phoneNumber": "+6285270427851",
+                                "imageUrl": "a",
+                                "fullname": "Tester 213@"
                               }
-                            },
-                            "PayMethod": "QRIS", // constant
-                            "commissionPercentage": "0",
-                            "expireInSecond": "3600",
-                            "feeType": "on_buyer",
-                            "apiSource": "topup_deposit",
-                            "additionalInfo": {
-                              "email": "testabc@gmail.com",
-                              "notes": "desc",
-                              "description": "description",
-                              "phoneNumber": "+6285270427851",
-                              "imageUrl": "a",
-                              "fullname": "Tester 213@"
-                            }
-                          };
-                          final serviceSignature =
-                              await GetIt.instance<NetzmeApi>()
-                                  .createSignatureService(
-                                      url,
-                                      clientKey,
-                                      clientSecret,
-                                      privateKey,
-                                      accessToken,
-                                      bodyDetail);
-                          dev.log(serviceSignature);
-                          final transactionQris =
-                              await GetIt.instance<NetzmeApi>()
-                                  .createTransactionQRIS(
-                                      url,
-                                      clientKey,
-                                      clientSecret,
-                                      privateKey,
-                                      serviceSignature,
-                                      bodyDetail);
-                          dev.log("$transactionQris");
+                            };
+                            final serviceSignature =
+                                await GetIt.instance<NetzmeApi>()
+                                    .createSignatureService(
+                                        url,
+                                        clientKey,
+                                        clientSecret,
+                                        privateKey,
+                                        accessToken,
+                                        bodyDetail);
+                            dev.log(serviceSignature);
+                            final transactionQris =
+                                await GetIt.instance<NetzmeApi>()
+                                    .createTransactionQRIS(
+                                        url,
+                                        clientKey,
+                                        clientSecret,
+                                        privateKey,
+                                        serviceSignature,
+                                        bodyDetail);
+                            dev.log("$transactionQris");
 
-                          final ReceiptEntity receipt =
-                              context.read<ReceiptCubit>().state;
+                            final ReceiptEntity receipt =
+                                context.read<ReceiptCubit>().state;
 
-                          GetIt.instance<SaveReceiptUseCase>()
-                              .call(params: receipt);
+                            GetIt.instance<SaveReceiptUseCase>()
+                                .call(params: receipt);
 
-                          dev.log("receipt - $receipt");
+                            dev.log("receipt - $receipt");
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  WebViewApp(url: transactionQris),
-                            ),
-                          );
-                          // if qris payment success, go
-                          // context.read<ReceiptCubit>().charge();
-                          // Future.delayed(Duration(milliseconds: 600), () {
-                          //   setState(() {
-                          //     isCharged = true;
-                          //   });
-                          // });
-                        } else {
-                          context.read<ReceiptCubit>().charge();
-                          Future.delayed(Duration(milliseconds: 600), () {
-                            setState(() {
-                              isCharged = true;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    WebViewApp(url: transactionQris),
+                              ),
+                            );
+                            // if qris payment success, go
+                            // context.read<ReceiptCubit>().charge();
+                            // Future.delayed(Duration(milliseconds: 600), () {
+                            //   setState(() {
+                            //     isCharged = true;
+                            //   });
+                            // });
+                          } else {
+                            context.read<ReceiptCubit>().charge();
+                            Future.delayed(Duration(milliseconds: 600), () {
+                              setState(() {
+                                isCharged = true;
+                              });
                             });
-                          });
+                          }
+                        } catch (e, s) {
+                          print(e);
+                          debugPrintStack(stackTrace: s);
                         }
-                      } catch (e, s) {
-                        print(e);
-                        debugPrintStack(stackTrace: s);
-                      }
-                    },
-                    child: const Center(
-                        child: Text(
-                      "Charge",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                  )),
+                      },
+                      child: const Center(
+                          child: Text(
+                        "Charge",
+                        style: TextStyle(color: Colors.white),
+                      )),
+                    )
+                  ])),
                 ],
               ),
             ],
