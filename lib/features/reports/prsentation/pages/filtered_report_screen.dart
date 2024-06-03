@@ -63,8 +63,6 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: ProjectColors.primary)),
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.13,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -242,40 +240,22 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                             Row(
                               children: [
                                 SizedBox(
-                                  width: 100,
-                                  height: 30,
-                                  child: Text(
-                                    "Search",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                  height: 30,
-                                  child: Text(
-                                    ":",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 300,
+                                  width: 420,
                                   height: 30,
                                   child: TextField(
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       contentPadding: EdgeInsets.symmetric(
                                           vertical: 0, horizontal: 8),
                                       border: OutlineInputBorder(),
-                                      hintText: 'Enter search term',
+                                      hintText: 'Search...',
+                                      hintStyle: TextStyle(
+                                        color: ProjectColors.mediumBlack,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        fontStyle: FontStyle.italic,
+                                      ),
                                     ),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: ProjectColors.mediumBlack,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,

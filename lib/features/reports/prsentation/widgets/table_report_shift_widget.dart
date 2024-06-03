@@ -51,20 +51,22 @@ class _TableReportShiftState extends State<TableReportShift> {
 
     if (fetchedInvoice != null) {
       final List<Future<CashierBalanceTransactionModel?>> invFetched =
-          fetchedInvoice.map((shift) async {
+          fetchedInvoice.map((invoice) async {
         return await GetIt.instance<AppDatabase>()
             .cashierBalanceTransactionDao
-            .readByDocId(shift.tcsr1Id!, null);
-      }).toList();
-
-      final List<Future<UserModel?>> userFetched =
-          fetchedInvoice.map((shift) async {
-        return await GetIt.instance<AppDatabase>()
-            .userDao
-            .readByDocId(shift.tcsr1Id!, null);
+            .readByDocId(invoice.tcsr1Id!, null);
       }).toList();
 
       tcsr1Data = await Future.wait(invFetched);
+
+      final List<Future<UserModel?>> userFetched = tcsr1Data.map((shift) async {
+        if (shift != null) {
+          return await GetIt.instance<AppDatabase>()
+              .userDao
+              .readByDocId(shift.tousrId!, null);
+        }
+      }).toList();
+
       userData = await Future.wait(userFetched);
       log("$userData");
 
