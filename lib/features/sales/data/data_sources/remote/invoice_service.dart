@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,8 +46,6 @@ class InvoiceApi {
           .vouchersSelectionDao
           .readBytinv2Id(payMean[0].docId.toString(), txn: null);
       log("$vouchers");
-
-      // List<Map<String, dynamic>> invoiceVouchers = [];
 
       List<Map<String, dynamic>> invoicePayments = [];
       for (var payment in payMean) {
@@ -98,6 +97,7 @@ class InvoiceApi {
         "totalpayment": invHead[0].totalPayment.toInt(),
         "tocsr_id": invHead[0].tocsrId,
         "toinv_tohem_id": invHead[0].toinvTohemId,
+        "refpos1": invHead[0].refpos1,
         "invoice_item": invDet.map((item) {
           return {
             "docnum": item.docNum,
@@ -156,6 +156,7 @@ class InvoiceApi {
           },
         ),
       );
+      log("response - $response");
 
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         log("Success Post");
@@ -189,10 +190,13 @@ class InvoiceApi {
           sync: invHead[0].sync,
           syncCRM: invHead[0].syncCRM,
           toinvTohemId: invHead[0].toinvTohemId,
+          refpos1: invHead[0].refpos1,
+          refpos2: invHead[0].refpos2,
           tcsr1Id: invHead[0].tcsr1Id,
           discHeaderManual: invHead[0].discHeaderManual,
           discHeaderPromo: invHead[0].discHeaderPromo,
-          syncToBos: 1,
+          syncToBos: response.data['docid'],
+          paymentSuccess: invHead[0].paymentSuccess,
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
@@ -200,6 +204,187 @@ class InvoiceApi {
               data: invHeaderSuccess,
             );
       }
+    } catch (err) {
+      handleError(err);
+      rethrow;
+    }
+  }
+
+  Future<void> sendFailedInvoice(
+      InvoiceHeaderModel invHead, List<InvoiceDetailModel> invDet) async {
+    try {
+      log("SEND FAILED INVOICE SERVICE");
+      token = prefs.getString('adminToken');
+      List<POSParameterModel> pos =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      url = pos[0].baseUrl;
+
+      final payMean = await GetIt.instance<AppDatabase>()
+          .payMeansDao
+          .readByToinvId(invHead.docId.toString(), null);
+      log(payMean.toString());
+
+      final vouchers = await GetIt.instance<AppDatabase>()
+          .vouchersSelectionDao
+          .readBytinv2Id(payMean[0].docId.toString(), txn: null);
+      log("$vouchers");
+
+      List<Map<String, dynamic>> invoicePayments = [];
+      for (var payment in payMean) {
+        if (payment.tpmt3Id == "07be062c-1b8c-41fd-a16c-9f3d6b228c66") {
+          invoicePayments
+              .add({"tpmt3_id": payment.tpmt3Id, "amount": payment.amount});
+        } else if (payment.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
+          invoicePayments.add({
+            "tpmt3_id": payment.tpmt3Id,
+            "amount": payment.amount,
+            "sisavoucher": 0,
+            "invoice_voucher": [
+              {
+                "serialno":
+                    vouchers.map((voucher) => voucher.serialNo).toList(),
+                "type": 1
+              }
+            ]
+          });
+        }
+      }
+
+      final dataToSend = {
+        "tostr_id": invHead.tostrId,
+        "docnum": invHead.docnum,
+        "orderno": invHead.orderNo,
+        "tocus_id": invHead.tocusId,
+        "tohem_id": invHead.tohemId,
+        "transdate": invHead.transDateTime!.toUtc().toIso8601String(),
+        "transtime": invHead.transDateTime!.toUtc().toIso8601String(),
+        "timezone": invHead.timezone,
+        "remarks": invHead.remarks ?? "",
+        "subtotal": invHead.subTotal.toInt(),
+        "discprctg": invHead.discPrctg,
+        "discamount": invHead.discAmount,
+        "discountcard": invHead.discountCard,
+        "coupon": invHead.coupon,
+        "discountcoupon": invHead.discountCoupun,
+        "taxprctg": invHead.taxPrctg,
+        "taxamount": double.parse(invHead.taxAmount.toStringAsFixed(2)),
+        // "taxamount": 0,
+        "addcost": invHead.addCost,
+        "rounding": invHead.rounding,
+        "grandtotal": invHead.grandTotal.toInt(),
+        "changed": invHead.changed,
+        "totalpayment": invHead.totalPayment.toInt(),
+        "tocsr_id": invHead.tocsrId,
+        "toinv_tohem_id": invHead.toinvTohemId,
+        "refpos1": invHead.refpos1,
+        "invoice_item": invDet.map((item) {
+          return {
+            "docnum": item.docNum,
+            "idnumber": item.idNumber,
+            "toitm_id": item.toitmId,
+            "quantity": item.quantity,
+            "sellingprice": item.sellingPrice.toInt(),
+            "discprctg": item.discPrctg,
+            "discamount": item.discAmount,
+            "totalamount": item.totalAmount.toInt(),
+            "taxprctg": item.taxPrctg,
+            "promotiontype": item.promotionType,
+            "promotionid": item.promotionId,
+            "remarks": item.remarks ?? "",
+            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(item.editTime),
+            "cogs": item.cogs,
+            "tovat_id": item.tovatId,
+            "promotiontingkat": item.promotionTingkat ?? "",
+            "promovoucherno": item.promoVoucherNo ?? "",
+            "includetax": item.includeTax,
+            "toven_id": item.tovenId,
+            "tbitm_id": item.tbitmId,
+            "qtybarcode": 0.0,
+            "sellpricebarcode": 0.0,
+            "totalsellbarcode": 0.0,
+            "disc1pct": 0.0,
+            "disc1amt": 0.0,
+            "disc2pct": 0.0,
+            "disc2amt": 0.0,
+            "disc3pct": 0.0,
+            "disc3amt": 0.0,
+            "disc1pctbarcode": 0.0,
+            "disc1amtbarcode": 0.0,
+            "disc2pctbarcode": 0.0,
+            "disc2amtbarcode": 0.0,
+            "disc3pctbarcode": 0.0,
+            "disc3amtbarcode": 0.0,
+            "totaldiscbarcode": 0.0,
+            "qtyconv": 0.0,
+            "discprctgmember": 0.0,
+            "discamountmember": 0.0
+          };
+        }).toList(),
+        "invoice_payment": invoicePayments
+      };
+
+      log("Data2Send: $dataToSend");
+
+      if (invHead.paymentSuccess == '1') {
+        Response response = await _dio.post(
+          "$url/tenant-invoice/",
+          data: dataToSend,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          ),
+        );
+        log("response - $response");
+
+        if (response.statusCode! >= 200 && response.statusCode! < 300) {
+          log("Success Post");
+          final invHeaderSuccess = InvoiceHeaderModel(
+            docId: invHead.docId,
+            createDate: invHead.createDate,
+            updateDate: invHead.updateDate,
+            tostrId: invHead.tostrId,
+            docnum: invHead.docnum,
+            orderNo: invHead.orderNo,
+            tocusId: invHead.tocusId,
+            tohemId: invHead.tohemId,
+            transDateTime: invHead.transDateTime,
+            timezone: invHead.timezone,
+            remarks: invHead.remarks,
+            subTotal: invHead.subTotal,
+            discPrctg: invHead.discPrctg,
+            discAmount: invHead.discAmount,
+            discountCard: invHead.discountCard,
+            coupon: invHead.coupon,
+            discountCoupun: invHead.discountCoupun,
+            taxPrctg: invHead.taxPrctg,
+            taxAmount: invHead.taxAmount,
+            addCost: invHead.addCost,
+            rounding: invHead.rounding,
+            grandTotal: invHead.grandTotal,
+            changed: invHead.changed,
+            totalPayment: invHead.totalPayment,
+            tocsrId: invHead.tocsrId,
+            docStatus: invHead.docStatus,
+            sync: invHead.sync,
+            syncCRM: invHead.syncCRM,
+            toinvTohemId: invHead.toinvTohemId,
+            refpos1: invHead.refpos1,
+            refpos2: invHead.refpos2,
+            tcsr1Id: invHead.tcsr1Id,
+            discHeaderManual: invHead.discHeaderManual,
+            discHeaderPromo: invHead.discHeaderPromo,
+            syncToBos: response.data['docid'],
+            paymentSuccess: invHead.paymentSuccess,
+          );
+          await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
+                docId: invHead.docId!,
+                data: invHeaderSuccess,
+              );
+        }
+      }
+      // handle payment == 0
     } catch (err) {
       handleError(err);
       rethrow;

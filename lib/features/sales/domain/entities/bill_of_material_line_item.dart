@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class BillOfMaterialLineItemEntity {
   final String docId;
@@ -8,9 +9,9 @@ class BillOfMaterialLineItemEntity {
   final String? toittId;
   final String? toitmId;
   final double quantity;
-  final String? touomId;
   final String? tcurrId;
   final double price;
+  final String form;
 
   BillOfMaterialLineItemEntity({
     required this.docId,
@@ -19,9 +20,9 @@ class BillOfMaterialLineItemEntity {
     required this.toittId,
     required this.toitmId,
     required this.quantity,
-    required this.touomId,
     required this.tcurrId,
     required this.price,
+    required this.form,
   });
 
   BillOfMaterialLineItemEntity copyWith({
@@ -31,9 +32,9 @@ class BillOfMaterialLineItemEntity {
     String? toittId,
     String? toitmId,
     double? quantity,
-    String? touomId,
     String? tcurrId,
     double? price,
+    String? form,
   }) {
     return BillOfMaterialLineItemEntity(
       docId: docId ?? this.docId,
@@ -42,9 +43,9 @@ class BillOfMaterialLineItemEntity {
       toittId: toittId ?? this.toittId,
       toitmId: toitmId ?? this.toitmId,
       quantity: quantity ?? this.quantity,
-      touomId: touomId ?? this.touomId,
       tcurrId: tcurrId ?? this.tcurrId,
       price: price ?? this.price,
+      form: form ?? this.form,
     );
   }
 
@@ -56,9 +57,9 @@ class BillOfMaterialLineItemEntity {
       'toittId': toittId,
       'toitmId': toitmId,
       'quantity': quantity,
-      'touomId': touomId,
       'tcurrId': tcurrId,
       'price': price,
+      'form': form,
     };
   }
 
@@ -72,9 +73,9 @@ class BillOfMaterialLineItemEntity {
       toittId: map['toittId'] != null ? map['toittId'] as String : null,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       quantity: map['quantity'] as double,
-      touomId: map['touomId'] != null ? map['touomId'] as String : null,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       price: map['price'] as double,
+      form: map['form'] as String,
     );
   }
 
@@ -86,7 +87,7 @@ class BillOfMaterialLineItemEntity {
 
   @override
   String toString() {
-    return 'BillOfMaterialLineItemEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toittId: $toittId, toitmId: $toitmId, quantity: $quantity, touomId: $touomId, tcurrId: $tcurrId, price: $price)';
+    return 'BillOfMaterialLineItemEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toittId: $toittId, toitmId: $toitmId, quantity: $quantity, tcurrId: $tcurrId, price: $price, form: $form)';
   }
 
   @override
@@ -99,9 +100,9 @@ class BillOfMaterialLineItemEntity {
         other.toittId == toittId &&
         other.toitmId == toitmId &&
         other.quantity == quantity &&
-        other.touomId == touomId &&
         other.tcurrId == tcurrId &&
-        other.price == price;
+        other.price == price &&
+        other.form == form;
   }
 
   @override
@@ -112,8 +113,8 @@ class BillOfMaterialLineItemEntity {
         toittId.hashCode ^
         toitmId.hashCode ^
         quantity.hashCode ^
-        touomId.hashCode ^
         tcurrId.hashCode ^
-        price.hashCode;
+        price.hashCode ^
+        form.hashCode;
   }
 }

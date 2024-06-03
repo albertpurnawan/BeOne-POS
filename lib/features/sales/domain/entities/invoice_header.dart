@@ -32,23 +32,26 @@ class InvoiceHeaderEntity {
   final int sync;
   final int syncCRM;
   final String? toinvTohemId;
+  final String? refpos1;
+  final String? refpos2;
   final String? tcsr1Id;
   final double? discHeaderManual;
   final double? discHeaderPromo;
-  final int syncToBos;
+  final String? syncToBos;
+  final String? paymentSuccess;
 
   InvoiceHeaderEntity({
-    this.docId,
-    this.createDate,
-    this.updateDate,
-    this.tostrId,
+    required this.docId,
+    required this.createDate,
+    required this.updateDate,
+    required this.tostrId,
     required this.docnum,
     required this.orderNo,
-    this.tocusId,
-    this.tohemId,
-    this.transDateTime,
+    required this.tocusId,
+    required this.tohemId,
+    required this.transDateTime,
     required this.timezone,
-    this.remarks,
+    required this.remarks,
     required this.subTotal,
     required this.discPrctg,
     required this.discAmount,
@@ -62,15 +65,18 @@ class InvoiceHeaderEntity {
     required this.grandTotal,
     required this.changed,
     required this.totalPayment,
-    this.tocsrId,
+    required this.tocsrId,
     required this.docStatus,
     required this.sync,
     required this.syncCRM,
-    this.toinvTohemId,
-    this.tcsr1Id,
-    this.discHeaderManual,
-    this.discHeaderPromo,
+    required this.toinvTohemId,
+    required this.refpos1,
+    required this.refpos2,
+    required this.tcsr1Id,
+    required this.discHeaderManual,
+    required this.discHeaderPromo,
     required this.syncToBos,
+    required this.paymentSuccess,
   });
 
   InvoiceHeaderEntity copyWith({
@@ -103,10 +109,13 @@ class InvoiceHeaderEntity {
     int? sync,
     int? syncCRM,
     String? toinvTohemId,
+    String? refpos1,
+    String? refpos2,
     String? tcsr1Id,
     double? discHeaderManual,
     double? discHeaderPromo,
-    int? syncToBos,
+    String? syncToBos,
+    String? paymentSuccess,
   }) {
     return InvoiceHeaderEntity(
       docId: docId ?? this.docId,
@@ -138,10 +147,13 @@ class InvoiceHeaderEntity {
       sync: sync ?? this.sync,
       syncCRM: syncCRM ?? this.syncCRM,
       toinvTohemId: toinvTohemId ?? this.toinvTohemId,
+      refpos1: refpos1 ?? this.refpos1,
+      refpos2: refpos2 ?? this.refpos2,
       tcsr1Id: tcsr1Id ?? this.tcsr1Id,
       discHeaderManual: discHeaderManual ?? this.discHeaderManual,
       discHeaderPromo: discHeaderPromo ?? this.discHeaderPromo,
       syncToBos: syncToBos ?? this.syncToBos,
+      paymentSuccess: paymentSuccess ?? this.paymentSuccess,
     );
   }
 
@@ -176,10 +188,13 @@ class InvoiceHeaderEntity {
       'sync': sync,
       'syncCRM': syncCRM,
       'toinvTohemId': toinvTohemId,
+      'refpos1': refpos1,
+      'refpos2': refpos2,
       'tcsr1Id': tcsr1Id,
       'discHeaderManual': discHeaderManual,
       'discHeaderPromo': discHeaderPromo,
       'syncToBos': syncToBos,
+      'paymentSuccess': paymentSuccess,
     };
   }
 
@@ -221,6 +236,8 @@ class InvoiceHeaderEntity {
       syncCRM: map['syncCRM'] as int,
       toinvTohemId:
           map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
       discHeaderManual: map['discHeaderManual'] != null
           ? map['discHeaderManual'] as double
@@ -228,7 +245,10 @@ class InvoiceHeaderEntity {
       discHeaderPromo: map['discHeaderPromo'] != null
           ? map['discHeaderPromo'] as double
           : null,
-      syncToBos: map['syncToBos'] as int,
+      syncToBos: map['syncToBos'] != null ? map['syncToBos'] as String : null,
+      paymentSuccess: map['paymentSuccess'] != null
+          ? map['paymentSuccess'] as String
+          : null,
     );
   }
 
@@ -239,7 +259,7 @@ class InvoiceHeaderEntity {
 
   @override
   String toString() {
-    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDateTime: $transDateTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, tcsr1Id: $tcsr1Id, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, syncToBos: $syncToBos)';
+    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDateTime: $transDateTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, refpos1: $refpos1, refpos2: $refpos2, tcsr1Id: $tcsr1Id, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, syncToBos: $syncToBos, paymentSuccess: $paymentSuccess)';
   }
 
   @override
@@ -275,10 +295,13 @@ class InvoiceHeaderEntity {
         other.sync == sync &&
         other.syncCRM == syncCRM &&
         other.toinvTohemId == toinvTohemId &&
+        other.refpos1 == refpos1 &&
+        other.refpos2 == refpos2 &&
         other.tcsr1Id == tcsr1Id &&
         other.discHeaderManual == discHeaderManual &&
         other.discHeaderPromo == discHeaderPromo &&
-        other.syncToBos == syncToBos;
+        other.syncToBos == syncToBos &&
+        other.paymentSuccess == paymentSuccess;
   }
 
   @override
@@ -312,9 +335,12 @@ class InvoiceHeaderEntity {
         sync.hashCode ^
         syncCRM.hashCode ^
         toinvTohemId.hashCode ^
+        refpos1.hashCode ^
+        refpos2.hashCode ^
         tcsr1Id.hashCode ^
         discHeaderManual.hashCode ^
         discHeaderPromo.hashCode ^
-        syncToBos.hashCode;
+        syncToBos.hashCode ^
+        paymentSuccess.hashCode;
   }
 }

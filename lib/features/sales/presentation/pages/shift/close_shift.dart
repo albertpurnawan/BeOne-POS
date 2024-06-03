@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -94,7 +92,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchActiveShift() async {
-    log("shiftId $shiftId");
     final shift = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .readByDocId(shiftId, null);
@@ -404,7 +401,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomButton(
                 child: const Text("End Shift"),
-                onTap: () async {
+                onTap: () {
                   if (activeShift != null) {
                     final CashierBalanceTransactionModel shift =
                         CashierBalanceTransactionModel(

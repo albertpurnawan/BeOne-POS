@@ -4,6 +4,7 @@ import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
+import 'package:pos_fe/features/reports/prsentation/pages/filtered_report_screen.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:pos_fe/features/settings/presentation/pages/settings.dart';
@@ -74,6 +75,14 @@ class AppRouter {
         path: "/shifts",
         pageBuilder: (context, state) {
           return const MaterialPage(child: ShiftsList());
+        },
+      ),
+      GoRoute(
+        name: RouteConstants.reports,
+        path: "/reports",
+        pageBuilder: (context, state) {
+          return const MaterialPage(
+              child: FiltereReportScreen()); // edit to dashboard
         },
       ),
     ],

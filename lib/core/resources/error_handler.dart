@@ -1,4 +1,3 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 
@@ -8,15 +7,15 @@ class ErrorHandler {
       content: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.error,
             color: ProjectColors.primary,
           ),
-          SizedBox(
+          const SizedBox(
             width: 10,
           ),
           Text(message,
-              style: TextStyle(
+              style: const TextStyle(
                   color: ProjectColors.primary, fontWeight: FontWeight.w700)),
         ],
       ),
@@ -32,7 +31,7 @@ class ErrorHandler {
         MediaQuery.of(context).size.height - 100,
       ),
       shape: RoundedRectangleBorder(
-          side: BorderSide(color: ProjectColors.primary, width: 1),
+          side: const BorderSide(color: ProjectColors.primary, width: 1),
           borderRadius: BorderRadius.circular(5)),
     ));
   }

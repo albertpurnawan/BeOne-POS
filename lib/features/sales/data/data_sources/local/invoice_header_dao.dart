@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
-import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -80,5 +79,22 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
         res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
 
     return invoices;
+  }
+
+  Future<List<InvoiceHeaderModel>?> readBetweenDate(
+      DateTime start, DateTime end) async {
+    final startDate = start.toUtc().toIso8601String();
+    final endDate = end.toUtc().toIso8601String();
+
+    final result = await db.query(
+      tableName,
+      where: 'createdat BETWEEN ? AND ?',
+      whereArgs: [startDate, endDate],
+    );
+
+    final transactions =
+        result.map((map) => InvoiceHeaderModel.fromMap(map)).toList();
+
+    return transactions;
   }
 }
