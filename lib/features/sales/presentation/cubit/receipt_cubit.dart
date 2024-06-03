@@ -1,13 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer' as dev;
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
@@ -26,6 +24,7 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
@@ -50,7 +49,6 @@ import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_promo_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promo_get_y_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'receipt_state.dart';
 
@@ -76,6 +74,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetPosParameterUseCase _getPosParameterUseCase;
   final GetStoreMasterUseCase _getStoreMasterUseCase;
   final GetCashRegisterUseCase _getCashRegisterUseCase;
+  final ApplyRoundingUseCase _applyRoundingUseCase;
 
   ReceiptCubit(
     this._getItemByBarcodeUseCase,
@@ -99,6 +98,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._getPosParameterUseCase,
     this._getStoreMasterUseCase,
     this._getCashRegisterUseCase,
+    this._applyRoundingUseCase,
   ) : super(ReceiptEntity(
             docNum: "-",
             receiptItems: [],
@@ -126,10 +126,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Initialize some values
-      // if (state.receiptItems.isEmpty &&
-      //     state.customerEntity?.custCode != "99") {
-      //   await resetReceipt();
-      // }
+      if (state.receiptItems.isEmpty &&
+          state.customerEntity?.custCode != "99") {
+        await resetReceipt();
+      }
 
       // Declare variables
       final ItemEntity? itemEntity;
@@ -244,6 +244,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState = state.copyWith(
         mopSelection: mopSelectionEntity,
         totalPayment: amountReceived,
+        totalNonVoucher: mopSelectionEntity.amount,
         previousReceiptEntity: state.previousReceiptEntity);
     emit(newState);
   }
@@ -255,6 +256,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState = state.copyWith(
       vouchers: vouchersSelectionEntity,
       totalVoucher: vouchersAmount,
+      totalPayment: (state.mopSelection?.amount ?? 0) + vouchersAmount,
       previousReceiptEntity: state.previousReceiptEntity,
     );
 
@@ -315,7 +317,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  void charge() async {
+  Future<void> charge() async {
     final newState =
         state.copyWith(changed: state.totalPayment! - state.grandTotal);
 
@@ -333,12 +335,56 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             .deleteByDocId(newState.queuedInvoiceHeaderDocId!, null);
       }
       emit(createdReceipt);
+      dev.log("createdReceipt $createdReceipt");
       try {
         await _printReceiptUsecase.call(params: createdReceipt);
         await _openCashDrawerUseCase.call();
       } catch (e) {
         print(e);
       }
+      final invHead =
+          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
+      final invHeadSuccess = InvoiceHeaderModel(
+        docId: invHead[0].docId,
+        createDate: invHead[0].createDate,
+        updateDate: invHead[0].updateDate,
+        tostrId: invHead[0].tostrId,
+        docnum: invHead[0].docnum,
+        orderNo: invHead[0].orderNo,
+        tocusId: invHead[0].tocusId,
+        tohemId: invHead[0].tohemId,
+        transDateTime: invHead[0].transDateTime,
+        timezone: invHead[0].timezone,
+        remarks: invHead[0].remarks,
+        subTotal: invHead[0].subTotal,
+        discPrctg: invHead[0].discPrctg,
+        discAmount: invHead[0].discAmount,
+        discountCard: invHead[0].discountCard,
+        coupon: invHead[0].coupon,
+        discountCoupun: invHead[0].discountCoupun,
+        taxPrctg: invHead[0].taxPrctg,
+        taxAmount: invHead[0].taxAmount,
+        addCost: invHead[0].addCost,
+        rounding: invHead[0].rounding,
+        grandTotal: invHead[0].grandTotal,
+        changed: invHead[0].changed,
+        totalPayment: invHead[0].totalPayment,
+        tocsrId: invHead[0].tocsrId,
+        docStatus: invHead[0].docStatus,
+        sync: invHead[0].sync,
+        syncCRM: invHead[0].syncCRM,
+        tcsr1Id: invHead[0].tcsr1Id,
+        toinvTohemId: invHead[0].toinvTohemId,
+        refpos1: invHead[0].refpos1,
+        refpos2: invHead[0].refpos2,
+        discHeaderManual: invHead[0].discHeaderManual,
+        discHeaderPromo: invHead[0].discHeaderPromo,
+        syncToBos: invHead[0].syncToBos,
+        paymentSuccess: '1',
+      );
+      await GetIt.instance<AppDatabase>()
+          .invoiceHeaderDao
+          .update(docId: invHead[0].docId!, data: invHeadSuccess);
       await GetIt.instance<InvoiceApi>().sendInvoice();
     }
   }
@@ -437,7 +483,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     try {
       ReceiptEntity newReceipt = state.copyWith(
         receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
-      );
+        previousReceiptEntity: state.previousReceiptEntity,
+
+        // Reset MOP related fields
+        vouchers: [],
+        totalPayment: 0,
+        changed: 0,
+        totalVoucher: 0,
+        totalNonVoucher: 0,
+      )..mopSelection = null;
       List<String> skippedPromoIds = [];
 
       dev.log("First entry $newReceipt");
@@ -575,6 +629,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       dev.log("Process reapply discount header $newReceipt");
+
+      newReceipt = await _applyRoundingUseCase.call(params: newReceipt);
+
       dev.log("To emit ${newReceipt.copyWith(
         previousReceiptEntity: state.copyWith(
             receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
@@ -588,9 +645,36 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                     state.receiptItems.map((e) => e.copyWith()).toList(),
                 previousReceiptEntity: null),
       ));
+      return;
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<void> resetMopAndVoucher() async {
+    emit(
+      state.copyWith(
+        previousReceiptEntity: state.previousReceiptEntity,
+        vouchers: [],
+        totalPayment: 0,
+        changed: 0,
+        totalVoucher: 0,
+        totalNonVoucher: 0,
+      )..mopSelection = null,
+    );
+    return;
+  }
+
+  Future<void> resetMop() async {
+    emit(
+      state.copyWith(
+        previousReceiptEntity: state.previousReceiptEntity,
+        totalPayment: state.totalVoucher?.toDouble() ?? 0,
+        changed: 0,
+        totalNonVoucher: 0,
+      )..mopSelection = null,
+    );
+    return;
   }
 }
 

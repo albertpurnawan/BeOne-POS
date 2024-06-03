@@ -36,10 +36,13 @@ class InvoiceHeaderFields {
     sync,
     syncCRM,
     toinvTohemId,
+    refpos1,
+    refpos2,
     tcsr1Id,
     discHeaderManual,
     discHeaderPromo,
     syncToBos,
+    paymentSuccess,
   ];
 
   static const String docId = "docid";
@@ -71,11 +74,14 @@ class InvoiceHeaderFields {
   static const String docStatus = "docstatus";
   static const String sync = "sync";
   static const String syncCRM = "synccrm";
-  static const String toinvTohemId = "toinvTohemId";
   static const String tcsr1Id = "tcsr1Id";
+  static const String toinvTohemId = "toinvTohemId";
+  static const String refpos1 = "refpos1";
+  static const String refpos2 = "refpos2";
   static const String discHeaderManual = "discheadermanual";
   static const String discHeaderPromo = "discheaderpromo";
   static const String syncToBos = "synctobos";
+  static const String paymentSuccess = "paymentsuccess";
 }
 
 class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
@@ -108,11 +114,14 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
     required super.docStatus,
     required super.sync,
     required super.syncCRM,
-    required super.toinvTohemId,
     required super.tcsr1Id,
+    required super.toinvTohemId,
+    required super.refpos1,
+    required super.refpos2,
     required super.discHeaderManual,
     required super.discHeaderPromo,
     required super.syncToBos,
+    required super.paymentSuccess,
   });
 
   @override
@@ -145,11 +154,14 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'docstatus': docStatus,
       'sync': sync,
       'synccrm': syncCRM,
-      'toinvTohemId': toinvTohemId,
       'tcsr1Id': tcsr1Id,
+      'toinvTohemId': toinvTohemId,
+      'refpos1': refpos1,
+      'refpos2': refpos2,
       'discheadermanual': discHeaderManual,
       'discheaderpromo': discHeaderPromo,
       'synctobos': syncToBos,
+      'paymentsuccess': paymentSuccess,
     };
     if (transDateTime == null) {
       return map;
@@ -200,6 +212,8 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       syncCRM: map['synccrm'] as int,
       toinvTohemId:
           map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
       discHeaderManual: map['discheadermanual'] != null
           ? map['discheadermanual'] as double
@@ -207,7 +221,10 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       discHeaderPromo: map['discheaderpromo'] != null
           ? map['discheaderpromo'] as double
           : null,
-      syncToBos: map['synctobos'] as int,
+      syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
+      paymentSuccess: map['paymentsuccess'] != null
+          ? map['paymentsuccess'] as String
+          : null,
     );
   }
 
@@ -275,10 +292,13 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       sync: entity.sync,
       syncCRM: entity.syncCRM,
       toinvTohemId: entity.toinvTohemId,
+      refpos1: entity.refpos1,
+      refpos2: entity.refpos2,
       tcsr1Id: entity.tcsr1Id,
       discHeaderManual: entity.discHeaderManual,
       discHeaderPromo: entity.discHeaderPromo,
       syncToBos: entity.syncToBos,
+      paymentSuccess: entity.paymentSuccess,
     );
   }
 }

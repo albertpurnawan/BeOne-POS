@@ -28,6 +28,7 @@ class PromoDiskonGroupItemCustomerGroupApi {
 
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
@@ -49,13 +50,11 @@ class PromoDiskonGroupItemCustomerGroupApi {
           };
         }
       }
-
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-
       if (resp.data['data'].isNotEmpty) {
         log("--- PROMO DISKON GROUP ITEM - CUSTOMER GROUP ---");
         log(resp.data['data'][0].toString());

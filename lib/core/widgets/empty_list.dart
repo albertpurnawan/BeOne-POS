@@ -8,10 +8,12 @@ class EmptyList extends StatelessWidget {
     Key? key,
     required this.imagePath,
     required this.sentence,
+    this.height,
   }) : super(key: key);
 
   final String imagePath;
   final String sentence;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class EmptyList extends StatelessWidget {
                 child: SvgPicture.asset(imagePath, height: 120),
               )
             else
-              SvgPicture.asset(imagePath, height: 150),
+              SvgPicture.asset(imagePath, height: height ?? 150),
             const SizedBox(height: kIsWeb ? 20 : 10),
             Text(sentence,
                 textAlign: TextAlign.center,

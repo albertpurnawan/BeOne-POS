@@ -222,7 +222,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Color.fromARGB(255, 255, 255, 255)),
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
-                          onPressed: () {},
+                          onPressed: () {
+                            context.pushNamed(RouteConstants.reports);
+                          },
                           child: const Text(
                             "Reports",
                             textAlign: TextAlign.center,

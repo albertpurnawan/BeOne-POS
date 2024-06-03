@@ -1,0 +1,72 @@
+PODS:
+  - Flutter (1.0.0)
+  - network_info_plus (0.0.1):
+    - Flutter
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - sqflite (0.0.3):
+    - Flutter
+    - FlutterMacOS
+  - sqlite3 (3.45.1):
+    - sqlite3/common (= 3.45.1)
+  - sqlite3/common (3.45.1)
+  - sqlite3/fts5 (3.45.1):
+    - sqlite3/common
+  - sqlite3/perf-threadsafe (3.45.1):
+    - sqlite3/common
+  - sqlite3/rtree (3.45.1):
+    - sqlite3/common
+  - sqlite3_flutter_libs (0.0.1):
+    - Flutter
+    - sqlite3 (~> 3.45.1)
+    - sqlite3/fts5
+    - sqlite3/perf-threadsafe
+    - sqlite3/rtree
+  - thermal_printer (1.0.0):
+    - Flutter
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - sqflite (from `.symlinks/plugins/sqflite/darwin`)
+  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
+  - thermal_printer (from `.symlinks/plugins/thermal_printer/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
+
+SPEC REPOS:
+  trunk:
+    - sqlite3
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  network_info_plus:
+    :path: ".symlinks/plugins/network_info_plus/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/darwin"
+  sqlite3_flutter_libs:
+    :path: ".symlinks/plugins/sqlite3_flutter_libs/ios"
+  thermal_printer:
+    :path: ".symlinks/plugins/thermal_printer/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  network_info_plus: 6d0c3eb8367b8164fa3fb0c19875e3f59d49697f
+  shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
+  sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
+  sqlite3: 73b7fc691fdc43277614250e04d183740cb15078
+  sqlite3_flutter_libs: af0e8fe9bce48abddd1ffdbbf839db0302d72d80
+  thermal_printer: 1885c43c3f17b912ca2c29e7f44822dddc2c24b9
+  webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
+
+PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
+
+COCOAPODS: 1.14.3

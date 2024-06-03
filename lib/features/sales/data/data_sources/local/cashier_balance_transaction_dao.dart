@@ -75,4 +75,22 @@ class CashierBalanceTransactionDao
 
     return transactions;
   }
+
+  Future<List<CashierBalanceTransactionModel>?> readBetweenDate(
+      DateTime start, DateTime end) async {
+    final startDate = start.toUtc().toIso8601String();
+    final endDate = end.toUtc().toIso8601String();
+
+    final result = await db.query(
+      tableName,
+      where: 'createdat BETWEEN ? AND ?',
+      whereArgs: [startDate, endDate],
+    );
+
+    final transactions = result
+        .map((map) => CashierBalanceTransactionModel.fromMap(map))
+        .toList();
+
+    return transactions;
+  }
 }

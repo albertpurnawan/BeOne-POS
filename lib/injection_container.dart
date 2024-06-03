@@ -39,6 +39,7 @@ import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdg_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdi_applicability.dart';
@@ -80,6 +81,8 @@ import 'package:pos_fe/features/syncdata/data/data_sources/local/user_masters_da
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/authorization_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/bill_of_material_line_item_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/bill_of_material_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
@@ -247,6 +250,9 @@ Future<void> initializeDependencies() async {
       PromoBuyXGetYCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
+  sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
+  sl.registerSingleton<BillOfMaterialLineItemApi>(
+      BillOfMaterialLineItemApi(sl()));
 
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),
@@ -406,6 +412,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(
       () => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
+  sl.registerSingleton<ApplyRoundingUseCase>(ApplyRoundingUseCase());
 
   return;
 }

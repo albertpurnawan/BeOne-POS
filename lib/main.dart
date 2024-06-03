@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
@@ -29,8 +30,8 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
-import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
@@ -38,7 +39,6 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/syncdata/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
@@ -103,6 +103,7 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<GetPosParameterUseCase>(),
                       GetIt.instance<GetStoreMasterUseCase>(),
                       GetIt.instance<GetCashRegisterUseCase>(),
+                      GetIt.instance<ApplyRoundingUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(
                 create: (context) =>

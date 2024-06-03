@@ -11,6 +11,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,11 +81,6 @@ class _SettingsFormState extends State<SettingsForm> {
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String dflDate = "2000-01-01 00:00:00";
-
-  // needed to change
-  String emailAdmin = "interfacing@topgolf.com";
-  String passwordAdmin = "BeOne\$\$123";
-  // md5.convert(utf8.encode("BeOne\$\$123")).toString();
 
   @override
   void initState() {
@@ -214,10 +210,8 @@ class _SettingsFormState extends State<SettingsForm> {
                 try {
                   await prefs.clear();
 
-                  final hashedPass = md5
-                      // .convert(utf8.encode(passwordController.text))
-                      .convert(utf8.encode("BeOne\$\$123"))
-                      .toString();
+                  final hashedPass =
+                      md5.convert(utf8.encode("BeOne\$\$123")).toString();
 
                   final topos = POSParameterModel(
                     docId: const Uuid().v4(),
@@ -225,14 +219,13 @@ class _SettingsFormState extends State<SettingsForm> {
                     updateDate: DateTime.now(),
                     gtentId: gtentController.text,
                     tostrId: tostrController.text,
-                    storeName: "TopGolf's Store 01", //need to edit
+                    storeName: "",
                     tocsrId: tocsrController.text,
                     baseUrl: urlController.text,
                     usernameAdmin: emailController.text,
                     passwordAdmin: hashedPass,
                     lastSync: '2000-01-01 00:00:00',
                   );
-                  log(topos.toString());
 
                   await GetIt.instance<AppDatabase>()
                       .posParameterDao
@@ -245,8 +238,8 @@ class _SettingsFormState extends State<SettingsForm> {
                     tostrController.text,
                     tocsrController.text,
                     urlController.text,
-                    emailAdmin,
-                    passwordAdmin,
+                    emailController.text,
+                    hashedPass,
                     dflDate,
                   );
 
@@ -254,10 +247,30 @@ class _SettingsFormState extends State<SettingsForm> {
                       urlController.text,
                       emailController.text,
                       passwordController.text);
-                  log("token string");
-                  log(token.toString());
 
                   prefs.setString('adminToken', token.toString());
+
+                  final tntzm = [
+                    NetzmeModel(
+                        docId: const Uuid().v4(),
+                        url: "https://tokoapisnap-stg.netzme.com",
+                        clientKey: "pt_bak",
+                        clientSecret: "61272364208846ee9366dc204f81fce6",
+                        privateKey:
+                            "MIIBOgIBAAJBAMjxtB9QVz9KLCe5DAqJoLlz7e9ZhS5EE5YhC0E1F7+a14GLpm7mqcSN0alAmOK5DQZW4JufhzFmDpwB3a4+vskCAwEAAQJAfDYkcILaG64+0yMo1U6zwk9uEdkVYT8FmHS+n0Uxc+cqgs9UGb8uFoZmswGhs5HpfxpgEOckucwqi4SrgqXWMQIhAM4DOyj8SVCbvieRjOruhLjuh6S9wQmingB7A9+b58bVAiEA+bOjL0CothyHnfNgaY2IBT9TIO0FefTE1IfcukbH+iUCIHeyTOdNXlOlieB3owbFOvwwK0O+tLAieecRkniTnyFZAiA5uQsqKzpVDvdSziYlgHBHNkJTRDeV3714nAeskBw+eQIhAKkIuZjqXadPACYDNUXrfm5GGWZ2BKUjujJIZXjaRLnA",
+                        custIdMerchant: "M_b7uJH43W")
+                  ];
+                  final netz =
+                      await GetIt.instance<AppDatabase>().netzmeDao.readAll();
+                  if (netz.isEmpty) {
+                    await GetIt.instance<AppDatabase>()
+                        .netzmeDao
+                        .bulkCreate(data: tntzm);
+                  } else {
+                    await GetIt.instance<AppDatabase>()
+                        .netzmeDao
+                        .update(docId: netz[0].docId, data: netz[0]);
+                  }
 
                   Navigator.pop(context);
                 } catch (e, s) {

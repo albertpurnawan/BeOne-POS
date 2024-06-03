@@ -44,13 +44,14 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           (await _appDatabase.employeeDao.readByEmpCode("99", txn))!;
 
       final prefs = GetIt.instance<SharedPreferences>();
-      final tcsr1Id = prefs.getString('tcsr1Id');
+      final tcsr1IdPref = prefs.getString('tcsr1Id');
 
       double promosDiscountAmount = 0;
       for (final prm in receiptEntity.promos) {
         log("prm - ${prm.discAmount}");
         promosDiscountAmount += prm.discAmount ?? 0;
       }
+      log("HERE");
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -75,19 +76,22 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         taxPrctg: 0,
         taxAmount: receiptEntity.taxAmount,
         addCost: 0,
-        rounding: 0,
+        rounding: receiptEntity.rounding,
         grandTotal: receiptEntity.grandTotal,
-        changed: receiptEntity.changed!,
+        changed: (receiptEntity.totalPayment ?? 0) - receiptEntity.grandTotal,
         totalPayment: receiptEntity.totalPayment!,
         tocsrId: posParameterModel.tocsrId, // get di sini
         docStatus: 0,
         sync: 0,
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
-        tcsr1Id: tcsr1Id, // get di sini
+        refpos1: tcsr1IdPref, // get di sini
+        refpos2: '', //
+        tcsr1Id: tcsr1IdPref, // get di sini
         discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
-        syncToBos: 0, // get di sini
+        syncToBos: '', // get di sini
+        paymentSuccess: '0', // get di sini
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
@@ -199,6 +203,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           minPurchase: e.minPurchase,
           redeemDate: e.redeemDate,
           tinv2Id: e.tinv2Id,
+          type: e.type,
         );
       }).toList();
 
