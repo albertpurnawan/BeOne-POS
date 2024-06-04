@@ -90,7 +90,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       tbitmId: map['tbitmId'] as String,
       tpln2Id: map['tpln2Id'] as String,
       openPrice: map['openprice'] as int,
-      tovenId: map['tovenId'] as String,
+      tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       includeTax: map['includetax'] as int,
       tovatId: map['tovatId'] as String,
       taxRate: map['taxrate'] as double,

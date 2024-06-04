@@ -47,4 +47,20 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
         .map((itemData) => InvoiceDetailModel.fromMap(itemData))
         .toList();
   }
+
+  Future<List<dynamic>?> readByItemBetweenDate(
+      DateTime start, DateTime end) async {
+    final startDate = start.toUtc().toIso8601String();
+    final endDate = end.toUtc().toIso8601String();
+
+    final result = await db.rawQuery('''
+      SELECT d.toitmId, i.itemname, SUM(d.quantity) AS totalquantity, SUM(d.totalamount) AS totalamount
+      FROM $tableName AS d
+      INNER JOIN toitm AS i ON d.toitmId = i.docid
+      WHERE d.createdat BETWEEN ? AND ?
+      GROUP BY d.toitmId
+      ''', [startDate, endDate]);
+
+    return result;
+  }
 }

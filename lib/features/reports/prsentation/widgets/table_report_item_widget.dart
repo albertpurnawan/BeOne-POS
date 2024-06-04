@@ -1,13 +1,24 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 
 class TableReportItem extends StatefulWidget {
-  const TableReportItem({super.key});
+  final DateTime? fromDate;
+  final DateTime? toDate;
+  final String? searchQuery;
+
+  const TableReportItem({
+    Key? key,
+    this.fromDate,
+    this.toDate,
+    this.searchQuery,
+  }) : super(key: key);
 
   @override
   State<TableReportItem> createState() => _TableReportItemState();
@@ -15,8 +26,11 @@ class TableReportItem extends StatefulWidget {
 
 class _TableReportItemState extends State<TableReportItem> {
   final tableHead = ["No", "Item", "Description", "Quantity", "Amount"];
-  List<Map<String, dynamic>> shiftsWithUsers = [];
+  List<dynamic>? fetched;
+  List<dynamic>? fetchedInvHeader;
   bool isLoading = true;
+  List<ItemMasterModel?> toitmData = [];
+  List<UserModel?> userData = [];
 
   @override
   void initState() {
@@ -25,33 +39,55 @@ class _TableReportItemState extends State<TableReportItem> {
   }
 
   Future<void> _fetchData() async {
-    final fetchedShifts = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readAll();
-    List<Map<String, dynamic>> fetchedShiftsWithUsers = [];
-
-    for (var shift in fetchedShifts) {
-      final user = await GetIt.instance<AppDatabase>()
-          .userDao
-          .readByDocId(shift.tousrId!, null);
-      if (user != null) {
-        fetchedShiftsWithUsers.add({
-          'shift': shift,
-          'user': user,
-        });
-      }
+    if (widget.fromDate == null || widget.toDate == null) {
+      return;
     }
 
+    final fetchedTinv1 = await GetIt.instance<AppDatabase>()
+        .invoiceDetailDao
+        .readByItemBetweenDate(widget.fromDate!, widget.toDate!);
+    final fetchedToinv = await GetIt.instance<AppDatabase>()
+        .invoiceHeaderDao
+        .readBetweenDate(widget.fromDate!, widget.toDate!);
     setState(() {
-      shiftsWithUsers = fetchedShiftsWithUsers;
+      fetched = fetchedTinv1;
       isLoading = false;
     });
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
+    double totalAmount = 0.0;
+    double taxAmount = 0.0;
+    double totalDiscount = 0.0;
+    double totalRounding = 0.0;
+    double grandTotal = 0.0;
+
+    if (fetched != null) {
+      for (var item in fetched!) {
+        Map<String, dynamic> itemMap = item as Map<String, dynamic>;
+
+        double itemTotalAmount = item["totalamount"] as double;
+        double itemTaxAmount = item["taxamount"] as double;
+        double itemTotalDiscount = item["discamount"] as double;
+        double itemTotalRounding = item["rounding"] as double;
+        double itemGrandTotal = item["grandtotal"] as double;
+        // double itemTotalTax = itemMap["taxamount"] as double;
+
+        totalAmount += itemTotalAmount;
+        taxAmount += itemTaxAmount;
+        totalDiscount += itemTotalDiscount;
+        totalRounding += itemTotalRounding;
+        grandTotal += itemGrandTotal;
+        // taxAmount += itemTotalTax;
+        log("$itemMap - $itemTotalRounding");
+        log("totalRounding - $totalRounding");
+      }
+    }
+
     return isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
             child: Center(
               child: Column(
@@ -59,108 +95,462 @@ class _TableReportItemState extends State<TableReportItem> {
                   const Text(
                     "Report By Item",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(
-                    height: 4,
-                  ),
+                  const SizedBox(height: 4),
                   Table(
-                    border: TableBorder.all(
-                      color: ProjectColors.primary,
-                      width: 1,
-                    ),
+                    border:
+                        TableBorder.all(color: Colors.transparent, width: 1),
                     columnWidths: const {
-                      0: FixedColumnWidth(40),
+                      0: FixedColumnWidth(50),
                       1: FlexColumnWidth(100),
-                      2: FlexColumnWidth(100),
-                      3: FlexColumnWidth(100),
-                      4: FlexColumnWidth(100),
+                      2: FlexColumnWidth(150),
+                      3: FlexColumnWidth(50),
+                      4: FlexColumnWidth(50),
                     },
                     children: [
                       TableRow(
+                        decoration: BoxDecoration(color: ProjectColors.primary),
                         children: tableHead.map((header) {
                           return TableCell(
                             child: Container(
                               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-                              child: Text(
-                                header,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: ProjectColors.primary,
-                                ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    header,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );
                         }).toList(),
                       ),
-                      ...shiftsWithUsers.asMap().entries.map((entry) {
-                        final index = entry.key + 1;
-                        final shift = entry.value['shift']
-                            as CashierBalanceTransactionModel;
-                        final user = entry.value['user'] as UserModel;
+                      ...fetched!.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        final isLastRow = index == fetched!.length - 1;
+                        final itemId = item['toitmId'];
+                        final itemName = item['itemname'];
+                        final quantity = item['totalquantity'];
+                        final totalAmount = item['totalamount'];
+
                         return TableRow(
                           children: [
                             TableCell(
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  index.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 18,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: isLastRow
+                                        ? const BorderSide(
+                                            color: ProjectColors.primary,
+                                            width: 2.0)
+                                        : BorderSide.none,
                                   ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      (index + 1).toString(),
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                             TableCell(
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  Helpers.formatDate(shift.openDate),
-                                  style: const TextStyle(
-                                    fontSize: 18,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: isLastRow
+                                        ? const BorderSide(
+                                            color: ProjectColors.primary,
+                                            width: 2.0)
+                                        : BorderSide.none,
                                   ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      itemId,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                             TableCell(
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  shift.docNum,
-                                  style: const TextStyle(
-                                    fontSize: 18,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: isLastRow
+                                        ? const BorderSide(
+                                            color: ProjectColors.primary,
+                                            width: 2.0)
+                                        : BorderSide.none,
                                   ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      itemName,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                             TableCell(
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  user.username,
-                                  style: const TextStyle(
-                                    fontSize: 18,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: isLastRow
+                                        ? const BorderSide(
+                                            color: ProjectColors.primary,
+                                            width: 2.0)
+                                        : BorderSide.none,
                                   ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      quantity.toString(),
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                             TableCell(
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  Helpers.parseMoney(shift.closeValue),
-                                  style: const TextStyle(
-                                    fontSize: 18,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: isLastRow
+                                        ? const BorderSide(
+                                            color: ProjectColors.primary,
+                                            width: 2.0)
+                                        : BorderSide.none,
                                   ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "Rp ${Helpers.parseMoney(totalAmount)},00",
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ],
                         );
                       }).toList(),
+                      // Total Amount Row
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Amount:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(totalAmount)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Total Tax
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Tax:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(taxAmount)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Total Discount
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Discount:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(totalDiscount)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Total Rounding
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Rounding:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(totalRounding)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Grand Total
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Grand Total:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(grandTotal)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Total Data Row
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Data:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '${fetched?.length}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],

@@ -309,7 +309,11 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                               searchQuery: searchedQuery ?? "",
                             )
                           : selectedFilter == "Item"
-                              ? const TableReportItem()
+                              ? TableReportItem(
+                                  fromDate: selectedFromDate,
+                                  toDate: selectedToDate,
+                                  searchQuery: searchedQuery ?? "",
+                                )
                               : null,
                 ),
               ],

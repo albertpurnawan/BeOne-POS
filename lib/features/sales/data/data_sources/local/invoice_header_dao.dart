@@ -126,4 +126,20 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
 
     return transactions;
   }
+
+  Future<List<dynamic>?> readByItemBetweenDate(
+      DateTime start, DateTime end) async {
+    final startDate = start.toUtc().toIso8601String();
+    final endDate = end.toUtc().toIso8601String();
+
+    final result = await db.rawQuery('''
+      SELECT h.*
+      FROM $tableName AS d
+      INNER JOIN tinv1 AS i ON d.toinvId = i.docid
+      WHERE d.createdat BETWEEN ? AND ?
+      GROUP BY d.toinvId
+      ''', [startDate, endDate]);
+
+    return result;
+  }
 }
