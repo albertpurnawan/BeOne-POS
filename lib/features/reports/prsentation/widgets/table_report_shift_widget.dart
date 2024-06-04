@@ -74,14 +74,6 @@ class _TableReportShiftState extends State<TableReportShift> {
     }
   }
 
-  // Future<List<CashierBalanceTransactionModel?>> _convertDocNumToDocId(
-  //     String docNum) async {
-  //   final tcsr1Id = await GetIt.instance<AppDatabase>()
-  //       .cashierBalanceTransactionDao
-  //       .readByDocNum(docNum, null);
-  //   return tcsr1Id;
-  // }
-
   @override
   Widget build(BuildContext context) {
     double grandTotal = 0.0;

@@ -11,7 +11,7 @@ class ItemEntity {
   final String tbitmId;
   final String tpln2Id;
   final int openPrice;
-  final String tovenId;
+  final String? tovenId;
   final int includeTax;
   final String tovatId;
   final double taxRate;
@@ -103,7 +103,7 @@ class ItemEntity {
       tbitmId: map['tbitmId'] as String,
       tpln2Id: map['tpln2Id'] as String,
       openPrice: map['openPrice'] as int,
-      tovenId: map['tovenId'] as String,
+      tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       includeTax: map['includeTax'] as int,
       tovatId: map['tovatId'] as String,
       taxRate: map['taxRate'] as double,

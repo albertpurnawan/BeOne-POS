@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -25,6 +27,7 @@ class TableReportItem extends StatefulWidget {
 class _TableReportItemState extends State<TableReportItem> {
   final tableHead = ["No", "Item", "Description", "Quantity", "Amount"];
   List<dynamic>? fetched;
+  List<dynamic>? fetchedInvHeader;
   bool isLoading = true;
   List<ItemMasterModel?> toitmData = [];
   List<UserModel?> userData = [];
@@ -43,7 +46,9 @@ class _TableReportItemState extends State<TableReportItem> {
     final fetchedTinv1 = await GetIt.instance<AppDatabase>()
         .invoiceDetailDao
         .readByItemBetweenDate(widget.fromDate!, widget.toDate!);
-
+    final fetchedToinv = await GetIt.instance<AppDatabase>()
+        .invoiceHeaderDao
+        .readBetweenDate(widget.fromDate!, widget.toDate!);
     setState(() {
       fetched = fetchedTinv1;
       isLoading = false;
@@ -53,15 +58,31 @@ class _TableReportItemState extends State<TableReportItem> {
 
   @override
   Widget build(BuildContext context) {
+    double totalAmount = 0.0;
+    double taxAmount = 0.0;
+    double totalDiscount = 0.0;
+    double totalRounding = 0.0;
     double grandTotal = 0.0;
 
     if (fetched != null) {
       for (var item in fetched!) {
         Map<String, dynamic> itemMap = item as Map<String, dynamic>;
 
-        double itemTotalAmount = itemMap["totalamount"] as double;
+        double itemTotalAmount = item["totalamount"] as double;
+        double itemTaxAmount = item["taxamount"] as double;
+        double itemTotalDiscount = item["discamount"] as double;
+        double itemTotalRounding = item["rounding"] as double;
+        double itemGrandTotal = item["grandtotal"] as double;
+        // double itemTotalTax = itemMap["taxamount"] as double;
 
-        grandTotal += itemTotalAmount;
+        totalAmount += itemTotalAmount;
+        taxAmount += itemTaxAmount;
+        totalDiscount += itemTotalDiscount;
+        totalRounding += itemTotalRounding;
+        grandTotal += itemGrandTotal;
+        // taxAmount += itemTotalTax;
+        log("$itemMap - $itemTotalRounding");
+        log("totalRounding - $totalRounding");
       }
     }
 
@@ -72,7 +93,7 @@ class _TableReportItemState extends State<TableReportItem> {
               child: Column(
                 children: [
                   const Text(
-                    "Report By Shift",
+                    "Report By Item",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -262,6 +283,198 @@ class _TableReportItemState extends State<TableReportItem> {
                                 children: [
                                   Text(
                                     'Total Amount:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(totalAmount)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Total Tax
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Tax:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(taxAmount)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Total Discount
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Discount:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(totalDiscount)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Total Rounding
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Total Rounding:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Rp ${Helpers.parseMoney(totalRounding)},00',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Grand Total
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(),
+                          ),
+                          TableCell(
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Grand Total:',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,

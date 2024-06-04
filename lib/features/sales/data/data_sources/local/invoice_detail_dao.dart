@@ -61,9 +61,6 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
       GROUP BY d.toitmId
       ''', [startDate, endDate]);
 
-    // final transactions =
-    //     result.map((map) => InvoiceDetailModel.fromMap(map)).toList();
-
     return result;
   }
 }
