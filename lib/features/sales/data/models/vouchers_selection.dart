@@ -51,6 +51,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
     required super.minPurchase,
     required super.redeemDate,
     required super.tinv2Id,
+    required super.type,
   });
 
   @override
@@ -89,6 +90,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
           ? DateTime.parse(map['redeemdate'] as String).toLocal()
           : null,
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
+      type: 1,
     );
   }
 
@@ -126,6 +128,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
       minPurchase: entity.minPurchase,
       redeemDate: entity.redeemDate,
       tinv2Id: entity.tinv2Id,
+      type: entity.type,
     );
   }
 }

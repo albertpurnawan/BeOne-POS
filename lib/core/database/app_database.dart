@@ -502,11 +502,8 @@ PRAGMA foreign_keys = ON;
     String? storeTovatId = '""';
     double? storeTaxRate = 0;
 
-    print("refreshItemTable");
-
     if (storeMaster.isNotEmpty) {
       if (storeMaster[0].taxBy == 1) {
-        print("1111111111111");
         taxByItem = true;
         taxAdditionalQuery = """
 INNER JOIN (

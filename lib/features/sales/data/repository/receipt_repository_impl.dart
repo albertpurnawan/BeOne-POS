@@ -76,9 +76,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         taxPrctg: 0,
         taxAmount: receiptEntity.taxAmount,
         addCost: 0,
-        rounding: 0,
+        rounding: receiptEntity.rounding,
         grandTotal: receiptEntity.grandTotal,
-        changed: receiptEntity.changed ?? 0,
+        changed: (receiptEntity.totalPayment ?? 0) - receiptEntity.grandTotal,
         totalPayment: receiptEntity.totalPayment!,
         tocsrId: posParameterModel.tocsrId, // get di sini
         docStatus: 0,
@@ -203,6 +203,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           minPurchase: e.minPurchase,
           redeemDate: e.redeemDate,
           tinv2Id: e.tinv2Id,
+          type: e.type,
         );
       }).toList();
 

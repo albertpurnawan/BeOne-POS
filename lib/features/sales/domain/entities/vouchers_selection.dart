@@ -4,7 +4,7 @@ import 'dart:convert';
 
 class VouchersSelectionEntity {
   final String docId;
-  final String tpmt3Id;
+  String? tpmt3Id;
   final String tovcrId;
   final String voucherAlias;
   final int voucherAmount;
@@ -16,6 +16,7 @@ class VouchersSelectionEntity {
   final int minPurchase;
   final DateTime? redeemDate;
   String? tinv2Id;
+  final int type;
 
   VouchersSelectionEntity({
     required this.docId,
@@ -31,6 +32,7 @@ class VouchersSelectionEntity {
     required this.minPurchase,
     this.redeemDate,
     this.tinv2Id,
+    required this.type,
   });
 
   VouchersSelectionEntity copyWith({
@@ -47,6 +49,7 @@ class VouchersSelectionEntity {
     int? minPurchase,
     DateTime? redeemDate,
     String? tinv2Id,
+    int? type,
   }) {
     return VouchersSelectionEntity(
       docId: docId ?? this.docId,
@@ -62,6 +65,7 @@ class VouchersSelectionEntity {
       minPurchase: minPurchase ?? this.minPurchase,
       redeemDate: redeemDate ?? this.redeemDate,
       tinv2Id: tinv2Id ?? this.tinv2Id,
+      type: type ?? this.type,
     );
   }
 
@@ -80,13 +84,14 @@ class VouchersSelectionEntity {
       'minPurchase': minPurchase,
       'redeemDate': redeemDate?.millisecondsSinceEpoch,
       'tinv2Id': tinv2Id,
+      'type': type,
     };
   }
 
   factory VouchersSelectionEntity.fromMap(Map<String, dynamic> map) {
     return VouchersSelectionEntity(
       docId: map['docId'] as String,
-      tpmt3Id: map['tpmt3Id'] as String,
+      tpmt3Id: map['tpmt3Id'] != null ? map['tpmt3Id'] as String : null,
       tovcrId: map['tovcrId'] as String,
       voucherAlias: map['voucherAlias'] as String,
       voucherAmount: map['voucherAmount'] as int,
@@ -100,6 +105,7 @@ class VouchersSelectionEntity {
           ? DateTime.fromMillisecondsSinceEpoch(map['redeemDate'] as int)
           : null,
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
+      type: map['type'] as int,
     );
   }
 
@@ -111,7 +117,7 @@ class VouchersSelectionEntity {
 
   @override
   String toString() {
-    return 'VouchersSelectionEntity(docId: $docId, tpmt3Id: $tpmt3Id, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, minPurchase: $minPurchase, redeemDate: $redeemDate, tinv2Id: $tinv2Id)';
+    return 'VouchersSelectionEntity(docId: $docId, tpmt3Id: $tpmt3Id, tovcrId: $tovcrId, voucherAlias: $voucherAlias, voucherAmount: $voucherAmount, validFrom: $validFrom, validTo: $validTo, serialNo: $serialNo, voucherStatus: $voucherStatus, statusActive: $statusActive, minPurchase: $minPurchase, redeemDate: $redeemDate, tinv2Id: $tinv2Id, type: $type)';
   }
 
   @override
@@ -130,7 +136,8 @@ class VouchersSelectionEntity {
         other.statusActive == statusActive &&
         other.minPurchase == minPurchase &&
         other.redeemDate == redeemDate &&
-        other.tinv2Id == tinv2Id;
+        other.tinv2Id == tinv2Id &&
+        other.type == type;
   }
 
   @override
@@ -147,6 +154,7 @@ class VouchersSelectionEntity {
         statusActive.hashCode ^
         minPurchase.hashCode ^
         redeemDate.hashCode ^
-        tinv2Id.hashCode;
+        tinv2Id.hashCode ^
+        type.hashCode;
   }
 }

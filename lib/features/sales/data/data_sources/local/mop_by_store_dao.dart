@@ -34,9 +34,9 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
 
   Future<List<MopSelectionModel>> readAllIncludeRelations() async {
     final result = await db.rawQuery("""
-SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description FROM tpmt3 as p3
+SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description, p1.subtype FROM tpmt3 as p3
 INNER JOIN (
-SELECT mopalias, bankcharge, docid, topmtId FROM tpmt1
+SELECT mopalias, bankcharge, docid, topmtId, subtype FROM tpmt1
 ) as p1 ON p3.tpmt1Id = p1.docid
 INNER JOIN (
 SELECT paytypecode, description, docid FROM topmt
@@ -54,9 +54,9 @@ SELECT paytypecode, description, docid FROM topmt
       String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.rawQuery("""
-SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description FROM tpmt3 as p3
+SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description, p1.subtype FROM tpmt3 as p3
 INNER JOIN (
-SELECT mopalias, bankcharge, docid, topmtId FROM tpmt1
+SELECT mopalias, bankcharge, docid, topmtId, subtype FROM tpmt1
 ) as p1 ON p3.tpmt1Id = p1.docid
 INNER JOIN (
 SELECT paytypecode, description, docid FROM topmt
