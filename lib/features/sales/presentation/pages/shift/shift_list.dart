@@ -29,7 +29,7 @@ class _ShiftsListState extends State<ShiftsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ProjectColors.primary,
+      backgroundColor: ProjectColors.background,
       appBar: AppBar(
         title: const Text('Shifts'),
         backgroundColor: ProjectColors.primary,
@@ -44,13 +44,13 @@ class _ShiftsListState extends State<ShiftsList> {
         child: Column(
           children: [
             const ActiveShift(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 233, 222, 222),
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(5),
               ),
-              height: 4,
+              height: 1,
               width: 875,
             ),
             const SizedBox(height: 10),
@@ -107,8 +107,8 @@ class _ActiveShiftState extends State<ActiveShift> {
         padding: const EdgeInsets.symmetric(horizontal: 200.0),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 233, 222, 222),
-            borderRadius: BorderRadius.circular(10.0),
+            color: null,
+            borderRadius: BorderRadius.circular(5.0),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 30.0),
@@ -149,7 +149,7 @@ class _ActiveShiftState extends State<ActiveShift> {
       padding: const EdgeInsets.symmetric(horizontal: 200.0),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 233, 222, 222),
+          color: null,
           borderRadius: BorderRadius.circular(5),
         ),
         child: Padding(
@@ -167,7 +167,7 @@ class _ActiveShiftState extends State<ActiveShift> {
                         fontSize: 24,
                         fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -294,7 +294,7 @@ class _AllShiftState extends State<AllShift> {
               height: constraints.maxHeight - 40,
               width: constraints.maxWidth,
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 233, 222, 222),
+                color: null,
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Padding(
@@ -311,75 +311,92 @@ class _AllShiftState extends State<AllShift> {
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
+                                color: Colors.black,
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: 10,
+                            ),
                             for (var shift in entry.value)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                              SizedBox(
+                                width: double.infinity,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Text(
-                                          shift.docNum,
-                                          style: const TextStyle(fontSize: 20),
-                                        ),
-                                        SizedBox(
-                                          width: 100,
-                                          child: Text(
-                                            NumberFormat.decimalPattern()
-                                                .format(
-                                                    shift.closeValue.toInt()),
-                                            style:
-                                                const TextStyle(fontSize: 18),
-                                            textAlign: TextAlign.end,
-                                          ),
-                                        ),
-                                        if (shift.approvalStatus == 0)
-                                          const SizedBox(
-                                            width: 100,
-                                            child: Text(
-                                              'OPEN',
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w700,
-                                                color: Color.fromARGB(
-                                                    255, 47, 143, 8),
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                shift.docNum,
+                                                style: const TextStyle(
+                                                    fontSize: 20),
                                               ),
-                                            ),
-                                          )
-                                        else
-                                          const SizedBox(
-                                            width: 100,
-                                            child: Text(
-                                              'CLOSED',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
+                                              SizedBox(
+                                                width: 100,
+                                                child: Text(
+                                                  NumberFormat.decimalPattern()
+                                                      .format(shift.closeValue
+                                                          .toInt()),
+                                                  style: const TextStyle(
+                                                      fontSize: 18),
+                                                  textAlign: TextAlign.end,
+                                                ),
+                                              ),
+                                              if (shift.approvalStatus == 0)
+                                                const SizedBox(
+                                                  width: 100,
+                                                  child: Text(
+                                                    'OPEN',
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Color.fromARGB(
+                                                          255, 47, 143, 8),
+                                                    ),
+                                                  ),
+                                                )
+                                              else
+                                                const SizedBox(
+                                                  width: 100,
+                                                  child: Text(
+                                                    'CLOSED',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CloseShiftScreen(
+                                                        shiftId: shift.docId),
+                                              ),
+                                            );
+                                          },
+                                          child: const Icon(
+                                            Icons.arrow_right_outlined,
+                                            size: 40,
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              CloseShiftScreen(
-                                                  shiftId: shift.docId),
-                                        ),
-                                      );
-                                    },
-                                    child: const Icon(
-                                      Icons.arrow_right_outlined,
-                                      size: 40,
-                                    ),
-                                  ),
-                                ],
+                                    Divider(
+                                      color: Colors.grey,
+                                    )
+                                  ],
+                                ),
                               ),
                             const SizedBox(height: 20),
                           ],

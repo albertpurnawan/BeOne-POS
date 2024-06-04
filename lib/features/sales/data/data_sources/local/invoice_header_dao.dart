@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,6 +72,29 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
       tableName,
       where: 'tcsr1Id LIKE ?',
       whereArgs: ['$tcsr1Id%'],
+    );
+
+    if (res.isEmpty) {
+      return [];
+    }
+
+    final List<InvoiceHeaderModel> invoices =
+        res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
+
+    return invoices;
+  }
+
+  Future<List<InvoiceHeaderModel>> readByShiftAndDatetime(
+      DateTime datetime) async {
+    final stringDatetime =
+        DateFormat("yyyy-MM-dd HH:mm:ss").format(datetime.toUtc());
+    log(stringDatetime);
+    final prefs = GetIt.instance<SharedPreferences>();
+    final tcsr1Id = prefs.getString('tcsr1Id');
+    final res = await db.query(
+      tableName,
+      where: 'tcsr1Id LIKE ? AND createdAt = ?',
+      whereArgs: ['$tcsr1Id%', stringDatetime],
     );
 
     if (res.isEmpty) {
