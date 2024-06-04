@@ -46,13 +46,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1IdPref = prefs.getString('tcsr1Id');
 
-      double promosDiscountAmount = 0;
-      for (final prm in receiptEntity.promos) {
-        log("prm - ${prm.discAmount}");
-        promosDiscountAmount += prm.discAmount ?? 0;
-      }
-      log("HERE");
-
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
         createDate: null, // null kah? ini kan bosr punya
@@ -68,8 +61,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         subTotal: receiptEntity.subtotal,
         discPrctg: receiptEntity.discPrctg ?? 0,
         discAmount: (receiptEntity.discHeaderManual ?? 0) +
-            (receiptEntity.discHeaderPromo ?? 0) +
-            promosDiscountAmount,
+            (receiptEntity.discHeaderPromo ?? 0),
         discountCard: 0,
         coupon: "",
         discountCoupun: 0,

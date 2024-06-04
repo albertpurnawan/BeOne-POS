@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -43,12 +41,11 @@ class _TableReportShiftState extends State<TableReportShift> {
       return;
     }
 
-    final tcsr1IdConvert = await _convertDocNumToDocId(widget.searchQuery!);
+    // final tcsr1IdConvert = await _convertDocNumToDocId(widget.searchQuery!);
 
     final fetchedInvoice = await GetIt.instance<AppDatabase>()
         .invoiceHeaderDao
-        .readBetweenDate(
-            widget.fromDate!, widget.toDate!, tcsr1IdConvert[0]!.docId);
+        .readBetweenDate(widget.fromDate!, widget.toDate!);
 
     if (fetchedInvoice != null) {
       final List<Future<CashierBalanceTransactionModel?>> invFetched =
@@ -77,14 +74,13 @@ class _TableReportShiftState extends State<TableReportShift> {
     }
   }
 
-  Future<List<CashierBalanceTransactionModel?>> _convertDocNumToDocId(
-      String docNum) async {
-    final tcsr1Id = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readByDocNum(docNum, null);
-    log("tcsr1Id convert - $tcsr1Id");
-    return tcsr1Id;
-  }
+  // Future<List<CashierBalanceTransactionModel?>> _convertDocNumToDocId(
+  //     String docNum) async {
+  //   final tcsr1Id = await GetIt.instance<AppDatabase>()
+  //       .cashierBalanceTransactionDao
+  //       .readByDocNum(docNum, null);
+  //   return tcsr1Id;
+  // }
 
   @override
   Widget build(BuildContext context) {

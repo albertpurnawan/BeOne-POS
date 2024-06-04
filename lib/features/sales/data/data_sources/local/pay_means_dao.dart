@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:sqflite/sqflite.dart';
@@ -55,7 +53,6 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
         end.toUtc().toIso8601String()
       ],
     );
-    log("result - $result");
     final transactions =
         result.map((map) => PayMeansModel.fromMap(map)).toList();
 

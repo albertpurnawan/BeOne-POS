@@ -6,6 +6,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 
@@ -29,6 +30,7 @@ class _TableReportMopState extends State<TableReportMop> {
   final tableHead = ["No", "MOP", "Description", "Amount"];
   bool isLoading = true;
   List<PayMeansModel>? fetched;
+  List<MeansOfPaymentModel?> tpmt1Data = [];
   List<MOPByStoreModel?> tpmt3Data = [];
   List<InvoiceHeaderModel?> toinvData = [];
 
@@ -50,7 +52,6 @@ class _TableReportMopState extends State<TableReportMop> {
     if (fetchedTinv2 != null) {
       final List<Future<MOPByStoreModel?>> mopFetched =
           fetchedTinv2.map((mop) async {
-        log("$mop");
         return await GetIt.instance<AppDatabase>()
             .mopByStoreDao
             .readByDocId(mop.tpmt3Id!, null);
@@ -67,9 +68,17 @@ class _TableReportMopState extends State<TableReportMop> {
 
       toinvData = await Future.wait(invFetched);
 
-      // log("fetchedTinv2 - $fetchedTinv2");
-      // log("toinvData - $toinvData");
-      log("tpmt3Data - $tpmt3Data");
+      final List<Future<MeansOfPaymentModel?>> tpmt1Fetched =
+          tpmt3Data.map((tpmt3) async {
+        if (tpmt3 != null) {
+          return await GetIt.instance<AppDatabase>()
+              .meansOfPaymentDao
+              .readByDocId(tpmt3.tpmt1Id!, null);
+        }
+      }).toList();
+
+      tpmt1Data = await Future.wait(tpmt1Fetched);
+      log("${toinvData.length} - $toinvData");
       setState(() {
         fetched = fetchedTinv2;
         isLoading = false;
@@ -79,6 +88,20 @@ class _TableReportMopState extends State<TableReportMop> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, Map<String, dynamic>> aggregatedData = {};
+    for (int i = 0; i < tpmt3Data.length; i++) {
+      if (tpmt3Data[i] != null && toinvData[i] != null) {
+        final mopId = tpmt1Data[i]?.docId ?? 'N/A';
+        final mopDesc = tpmt1Data[i]?.description ?? 'N/A';
+        final subTotal = fetched![i].amount;
+
+        if (aggregatedData.containsKey(mopId)) {
+          aggregatedData[mopId]!['amount'] += subTotal;
+        } else {
+          aggregatedData[mopId] = {'description': mopDesc, 'amount': subTotal};
+        }
+      }
+    }
     double totalAmount = toinvData
         .map((data) => data!.subTotal)
         .fold(0.0, (previous, current) => previous + current);
@@ -91,6 +114,10 @@ class _TableReportMopState extends State<TableReportMop> {
     double grandTotal = toinvData
         .map((data) => data!.grandTotal)
         .fold(0.0, (previous, current) => previous + current);
+
+    final lastAggregatedIndex = aggregatedData.length - 1;
+    final aggregatedKeys = aggregatedData.keys.toList();
+
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
@@ -139,11 +166,12 @@ class _TableReportMopState extends State<TableReportMop> {
                           );
                         }).toList(),
                       ),
-                      ...tpmt3Data.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final data = entry.value;
-                        final isLastRow = index == tpmt3Data.length - 1;
-                        final mopName = data?.docId ?? 'N/A';
+                      ...aggregatedData.entries.map((entry) {
+                        final index = aggregatedKeys.indexOf(entry.key);
+                        final isLastRow = index == lastAggregatedIndex;
+                        final mopId = entry.key;
+                        final mopDesc = entry.value['description'] as String;
+                        final amount = entry.value['amount'] as double;
                         // final description = data?.description ?? 'N/A';
 
                         return TableRow(
@@ -187,7 +215,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      mopName,
+                                      mopId,
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -210,7 +238,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      "description",
+                                      mopDesc,
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -233,7 +261,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(12)},00",
+                                      "Rp ${Helpers.parseMoney(amount)},00",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -275,7 +303,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Rp ${Helpers.parseMoney(12)},00',
+                                    'Rp ${Helpers.parseMoney(totalAmount)},00',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
@@ -319,7 +347,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Rp ${Helpers.parseMoney(12)},00',
+                                    'Rp ${Helpers.parseMoney(taxAmount)},00',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
@@ -363,7 +391,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Rp ${Helpers.parseMoney(12)},00',
+                                    'Rp ${Helpers.parseMoney(totalDiscount)},00',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14),
@@ -405,7 +433,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Rp ${Helpers.parseMoney(12)},00',
+                                    'Rp ${Helpers.parseMoney(grandTotal)},00',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14),
@@ -447,7 +475,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    '${fetched!.length}',
+                                    '${toinvData.length}',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14),
