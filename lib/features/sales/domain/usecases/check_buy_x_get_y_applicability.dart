@@ -169,9 +169,7 @@ class CheckBuyXGetYApplicabilityUseCase
               : existingReceiptItemXs
                   .map((e) => e.quantity)
                   .reduce((value, element) => value + element);
-          if (qtySumOfExistingReceiptItemXs +
-                  params.receiptItemEntity.quantity <
-              toprb!.minBuy) {
+          if (qtySumOfExistingReceiptItemXs < toprb!.minBuy) {
             isApplicable = false;
           }
         },

@@ -93,4 +93,23 @@ class CashierBalanceTransactionDao
 
     return transactions;
   }
+
+  Future<List<CashierBalanceTransactionModel?>> readByDocNum(
+      String docNum, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'docnum LIKE ?',
+      whereArgs: ['%$docNum%'],
+    );
+
+    List<CashierBalanceTransactionModel> transactions = [];
+    if (res.isNotEmpty) {
+      transactions = res
+          .map((map) => CashierBalanceTransactionModel.fromMap(map))
+          .toList();
+    }
+    return transactions;
+  }
 }

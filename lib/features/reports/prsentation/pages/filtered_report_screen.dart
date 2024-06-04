@@ -15,15 +15,24 @@ class FiltereReportScreen extends StatefulWidget {
 class _FiltereReportScreenState extends State<FiltereReportScreen> {
   final List<String> filterOptions = ["Invoice", "MOP", "Item"];
   String? selectedFilter;
+
   DateTime? selectedFromDate;
   DateTime? selectedToDate;
+  String? searchedQuery;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
+    final DateTime now = DateTime.now();
     selectedFromDate = DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
-    selectedToDate = DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
+    selectedToDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<void> selectDate(BuildContext context, bool isFromDate) async {
@@ -63,8 +72,6 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: ProjectColors.primary)),
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.13,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -124,7 +131,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 20), // Add spacing between rows
+                            SizedBox(height: 20),
                             Row(
                               children: [
                                 SizedBox(
@@ -175,7 +182,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(width: 20), // Add space between columns
+                      SizedBox(width: 20),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -242,46 +249,29 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                             Row(
                               children: [
                                 SizedBox(
-                                  width: 100,
-                                  height: 30,
-                                  child: Text(
-                                    "Search",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                  height: 30,
-                                  child: Text(
-                                    ":",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 300,
+                                  width: 420,
                                   height: 30,
                                   child: TextField(
-                                    decoration: InputDecoration(
+                                    controller: searchController,
+                                    decoration: const InputDecoration(
                                       contentPadding: EdgeInsets.symmetric(
                                           vertical: 0, horizontal: 8),
                                       border: OutlineInputBorder(),
-                                      hintText: 'Enter search term',
+                                      hintText: 'Search...',
+                                      hintStyle: TextStyle(
+                                        color: ProjectColors.mediumBlack,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        fontStyle: FontStyle.italic,
+                                      ),
                                     ),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: ProjectColors.mediumBlack,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
                                     ),
                                     onChanged: (value) {
-                                      // Add search logic here
+                                      searchedQuery = searchController.text;
                                     },
                                   ),
                                 ),
@@ -293,7 +283,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                     ],
                   ),
                 ),
-                // Content
+                // --- Content Goes Here ---
                 Container(
                   width: double.infinity,
                   height: 5.0,
@@ -310,9 +300,14 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                       ? TableReportShift(
                           fromDate: selectedFromDate,
                           toDate: selectedToDate,
+                          searchQuery: searchedQuery ?? "",
                         )
                       : selectedFilter == "MOP"
-                          ? const TableReportMop()
+                          ? TableReportMop(
+                              fromDate: selectedFromDate,
+                              toDate: selectedToDate,
+                              searchQuery: searchedQuery ?? "",
+                            )
                           : selectedFilter == "Item"
                               ? const TableReportItem()
                               : null,
