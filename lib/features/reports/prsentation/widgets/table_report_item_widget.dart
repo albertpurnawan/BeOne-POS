@@ -1,12 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
-import 'package:pos_fe/features/sales/data/models/user.dart';
 
 class TableReportItem extends StatefulWidget {
   final DateTime? fromDate;
@@ -27,10 +25,9 @@ class TableReportItem extends StatefulWidget {
 class _TableReportItemState extends State<TableReportItem> {
   final tableHead = ["No", "Item", "Description", "Quantity", "Amount"];
   List<dynamic>? fetched;
-  List<dynamic>? fetchedInvHeader;
+  List<InvoiceHeaderModel>? fetchedInvHeader;
   bool isLoading = true;
   List<ItemMasterModel?> toitmData = [];
-  List<UserModel?> userData = [];
 
   @override
   void initState() {
@@ -51,9 +48,9 @@ class _TableReportItemState extends State<TableReportItem> {
         .readBetweenDate(widget.fromDate!, widget.toDate!);
     setState(() {
       fetched = fetchedTinv1;
+      fetchedInvHeader = fetchedToinv;
       isLoading = false;
     });
-    // }
   }
 
   @override
@@ -66,23 +63,19 @@ class _TableReportItemState extends State<TableReportItem> {
 
     if (fetched != null) {
       for (var item in fetched!) {
-        Map<String, dynamic> itemMap = item as Map<String, dynamic>;
-
         double itemTotalAmount = item["totalamount"] as double;
-        double itemTaxAmount = item["taxamount"] as double;
-        double itemTotalDiscount = item["discamount"] as double;
-        double itemTotalRounding = item["rounding"] as double;
-        double itemGrandTotal = item["grandtotal"] as double;
-        // double itemTotalTax = itemMap["taxamount"] as double;
 
         totalAmount += itemTotalAmount;
+      }
+      for (var invHead in fetchedInvHeader!) {
+        double itemTaxAmount = invHead.taxAmount;
+        double itemTotalDiscount = invHead.discAmount;
+        double itemTotalRounding = invHead.rounding;
+        double itemGrandTotal = invHead.grandTotal;
         taxAmount += itemTaxAmount;
         totalDiscount += itemTotalDiscount;
         totalRounding += itemTotalRounding;
         grandTotal += itemGrandTotal;
-        // taxAmount += itemTotalTax;
-        log("$itemMap - $itemTotalRounding");
-        log("totalRounding - $totalRounding");
       }
     }
 
@@ -312,6 +305,7 @@ class _TableReportItemState extends State<TableReportItem> {
                         ],
                       ),
                       // Total Tax
+
                       TableRow(
                         children: [
                           TableCell(

@@ -5,10 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
-import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
-import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
-import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 
 class TableReportMop extends StatefulWidget {
   final DateTime? fromDate;
@@ -29,10 +25,8 @@ class TableReportMop extends StatefulWidget {
 class _TableReportMopState extends State<TableReportMop> {
   final tableHead = ["No", "MOP", "Description", "Amount"];
   bool isLoading = true;
-  List<PayMeansModel>? fetched;
-  List<MeansOfPaymentModel?> tpmt1Data = [];
-  List<MOPByStoreModel?> tpmt3Data = [];
-  List<InvoiceHeaderModel?> toinvData = [];
+  List<dynamic>? fetched;
+  List<dynamic>? listTpmt1;
 
   @override
   void initState() {
@@ -45,78 +39,30 @@ class _TableReportMopState extends State<TableReportMop> {
       return;
     }
 
-    final fetchedTinv2 = await GetIt.instance<AppDatabase>()
+    final fetchedTmpt3 = await GetIt.instance<AppDatabase>()
         .payMeansDao
-        .readBetweenDate(widget.fromDate!, widget.toDate!);
-
-    if (fetchedTinv2 != null) {
-      final List<Future<MOPByStoreModel?>> mopFetched =
-          fetchedTinv2.map((mop) async {
-        return await GetIt.instance<AppDatabase>()
-            .mopByStoreDao
-            .readByDocId(mop.tpmt3Id!, null);
-      }).toList();
-
-      tpmt3Data = await Future.wait(mopFetched);
-
-      final List<Future<InvoiceHeaderModel?>> invFetched =
-          fetchedTinv2.map((data) async {
-        return await GetIt.instance<AppDatabase>()
-            .invoiceHeaderDao
-            .readByDocId(data.toinvId!, null);
-      }).toList();
-
-      toinvData = await Future.wait(invFetched);
-
-      final List<Future<MeansOfPaymentModel?>> tpmt1Fetched =
-          tpmt3Data.map((tpmt3) async {
-        if (tpmt3 != null) {
-          return await GetIt.instance<AppDatabase>()
-              .meansOfPaymentDao
-              .readByDocId(tpmt3.tpmt1Id!, null);
-        }
-      }).toList();
-
-      tpmt1Data = await Future.wait(tpmt1Fetched);
-      log("${toinvData.length} - $toinvData");
-      setState(() {
-        fetched = fetchedTinv2;
-        isLoading = false;
-      });
-    }
+        .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!);
+    // final fetchedTpmt1 = await GetIt.instance<AppDatabase>()
+    //     .meansOfPaymentDao
+    //     .readByTpmt1BetweenDate(widget.fromDate!, widget.toDate!);
+    log("$fetchedTmpt3");
+    setState(() {
+      fetched = fetchedTmpt3;
+      // listTpmt1 = fetchedTpmt1;
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, Map<String, dynamic>> aggregatedData = {};
-    for (int i = 0; i < tpmt3Data.length; i++) {
-      if (tpmt3Data[i] != null && toinvData[i] != null) {
-        final mopId = tpmt1Data[i]?.docId ?? 'N/A';
-        final mopDesc = tpmt1Data[i]?.description ?? 'N/A';
-        final subTotal = fetched![i].amount;
+    double totalAmount = 0.0;
+    if (fetched != null) {
+      for (var e in fetched!) {
+        double totalEAmount = e['totalamount'] as double;
 
-        if (aggregatedData.containsKey(mopId)) {
-          aggregatedData[mopId]!['amount'] += subTotal;
-        } else {
-          aggregatedData[mopId] = {'description': mopDesc, 'amount': subTotal};
-        }
+        totalAmount += totalEAmount;
       }
     }
-    double totalAmount = toinvData
-        .map((data) => data!.totalPayment)
-        .fold(0.0, (previous, current) => previous + current);
-    double taxAmount = toinvData
-        .map((data) => data!.taxAmount)
-        .fold(0.0, (previous, current) => previous + current);
-    double totalDiscount = toinvData
-        .map((data) => data!.discAmount)
-        .fold(0.0, (previous, current) => previous + current);
-    double grandTotal = toinvData
-        .map((data) => data!.grandTotal)
-        .fold(0.0, (previous, current) => previous + current);
-
-    final lastAggregatedIndex = aggregatedData.length - 1;
-    final aggregatedKeys = aggregatedData.keys.toList();
 
     return isLoading
         ? const Center(child: CircularProgressIndicator())
@@ -166,12 +112,13 @@ class _TableReportMopState extends State<TableReportMop> {
                           );
                         }).toList(),
                       ),
-                      ...aggregatedData.entries.map((entry) {
-                        final index = aggregatedKeys.indexOf(entry.key);
-                        final isLastRow = index == lastAggregatedIndex;
-                        final mopId = entry.key;
-                        final mopDesc = entry.value['description'] as String;
-                        final amount = entry.value['amount'] as double;
+                      ...fetched!.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final display = entry.value;
+                        final isLastRow = index == fetched!.length - 1;
+                        final mopId = display['mopcode'];
+                        final amount = display['totalamount'];
+                        final mopDesc = display['description'];
 
                         return TableRow(
                           children: [
@@ -345,7 +292,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    '${toinvData.length}',
+                                    '${fetched!.length}',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14),

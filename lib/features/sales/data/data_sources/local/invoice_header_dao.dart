@@ -107,11 +107,11 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     final endDate = end.toUtc().toIso8601String();
 
     final result = await db.rawQuery('''
-      SELECT h.*
+      SELECT d.toitmId, i.itemname, SUM(d.quantity) AS totalquantity, SUM(d.totalamount) AS totalamount
       FROM $tableName AS d
-      INNER JOIN tinv1 AS i ON d.toinvId = i.docid
+      INNER JOIN toitm AS i ON d.toitmId = i.docid
       WHERE d.createdat BETWEEN ? AND ?
-      GROUP BY d.toinvId
+      GROUP BY d.toitmId
       ''', [startDate, endDate]);
 
     return result;

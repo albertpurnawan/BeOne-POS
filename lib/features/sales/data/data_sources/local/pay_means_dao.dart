@@ -58,4 +58,22 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
 
     return transactions;
   }
+
+  Future<List<dynamic>?> readByTpmt3BetweenDate(
+      DateTime start, DateTime end) async {
+    final startDate = start.toUtc().toIso8601String();
+    final endDate = end.toUtc().toIso8601String();
+
+    final result = await db.rawQuery('''
+      SELECT x0.tpmt3Id, x0.amount, SUM(x0.amount) AS totalamount,
+      x2.mopcode, x2.description
+      FROM $tableName AS x0
+      INNER JOIN tpmt3 AS x1 ON x0.tpmt3Id = x1.docid
+      INNER JOIN tpmt1 AS x2 ON x1.tpmt1Id = x2.docid
+      WHERE x0.createdat BETWEEN ? AND ?
+      GROUP BY x0.tpmt3Id
+    ''', [startDate, endDate]);
+
+    return result;
+  }
 }

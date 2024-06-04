@@ -41,8 +41,6 @@ class _TableReportShiftState extends State<TableReportShift> {
       return;
     }
 
-    // final tcsr1IdConvert = await _convertDocNumToDocId(widget.searchQuery!);
-
     final fetchedInvoice = await GetIt.instance<AppDatabase>()
         .invoiceHeaderDao
         .readBetweenDate(widget.fromDate!, widget.toDate!);

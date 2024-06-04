@@ -39,4 +39,12 @@ class POSParameterDao extends BaseDao<POSParameterModel> {
           .toList();
     }
   }
+
+  Future<void> deleteTopos({Transaction? txn}) async {
+    if (txn != null) {
+      await txn.delete(tableName);
+    } else {
+      await db.delete(tableName);
+    }
+  }
 }
