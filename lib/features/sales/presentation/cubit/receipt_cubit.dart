@@ -623,9 +623,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
               discHeaderManual) {
         newReceipt = await _recalculateTaxUseCase.call(
             params: newReceipt.copyWith(
-          discHeaderManual: discHeaderManual,
-          discAmount: discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
-        ));
+                discHeaderManual: discHeaderManual,
+                discAmount:
+                    discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
+                discPrctg:
+                    (discHeaderManual + (newReceipt.discHeaderPromo ?? 0)) /
+                        newReceipt.subtotal));
       }
 
       dev.log("Process reapply discount header $newReceipt");

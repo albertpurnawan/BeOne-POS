@@ -13,7 +13,7 @@ class ApplyRoundingUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
       final double beforeRounding =
           params.subtotal - (params.discAmount ?? 0) + params.taxAmount;
       final double rounding =
-          beforeRounding % 50 > 0.001 ? 50 - (beforeRounding % 50) : 0;
+          beforeRounding % 50 > 0 ? 50 - (beforeRounding % 50) : 0;
       final double grandTotal = beforeRounding + rounding;
 
       log("beforeRounding $beforeRounding");
