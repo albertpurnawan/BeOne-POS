@@ -3,13 +3,15 @@ class PromotionDetails {}
 
 class PromoBuyXGetYDetails extends PromotionDetails {
   int applyCount;
-  List<int> xGroups;
-  List<int> yGroups;
+  bool isY;
+  double quantity;
+  double sellingPrice;
 
   PromoBuyXGetYDetails({
     required this.applyCount,
-    required this.xGroups,
-    required this.yGroups,
+    required this.isY,
+    required this.quantity,
+    required this.sellingPrice,
   });
 }
 

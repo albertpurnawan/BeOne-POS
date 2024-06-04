@@ -77,8 +77,16 @@ class InvoiceApi {
         "orderno": invHead[0].orderNo,
         "tocus_id": invHead[0].tocusId,
         "tohem_id": invHead[0].tohemId,
-        "transdate": invHead[0].transDateTime!.toUtc().toIso8601String(),
-        "transtime": invHead[0].transDateTime!.toUtc().toIso8601String(),
+        "transdate": invHead[0]
+            .transDateTime!
+            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
+            .toUtc()
+            .toIso8601String(),
+        "transtime": invHead[0]
+            .transDateTime!
+            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
+            .toUtc()
+            .toIso8601String(),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
         "subtotal": invHead[0].subTotal.toInt(),
@@ -256,8 +264,14 @@ class InvoiceApi {
         "orderno": invHead.orderNo,
         "tocus_id": invHead.tocusId,
         "tohem_id": invHead.tohemId,
-        "transdate": invHead.transDateTime!.toUtc().toIso8601String(),
-        "transtime": invHead.transDateTime!.toUtc().toIso8601String(),
+        "transdate": invHead.transDateTime!
+            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
+            .toUtc()
+            .toIso8601String(),
+        "transtime": invHead.transDateTime!
+            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
+            .toUtc()
+            .toIso8601String(),
         "timezone": invHead.timezone,
         "remarks": invHead.remarks ?? "",
         "subtotal": invHead.subTotal.toInt(),
