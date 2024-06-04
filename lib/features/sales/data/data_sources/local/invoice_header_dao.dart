@@ -89,7 +89,10 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     final result = await db.query(
       tableName,
       where: 'createdat BETWEEN ? AND ?',
-      whereArgs: [startDate, endDate],
+      whereArgs: [
+        startDate,
+        endDate,
+      ],
     );
 
     final transactions =

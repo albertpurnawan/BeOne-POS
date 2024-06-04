@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -12,11 +10,13 @@ import 'package:pos_fe/features/sales/data/models/user.dart';
 class TableReportShift extends StatefulWidget {
   final DateTime? fromDate;
   final DateTime? toDate;
+  final String? searchQuery;
 
   const TableReportShift({
     Key? key,
     this.fromDate,
     this.toDate,
+    this.searchQuery,
   }) : super(key: key);
 
   @override
@@ -41,32 +41,31 @@ class _TableReportShiftState extends State<TableReportShift> {
       return;
     }
 
-    final fetchedInvoice =
-        await GetIt.instance<AppDatabase>().invoiceHeaderDao.readBetweenDate(
-              widget.fromDate!,
-              widget.toDate!
-                  .add(const Duration(days: 1))
-                  .subtract(const Duration(seconds: 1)),
-            );
+    // final tcsr1IdConvert = await _convertDocNumToDocId(widget.searchQuery!);
+
+    final fetchedInvoice = await GetIt.instance<AppDatabase>()
+        .invoiceHeaderDao
+        .readBetweenDate(widget.fromDate!, widget.toDate!);
 
     if (fetchedInvoice != null) {
       final List<Future<CashierBalanceTransactionModel?>> invFetched =
-          fetchedInvoice.map((shift) async {
+          fetchedInvoice.map((invoice) async {
         return await GetIt.instance<AppDatabase>()
             .cashierBalanceTransactionDao
-            .readByDocId(shift.tcsr1Id!, null);
-      }).toList();
-
-      final List<Future<UserModel?>> userFetched =
-          fetchedInvoice.map((shift) async {
-        return await GetIt.instance<AppDatabase>()
-            .userDao
-            .readByDocId(shift.tcsr1Id!, null);
+            .readByDocId(invoice.tcsr1Id!, null);
       }).toList();
 
       tcsr1Data = await Future.wait(invFetched);
+
+      final List<Future<UserModel?>> userFetched = tcsr1Data.map((shift) async {
+        if (shift != null) {
+          return await GetIt.instance<AppDatabase>()
+              .userDao
+              .readByDocId(shift.tousrId!, null);
+        }
+      }).toList();
+
       userData = await Future.wait(userFetched);
-      log("$userData");
 
       setState(() {
         fetched = fetchedInvoice;
@@ -74,6 +73,14 @@ class _TableReportShiftState extends State<TableReportShift> {
       });
     }
   }
+
+  // Future<List<CashierBalanceTransactionModel?>> _convertDocNumToDocId(
+  //     String docNum) async {
+  //   final tcsr1Id = await GetIt.instance<AppDatabase>()
+  //       .cashierBalanceTransactionDao
+  //       .readByDocNum(docNum, null);
+  //   return tcsr1Id;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +113,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                   const Text(
                     "Report By Shift",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

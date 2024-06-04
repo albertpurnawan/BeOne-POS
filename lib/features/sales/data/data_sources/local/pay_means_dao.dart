@@ -42,4 +42,20 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
 
     return result.map((itemData) => PayMeansModel.fromMap(itemData)).toList();
   }
+
+  Future<List<PayMeansModel>?> readBetweenDate(
+      DateTime start, DateTime end) async {
+    final result = await db.query(
+      tableName,
+      where: 'createdat BETWEEN ? AND ?',
+      whereArgs: [
+        start.toUtc().toIso8601String(),
+        end.toUtc().toIso8601String()
+      ],
+    );
+    final transactions =
+        result.map((map) => PayMeansModel.fromMap(map)).toList();
+
+    return transactions;
+  }
 }
