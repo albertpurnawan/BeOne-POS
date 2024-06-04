@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
@@ -437,6 +438,87 @@ class ReceiptPrinter {
   }
 
   Future<void> printOpenShift(PrintOpenShiftDetail printOpenShiftDetail) async {
+    List<int> bytes = [];
+    final String? paperSize =
+        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(
+        paperSize == null
+            ? PaperSize.mm58
+            : paperSize == "80 mm"
+                ? PaperSize.mm80
+                : PaperSize.mm58,
+        profile);
+
+    bytes += generator.setGlobalCodeTable('CP1252');
+    bytes += generator.text('Open Shift Success',
+        styles: const PosStyles(
+          align: PosAlign.center,
+          height: PosTextSize.size2,
+          width: PosTextSize.size2,
+          bold: true,
+        ));
+    bytes += generator.emptyLines(1);
+    bytes += generator.hr();
+    bytes += generator.emptyLines(1);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Store Name',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printOpenShiftDetail.storeMasterEntity.storeName}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Cash Register',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printOpenShiftDetail.cashRegisterEntity.description}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Cashier',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printOpenShiftDetail.userEntity.username}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Opened At',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text:
+              ":  ${Helpers.formatDate(printOpenShiftDetail.cashierBalanceTransactionEntity.openDate)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Opening Balance',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text:
+              ":  ${Helpers.parseMoney(printOpenShiftDetail.cashierBalanceTransactionEntity.openValue)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+
+    _printEscPos(bytes, generator);
+  }
+
+  Future<void> printCloseShift(
+      PrintCloseShiftDetail printOpenShiftDetail) async {
     List<int> bytes = [];
     final String? paperSize =
         GetIt.instance<SharedPreferences>().getString("paperSize");

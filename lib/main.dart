@@ -51,7 +51,7 @@ void main() async {
   await initializeDependencies();
   await GetIt.instance.allReady();
   await Constant.loadTopos();
-  await syncWithBOS();
+  // await syncWithBOS();
   runApp(const MyApp());
 }
 
