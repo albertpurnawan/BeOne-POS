@@ -84,23 +84,11 @@ class _TableReportShiftState extends State<TableReportShift> {
 
   @override
   Widget build(BuildContext context) {
-    double totalAmount = 0.0;
-    double taxAmount = 0.0;
-    double totalDiscount = 0.0;
     double grandTotal = 0.0;
 
     if (fetched != null) {
-      totalAmount = fetched!
-          .map((shift) => shift.subTotal)
-          .fold(0.0, (previous, current) => previous + current);
-      taxAmount = fetched!
-          .map((shift) => shift.taxAmount)
-          .fold(0.0, (previous, current) => previous + current);
-      totalDiscount = fetched!
-          .map((shift) => shift.discAmount)
-          .fold(0.0, (previous, current) => previous + current);
       grandTotal = fetched!
-          .map((shift) => shift.grandTotal)
+          .map((shift) => shift.totalPayment)
           .fold(0.0, (previous, current) => previous + current);
     }
 
@@ -276,7 +264,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(shift.subTotal)},00",
+                                      "Rp ${Helpers.parseMoney(shift.totalPayment)},00",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -305,147 +293,6 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 children: [
                                   Text(
                                     'Total Amount:',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Rp ${Helpers.parseMoney(totalAmount)},00',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Tax Amount:',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Rp ${Helpers.parseMoney(taxAmount)},00',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Total Discount:',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Rp ${Helpers.parseMoney(totalDiscount)},00',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Grand Total:',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
