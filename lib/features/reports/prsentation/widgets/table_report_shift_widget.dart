@@ -12,11 +12,13 @@ import 'package:pos_fe/features/sales/data/models/user.dart';
 class TableReportShift extends StatefulWidget {
   final DateTime? fromDate;
   final DateTime? toDate;
+  final String? searchQuery;
 
   const TableReportShift({
     Key? key,
     this.fromDate,
     this.toDate,
+    this.searchQuery,
   }) : super(key: key);
 
   @override
@@ -41,13 +43,12 @@ class _TableReportShiftState extends State<TableReportShift> {
       return;
     }
 
-    final fetchedInvoice =
-        await GetIt.instance<AppDatabase>().invoiceHeaderDao.readBetweenDate(
-              widget.fromDate!,
-              widget.toDate!
-                  .add(const Duration(days: 1))
-                  .subtract(const Duration(seconds: 1)),
-            );
+    final tcsr1IdConvert = await _convertDocNumToDocId(widget.searchQuery!);
+
+    final fetchedInvoice = await GetIt.instance<AppDatabase>()
+        .invoiceHeaderDao
+        .readBetweenDate(
+            widget.fromDate!, widget.toDate!, tcsr1IdConvert[0]!.docId);
 
     if (fetchedInvoice != null) {
       final List<Future<CashierBalanceTransactionModel?>> invFetched =
@@ -68,13 +69,21 @@ class _TableReportShiftState extends State<TableReportShift> {
       }).toList();
 
       userData = await Future.wait(userFetched);
-      log("$userData");
 
       setState(() {
         fetched = fetchedInvoice;
         isLoading = false;
       });
     }
+  }
+
+  Future<List<CashierBalanceTransactionModel?>> _convertDocNumToDocId(
+      String docNum) async {
+    final tcsr1Id = await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .readByDocNum(docNum, null);
+    log("tcsr1Id convert - $tcsr1Id");
+    return tcsr1Id;
   }
 
   @override
@@ -108,7 +117,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                   const Text(
                     "Report By Shift",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

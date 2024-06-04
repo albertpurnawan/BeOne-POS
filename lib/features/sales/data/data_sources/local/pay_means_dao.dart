@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:sqflite/sqflite.dart';
@@ -41,5 +43,22 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
     );
 
     return result.map((itemData) => PayMeansModel.fromMap(itemData)).toList();
+  }
+
+  Future<List<PayMeansModel>?> readBetweenDate(
+      DateTime start, DateTime end) async {
+    final result = await db.query(
+      tableName,
+      where: 'createdat BETWEEN ? AND ?',
+      whereArgs: [
+        start.toUtc().toIso8601String(),
+        end.toUtc().toIso8601String()
+      ],
+    );
+    log("result - $result");
+    final transactions =
+        result.map((map) => PayMeansModel.fromMap(map)).toList();
+
+    return transactions;
   }
 }

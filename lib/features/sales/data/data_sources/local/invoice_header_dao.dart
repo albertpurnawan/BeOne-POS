@@ -82,14 +82,18 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
   }
 
   Future<List<InvoiceHeaderModel>?> readBetweenDate(
-      DateTime start, DateTime end) async {
+      DateTime start, DateTime end, String? tcsr1Id) async {
     final startDate = start.toUtc().toIso8601String();
     final endDate = end.toUtc().toIso8601String();
 
     final result = await db.query(
       tableName,
-      where: 'createdat BETWEEN ? AND ?',
-      whereArgs: [startDate, endDate],
+      where: 'createdat BETWEEN ? AND ? AND ?',
+      whereArgs: [
+        startDate,
+        endDate,
+        tcsr1Id,
+      ],
     );
 
     final transactions =
