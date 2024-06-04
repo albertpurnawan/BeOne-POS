@@ -626,9 +626,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 discHeaderManual: discHeaderManual,
                 discAmount:
                     discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
-                discPrctg:
-                    (discHeaderManual + (newReceipt.discHeaderPromo ?? 0)) /
-                        newReceipt.subtotal));
+                discPrctg: (100 *
+                        (discHeaderManual +
+                            (newReceipt.discHeaderPromo ?? 0))) /
+                    newReceipt.subtotal));
       }
 
       dev.log("Process reapply discount header $newReceipt");
