@@ -87,16 +87,6 @@ class InvoiceApi {
             .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
             .toUtc()
             .toIso8601String(),
-        "transdate": invHead[0]
-            .transDateTime!
-            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
-            .toUtc()
-            .toIso8601String(),
-        "transtime": invHead[0]
-            .transDateTime!
-            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
-            .toUtc()
-            .toIso8601String(),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
         "subtotal": invHead[0].subTotal.toInt(),
