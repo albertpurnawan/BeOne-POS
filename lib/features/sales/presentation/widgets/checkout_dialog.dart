@@ -497,10 +497,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         .first;
     context.read<ReceiptCubit>().updateMopSelection(
         mopSelectionEntity: mopSelectionEntity.copyWith(
-            amount: mopSelectionEntity.payTypeCode == "1"
-                ? _cashAmount.toDouble()
-                : context.read<ReceiptCubit>().state.grandTotal -
-                    (context.read<ReceiptCubit>().state.totalVoucher ?? 0)),
+            amount: context.read<ReceiptCubit>().state.grandTotal -
+                (context.read<ReceiptCubit>().state.totalVoucher ?? 0)),
         amountReceived: mopSelectionEntity.payTypeCode == "1"
             ? _cashAmount.toDouble() +
                 (context.read<ReceiptCubit>().state.totalVoucher ?? 0)
@@ -662,8 +660,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                         spacing: 15,
                         children: [
                           receipt.mopSelection != null
-                              ? _selectedMopChip(receipt.mopSelection!.mopAlias,
-                                  receipt.mopSelection!.amount ?? 0, 1)
+                              ? _selectedMopChip(
+                                  receipt.mopSelection!.mopAlias,
+                                  (receipt.totalPayment ?? 0) -
+                                      (receipt.totalVoucher ?? 0),
+                                  1)
                               : const SizedBox.shrink(),
                           receipt.vouchers.isNotEmpty
                               ? _selectedMopChip(
