@@ -294,7 +294,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             tbitmId: invoiceDetailModel.tbitmId!,
             tpln2Id: "",
             openPrice: itemMasterModel.openPrice,
-            tovenId: invoiceDetailModel.tovenId!,
+            tovenId: invoiceDetailModel.tovenId,
             tovatId: invoiceDetailModel.tovatId!,
             taxRate: invoiceDetailModel.taxPrctg,
             dpp: invoiceDetailModel.sellingPrice *

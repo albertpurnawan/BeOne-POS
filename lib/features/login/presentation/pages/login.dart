@@ -9,6 +9,7 @@ import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
@@ -187,10 +188,14 @@ class _LoginFormState extends State<LoginForm> {
                               openedShift: openedShift,
                             );
                           });
+                    } else {
+                      await GetIt.instance<LogoutUseCase>().call();
+                      return;
                     }
 
-                    if (isOpenShiftConfirmed)
+                    if (isOpenShiftConfirmed) {
                       context.pushNamed(RouteConstants.home);
+                    }
                   }
                 } else {
                   // Show error message if login is not successful or null
