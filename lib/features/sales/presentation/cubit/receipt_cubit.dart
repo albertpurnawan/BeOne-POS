@@ -391,12 +391,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> resetReceipt() async {
     try {
+      final DateTime now = DateTime.now();
       final EmployeeEntity? employeeEntity = await _getEmployeeUseCase.call();
       final CustomerEntity? customerEntity = await GetIt.instance<AppDatabase>()
           .customerDao
           .readByCustCode("99", null);
       final List<InvoiceHeaderEntity> invoiceHeaderEntities =
-          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
+          await GetIt.instance<AppDatabase>()
+              .invoiceHeaderDao
+              .readByShiftAndDatetime(now);
       final POSParameterEntity? posParameterEntity =
           await _getPosParameterUseCase.call();
       if (posParameterEntity == null) throw "POS Parameter not found";
@@ -410,7 +413,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       emit(ReceiptEntity(
         docNum:
-            "${storeMasterEntity.storeCode}-${DateFormat('yyMMddHHmmss').format(DateTime.now())}${ReceiptHelper.convertIntegerToTwoDigitString(invoiceHeaderEntities.length + 1)}/${ReceiptHelper.convertIntegerToThreeDigitString(int.parse(cashRegisterEntity.idKassa!))}",
+            "${storeMasterEntity.storeCode}-${DateFormat('yyMMddHHmmss').format(now)}${ReceiptHelper.convertIntegerToTwoDigitString(invoiceHeaderEntities.length + 1)}/${ReceiptHelper.convertIntegerToThreeDigitString(int.parse(cashRegisterEntity.idKassa!))}",
         employeeEntity: employeeEntity,
         customerEntity: customerEntity,
         receiptItems: [],
@@ -623,9 +626,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
               discHeaderManual) {
         newReceipt = await _recalculateTaxUseCase.call(
             params: newReceipt.copyWith(
-          discHeaderManual: discHeaderManual,
-          discAmount: discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
-        ));
+                discHeaderManual: discHeaderManual,
+                discAmount:
+                    discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
+                discPrctg: (100 *
+                        (discHeaderManual +
+                            (newReceipt.discHeaderPromo ?? 0))) /
+                    newReceipt.subtotal));
       }
 
       dev.log("Process reapply discount header $newReceipt");

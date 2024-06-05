@@ -22,6 +22,10 @@ class RecalculateReceiptUseCase
             (element.discAmount ?? 0) + (element.discHeaderAmount ?? 0);
         discHeaderPromo += element.discAmount ?? 0;
         taxAmount += element.taxAmount;
+
+        // update
+        element.discPrctg =
+            ((element.discAmount ?? 0) / element.totalGross) * 100;
       });
 
       grandTotal = subtotal - discAmount + taxAmount;
@@ -30,6 +34,7 @@ class RecalculateReceiptUseCase
         subtotal: subtotal,
         discAmount: discAmount,
         discHeaderPromo: discHeaderPromo,
+        discPrctg: (discAmount / subtotal) * 100,
         taxAmount: taxAmount,
         grandTotal: grandTotal,
       );

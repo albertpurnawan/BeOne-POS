@@ -244,7 +244,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       ...map,
       "minstock": map['minstock'].toDouble() as double,
       "maxstock": map['maxstock'].toDouble() as double,
-      "margin": map['margin']?.toDouble() as double,
+      "margin": map['margin']?.toDouble() as double?,
       "tocatId": map['tocatdocid'] != null ? map['tocatdocid'] as String : null,
       "touomId": map['touomdocid'] != null ? map['touomdocid'] as String : null,
       "property1": map['property1']?.toString(),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
@@ -89,9 +90,16 @@ class InvoiceApi {
             .toIso8601String(),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
-        "subtotal": invHead[0].subTotal.toInt(),
-        "discprctg": invHead[0].discPrctg,
-        "discamount": invHead[0].discAmount,
+        "subtotal": (invHead[0].subTotal -
+                invHead[0].discAmount +
+                (invHead[0].discHeaderManual ?? 0))
+            .toInt(),
+        "discprctg": 100 *
+            ((invHead[0].discHeaderManual ?? 0) /
+                (invHead[0].subTotal -
+                    invHead[0].discAmount +
+                    (invHead[0].discHeaderManual ?? 0))),
+        "discamount": invHead[0].discHeaderManual,
         "discountcard": invHead[0].discountCard,
         "coupon": invHead[0].coupon,
         "discountcoupon": invHead[0].discountCoupun,
@@ -100,9 +108,9 @@ class InvoiceApi {
         // "taxamount": 0,
         "addcost": invHead[0].addCost,
         "rounding": invHead[0].rounding,
-        "grandtotal": invHead[0].grandTotal.toInt(),
+        "grandtotal": invHead[0].grandTotal.round(),
         "changed": invHead[0].changed,
-        "totalpayment": invHead[0].totalPayment.toInt(),
+        "totalpayment": invHead[0].totalPayment.round(),
         "tocsr_id": invHead[0].tocsrId,
         "toinv_tohem_id": invHead[0].toinvTohemId,
         "refpos1": invHead[0].refpos1,
@@ -115,7 +123,10 @@ class InvoiceApi {
             "sellingprice": item.sellingPrice.toInt(),
             "discprctg": item.discPrctg,
             "discamount": item.discAmount,
-            "totalamount": item.totalAmount.toInt(),
+            "totalamount":
+                ((item.sellingPrice * (100 / (100 + item.taxPrctg))) -
+                        item.discAmount)
+                    .round(),
             "taxprctg": item.taxPrctg,
             "promotiontype": item.promotionType,
             "promotionid": item.promotionId,
@@ -154,6 +165,7 @@ class InvoiceApi {
       };
 
       log("Data2Send: $dataToSend");
+      log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         "$url/tenant-invoice/",
@@ -265,11 +277,11 @@ class InvoiceApi {
         "tocus_id": invHead.tocusId,
         "tohem_id": invHead.tohemId,
         "transdate": invHead.transDateTime!
-            .add(const Duration(hours: 7))
+            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
             .toUtc()
             .toIso8601String(),
         "transtime": invHead.transDateTime!
-            .add(const Duration(hours: 7))
+            .add(Duration(hours: DateTime.now().timeZoneOffset.inHours))
             .toUtc()
             .toIso8601String(),
         "timezone": invHead.timezone,

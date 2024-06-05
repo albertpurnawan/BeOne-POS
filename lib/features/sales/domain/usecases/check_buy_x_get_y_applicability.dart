@@ -43,191 +43,225 @@ class CheckBuyXGetYApplicabilityUseCase
 
       final List<Function> validations = [
         () async {
-          // Get header and validate
-          toprb = await GetIt.instance<AppDatabase>()
-              .promoBuyXGetYHeaderDao
-              .readByDocId(params.promo.promoId!, null);
-          if (toprb == null) return isApplicable = false;
-          if (params.receiptEntity.grandTotal < toprb!.minPurchase) {
-            isApplicable = false;
-          }
+          try {
+            // Get header and validate
+            log("Get header and validate");
+            toprb = await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYHeaderDao
+                .readByDocId(params.promo.promoId!, null);
+            if (toprb == null) return isApplicable = false;
+            if (params.receiptEntity.grandTotal < toprb!.minPurchase) {
+              isApplicable = false;
+            }
 
-          // Check header: waktu, amount vs %
-          final DateTime now = DateTime.now();
-          final DateTime startPromo = DateTime(
-            now.year,
-            now.month,
-            now.day,
-            toprb!.startTime.hour,
-            toprb!.startTime.minute,
-            toprb!.startTime.second,
-          );
-          final DateTime endPromo = DateTime(
-            now.year,
-            now.month,
-            now.day,
-            toprb!.endTime.hour,
-            toprb!.endTime.minute,
-            toprb!.endTime.second,
-          );
+            // Check header: waktu, amount vs %
+            final DateTime now = DateTime.now();
+            final DateTime startPromo = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              toprb!.startTime.hour,
+              toprb!.startTime.minute,
+              toprb!.startTime.second,
+            );
+            final DateTime endPromo = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              toprb!.endTime.hour,
+              toprb!.endTime.minute,
+              toprb!.endTime.second,
+            );
 
-          log("${toprb!.startDate} ${toprb!.endDate}");
-          log("${toprb!.endDate.hour}, ${toprb!.endDate.minute}, ${toprb!.endDate.second},");
-          log("waktu $startPromo $endPromo");
+            log("${toprb!.startDate} ${toprb!.endDate}");
+            log("${toprb!.endDate.hour}, ${toprb!.endDate.minute}, ${toprb!.endDate.second},");
+            log("waktu $startPromo $endPromo");
 
-          if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
-              now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
-            return isApplicable = false;
-          }
-        },
-        () async {
-          // Check multiply
-          final existingPromo = params.receiptEntity.promos
-              .where((element) => element.promoId == params.promo.promoId);
-          if (existingPromo.isNotEmpty) return isApplicable = false;
-
-          if (existingPromo.length > 1) return isApplicable = false;
-          if (existingPromo.isNotEmpty) {
-            if (existingPromo.first.promotionDetails == null) {
+            if (now.millisecondsSinceEpoch <
+                    startPromo.millisecondsSinceEpoch ||
+                now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
               return isApplicable = false;
             }
-            final int applyCount =
-                (existingPromo.first.promotionDetails as PromoBuyXGetYDetails)
-                    .applyCount;
-            if (applyCount > toprb!.maxMultiply) {
-              return isApplicable = false;
-            }
-
-            log("$applyCount apply");
-          }
-
-          log("Check multiply");
-          log(existingPromo.length.toString());
-        },
-        () async {
-          // Get X condition and validate
-          tprb1 = await GetIt.instance<AppDatabase>()
-              .promoBuyXGetYBuyConditionDao
-              .readByToprbId(params.promo.promoId!, null);
-          if (tprb1.isEmpty) isApplicable = false;
-
-          for (final e in tprb1) {
-            final ItemEntity? itemX = await GetIt.instance<AppDatabase>()
-                .itemsDao
-                .readByToitmId(e.toitmId!, null);
-            if (itemX != null) {
-              conditionAndItemXs.add(PromoBuyXGetYBuyConditionAndItemEntity(
-                promoBuyXGetYBuyConditionEntity: e,
-                itemEntity: itemX,
-              ));
-            }
-          }
-          if (conditionAndItemXs.isEmpty) isApplicable = false;
-        },
-        () async {
-          // Get Y condition and validate
-          tprb4 = await GetIt.instance<AppDatabase>()
-              .promoBuyXGetYGetConditionDao
-              .readByToprbId(params.promo.promoId!, null);
-          if (tprb4.isEmpty) isApplicable = false;
-
-          for (final e in tprb4) {
-            final ItemEntity? itemY = await GetIt.instance<AppDatabase>()
-                .itemsDao
-                .readByToitmId(e.toitmId!, null);
-            if (itemY != null) {
-              conditionAndItemYs.add(PromoBuyXGetYGetConditionAndItemEntity(
-                promoBuyXGetYGetConditionEntity: e,
-                itemEntity: itemY,
-                multiply: 0,
-              ));
-            }
-          }
-          if (conditionAndItemYs.isEmpty) isApplicable = false;
-        },
-        () async {
-          // Get existing item X from receipt and validate
-          itemXBarcodes =
-              conditionAndItemXs.map((e) => e.itemEntity.barcode).toList();
-          existingReceiptItemXs = params.receiptEntity.receiptItems
-              .where((e1) =>
-                  itemXBarcodes.contains(e1.itemEntity.barcode) &&
-                  e1.quantity >=
-                      conditionAndItemXs
-                          .firstWhere((e2) =>
-                              e2.itemEntity.barcode == e1.itemEntity.barcode)
-                          .promoBuyXGetYBuyConditionEntity
-                          .quantity)
-              .toList();
-          if (toprb!.buyCondition == 1 &&
-              existingReceiptItemXs.length != itemXBarcodes.length) {
-            return isApplicable = false;
-          }
-
-          qtySumOfExistingReceiptItemXs = existingReceiptItemXs.isEmpty
-              ? 0
-              : existingReceiptItemXs
-                  .map((e) => e.quantity)
-                  .reduce((value, element) => value + element);
-          if (qtySumOfExistingReceiptItemXs +
-                  params.receiptItemEntity.quantity <
-              toprb!.minBuy) {
-            isApplicable = false;
+          } catch (e) {
+            rethrow;
           }
         },
         () async {
-          // Find available apply count
-          final List<ReceiptItemEntity> existingReceiptItemXsCopy =
-              existingReceiptItemXs.map((e) => e.copyWith()).toList();
+          try {
+            // Check multiply
+            log("Check multiply");
 
-          if (toprb!.buyCondition == 1) {
-            bool isAvailable = true;
-            while (isAvailable) {
-              for (final existingReceiptItemXCopy
-                  in existingReceiptItemXsCopy) {
-                final double conditionQty = conditionAndItemXs
-                    .firstWhere((element) =>
-                        element.itemEntity.barcode ==
-                        existingReceiptItemXCopy.itemEntity.barcode)
-                    .promoBuyXGetYBuyConditionEntity
-                    .quantity;
-                if (conditionQty > existingReceiptItemXCopy.quantity) {
-                  isAvailable = false;
-                  break;
-                }
-                existingReceiptItemXCopy.quantity -= conditionQty;
+            final existingPromo = params.receiptEntity.promos
+                .where((element) => element.promoId == params.promo.promoId);
+            if (existingPromo.isNotEmpty) return isApplicable = false;
+
+            if (existingPromo.length > 1) return isApplicable = false;
+            if (existingPromo.isNotEmpty) {
+              if (existingPromo.first.promotionDetails == null) {
+                return isApplicable = false;
               }
-              if (!isAvailable) break;
-              availableApplyCount += 1;
+              final int applyCount =
+                  (existingPromo.first.promotionDetails as PromoBuyXGetYDetails)
+                      .applyCount;
+              if (applyCount > toprb!.maxMultiply) {
+                return isApplicable = false;
+              }
+
+              log("$applyCount apply");
             }
-          } else {
-            while (true) {
-              List<bool> availability = List<bool>.generate(
-                  existingReceiptItemXsCopy.length, (index) => true);
-              for (int i = 0; i < existingReceiptItemXsCopy.length; i++) {
-                final ReceiptItemEntity existingReceiptItemXCopy =
-                    existingReceiptItemXsCopy[i];
-                final double conditionQty = conditionAndItemXs
-                    .firstWhere((element) =>
-                        element.itemEntity.barcode ==
-                        existingReceiptItemXCopy.itemEntity.barcode)
-                    .promoBuyXGetYBuyConditionEntity
-                    .quantity;
-                if (conditionQty > existingReceiptItemXCopy.quantity) {
-                  availability[i] = false;
-                  continue;
+
+            log("Check multiply");
+            log(existingPromo.length.toString());
+          } catch (e) {
+            rethrow;
+          }
+        },
+        () async {
+          try {
+            // Get X condition and validate
+            log("Get X condition and validate");
+            tprb1 = await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYBuyConditionDao
+                .readByToprbId(params.promo.promoId!, null);
+            if (tprb1.isEmpty) isApplicable = false;
+
+            for (final e in tprb1) {
+              final ItemEntity? itemX = await GetIt.instance<AppDatabase>()
+                  .itemsDao
+                  .readByToitmId(e.toitmId!, null);
+              if (itemX != null) {
+                conditionAndItemXs.add(PromoBuyXGetYBuyConditionAndItemEntity(
+                  promoBuyXGetYBuyConditionEntity: e,
+                  itemEntity: itemX,
+                ));
+              }
+            }
+            if (conditionAndItemXs.isEmpty) isApplicable = false;
+          } catch (e) {
+            rethrow;
+          }
+        },
+        () async {
+          try {
+            // Get Y condition and validate
+            log("Get Y condition and validate");
+
+            tprb4 = await GetIt.instance<AppDatabase>()
+                .promoBuyXGetYGetConditionDao
+                .readByToprbId(params.promo.promoId!, null);
+            if (tprb4.isEmpty) isApplicable = false;
+
+            for (final e in tprb4) {
+              if (e.quantity < 1) return isApplicable = false;
+              final ItemEntity? itemY = await GetIt.instance<AppDatabase>()
+                  .itemsDao
+                  .readByToitmId(e.toitmId!, null);
+              if (itemY != null) {
+                conditionAndItemYs.add(PromoBuyXGetYGetConditionAndItemEntity(
+                  promoBuyXGetYGetConditionEntity: e,
+                  itemEntity: itemY,
+                  multiply: 0,
+                ));
+              }
+            }
+            if (conditionAndItemYs.isEmpty) isApplicable = false;
+          } catch (e) {
+            rethrow;
+          }
+        },
+        () async {
+          try {
+            // Get existing item X from receipt and validate
+            log("Get existing item X from receipt and validate");
+
+            itemXBarcodes =
+                conditionAndItemXs.map((e) => e.itemEntity.barcode).toList();
+            existingReceiptItemXs = params.receiptEntity.receiptItems
+                .where((e1) =>
+                    itemXBarcodes.contains(e1.itemEntity.barcode) &&
+                    e1.quantity >=
+                        conditionAndItemXs
+                            .firstWhere((e2) =>
+                                e2.itemEntity.barcode == e1.itemEntity.barcode)
+                            .promoBuyXGetYBuyConditionEntity
+                            .quantity)
+                .toList();
+            if (toprb!.buyCondition == 1 &&
+                existingReceiptItemXs.length != itemXBarcodes.length) {
+              return isApplicable = false;
+            }
+
+            qtySumOfExistingReceiptItemXs = existingReceiptItemXs.isEmpty
+                ? 0
+                : existingReceiptItemXs
+                    .map((e) => e.quantity)
+                    .reduce((value, element) => value + element);
+            if (qtySumOfExistingReceiptItemXs < toprb!.minBuy) {
+              isApplicable = false;
+            }
+          } catch (e) {
+            rethrow;
+          }
+        },
+        () async {
+          try {
+            // Find available apply count
+            log("Find available apply count");
+            final List<ReceiptItemEntity> existingReceiptItemXsCopy =
+                existingReceiptItemXs.map((e) => e.copyWith()).toList();
+
+            if (toprb!.buyCondition == 1) {
+              bool isAvailable = true;
+              while (isAvailable) {
+                for (final existingReceiptItemXCopy
+                    in existingReceiptItemXsCopy) {
+                  final double conditionQty = conditionAndItemXs
+                      .firstWhere((element) =>
+                          element.itemEntity.barcode ==
+                          existingReceiptItemXCopy.itemEntity.barcode)
+                      .promoBuyXGetYBuyConditionEntity
+                      .quantity;
+                  if (conditionQty > existingReceiptItemXCopy.quantity) {
+                    isAvailable = false;
+                    break;
+                  }
+                  existingReceiptItemXCopy.quantity -= conditionQty;
                 }
-                existingReceiptItemXCopy.quantity -= conditionQty;
+                if (!isAvailable) break;
                 availableApplyCount += 1;
               }
-              if (availability.every((element) => element == false)) break;
+            } else {
+              while (true) {
+                List<bool> availability = List<bool>.generate(
+                    existingReceiptItemXsCopy.length, (index) => true);
+                for (int i = 0; i < existingReceiptItemXsCopy.length; i++) {
+                  final ReceiptItemEntity existingReceiptItemXCopy =
+                      existingReceiptItemXsCopy[i];
+                  double conditionQty = conditionAndItemXs
+                      .firstWhere((element) =>
+                          element.itemEntity.barcode ==
+                          existingReceiptItemXCopy.itemEntity.barcode)
+                      .promoBuyXGetYBuyConditionEntity
+                      .quantity;
+                  if (conditionQty == 0) conditionQty = 1;
+                  if (conditionQty > existingReceiptItemXCopy.quantity) {
+                    availability[i] = false;
+                    continue;
+                  }
+                  existingReceiptItemXCopy.quantity -= conditionQty;
+                  availableApplyCount += 1;
+                }
+                if (availability.every((element) => element == false)) break;
+              }
             }
-          }
 
-          availableApplyCount = toprb!.maxMultiply < availableApplyCount
-              ? toprb!.maxMultiply.toInt()
-              : availableApplyCount;
-          log("AVAILABLE APPLY COUNT $availableApplyCount");
+            availableApplyCount = toprb!.maxMultiply < availableApplyCount
+                ? toprb!.maxMultiply.toInt()
+                : availableApplyCount;
+            log("AVAILABLE APPLY COUNT $availableApplyCount");
+          } catch (e) {
+            rethrow;
+          }
         }
       ];
 
@@ -236,7 +270,12 @@ class CheckBuyXGetYApplicabilityUseCase
           log("1");
           break;
         }
-        await validation();
+        try {
+          await validation();
+        } catch (e) {
+          log(e.toString());
+          isApplicable = false;
+        }
       }
 
       return CheckBuyXGetYApplicabilityResult(

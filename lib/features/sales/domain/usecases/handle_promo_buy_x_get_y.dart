@@ -45,8 +45,9 @@ class HandlePromoBuyXGetYUseCase
               ..promotionDetails = PromoBuyXGetYDetails(
                 applyCount:
                     (e.promotionDetails as PromoBuyXGetYDetails).applyCount + 1,
-                xGroups: [],
-                yGroups: [],
+                quantity: 0,
+                sellingPrice: 0,
+                isY: false,
               );
           }
           return e;
@@ -54,23 +55,27 @@ class HandlePromoBuyXGetYUseCase
 
         if (!promoExist) {
           existingReceiptItemX.promos.add(params.promo
-            ..promotionDetails =
-                PromoBuyXGetYDetails(applyCount: 1, xGroups: [], yGroups: []));
+            ..promotionDetails = PromoBuyXGetYDetails(
+                applyCount: 1, quantity: 0, isY: false, sellingPrice: 0));
         }
       }
 
       // Handle Y
       final List<ReceiptItemEntity> receiptItemYs = [];
       for (final conditionAndItemY in params.conditionAndItemYs) {
+        final double sellingPrice = conditionAndItemY.itemEntity.includeTax == 0
+            ? conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice
+            : conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice *
+                (100 / (100 + conditionAndItemY.itemEntity.taxRate));
+
         final existingReceiptItemY = existingReceiptItemYs.where((e) =>
             e.itemEntity.barcode == conditionAndItemY.itemEntity.barcode);
 
         if (existingReceiptItemY.isEmpty) {
-          final double discAmount = (conditionAndItemY.itemEntity.dpp -
-                  conditionAndItemY
-                      .promoBuyXGetYGetConditionEntity.sellingPrice) *
-              conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
-              conditionAndItemY.multiply;
+          final double discAmount =
+              (conditionAndItemY.itemEntity.dpp - sellingPrice) *
+                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+                  conditionAndItemY.multiply;
           receiptItemYs.add(
             ReceiptHelper.updateReceiptItemAggregateFields(
                 ReceiptHelper.convertItemEntityToReceiptItemEntity(
@@ -82,34 +87,31 @@ class HandlePromoBuyXGetYUseCase
                   ..promos = [
                     params.promo.copyWith(
                         promotionDetails: PromoBuyXGetYDetails(
-                            applyCount: 1, xGroups: [], yGroups: []),
+                            applyCount: 1,
+                            isY: true,
+                            sellingPrice: sellingPrice,
+                            quantity: conditionAndItemY
+                                    .promoBuyXGetYGetConditionEntity.quantity *
+                                conditionAndItemY.multiply),
                         discAmount: discAmount)
                   ]),
           );
         } else {
           final double thisDiscAmount = existingReceiptItemY.first.discAmount ==
                   null
-              ? (existingReceiptItemY.first.itemEntity.dpp -
-                      conditionAndItemY
-                          .promoBuyXGetYGetConditionEntity.sellingPrice) *
+              ? (existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
                   conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                   conditionAndItemY.multiply
-              : ((existingReceiptItemY.first.itemEntity.dpp -
-                      conditionAndItemY
-                          .promoBuyXGetYGetConditionEntity.sellingPrice) *
+              : ((existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
                   conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                   conditionAndItemY.multiply);
           final double discAmount = existingReceiptItemY.first.discAmount ==
                   null
-              ? (existingReceiptItemY.first.itemEntity.dpp -
-                      conditionAndItemY
-                          .promoBuyXGetYGetConditionEntity.sellingPrice) *
+              ? (existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
                   conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                   conditionAndItemY.multiply
               : existingReceiptItemY.first.discAmount! +
-                  ((existingReceiptItemY.first.itemEntity.dpp -
-                          conditionAndItemY
-                              .promoBuyXGetYGetConditionEntity.sellingPrice) *
+                  ((existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
                       conditionAndItemY
                           .promoBuyXGetYGetConditionEntity.quantity *
                       conditionAndItemY.multiply);
@@ -123,7 +125,12 @@ class HandlePromoBuyXGetYUseCase
               params.promo.copyWith(
                   discAmount: thisDiscAmount,
                   promotionDetails: PromoBuyXGetYDetails(
-                      applyCount: 1, xGroups: [], yGroups: []))
+                      applyCount: 1,
+                      isY: true,
+                      sellingPrice: sellingPrice,
+                      quantity: conditionAndItemY
+                              .promoBuyXGetYGetConditionEntity.quantity *
+                          conditionAndItemY.multiply))
             ];
           } else {
             finalPromos = existingReceiptItemY.first.promos.map((e) {
@@ -132,7 +139,10 @@ class HandlePromoBuyXGetYUseCase
                     discAmount: thisDiscAmount,
                     promotionDetails:
                         ((e.promotionDetails as PromoBuyXGetYDetails)
-                          ..applyCount += 1));
+                          ..applyCount += 1
+                          ..quantity += conditionAndItemY
+                                  .promoBuyXGetYGetConditionEntity.quantity *
+                              conditionAndItemY.multiply));
               }
 
               return e;

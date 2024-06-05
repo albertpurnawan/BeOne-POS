@@ -2790,7 +2790,6 @@ CREATE TABLE $tableQueuedInvoiceHeader (
   ${QueuedInvoiceHeaderFields.discHeaderManual} double NOT NULL,
   ${QueuedInvoiceHeaderFields.discHeaderPromo} double NOT NULL,
   ${QueuedInvoiceHeaderFields.syncToBos} text DEFAULT NULL,
-  ${QueuedInvoiceHeaderFields.paymentSuccess} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )

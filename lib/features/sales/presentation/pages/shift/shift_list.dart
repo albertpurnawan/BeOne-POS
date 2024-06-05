@@ -29,7 +29,7 @@ class _ShiftsListState extends State<ShiftsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ProjectColors.primary,
+      backgroundColor: ProjectColors.background,
       appBar: AppBar(
         title: const Text('Shifts'),
         backgroundColor: ProjectColors.primary,
@@ -44,16 +44,14 @@ class _ShiftsListState extends State<ShiftsList> {
         child: Column(
           children: [
             const ActiveShift(),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 233, 222, 222),
-                borderRadius: BorderRadius.circular(5),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 200),
+              child: Divider(
+                color: Colors.black,
+                thickness: 2,
               ),
-              height: 4,
-              width: 875,
             ),
-            const SizedBox(height: 10),
             const AllShift(),
           ],
         ),
@@ -107,8 +105,8 @@ class _ActiveShiftState extends State<ActiveShift> {
         padding: const EdgeInsets.symmetric(horizontal: 200.0),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 233, 222, 222),
-            borderRadius: BorderRadius.circular(10.0),
+            color: null,
+            borderRadius: BorderRadius.circular(5.0),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 30.0),
@@ -149,11 +147,11 @@ class _ActiveShiftState extends State<ActiveShift> {
       padding: const EdgeInsets.symmetric(horizontal: 200.0),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 233, 222, 222),
+          color: null,
           borderRadius: BorderRadius.circular(5),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 30.0),
+          padding: const EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -167,7 +165,7 @@ class _ActiveShiftState extends State<ActiveShift> {
                         fontSize: 24,
                         fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -286,111 +284,123 @@ class _AllShiftState extends State<AllShift> {
     }
 
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 200.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Container(
-              height: constraints.maxHeight - 40,
-              width: constraints.maxWidth,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 233, 222, 222),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      for (var entry in sortedEntries)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry.key, // Display date
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            for (var shift in entry.value)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          shift.docNum,
-                                          style: const TextStyle(fontSize: 20),
-                                        ),
-                                        SizedBox(
-                                          width: 100,
-                                          child: Text(
-                                            NumberFormat.decimalPattern()
-                                                .format(
-                                                    shift.closeValue.toInt()),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Container(
+            height: constraints.maxHeight - 40,
+            width: constraints.maxWidth,
+            padding: EdgeInsets.symmetric(horizontal: 200),
+            decoration: BoxDecoration(
+              color: null,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  for (var entry in sortedEntries)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          entry.key, // Display date
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        for (var shift in entry.value)
+                          SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            shift.docNum,
                                             style:
-                                                const TextStyle(fontSize: 18),
-                                            textAlign: TextAlign.end,
+                                                const TextStyle(fontSize: 20),
                                           ),
-                                        ),
-                                        if (shift.approvalStatus == 0)
-                                          const SizedBox(
+                                          SizedBox(
                                             width: 100,
                                             child: Text(
-                                              'OPEN',
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w700,
-                                                color: Color.fromARGB(
-                                                    255, 47, 143, 8),
+                                              NumberFormat.decimalPattern()
+                                                  .format(
+                                                      shift.closeValue.toInt()),
+                                              style:
+                                                  const TextStyle(fontSize: 18),
+                                              textAlign: TextAlign.end,
+                                            ),
+                                          ),
+                                          if (shift.approvalStatus == 0)
+                                            const SizedBox(
+                                              width: 100,
+                                              child: Text(
+                                                'OPEN',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color.fromARGB(
+                                                      255, 47, 143, 8),
+                                                ),
+                                              ),
+                                            )
+                                          else
+                                            const SizedBox(
+                                              width: 100,
+                                              child: Text(
+                                                'CLOSED',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w700),
                                               ),
                                             ),
-                                          )
-                                        else
-                                          const SizedBox(
-                                            width: 100,
-                                            child: Text(
-                                              'CLOSED',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                CloseShiftScreen(
+                                                    shiftId: shift.docId),
                                           ),
-                                      ],
+                                        );
+                                      },
+                                      child: const Icon(
+                                        Icons.arrow_right_outlined,
+                                        size: 40,
+                                      ),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              CloseShiftScreen(
-                                                  shiftId: shift.docId),
-                                        ),
-                                      );
-                                    },
-                                    child: const Icon(
-                                      Icons.arrow_right_outlined,
-                                      size: 40,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
+                                  ],
+                                ),
+                                Divider(
+                                  color: Colors.grey,
+                                )
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

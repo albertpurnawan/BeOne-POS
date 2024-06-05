@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -32,23 +34,21 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            children: [
-              const Center(
-                child: Text(
-                  "Close Current Shift",
-                  style: TextStyle(
-                      color: ProjectColors.swatch,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold),
-                ),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  CloseShiftForm(shiftId: shiftId),
+                ],
               ),
-              const SizedBox(height: 30),
-              CloseShiftForm(shiftId: shiftId),
-            ],
+            ),
           ),
         ),
       ),
@@ -117,6 +117,18 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   void updateActiveShift() async {
     if (activeShift != null && transactions.isNotEmpty) {
       double totalCashValue = 0;
+      double totalNonCash = 0.0;
+      final DateTime now = DateTime.now();
+      final fetched = await GetIt.instance<AppDatabase>()
+          .payMeansDao
+          .readByTpmt3BetweenDate(
+              DateTime(
+                  activeShift!.openDate.year, now.month, now.day, 0, 0, 0, 0),
+              DateTime(now.year, now.month, now.day, 23, 59, 59, 999));
+      log("$fetched");
+      // for(final mop in fetched!) {
+      //   if(mop['tpmt3Id'] != )
+      // }
 
       for (final trx in transactions) {
         if (trx != null) {
@@ -179,265 +191,274 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
     final cashier = prefs.getString('username');
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 30.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Cashier",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Cashier",
+                style: TextStyle(
+                  fontSize: 20,
                 ),
-                Expanded(
-                  child: Text(
-                    cashier!,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.start,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Shift Started",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+            Expanded(
+              child: Text(
+                cashier!,
+                style: const TextStyle(
+                  fontSize: 20,
                 ),
-                Expanded(
-                  child: Text(
-                    formattedOpenDate,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.end,
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Opening Balance",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Opened at",
+                style: TextStyle(
+                  fontSize: 20,
                 ),
-                Expanded(
-                  child: Text(
-                    formattedOpenValue,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.start,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Total Cash Sales",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+            Expanded(
+              child: Text(
+                formattedOpenDate,
+                style: const TextStyle(
+                  fontSize: 20,
                 ),
-                Expanded(
-                  child: Text(
-                    formattedCashValue,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.end,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Total Cash Flow",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+          ],
+        ),
+        const Divider(
+          height: 50,
+          color: Colors.grey,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                "Sales",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
                 ),
-                Expanded(
-                  child: Text(
-                    formattedCashFlow,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.start,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Total Non Cash",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Opening Balance",
+                style: TextStyle(
+                  fontSize: 20,
                 ),
-                Expanded(
-                  child: Text(
-                    formattedCalcValue,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.start,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Expected Cash",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+            Expanded(
+              child: Text(
+                formattedOpenValue,
+                style: const TextStyle(
+                  fontSize: 20,
                 ),
-                Expanded(
-                  child: Text(
-                    formattedExpectedCash,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.end,
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 100.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Text(
-                    "Calculate Cash",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Total Cash Sales",
+                style: TextStyle(
+                  fontSize: 20,
                 ),
-              ],
+                textAlign: TextAlign.start,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100.0),
-            child: CalculateCash(updateTotalCash),
-          ),
-          Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomButton(
-                child: const Text("End Shift"),
-                onTap: () {
-                  if (activeShift != null) {
-                    final CashierBalanceTransactionModel shift =
-                        CashierBalanceTransactionModel(
-                      docId: activeShift!.docId,
-                      createDate: activeShift!.createDate,
-                      updateDate: activeShift!.updateDate,
-                      tocsrId: activeShift!.tocsrId,
-                      tousrId: activeShift!.tousrId,
-                      docNum: activeShift!.docNum,
-                      openDate: activeShift!.openDate,
-                      openTime: activeShift!.openTime,
-                      calcDate: activeShift!.calcDate,
-                      calcTime: activeShift!.calcTime,
-                      closeDate: activeShift!.closeDate,
-                      closeTime: activeShift!.closeTime,
-                      timezone: activeShift!.timezone,
-                      openValue: activeShift!.openValue,
-                      calcValue: activeShift!.calcValue,
-                      cashValue: activeShift!.cashValue,
-                      closeValue: activeShift!.closeValue,
-                      openedbyId: activeShift!.openedbyId,
-                      closedbyId: activeShift!.closedbyId,
-                      approvalStatus: activeShift!.approvalStatus,
-                    );
+            Expanded(
+              child: Text(
+                formattedCashValue,
+                style: const TextStyle(
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Expected Cash",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: ProjectColors.mediumBlack,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                formattedExpectedCash,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: ProjectColors.mediumBlack,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Total Non Cash Sales",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                formattedCalcValue,
+                style: const TextStyle(
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Total Sales",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                formattedCashFlow,
+                style: const TextStyle(
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        const Divider(
+          height: 50,
+          color: Colors.grey,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                "Cash Received",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        CalculateCash(updateTotalCash),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 200),
+          child: CustomButton(
+              child: const Text("End Shift"),
+              onTap: () {
+                if (activeShift != null) {
+                  final CashierBalanceTransactionModel shift =
+                      CashierBalanceTransactionModel(
+                    docId: activeShift!.docId,
+                    createDate: activeShift!.createDate,
+                    updateDate: activeShift!.updateDate,
+                    tocsrId: activeShift!.tocsrId,
+                    tousrId: activeShift!.tousrId,
+                    docNum: activeShift!.docNum,
+                    openDate: activeShift!.openDate,
+                    openTime: activeShift!.openTime,
+                    calcDate: activeShift!.calcDate,
+                    calcTime: activeShift!.calcTime,
+                    closeDate: activeShift!.closeDate,
+                    closeTime: activeShift!.closeTime,
+                    timezone: activeShift!.timezone,
+                    openValue: activeShift!.openValue,
+                    calcValue: activeShift!.calcValue,
+                    cashValue: activeShift!.cashValue,
+                    closeValue: activeShift!.closeValue,
+                    openedbyId: activeShift!.openedbyId,
+                    closedbyId: activeShift!.closedbyId,
+                    approvalStatus: activeShift!.approvalStatus,
+                  );
 
-                    if (!context.mounted) return;
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return ConfirmEndShift(shift, totalCash);
-                        });
-                  }
-                }),
-          ),
-        ],
-      ),
+                  if (!context.mounted) return;
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ConfirmEndShift(shift, totalCash);
+                      });
+                }
+              }),
+        ),
+        SizedBox(
+          height: 30,
+        ),
+      ],
     );
   }
 }

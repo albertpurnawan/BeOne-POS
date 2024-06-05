@@ -117,7 +117,7 @@ class EmployeeModel extends EmployeeEntity implements BaseModel {
       'idcard': idCard,
       'gender': gender,
       'birthdate': birthdate.toLocal().toIso8601String(),
-      'photo': photo,
+      'photo': photo.toString(),
       'joindate': joinDate.toLocal().toIso8601String(),
       'resigndate': resignDate?.toLocal().toIso8601String(),
       'statusactive': statusActive,

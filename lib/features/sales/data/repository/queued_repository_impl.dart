@@ -171,7 +171,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             tbitmId: queuedInvoiceDetailModel.tbitmId!,
             tpln2Id: "",
             openPrice: itemMasterModel.openPrice,
-            tovenId: queuedInvoiceDetailModel.tovenId!,
+            tovenId: queuedInvoiceDetailModel.tovenId,
             tovatId: queuedInvoiceDetailModel.tovatId!,
             taxRate: queuedInvoiceDetailModel.taxPrctg,
             dpp: queuedInvoiceDetailModel.sellingPrice *
@@ -276,7 +276,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
               tbitmId: queuedInvoiceDetailModel.tbitmId!,
               tpln2Id: "",
               openPrice: itemMasterModel.openPrice,
-              tovenId: queuedInvoiceDetailModel.tovenId!,
+              tovenId: queuedInvoiceDetailModel.tovenId,
               tovatId: queuedInvoiceDetailModel.tovatId!,
               taxRate: queuedInvoiceDetailModel.taxPrctg,
               dpp: queuedInvoiceDetailModel.sellingPrice *
