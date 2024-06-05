@@ -202,8 +202,9 @@ class ConfirmToEndShift extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        CloseShiftScreen(shiftId: shift.docId),
+                                    builder: (context) => CloseShiftScreen(
+                                        shiftId: shift.docId,
+                                        username: usernameController.text),
                                   ),
                                 );
                               } else {
