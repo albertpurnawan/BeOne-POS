@@ -218,7 +218,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'sqm': sqm,
       'tcurrId': tcurrId,
       'toplnId': toplnId,
-      'storepic': storePic,
+      'storepic': storePic.toString(),
       'tovatId': tovatId,
       'storeopen': storeOpening.toUtc().toIso8601String(),
       'statusactive': statusActive,

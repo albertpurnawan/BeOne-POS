@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -81,6 +84,29 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     return invoices;
   }
 
+  Future<List<InvoiceHeaderModel>> readByShiftAndDatetime(
+      DateTime datetime) async {
+    final stringDatetime =
+        DateFormat("yyyy-MM-dd HH:mm:ss").format(datetime.toUtc());
+    log(stringDatetime);
+    final prefs = GetIt.instance<SharedPreferences>();
+    final tcsr1Id = prefs.getString('tcsr1Id');
+    final res = await db.query(
+      tableName,
+      where: 'tcsr1Id LIKE ? AND createdAt = ?',
+      whereArgs: ['$tcsr1Id%', stringDatetime],
+    );
+
+    if (res.isEmpty) {
+      return [];
+    }
+
+    final List<InvoiceHeaderModel> invoices =
+        res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
+
+    return invoices;
+  }
+
   Future<List<InvoiceHeaderModel>?> readBetweenDate(
       DateTime start, DateTime end) async {
     final startDate = start.toUtc().toIso8601String();
@@ -99,5 +125,21 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
         result.map((map) => InvoiceHeaderModel.fromMap(map)).toList();
 
     return transactions;
+  }
+
+  Future<List<dynamic>?> readByItemBetweenDate(
+      DateTime start, DateTime end) async {
+    final startDate = start.toUtc().toIso8601String();
+    final endDate = end.toUtc().toIso8601String();
+
+    final result = await db.rawQuery('''
+      SELECT d.toitmId, i.itemname, SUM(d.quantity) AS totalquantity, SUM(d.totalamount) AS totalamount
+      FROM $tableName AS d
+      INNER JOIN toitm AS i ON d.toitmId = i.docid
+      WHERE d.createdat BETWEEN ? AND ?
+      GROUP BY d.toitmId
+      ''', [startDate, endDate]);
+
+    return result;
   }
 }

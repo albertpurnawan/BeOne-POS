@@ -144,7 +144,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         toinvId: generatedInvoiceHeaderDocId,
         lineNum: 1,
         tpmt3Id: receiptEntity.mopSelection!.tpmt3Id,
-        amount: receiptEntity.totalPayment!,
+        amount: receiptEntity.mopSelection!.amount ?? 0,
         tpmt2Id: null,
         cardNo: null,
         cardHolder: null,
@@ -294,7 +294,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             tbitmId: invoiceDetailModel.tbitmId!,
             tpln2Id: "",
             openPrice: itemMasterModel.openPrice,
-            tovenId: invoiceDetailModel.tovenId!,
+            tovenId: invoiceDetailModel.tovenId,
             tovatId: invoiceDetailModel.tovatId!,
             taxRate: invoiceDetailModel.taxPrctg,
             dpp: invoiceDetailModel.sellingPrice *

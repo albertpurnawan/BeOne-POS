@@ -402,7 +402,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                                 overlayColor: MaterialStateColor.resolveWith(
                                     (states) => Colors.black.withOpacity(.2))),
                             onPressed: () {
-                              context.pop(false);
+                              context.pop(null);
                             },
                             child: const Center(
                                 child: Text(

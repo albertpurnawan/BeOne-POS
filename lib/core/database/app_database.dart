@@ -624,7 +624,7 @@ FROM
     FROM
       tsitm
   ) as s ON s.toitmId = p.toitmId
-  INNER JOIN (
+  LEFT JOIN (
     SELECT
       tsitmId,
       tovenId

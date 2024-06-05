@@ -81,10 +81,16 @@ class AppRouter {
         name: RouteConstants.reports,
         path: "/reports",
         pageBuilder: (context, state) {
-          return const MaterialPage(
-              child: FiltereReportScreen()); // edit to dashboard
+          return const MaterialPage(child: FiltereReportScreen());
         },
       ),
+      // GoRoute(
+      //   name: RouteConstants.reports,
+      //   path: "/mopAdjustment",
+      //   pageBuilder: (context, state) {
+      //     return const MaterialPage(child: FiltereReportScreen());
+      //   },
+      // ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
       if (state.extra != null) {
