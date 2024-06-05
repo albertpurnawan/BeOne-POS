@@ -9,6 +9,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_end_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,6 +73,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalCash = '0';
   String totalNonCash = '0';
   String totalSales = '0';
+  String expectedCash = "0";
 
   _CloseShiftFormState({required this.shiftId});
 
@@ -180,6 +182,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             totalSales = NumberFormat.decimalPattern().format(salesAmount);
             totalCash =
                 NumberFormat.decimalPattern().format(salesAmount - nonCash);
+            expectedCash = NumberFormat.decimalPattern()
+                .format(data.openValue + (salesAmount - nonCash));
           });
         }
       }
@@ -196,17 +200,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         Helpers.formatDateNoSeconds(activeShift!.openDate);
     String formattedOpenValue =
         NumberFormat.decimalPattern().format(activeShift!.openValue.toInt());
-    String formattedCashValue =
-        NumberFormat.decimalPattern().format(activeShift!.cashValue.toInt());
-    String formattedCalcValue =
-        NumberFormat.decimalPattern().format(activeShift!.calcValue.toInt());
-    double cashFlow = 0.0;
-    String formattedCashFlow =
-        NumberFormat.decimalPattern().format(cashFlow.toInt());
-    double expectedCash =
-        activeShift!.openValue + activeShift!.cashValue + cashFlow;
-    String formattedExpectedCash =
-        NumberFormat.decimalPattern().format(expectedCash.toInt());
 
     final cashier = prefs.getString('username');
 
@@ -349,7 +342,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                formattedExpectedCash,
+                expectedCash,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -439,7 +432,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(
               child: const Text("End Shift"),
-              onTap: () {
+              onTap: () async {
                 if (activeShift != null) {
                   final CashierBalanceTransactionModel shift =
                       CashierBalanceTransactionModel(
