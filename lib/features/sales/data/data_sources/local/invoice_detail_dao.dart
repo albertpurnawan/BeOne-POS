@@ -54,7 +54,8 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
     final endDate = end.toUtc().toIso8601String();
 
     final result = await db.rawQuery('''
-      SELECT d.toitmId, i.itemname, SUM(d.quantity) AS totalquantity, SUM(d.totalamount) AS totalamount
+      SELECT d.toitmId, i.itemname, i.itemcode,
+      SUM(d.quantity) AS totalquantity, SUM(d.totalamount) AS totalamount
       FROM $tableName AS d
       INNER JOIN toitm AS i ON d.toitmId = i.docid
       WHERE d.createdat BETWEEN ? AND ?

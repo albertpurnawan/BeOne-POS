@@ -258,6 +258,41 @@ class _HomeScreenState extends State<HomeScreen> {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () {
+                            context.pushNamed(RouteConstants.reports);
+                          },
+                          child: const Text(
+                            "MOP Adjustment",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        width: MediaQuery.of(context).size.width * 0.36,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                              padding: MaterialStatePropertyAll(
+                                  EdgeInsets.symmetric(vertical: 20)),
+                              shape: MaterialStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.white, width: 2),
+                                borderRadius: BorderRadius.circular(5),
+                              )),
+                              backgroundColor: MaterialStateColor.resolveWith(
+                                  (states) => ProjectColors.primary),
+                              foregroundColor: MaterialStateColor.resolveWith(
+                                  (states) =>
+                                      Color.fromARGB(255, 255, 255, 255)),
+                              overlayColor: MaterialStateColor.resolveWith(
+                                  (states) => Colors.white.withOpacity(.2))),
+                          onPressed: () {
                             context
                                 .pushNamed(RouteConstants.settings)
                                 .then((value) {

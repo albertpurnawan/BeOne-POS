@@ -209,6 +209,9 @@ class _SettingsFormState extends State<SettingsForm> {
               onTap: () async {
                 try {
                   await prefs.clear();
+                  await GetIt.instance<AppDatabase>()
+                      .posParameterDao
+                      .deleteTopos();
 
                   final hashedPass =
                       md5.convert(utf8.encode("BeOne\$\$123")).toString();
