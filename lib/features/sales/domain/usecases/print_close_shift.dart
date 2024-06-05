@@ -9,7 +9,7 @@ import 'package:pos_fe/features/sales/domain/repository/store_master_repository.
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 
 class PrintCloseShiftUsecase
-    implements UseCase<void, CashierBalanceTransactionEntity?> {
+    implements UseCase<void, PrintCloseShiftUsecaseParams> {
   // POS Parameter
   final ReceiptPrinter _receiptPrinter;
   final CashRegisterRepository _cashRegisterRepository;
@@ -20,13 +20,17 @@ class PrintCloseShiftUsecase
       this._storeMasterRepository, this._userRepository);
 
   @override
-  Future<void> call({CashierBalanceTransactionEntity? params}) async {
+  Future<void> call({PrintCloseShiftUsecaseParams? params}) async {
     try {
-      if (params == null || params.tocsrId == null || params.tousrId == null)
+      if (params == null ||
+          params.cashierBalanceTransactionEntity.tocsrId == null ||
+          params.cashierBalanceTransactionEntity.tousrId == null) {
         return;
+      }
 
       final CashRegisterEntity? cashRegisterEntityRes =
-          await _cashRegisterRepository.getCashRegisterByDocId(params.tocsrId!);
+          await _cashRegisterRepository.getCashRegisterByDocId(
+              params.cashierBalanceTransactionEntity.tocsrId!);
       if (cashRegisterEntityRes == null) throw "Cash Register not found";
       if (cashRegisterEntityRes.tostrId == null) {
         throw "Cash Register does not contain store information";
@@ -37,19 +41,46 @@ class PrintCloseShiftUsecase
               .getStoreMaster(cashRegisterEntityRes.tostrId!);
       if (storeMasterEntityRes == null) throw "Store Master not found";
 
-      final UserEntity? userEntityRes =
-          await _userRepository.getUser(params.tousrId!);
+      final UserEntity? userEntityRes = await _userRepository
+          .getUser(params.cashierBalanceTransactionEntity.tousrId!);
       if (userEntityRes == null) throw "User not found";
 
       await _receiptPrinter.printCloseShift(PrintCloseShiftDetail(
-          storeMasterEntity: storeMasterEntityRes,
-          cashRegisterEntity: cashRegisterEntityRes,
-          userEntity: userEntityRes,
-          cashierBalanceTransactionEntity: params));
+        storeMasterEntity: storeMasterEntityRes,
+        cashRegisterEntity: cashRegisterEntityRes,
+        userEntity: userEntityRes,
+        cashierBalanceTransactionEntity: params.cashierBalanceTransactionEntity,
+        totalCashSales: params.totalCashSales.round(),
+        expectedCash: params.expectedCash.round(),
+        totalNonCashSales: params.totalCashSales.round(),
+        totalSales: params.totalSales.round(),
+        cashReceived: params.cashReceived.round(),
+        difference: params.difference.round(),
+      ));
     } catch (e) {
       rethrow;
     }
   }
+}
+
+class PrintCloseShiftUsecaseParams {
+  final CashierBalanceTransactionEntity cashierBalanceTransactionEntity;
+  final double totalCashSales;
+  final double expectedCash;
+  final double totalNonCashSales;
+  final double totalSales;
+  final double cashReceived;
+  final double difference;
+
+  PrintCloseShiftUsecaseParams({
+    required this.cashierBalanceTransactionEntity,
+    required this.totalCashSales,
+    required this.expectedCash,
+    required this.totalNonCashSales,
+    required this.totalSales,
+    required this.cashReceived,
+    required this.difference,
+  });
 }
 
 class PrintCloseShiftDetail {
@@ -57,11 +88,23 @@ class PrintCloseShiftDetail {
   final CashRegisterEntity cashRegisterEntity;
   final UserEntity userEntity;
   final CashierBalanceTransactionEntity cashierBalanceTransactionEntity;
+  final int totalCashSales;
+  final int expectedCash;
+  final int totalNonCashSales;
+  final int totalSales;
+  final int cashReceived;
+  final int difference;
 
   PrintCloseShiftDetail({
     required this.storeMasterEntity,
     required this.cashRegisterEntity,
     required this.userEntity,
     required this.cashierBalanceTransactionEntity,
+    required this.totalCashSales,
+    required this.expectedCash,
+    required this.totalNonCashSales,
+    required this.totalSales,
+    required this.cashReceived,
+    required this.difference,
   });
 }

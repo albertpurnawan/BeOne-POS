@@ -1,27 +1,19 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/features/home/domain/usecases/logout.dart';
-import 'package:pos_fe/features/sales/data/data_sources/local/cashier_balance_transaction_dao.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
-import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ConfirmEndShift extends StatelessWidget {
+class ConfirmToEndShift extends StatelessWidget {
   final CashierBalanceTransactionModel shift;
-  final String totalCash;
 
-  ConfirmEndShift(this.shift, this.totalCash, {Key? key}) : super(key: key);
+  ConfirmToEndShift(this.shift, {Key? key}) : super(key: key);
 
   final formKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
@@ -29,8 +21,6 @@ class ConfirmEndShift extends StatelessWidget {
   final prefs = GetIt.instance<SharedPreferences>();
 
   Future<String> checkPassword(String username, String password) async {
-    double totalCashDouble =
-        double.tryParse(totalCash.replaceAll(',', '')) ?? 0.0;
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
 
@@ -45,48 +35,6 @@ class ConfirmEndShift extends StatelessWidget {
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (user.password == hashedPassword) {
-          CashierBalanceTransactionModel closeShift =
-              CashierBalanceTransactionModel(
-            docId: shift.docId,
-            createDate: shift.createDate,
-            updateDate: DateTime.now(),
-            tocsrId: shift.tocsrId,
-            tousrId: shift.tousrId,
-            docNum: shift.docNum,
-            openDate: shift.openDate,
-            openTime: shift.openTime,
-            calcDate: shift.calcDate,
-            calcTime: shift.calcTime,
-            closeDate: DateTime.now(),
-            closeTime: DateTime.now(),
-            timezone: shift.timezone,
-            openValue: shift.openValue,
-            calcValue: shift.calcValue,
-            cashValue: shift.cashValue,
-            closeValue: totalCashDouble,
-            openedbyId: shift.openedbyId,
-            closedbyId: user.docId,
-            approvalStatus: 1,
-          );
-          log("closeShift - $closeShift");
-          await _updateCashierBalanceTransaction(shift.docId, closeShift);
-          final CashierBalanceTransactionEntity?
-              cashierBalanceTransactionEntity =
-              await GetIt.instance<AppDatabase>()
-                  .cashierBalanceTransactionDao
-                  .readByDocId(shift.docId, null);
-          await GetIt.instance<PrintCloseShiftUsecase>().call(
-              params: PrintCloseShiftUsecaseParams(
-            cashierBalanceTransactionEntity: cashierBalanceTransactionEntity!,
-            totalCashSales: 1000000,
-            expectedCash: 2000000,
-            totalNonCashSales: 500000000,
-            totalSales: 502000000,
-            cashReceived: 2100000,
-            difference: 100000,
-          ));
-          // await _sendTransactions(closeShift);
-
           check = "Success";
         } else {
           check = "Wrong Password";
@@ -98,19 +46,6 @@ class ConfirmEndShift extends StatelessWidget {
       check = "Unauthorized";
     }
     return check;
-  }
-
-  Future<void> _updateCashierBalanceTransaction(
-      String docId, CashierBalanceTransactionModel value) async {
-    await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .update(docId: docId, data: value);
-  }
-
-  Future<void> _sendTransactions(
-      CashierBalanceTransactionModel approved) async {
-    await GetIt.instance<CashierBalanceTransactionApi>()
-        .sendTransactions(approved);
   }
 
   @override
@@ -262,12 +197,15 @@ class ConfirmEndShift extends StatelessWidget {
                                   usernameController.text,
                                   passwordController.text);
                               if (passwordCorrect == "Success") {
-                                await prefs.setBool('isOpen', false);
-                                await prefs.setString('tcsr1Id', "");
-                                GetIt.instance<LogoutUseCase>().call();
-
                                 if (!context.mounted) return;
-                                context.goNamed(RouteConstants.welcome);
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        CloseShiftScreen(shiftId: shift.docId),
+                                  ),
+                                );
                               } else {
                                 final message =
                                     passwordCorrect == "Wrong Password"

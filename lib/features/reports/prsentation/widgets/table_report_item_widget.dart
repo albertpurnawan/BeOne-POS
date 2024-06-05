@@ -63,7 +63,8 @@ class _TableReportItemState extends State<TableReportItem> {
 
     if (fetched != null) {
       for (var item in fetched!) {
-        double itemTotalAmount = item["totalamount"] as double;
+        double itemTotalAmount =
+            item['totalamount'] * (100 / (100 + item['taxprctg'])) as double;
 
         totalAmount += itemTotalAmount;
       }
@@ -140,7 +141,9 @@ class _TableReportItemState extends State<TableReportItem> {
                               final itemCode = item['itemcode'];
                               final itemName = item['itemname'];
                               final quantity = item['totalquantity'];
-                              final totalAmount = item['totalamount'];
+                              final taxPercentage = item['taxprctg'];
+                              final itemAmount = item['totalamount'] *
+                                  (100 / (100 + taxPercentage));
 
                               return TableRow(
                                 children: [
@@ -258,7 +261,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                             MainAxisAlignment.end,
                                         children: [
                                           Text(
-                                            "Rp ${Helpers.parseMoney(totalAmount)},00",
+                                            "Rp ${Helpers.parseMoney(itemAmount.round())}.00",
                                             style:
                                                 const TextStyle(fontSize: 14),
                                           ),
@@ -305,7 +308,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(totalAmount)},00',
+                                          'Rp ${Helpers.parseMoney(totalAmount.round())}.00',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
@@ -318,7 +321,6 @@ class _TableReportItemState extends State<TableReportItem> {
                               ],
                             ),
                             // Total Tax
-
                             TableRow(
                               children: [
                                 TableCell(
@@ -354,7 +356,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(taxAmount)},00',
+                                          'Rp ${Helpers.parseMoney(taxAmount.round())}.00',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
@@ -402,7 +404,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(totalDiscount)},00',
+                                          'Rp ${Helpers.parseMoney(totalDiscount)}.00',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
@@ -450,7 +452,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(totalRounding)},00',
+                                          'Rp ${Helpers.parseMoney(totalRounding)}.00',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
@@ -498,7 +500,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(grandTotal)},00',
+                                          'Rp ${Helpers.parseMoney(grandTotal)}.00',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,

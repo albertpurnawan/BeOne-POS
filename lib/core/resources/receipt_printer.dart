@@ -499,7 +499,7 @@ class ReceiptPrinter {
       PosColumn(
           width: 8,
           text:
-              ":  ${Helpers.formatDate(printOpenShiftDetail.cashierBalanceTransactionEntity.openDate)}",
+              ":  ${Helpers.dateddMMMyyyyHHmmss(printOpenShiftDetail.cashierBalanceTransactionEntity.openDate)}",
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
     bytes += generator.row([
@@ -518,7 +518,7 @@ class ReceiptPrinter {
   }
 
   Future<void> printCloseShift(
-      PrintCloseShiftDetail printOpenShiftDetail) async {
+      PrintCloseShiftDetail printCloseShiftDetail) async {
     List<int> bytes = [];
     final String? paperSize =
         GetIt.instance<SharedPreferences>().getString("paperSize");
@@ -532,7 +532,7 @@ class ReceiptPrinter {
         profile);
 
     bytes += generator.setGlobalCodeTable('CP1252');
-    bytes += generator.text('Open Shift Success',
+    bytes += generator.text('Close Shift Success',
         styles: const PosStyles(
           align: PosAlign.center,
           height: PosTextSize.size2,
@@ -544,54 +544,135 @@ class ReceiptPrinter {
     bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(
-          width: 4,
+          width: 5,
           text: 'Store Name',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
-          width: 8,
-          text: ":  ${printOpenShiftDetail.storeMasterEntity.storeName}",
+          width: 7,
+          text: ":  ${printCloseShiftDetail.storeMasterEntity.storeName}",
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
     bytes += generator.row([
       PosColumn(
-          width: 4,
+          width: 5,
           text: 'Cash Register',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
-          width: 8,
-          text: ":  ${printOpenShiftDetail.cashRegisterEntity.description}",
+          width: 7,
+          text: ":  ${printCloseShiftDetail.cashRegisterEntity.description}",
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
     bytes += generator.row([
       PosColumn(
-          width: 4,
+          width: 5,
           text: 'Cashier',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
-          width: 8,
-          text: ":  ${printOpenShiftDetail.userEntity.username}",
+          width: 7,
+          text: ":  ${printCloseShiftDetail.userEntity.username}",
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
     bytes += generator.row([
       PosColumn(
-          width: 4,
+          width: 5,
           text: 'Opened At',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
-          width: 8,
+          width: 7,
           text:
-              ":  ${Helpers.formatDate(printOpenShiftDetail.cashierBalanceTransactionEntity.openDate)}",
+              ":  ${Helpers.dateddMMMyyyyHHmmss(printCloseShiftDetail.cashierBalanceTransactionEntity.openDate)}",
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
     bytes += generator.row([
       PosColumn(
-          width: 4,
+          width: 5,
+          text: 'Closed At',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 7,
+          text:
+              ":  ${Helpers.dateddMMMyyyyHHmmss(printCloseShiftDetail.cashierBalanceTransactionEntity.closeDate)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.emptyLines(1);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
           text: 'Opening Balance',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
-          width: 8,
+          width: 7,
           text:
-              ":  ${Helpers.parseMoney(printOpenShiftDetail.cashierBalanceTransactionEntity.openValue)}",
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.cashierBalanceTransactionEntity.openValue.round())}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: 'Total Cash Sales',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 7,
+          text:
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalCashSales)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: 'Expected Cash',
+          styles: const PosStyles(
+              align: PosAlign.left, codeTable: 'CP1252', bold: true)),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.expectedCash)}",
+          styles: const PosStyles(
+              align: PosAlign.left, codeTable: 'CP1252', bold: true)),
+    ]);
+    bytes += generator.emptyLines(1);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: 'Total Non Cash Sales',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 7,
+          text:
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalNonCashSales)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: 'Total Sales',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalSales)}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.emptyLines(1);
+
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: 'Cash Received',
+          styles: const PosStyles(
+              align: PosAlign.left, codeTable: 'CP1252', bold: true)),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.cashReceived)}",
+          styles: const PosStyles(
+              align: PosAlign.left, codeTable: 'CP1252', bold: true)),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: 'Difference',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.difference)}",
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
 
