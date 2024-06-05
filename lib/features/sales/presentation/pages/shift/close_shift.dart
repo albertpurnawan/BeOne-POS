@@ -2,21 +2,26 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_end_shift.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CloseShiftScreen extends StatefulWidget {
   final String shiftId;
-  const CloseShiftScreen({Key? key, required this.shiftId}) : super(key: key);
+  final String? username;
+  const CloseShiftScreen({Key? key, required this.shiftId, this.username})
+      : super(key: key);
 
   @override
   State<CloseShiftScreen> createState() =>
@@ -46,7 +51,10 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 10),
-                  CloseShiftForm(shiftId: shiftId),
+                  CloseShiftForm(
+                    shiftId: shiftId,
+                    username: widget.username!,
+                  ),
                 ],
               ),
             ),
@@ -59,7 +67,9 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 
 class CloseShiftForm extends StatefulWidget {
   final String shiftId;
-  const CloseShiftForm({Key? key, required this.shiftId}) : super(key: key);
+  final String? username;
+  const CloseShiftForm({Key? key, required this.shiftId, this.username})
+      : super(key: key);
 
   @override
   State<CloseShiftForm> createState() => _CloseShiftFormState(shiftId: shiftId);
@@ -74,6 +84,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalNonCash = '0';
   String totalSales = '0';
   String expectedCash = "0";
+  String calculatedTotalCash = '0';
 
   _CloseShiftFormState({required this.shiftId});
 
@@ -114,7 +125,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   void updateTotalCash(String total) {
     setState(() {
-      totalCash = total;
+      calculatedTotalCash = totalCash;
     });
   }
 
@@ -434,6 +445,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: const Text("End Shift"),
               onTap: () async {
                 if (activeShift != null) {
+                  final userId = await GetIt.instance<AppDatabase>()
+                      .userDao
+                      .readByUsername(widget.username!, null);
                   final CashierBalanceTransactionModel shift =
                       CashierBalanceTransactionModel(
                     docId: activeShift!.docId,
@@ -446,24 +460,29 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     openTime: activeShift!.openTime,
                     calcDate: activeShift!.calcDate,
                     calcTime: activeShift!.calcTime,
-                    closeDate: activeShift!.closeDate,
-                    closeTime: activeShift!.closeTime,
+                    closeDate: DateTime.now(),
+                    closeTime: DateTime.now(),
                     timezone: activeShift!.timezone,
                     openValue: activeShift!.openValue,
                     calcValue: activeShift!.calcValue,
                     cashValue: activeShift!.cashValue,
-                    closeValue: activeShift!.closeValue,
+                    closeValue:
+                        Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
                     openedbyId: activeShift!.openedbyId,
-                    closedbyId: activeShift!.closedbyId,
-                    approvalStatus: activeShift!.approvalStatus,
+                    closedbyId: userId!.docId,
+                    approvalStatus: 1,
                   );
 
+                  await prefs.setBool('isOpen', false);
+                  await prefs.setString('tcsr1Id', "");
+                  await GetIt.instance<AppDatabase>()
+                      .cashierBalanceTransactionDao
+                      .update(docId: shiftId, data: shift);
+                  await GetIt.instance<CashierBalanceTransactionApi>()
+                      .sendTransactions(shift);
+                  GetIt.instance<LogoutUseCase>().call();
                   if (!context.mounted) return;
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ConfirmEndShift(shift, totalCash);
-                      });
+                  context.goNamed(RouteConstants.welcome);
                 }
               }),
         ),
