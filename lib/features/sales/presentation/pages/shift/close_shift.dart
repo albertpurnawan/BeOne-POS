@@ -70,6 +70,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   late List<InvoiceHeaderModel?> transactions = [];
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCash = '0';
+  String totalNonCash = '0';
+  String totalSales = '0';
 
   _CloseShiftFormState({required this.shiftId});
 
@@ -116,23 +118,33 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   void updateActiveShift() async {
     if (activeShift != null && transactions.isNotEmpty) {
-      double totalCashValue = 0;
-      double totalNonCash = 0.0;
+      double nonCash = 0.0;
+      double salesAmount = 0.0;
       final DateTime now = DateTime.now();
+      final start = activeShift!.openDate
+          .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
+      final end = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        23,
+        59,
+        59,
+        999,
+      );
       final fetched = await GetIt.instance<AppDatabase>()
           .payMeansDao
-          .readByTpmt3BetweenDate(
-              DateTime(
-                  activeShift!.openDate.year, now.month, now.day, 0, 0, 0, 0),
-              DateTime(now.year, now.month, now.day, 23, 59, 59, 999));
-      log("$fetched");
-      // for(final mop in fetched!) {
-      //   if(mop['tpmt3Id'] != )
-      // }
+          .readByTpmt3BetweenDate(start, end);
+
+      for (final mop in fetched!) {
+        if ((mop['description'] != 'TUNAI')) {
+          nonCash += mop['totalamount'];
+        }
+      }
 
       for (final trx in transactions) {
         if (trx != null) {
-          totalCashValue += trx.grandTotal;
+          salesAmount += trx.grandTotal;
           CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
             docId: activeShift!.docId,
             createDate: activeShift!.createDate,
@@ -149,7 +161,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             timezone: activeShift!.timezone,
             openValue: activeShift!.openValue,
             calcValue: activeShift!.calcValue,
-            cashValue: totalCashValue,
+            cashValue: salesAmount,
             closeValue: activeShift!.closeValue,
             openedbyId: activeShift!.openedbyId,
             closedbyId: activeShift!.closedbyId,
@@ -159,8 +171,15 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           await GetIt.instance<AppDatabase>()
               .cashierBalanceTransactionDao
               .update(docId: shiftId, data: data);
+          log("nonCash - $nonCash");
+          log("cash - ${salesAmount - nonCash}");
+          log("totalSales - ${salesAmount}");
           setState(() {
             activeShift = data;
+            totalNonCash = NumberFormat.decimalPattern().format(nonCash);
+            totalSales = NumberFormat.decimalPattern().format(salesAmount);
+            totalCash =
+                NumberFormat.decimalPattern().format(salesAmount - nonCash);
           });
         }
       }
@@ -246,7 +265,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           height: 50,
           color: Colors.grey,
         ),
-        Row(
+        const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -262,7 +281,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         Row(
@@ -304,7 +323,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                formattedCashValue,
+                totalCash,
                 style: const TextStyle(
                   fontSize: 20,
                 ),
@@ -341,7 +360,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         Row(
@@ -359,7 +378,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                formattedCalcValue,
+                totalNonCash,
                 style: const TextStyle(
                   fontSize: 20,
                 ),
@@ -383,7 +402,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                formattedCashFlow,
+                totalSales,
                 style: const TextStyle(
                   fontSize: 20,
                 ),
@@ -396,7 +415,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           height: 50,
           color: Colors.grey,
         ),
-        Row(
+        const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -412,12 +431,12 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         CalculateCash(updateTotalCash),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(
               child: const Text("End Shift"),
               onTap: () {
@@ -455,7 +474,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 }
               }),
         ),
-        SizedBox(
+        const SizedBox(
           height: 30,
         ),
       ],
