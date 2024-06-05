@@ -258,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
                           onPressed: () {
-                            context.pushNamed(RouteConstants.reports);
+                            context.pushNamed(RouteConstants.mopAdjustment);
                           },
                           child: const Text(
                             "MOP Adjustment",

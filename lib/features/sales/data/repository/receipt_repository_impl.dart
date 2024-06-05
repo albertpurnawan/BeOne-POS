@@ -349,7 +349,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         changed: invoiceHeaderModel.changed,
         vouchers: voucherModels,
         totalVoucher: totalVoucherAmount,
-        totalNonVoucher: invoiceHeaderModel.grandTotal - totalVoucherAmount,
+        totalNonVoucher: invoiceHeaderModel.grandTotal,
         promos: promoModels,
         discHeaderManual: invoiceHeaderModel.discHeaderManual,
         discHeaderPromo: invoiceHeaderModel.discHeaderPromo,
