@@ -33,20 +33,4 @@ class MeansOfPaymentDao extends BaseDao<MeansOfPaymentModel> {
         .map((itemData) => MeansOfPaymentModel.fromMap(itemData))
         .toList();
   }
-
-  Future<List<dynamic>?> readByTpmt1BetweenDate(
-      DateTime start, DateTime end) async {
-    final startDate = start.toUtc().toIso8601String();
-    final endDate = end.toUtc().toIso8601String();
-
-    final result = await db.rawQuery('''
-      SELECT x0.tpmt1Id, x1.mopcode, x1.description,
-      FROM $tableName AS x0
-      INNER JOIN tpmt1 AS x1 ON x0.tpmt1Id = x1.docid
-      WHERE x0.createdat BETWEEN ? AND ?
-      GROUP BY x0.tpmt1Id
-    ''', [startDate, endDate]);
-
-    return result;
-  }
 }

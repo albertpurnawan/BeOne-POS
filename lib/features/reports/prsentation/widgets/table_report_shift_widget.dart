@@ -78,7 +78,7 @@ class _TableReportShiftState extends State<TableReportShift> {
 
     if (fetched != null) {
       grandTotal = fetched!
-          .map((shift) => shift.totalPayment)
+          .map((shift) => shift.grandTotal)
           .fold(0.0, (previous, current) => previous + current);
     }
 
@@ -254,7 +254,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(shift.totalPayment)},00",
+                                      "Rp ${Helpers.parseMoney(shift.grandTotal)},00",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],

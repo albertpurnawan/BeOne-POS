@@ -7,4 +7,5 @@ class RouteConstants {
   static String masters = "masters";
   static String shifts = "shifts";
   static String reports = "reports";
+  static String mopAdjustment = "mopAdjustment";
 }
