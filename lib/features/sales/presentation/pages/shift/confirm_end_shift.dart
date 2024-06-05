@@ -9,8 +9,11 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/cashier_balance_transaction_dao.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,8 +69,23 @@ class ConfirmEndShift extends StatelessWidget {
             approvalStatus: 1,
           );
           log("closeShift - $closeShift");
-          _updateCashierBalanceTransaction(shift.docId, closeShift);
-          _sendTransactions(closeShift);
+          await _updateCashierBalanceTransaction(shift.docId, closeShift);
+          final CashierBalanceTransactionEntity?
+              cashierBalanceTransactionEntity =
+              await GetIt.instance<AppDatabase>()
+                  .cashierBalanceTransactionDao
+                  .readByDocId(shift.docId, null);
+          await GetIt.instance<PrintCloseShiftUsecase>().call(
+              params: PrintCloseShiftUsecaseParams(
+            cashierBalanceTransactionEntity: cashierBalanceTransactionEntity!,
+            totalCashSales: 1000000,
+            expectedCash: 2000000,
+            totalNonCashSales: 500000000,
+            totalSales: 502000000,
+            cashReceived: 2100000,
+            difference: 100000,
+          ));
+          // await _sendTransactions(closeShift);
 
           check = "Success";
         } else {
@@ -82,14 +100,15 @@ class ConfirmEndShift extends StatelessWidget {
     return check;
   }
 
-  void _updateCashierBalanceTransaction(
+  Future<void> _updateCashierBalanceTransaction(
       String docId, CashierBalanceTransactionModel value) async {
     await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .update(docId: docId, data: value);
   }
 
-  void _sendTransactions(CashierBalanceTransactionModel approved) async {
+  Future<void> _sendTransactions(
+      CashierBalanceTransactionModel approved) async {
     await GetIt.instance<CashierBalanceTransactionApi>()
         .sendTransactions(approved);
   }

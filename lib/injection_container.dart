@@ -70,6 +70,7 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
@@ -338,6 +339,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<PrintOpenShiftUsecase>(
       () => PrintOpenShiftUsecase(sl(), sl(), sl(), sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<PrintCloseShiftUsecase>(
+      () => PrintCloseShiftUsecase(sl(), sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetPosParameterUseCase>(
       () => GetPosParameterUseCase(sl()),
