@@ -84,13 +84,13 @@ class AppRouter {
           return const MaterialPage(child: FiltereReportScreen());
         },
       ),
-      GoRoute(
-        name: RouteConstants.reports,
-        path: "/mopAdjustment",
-        pageBuilder: (context, state) {
-          return const MaterialPage(child: FiltereReportScreen());
-        },
-      ),
+      // GoRoute(
+      //   name: RouteConstants.reports,
+      //   path: "/mopAdjustment",
+      //   pageBuilder: (context, state) {
+      //     return const MaterialPage(child: FiltereReportScreen());
+      //   },
+      // ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
       if (state.extra != null) {
