@@ -2744,7 +2744,7 @@ CREATE TABLE $tableMoneyDenomination (
   $uuidDefinition,
   ${MoneyDenominationFields.createDate} datetime NOT NULL,
   ${MoneyDenominationFields.updateDate} datetime DEFAULT NULL,
-  ${MoneyDenominationFields.nominal} text DEFAULT NULL,
+  ${MoneyDenominationFields.nominal} int DEFAULT NULL,
   ${MoneyDenominationFields.count} int DEFAULT '0',
   ${MoneyDenominationFields.tcsr1Id} text DEFAULT NULL,
   $createdAtDefinition,

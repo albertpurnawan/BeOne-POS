@@ -116,7 +116,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     });
   }
 
-  void updateTotalCash(String total) {
+  void updateTotalCash(Map<String, dynamic> total) {
     setState(() {
       calculatedTotalCash = totalCash;
     });

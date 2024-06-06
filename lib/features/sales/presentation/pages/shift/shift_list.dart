@@ -266,7 +266,6 @@ class _AllShiftState extends State<AllShift> {
 
   @override
   Widget build(BuildContext context) {
-    // Group shifts by date
     Map<String, List<CashierBalanceTransactionModel>> groupedShifts = {};
     if (allShift != null) {
       for (var shift in allShift!) {

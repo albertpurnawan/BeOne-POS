@@ -440,8 +440,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                                 .readAll();
                             final storeCode = store[0].storeCode;
                             final date = DateTime.now();
+
                             String formattedDate =
-                                DateFormat('yyyyMMdd').format(date);
+                                DateFormat('yyMMddHHmmss').format(date);
                             final countShift =
                                 await GetIt.instance<AppDatabase>()
                                     .cashierBalanceTransactionDao
@@ -450,16 +451,16 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             final number = ((countShift!.length) + 1)
                                 .toString()
                                 .padLeft(3, '0');
-                            final docnum = '$storeCode-$formattedDate-$number';
+                            final docnum =
+                                '$storeCode-$formattedDate-$number-S';
 
                             final CashierBalanceTransactionModel shift =
                                 CashierBalanceTransactionModel(
                               docId: const Uuid().v4(),
                               createDate: DateTime.now(),
                               updateDate: DateTime.now(),
-                              tocsrId: widget
-                                  .cashRegister?.docId, // jangan dihardcode
-                              tousrId: widget.user?.docId, // jangan dihardcode
+                              tocsrId: widget.cashRegister?.docId,
+                              tousrId: widget.user?.docId,
                               docNum: docnum,
                               openDate: DateTime.now(),
                               openTime: DateTime.now(),
