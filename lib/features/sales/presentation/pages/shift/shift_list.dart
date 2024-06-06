@@ -307,6 +307,7 @@ class _AllShiftState extends State<AllShift> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
+                          textAlign: TextAlign.start,
                           entry.key, // Display date
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
@@ -328,15 +329,19 @@ class _AllShiftState extends State<AllShift> {
                                     Expanded(
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                            MainAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            shift.docNum,
-                                            style:
-                                                const TextStyle(fontSize: 20),
+                                          SizedBox(
+                                            width: 350,
+                                            child: Text(
+                                              shift.docNum,
+                                              textAlign: TextAlign.start,
+                                              style:
+                                                  const TextStyle(fontSize: 20),
+                                            ),
                                           ),
                                           SizedBox(
-                                            width: 100,
+                                            width: 250,
                                             child: Text(
                                               NumberFormat.decimalPattern()
                                                   .format(
@@ -348,9 +353,10 @@ class _AllShiftState extends State<AllShift> {
                                           ),
                                           shift.approvalStatus == 0
                                               ? const SizedBox(
-                                                  width: 100,
+                                                  width: 200,
                                                   child: Text(
                                                     'OPEN',
+                                                    textAlign: TextAlign.end,
                                                     style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
@@ -361,9 +367,10 @@ class _AllShiftState extends State<AllShift> {
                                                   ),
                                                 )
                                               : const SizedBox(
-                                                  width: 100,
+                                                  width: 200,
                                                   child: Text(
                                                     'CLOSED',
+                                                    textAlign: TextAlign.end,
                                                     style: TextStyle(
                                                         fontSize: 18,
                                                         fontWeight:

@@ -142,4 +142,17 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
 
     return result;
   }
+
+  Future<InvoiceHeaderModel?> readByDocNum(
+      String docNum, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'docnum = ?',
+      whereArgs: [docNum],
+    );
+
+    return res.isNotEmpty ? InvoiceHeaderModel.fromMap(res[0]) : null;
+  }
 }
