@@ -1,35 +1,30 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CloseShiftScreen extends StatefulWidget {
+class RecapShiftScreen extends StatefulWidget {
   final String shiftId;
-  final String? username;
-  const CloseShiftScreen({Key? key, required this.shiftId, this.username})
-      : super(key: key);
+  const RecapShiftScreen({
+    Key? key,
+    required this.shiftId,
+  }) : super(key: key);
 
   @override
-  State<CloseShiftScreen> createState() =>
-      _CloseShiftScreenState(shiftId: shiftId);
+  State<RecapShiftScreen> createState() =>
+      _RecapShiftScreenState(shiftId: shiftId);
 }
 
-class _CloseShiftScreenState extends State<CloseShiftScreen> {
+class _RecapShiftScreenState extends State<RecapShiftScreen> {
   final String shiftId;
-  _CloseShiftScreenState({required this.shiftId});
+  _RecapShiftScreenState({required this.shiftId});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +47,6 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
                   const SizedBox(height: 10),
                   CloseShiftForm(
                     shiftId: shiftId,
-                    username: widget.username!,
                   ),
                 ],
               ),
@@ -66,9 +60,10 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 
 class CloseShiftForm extends StatefulWidget {
   final String shiftId;
-  final String? username;
-  const CloseShiftForm({Key? key, required this.shiftId, this.username})
-      : super(key: key);
+  const CloseShiftForm({
+    Key? key,
+    required this.shiftId,
+  }) : super(key: key);
 
   @override
   State<CloseShiftForm> createState() => _CloseShiftFormState(shiftId: shiftId);
@@ -76,7 +71,7 @@ class CloseShiftForm extends StatefulWidget {
 
 class _CloseShiftFormState extends State<CloseShiftForm> {
   final String shiftId;
-  CashierBalanceTransactionModel? activeShift;
+  CashierBalanceTransactionModel? tcsr1;
   late List<InvoiceHeaderModel?> transactions = [];
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCash = '0';
@@ -99,24 +94,23 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> fetchData() async {
     prefs = await SharedPreferences.getInstance();
-    await fetchActiveShift();
     await fetchInvoices();
-    updateActiveShift();
+    await fetchShift();
   }
 
-  Future<void> fetchActiveShift() async {
+  Future<void> fetchShift() async {
     final shift = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .readByDocId(shiftId, null);
     setState(() {
-      activeShift = shift;
+      tcsr1 = shift;
     });
   }
 
   Future<void> fetchInvoices() async {
     final transaction = await GetIt.instance<AppDatabase>()
         .invoiceHeaderDao
-        .readByShift(activeShift!.docId);
+        .readByShift(shiftId);
     setState(() {
       transactions = transaction;
     });
@@ -128,95 +122,23 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     });
   }
 
-  void updateActiveShift() async {
-    if (activeShift != null && transactions.isNotEmpty) {
-      double nonCash = 0.0;
-      double salesAmount = 0.0;
-      final DateTime now = DateTime.now();
-      final start = activeShift!.openDate
-          .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
-      final end = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        23,
-        59,
-        59,
-        999,
-      );
-      final fetched = await GetIt.instance<AppDatabase>()
-          .payMeansDao
-          .readByTpmt3BetweenDate(start, end);
-
-      for (final mop in fetched!) {
-        if ((mop['description'] != 'TUNAI')) {
-          nonCash += mop['totalamount'];
-        }
-      }
-
-      for (final trx in transactions) {
-        if (trx != null) {
-          salesAmount += trx.grandTotal;
-          CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
-            docId: activeShift!.docId,
-            createDate: activeShift!.createDate,
-            updateDate: activeShift!.updateDate,
-            tocsrId: activeShift!.tocsrId,
-            tousrId: activeShift!.tousrId,
-            docNum: activeShift!.docNum,
-            openDate: activeShift!.openDate,
-            openTime: activeShift!.openTime,
-            calcDate: DateTime.now(),
-            calcTime: DateTime.now(),
-            closeDate: activeShift!.closeDate,
-            closeTime: activeShift!.closeTime,
-            timezone: activeShift!.timezone,
-            openValue: activeShift!.openValue,
-            calcValue: activeShift!.calcValue,
-            cashValue: salesAmount,
-            closeValue: activeShift!.closeValue,
-            openedbyId: activeShift!.openedbyId,
-            closedbyId: activeShift!.closedbyId,
-            approvalStatus: activeShift!.approvalStatus,
-          );
-
-          await GetIt.instance<AppDatabase>()
-              .cashierBalanceTransactionDao
-              .update(docId: shiftId, data: data);
-          log("nonCash - $nonCash");
-          log("cash - ${salesAmount - nonCash}");
-          log("totalSales - ${salesAmount}");
-          setState(() {
-            activeShift = data;
-            totalNonCash = NumberFormat.decimalPattern().format(nonCash);
-            totalSales = NumberFormat.decimalPattern().format(salesAmount);
-            totalCash =
-                NumberFormat.decimalPattern().format(salesAmount - nonCash);
-          });
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (activeShift == null) {
+    if (tcsr1 == null) {
       return Center(child: CircularProgressIndicator());
     }
 
-    String formattedOpenDate =
-        Helpers.formatDateNoSeconds(activeShift!.openDate);
+    String formattedOpenDate = Helpers.formatDateNoSeconds(tcsr1!.openDate);
     String formattedOpenValue =
-        NumberFormat.decimalPattern().format(activeShift!.openValue.toInt());
+        NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
     String formattedCashValue =
-        NumberFormat.decimalPattern().format(activeShift!.cashValue.toInt());
+        NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
     String formattedCalcValue =
-        NumberFormat.decimalPattern().format(activeShift!.calcValue.toInt());
+        NumberFormat.decimalPattern().format(tcsr1!.calcValue.toInt());
     double cashFlow = 0.0;
     String formattedCashFlow =
         NumberFormat.decimalPattern().format(cashFlow.toInt());
-    double expectedCash =
-        activeShift!.openValue + activeShift!.cashValue + cashFlow;
+    double expectedCash = tcsr1!.openValue + tcsr1!.cashValue + cashFlow;
     String formattedExpectedCash =
         NumberFormat.decimalPattern().format(expectedCash.toInt());
 
@@ -450,48 +372,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(
-              child: const Text("End Shift"),
+              child: const Text("OK"),
               onTap: () async {
-                if (activeShift != null) {
-                  final userId = await GetIt.instance<AppDatabase>()
-                      .userDao
-                      .readByUsername(widget.username!, null);
-                  final CashierBalanceTransactionModel shift =
-                      CashierBalanceTransactionModel(
-                    docId: activeShift!.docId,
-                    createDate: activeShift!.createDate,
-                    updateDate: activeShift!.updateDate,
-                    tocsrId: activeShift!.tocsrId,
-                    tousrId: activeShift!.tousrId,
-                    docNum: activeShift!.docNum,
-                    openDate: activeShift!.openDate,
-                    openTime: activeShift!.openTime,
-                    calcDate: activeShift!.calcDate,
-                    calcTime: activeShift!.calcTime,
-                    closeDate: DateTime.now(),
-                    closeTime: DateTime.now(),
-                    timezone: activeShift!.timezone,
-                    openValue: activeShift!.openValue,
-                    calcValue: activeShift!.calcValue,
-                    cashValue: activeShift!.cashValue,
-                    closeValue:
-                        Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
-                    openedbyId: activeShift!.openedbyId,
-                    closedbyId: userId!.docId,
-                    approvalStatus: 1,
-                  );
-
-                  await prefs.setBool('isOpen', false);
-                  await prefs.setString('tcsr1Id', "");
-                  await GetIt.instance<AppDatabase>()
-                      .cashierBalanceTransactionDao
-                      .update(docId: shiftId, data: shift);
-                  await GetIt.instance<CashierBalanceTransactionApi>()
-                      .sendTransactions(shift);
-                  GetIt.instance<LogoutUseCase>().call();
-                  if (!context.mounted) return;
-                  context.goNamed(RouteConstants.welcome);
-                }
+                if (!context.mounted) return;
+                Navigator.pop(context);
               }),
         ),
         const SizedBox(

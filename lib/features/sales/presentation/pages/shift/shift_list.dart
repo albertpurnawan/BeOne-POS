@@ -9,9 +9,9 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/home/presentation/widgets/confirm_queued_invoice_dialog.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/confirm_to_end_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/recap_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ShiftsList extends StatefulWidget {
@@ -242,6 +242,7 @@ class AllShift extends StatefulWidget {
 
 class _AllShiftState extends State<AllShift> {
   List<CashierBalanceTransactionModel>? allShift;
+  CashierBalanceTransactionModel? activeShift;
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
 
   @override
@@ -254,8 +255,12 @@ class _AllShiftState extends State<AllShift> {
     final shifts = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .readAll();
+    final shift = await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .readLastValue();
     setState(() {
       allShift = shifts;
+      activeShift = shift;
     });
   }
 
@@ -342,49 +347,65 @@ class _AllShiftState extends State<AllShift> {
                                               textAlign: TextAlign.end,
                                             ),
                                           ),
-                                          if (shift.approvalStatus == 0)
-                                            const SizedBox(
-                                              width: 100,
-                                              child: Text(
-                                                'OPEN',
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: Color.fromARGB(
-                                                      255, 47, 143, 8),
+                                          shift.approvalStatus == 0
+                                              ? const SizedBox(
+                                                  width: 100,
+                                                  child: Text(
+                                                    'OPEN',
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Color.fromARGB(
+                                                          255, 47, 143, 8),
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(
+                                                  width: 100,
+                                                  child: Text(
+                                                    'CLOSED',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
                                                 ),
-                                              ),
-                                            )
-                                          else
-                                            const SizedBox(
-                                              width: 100,
-                                              child: Text(
-                                                'CLOSED',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.w700),
-                                              ),
-                                            ),
                                         ],
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                CloseShiftScreen(
-                                                    shiftId: shift.docId),
+                                    shift.closedbyId!.isEmpty
+                                        ? GestureDetector(
+                                            onTap: () async {
+                                              await showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (context) =>
+                                                    ConfirmToEndShift(
+                                                        activeShift!),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.arrow_right_outlined,
+                                              size: 40,
+                                            ),
+                                          )
+                                        : GestureDetector(
+                                            onTap: () async {
+                                              await showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (context) =>
+                                                    RecapShiftScreen(
+                                                  shiftId: shift.docId,
+                                                ),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.arrow_right_outlined,
+                                              size: 40,
+                                            ),
                                           ),
-                                        );
-                                      },
-                                      child: const Icon(
-                                        Icons.arrow_right_outlined,
-                                        size: 40,
-                                      ),
-                                    ),
                                   ],
                                 ),
                                 Divider(

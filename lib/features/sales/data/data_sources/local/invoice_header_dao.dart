@@ -64,7 +64,7 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     return res.map((itemData) => InvoiceHeaderModel.fromMap(itemData)).toList();
   }
 
-  Future<List<InvoiceHeaderModel>> readByShift() async {
+  Future<List<InvoiceHeaderModel>> readByShift(String tcsr1Id) async {
     final prefs = GetIt.instance<SharedPreferences>();
     final tcsr1Id = prefs.getString('tcsr1Id');
 
