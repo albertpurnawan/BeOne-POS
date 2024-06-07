@@ -42,7 +42,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
         ),
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
-          'Discount',
+          'Header Discount',
           style: TextStyle(
               fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
@@ -56,6 +56,28 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
           child: TextFormField(
             focusNode: _discountFocusNode,
             controller: _textEditorDiscountController,
+            onFieldSubmitted: (value) async {
+              double input = Helpers.revertMoneyToDecimalFormat(value);
+              final ReceiptEntity state = context.read<ReceiptCubit>().state;
+              if (input > state.subtotal - (state.discAmount ?? 0)) {
+                context.pop();
+                return ErrorHandler.presentErrorSnackBar(
+                    context, "Invalid discount amount");
+              }
+              // context
+              //     .read<ReceiptCubit>()
+              //     .updateTotalAmountFromDiscount(discountValue);
+              // Navigator.of(context).pop();
+              // send input to auth
+              // double inputValue = Helpers.revertMoneyToDecimalFormatDouble(
+              //     _textEditorDiscountController.text);
+              await showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) =>
+                          AuthInputDiscountDialog(discountValue: input))
+                  .then((value) => _discountFocusNode.requestFocus());
+            },
             autofocus: true,
             inputFormatters: [MoneyInputFormatter()],
             keyboardType: TextInputType.number,

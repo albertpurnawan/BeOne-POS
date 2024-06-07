@@ -8,4 +8,6 @@ abstract class ProjectColors {
 
   static const Color mediumBlack = Color(0xFF333333);
   static const Color lightBlack = Color(0xFF555555);
+
+  static const Color green = Color.fromARGB(255, 57, 131, 73);
 }

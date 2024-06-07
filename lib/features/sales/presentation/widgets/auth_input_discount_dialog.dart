@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +29,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
+  final _usernameFocusNode = FocusNode();
   bool _obscureText = true;
 
   Future<String> checkPassword(String username, String password) async {
@@ -56,218 +60,202 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     return check;
   }
 
+  Future<void> onSubmit(
+      BuildContext childContext, BuildContext parentContext) async {
+    if (!formKey.currentState!.validate()) return;
+    String passwordCorrect =
+        await checkPassword(usernameController.text, passwordController.text);
+    if (passwordCorrect == "Success") {
+      childContext
+          .read<ReceiptCubit>()
+          .updateTotalAmountFromDiscount(widget.discountValue);
+      Navigator.of(childContext).pop(); // Close the dialog
+      Navigator.of(childContext).pop(); // Close the previous screen if needed
+      SnackBarHelper.presentSuccessSnackBar(parentContext,
+          "Header discount applied (${Helpers.parseMoney(widget.discountValue)})");
+    } else {
+      final message = passwordCorrect == "Wrong Password"
+          ? "Invalid username or password"
+          : "Unauthorized";
+      SnackBarHelper.presentErrorSnackBar(childContext, message);
+      if (Platform.isWindows) _usernameFocusNode.requestFocus();
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      title: Container(
-        decoration: const BoxDecoration(
-          color: ProjectColors.primary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-        ),
-        padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-        child: const Text(
-          'Confirm Discount',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-        ),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      contentPadding: const EdgeInsets.all(0),
-      content: SingleChildScrollView(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: TextFormField(
-                      controller: usernameController,
-                      autofocus: true,
-                      keyboardType: TextInputType.text,
-                      validator: (val) => val == null || val.isEmpty
-                          ? "Username is required"
-                          : null,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(fontSize: 20),
-                      decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(10),
-                          hintText: "Username",
-                          hintStyle: TextStyle(
-                              fontStyle: FontStyle.italic, fontSize: 20),
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(
-                            Icons.person_4,
-                            size: 20,
-                          )),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: TextFormField(
-                      controller: passwordController,
-                      obscureText: _obscureText,
-                      autofocus: true,
-                      keyboardType: TextInputType.text,
-                      validator: (val) => val == null || val.isEmpty
-                          ? "Password is required"
-                          : null,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(fontSize: 20),
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10),
-                        hintText: "Password",
-                        hintStyle: const TextStyle(
-                            fontStyle: FontStyle.italic, fontSize: 20),
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(
-                          Icons.lock,
-                          size: 20,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 22),
-                    child: Row(
+  Widget build(BuildContext parentContext) {
+    return ScaffoldMessenger(
+      child: Builder(builder: (childContext) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            title: Container(
+              decoration: const BoxDecoration(
+                color: ProjectColors.primary,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+              ),
+              padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+              child: const Text(
+                'Header Discount Authorization',
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
+              ),
+            ),
+            titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            contentPadding: const EdgeInsets.all(0),
+            content: SingleChildScrollView(
+              child: SizedBox(
+                width: MediaQuery.of(childContext).size.width * 0.5,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                            child: TextButton(
-                          style: ButtonStyle(
-                              shape: MaterialStatePropertyAll(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      side: const BorderSide(
-                                          color: ProjectColors.primary))),
-                              backgroundColor: MaterialStateColor.resolveWith(
-                                  (states) => Colors.white),
-                              overlayColor: MaterialStateColor.resolveWith(
-                                  (states) =>
-                                      ProjectColors.primary.withOpacity(.2))),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Center(
-                              child: Text(
-                            "Cancel",
-                            style: TextStyle(color: ProjectColors.primary),
-                          )),
-                        )),
-                        const SizedBox(width: 10),
-                        Expanded(
-                            child: TextButton(
-                          style: ButtonStyle(
-                              shape: MaterialStatePropertyAll(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      side: const BorderSide(
-                                          color: ProjectColors.primary))),
-                              backgroundColor: MaterialStateColor.resolveWith(
-                                  (states) => ProjectColors.primary),
-                              overlayColor: MaterialStateColor.resolveWith(
-                                  (states) => Colors.white.withOpacity(.2))),
-                          onPressed: () async {
-                            if (!formKey.currentState!.validate()) return;
-                            String passwordCorrect = await checkPassword(
-                                usernameController.text,
-                                passwordController.text);
-                            if (passwordCorrect == "Success") {
-                              context
-                                  .read<ReceiptCubit>()
-                                  .updateTotalAmountFromDiscount(
-                                      widget.discountValue);
-                              Navigator.of(context).pop(); // Close the dialog
-                              Navigator.of(context)
-                                  .pop(); // Close the previous screen if needed
-                            } else {
-                              final message =
-                                  passwordCorrect == "Wrong Password"
-                                      ? "Invalid Password"
-                                      : "Unauthorized";
-                              // ErrorHandler.presentErrorSnackBar(
-                              //     snackBarMessage);
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  backgroundColor: Colors.white,
-                                  surfaceTintColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                        color: ProjectColors.primary, width: 1),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.error,
-                                        color: ProjectColors.mediumBlack,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Text(
-                                        message,
-                                        style: TextStyle(
-                                          color: ProjectColors.primary,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text(
-                                        'OK',
-                                        style: TextStyle(
-                                          color: ProjectColors.mediumBlack,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                        SizedBox(
+                          width: MediaQuery.of(childContext).size.width * 0.5,
+                          child: TextFormField(
+                            focusNode: _usernameFocusNode,
+                            controller: usernameController,
+                            autofocus: true,
+                            keyboardType: TextInputType.text,
+                            onFieldSubmitted: (value) async =>
+                                await onSubmit(childContext, parentContext),
+                            validator: (val) => val == null || val.isEmpty
+                                ? "Username is required"
+                                : null,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 20),
+                            decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(10),
+                                hintText: "Username",
+                                hintStyle: TextStyle(
+                                    fontStyle: FontStyle.italic, fontSize: 20),
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(
+                                  Icons.person_4,
+                                  size: 20,
+                                )),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        SizedBox(
+                          width: MediaQuery.of(childContext).size.width * 0.5,
+                          child: TextFormField(
+                            controller: passwordController,
+                            obscureText: _obscureText,
+                            autofocus: true,
+                            keyboardType: TextInputType.text,
+                            onFieldSubmitted: (value) async {
+                              await onSubmit(childContext, parentContext);
+                            },
+                            validator: (val) => val == null || val.isEmpty
+                                ? "Password is required"
+                                : null,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 20),
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(10),
+                              hintText: "Password",
+                              hintStyle: const TextStyle(
+                                  fontStyle: FontStyle.italic, fontSize: 20),
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(
+                                Icons.lock,
+                                size: 20,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureText
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  size: 20,
                                 ),
-                              );
-                            }
-                          },
-                          child: const Center(
-                              child: Text(
-                            "Confirm",
-                            style: TextStyle(color: Colors.white),
-                          )),
-                        )),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureText = !_obscureText;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 22),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: TextButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary))),
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => Colors.white),
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => ProjectColors.primary
+                                                .withOpacity(.2))),
+                                onPressed: () {
+                                  Navigator.of(childContext).pop();
+                                },
+                                child: const Center(
+                                    child: Text(
+                                  "Cancel",
+                                  style:
+                                      TextStyle(color: ProjectColors.primary),
+                                )),
+                              )),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                  child: TextButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary))),
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => ProjectColors.primary),
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) =>
+                                                Colors.white.withOpacity(.2))),
+                                onPressed: () async =>
+                                    await onSubmit(childContext, parentContext),
+                                child: const Center(
+                                    child: Text(
+                                  "Confirm",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                              )),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

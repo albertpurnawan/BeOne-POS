@@ -2922,7 +2922,7 @@ class _SalesPageState extends State<SalesPage> {
                   isEditingNewReceiptItemCode = true;
                   _newReceiptItemCodeFocusNode.requestFocus();
                 }));
-      } else if (event.physicalKey == (PhysicalKeyboardKey.f4)) {
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f3)) {
         await showDialog(
             context: context,
             barrierDismissible: false,

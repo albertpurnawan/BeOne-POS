@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 
-class SnackBarHandler {
+class SnackBarHelper {
   static void presentErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(
