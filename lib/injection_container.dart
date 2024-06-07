@@ -100,6 +100,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_picture_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_remarks_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_adjustment_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pay_means_service.dart';
@@ -415,6 +416,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(
       () => CashierBalanceTransactionApi(sl(), sl()),
+      dependsOn: [SharedPreferences]);
+  sl.registerSingletonWithDependencies<MOPAdjustmentService>(
+      () => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
   sl.registerSingleton<ApplyRoundingUseCase>(ApplyRoundingUseCase());
 

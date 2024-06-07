@@ -38,6 +38,7 @@ class _TableReportMopState extends State<TableReportMop> {
     if (widget.fromDate == null || widget.toDate == null) {
       return;
     }
+    log("${widget.fromDate}");
     final fetchedTmpt3 = await GetIt.instance<AppDatabase>()
         .payMeansDao
         .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!);
