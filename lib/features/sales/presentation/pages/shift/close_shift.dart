@@ -12,6 +12,8 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
@@ -41,23 +43,48 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      body: Align(
-        alignment: Alignment.topCenter,
+      body: ShaderMask(
+        shaderCallback: (Rect rect) {
+          return LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(134, 234, 234, 234),
+              const Color.fromARGB(43, 234, 234, 234),
+              Colors.transparent,
+              Colors.transparent,
+              const Color.fromARGB(43, 234, 234, 234),
+              Color.fromARGB(134, 234, 234, 234),
+            ],
+            stops: [
+              0.0,
+              0.04,
+              0.07,
+              0.93,
+              0.96,
+              1.0
+            ], // 10% purple, 80% transparent, 10% purple
+          ).createShader(rect);
+        },
+        blendMode: BlendMode.dstOut,
+        // padding: EdgeInsets.symmetric(vertical: 20),
+        // width: double.infinity,
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 10),
-                  CloseShiftForm(
-                    shiftId: shiftId,
-                    username: widget.username!,
-                  ),
-                ],
-              ),
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.2,
+              vertical: 40),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                CloseShiftForm(
+                  shiftId: shiftId,
+                  username: widget.username!,
+                ),
+              ],
             ),
           ),
         ),
@@ -84,6 +111,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalCash = '0';
   String totalNonCash = '0';
   String totalSales = '0';
+  String expectedCash = "0";
   String calculatedTotalCash = '0';
   Map<String, dynamic>? denomination;
 
@@ -195,6 +223,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             totalSales = NumberFormat.decimalPattern().format(salesAmount);
             totalCash =
                 NumberFormat.decimalPattern().format(salesAmount - nonCash);
+            expectedCash = NumberFormat.decimalPattern()
+                .format(data.openValue + (salesAmount - nonCash));
           });
         }
       }
@@ -211,12 +241,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         Helpers.formatDateNoSeconds(activeShift!.openDate);
     String formattedOpenValue =
         NumberFormat.decimalPattern().format(activeShift!.openValue.toInt());
-    double cashFlow = 0.0;
-    NumberFormat.decimalPattern().format(cashFlow.toInt());
-    double expectedCash =
-        activeShift!.openValue + activeShift!.cashValue + cashFlow;
-    String formattedExpectedCash =
-        NumberFormat.decimalPattern().format(expectedCash.toInt());
 
     final cashier = prefs.getString('username');
 
@@ -271,9 +295,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        const Divider(
-          height: 50,
-          color: Colors.grey,
+        SizedBox(
+          height: 30,
         ),
         const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,8 +314,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 10,
+        const Divider(
+          height: 20,
+          color: Colors.grey,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +383,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                formattedExpectedCash,
+                expectedCash,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -371,7 +395,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           ],
         ),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,9 +445,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        const Divider(
-          height: 50,
-          color: Colors.grey,
+        const SizedBox(
+          height: 30,
         ),
         const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,8 +464,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 10,
+        const Divider(
+          height: 20,
+          color: Colors.grey,
         ),
         CalculateCash(updateTotalCash),
         Container(
@@ -511,9 +535,31 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                   await GetIt.instance<AppDatabase>()
                       .cashierBalanceTransactionDao
                       .update(docId: shiftId, data: shift);
-                  await GetIt.instance<CashierBalanceTransactionApi>()
-                      .sendTransactions(shift);
-                  GetIt.instance<LogoutUseCase>().call();
+                  // await GetIt.instance<CashierBalanceTransactionApi>()
+                  //     .sendTransactions(shift);
+                  final CashierBalanceTransactionEntity?
+                      cashierBalanceTransactionEntity =
+                      await GetIt.instance<AppDatabase>()
+                          .cashierBalanceTransactionDao
+                          .readByDocId(shift.docId, null);
+                  await GetIt.instance<PrintCloseShiftUsecase>().call(
+                      params: PrintCloseShiftUsecaseParams(
+                          cashierBalanceTransactionEntity:
+                              cashierBalanceTransactionEntity!,
+                          totalCashSales:
+                              Helpers.revertMoneyToDecimalFormat(totalCash),
+                          expectedCash:
+                              Helpers.revertMoneyToDecimalFormat(expectedCash),
+                          totalNonCashSales:
+                              Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                          totalSales:
+                              Helpers.revertMoneyToDecimalFormat(totalSales),
+                          cashReceived: Helpers.revertMoneyToDecimalFormat(
+                              calculatedTotalCash),
+                          difference: Helpers.revertMoneyToDecimalFormat(
+                                  calculatedTotalCash) -
+                              Helpers.revertMoneyToDecimalFormat(totalCash)));
+                  await GetIt.instance<LogoutUseCase>().call();
                   if (!context.mounted) return;
                   context.goNamed(RouteConstants.welcome);
                 }

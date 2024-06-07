@@ -3446,6 +3446,8 @@ class _FetchScreenState extends State<FetchScreen> {
             .promoHargaSpesialHeaderDao
             .readAll();
         for (final header in topsb) {
+          if (header.statusActive != 1) continue;
+
           final tpsb2 = await GetIt.instance<AppDatabase>()
               .promoHargaSpesialAssignStoreDao
               .readByTopsbId(header.docId, null);
@@ -3488,6 +3490,8 @@ class _FetchScreenState extends State<FetchScreen> {
             .promoMultiItemHeaderDao
             .readAll();
         for (final header in topmi) {
+          if (header.statusActive != 1) continue;
+
           final tpmi1 = await GetIt.instance<AppDatabase>()
               .promoMultiItemBuyConditionDao
               .readByTopmiId(header.docId, null);
@@ -3534,6 +3538,8 @@ class _FetchScreenState extends State<FetchScreen> {
             .promoDiskonItemHeaderDao
             .readAll();
         for (final header in topdi) {
+          if (header.statusActive != 1) continue;
+
           final tpdi1 = await GetIt.instance<AppDatabase>()
               .promoDiskonItemBuyConditionDao
               .readByTopdiId(header.docId, null);
@@ -3581,6 +3587,8 @@ class _FetchScreenState extends State<FetchScreen> {
             .readAll();
 
         for (final header in topdg) {
+          if (header.statusActive != 1) continue;
+
           final tpdg1 = await GetIt.instance<AppDatabase>()
               .promoDiskonGroupItemBuyConditionDao
               .readByTopdgId(header.docId, null);
@@ -3633,6 +3641,8 @@ class _FetchScreenState extends State<FetchScreen> {
             .promoBuyXGetYHeaderDao
             .readAll();
         for (final header in toprb) {
+          if (header.statusActive != 1) continue;
+
           final tprb1 = await GetIt.instance<AppDatabase>()
               .promoBuyXGetYBuyConditionDao
               .readByToprbId(header.docId, null);

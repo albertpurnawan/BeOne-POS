@@ -93,7 +93,7 @@ class InvoiceApi {
         "subtotal": (invHead[0].subTotal -
                 invHead[0].discAmount +
                 (invHead[0].discHeaderManual ?? 0))
-            .toInt(),
+            .round(),
         "discprctg": 100 *
             ((invHead[0].discHeaderManual ?? 0) /
                 (invHead[0].subTotal -
@@ -120,13 +120,14 @@ class InvoiceApi {
             "idnumber": item.idNumber,
             "toitm_id": item.toitmId,
             "quantity": item.quantity,
-            "sellingprice": item.sellingPrice.toInt(),
+            "sellingprice": item.sellingPrice.round(),
             "discprctg": item.discPrctg,
             "discamount": item.discAmount,
-            "totalamount":
-                ((item.sellingPrice * (100 / (100 + item.taxPrctg))) -
-                        item.discAmount)
-                    .round(),
+            "totalamount": ((item.quantity *
+                        item.sellingPrice *
+                        (100 / (100 + item.taxPrctg))) -
+                    item.discAmount)
+                .round(),
             "taxprctg": item.taxPrctg,
             "promotiontype": item.promotionType,
             "promotionid": item.promotionId,
@@ -286,9 +287,16 @@ class InvoiceApi {
             .toIso8601String(),
         "timezone": invHead.timezone,
         "remarks": invHead.remarks ?? "",
-        "subtotal": invHead.subTotal.toInt(),
-        "discprctg": invHead.discPrctg,
-        "discamount": invHead.discAmount,
+        "subtotal": (invHead.subTotal -
+                invHead.discAmount +
+                (invHead.discHeaderManual ?? 0))
+            .round(),
+        "discprctg": 100 *
+            ((invHead.discHeaderManual ?? 0) /
+                (invHead.subTotal -
+                    invHead.discAmount +
+                    (invHead.discHeaderManual ?? 0))),
+        "discamount": invHead.discHeaderManual,
         "discountcard": invHead.discountCard,
         "coupon": invHead.coupon,
         "discountcoupon": invHead.discountCoupun,
@@ -297,9 +305,9 @@ class InvoiceApi {
         // "taxamount": 0,
         "addcost": invHead.addCost,
         "rounding": invHead.rounding,
-        "grandtotal": invHead.grandTotal.toInt(),
+        "grandtotal": invHead.grandTotal.round(),
         "changed": invHead.changed,
-        "totalpayment": invHead.totalPayment.toInt(),
+        "totalpayment": invHead.totalPayment.round(),
         "tocsr_id": invHead.tocsrId,
         "toinv_tohem_id": invHead.toinvTohemId,
         "refpos1": invHead.refpos1,
@@ -309,10 +317,14 @@ class InvoiceApi {
             "idnumber": item.idNumber,
             "toitm_id": item.toitmId,
             "quantity": item.quantity,
-            "sellingprice": item.sellingPrice.toInt(),
+            "sellingprice": item.sellingPrice.round(),
             "discprctg": item.discPrctg,
             "discamount": item.discAmount,
-            "totalamount": item.totalAmount.toInt(),
+            "totalamount": ((item.quantity *
+                        item.sellingPrice *
+                        (100 / (100 + item.taxPrctg))) -
+                    item.discAmount)
+                .round(),
             "taxprctg": item.taxPrctg,
             "promotiontype": item.promotionType,
             "promotionid": item.promotionId,

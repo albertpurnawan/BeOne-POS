@@ -3069,6 +3069,7 @@ Future<void> syncData() async {
           .promoHargaSpesialHeaderDao
           .readAll();
       for (final header in topsb) {
+        if (header.statusActive != 1) continue;
         final tpsb2 = await GetIt.instance<AppDatabase>()
             .promoHargaSpesialAssignStoreDao
             .readByTopsbId(header.docId, null);
@@ -3110,6 +3111,7 @@ Future<void> syncData() async {
       topmi =
           await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
       for (final header in topmi) {
+        if (header.statusActive != 1) continue;
         final tpmi1 = await GetIt.instance<AppDatabase>()
             .promoMultiItemBuyConditionDao
             .readByTopmiId(header.docId, null);
@@ -3156,6 +3158,7 @@ Future<void> syncData() async {
           .promoDiskonItemHeaderDao
           .readAll();
       for (final header in topdi) {
+        if (header.statusActive != 1) continue;
         final tpdi1 = await GetIt.instance<AppDatabase>()
             .promoDiskonItemBuyConditionDao
             .readByTopdiId(header.docId, null);
@@ -3202,6 +3205,7 @@ Future<void> syncData() async {
           .promoDiskonGroupItemHeaderDao
           .readAll();
       for (final header in topdg) {
+        if (header.statusActive != 1) continue;
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
             .readByTopdgId(header.docId, null);
@@ -3254,6 +3258,7 @@ Future<void> syncData() async {
       toprb =
           await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
       for (final header in toprb) {
+        if (header.statusActive != 1) continue;
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao
             .readByToprbId(header.docId, null);
