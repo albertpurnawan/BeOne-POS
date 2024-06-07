@@ -1608,6 +1608,7 @@ CREATE TABLE $tableCashierBalanceTransaction (
   ${CashierBalanceTransactionFields.openedbyId} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.closedbyId} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.approvalStatus} int DEFAULT NULL,
+  ${CashierBalanceTransactionFields.refpos} text DEFAULT NULL,
   $createdAtDefinition
 )
 """);

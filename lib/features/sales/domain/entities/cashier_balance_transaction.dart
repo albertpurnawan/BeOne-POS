@@ -23,6 +23,7 @@ class CashierBalanceTransactionEntity {
   final String? openedbyId;
   final String? closedbyId;
   final int approvalStatus;
+  final String? refpos;
 
   CashierBalanceTransactionEntity({
     required this.docId,
@@ -45,6 +46,7 @@ class CashierBalanceTransactionEntity {
     required this.openedbyId,
     required this.closedbyId,
     required this.approvalStatus,
+    required this.refpos,
   });
 
   CashierBalanceTransactionEntity copyWith({
@@ -68,6 +70,7 @@ class CashierBalanceTransactionEntity {
     String? openedbyId,
     String? closedbyId,
     int? approvalStatus,
+    String? refpos,
   }) {
     return CashierBalanceTransactionEntity(
       docId: docId ?? this.docId,
@@ -90,6 +93,7 @@ class CashierBalanceTransactionEntity {
       openedbyId: openedbyId ?? this.openedbyId,
       closedbyId: closedbyId ?? this.closedbyId,
       approvalStatus: approvalStatus ?? this.approvalStatus,
+      refpos: refpos ?? this.refpos,
     );
   }
 
@@ -115,6 +119,7 @@ class CashierBalanceTransactionEntity {
       'openedbyId': openedbyId,
       'closedbyId': closedbyId,
       'approvalStatus': approvalStatus,
+      'refpos': refpos,
     };
   }
 
@@ -144,6 +149,7 @@ class CashierBalanceTransactionEntity {
       closedbyId:
           map['closedbyId'] != null ? map['closedbyId'] as String : null,
       approvalStatus: map['approvalStatus'] as int,
+      refpos: map['refpos'] != null ? map['refpos'] as String : null,
     );
   }
 
@@ -155,7 +161,7 @@ class CashierBalanceTransactionEntity {
 
   @override
   String toString() {
-    return 'CashierBalanceTransactionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tocsrId: $tocsrId, tousrId: $tousrId, docNum: $docNum, openDate: $openDate, openTime: $openTime, calcDate: $calcDate, calcTime: $calcTime, closeDate: $closeDate, closeTime: $closeTime, timezone: $timezone, openValue: $openValue, calcValue: $calcValue, cashValue: $cashValue, closeValue: $closeValue, openedbyId: $openedbyId, closedbyId: $closedbyId, approvalStatus: $approvalStatus)';
+    return 'CashierBalanceTransactionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tocsrId: $tocsrId, tousrId: $tousrId, docNum: $docNum, openDate: $openDate, openTime: $openTime, calcDate: $calcDate, calcTime: $calcTime, closeDate: $closeDate, closeTime: $closeTime, timezone: $timezone, openValue: $openValue, calcValue: $calcValue, cashValue: $cashValue, closeValue: $closeValue, openedbyId: $openedbyId, closedbyId: $closedbyId, approvalStatus: $approvalStatus, refpos: $refpos)';
   }
 
   @override
@@ -181,7 +187,8 @@ class CashierBalanceTransactionEntity {
         other.closeValue == closeValue &&
         other.openedbyId == openedbyId &&
         other.closedbyId == closedbyId &&
-        other.approvalStatus == approvalStatus;
+        other.approvalStatus == approvalStatus &&
+        other.refpos == refpos;
   }
 
   @override
@@ -205,6 +212,7 @@ class CashierBalanceTransactionEntity {
         closeValue.hashCode ^
         openedbyId.hashCode ^
         closedbyId.hashCode ^
-        approvalStatus.hashCode;
+        approvalStatus.hashCode ^
+        refpos.hashCode;
   }
 }

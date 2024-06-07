@@ -248,6 +248,21 @@ abstract class Helpers {
     return formatter.format(dTime).toString();
   }
 
+  static String getTimezone(DateTime dTime) {
+    final timezoneOffset = dTime.timeZoneOffset;
+
+    if (timezoneOffset != Duration.zero) {
+      final sign = timezoneOffset.inHours >= 0 ? '+' : '-';
+      final absHours = timezoneOffset.inHours.abs();
+      final timezoneString = 'GMT$sign$absHours';
+
+      return timezoneString;
+    } else {
+      const timezoneString = 'GMT+0';
+      return timezoneString;
+    }
+  }
+
   static SplitListResult<Type> splitList<Type>(
       List<Type> list, bool Function(Type) matchFunction) {
     final List<Type> falseResult = [];
