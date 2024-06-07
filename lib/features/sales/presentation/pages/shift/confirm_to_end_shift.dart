@@ -7,6 +7,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -198,14 +199,22 @@ class ConfirmToEndShift extends StatelessWidget {
                                   passwordController.text);
                               if (passwordCorrect == "Success") {
                                 if (!context.mounted) return;
+
                                 Navigator.pop(context);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        CloseShiftScreen(shiftId: shift.docId),
+                                    builder: (context) => CloseShiftScreen(
+                                        shiftId: shift.docId,
+                                        username: usernameController.text),
                                   ),
                                 );
+                                try {
+                                  await GetIt.instance<OpenCashDrawerUseCase>()
+                                      .call();
+                                } catch (e) {
+                                  print(e.toString());
+                                }
                               } else {
                                 final message =
                                     passwordCorrect == "Wrong Password"

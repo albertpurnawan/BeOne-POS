@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/reports/prsentation/widgets/table_report_item_widget.dart';
-import 'package:pos_fe/features/reports/prsentation/widgets/table_report_mop_widget.dart';
-import 'package:pos_fe/features/reports/prsentation/widgets/table_report_shift_widget.dart';
+import 'package:pos_fe/features/reports/presentation/widgets/table_report_item_widget.dart';
+import 'package:pos_fe/features/reports/presentation/widgets/table_report_mop_widget.dart';
+import 'package:pos_fe/features/reports/presentation/widgets/table_report_shift_widget.dart';
 
 class FiltereReportScreen extends StatefulWidget {
   const FiltereReportScreen({super.key});

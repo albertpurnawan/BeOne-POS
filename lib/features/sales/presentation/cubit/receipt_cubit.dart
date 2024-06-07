@@ -127,7 +127,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Initialize some values
       if (state.receiptItems.isEmpty &&
-          state.customerEntity?.custCode != "99") {
+          state.customerEntity?.custCode == "99") {
         await resetReceipt();
       }
 

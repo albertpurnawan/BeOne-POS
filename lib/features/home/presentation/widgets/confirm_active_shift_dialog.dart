@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 
 class ConfirmActiveShiftDialog extends StatefulWidget {
   String currentShiftDocId;
@@ -122,8 +123,7 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        CloseShiftScreen(shiftId: widget.currentShiftDocId),
+                    builder: (context) => ShiftsList(),
                   ),
                 );
               },

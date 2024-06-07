@@ -57,7 +57,7 @@ class MoneyDenominationModel extends MoneyDenominationEntity
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate']).toLocal()
           : null,
-      nominal: map['nominal'] != null ? map['nominal'] as String : null,
+      nominal: map['nominal'] != null ? map['nominal'] as int : null,
       count: map['count'] != null ? map['count'] as int : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
     );

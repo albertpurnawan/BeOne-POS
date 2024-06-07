@@ -73,6 +73,7 @@ class _SalesPageState extends State<SalesPage> {
             event.logicalKey == LogicalKeyboardKey.arrowDown) {
           return KeyEventResult.skipRemainingHandlers;
         } else {
+          print("a");
           return KeyEventResult.ignored;
         }
       });
@@ -724,12 +725,13 @@ class _SalesPageState extends State<SalesPage> {
                                     isUpdatingReceiptItemQty)
                                 ? SizedBox(
                                     height: 40,
-                                    child: RawKeyboardListener(
-                                      onKey: (event) => handlePhysicalKeyboard(
+                                    child: KeyboardListener(
+                                      onKeyEvent: (event) => handlePhysicalKeyboard(
                                           event,
                                           _textEditingControllerNewReceiptItemQuantity,
                                           _newReceiptItemQuantityFocusNode,
-                                          true),
+                                          true,
+                                          context),
                                       focusNode:
                                           FocusNode(canRequestFocus: false),
                                       child: Focus(
@@ -776,13 +778,20 @@ class _SalesPageState extends State<SalesPage> {
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                           child: isEditingNewReceiptItemCode
-                              ? RawKeyboardListener(
-                                  onKey: (event) => handlePhysicalKeyboard(
+                              ? KeyboardListener(
+                                  onKeyEvent: (event) {
+                                    print(123123123123);
+                                    handlePhysicalKeyboard(
                                       event,
                                       _textEditingControllerNewReceiptItemCode,
                                       _newReceiptItemCodeFocusNode,
-                                      false),
-                                  focusNode: FocusNode(canRequestFocus: false),
+                                      false,
+                                      context,
+                                    );
+                                  },
+                                  focusNode: FocusNode(
+                                    canRequestFocus: false,
+                                  ),
                                   child: SizedBox(
                                     height: 40,
                                     child: Focus(
@@ -933,9 +942,14 @@ class _SalesPageState extends State<SalesPage> {
                               side: BorderSide.none,
                             ),
                             child: FittedBox(
-                              child: const Text(
-                                "Reset",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                              child: Row(
+                                children: [
+                                  const Text(
+                                    "Reset",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -1081,10 +1095,22 @@ class _SalesPageState extends State<SalesPage> {
                       //     ),
                       //   ),
                       // ),
-                      child: const Text(
-                        "Discount",
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600),
+                      child: FittedBox(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Discount",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: " F5",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                          ),
+                          overflow: TextOverflow.clip,
+                        ),
                       ),
                     ),
                   ),
@@ -1102,42 +1128,22 @@ class _SalesPageState extends State<SalesPage> {
                           isUpdatingReceiptItemQty = false;
                         });
 
-                        final ItemEntity? itemEntitySearch =
-                            await showDialog<ItemEntity>(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => ItemSearchDialog());
-
-                        if (itemEntitySearch != null) {
-                          await context
-                              .read<ReceiptCubit>()
-                              .addUpdateReceiptItems(
-                                  AddUpdateReceiptItemsParams(
-                                      barcode: null,
-                                      itemEntity: itemEntitySearch,
-                                      quantity: 1,
-                                      context: context,
-                                      onOpenPriceInputted: () => setState(() {
-                                            isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
-                                          })));
-                        }
-
                         setState(() {
                           context.read<ItemsCubit>().clearItems();
                           isEditingNewReceiptItemCode = true;
                           _newReceiptItemCodeFocusNode.requestFocus();
                         });
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          final position = _scrollControllerReceiptItems
-                                  .position.maxScrollExtent +
-                              100;
-                          _scrollControllerReceiptItems.animateTo(
-                            position,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeOut,
-                          );
+
+                        showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => QueueListDialog())
+                            .then((value) {
+                          setState(() {
+                            context.read<ItemsCubit>().clearItems();
+                            isEditingNewReceiptItemCode = true;
+                            _newReceiptItemCodeFocusNode.requestFocus();
+                          });
                         });
                       },
                       style: OutlinedButton.styleFrom(
@@ -1152,12 +1158,20 @@ class _SalesPageState extends State<SalesPage> {
                         side: BorderSide.none,
                       ),
                       child: FittedBox(
-                        child: const Text(
-                          "Item Search",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Queue List",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: " F4",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
                           ),
+                          overflow: TextOverflow.clip,
                         ),
                       ),
                     ),
@@ -1328,7 +1342,10 @@ class _SalesPageState extends State<SalesPage> {
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(state.subtotal.round()),
+                                Helpers.parseMoney((state.subtotal -
+                                        (state.discAmount ?? 0) +
+                                        (state.discHeaderManual ?? 0))
+                                    .round()),
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1340,12 +1357,12 @@ class _SalesPageState extends State<SalesPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Total Discount",
+                                "Header Discount",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                "(${Helpers.parseMoney((state.discAmount ?? 0).round())})",
+                                "(${Helpers.parseMoney((state.discHeaderManual ?? 0).round())})",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
@@ -1478,6 +1495,11 @@ class _SalesPageState extends State<SalesPage> {
                           fontSize: 18,
                         ),
                       ),
+                      Text(
+                        " F11",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w300),
+                      ),
                     ],
                   ),
                 ),
@@ -1490,49 +1512,55 @@ class _SalesPageState extends State<SalesPage> {
               child: SizedBox.expand(
                 child: OutlinedButton(
                   onPressed: () async {
-                    if (context
-                        .read<ReceiptCubit>()
-                        .state
-                        .receiptItems
-                        .isEmpty) {
-                      return ErrorHandler.presentErrorSnackBar(
-                          context, "Receipt cannot be empty");
-                    }
+                    try {
+                      if (context
+                          .read<ReceiptCubit>()
+                          .state
+                          .receiptItems
+                          .isEmpty) {
+                        return ErrorHandler.presentErrorSnackBar(
+                            context, "Receipt cannot be empty");
+                      }
 
-                    setState(() {
-                      isEditingNewReceiptItemCode = false;
-                      isEditingNewReceiptItemQty = false;
-                      isUpdatingReceiptItemQty = false;
-                    });
+                      setState(() {
+                        isEditingNewReceiptItemCode = false;
+                        isEditingNewReceiptItemQty = false;
+                        isUpdatingReceiptItemQty = false;
+                      });
 
-                    await context
-                        .read<ReceiptCubit>()
-                        .processReceiptBeforeCheckout(context);
+                      await context
+                          .read<ReceiptCubit>()
+                          .processReceiptBeforeCheckout(context);
 
-                    final ReceiptEntity receiptEntity =
-                        context.read<ReceiptCubit>().state;
+                      await Future.delayed(Duration(milliseconds: 300), () {});
 
-                    if (receiptEntity.promos.length !=
-                        receiptEntity.previousReceiptEntity?.promos.length) {
-                      await showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => PromotionSummaryDialog(
-                                receiptEntity:
-                                    context.read<ReceiptCubit>().state,
-                              ));
-                    }
+                      final ReceiptEntity receiptEntity =
+                          context.read<ReceiptCubit>().state;
 
-                    await showDialog(
+                      if (receiptEntity.promos.length !=
+                          receiptEntity.previousReceiptEntity?.promos.length) {
+                        await showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) => const CheckoutDialog())
-                        .then((value) {
-                      setState(() {
-                        isEditingNewReceiptItemCode = true;
-                        _newReceiptItemCodeFocusNode.requestFocus();
+                            builder: (context) => PromotionSummaryDialog(
+                                  receiptEntity:
+                                      context.read<ReceiptCubit>().state,
+                                ));
+                      }
+
+                      await showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const CheckoutDialog())
+                          .then((value) {
+                        setState(() {
+                          isEditingNewReceiptItemCode = true;
+                          _newReceiptItemCodeFocusNode.requestFocus();
+                        });
                       });
-                    });
+                    } catch (e, s) {
+                      debugPrintStack(stackTrace: s);
+                    }
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(3),
@@ -1561,6 +1589,11 @@ class _SalesPageState extends State<SalesPage> {
                         style: TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 18),
                       ),
+                      Text(
+                        " F12",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w300),
+                      ),
                     ],
                   ),
                 ),
@@ -1579,25 +1612,46 @@ class _SalesPageState extends State<SalesPage> {
             child: SizedBox.expand(
               child: OutlinedButton(
                 onPressed: () async {
-                  showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => QueueListDialog()).then((value) {
-                    setState(() {
-                      context.read<ItemsCubit>().clearItems();
-                      isEditingNewReceiptItemCode = true;
-                      _newReceiptItemCodeFocusNode.requestFocus();
-                    });
-                    // WidgetsBinding.instance.addPostFrameCallback((_) {
-                    //   final position = _scrollControllerReceiptItems
-                    //           .position.maxScrollExtent +
-                    //       100;
-                    //   _scrollControllerReceiptItems.animateTo(
-                    //     position,
-                    //     duration: const Duration(milliseconds: 500),
-                    //     curve: Curves.easeOut,
-                    //   );
-                    // });
+                  setState(() {
+                    isEditingNewReceiptItemCode = false;
+                    isEditingNewReceiptItemQty = false;
+                    isUpdatingReceiptItemQty = false;
+                  });
+
+                  final ItemEntity? itemEntitySearch =
+                      await showDialog<ItemEntity>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => ItemSearchDialog());
+
+                  if (itemEntitySearch != null) {
+                    await context
+                        .read<ReceiptCubit>()
+                        .addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+                            barcode: null,
+                            itemEntity: itemEntitySearch,
+                            quantity: 1,
+                            context: context,
+                            onOpenPriceInputted: () => setState(() {
+                                  isEditingNewReceiptItemCode = true;
+                                  _newReceiptItemCodeFocusNode.requestFocus();
+                                })));
+                  }
+
+                  setState(() {
+                    context.read<ItemsCubit>().clearItems();
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  });
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final position =
+                        _scrollControllerReceiptItems.position.maxScrollExtent +
+                            100;
+                    _scrollControllerReceiptItems.animateTo(
+                      position,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOut,
+                    );
                   });
                 },
                 style: OutlinedButton.styleFrom(
@@ -1611,10 +1665,21 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   side: BorderSide.none,
                 ),
-                child: const Text(
-                  "Queue List",
+                child: RichText(
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Item Search",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: "\nF9",
+                        style: TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
+                  overflow: TextOverflow.clip,
                 ),
               ),
             ),
@@ -1836,28 +1901,6 @@ class _SalesPageState extends State<SalesPage> {
                                       () => _newReceiptItemCodeFocusNode
                                           .requestFocus());
                                   setState(() {});
-                                  // try {
-                                  //   final response = await api.trading
-                                  //       .deleteTradingPost(tradingPost.id)
-                                  //       .timeout(const Duration(seconds: 10));
-                                  //   if (response.response.success) {
-                                  //     Helpers.showSnackbar(context,
-                                  //         content:
-                                  //             const Text("Delete success"));
-                                  //   } else {
-                                  //     Helpers.showSnackbar(context,
-                                  //         content: const Text("Delete failed"));
-                                  //   }
-                                  //   Navigator.of(context).pop();
-                                  //   refresh();
-                                  // } catch (e) {
-                                  //   Navigator.of(context).pop();
-                                  //   Navigator.of(context).pop();
-                                  //   Helpers.showSnackbar(context,
-                                  //       content:
-                                  //           const Text("Connection timed out"));
-                                  //   // refresh();
-                                  // }
                                 },
                                 child: const Center(
                                     child: Text(
@@ -1890,10 +1933,21 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   side: BorderSide.none,
                 ),
-                child: const Text(
-                  "Select Cust.",
+                child: RichText(
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Select Customer",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: "\nF8",
+                        style: TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
+                  overflow: TextOverflow.clip,
                 ),
               ),
             ),
@@ -1937,10 +1991,21 @@ class _SalesPageState extends State<SalesPage> {
                     ),
                     side: BorderSide.none,
                   ),
-                  child: const Text(
-                    "Remove Item",
+                  child: RichText(
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Remove Item",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: "\nF7",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    ),
+                    overflow: TextOverflow.clip,
                   ),
                 ),
               ),
@@ -1994,10 +2059,21 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   side: BorderSide.none,
                 ),
-                child: const Text(
-                  "Order Quantity",
+                child: RichText(
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Order Quantity",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: "\nF6",
+                        style: TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
+                  overflow: TextOverflow.clip,
                 ),
               ),
             ),
@@ -2396,19 +2472,25 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   void handlePhysicalKeyboard(
-      RawKeyEvent event,
-      TextEditingController textEditingController,
-      FocusNode textFieldFocusNode,
-      bool isNumOnly) async {
+    KeyEvent event,
+    TextEditingController textEditingController,
+    FocusNode textFieldFocusNode,
+    bool isNumOnly,
+    BuildContext context,
+  ) async {
+    print("h0");
+    if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
       print("h1");
+      print(event.physicalKey.toString());
+      print(PhysicalKeyboardKey.f12);
       if (event.character != null &&
           RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')
               .hasMatch(event.character!)) {
         if (Platform.isWindows) return;
         textEditingController.text += event.character!;
-      } else if (event.isKeyPressed(LogicalKeyboardKey.enter) ||
-          event.isKeyPressed(LogicalKeyboardKey.numpadEnter)) {
+      } else if (event.physicalKey == PhysicalKeyboardKey.enter ||
+          event.physicalKey == (PhysicalKeyboardKey.numpadEnter)) {
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
           await context.read<ReceiptCubit>().addUpdateReceiptItems(
               AddUpdateReceiptItemsParams(
@@ -2488,8 +2570,376 @@ class _SalesPageState extends State<SalesPage> {
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         }
-      } else if (!event.isKeyPressed(LogicalKeyboardKey.backspace)) {
-        return;
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f12)) {
+        try {
+          if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
+            return ErrorHandler.presentErrorSnackBar(
+                context, "Receipt cannot be empty");
+          }
+
+          setState(() {
+            isEditingNewReceiptItemCode = false;
+            isEditingNewReceiptItemQty = false;
+            isUpdatingReceiptItemQty = false;
+          });
+
+          await context
+              .read<ReceiptCubit>()
+              .processReceiptBeforeCheckout(context);
+
+          await Future.delayed(Duration(milliseconds: 300), () {});
+
+          final ReceiptEntity receiptEntity =
+              context.read<ReceiptCubit>().state;
+
+          if (receiptEntity.promos.length !=
+              receiptEntity.previousReceiptEntity?.promos.length) {
+            await showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => PromotionSummaryDialog(
+                      receiptEntity: context.read<ReceiptCubit>().state,
+                    ));
+          }
+
+          await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const CheckoutDialog()).then((value) {
+            setState(() {
+              isEditingNewReceiptItemCode = true;
+              _newReceiptItemCodeFocusNode.requestFocus();
+            });
+          });
+        } catch (e, s) {
+          debugPrintStack(stackTrace: s);
+        }
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f11)) {
+        if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
+          return ErrorHandler.presentErrorSnackBar(
+              context, "Receipt cannot be empty");
+        }
+        context.read<ReceiptCubit>().queueReceipt();
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f9)) {
+        setState(() {
+          isEditingNewReceiptItemCode = false;
+          isEditingNewReceiptItemQty = false;
+          isUpdatingReceiptItemQty = false;
+        });
+
+        final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => ItemSearchDialog());
+
+        if (itemEntitySearch != null) {
+          await context
+              .read<ReceiptCubit>()
+              .addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+                  barcode: null,
+                  itemEntity: itemEntitySearch,
+                  quantity: 1,
+                  context: context,
+                  onOpenPriceInputted: () => setState(() {
+                        isEditingNewReceiptItemCode = true;
+                        _newReceiptItemCodeFocusNode.requestFocus();
+                      })));
+        }
+
+        setState(() {
+          context.read<ItemsCubit>().clearItems();
+          isEditingNewReceiptItemCode = true;
+          _newReceiptItemCodeFocusNode.requestFocus();
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final position =
+              _scrollControllerReceiptItems.position.maxScrollExtent + 100;
+          _scrollControllerReceiptItems.animateTo(
+            position,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOut,
+          );
+        });
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f8)) {
+        setState(() {
+          isEditingNewReceiptItemCode = false;
+          isEditingNewReceiptItemQty = false;
+          isUpdatingReceiptItemQty = false;
+        });
+        return await showDialog<void>(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              title: Container(
+                decoration: const BoxDecoration(
+                  color: ProjectColors.primary,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                ),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: const Text(
+                  'Select Customer',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                ),
+              ),
+              titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              contentPadding: EdgeInsets.all(0),
+              content: Theme(
+                data: ThemeData(
+                  splashColor: const Color.fromARGB(40, 169, 0, 0),
+                  highlightColor: const Color.fromARGB(40, 169, 0, 0),
+                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+                  fontFamily: 'Roboto',
+                  useMaterial3: true,
+                ),
+                child: StatefulBuilder(builder: (context, setState) {
+                  return SizedBox(
+                    width: 350,
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: TextField(
+                            onSubmitted: (value) {
+                              context
+                                  .read<CustomersCubit>()
+                                  .getCustomers(searchKeyword: value);
+                              _customerInputFocusNode.requestFocus();
+                            },
+                            autofocus: true,
+                            focusNode: _customerInputFocusNode,
+                            decoration: const InputDecoration(
+                              suffixIcon: Icon(
+                                Icons.search,
+                                size: 16,
+                              ),
+                              hintText: "Enter customer's name",
+                              hintStyle: TextStyle(
+                                fontSize: 16,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              // isCollapsed: true,
+                              // contentPadding:
+                              //     EdgeInsets.fromLTRB(0, 0, 0, 0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        // Text(
+                        //   "Name",
+                        //   textAlign: TextAlign.left,
+                        // ),
+                        Expanded(
+                          child:
+                              BlocBuilder<CustomersCubit, List<CustomerEntity>>(
+                            builder: (context, state) {
+                              if (state.length == 0) {
+                                return const Expanded(
+                                    child: EmptyList(
+                                  imagePath: "assets/images/empty-search.svg",
+                                  sentence:
+                                      "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                                ));
+                              }
+                              return ListView.builder(
+                                  padding: EdgeInsets.all(0),
+                                  itemCount: state.length,
+                                  itemBuilder: ((context, index) {
+                                    final CustomerEntity customerEntity =
+                                        state[index];
+
+                                    return RadioListTile<CustomerEntity>(
+                                        activeColor: ProjectColors.primary,
+                                        hoverColor: ProjectColors.primary,
+                                        // selected: index == radioValue,
+                                        selectedTileColor:
+                                            ProjectColors.primary,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                          horizontal: 15,
+                                        ),
+                                        controlAffinity:
+                                            ListTileControlAffinity.trailing,
+                                        value: state[index],
+                                        groupValue: radioValue,
+                                        title: Text(customerEntity.custName),
+                                        subtitle: Text(customerEntity.phone),
+                                        // shape: RoundedRectangleBorder(
+                                        //     borderRadius:
+                                        //         BorderRadius.circular(5)),
+                                        onChanged: (val) {
+                                          setState(() {
+                                            radioValue = val;
+                                          });
+                                        });
+                                  }));
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }),
+              ),
+              // contentPadding: const EdgeInsets.symmetric(
+              //     horizontal: 20, vertical: 5),
+              actions: <Widget>[
+                Row(
+                  children: [
+                    Expanded(
+                        child: TextButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(
+                                      color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.white),
+                          overlayColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.black.withOpacity(.2))),
+                      onPressed: () {
+                        setState(() {
+                          Navigator.of(context).pop();
+                          Future.delayed(
+                              const Duration(milliseconds: 200),
+                              () =>
+                                  _newReceiptItemCodeFocusNode.requestFocus());
+                        });
+                      },
+                      child: const Center(
+                          child: Text(
+                        "Cancel",
+                        style: TextStyle(color: ProjectColors.primary),
+                      )),
+                    )),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        child: TextButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5))),
+                          backgroundColor: MaterialStateColor.resolveWith(
+                              (states) => ProjectColors.primary),
+                          overlayColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.white.withOpacity(.2))),
+                      onPressed: () async {
+                        selectedCustomer = radioValue;
+                        await context
+                            .read<ReceiptCubit>()
+                            .updateCustomer(selectedCustomer!, context);
+                        Navigator.of(context).pop();
+                        Future.delayed(const Duration(milliseconds: 200),
+                            () => _newReceiptItemCodeFocusNode.requestFocus());
+                        setState(() {});
+                      },
+                      child: const Center(
+                          child: Text(
+                        "Select",
+                        style: TextStyle(color: Colors.white),
+                      )),
+                    )),
+                  ],
+                ),
+              ],
+              actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            );
+          },
+        ).then((value) => setState(() {
+              radioValue = null;
+              context.read<CustomersCubit>().clearCustomers();
+              isEditingNewReceiptItemCode = true;
+              _newReceiptItemCodeFocusNode.requestFocus();
+            }));
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f7)) {
+        final ReceiptItemEntity receiptItemTarget =
+            context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
+
+        setState(() {
+          indexIsSelect = [-1, 0];
+          _textEditingControllerNewReceiptItemQuantity.text = "1";
+          _textEditingControllerNewReceiptItemCode.text = "";
+          _newReceiptItemQuantityFocusNode.unfocus();
+          isUpdatingReceiptItemQty = false;
+          isEditingNewReceiptItemCode = true;
+          _newReceiptItemCodeFocusNode.requestFocus();
+        });
+
+        context
+            .read<ReceiptCubit>()
+            .removeReceiptItem(receiptItemTarget, context);
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f6)) {
+        if (isEditingNewReceiptItemQty == false) {
+          isEditingNewReceiptItemQty = true;
+          isEditingNewReceiptItemCode = false;
+          _textEditingControllerNewReceiptItemQuantity.text = "";
+          // _newReceiptItemCodeFocusNode.unfocus();
+          _newReceiptItemQuantityFocusNode.requestFocus();
+        } else {
+          isEditingNewReceiptItemQty = false;
+          isEditingNewReceiptItemCode = true;
+          _textEditingControllerNewReceiptItemQuantity
+              .text = _textEditingControllerNewReceiptItemQuantity.text == "" ||
+                  double.parse(
+                          _textEditingControllerNewReceiptItemQuantity.text) <=
+                      0
+              ? "1"
+              : Helpers.cleanDecimal(
+                  double.parse(
+                      _textEditingControllerNewReceiptItemQuantity.text),
+                  3);
+
+          // _newReceiptItemQuantityFocusNode.unfocus();
+          _newReceiptItemCodeFocusNode.requestFocus();
+        }
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f5)) {
+        setState(() {
+          isEditingNewReceiptItemCode = false;
+          isEditingNewReceiptItemQty = false;
+          isUpdatingReceiptItemQty = false;
+        });
+        await showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => InputDiscountManual())
+            .then((value) => setState(() {
+                  isEditingNewReceiptItemCode = true;
+                  _newReceiptItemCodeFocusNode.requestFocus();
+                }));
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f3)) {
+        await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => QueueListDialog()).then((value) {
+          setState(() {
+            context.read<ItemsCubit>().clearItems();
+            isEditingNewReceiptItemCode = true;
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        });
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f2)) {
+        context.read<ReceiptCubit>().resetReceipt();
+        setState(() {});
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
+        context.read<ReceiptCubit>().resetReceipt();
+        setState(() {});
+        Navigator.pop(context);
       }
     } else {
       print("h2");

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CalculateCash extends StatefulWidget {
-  final Function(String) setTotal;
+  final Function(Map<String, dynamic>) setTotal;
 
   const CalculateCash(this.setTotal, {Key? key}) : super(key: key);
 
@@ -66,7 +66,18 @@ class _CalculateCashState extends State<CalculateCash> {
 
   void _changeTotalCash(List values) {
     String totalCash = calculateTotalCash(values);
-    widget.setTotal(totalCash);
+    widget.setTotal({
+      '100k': controller100k.text,
+      '50k': controller50k.text,
+      '20k': controller20k.text,
+      '10k': controller10k.text,
+      '5k': controller5k.text,
+      '1k': controller1k.text,
+      '500': controller500.text,
+      '200': controller200.text,
+      '100': controller100.text,
+      '50': controller50.text,
+    });
   }
 
   @override

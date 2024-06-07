@@ -51,8 +51,13 @@ class ApplyPromoTopdgUseCase
         final List<ReceiptItemEntity> newReceiptItems = [];
         for (final receiptItem
             in params.handlePromosUseCaseParams.receiptEntity.receiptItems) {
-          newReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(
-              receiptItem
+          final double thisDiscAmount = receiptItem.discAmount == null
+              ? (discValuePctg * receiptItem.totalGross)
+              : (discValuePctg *
+                  (receiptItem.totalGross - receiptItem.discAmount!));
+
+          newReceiptItems
+              .add(ReceiptHelper.updateReceiptItemAggregateFields(receiptItem
                 ..discAmount = receiptItem.discAmount == null
                     ? (discValuePctg * receiptItem.totalGross)
                     : receiptItem.discAmount! +
@@ -61,6 +66,7 @@ class ApplyPromoTopdgUseCase
                 ..promos = [
                   ...receiptItem.promos,
                   params.handlePromosUseCaseParams.promo!
+                      .copyWith(discAmount: thisDiscAmount)
                 ]));
         }
 
@@ -77,6 +83,10 @@ class ApplyPromoTopdgUseCase
 
         final List<ReceiptItemEntity> newReceiptItemsWithinGroup = [];
         for (final receiptItem in receiptItemsWithinGroup) {
+          final double thisDiscAmount = receiptItem.discAmount == null
+              ? (totalChainOfDiscountPctg * receiptItem.totalGross)
+              : (totalChainOfDiscountPctg *
+                  (receiptItem.totalGross - receiptItem.discAmount!));
           final double discAmount = receiptItem.discAmount == null
               ? (totalChainOfDiscountPctg * receiptItem.totalGross)
               : receiptItem.discAmount! +
@@ -88,7 +98,7 @@ class ApplyPromoTopdgUseCase
                 ..promos = [
                   ...receiptItem.promos,
                   params.handlePromosUseCaseParams.promo!
-                    ..discAmount = discAmount
+                    ..discAmount = thisDiscAmount
                 ]));
         }
 
