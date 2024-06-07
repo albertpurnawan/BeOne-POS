@@ -64,7 +64,7 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     return res.map((itemData) => InvoiceHeaderModel.fromMap(itemData)).toList();
   }
 
-  Future<List<InvoiceHeaderModel>> readByShift() async {
+  Future<List<InvoiceHeaderModel>> readByShift(String tcsr1Id) async {
     final prefs = GetIt.instance<SharedPreferences>();
     final tcsr1Id = prefs.getString('tcsr1Id');
 
@@ -141,5 +141,18 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
       ''', [startDate, endDate]);
 
     return result;
+  }
+
+  Future<InvoiceHeaderModel?> readByDocNum(
+      String docNum, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'docnum = ?',
+      whereArgs: [docNum],
+    );
+
+    return res.isNotEmpty ? InvoiceHeaderModel.fromMap(res[0]) : null;
   }
 }

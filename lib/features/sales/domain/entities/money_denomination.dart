@@ -6,7 +6,7 @@ class MoneyDenominationEntity {
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
-  final String? nominal;
+  final int? nominal;
   final int? count;
   final String? tcsr1Id;
 
@@ -23,7 +23,7 @@ class MoneyDenominationEntity {
     String? docId,
     DateTime? createDate,
     DateTime? updateDate,
-    String? nominal,
+    int? nominal,
     int? count,
     String? tcsr1Id,
   }) {
@@ -55,7 +55,7 @@ class MoneyDenominationEntity {
       updateDate: map['updateDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
           : null,
-      nominal: map['nominal'] != null ? map['nominal'] as String : null,
+      nominal: map['nominal'] != null ? map['nominal'] as int : null,
       count: map['count'] != null ? map['count'] as int : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
     );

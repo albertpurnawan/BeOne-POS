@@ -153,13 +153,6 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                     return ErrorHandler.presentErrorSnackBar(
                         context, "Invalid discount amount");
                   }
-                  // context
-                  //     .read<ReceiptCubit>()
-                  //     .updateTotalAmountFromDiscount(discountValue);
-                  // Navigator.of(context).pop();
-                  // send input to auth
-                  // double inputValue = Helpers.revertMoneyToDecimalFormatDouble(
-                  //     _textEditorDiscountController.text);
                   showDialog(
                       context: context,
                       barrierDismissible: false,

@@ -14,9 +14,11 @@ import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.da
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
+import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class CloseShiftScreen extends StatefulWidget {
   final String shiftId;
@@ -111,6 +113,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalSales = '0';
   String expectedCash = "0";
   String calculatedTotalCash = '0';
+  Map<String, dynamic>? denomination;
 
   _CloseShiftFormState({required this.shiftId});
 
@@ -142,16 +145,18 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchInvoices() async {
-    final transaction =
-        await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift();
+    final transaction = await GetIt.instance<AppDatabase>()
+        .invoiceHeaderDao
+        .readByShift(activeShift!.docId);
     setState(() {
       transactions = transaction;
     });
   }
 
-  void updateTotalCash(String total) {
+  void updateTotalCash(Map<String, dynamic> total) {
     setState(() {
       calculatedTotalCash = totalCash;
+      denomination = total;
     });
   }
 
@@ -174,7 +179,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       final fetched = await GetIt.instance<AppDatabase>()
           .payMeansDao
           .readByTpmt3BetweenDate(start, end);
-
+      log("$fetched");
       for (final mop in fetched!) {
         if ((mop['description'] != 'TUNAI')) {
           nonCash += mop['totalamount'];
@@ -210,9 +215,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           await GetIt.instance<AppDatabase>()
               .cashierBalanceTransactionDao
               .update(docId: shiftId, data: data);
-          log("nonCash - $nonCash");
-          log("cash - ${salesAmount - nonCash}");
-          log("totalSales - ${salesAmount}");
+
           setState(() {
             activeShift = data;
             totalNonCash = NumberFormat.decimalPattern().format(nonCash);
@@ -490,14 +493,40 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     closeTime: DateTime.now(),
                     timezone: activeShift!.timezone,
                     openValue: activeShift!.openValue,
-                    calcValue: activeShift!.calcValue,
-                    cashValue: activeShift!.cashValue,
-                    closeValue:
+                    calcValue:
                         Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
+                    cashValue: activeShift!.cashValue,
+                    closeValue: Helpers.revertMoneyToDecimalFormat(totalSales),
                     openedbyId: activeShift!.openedbyId,
                     closedbyId: userId!.docId,
                     approvalStatus: 1,
                   );
+
+                  List<MoneyDenominationModel> createDenominationList(
+                      Map<String, dynamic> denomination) {
+                    final list = <MoneyDenominationModel>[];
+                    denomination.forEach((key, value) {
+                      if (value.isNotEmpty) {
+                        final nominal = int.parse(key.replaceAll('k', '000'));
+                        final count = int.parse(value);
+                        list.add(MoneyDenominationModel(
+                          docId: Uuid().v4(),
+                          createDate: DateTime.now(),
+                          updateDate: DateTime.now(),
+                          nominal: nominal,
+                          count: count,
+                          tcsr1Id: activeShift!.docId,
+                        ));
+                      }
+                    });
+                    return list;
+                  }
+
+                  final denominationList =
+                      createDenominationList(denomination!);
+                  await GetIt.instance<AppDatabase>()
+                      .moneyDenominationDao
+                      .bulkCreate(data: denominationList);
 
                   await prefs.setBool('isOpen', false);
                   await prefs.setString('tcsr1Id', "");

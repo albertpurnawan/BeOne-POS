@@ -53,6 +53,8 @@ import 'package:pos_fe/features/sales/data/data_sources/local/items_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/log_error_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/means_of_payment_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/money_denomination_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/mop_adjustment_detail_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/mop_adjustment_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/netzme_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pay_means_dao.dart';
@@ -322,6 +324,8 @@ class AppDatabase {
   late BillOfMaterialDao billOfMaterialDao;
   late BillOfMaterialLineItemDao billOfMaterialLineItemDao;
   late LogErrorDao logErrorDao;
+  late MOPAdjustmentHeaderDao mopAdjustmentHeaderDao;
+  late MOPAdjustmentDetailDao mopAdjustmentDetailDao;
 
   AppDatabase._init();
 
@@ -444,6 +448,8 @@ PRAGMA foreign_keys = ON;
     billOfMaterialDao = BillOfMaterialDao(_database!);
     billOfMaterialLineItemDao = BillOfMaterialLineItemDao(_database!);
     logErrorDao = LogErrorDao(_database!);
+    mopAdjustmentHeaderDao = MOPAdjustmentHeaderDao(_database!);
+    mopAdjustmentDetailDao = MOPAdjustmentDetailDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -2744,7 +2750,7 @@ CREATE TABLE $tableMoneyDenomination (
   $uuidDefinition,
   ${MoneyDenominationFields.createDate} datetime NOT NULL,
   ${MoneyDenominationFields.updateDate} datetime DEFAULT NULL,
-  ${MoneyDenominationFields.nominal} text DEFAULT NULL,
+  ${MoneyDenominationFields.nominal} int DEFAULT NULL,
   ${MoneyDenominationFields.count} int DEFAULT '0',
   ${MoneyDenominationFields.tcsr1Id} text DEFAULT NULL,
   $createdAtDefinition,

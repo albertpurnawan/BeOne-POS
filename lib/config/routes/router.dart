@@ -4,7 +4,8 @@ import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
-import 'package:pos_fe/features/reports/prsentation/pages/filtered_report_screen.dart';
+import 'package:pos_fe/features/mop_adjustment/presentation/pages/mop_adjustment_screen.dart';
+import 'package:pos_fe/features/reports/presentation/pages/filtered_report_screen.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:pos_fe/features/settings/presentation/pages/settings.dart';
@@ -84,13 +85,13 @@ class AppRouter {
           return const MaterialPage(child: FiltereReportScreen());
         },
       ),
-      // GoRoute(
-      //   name: RouteConstants.reports,
-      //   path: "/mopAdjustment",
-      //   pageBuilder: (context, state) {
-      //     return const MaterialPage(child: FiltereReportScreen());
-      //   },
-      // ),
+      GoRoute(
+        name: RouteConstants.mopAdjustment,
+        path: "/mopAdjustment",
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: MOPAdjustmentScreen());
+        },
+      ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
       if (state.extra != null) {
