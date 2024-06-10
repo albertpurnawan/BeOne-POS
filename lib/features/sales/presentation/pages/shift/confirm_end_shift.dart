@@ -67,6 +67,7 @@ class ConfirmEndShift extends StatelessWidget {
             closedbyId: user.docId,
             approvalStatus: 1,
             refpos: shift.docId,
+            syncToBos: 1,
           );
           log("closeShift - $closeShift");
           await _updateCashierBalanceTransaction(shift.docId, closeShift);
@@ -85,7 +86,7 @@ class ConfirmEndShift extends StatelessWidget {
             cashReceived: 2100000,
             difference: 100000,
           ));
-          // await _sendTransactions(closeShift);
+          await _sendTransactions(closeShift);
 
           check = "Success";
         } else {

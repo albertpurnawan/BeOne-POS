@@ -1609,6 +1609,7 @@ CREATE TABLE $tableCashierBalanceTransaction (
   ${CashierBalanceTransactionFields.closedbyId} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.approvalStatus} int DEFAULT NULL,
   ${CashierBalanceTransactionFields.refpos} text DEFAULT NULL,
+  ${CashierBalanceTransactionFields.syncToBos} int DEFAULT NULL,
   $createdAtDefinition
 )
 """);
@@ -1787,14 +1788,17 @@ CREATE TABLE $tableInvoiceDetail (
   ${InvoiceDetailFields.tbitmId} text DEFAULT NULL,
   ${InvoiceDetailFields.discHeaderAmount} double DEFAULT NULL,
   ${InvoiceDetailFields.subtotalAfterDiscHeader} double DEFAULT NULL,
+  ${InvoiceDetailFields.tohemId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv1_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tinv1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tinv1_tovatId_fkey` FOREIGN KEY (`tovatId`) REFERENCES `tovat` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tinv1_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  
 )
 """);
         // CONSTRAINT `tinv1_tovenId_fkey` FOREIGN KEY (`tovenId`) REFERENCES `toven` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+        // CONSTRAINT `tinv1_tohemId_fkey` FOREIGN KEY (`tohemId`) REFERENCES `tohem` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 
         await txn.execute("""
 CREATE TABLE $tablePayMeans (

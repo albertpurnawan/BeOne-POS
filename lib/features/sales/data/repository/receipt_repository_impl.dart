@@ -129,6 +129,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           tbitmId: e.itemEntity.tbitmId,
           discHeaderAmount: e.discHeaderAmount, //get disini
           subtotalAfterDiscHeader: e.subtotalAfterDiscHeader, //get disini
+          tohemId: "", // get tohemId from selected tohem
         );
       }).toList();
 

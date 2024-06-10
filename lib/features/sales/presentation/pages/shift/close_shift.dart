@@ -211,6 +211,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             closedbyId: activeShift!.closedbyId,
             approvalStatus: activeShift!.approvalStatus,
             refpos: activeShift!.docId,
+            syncToBos: activeShift!.syncToBos,
           );
 
           await GetIt.instance<AppDatabase>()
@@ -502,6 +503,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     closedbyId: userId!.docId,
                     approvalStatus: 1,
                     refpos: activeShift!.docId,
+                    syncToBos: activeShift!.syncToBos,
                   );
 
                   List<MoneyDenominationModel> createDenominationList(

@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(color: Colors.white, fontSize: 28),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Container(
@@ -166,8 +166,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
+                      const SizedBox(
+                        height: 10,
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 30),
@@ -200,8 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
+                      const SizedBox(
+                        height: 10,
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 30),
@@ -235,8 +235,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
+                      const SizedBox(
+                        height: 10,
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 30),
@@ -270,8 +270,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
+                      const SizedBox(
+                        height: 10,
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 30),
@@ -319,9 +319,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
+                      const SizedBox(
+                        height: 10,
                       ),
+
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 30),
                         width: MediaQuery.of(context).size.width * 0.36,

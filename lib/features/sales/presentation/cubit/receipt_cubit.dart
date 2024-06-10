@@ -442,6 +442,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             closedbyId: shift.closedbyId,
             approvalStatus: shift.approvalStatus,
             refpos: shift.docId,
+            syncToBos: shift.syncToBos,
           );
 
           await GetIt.instance<AppDatabase>()

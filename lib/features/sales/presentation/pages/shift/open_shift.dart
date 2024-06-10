@@ -479,6 +479,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                               closedbyId: "",
                               approvalStatus: 0,
                               refpos: shiftId,
+                              syncToBos: 0,
                             );
                             _insertCashierBalanceTransaction(shift);
 
