@@ -54,15 +54,22 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   }
 
   Future<void> getMops(CashierBalanceTransactionModel? shift) async {
-    final start = shift!.openDate;
+    final start = shift!.openDate
+        .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
     DateTime end;
 
     if (shift.closedbyId!.isEmpty) {
       end = DateTime.now();
     } else {
-      end = shift.closeDate;
+      end = shift.closeDate
+          .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
     }
-    log('$end');
+
+    final allMops =
+        await GetIt.instance<AppDatabase>().meansOfPaymentDao.readAll();
+    for (final mop in allMops) {
+      mop2Options.add(mop.description);
+    }
 
     final mops = await GetIt.instance<AppDatabase>()
         .payMeansDao
@@ -71,11 +78,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
       for (final mop in mops) {
         final desc = mop['description'];
         mop1Options.add(desc);
-        mop2Options.add(desc);
       }
     } else {
       mop1Options = [];
-      mop2Options = [];
     }
     log("$mop1Options");
     setState(() {});

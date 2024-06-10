@@ -64,7 +64,7 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
       DateTime start, DateTime end) async {
     final startDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(start);
     final endDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(end);
-    // log("$startDate - $endDate");
+
     final result = await db.rawQuery('''
       SELECT x0.tpmt3Id, x0.amount, SUM(x0.amount) AS totalamount,
       x2.mopcode, x2.description
