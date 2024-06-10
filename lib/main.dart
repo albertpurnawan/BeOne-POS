@@ -15,6 +15,7 @@ import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_d
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
@@ -34,6 +35,7 @@ import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -114,6 +116,9 @@ class MyApp extends StatelessWidget {
             BlocProvider<ItemsCubit>(
                 create: (context) =>
                     ItemsCubit(GetIt.instance<GetItemsUseCase>())),
+            BlocProvider<EmployeesCubit>(
+                create: (context) =>
+                    EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {

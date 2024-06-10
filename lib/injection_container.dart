@@ -51,6 +51,7 @@ import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_d
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
@@ -379,6 +380,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<RecalculateTaxUseCase>(
       () => RecalculateTaxUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetEmployeesUseCase>(
+      () => GetEmployeesUseCase(sl()),
       dependsOn: [AppDatabase]);
 
   sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());

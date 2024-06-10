@@ -16,7 +16,7 @@ class EmployeesCubit extends Cubit<List<EmployeeEntity>> {
     emit(newState);
   }
 
-  void clearCustomers() async {
+  void clearEmployees() async {
     emit([]);
   }
 }
