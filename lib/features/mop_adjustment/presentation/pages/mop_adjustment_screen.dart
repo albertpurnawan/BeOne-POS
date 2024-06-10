@@ -189,9 +189,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                 ],
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 120,
-                              child: const VerticalDivider(
+                              child: VerticalDivider(
                                 color: ProjectColors.primary,
                                 thickness: 5,
                               ),
@@ -212,7 +212,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 100,
                                             height: 30,
                                             child: Text(
@@ -225,7 +225,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 20,
                                             height: 30,
                                             child: Text(
@@ -328,7 +328,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 100,
                                             height: 30,
                                             child: Text(
@@ -341,7 +341,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 20,
                                             height: 30,
                                             child: Text(
@@ -361,7 +361,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                               mopCashier == null
                                                   ? '-'
                                                   : mopCashier!,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color:
                                                     ProjectColors.mediumBlack,
                                                 fontSize: 18,
@@ -666,8 +666,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                           .meansOfPaymentDao
                                           .readByDescription(
                                               selectedMOP1!, null);
-                                  if (tpmt1From == null)
+                                  if (tpmt1From == null) {
                                     throw "MOP From not found";
+                                  }
 
                                   final tpmt1To =
                                       await GetIt.instance<AppDatabase>()
@@ -724,7 +725,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       .sendMOPAdjustment(
                                           tmpad, [mpad1From, mpad1To]);
 
-                                  Navigator.pop(context);
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
                                 }
                               },
                               child: const Center(

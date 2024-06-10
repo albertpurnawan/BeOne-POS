@@ -42,13 +42,11 @@ class _TableReportMopState extends State<TableReportMop> {
     final fetchedTmpt3 = await GetIt.instance<AppDatabase>()
         .payMeansDao
         .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!);
-    // final fetchedTpmt1 = await GetIt.instance<AppDatabase>()
-    //     .meansOfPaymentDao
-    //     .readByTpmt1BetweenDate(widget.fromDate!, widget.toDate!);
+
     log("$fetchedTmpt3");
     setState(() {
       fetched = fetchedTmpt3;
-      // listTpmt1 = fetchedTpmt1;
+
       isLoading = false;
     });
   }
