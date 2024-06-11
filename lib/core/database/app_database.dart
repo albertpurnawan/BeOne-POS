@@ -2864,7 +2864,8 @@ CREATE TABLE $tableVouchersSelection (
   ${VoucherSelectionFields.statusActive} int NOT NULL,
   ${VoucherSelectionFields.minPurchase} int NOT NULL,
   ${VoucherSelectionFields.redeemDate} datetime DEFAULT NULL,
-  ${VoucherSelectionFields.tinv2Id} text DEFAULT NULL
+  ${VoucherSelectionFields.tinv2Id} text DEFAULT NULL,
+  ${VoucherSelectionFields.type} int NOT NULL
 )
 """);
 // CONSTRAINT `tvcr9_tinv2_fkey` FOREIGN KEY (`tinv2Id`) REFERENCES `tinv2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE

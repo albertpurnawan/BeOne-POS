@@ -34,6 +34,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   Future<ReceiptModel?> createInvoiceHeaderAndDetail(
       ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
+    final String generatedPayMeanDocId = _uuid.v4();
+    final String generatedVoucherDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
 
     await db.transaction((txn) async {
@@ -172,12 +174,11 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         );
 
         await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
+        vouchers = vouchers.map((voucher) {
+          voucher.tinv2Id = paymeansModel.docId;
+          return voucher;
+        }).toList();
       }
-
-      vouchers = vouchers.map((voucher) {
-        voucher.tinv2Id = generatedInvoiceHeaderDocId;
-        return voucher;
-      }).toList();
 
       final List<VouchersSelectionModel> vouchersModel =
           vouchers.asMap().entries.map((entry) {

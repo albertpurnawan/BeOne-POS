@@ -18,6 +18,7 @@ class VoucherSelectionFields {
     minPurchase,
     redeemDate,
     tinv2Id,
+    type,
   ];
 
   static const String docId = "docid";
@@ -33,6 +34,7 @@ class VoucherSelectionFields {
   static const String minPurchase = "minpurchase";
   static const String redeemDate = "redeemdate";
   static const String tinv2Id = "tinv2Id";
+  static const String type = "type";
 }
 
 class VouchersSelectionModel extends VouchersSelectionEntity
@@ -70,6 +72,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
       'minpurchase': minPurchase,
       'redeemdate': redeemDate?.toUtc().toIso8601String(),
       'tinv2Id': tinv2Id,
+      'type': type,
     };
   }
 
@@ -90,7 +93,7 @@ class VouchersSelectionModel extends VouchersSelectionEntity
           ? DateTime.parse(map['redeemdate'] as String).toLocal()
           : null,
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
-      type: 1,
+      type: map['type'] as int,
     );
   }
 
