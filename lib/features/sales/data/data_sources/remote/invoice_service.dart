@@ -44,37 +44,13 @@ class InvoiceApi {
       log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
-      List<Map<String, dynamic>> invoiceVouchers = [];
-      List<Map<String, dynamic>> serialNo1 = [];
-      List<Map<String, dynamic>> serialNo2 = [];
 
       if (payMean != null) {
-        // Temporary map to store payments by their type and tpmt3Id
-        Map<String, Map<String, dynamic>> tempPayments = {};
-
-        for (var payment in payMean) {
-          String tpmt3Id = payment['tpmt3Id'];
-          String payTypeCode = payment['paytypecode'];
-          String key = '$tpmt3Id-$payTypeCode';
-
-          if (!tempPayments.containsKey(key)) {
-            tempPayments[key] = {
-              "tpmt3_id": tpmt3Id,
-              "amount": payment['amount'],
-              "paytypecode": payTypeCode,
-              "sisavoucher": payment['sisavoucher'] ?? 0,
-              "docid": payment['docid']
-            };
-          } else {
-            tempPayments[key]!['amount'] += payment['amount'];
-          }
-        }
-
-        for (var entry in tempPayments.values) {
+        for (var entry in payMean) {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
               invoicePayments.add(
-                  {"tpmt3_id": entry['tpmt3_id'], "amount": entry['amount']});
+                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
             case "6": // VOUCHERS
               final vouchers = await GetIt.instance<AppDatabase>()
@@ -83,25 +59,31 @@ class InvoiceApi {
               log("vouchers - $vouchers");
 
               if (vouchers.isNotEmpty) {
-                // Group vouchers by type
-                Map<int, List<String>> groupedVouchers = {};
+                Map<int, List<Map<String, dynamic>>> groupedVouchers = {};
                 for (var voucher in vouchers) {
                   if (!groupedVouchers.containsKey(voucher.type)) {
                     groupedVouchers[voucher.type] = [];
                   }
-                  groupedVouchers[voucher.type]?.add(voucher.serialNo);
+                  groupedVouchers[voucher.type]?.add({
+                    "serialNo": voucher.serialNo,
+                    "voucherAmount": voucher.voucherAmount
+                  });
                 }
-
-                // Create invoice_voucher list and add to invoicePayments
                 for (var voucherType in groupedVouchers.keys) {
+                  List<Map<String, dynamic>> voucherDetails =
+                      groupedVouchers[voucherType]!;
+                  double totalAmount = voucherDetails.fold(
+                      0, (sum, item) => sum + item['voucherAmount']);
+
                   invoicePayments.add({
-                    "tpmt3_id": entry['tpmt3_id'],
-                    "amount":
-                        entry['amount'] * groupedVouchers[voucherType]!.length,
+                    "tpmt3_id": entry['tpmt3Id'],
+                    "amount": totalAmount,
                     "sisavoucher": 0,
                     "invoice_voucher": [
                       {
-                        "serialno": groupedVouchers[voucherType],
+                        "serialno": voucherDetails
+                            .map((item) => item['serialNo'])
+                            .toList(),
                         "type": voucherType
                       }
                     ]
@@ -112,7 +94,7 @@ class InvoiceApi {
 
             default:
               invoicePayments.add(
-                  {"tpmt3_id": entry['tpmt3_id'], "amount": entry['amount']});
+                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
           }
         }
