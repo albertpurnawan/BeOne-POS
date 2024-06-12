@@ -66,4 +66,17 @@ WHERE p3.docid = '$docId';
 
     return result.isNotEmpty ? MopSelectionModel.fromMap(result[0]) : null;
   }
+
+  Future<MOPByStoreModel?> readByTpmt1Id(
+      String tpmt1Id, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'tpmt1Id = ?',
+      whereArgs: [tpmt1Id],
+    );
+
+    return res.isNotEmpty ? MOPByStoreModel.fromMap(res[0]) : null;
+  }
 }

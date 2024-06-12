@@ -9,7 +9,6 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
-import 'package:pos_fe/features/sales/data/data_sources/local/cashier_balance_transaction_dao.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
@@ -67,6 +66,8 @@ class ConfirmEndShift extends StatelessWidget {
             openedbyId: shift.openedbyId,
             closedbyId: user.docId,
             approvalStatus: 1,
+            refpos: shift.docId,
+            syncToBos: 1,
           );
           log("closeShift - $closeShift");
           await _updateCashierBalanceTransaction(shift.docId, closeShift);
@@ -85,7 +86,7 @@ class ConfirmEndShift extends StatelessWidget {
             cashReceived: 2100000,
             difference: 100000,
           ));
-          // await _sendTransactions(closeShift);
+          await _sendTransactions(closeShift);
 
           check = "Success";
         } else {

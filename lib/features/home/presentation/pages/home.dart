@@ -17,6 +17,7 @@ import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/home/presentation/widgets/confirm_active_shift_dialog.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -135,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.white, fontSize: 28),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             Container(
@@ -183,8 +184,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
+                            const SizedBox(
+                              height: 10,
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 30),
@@ -221,8 +222,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
+                            const SizedBox(
+                              height: 10,
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 30),
@@ -260,8 +261,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
+                            const SizedBox(
+                              height: 10,
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 30),
@@ -300,8 +301,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
+                            const SizedBox(
+                              height: 10,
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 30),
@@ -354,9 +355,56 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
+                            const SizedBox(
+                              height: 10,
                             ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              width: MediaQuery.of(context).size.width * 0.36,
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                    padding: MaterialStatePropertyAll(
+                                        EdgeInsets.symmetric(vertical: 20)),
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: Colors.white, width: 2),
+                                      borderRadius: BorderRadius.circular(5),
+                                    )),
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => ProjectColors.primary),
+                                    foregroundColor: MaterialStateColor
+                                        .resolveWith((states) =>
+                                            Color.fromARGB(255, 255, 255, 255)),
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) =>
+                                                Colors.white.withOpacity(.2))),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SelectEmployee()),
+                                  );
+                                },
+                                child: const Text(
+                                  "Select Employee",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,

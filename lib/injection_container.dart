@@ -51,6 +51,7 @@ import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_d
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
@@ -100,6 +101,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_picture_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_remarks_service.dart';
+import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_adjustment_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_by_store_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/pay_means_service.dart';
@@ -379,6 +381,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<RecalculateTaxUseCase>(
       () => RecalculateTaxUseCase(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetEmployeesUseCase>(
+      () => GetEmployeesUseCase(sl()),
+      dependsOn: [AppDatabase]);
 
   sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());
   sl.registerSingleton<HandleWithoutPromosUseCase>(
@@ -415,6 +420,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(
       () => CashierBalanceTransactionApi(sl(), sl()),
+      dependsOn: [SharedPreferences]);
+  sl.registerSingletonWithDependencies<MOPAdjustmentService>(
+      () => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
   sl.registerSingleton<ApplyRoundingUseCase>(ApplyRoundingUseCase());
 

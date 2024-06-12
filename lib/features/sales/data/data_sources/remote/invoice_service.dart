@@ -40,35 +40,62 @@ class InvoiceApi {
 
       final payMean = await GetIt.instance<AppDatabase>()
           .payMeansDao
-          .readByToinvId(invHead[0].docId.toString(), null);
-      log(payMean.toString());
-
-      final vouchers = await GetIt.instance<AppDatabase>()
-          .vouchersSelectionDao
-          .readBytinv2Id(payMean[0].docId.toString(), txn: null);
-      log("$vouchers");
+          .readByToinvShowTopmt(invHead[0].docId.toString());
+      log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
-      for (var payment in payMean) {
-        if (payment.tpmt3Id == "07be062c-1b8c-41fd-a16c-9f3d6b228c66") {
-          invoicePayments
-              .add({"tpmt3_id": payment.tpmt3Id, "amount": payment.amount});
-        } else if (payment.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
-          invoicePayments.add({
-            "tpmt3_id": payment.tpmt3Id,
-            "amount": payment.amount,
-            "sisavoucher": 0,
-            "invoice_voucher": [
-              {
-                "serialno":
-                    vouchers.map((voucher) => voucher.serialNo).toList(),
-                "type": 1
+
+      if (payMean != null) {
+        for (var entry in payMean) {
+          switch (entry['paytypecode']) {
+            case "1": // TUNAI
+              invoicePayments.add(
+                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              break;
+            case "6": // VOUCHERS
+              final vouchers = await GetIt.instance<AppDatabase>()
+                  .vouchersSelectionDao
+                  .readBytinv2Id(entry['docid'], txn: null);
+
+              if (vouchers.isNotEmpty) {
+                Map<int, List<Map<String, dynamic>>> groupedVouchers = {};
+                for (var voucher in vouchers) {
+                  if (!groupedVouchers.containsKey(voucher.type)) {
+                    groupedVouchers[voucher.type] = [];
+                  }
+                  groupedVouchers[voucher.type]?.add({
+                    "serialNo": voucher.serialNo,
+                    "voucherAmount": voucher.voucherAmount
+                  });
+                }
+                for (var voucherType in groupedVouchers.keys) {
+                  List<Map<String, dynamic>> voucherDetails =
+                      groupedVouchers[voucherType]!;
+                  double totalAmount = voucherDetails.fold(
+                      0, (sum, item) => sum + item['voucherAmount']);
+
+                  invoicePayments.add({
+                    "tpmt3_id": entry['tpmt3Id'],
+                    "amount": totalAmount,
+                    "sisavoucher": 0,
+                    "invoice_voucher": [
+                      {
+                        "serialno": voucherDetails
+                            .map((item) => item['serialNo'])
+                            .toList(),
+                        "type": voucherType
+                      }
+                    ]
+                  });
+                }
               }
-            ]
-          });
-        } else {
-          invoicePayments
-              .add({"tpmt3_id": payment.tpmt3Id, "amount": payment.amount});
+              break;
+
+            default:
+              invoicePayments.add(
+                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              break;
+          }
         }
       }
 
@@ -165,7 +192,6 @@ class InvoiceApi {
         "invoice_payment": invoicePayments
       };
 
-      log("Data2Send: $dataToSend");
       log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(

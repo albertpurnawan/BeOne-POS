@@ -12,11 +12,10 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
-import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -176,6 +175,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         59,
         999,
       );
+      log("$start - $end");
       final fetched = await GetIt.instance<AppDatabase>()
           .payMeansDao
           .readByTpmt3BetweenDate(start, end);
@@ -210,6 +210,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             openedbyId: activeShift!.openedbyId,
             closedbyId: activeShift!.closedbyId,
             approvalStatus: activeShift!.approvalStatus,
+            refpos: activeShift!.docId,
+            syncToBos: activeShift!.syncToBos,
           );
 
           await GetIt.instance<AppDatabase>()
@@ -500,6 +502,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     openedbyId: activeShift!.openedbyId,
                     closedbyId: userId!.docId,
                     approvalStatus: 1,
+                    refpos: activeShift!.docId,
+                    syncToBos: activeShift!.syncToBos,
                   );
 
                   List<MoneyDenominationModel> createDenominationList(

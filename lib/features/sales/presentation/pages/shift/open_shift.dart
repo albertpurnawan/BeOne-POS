@@ -448,9 +448,11 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             final docnum =
                                 '$storeCode-$formattedDate-$number-S';
 
+                            final shiftId = const Uuid().v4();
+
                             final CashierBalanceTransactionModel shift =
                                 CashierBalanceTransactionModel(
-                              docId: const Uuid().v4(),
+                              docId: shiftId,
                               createDate: DateTime.now(),
                               updateDate: DateTime.now(),
                               tocsrId: widget.cashRegister?.docId,
@@ -470,6 +472,8 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                               openedbyId: widget.user?.docId,
                               closedbyId: "",
                               approvalStatus: 0,
+                              refpos: shiftId,
+                              syncToBos: 0,
                             );
                             _insertCashierBalanceTransaction(shift);
 

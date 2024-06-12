@@ -278,11 +278,9 @@ class _AllShiftState extends State<AllShift> {
       }
     }
 
-    // Sort the entries by date in descending order
     List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries =
         groupedShifts.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
 
-    // Sort shifts within each group by date in descending order
     for (var entry in sortedEntries) {
       entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));
     }
@@ -293,7 +291,7 @@ class _AllShiftState extends State<AllShift> {
           return Container(
             height: constraints.maxHeight - 40,
             width: constraints.maxWidth,
-            padding: EdgeInsets.symmetric(horizontal: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 200),
             decoration: BoxDecoration(
               color: null,
               borderRadius: BorderRadius.circular(5),
@@ -308,7 +306,7 @@ class _AllShiftState extends State<AllShift> {
                       children: [
                         Text(
                           textAlign: TextAlign.start,
-                          entry.key, // Display date
+                          entry.key,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
@@ -344,8 +342,8 @@ class _AllShiftState extends State<AllShift> {
                                             width: 250,
                                             child: Text(
                                               NumberFormat.decimalPattern()
-                                                  .format(
-                                                      shift.closeValue.toInt()),
+                                                  .format((shift.cashValue
+                                                      .toInt())),
                                               style:
                                                   const TextStyle(fontSize: 18),
                                               textAlign: TextAlign.end,

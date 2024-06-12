@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -26,7 +24,6 @@ class _TableReportMopState extends State<TableReportMop> {
   final tableHead = ["No", "MOP", "Description", "Amount"];
   bool isLoading = true;
   List<dynamic>? fetched;
-  List<dynamic>? listTpmt1;
 
   @override
   void initState() {
@@ -38,16 +35,44 @@ class _TableReportMopState extends State<TableReportMop> {
     if (widget.fromDate == null || widget.toDate == null) {
       return;
     }
-    final fetchedTmpt3 = await GetIt.instance<AppDatabase>()
-        .payMeansDao
-        .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!);
-    // final fetchedTpmt1 = await GetIt.instance<AppDatabase>()
-    //     .meansOfPaymentDao
-    //     .readByTpmt1BetweenDate(widget.fromDate!, widget.toDate!);
-    log("$fetchedTmpt3");
+
+    final results = await Future.wait([
+      GetIt.instance<AppDatabase>()
+          .payMeansDao
+          .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!),
+      GetIt.instance<AppDatabase>()
+          .mopAdjustmentDetailDao
+          .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!),
+    ]);
+
+    final fetchedTmpt3 = results[0] as List<dynamic>;
+    final fetchedMpad1 = results[1] as List<dynamic>;
+    final fetchedNew = [...fetchedTmpt3, ...fetchedMpad1];
+
+    final Map<String, Map<String, dynamic>> aggregatedData = {};
+
+    for (var entry in fetchedNew) {
+      final description = entry['description'] as String;
+
+      if (aggregatedData.containsKey(description)) {
+        aggregatedData[description]!['amount'] += entry['amount'] as double;
+        aggregatedData[description]!['totalamount'] +=
+            entry['totalamount'] as double;
+      } else {
+        aggregatedData[description] = {
+          'tpmt3Id': entry['tpmt3Id'],
+          'amount': entry['amount'] as double,
+          'totalamount': entry['totalamount'] as double,
+          'mopcode': entry['mopcode'],
+          'description': description,
+        };
+      }
+    }
+
+    final aggregatedList = aggregatedData.values.toList();
+
     setState(() {
-      fetched = fetchedTmpt3;
-      // listTpmt1 = fetchedTpmt1;
+      fetched = aggregatedList;
       isLoading = false;
     });
   }

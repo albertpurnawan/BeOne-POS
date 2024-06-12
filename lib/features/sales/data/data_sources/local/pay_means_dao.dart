@@ -62,8 +62,8 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
 
   Future<List<dynamic>?> readByTpmt3BetweenDate(
       DateTime start, DateTime end) async {
-    final startDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(start.toUtc());
-    final endDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(end.toUtc());
+    final startDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(start);
+    final endDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(end);
 
     final result = await db.rawQuery('''
       SELECT x0.tpmt3Id, x0.amount, SUM(x0.amount) AS totalamount,
@@ -74,6 +74,19 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
       WHERE x0.createdat BETWEEN ? AND ?
       GROUP BY x0.tpmt3Id
     ''', [startDate, endDate]);
+
+    return result;
+  }
+
+  Future<List<dynamic>?> readByToinvShowTopmt(String toinvId) async {
+    final result = await db.rawQuery('''
+      SELECT x0.*, x3.paytypecode
+      FROM tinv2 as x0 
+      INNER JOIN tpmt3 as x1 ON x0.tpmt3Id = x1.docid
+      INNER JOIN tpmt1 as x2 ON x1.tpmt1Id = x2.docid
+      INNER JOIN topmt as x3 ON x2.topmtId = x3.docid
+      WHERE x0.toinvId = ?
+    ''', [toinvId]);
 
     return result;
   }

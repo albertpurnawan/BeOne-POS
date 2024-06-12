@@ -26,6 +26,15 @@ class CashierBalanceTransactionApi {
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
+      final tcsr2 = await GetIt.instance<AppDatabase>()
+          .moneyDenominationDao
+          .readByTcsr1Id(tcsr1.docId, null);
+      List<Map<String, dynamic>?> tcsr2List = tcsr2.map((data) {
+        if (data != null) {
+          return {"lembaran": data.nominal.toString(), "qty": data.count};
+        }
+      }).toList();
+
       final dataToSend = {
         "docnum": tcsr1.docNum,
         "opendate": '${tcsr1.openDate.toIso8601String()}Z',
@@ -42,7 +51,9 @@ class CashierBalanceTransactionApi {
         "closevalue": tcsr1.closeValue,
         "cashvalue": tcsr1.cashValue,
         "openby_id": tcsr1.openedbyId,
-        "closeby_id": tcsr1.closedbyId
+        "closeby_id": tcsr1.closedbyId,
+        "refpos": tcsr1.refpos,
+        "detail_cash_register": tcsr2List
       };
       log("dataToSend - $dataToSend");
       final response =
@@ -52,7 +63,7 @@ class CashierBalanceTransactionApi {
                 'Authorization': 'Bearer $token',
               }));
 
-      log("$response");
+      log("${response.data['description']}");
     } catch (e) {
       handleError(e);
       rethrow;
