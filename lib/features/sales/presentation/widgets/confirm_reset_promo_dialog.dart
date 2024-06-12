@@ -124,10 +124,10 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
                               text: "Cancel",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
-                            // TextSpan(
-                            //   text: "  (Esc)",
-                            //   style: TextStyle(fontWeight: FontWeight.w300),
-                            // ),
+                            TextSpan(
+                              text: "  (Esc)",
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
                           ],
                           style: TextStyle(color: ProjectColors.primary),
                         ),
@@ -158,10 +158,10 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
                           text: "Proceed",
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        // TextSpan(
-                        //   text: "  (F12)",
-                        //   style: TextStyle(fontWeight: FontWeight.w300),
-                        // ),
+                        TextSpan(
+                          text: "  (F12)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
                       ],
                     ),
                     overflow: TextOverflow.clip,
