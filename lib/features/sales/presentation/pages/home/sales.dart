@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
@@ -23,6 +22,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/select_employee_temp.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
@@ -1063,11 +1063,14 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: null,
+                      onPressed: () {
+                        context.read<ReceiptCubit>().resetReceipt();
+                        setState(() {});
+                      },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: ProjectColors.lightBlack,
+                        backgroundColor: ProjectColors.primary,
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -1075,7 +1078,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: Icon(Icons.lock_person_outlined),
+                      child: Icon(Icons.delete_sweep_outlined),
                     ),
                   ),
                 ),
@@ -1095,14 +1098,11 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: () {
-                              context.read<ReceiptCubit>().resetReceipt();
-                              setState(() {});
-                            },
+                            onPressed: null,
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
+                              backgroundColor: ProjectColors.lightBlack,
                               padding: const EdgeInsets.all(3),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -1114,9 +1114,11 @@ class _SalesPageState extends State<SalesPage> {
                               child: Row(
                                 children: [
                                   const Text(
-                                    "Reset",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w600),
+                                    "Invoice Details",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1161,51 +1163,51 @@ class _SalesPageState extends State<SalesPage> {
                     children: [
                       Expanded(
                         child: SizedBox.expand(
-                          child: OutlinedButton(
-                            onPressed: null,
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.lightBlack,
-                              padding: const EdgeInsets.all(3),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
+                          child: TapRegion(
+                            groupId: 1,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                final ReceiptItemEntity receiptItemTarget =
+                                    context
+                                        .read<ReceiptCubit>()
+                                        .state
+                                        .receiptItems[indexIsSelect[0]];
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      ItemDetailsDialog(
+                                          indexSelected: indexIsSelect[0]),
+                                );
+                                setState(() {});
+                              },
+                              style: OutlinedButton.styleFrom(
+                                elevation: 5,
+                                shadowColor: Colors.black87,
+                                backgroundColor: ProjectColors.primary,
+                                padding: const EdgeInsets.all(3),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                side: BorderSide.none,
                               ),
-                              side: BorderSide.none,
-                            ),
-                            child: const Text(
-                              "Reprint",
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                              child: FittedBox(
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      "Item Details",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      // const SizedBox(
-                      //   width: 5,
-                      // ),
-                      // Expanded(
-                      //   child: SizedBox.expand(
-                      //     child: OutlinedButton(
-                      //       onPressed: () {},
-                      //       style: OutlinedButton.styleFrom(
-                      //         elevation: 5,
-                      //         shadowColor: Colors.black87,
-                      //         backgroundColor: ProjectColors.primary,
-                      //         padding: const EdgeInsets.all(3),
-                      //         foregroundColor: Colors.white,
-                      //         shape: RoundedRectangleBorder(
-                      //           borderRadius: BorderRadius.circular(5),
-                      //         ),
-                      //         side: BorderSide.none,
-                      //       ),
-                      //       child: const Text(
-                      //         "MFR Disc \$",
-                      //         style: TextStyle(fontWeight: FontWeight.w600),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
