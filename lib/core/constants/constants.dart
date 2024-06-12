@@ -23,7 +23,7 @@ class Constant {
   //CASHIERID
   static String tocsrId = '';
   // 4ca46d3e-30ff-4441-98f8-3fdcf81dc230
-  // CashierId : 529c9b55-67c6-47b3-9f9a-74a2b3e485a0
+  // CashierId : c9d19f0c-8350-4494-8b97-a7262b14d74a
 
   // BASEURL
   static String url = "";

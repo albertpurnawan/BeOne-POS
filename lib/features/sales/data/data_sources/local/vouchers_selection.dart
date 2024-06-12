@@ -78,4 +78,26 @@ class VouchersSelectionDao extends BaseDao<VouchersSelectionModel> {
           .toList();
     }
   }
+
+  Future<List<VouchersSelectionModel>> readByTinv2IdAndType(
+      String tinv2Id, int type,
+      {Transaction? txn}) async {
+    if (txn != null) {
+      final result = await txn.query(tableName,
+          columns: modelFields,
+          where: 'tinv2id = ? AND type = ?',
+          whereArgs: [tinv2Id, type]);
+      return result
+          .map((itemData) => VouchersSelectionModel.fromMap(itemData))
+          .toList();
+    } else {
+      final result = await db.query(tableName,
+          columns: modelFields,
+          where: 'tinv2id = ? AND type = ?',
+          whereArgs: [tinv2Id, type]);
+      return result
+          .map((itemData) => VouchersSelectionModel.fromMap(itemData))
+          .toList();
+    }
+  }
 }

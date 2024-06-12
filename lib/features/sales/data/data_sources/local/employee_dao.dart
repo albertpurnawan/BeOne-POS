@@ -42,4 +42,14 @@ class EmployeeDao extends BaseDao<EmployeeModel> {
 
     return res.isNotEmpty ? EmployeeModel.fromMap(res[0]) : null;
   }
+
+  Future<List<EmployeeModel>> readAllWithSearch(
+      {String? searchKeyword, Transaction? txn}) async {
+    final result = await db.query(tableName,
+        where:
+            "${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?",
+        whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
+
+    return result.map((itemData) => EmployeeModel.fromMap(itemData)).toList();
+  }
 }

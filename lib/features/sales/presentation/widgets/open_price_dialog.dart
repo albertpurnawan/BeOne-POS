@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
-import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class OpenPriceDialog extends StatefulWidget {
   OpenPriceDialog(
@@ -22,7 +20,20 @@ class OpenPriceDialog extends StatefulWidget {
 class _OpenPriceDialogState extends State<OpenPriceDialog> {
   final _textEditingControllerOpenPrice = TextEditingController();
 
-  final _focusNodeOpenPrice = FocusNode();
+  late final _focusNodeOpenPrice = FocusNode(
+    onKeyEvent: (node, event) {
+      if (event.runtimeType == KeyUpEvent) {
+        return KeyEventResult.handled;
+      }
+
+      if (event.physicalKey == PhysicalKeyboardKey.f12) {
+        context.pop(Helpers.revertMoneyToDecimalFormat(
+            _textEditingControllerOpenPrice.text));
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    },
+  );
 
   @override
   initState() {
@@ -96,26 +107,26 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
                   overlayColor: MaterialStateColor.resolveWith(
                       (states) => Colors.white.withOpacity(.2))),
               onPressed: () {
-                // selectedCustomer = radioValue;
-                // context
-                //     .read<ReceiptCubit>()
-                //     .addOrUpdateReceiptItemWithOpenPrice(
-                //         widget.receiptItemEntity.itemEntity,
-                //         widget.quantity,
-                // Helpers.revertMoneyToDecimalFormat(
-                //     _textEditingControllerOpenPrice.text));
                 context.pop(Helpers.revertMoneyToDecimalFormat(
                     _textEditingControllerOpenPrice.text));
-                // Future.delayed(
-                //     const Duration(milliseconds: 200),
-                //     () => _newReceiptItemCodeFocusNode
-                //         .requestFocus());
               },
-              child: const Center(
-                  child: Text(
-                "Set",
-                style: TextStyle(color: Colors.white),
-              )),
+              child: Center(
+                child: RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Set",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: "  (F12)",
+                        style: TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
+                  overflow: TextOverflow.clip,
+                ),
+              ),
             )),
           ],
         ),

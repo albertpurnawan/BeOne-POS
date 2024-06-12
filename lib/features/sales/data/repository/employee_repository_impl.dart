@@ -11,4 +11,11 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
     // TODO: implement getEmployee
     return _appDatabase.employeeDao.readByDocId(docId, null);
   }
+
+  @override
+  Future<List<EmployeeEntity>> getEmployees({String? searchKeyword}) {
+    // TODO: implement getCustomers
+    return _appDatabase.employeeDao
+        .readAllWithSearch(searchKeyword: searchKeyword);
+  }
 }

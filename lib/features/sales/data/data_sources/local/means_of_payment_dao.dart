@@ -33,4 +33,17 @@ class MeansOfPaymentDao extends BaseDao<MeansOfPaymentModel> {
         .map((itemData) => MeansOfPaymentModel.fromMap(itemData))
         .toList();
   }
+
+  Future<MeansOfPaymentModel?> readByDescription(
+      String description, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'description = ?',
+      whereArgs: [description],
+    );
+
+    return res.isNotEmpty ? MeansOfPaymentModel.fromMap(res[0]) : null;
+  }
 }

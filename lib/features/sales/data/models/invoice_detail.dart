@@ -34,6 +34,7 @@ class InvoiceDetailFields {
     tbitmId,
     discHeaderAmount,
     subtotalAfterDiscHeader,
+    tohemId,
     //maybe need more to send to bos
   ];
 
@@ -66,6 +67,7 @@ class InvoiceDetailFields {
   static const String tbitmId = "tbitmId";
   static const String discHeaderAmount = "discheaderamount";
   static const String subtotalAfterDiscHeader = "subtotalafterdischeader";
+  static const String tohemId = "tohemId";
 }
 
 class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
@@ -99,6 +101,7 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
     required super.tbitmId,
     required super.discHeaderAmount,
     required super.subtotalAfterDiscHeader,
+    required super.tohemId,
   });
 
   @override
@@ -133,6 +136,7 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
       'tbitmId': tbitmId,
       'discheaderamount': discHeaderAmount,
       'subtotalafterdischeader': subtotalAfterDiscHeader,
+      'tohemId': tohemId,
     };
   }
 
@@ -180,6 +184,7 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
       subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
           ? map['subtotalafterdischeader'] as double
           : null,
+      tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
     );
   }
 
@@ -242,6 +247,7 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
       tbitmId: entity.baseDocId,
       discHeaderAmount: entity.discHeaderAmount,
       subtotalAfterDiscHeader: entity.subtotalAfterDiscHeader,
+      tohemId: entity.tohemId,
     );
   }
 }

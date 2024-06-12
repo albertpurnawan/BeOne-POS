@@ -10,7 +10,9 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
@@ -229,12 +231,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       dev.log(
           "Result addUpdate ${newReceipt.copyWith(previousReceiptEntity: null)}");
+
       emit(newReceipt.copyWith(previousReceiptEntity: null));
     } catch (e, s) {
       dev.log(s.toString());
-      if (params.context != null) {
-        ErrorHandler.presentErrorSnackBar(params.context!, e.toString());
-      }
+      rethrow;
     }
   }
 
@@ -386,6 +387,69 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           .invoiceHeaderDao
           .update(docId: invHead[0].docId!, data: invHeadSuccess);
       await GetIt.instance<InvoiceApi>().sendInvoice();
+
+      CashierBalanceTransactionModel? shift =
+          await GetIt.instance<AppDatabase>()
+              .cashierBalanceTransactionDao
+              .readLastValue();
+      if (shift != null) {
+        final transaction = await GetIt.instance<AppDatabase>()
+            .invoiceHeaderDao
+            .readByShift(shift.docId);
+        double nonCash = 0.0;
+        double salesAmount = 0.0;
+        final DateTime now = DateTime.now();
+        final start = shift.openDate
+            .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
+        final end = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          23,
+          59,
+          59,
+          999,
+        );
+        final fetched = await GetIt.instance<AppDatabase>()
+            .payMeansDao
+            .readByTpmt3BetweenDate(start, end);
+        for (final mop in fetched!) {
+          if ((mop['description'] != 'TUNAI')) {
+            nonCash += mop['totalamount'];
+          }
+        }
+        for (final trx in transaction) {
+          salesAmount += trx.grandTotal;
+          CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
+            docId: shift.docId,
+            createDate: shift.createDate,
+            updateDate: shift.updateDate,
+            tocsrId: shift.tocsrId,
+            tousrId: shift.tousrId,
+            docNum: shift.docNum,
+            openDate: shift.openDate,
+            openTime: shift.openTime,
+            calcDate: shift.calcDate,
+            calcTime: shift.calcTime,
+            closeDate: shift.closeDate,
+            closeTime: shift.closeTime,
+            timezone: shift.timezone,
+            openValue: shift.openValue,
+            calcValue: shift.calcValue,
+            cashValue: salesAmount,
+            closeValue: shift.closeValue,
+            openedbyId: shift.openedbyId,
+            closedbyId: shift.closedbyId,
+            approvalStatus: shift.approvalStatus,
+            refpos: shift.docId,
+            syncToBos: shift.syncToBos,
+          );
+
+          await GetIt.instance<AppDatabase>()
+              .cashierBalanceTransactionDao
+              .update(docId: shift.docId, data: data);
+        }
+      }
     }
   }
 

@@ -31,4 +31,18 @@ class MoneyDenominationDao extends BaseDao<MoneyDenominationModel> {
         .map((itemData) => MoneyDenominationModel.fromMap(itemData))
         .toList();
   }
+
+  Future<List<MoneyDenominationModel?>> readByTcsr1Id(
+      String tcsr1Id, Transaction? txn) async {
+    final res = await db.query(
+      tableName,
+      columns: modelFields,
+      where: 'tcsr1Id = ?',
+      whereArgs: [tcsr1Id],
+    );
+
+    return res.isNotEmpty
+        ? res.map((map) => MoneyDenominationModel.fromMap(map)).toList()
+        : [];
+  }
 }
