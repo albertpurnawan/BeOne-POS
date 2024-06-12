@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/promotion_detail.dart';
@@ -8,9 +9,10 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
 class PromotionSummaryDialog extends StatelessWidget {
-  const PromotionSummaryDialog({super.key, required this.receiptEntity});
+  PromotionSummaryDialog({super.key, required this.receiptEntity});
 
   final ReceiptEntity receiptEntity;
+  final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   List<Widget> _buildBuyXGetYDetails() {
     final List<Widget> widgets = [
@@ -607,154 +609,181 @@ class PromotionSummaryDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      title: Container(
-        decoration: const BoxDecoration(
-          color: ProjectColors.primary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+    return Focus(
+      autofocus: true,
+      focusNode: _keyboardListenerFocusNode,
+      onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyUpEvent) {
+          return KeyEventResult.handled;
+        }
+
+        if (event.physicalKey == PhysicalKeyboardKey.f12) {
+          context.pop(true);
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        title: Container(
+          decoration: const BoxDecoration(
+            color: ProjectColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+          ),
+          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          child: const Text(
+            'Promotion Check',
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          ),
         ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: const Text(
-          'Promotion Check',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-        ),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-      content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.75,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: Text(
-                      "Previous Grand Total",
-                      style: TextStyle(fontSize: 14),
+        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.75,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: Text(
+                        "Previous Grand Total",
+                        style: TextStyle(fontSize: 14),
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Container(
-                    width: 150,
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      Helpers.parseMoney(
-                          receiptEntity.previousReceiptEntity!.grandTotal),
-                      style: const TextStyle(fontSize: 14),
+                    SizedBox(
+                      width: 20,
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: Text(
-                      "Promotion Adjustment",
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Container(
-                    width: 150,
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      Helpers.parseMoney(receiptEntity.grandTotal -
-                          receiptEntity.previousReceiptEntity!.grandTotal),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: Text(
-                      "Final Grand Total",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Container(
+                    Container(
                       width: 150,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        Helpers.parseMoney(receiptEntity.grandTotal),
+                        Helpers.parseMoney(
+                            receiptEntity.previousReceiptEntity!.grandTotal),
                         style: const TextStyle(fontSize: 14),
-                      )),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Text(
-                "Applied Promotions",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-              ),
-              Divider(),
-              ..._buildBuyXGetYDetails(),
-              SizedBox(
-                height: 5,
-              ),
-              ..._buildDiscountItemByItemDetails(),
-              SizedBox(
-                height: 5,
-              ),
-              ..._buildDiscountItemByGroupDetails(),
-            ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: Text(
+                        "Promotion Adjustment",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                      width: 150,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        Helpers.parseMoney(receiptEntity.grandTotal -
+                            receiptEntity.previousReceiptEntity!.grandTotal),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: Text(
+                        "Final Grand Total",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 14),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                        width: 150,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          Helpers.parseMoney(receiptEntity.grandTotal),
+                          style: const TextStyle(fontSize: 14),
+                        )),
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "Applied Promotions",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+                Divider(),
+                ..._buildBuyXGetYDetails(),
+                SizedBox(
+                  height: 5,
+                ),
+                ..._buildDiscountItemByItemDetails(),
+                SizedBox(
+                  height: 5,
+                ),
+                ..._buildDiscountItemByGroupDetails(),
+              ],
+            ),
           ),
         ),
-      ),
 
-      // contentPadding: const EdgeInsets.symmetric(
-      //     horizontal: 20, vertical: 5),
-      actions: <Widget>[
-        Row(
-          children: [
-            Expanded(
-                child: TextButton(
-              style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
-              onPressed: () {
-                context.pop(true);
-              },
-              child: const Center(
-                  child: Text(
-                "Done",
-                style: TextStyle(color: Colors.white),
+        // contentPadding: const EdgeInsets.symmetric(
+        //     horizontal: 20, vertical: 5),
+        actions: <Widget>[
+          Row(
+            children: [
+              Expanded(
+                  child: TextButton(
+                style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: MaterialStateColor.resolveWith(
+                        (states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.white.withOpacity(.2))),
+                onPressed: () {
+                  context.pop(true);
+                },
+                child: Center(
+                  child: RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Done",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: "  (F12)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    ),
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
               )),
-            )),
-          ],
-        ),
-      ],
-      actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            ],
+          ),
+        ],
+        actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      ),
     );
   }
 }

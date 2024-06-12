@@ -10,6 +10,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
@@ -229,12 +230,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       dev.log(
           "Result addUpdate ${newReceipt.copyWith(previousReceiptEntity: null)}");
+
       emit(newReceipt.copyWith(previousReceiptEntity: null));
     } catch (e, s) {
       dev.log(s.toString());
-      if (params.context != null) {
-        ErrorHandler.presentErrorSnackBar(params.context!, e.toString());
-      }
+      rethrow;
     }
   }
 

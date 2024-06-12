@@ -301,12 +301,6 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             ),
                           );
                         },
-                        // child: Text(
-                        //   '${formattedDate.value}',
-                        //   style: const TextStyle(
-                        //     fontSize: 18,
-                        //   ),
-                        // ),
                       ),
                     ),
                   ],

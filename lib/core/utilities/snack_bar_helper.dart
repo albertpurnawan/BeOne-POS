@@ -71,6 +71,7 @@ class SnackBarHelper {
   }
 
   static void presentSuccessSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(
         mainAxisSize: MainAxisSize.min,
