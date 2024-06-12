@@ -518,6 +518,8 @@ INNER JOIN (
       rate AS taxrate
     FROM
       tovat
+    WHERE
+      statusactive = 1
   ) as t ON t.tovatId = s.tovatId
 """;
       } else {
@@ -574,6 +576,8 @@ FROM
           tpln1 
         WHERE 
           DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
+          AND
+          statusactive = 1
       ) AS pp ON pl.docid = pp.toplnId 
       INNER JOIN (
         SELECT 
@@ -584,7 +588,9 @@ FROM
           tpln2
       ) AS pr ON pr.tpln1Id = pp.tpln1Id 
     WHERE 
-      pl.tcurrId = '259eff8d-2105-41ea-978f-45ea417e0799' 
+      pl.tcurrId = '259eff8d-2105-41ea-978f-45ea417e0799'
+      AND 
+      statusactive = 1
     GROUP BY 
       pr.toitmId
   ) as p 
@@ -602,6 +608,8 @@ FROM
       barcode 
     FROM 
       tbitm
+    WHERE
+      statusactive = 1
   ) as bc ON bc.docid = b.tbitmId 
   INNER JOIN (
     SELECT 
@@ -614,6 +622,8 @@ FROM
       tocatId
     FROM 
       toitm
+    WHERE
+      statusactive = 1
   ) as i ON i.docid = p.toitmId 
   INNER JOIN (
     SELECT 
@@ -621,6 +631,8 @@ FROM
       uomcode 
     FROM 
       touom
+    WHERE
+      statusactive = 1
   ) as u ON u.touomId = i.touomId
   INNER JOIN (
     SELECT
@@ -629,6 +641,8 @@ FROM
       toitmId
     FROM
       tsitm
+    WHERE
+      statusactive = 1
   ) as s ON s.toitmId = p.toitmId
   LEFT JOIN (
     SELECT

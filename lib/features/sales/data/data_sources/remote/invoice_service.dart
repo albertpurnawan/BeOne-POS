@@ -56,7 +56,6 @@ class InvoiceApi {
               final vouchers = await GetIt.instance<AppDatabase>()
                   .vouchersSelectionDao
                   .readBytinv2Id(entry['docid'], txn: null);
-              log("vouchers - $vouchers");
 
               if (vouchers.isNotEmpty) {
                 Map<int, List<Map<String, dynamic>>> groupedVouchers = {};
