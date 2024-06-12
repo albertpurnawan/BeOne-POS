@@ -1800,17 +1800,15 @@ class _SalesPageState extends State<SalesPage> {
                           builder: (context) => ItemSearchDialog());
 
                   if (itemEntitySearch != null) {
-                    await context
-                        .read<ReceiptCubit>()
-                        .addUpdateReceiptItems(AddUpdateReceiptItemsParams(
-                            barcode: null,
-                            itemEntity: itemEntitySearch,
-                            quantity: 1,
-                            context: context,
-                            onOpenPriceInputted: () => setState(() {
-                                  isEditingNewReceiptItemCode = true;
-                                  _newReceiptItemCodeFocusNode.requestFocus();
-                                })));
+                    await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+                        barcode: null,
+                        itemEntity: itemEntitySearch,
+                        quantity: 1,
+                        context: context,
+                        onOpenPriceInputted: () => setState(() {
+                              isEditingNewReceiptItemCode = true;
+                              _newReceiptItemCodeFocusNode.requestFocus();
+                            })));
                   }
 
                   setState(() {
@@ -2678,17 +2676,15 @@ class _SalesPageState extends State<SalesPage> {
             builder: (context) => ItemSearchDialog());
 
         if (itemEntitySearch != null) {
-          await context
-              .read<ReceiptCubit>()
-              .addUpdateReceiptItems(AddUpdateReceiptItemsParams(
-                  barcode: null,
-                  itemEntity: itemEntitySearch,
-                  quantity: 1,
-                  context: context,
-                  onOpenPriceInputted: () => setState(() {
-                        isEditingNewReceiptItemCode = true;
-                        _newReceiptItemCodeFocusNode.requestFocus();
-                      })));
+          await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+              barcode: null,
+              itemEntity: itemEntitySearch,
+              quantity: 1,
+              context: context,
+              onOpenPriceInputted: () => setState(() {
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  })));
         }
 
         setState(() {
@@ -2835,16 +2831,7 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
-      setState(() {
-        isEditingNewReceiptItemCode = false;
-        isEditingNewReceiptItemQty = false;
-        isUpdatingReceiptItemQty = false;
-      });
       await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
-      setState(() {
-        isEditingNewReceiptItemCode = true;
-        _newReceiptItemCodeFocusNode.requestFocus();
-      });
     } catch (e) {
       SnackBarHelper.presentFailSnackBar(context, e.toString());
     }
