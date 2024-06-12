@@ -915,29 +915,23 @@ class _SalesPageState extends State<SalesPage> {
                                           context),
                                       focusNode:
                                           FocusNode(canRequestFocus: false),
-                                      child: Focus(
-                                        onFocusChange: (value) =>
-                                            _newReceiptItemQuantityFocusNode
-                                                .requestFocus(),
-                                        child: TextField(
-                                          // readOnly: !isEditingReceiptItemQty,
-                                          focusNode:
-                                              _newReceiptItemQuantityFocusNode,
-                                          controller:
-                                              _textEditingControllerNewReceiptItemQuantity,
-                                          enableInteractiveSelection: false,
-                                          // showCursor: false,
-                                          textAlign: TextAlign.center,
-                                          keyboardType: TextInputType.none,
-                                          style: const TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w500),
-                                          decoration: const InputDecoration(
-                                              isCollapsed: true,
-                                              contentPadding:
-                                                  EdgeInsets.fromLTRB(
-                                                      0, 0, 0, 10)),
-                                        ),
+                                      child: TextField(
+                                        // readOnly: !isEditingReceiptItemQty,
+                                        focusNode:
+                                            _newReceiptItemQuantityFocusNode,
+                                        controller:
+                                            _textEditingControllerNewReceiptItemQuantity,
+                                        enableInteractiveSelection: false,
+                                        // showCursor: false,
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.none,
+                                        style: const TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w500),
+                                        decoration: const InputDecoration(
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.fromLTRB(
+                                                0, 0, 0, 10)),
                                       ),
                                     ),
                                   )
@@ -975,38 +969,32 @@ class _SalesPageState extends State<SalesPage> {
                                   ),
                                   child: SizedBox(
                                     height: 40,
-                                    child: Focus(
-                                      onFocusChange: (value) {
-                                        _newReceiptItemCodeFocusNode
-                                            .requestFocus();
-                                      },
-                                      child: TextField(
-                                        // "00000001283",
-                                        // enabled: !isEditingReceiptItemQty,
-                                        // readOnly: isEditingReceiptItemQty,
+                                    child: TextField(
+                                      // "00000001283",
+                                      // enabled: !isEditingReceiptItemQty,
+                                      // readOnly: isEditingReceiptItemQty,
 
-                                        autofocus: true,
-                                        focusNode: _newReceiptItemCodeFocusNode,
-                                        controller:
-                                            _textEditingControllerNewReceiptItemCode,
-                                        enableInteractiveSelection: false,
-                                        // showCursor: false,
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.none,
-                                        style: const TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w500),
-                                        decoration: const InputDecoration(
-                                            hintText:
-                                                "Scan or Type an Item Barcode",
-                                            hintStyle: TextStyle(
-                                              fontSize: 18,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.fromLTRB(
-                                                0, 0, 0, 10)),
-                                      ),
+                                      autofocus: true,
+                                      focusNode: _newReceiptItemCodeFocusNode,
+                                      controller:
+                                          _textEditingControllerNewReceiptItemCode,
+                                      enableInteractiveSelection: false,
+                                      // showCursor: false,
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.none,
+                                      style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500),
+                                      decoration: const InputDecoration(
+                                          hintText:
+                                              "Scan or Type an Item Barcode",
+                                          hintStyle: TextStyle(
+                                            fontSize: 18,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                          isCollapsed: true,
+                                          contentPadding:
+                                              EdgeInsets.fromLTRB(0, 0, 0, 10)),
                                     ),
                                   ),
                                 )
