@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -45,7 +44,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
           .authStoreDao
           .readByTousrId(user.docId, null);
 
-      if (tastr != null && tastr.tousrdocid == user.docId) {
+      if (tastr != null &&
+          tastr.tousrdocid == user.docId &&
+          tastr.statusActive != 0) {
         if (user.password == hashedPassword) {
           check = "Success";
         } else {

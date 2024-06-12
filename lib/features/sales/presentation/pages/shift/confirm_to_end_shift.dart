@@ -34,7 +34,9 @@ class ConfirmToEndShift extends StatelessWidget {
           .authStoreDao
           .readByTousrId(user.docId, null);
 
-      if (tastr != null && tastr.tousrdocid == user.docId) {
+      if (tastr != null &&
+          tastr.tousrdocid == user.docId &&
+          tastr.statusActive != 0) {
         if (user.password == hashedPassword) {
           check = "Success";
         } else {
@@ -47,6 +49,74 @@ class ConfirmToEndShift extends StatelessWidget {
       check = "Unauthorized";
     }
     return check;
+  }
+
+  Future<void> onSubmit(BuildContext context) async {
+    if (!formKey.currentState!.validate()) return;
+    String passwordCorrect =
+        await checkPassword(usernameController.text, passwordController.text);
+    if (passwordCorrect == "Success") {
+      if (!context.mounted) return;
+
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CloseShiftScreen(
+              shiftId: shift.docId, username: usernameController.text),
+        ),
+      );
+      try {
+        await GetIt.instance<OpenCashDrawerUseCase>().call();
+      } catch (e) {
+        print(e.toString());
+      }
+    } else {
+      final message = passwordCorrect == "Wrong Password"
+          ? "Invalid Password"
+          : "Unauthorized";
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: ProjectColors.primary, width: 1),
+            borderRadius: BorderRadius.circular(5),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.error,
+                color: ProjectColors.mediumBlack,
+              ),
+              SizedBox(width: 10),
+              Text(
+                message,
+                style: TextStyle(
+                  color: ProjectColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: ProjectColors.mediumBlack,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -96,6 +166,8 @@ class ConfirmToEndShift extends StatelessWidget {
                             ? "Username is required"
                             : null,
                         textAlign: TextAlign.left,
+                        onFieldSubmitted: (value) async =>
+                            await onSubmit(context),
                         style: const TextStyle(fontSize: 20),
                         decoration: const InputDecoration(
                             contentPadding: EdgeInsets.all(10),
@@ -118,6 +190,8 @@ class ConfirmToEndShift extends StatelessWidget {
                           return TextFormField(
                             controller: passwordController,
                             obscureText: obscureText,
+                            onFieldSubmitted: (value) async =>
+                                await onSubmit(context),
                             autofocus: true,
                             keyboardType: TextInputType.text,
                             validator: (val) => val == null || val.isEmpty
@@ -192,79 +266,7 @@ class ConfirmToEndShift extends StatelessWidget {
                                     (states) => ProjectColors.primary),
                                 overlayColor: MaterialStateColor.resolveWith(
                                     (states) => Colors.white.withOpacity(.2))),
-                            onPressed: () async {
-                              if (!formKey.currentState!.validate()) return;
-                              String passwordCorrect = await checkPassword(
-                                  usernameController.text,
-                                  passwordController.text);
-                              if (passwordCorrect == "Success") {
-                                if (!context.mounted) return;
-
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CloseShiftScreen(
-                                        shiftId: shift.docId,
-                                        username: usernameController.text),
-                                  ),
-                                );
-                                try {
-                                  await GetIt.instance<OpenCashDrawerUseCase>()
-                                      .call();
-                                } catch (e) {
-                                  print(e.toString());
-                                }
-                              } else {
-                                final message =
-                                    passwordCorrect == "Wrong Password"
-                                        ? "Invalid Password"
-                                        : "Unauthorized";
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    backgroundColor: Colors.white,
-                                    surfaceTintColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                          color: ProjectColors.primary,
-                                          width: 1),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    title: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.error,
-                                          color: ProjectColors.mediumBlack,
-                                        ),
-                                        SizedBox(width: 10),
-                                        Text(
-                                          message,
-                                          style: TextStyle(
-                                            color: ProjectColors.primary,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text(
-                                          'OK',
-                                          style: TextStyle(
-                                            color: ProjectColors.mediumBlack,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            },
+                            onPressed: () async => await onSubmit(context),
                             child: const Center(
                                 child: Text(
                               "Confirm",
