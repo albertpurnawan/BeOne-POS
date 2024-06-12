@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,13 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
-import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -26,6 +28,8 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/select_customer_dialog.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SalesPage extends StatefulWidget {
@@ -42,42 +46,220 @@ class _SalesPageState extends State<SalesPage> {
   bool isEditingNewReceiptItemCode = true;
   bool isUpdatingReceiptItemQty = false;
   bool isEditingReceiptItemQty = false;
-  CustomerEntity? radioValue;
-  CustomerEntity? selectedCustomer;
+
   EmployeeEntity? employeeEntity;
   late Timer _timer;
-  String currentTime = DateFormat.Hms().format(DateTime.now());
+  ValueNotifier<String> currentTime =
+      ValueNotifier<String>(DateFormat.Hms().format(DateTime.now()));
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ScrollOffsetController scrollOffsetController =
+      ScrollOffsetController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
+  final ScrollOffsetListener scrollOffsetListener =
+      ScrollOffsetListener.create();
 
   final ScrollController _scrollControllerMain = ScrollController();
   final ScrollController _scrollControllerReceiptItems = ScrollController();
   final ScrollController _scrollControllerReceiptSummary = ScrollController();
 
   late final FocusNode _newReceiptItemQuantityFocusNode = FocusNode(
-      skipTraversal: true,
-      onKeyEvent: (node, event) {
-        if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
-            event.logicalKey == LogicalKeyboardKey.arrowRight ||
-            event.logicalKey == LogicalKeyboardKey.arrowUp ||
-            event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          return KeyEventResult.skipRemainingHandlers;
-        } else {
-          return KeyEventResult.ignored;
+    skipTraversal: true,
+    onKeyEvent: (node, event) {
+      final ReceiptEntity state = context.read<ReceiptCubit>().state;
+
+      if (event.runtimeType == KeyUpEvent) {
+        return KeyEventResult.skipRemainingHandlers;
+      }
+
+      if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
+          (indexIsSelect[0] > 0 ||
+              (indexIsSelect[1] == 0 && state.receiptItems.length - 1 > 0))) {
+        setState(() {
+          indexIsSelect = [
+            indexIsSelect[1] == 1
+                ? indexIsSelect[0] - 1
+                : state.receiptItems.length - 1,
+            1
+          ];
+          _textEditingControllerNewReceiptItemQuantity.text = "";
+          // Helpers.cleanDecimal(e.quantity, 3);
+          _textEditingControllerNewReceiptItemCode.text =
+              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _newReceiptItemCodeFocusNode.unfocus();
+          isUpdatingReceiptItemQty = true;
+          isEditingNewReceiptItemCode = false;
+          _newReceiptItemQuantityFocusNode.requestFocus();
+        });
+        scrollToReceiptItemByIndex(indexIsSelect[0]);
+
+        return KeyEventResult.skipRemainingHandlers;
+      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+          indexIsSelect[0] < state.receiptItems.length) {
+        if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
+        setState(() {
+          log("arrow down new receipt item quantity");
+          indexIsSelect = [indexIsSelect[0] + 1, 1];
+          _textEditingControllerNewReceiptItemQuantity.text = "";
+          // Helpers.cleanDecimal(e.quantity, 3);
+          _textEditingControllerNewReceiptItemCode.text =
+              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _newReceiptItemCodeFocusNode.unfocus();
+          isUpdatingReceiptItemQty = true;
+          isEditingNewReceiptItemCode = false;
+          _newReceiptItemQuantityFocusNode.requestFocus();
+        });
+
+        scrollToReceiptItemByIndex(indexIsSelect[0]);
+
+        return KeyEventResult.skipRemainingHandlers;
+      } else if (event.physicalKey == PhysicalKeyboardKey.arrowLeft ||
+          event.physicalKey == PhysicalKeyboardKey.arrowRight) {
+        return KeyEventResult.skipRemainingHandlers;
+      } else if (event.physicalKey == PhysicalKeyboardKey.f1 ||
+          event.physicalKey == PhysicalKeyboardKey.f2 ||
+          event.physicalKey == PhysicalKeyboardKey.f3 ||
+          event.physicalKey == PhysicalKeyboardKey.f4 ||
+          event.physicalKey == PhysicalKeyboardKey.f5 ||
+          event.physicalKey == PhysicalKeyboardKey.f6 ||
+          // F7 is Remove item
+          event.physicalKey == PhysicalKeyboardKey.f8 ||
+          event.physicalKey == PhysicalKeyboardKey.f9 ||
+          event.physicalKey == PhysicalKeyboardKey.f10 ||
+          event.physicalKey == PhysicalKeyboardKey.f11 ||
+          event.physicalKey == PhysicalKeyboardKey.f12) {
+        if (isUpdatingReceiptItemQty) {
+          setState(() {
+            indexIsSelect = [-1, 0];
+            _textEditingControllerNewReceiptItemQuantity.text = "1";
+            _textEditingControllerNewReceiptItemCode.text = "";
+            _newReceiptItemQuantityFocusNode.unfocus();
+            isUpdatingReceiptItemQty = false;
+            isEditingNewReceiptItemCode = true;
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
         }
-      });
+
+        if (isEditingNewReceiptItemQty &&
+            event.physicalKey != PhysicalKeyboardKey.f6) {
+          setState(() {
+            isEditingNewReceiptItemQty = false;
+            isEditingNewReceiptItemCode = true;
+            _textEditingControllerNewReceiptItemQuantity.text =
+                _textEditingControllerNewReceiptItemQuantity.text == "" ||
+                        double.parse(
+                                _textEditingControllerNewReceiptItemQuantity
+                                    .text) <=
+                            0
+                    ? "1"
+                    : Helpers.cleanDecimal(
+                        double.parse(
+                            _textEditingControllerNewReceiptItemQuantity.text),
+                        3);
+
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        }
+        return KeyEventResult.ignored;
+      } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+        if (isUpdatingReceiptItemQty) {
+          setState(() {
+            indexIsSelect = [-1, 0];
+            _textEditingControllerNewReceiptItemQuantity.text = "1";
+            _textEditingControllerNewReceiptItemCode.text = "";
+            _newReceiptItemQuantityFocusNode.unfocus();
+            isUpdatingReceiptItemQty = false;
+            isEditingNewReceiptItemCode = true;
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        }
+
+        if (isEditingNewReceiptItemQty &&
+            event.physicalKey != PhysicalKeyboardKey.f6) {
+          setState(() {
+            isEditingNewReceiptItemQty = false;
+            isEditingNewReceiptItemCode = true;
+            _textEditingControllerNewReceiptItemQuantity.text =
+                _textEditingControllerNewReceiptItemQuantity.text == "" ||
+                        double.parse(
+                                _textEditingControllerNewReceiptItemQuantity
+                                    .text) <=
+                            0
+                    ? "1"
+                    : Helpers.cleanDecimal(
+                        double.parse(
+                            _textEditingControllerNewReceiptItemQuantity.text),
+                        3);
+
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        }
+        return KeyEventResult.skipRemainingHandlers;
+      } else {
+        print("ignored");
+        return KeyEventResult.ignored;
+      }
+    },
+  );
   late final FocusNode _newReceiptItemCodeFocusNode = FocusNode(
-      skipTraversal: true,
-      onKeyEvent: (node, event) {
-        if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
-            event.logicalKey == LogicalKeyboardKey.arrowRight ||
-            event.logicalKey == LogicalKeyboardKey.arrowUp ||
-            event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          return KeyEventResult.skipRemainingHandlers;
-        } else {
-          print("a");
-          return KeyEventResult.ignored;
-        }
-      });
-  late final FocusNode _customerInputFocusNode = FocusNode();
+    skipTraversal: true,
+    onKeyEvent: (node, event) {
+      final ReceiptEntity state = context.read<ReceiptCubit>().state;
+      if (event.runtimeType == KeyUpEvent) {
+        return KeyEventResult.skipRemainingHandlers;
+      }
+
+      if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
+          (indexIsSelect[0] > 0 ||
+              (indexIsSelect[1] == 0 && state.receiptItems.isNotEmpty))) {
+        setState(() {
+          indexIsSelect = [
+            indexIsSelect[1] == 1
+                ? indexIsSelect[0] - 1
+                : state.receiptItems.length - 1,
+            1
+          ];
+          _textEditingControllerNewReceiptItemQuantity.text = "";
+          _textEditingControllerNewReceiptItemCode.text =
+              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _newReceiptItemCodeFocusNode.unfocus();
+          isUpdatingReceiptItemQty = true;
+          isEditingNewReceiptItemCode = false;
+          _newReceiptItemQuantityFocusNode.requestFocus();
+        });
+
+        scrollToReceiptItemByIndex(indexIsSelect[0]);
+
+        return KeyEventResult.skipRemainingHandlers;
+      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+          indexIsSelect[0] < state.receiptItems.length) {
+        if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
+        setState(() {
+          log("arrow down new receipt item code");
+          indexIsSelect = [indexIsSelect[0] + 1, 1];
+          _textEditingControllerNewReceiptItemQuantity.text = "";
+          // Helpers.cleanDecimal(e.quantity, 3);
+          _textEditingControllerNewReceiptItemCode.text =
+              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _newReceiptItemCodeFocusNode.unfocus();
+          isUpdatingReceiptItemQty = true;
+          isEditingNewReceiptItemCode = false;
+          _newReceiptItemQuantityFocusNode.requestFocus();
+        });
+
+        scrollToReceiptItemByIndex(indexIsSelect[0]);
+
+        return KeyEventResult.skipRemainingHandlers;
+      } else if (event.physicalKey == PhysicalKeyboardKey.arrowLeft ||
+          event.physicalKey == PhysicalKeyboardKey.arrowRight) {
+        return KeyEventResult.skipRemainingHandlers;
+      } else {
+        print("ignored");
+        return KeyEventResult.ignored;
+      }
+    },
+  );
 
   late final TextEditingController
       _textEditingControllerNewReceiptItemQuantity = TextEditingController()
@@ -92,9 +274,7 @@ class _SalesPageState extends State<SalesPage> {
         .call()
         .then((value) => employeeEntity = value);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        currentTime = DateFormat.Hms().format(DateTime.now());
-      });
+      currentTime.value = DateFormat.Hms().format(DateTime.now());
     });
   }
 
@@ -107,17 +287,15 @@ class _SalesPageState extends State<SalesPage> {
     _newReceiptItemQuantityFocusNode.dispose();
     _textEditingControllerNewReceiptItemCode.dispose();
     _textEditingControllerNewReceiptItemQuantity.dispose();
-    _customerInputFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    log("build sales");
     isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
     isEditingReceiptItemQty =
         isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
-
-    print("test");
 
     if (!Platform.isWindows) {
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -125,88 +303,91 @@ class _SalesPageState extends State<SalesPage> {
           statusBarBrightness: Brightness.light,
           statusBarIconBrightness: Brightness.light));
     }
-    return Scaffold(
-      // backgroundColor: Color.fromRGBO(175, 47, 47, 1),
-      backgroundColor: Color.fromARGB(255, 234, 234, 234),
-      // backgroundColor: Colors.white,
-      // resizeToAvoidBottomInset: false,
-      body: ScrollWidget(
-        controller: _scrollControllerMain,
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.98,
-          child: Padding(
-            padding:
-                EdgeInsets.fromLTRB(38, Platform.isWindows ? 28 : 38, 38, 10),
-            child: Row(
-              children: [
-                // Start - Column 1
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      _receiptItemsList(),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        flex: 2,
-                        child: Row(
-                          children: [
-                            _buttonGroup1(),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            _receiptItemForm()
-                          ],
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        // backgroundColor: Color.fromRGBO(175, 47, 47, 1),
+        backgroundColor: Color.fromARGB(255, 234, 234, 234),
+        // backgroundColor: Colors.white,
+        // resizeToAvoidBottomInset: false,
+        body: ScrollWidget(
+          controller: _scrollControllerMain,
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.98,
+            child: Padding(
+              padding:
+                  EdgeInsets.fromLTRB(38, Platform.isWindows ? 28 : 38, 38, 10),
+              child: Row(
+                children: [
+                  // Start - Column 1
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      children: [
+                        _receiptItemsList(),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              _buttonGroup1(),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              _receiptItemForm()
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                // End - Column 1
+                  // End - Column 1
 
-                const SizedBox(
-                  width: 20,
-                ),
-
-                // Start - Column 2
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 12,
-                        child: Column(
-                          children: [
-                            _transactionSummary(currentTime),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            // _buttonGroup2()
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      // Start - Numpad & ButtonGroup 2
-                      Expanded(
-                        flex: 8,
-                        child: Row(
-                          children: [
-                            _numpad(),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            _buttonGroup3()
-                          ],
-                        ),
-                      )
-                      // End - Numeric Keypad & ButtonGroup 2
-                    ],
+                  const SizedBox(
+                    width: 20,
                   ),
-                ),
-                // End - Column 2
-              ],
+
+                  // Start - Column 2
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 12,
+                          child: Column(
+                            children: [
+                              _transactionSummary(),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              // _buttonGroup2()
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+
+                        // Start - Numpad & ButtonGroup 2
+                        Expanded(
+                          flex: 8,
+                          child: Row(
+                            children: [
+                              _numpad(),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              _buttonGroup3()
+                            ],
+                          ),
+                        )
+                        // End - Numeric Keypad & ButtonGroup 2
+                      ],
+                    ),
+                  ),
+                  // End - Column 2
+                ],
+              ),
             ),
           ),
         ),
@@ -357,9 +538,12 @@ class _SalesPageState extends State<SalesPage> {
                           child: Scrollbar(
                             controller: _scrollControllerReceiptItems,
                             thumbVisibility: true,
-                            child: ListView.builder(
+                            child: ScrollablePositionedList.builder(
                               padding: const EdgeInsets.symmetric(vertical: 0),
-                              controller: _scrollControllerReceiptItems,
+                              itemScrollController: itemScrollController,
+                              scrollOffsetController: scrollOffsetController,
+                              itemPositionsListener: itemPositionsListener,
+                              scrollOffsetListener: scrollOffsetListener,
                               itemCount: state.receiptItems.length,
                               itemBuilder: (context, index) {
                                 final e = state.receiptItems[index];
@@ -375,7 +559,7 @@ class _SalesPageState extends State<SalesPage> {
                                           child: Text(
                                         promo.promoDescription,
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           fontStyle: FontStyle.italic,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -387,7 +571,7 @@ class _SalesPageState extends State<SalesPage> {
                                               : Text(
                                                   "- ${Helpers.parseMoney(promo.discAmount!.round())}",
                                                   style: TextStyle(
-                                                    fontSize: 16,
+                                                    fontSize: 14,
                                                     fontStyle: FontStyle.italic,
                                                     fontWeight: FontWeight.w500,
                                                   ),
@@ -396,9 +580,6 @@ class _SalesPageState extends State<SalesPage> {
                                     ],
                                   ),
                                 );
-
-                                // print("$e <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,");
-                                // e bisa di loop
                                 return TapRegion(
                                   groupId: 1,
                                   child: GestureDetector(
@@ -491,7 +672,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                           .asset(
                                                                         "assets/images/inventory.svg",
                                                                         height:
-                                                                            18,
+                                                                            16,
                                                                       ),
                                                                       const SizedBox(
                                                                         width:
@@ -503,7 +684,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                         style:
                                                                             const TextStyle(
                                                                           fontSize:
-                                                                              18,
+                                                                              16,
                                                                           fontWeight:
                                                                               FontWeight.w500,
                                                                         ),
@@ -528,7 +709,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                         style:
                                                                             const TextStyle(
                                                                           fontSize:
-                                                                              18,
+                                                                              16,
                                                                           fontWeight:
                                                                               FontWeight.w500,
                                                                         ),
@@ -541,7 +722,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                       .itemName,
                                                                   style: const TextStyle(
                                                                       fontSize:
-                                                                          18,
+                                                                          16,
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .w500),
@@ -560,7 +741,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                           .right,
                                                                   style: const TextStyle(
                                                                       fontSize:
-                                                                          18,
+                                                                          16,
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .w500),
@@ -579,7 +760,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                           .right,
                                                                   style: const TextStyle(
                                                                       fontSize:
-                                                                          18,
+                                                                          16,
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .w500),
@@ -600,7 +781,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                             .round()),
                                                                     style: const TextStyle(
                                                                         fontSize:
-                                                                            18,
+                                                                            16,
                                                                         fontWeight:
                                                                             FontWeight.w500),
                                                                   ),
@@ -734,29 +915,23 @@ class _SalesPageState extends State<SalesPage> {
                                           context),
                                       focusNode:
                                           FocusNode(canRequestFocus: false),
-                                      child: Focus(
-                                        onFocusChange: (value) =>
-                                            _newReceiptItemQuantityFocusNode
-                                                .requestFocus(),
-                                        child: TextField(
-                                          // readOnly: !isEditingReceiptItemQty,
-                                          focusNode:
-                                              _newReceiptItemQuantityFocusNode,
-                                          controller:
-                                              _textEditingControllerNewReceiptItemQuantity,
-                                          enableInteractiveSelection: false,
-                                          // showCursor: false,
-                                          textAlign: TextAlign.center,
-                                          keyboardType: TextInputType.none,
-                                          style: const TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w500),
-                                          decoration: const InputDecoration(
-                                              isCollapsed: true,
-                                              contentPadding:
-                                                  EdgeInsets.fromLTRB(
-                                                      0, 0, 0, 10)),
-                                        ),
+                                      child: TextField(
+                                        // readOnly: !isEditingReceiptItemQty,
+                                        focusNode:
+                                            _newReceiptItemQuantityFocusNode,
+                                        controller:
+                                            _textEditingControllerNewReceiptItemQuantity,
+                                        enableInteractiveSelection: false,
+                                        // showCursor: false,
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.none,
+                                        style: const TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w500),
+                                        decoration: const InputDecoration(
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.fromLTRB(
+                                                0, 0, 0, 10)),
                                       ),
                                     ),
                                   )
@@ -794,38 +969,32 @@ class _SalesPageState extends State<SalesPage> {
                                   ),
                                   child: SizedBox(
                                     height: 40,
-                                    child: Focus(
-                                      onFocusChange: (value) {
-                                        _newReceiptItemCodeFocusNode
-                                            .requestFocus();
-                                      },
-                                      child: TextField(
-                                        // "00000001283",
-                                        // enabled: !isEditingReceiptItemQty,
-                                        // readOnly: isEditingReceiptItemQty,
+                                    child: TextField(
+                                      // "00000001283",
+                                      // enabled: !isEditingReceiptItemQty,
+                                      // readOnly: isEditingReceiptItemQty,
 
-                                        autofocus: true,
-                                        focusNode: _newReceiptItemCodeFocusNode,
-                                        controller:
-                                            _textEditingControllerNewReceiptItemCode,
-                                        enableInteractiveSelection: false,
-                                        // showCursor: false,
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.none,
-                                        style: const TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w500),
-                                        decoration: const InputDecoration(
-                                            hintText:
-                                                "Scan or Type an Item Barcode",
-                                            hintStyle: TextStyle(
-                                              fontSize: 18,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.fromLTRB(
-                                                0, 0, 0, 10)),
-                                      ),
+                                      autofocus: true,
+                                      focusNode: _newReceiptItemCodeFocusNode,
+                                      controller:
+                                          _textEditingControllerNewReceiptItemCode,
+                                      enableInteractiveSelection: false,
+                                      // showCursor: false,
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.none,
+                                      style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500),
+                                      decoration: const InputDecoration(
+                                          hintText:
+                                              "Scan or Type an Item Barcode",
+                                          hintStyle: TextStyle(
+                                            fontSize: 18,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                          isCollapsed: true,
+                                          contentPadding:
+                                              EdgeInsets.fromLTRB(0, 0, 0, 10)),
                                     ),
                                   ),
                                 )
@@ -894,7 +1063,7 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: null,
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
@@ -993,12 +1162,7 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: () async {
-                              final strdt =
-                                  DateTime.now().toUtc().toIso8601String();
-                              print(strdt);
-                              print(DateTime.parse(strdt).toLocal());
-                            },
+                            onPressed: null,
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
@@ -1058,61 +1222,56 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          isEditingNewReceiptItemCode = false;
-                          isEditingNewReceiptItemQty = false;
-                          isUpdatingReceiptItemQty = false;
-                        });
-                        showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => InputDiscountManual())
-                            .then((value) => setState(() {
-                                  isEditingNewReceiptItemCode = true;
-                                  _newReceiptItemCodeFocusNode.requestFocus();
-                                }));
-                      },
-                      style: OutlinedButton.styleFrom(
-                        elevation: 5,
-                        shadowColor: Colors.black87,
-                        padding: const EdgeInsets.all(3),
-                        foregroundColor: Colors.white,
-                        backgroundColor: ProjectColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        side: BorderSide.none,
-                      ),
-                      // style: ButtonStyle(
-                      //   foregroundColor:
-                      //       MaterialStatePropertyAll<Color>(
-                      //           Color.fromRGBO(195, 53, 53, 1)),
-                      //   side: MaterialStatePropertyAll<BorderSide>(
-                      //     BorderSide(
-                      //       color: Color.fromRGBO(195, 53, 53, 1),
-                      //       width: 3,
-                      //     ),
-                      //   ),
-                      // ),
-                      child: FittedBox(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Discount",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              TextSpan(
-                                text: " F5",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
+                        onPressed: () {
+                          setState(() {
+                            isEditingNewReceiptItemCode = false;
+                            isEditingNewReceiptItemQty = false;
+                            isUpdatingReceiptItemQty = false;
+                          });
+                          showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => InputDiscountManual())
+                              .then((value) => setState(() {
+                                    isEditingNewReceiptItemCode = true;
+                                    _newReceiptItemCodeFocusNode.requestFocus();
+                                  }));
+                        },
+                        style: OutlinedButton.styleFrom(
+                          elevation: 5,
+                          shadowColor: Colors.black87,
+                          padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                          foregroundColor: Colors.white,
+                          backgroundColor: ProjectColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
                           ),
-                          overflow: TextOverflow.clip,
+                          side: BorderSide.none,
                         ),
-                      ),
-                    ),
+                        // style: ButtonStyle(
+                        //   foregroundColor:
+                        //       MaterialStatePropertyAll<Color>(
+                        //           Color.fromRGBO(195, 53, 53, 1)),
+                        //   side: MaterialStatePropertyAll<BorderSide>(
+                        //     BorderSide(
+                        //       color: Color.fromRGBO(195, 53, 53, 1),
+                        //       width: 3,
+                        //     ),
+                        //   ),
+                        // ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Discount",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              "F5",
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        )),
                   ),
                 ),
                 const SizedBox(
@@ -1121,60 +1280,49 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: () async {
-                        setState(() {
-                          isEditingNewReceiptItemCode = false;
-                          isEditingNewReceiptItemQty = false;
-                          isUpdatingReceiptItemQty = false;
-                        });
-
-                        setState(() {
-                          context.read<ItemsCubit>().clearItems();
-                          isEditingNewReceiptItemCode = true;
-                          _newReceiptItemCodeFocusNode.requestFocus();
-                        });
-
-                        showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => QueueListDialog())
-                            .then((value) {
+                        onPressed: () async {
                           setState(() {
-                            context.read<ItemsCubit>().clearItems();
-                            isEditingNewReceiptItemCode = true;
-                            _newReceiptItemCodeFocusNode.requestFocus();
+                            isEditingNewReceiptItemCode = false;
+                            isEditingNewReceiptItemQty = false;
+                            isUpdatingReceiptItemQty = false;
                           });
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        elevation: 5,
-                        shadowColor: Colors.black87,
-                        backgroundColor: ProjectColors.primary,
-                        padding: const EdgeInsets.all(3),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        side: BorderSide.none,
-                      ),
-                      child: FittedBox(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Queue List",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              TextSpan(
-                                text: " F4",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
+
+                          showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => QueueListDialog())
+                              .then((value) {
+                            setState(() {
+                              context.read<ItemsCubit>().clearItems();
+                              isEditingNewReceiptItemCode = true;
+                              _newReceiptItemCodeFocusNode.requestFocus();
+                            });
+                          });
+                        },
+                        style: OutlinedButton.styleFrom(
+                          elevation: 5,
+                          shadowColor: Colors.black87,
+                          backgroundColor: ProjectColors.primary,
+                          padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
                           ),
-                          overflow: TextOverflow.clip,
+                          side: BorderSide.none,
                         ),
-                      ),
-                    ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Queue List",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              "F4",
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        )),
                   ),
                 ),
               ],
@@ -1219,7 +1367,7 @@ class _SalesPageState extends State<SalesPage> {
     );
   }
 
-  Widget _transactionSummary(String currentTime) {
+  Widget _transactionSummary() {
     return BlocBuilder<ReceiptCubit, ReceiptEntity>(
       builder: (context, state) {
         return Expanded(
@@ -1304,13 +1452,18 @@ class _SalesPageState extends State<SalesPage> {
                                   SizedBox(
                                     width: 5,
                                   ),
-                                  Text(
-                                    currentTime,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
+                                  ValueListenableBuilder<String>(
+                                    valueListenable: currentTime,
+                                    builder: (context, value, child) {
+                                      return Text(
+                                        value,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -1468,7 +1621,7 @@ class _SalesPageState extends State<SalesPage> {
                     context.read<ReceiptCubit>().queueReceipt();
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.all(3),
+                    padding: const EdgeInsets.fromLTRB(20, 3, 20, 3),
                     // elevation: 5,
                     backgroundColor: ProjectColors.primary,
                     foregroundColor: Colors.white,
@@ -1482,21 +1635,26 @@ class _SalesPageState extends State<SalesPage> {
                     side: BorderSide.none,
                   ),
                   child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.queue_outlined),
-                      SizedBox(
-                        width: 8,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.queue_outlined),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text(
+                            "Queue",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
-                        "Queue",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18,
-                        ),
-                      ),
-                      Text(
-                        " F11",
+                        "F11",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w300),
                       ),
@@ -1563,9 +1721,9 @@ class _SalesPageState extends State<SalesPage> {
                     }
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.all(3),
+                    padding: const EdgeInsets.fromLTRB(20, 3, 20, 3),
                     // elevation: 5,
-                    backgroundColor: Color.fromARGB(255, 57, 131, 73),
+                    backgroundColor: ProjectColors.green,
                     // 48, 107, 52
                     foregroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(
@@ -1578,19 +1736,24 @@ class _SalesPageState extends State<SalesPage> {
                     side: BorderSide.none,
                   ),
                   child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.receipt_long_rounded),
-                      SizedBox(
-                        width: 8,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.receipt_long_rounded),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text(
+                            "Checkout",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 18),
+                          ),
+                        ],
                       ),
                       Text(
-                        "Checkout",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 18),
-                      ),
-                      Text(
-                        " F12",
+                        "F12",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w300),
                       ),
@@ -1625,17 +1788,15 @@ class _SalesPageState extends State<SalesPage> {
                           builder: (context) => ItemSearchDialog());
 
                   if (itemEntitySearch != null) {
-                    await context
-                        .read<ReceiptCubit>()
-                        .addUpdateReceiptItems(AddUpdateReceiptItemsParams(
-                            barcode: null,
-                            itemEntity: itemEntitySearch,
-                            quantity: 1,
-                            context: context,
-                            onOpenPriceInputted: () => setState(() {
-                                  isEditingNewReceiptItemCode = true;
-                                  _newReceiptItemCodeFocusNode.requestFocus();
-                                })));
+                    await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+                        barcode: null,
+                        itemEntity: itemEntitySearch,
+                        quantity: 1,
+                        context: context,
+                        onOpenPriceInputted: () => setState(() {
+                              isEditingNewReceiptItemCode = true;
+                              _newReceiptItemCodeFocusNode.requestFocus();
+                            })));
                   }
 
                   setState(() {
@@ -1643,19 +1804,12 @@ class _SalesPageState extends State<SalesPage> {
                     isEditingNewReceiptItemCode = true;
                     _newReceiptItemCodeFocusNode.requestFocus();
                   });
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    final position =
-                        _scrollControllerReceiptItems.position.maxScrollExtent +
-                            100;
-                    _scrollControllerReceiptItems.animateTo(
-                      position,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeOut,
-                    );
-                  });
+                  await scrollToReceiptItemByIndex(
+                      context.read<ReceiptCubit>().state.receiptItems.length -
+                          1);
                 },
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(7),
+                  padding: const EdgeInsets.all(0),
                   elevation: 5,
                   shadowColor: Colors.black87,
                   backgroundColor: ProjectColors.primary,
@@ -1665,21 +1819,46 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   side: BorderSide.none,
                 ),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: const TextSpan(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Stack(
                     children: [
-                      TextSpan(
-                        text: "Item Search",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "F9",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w300, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      TextSpan(
-                        text: "\nF9",
-                        style: TextStyle(fontWeight: FontWeight.w300),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: RichText(
+                            textAlign: TextAlign.left,
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Item\nSearch",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.clip,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  overflow: TextOverflow.clip,
                 ),
               ),
             ),
@@ -1700,230 +1879,16 @@ class _SalesPageState extends State<SalesPage> {
                     context: context,
                     barrierDismissible: false, // user must tap button!
                     builder: (BuildContext context) {
-                      return AlertDialog(
-                        backgroundColor: Colors.white,
-                        surfaceTintColor: Colors.transparent,
-                        shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0))),
-                        title: Container(
-                          decoration: const BoxDecoration(
-                            color: ProjectColors.primary,
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(5.0)),
-                          ),
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                          child: const Text(
-                            'Select Customer',
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                          ),
-                        ),
-                        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        contentPadding: EdgeInsets.all(0),
-                        content: Theme(
-                          data: ThemeData(
-                            splashColor: const Color.fromARGB(40, 169, 0, 0),
-                            highlightColor: const Color.fromARGB(40, 169, 0, 0),
-                            colorScheme:
-                                ColorScheme.fromSeed(seedColor: Colors.red),
-                            fontFamily: 'Roboto',
-                            useMaterial3: true,
-                          ),
-                          child: StatefulBuilder(builder: (context, setState) {
-                            return SizedBox(
-                              width: 350,
-                              child: Column(
-                                children: [
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: TextField(
-                                      onSubmitted: (value) {
-                                        context
-                                            .read<CustomersCubit>()
-                                            .getCustomers(searchKeyword: value);
-                                        _customerInputFocusNode.requestFocus();
-                                      },
-                                      autofocus: true,
-                                      focusNode: _customerInputFocusNode,
-                                      decoration: const InputDecoration(
-                                        suffixIcon: Icon(
-                                          Icons.search,
-                                          size: 16,
-                                        ),
-                                        hintText: "Enter customer's name",
-                                        hintStyle: TextStyle(
-                                          fontSize: 16,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                        // isCollapsed: true,
-                                        // contentPadding:
-                                        //     EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
-                                  // Text(
-                                  //   "Name",
-                                  //   textAlign: TextAlign.left,
-                                  // ),
-                                  Expanded(
-                                    child: BlocBuilder<CustomersCubit,
-                                        List<CustomerEntity>>(
-                                      builder: (context, state) {
-                                        if (state.length == 0) {
-                                          return const Expanded(
-                                              child: EmptyList(
-                                            imagePath:
-                                                "assets/images/empty-search.svg",
-                                            sentence:
-                                                "Tadaa.. There is nothing here!\nEnter any keyword to search.",
-                                          ));
-                                        }
-                                        return ListView.builder(
-                                            padding: EdgeInsets.all(0),
-                                            itemCount: state.length,
-                                            itemBuilder: ((context, index) {
-                                              final CustomerEntity
-                                                  customerEntity = state[index];
-
-                                              return RadioListTile<
-                                                      CustomerEntity>(
-                                                  activeColor:
-                                                      ProjectColors.primary,
-                                                  hoverColor:
-                                                      ProjectColors.primary,
-                                                  // selected: index == radioValue,
-                                                  selectedTileColor:
-                                                      ProjectColors.primary,
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                    horizontal: 15,
-                                                  ),
-                                                  controlAffinity:
-                                                      ListTileControlAffinity
-                                                          .trailing,
-                                                  value: state[index],
-                                                  groupValue: radioValue,
-                                                  title: Text(
-                                                      customerEntity.custName),
-                                                  subtitle: Text(
-                                                      customerEntity.phone),
-                                                  // shape: RoundedRectangleBorder(
-                                                  //     borderRadius:
-                                                  //         BorderRadius.circular(5)),
-                                                  onChanged: (val) {
-                                                    setState(() {
-                                                      radioValue = val;
-                                                    });
-                                                  });
-                                            }));
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                        // contentPadding: const EdgeInsets.symmetric(
-                        //     horizontal: 20, vertical: 5),
-                        actions: <Widget>[
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: TextButton(
-                                style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            side: const BorderSide(
-                                                color: ProjectColors.primary))),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => Colors.white),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.black.withOpacity(.2))),
-                                onPressed: () {
-                                  setState(() {
-                                    Navigator.of(context).pop();
-                                    Future.delayed(
-                                        const Duration(milliseconds: 200),
-                                        () => _newReceiptItemCodeFocusNode
-                                            .requestFocus());
-                                  });
-                                },
-                                child: const Center(
-                                    child: Text(
-                                  "Cancel",
-                                  style:
-                                      TextStyle(color: ProjectColors.primary),
-                                )),
-                              )),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: TextButton(
-                                style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5))),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
-                                onPressed: () async {
-                                  selectedCustomer = radioValue;
-                                  await context
-                                      .read<ReceiptCubit>()
-                                      .updateCustomer(
-                                          selectedCustomer!, context);
-                                  Navigator.of(context).pop();
-                                  Future.delayed(
-                                      const Duration(milliseconds: 200),
-                                      () => _newReceiptItemCodeFocusNode
-                                          .requestFocus());
-                                  setState(() {});
-                                },
-                                child: const Center(
-                                    child: Text(
-                                  "Select",
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                              )),
-                            ],
-                          ),
-                        ],
-                        actionsPadding:
-                            const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      );
+                      return SelectCustomerDialog();
                     },
                   ).then((value) => setState(() {
-                        radioValue = null;
                         context.read<CustomersCubit>().clearCustomers();
                         isEditingNewReceiptItemCode = true;
                         _newReceiptItemCodeFocusNode.requestFocus();
                       }));
                 },
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(7),
+                  padding: const EdgeInsets.all(0),
                   elevation: 5,
                   shadowColor: Colors.black87,
                   backgroundColor: ProjectColors.primary,
@@ -1933,21 +1898,46 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   side: BorderSide.none,
                 ),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: const TextSpan(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Stack(
                     children: [
-                      TextSpan(
-                        text: "Select Customer",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "F8",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w300, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      TextSpan(
-                        text: "\nF8",
-                        style: TextStyle(fontWeight: FontWeight.w300),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: RichText(
+                            textAlign: TextAlign.left,
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Select\nCustomer",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.clip,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  overflow: TextOverflow.clip,
                 ),
               ),
             ),
@@ -1981,7 +1971,7 @@ class _SalesPageState extends State<SalesPage> {
                         .removeReceiptItem(receiptItemTarget, context);
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.all(7),
+                    padding: const EdgeInsets.all(0),
                     elevation: 5,
                     shadowColor: Colors.black87,
                     backgroundColor: ProjectColors.primary,
@@ -1991,21 +1981,47 @@ class _SalesPageState extends State<SalesPage> {
                     ),
                     side: BorderSide.none,
                   ),
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Stack(
                       children: [
-                        TextSpan(
-                          text: "Remove Item",
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                        Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "F7",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        TextSpan(
-                          text: "\nF7",
-                          style: TextStyle(fontWeight: FontWeight.w300),
+                        Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: RichText(
+                              textAlign: TextAlign.left,
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Remove\nItem",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              overflow: TextOverflow.clip,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    overflow: TextOverflow.clip,
                   ),
                 ),
               ),
@@ -2042,12 +2058,11 @@ class _SalesPageState extends State<SalesPage> {
                                     .text),
                             3);
 
-                    // _newReceiptItemQuantityFocusNode.unfocus();
                     _newReceiptItemCodeFocusNode.requestFocus();
                   }
                 }),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(7),
+                  padding: const EdgeInsets.all(0),
                   elevation: isEditingNewReceiptItemQty ? 0 : 5,
                   shadowColor: Colors.black87,
                   backgroundColor: isEditingNewReceiptItemQty
@@ -2059,21 +2074,46 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   side: BorderSide.none,
                 ),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: const TextSpan(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Stack(
                     children: [
-                      TextSpan(
-                        text: "Order Quantity",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "F6",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w300, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      TextSpan(
-                        text: "\nF6",
-                        style: TextStyle(fontWeight: FontWeight.w300),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: RichText(
+                            textAlign: TextAlign.left,
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Order\nQuantity",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.clip,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  overflow: TextOverflow.clip,
                 ),
               ),
             ),
@@ -2089,7 +2129,7 @@ class _SalesPageState extends State<SalesPage> {
         Expanded(
       flex: 4,
       child: TapRegion(
-        groupId: 1,
+        groupId: isUpdatingReceiptItemQty ? 1 : null,
         onTapOutside: (event) {
           if (isUpdatingReceiptItemQty) {
             setState(() {
@@ -2099,6 +2139,24 @@ class _SalesPageState extends State<SalesPage> {
               _newReceiptItemQuantityFocusNode.unfocus();
               isUpdatingReceiptItemQty = false;
               isEditingNewReceiptItemCode = true;
+              _newReceiptItemCodeFocusNode.requestFocus();
+            });
+          } else if (isEditingNewReceiptItemQty) {
+            setState(() {
+              isEditingNewReceiptItemQty = false;
+              isEditingNewReceiptItemCode = true;
+              _textEditingControllerNewReceiptItemQuantity
+                  .text = _textEditingControllerNewReceiptItemQuantity.text ==
+                          "" ||
+                      double.parse(_textEditingControllerNewReceiptItemQuantity
+                              .text) <=
+                          0
+                  ? "1"
+                  : Helpers.cleanDecimal(
+                      double.parse(
+                          _textEditingControllerNewReceiptItemQuantity.text),
+                      3);
+
               _newReceiptItemCodeFocusNode.requestFocus();
             });
           }
@@ -2312,7 +2370,7 @@ class _SalesPageState extends State<SalesPage> {
                         child: FilledButton(
                           onPressed: () async {
                             if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                              await context.read<ReceiptCubit>().addUpdateReceiptItems(
+                              await addUpdateReceiptItems(
                                   AddUpdateReceiptItemsParams(
                                       barcode:
                                           _textEditingControllerNewReceiptItemCode
@@ -2334,18 +2392,14 @@ class _SalesPageState extends State<SalesPage> {
                                     .text = "1";
                               });
 
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                final position = _scrollControllerReceiptItems
-                                        .position.maxScrollExtent +
-                                    100;
-                                _scrollControllerReceiptItems.animateTo(
-                                  position,
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeOut,
-                                );
-                              });
+                              await scrollToReceiptItemByIndex(context
+                                      .read<ReceiptCubit>()
+                                      .state
+                                      .receiptItems
+                                      .length -
+                                  1);
                             } else if (isUpdatingReceiptItemQty) {
-                              await context.read<ReceiptCubit>().addUpdateReceiptItems(
+                              await addUpdateReceiptItems(
                                   AddUpdateReceiptItemsParams(
                                       barcode:
                                           _textEditingControllerNewReceiptItemCode
@@ -2373,16 +2427,12 @@ class _SalesPageState extends State<SalesPage> {
                                 _newReceiptItemCodeFocusNode.requestFocus();
                               });
 
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                final position = _scrollControllerReceiptItems
-                                        .position.maxScrollExtent +
-                                    100;
-                                _scrollControllerReceiptItems.animateTo(
-                                  position,
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeOut,
-                                );
-                              });
+                              await scrollToReceiptItemByIndex(context
+                                      .read<ReceiptCubit>()
+                                      .state
+                                      .receiptItems
+                                      .length -
+                                  1);
                             } else if (_newReceiptItemQuantityFocusNode
                                 .hasPrimaryFocus) {
                               setState(() {
@@ -2478,12 +2528,9 @@ class _SalesPageState extends State<SalesPage> {
     bool isNumOnly,
     BuildContext context,
   ) async {
-    print("h0");
+    log("Handle physical keyboard ${event.physicalKey}");
     if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
-      print("h1");
-      print(event.physicalKey.toString());
-      print(PhysicalKeyboardKey.f12);
       if (event.character != null &&
           RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')
               .hasMatch(event.character!)) {
@@ -2492,44 +2539,35 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == PhysicalKeyboardKey.enter ||
           event.physicalKey == (PhysicalKeyboardKey.numpadEnter)) {
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-          await context.read<ReceiptCubit>().addUpdateReceiptItems(
-              AddUpdateReceiptItemsParams(
-                  barcode: _textEditingControllerNewReceiptItemCode.text,
-                  itemEntity: null,
-                  quantity: double.parse(
-                      _textEditingControllerNewReceiptItemQuantity.text),
-                  context: context,
-                  onOpenPriceInputted: () => setState(() {
-                        isEditingNewReceiptItemCode = true;
-                        _newReceiptItemCodeFocusNode.requestFocus();
-                      })));
+          await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+              barcode: _textEditingControllerNewReceiptItemCode.text,
+              itemEntity: null,
+              quantity: double.parse(
+                  _textEditingControllerNewReceiptItemQuantity.text),
+              context: context,
+              onOpenPriceInputted: () => setState(() {
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  })));
 
           setState(() {
             _textEditingControllerNewReceiptItemCode.text = "";
             _textEditingControllerNewReceiptItemQuantity.text = "1";
           });
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final position =
-                _scrollControllerReceiptItems.position.maxScrollExtent + 100;
-            _scrollControllerReceiptItems.animateTo(
-              position,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOut,
-            );
-          });
+          await scrollToReceiptItemByIndex(
+              context.read<ReceiptCubit>().state.receiptItems.length - 1);
         } else if (isUpdatingReceiptItemQty) {
-          await context.read<ReceiptCubit>().addUpdateReceiptItems(
-              AddUpdateReceiptItemsParams(
-                  barcode: _textEditingControllerNewReceiptItemCode.text,
-                  itemEntity: null,
-                  quantity: double.parse(
-                      _textEditingControllerNewReceiptItemQuantity.text),
-                  context: context,
-                  onOpenPriceInputted: () => setState(() {
-                        isEditingNewReceiptItemCode = true;
-                        _newReceiptItemCodeFocusNode.requestFocus();
-                      })));
+          await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+              barcode: _textEditingControllerNewReceiptItemCode.text,
+              itemEntity: null,
+              quantity: double.parse(
+                  _textEditingControllerNewReceiptItemQuantity.text),
+              context: context,
+              onOpenPriceInputted: () => setState(() {
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  })));
 
           setState(() {
             indexIsSelect = [-1, 0];
@@ -2541,15 +2579,8 @@ class _SalesPageState extends State<SalesPage> {
             _newReceiptItemCodeFocusNode.requestFocus();
           });
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final position =
-                _scrollControllerReceiptItems.position.maxScrollExtent + 100;
-            _scrollControllerReceiptItems.animateTo(
-              position,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOut,
-            );
-          });
+          await scrollToReceiptItemByIndex(
+              context.read<ReceiptCubit>().state.receiptItems.length - 1);
         } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
           setState(() {
             _textEditingControllerNewReceiptItemQuantity.text =
@@ -2633,17 +2664,15 @@ class _SalesPageState extends State<SalesPage> {
             builder: (context) => ItemSearchDialog());
 
         if (itemEntitySearch != null) {
-          await context
-              .read<ReceiptCubit>()
-              .addUpdateReceiptItems(AddUpdateReceiptItemsParams(
-                  barcode: null,
-                  itemEntity: itemEntitySearch,
-                  quantity: 1,
-                  context: context,
-                  onOpenPriceInputted: () => setState(() {
-                        isEditingNewReceiptItemCode = true;
-                        _newReceiptItemCodeFocusNode.requestFocus();
-                      })));
+          await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+              barcode: null,
+              itemEntity: itemEntitySearch,
+              quantity: 1,
+              context: context,
+              onOpenPriceInputted: () => setState(() {
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  })));
         }
 
         setState(() {
@@ -2651,15 +2680,8 @@ class _SalesPageState extends State<SalesPage> {
           isEditingNewReceiptItemCode = true;
           _newReceiptItemCodeFocusNode.requestFocus();
         });
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final position =
-              _scrollControllerReceiptItems.position.maxScrollExtent + 100;
-          _scrollControllerReceiptItems.animateTo(
-            position,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOut,
-          );
-        });
+        await scrollToReceiptItemByIndex(
+            context.read<ReceiptCubit>().state.receiptItems.length - 1);
       } else if (event.physicalKey == (PhysicalKeyboardKey.f8)) {
         setState(() {
           isEditingNewReceiptItemCode = false;
@@ -2670,199 +2692,9 @@ class _SalesPageState extends State<SalesPage> {
           context: context,
           barrierDismissible: false, // user must tap button!
           builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
-              title: Container(
-                decoration: const BoxDecoration(
-                  color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
-                ),
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                child: const Text(
-                  'Select Customer',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
-                ),
-              ),
-              titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              contentPadding: EdgeInsets.all(0),
-              content: Theme(
-                data: ThemeData(
-                  splashColor: const Color.fromARGB(40, 169, 0, 0),
-                  highlightColor: const Color.fromARGB(40, 169, 0, 0),
-                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-                  fontFamily: 'Roboto',
-                  useMaterial3: true,
-                ),
-                child: StatefulBuilder(builder: (context, setState) {
-                  return SizedBox(
-                    width: 350,
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: TextField(
-                            onSubmitted: (value) {
-                              context
-                                  .read<CustomersCubit>()
-                                  .getCustomers(searchKeyword: value);
-                              _customerInputFocusNode.requestFocus();
-                            },
-                            autofocus: true,
-                            focusNode: _customerInputFocusNode,
-                            decoration: const InputDecoration(
-                              suffixIcon: Icon(
-                                Icons.search,
-                                size: 16,
-                              ),
-                              hintText: "Enter customer's name",
-                              hintStyle: TextStyle(
-                                fontSize: 16,
-                                fontStyle: FontStyle.italic,
-                              ),
-                              // isCollapsed: true,
-                              // contentPadding:
-                              //     EdgeInsets.fromLTRB(0, 0, 0, 0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        // Text(
-                        //   "Name",
-                        //   textAlign: TextAlign.left,
-                        // ),
-                        Expanded(
-                          child:
-                              BlocBuilder<CustomersCubit, List<CustomerEntity>>(
-                            builder: (context, state) {
-                              if (state.length == 0) {
-                                return const Expanded(
-                                    child: EmptyList(
-                                  imagePath: "assets/images/empty-search.svg",
-                                  sentence:
-                                      "Tadaa.. There is nothing here!\nEnter any keyword to search.",
-                                ));
-                              }
-                              return ListView.builder(
-                                  padding: EdgeInsets.all(0),
-                                  itemCount: state.length,
-                                  itemBuilder: ((context, index) {
-                                    final CustomerEntity customerEntity =
-                                        state[index];
-
-                                    return RadioListTile<CustomerEntity>(
-                                        activeColor: ProjectColors.primary,
-                                        hoverColor: ProjectColors.primary,
-                                        // selected: index == radioValue,
-                                        selectedTileColor:
-                                            ProjectColors.primary,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                          horizontal: 15,
-                                        ),
-                                        controlAffinity:
-                                            ListTileControlAffinity.trailing,
-                                        value: state[index],
-                                        groupValue: radioValue,
-                                        title: Text(customerEntity.custName),
-                                        subtitle: Text(customerEntity.phone),
-                                        // shape: RoundedRectangleBorder(
-                                        //     borderRadius:
-                                        //         BorderRadius.circular(5)),
-                                        onChanged: (val) {
-                                          setState(() {
-                                            radioValue = val;
-                                          });
-                                        });
-                                  }));
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                }),
-              ),
-              // contentPadding: const EdgeInsets.symmetric(
-              //     horizontal: 20, vertical: 5),
-              actions: <Widget>[
-                Row(
-                  children: [
-                    Expanded(
-                        child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  side: const BorderSide(
-                                      color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.white),
-                          overlayColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.black.withOpacity(.2))),
-                      onPressed: () {
-                        setState(() {
-                          Navigator.of(context).pop();
-                          Future.delayed(
-                              const Duration(milliseconds: 200),
-                              () =>
-                                  _newReceiptItemCodeFocusNode.requestFocus());
-                        });
-                      },
-                      child: const Center(
-                          child: Text(
-                        "Cancel",
-                        style: TextStyle(color: ProjectColors.primary),
-                      )),
-                    )),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                        child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5))),
-                          backgroundColor: MaterialStateColor.resolveWith(
-                              (states) => ProjectColors.primary),
-                          overlayColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async {
-                        selectedCustomer = radioValue;
-                        await context
-                            .read<ReceiptCubit>()
-                            .updateCustomer(selectedCustomer!, context);
-                        Navigator.of(context).pop();
-                        Future.delayed(const Duration(milliseconds: 200),
-                            () => _newReceiptItemCodeFocusNode.requestFocus());
-                        setState(() {});
-                      },
-                      child: const Center(
-                          child: Text(
-                        "Select",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                    )),
-                  ],
-                ),
-              ],
-              actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-            );
+            return SelectCustomerDialog();
           },
         ).then((value) => setState(() {
-              radioValue = null;
               context.read<CustomersCubit>().clearCustomers();
               isEditingNewReceiptItemCode = true;
               _newReceiptItemCodeFocusNode.requestFocus();
@@ -2908,6 +2740,7 @@ class _SalesPageState extends State<SalesPage> {
           // _newReceiptItemQuantityFocusNode.unfocus();
           _newReceiptItemCodeFocusNode.requestFocus();
         }
+        setState(() {});
       } else if (event.physicalKey == (PhysicalKeyboardKey.f5)) {
         setState(() {
           isEditingNewReceiptItemCode = false;
@@ -2923,6 +2756,12 @@ class _SalesPageState extends State<SalesPage> {
                   _newReceiptItemCodeFocusNode.requestFocus();
                 }));
       } else if (event.physicalKey == (PhysicalKeyboardKey.f3)) {
+        setState(() {
+          isEditingNewReceiptItemCode = false;
+          isEditingNewReceiptItemQty = false;
+          isUpdatingReceiptItemQty = false;
+        });
+
         await showDialog(
             context: context,
             barrierDismissible: false,
@@ -2942,13 +2781,47 @@ class _SalesPageState extends State<SalesPage> {
         Navigator.pop(context);
       }
     } else {
-      print("h2");
       textFieldFocusNode.requestFocus();
       if (event.character != null &&
           RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')
               .hasMatch(event.character!)) {
         textEditingController.text += event.character!;
       }
+    }
+  }
+
+  Future<void> scrollToReceiptItemByIndex(int index) async {
+    await itemScrollController.scrollTo(
+        index: index,
+        duration: Duration(milliseconds: 10),
+        curve: Curves.easeInOutCubic);
+  }
+
+  void checkIsEditingNewReceiptItemQty() {
+    if (isEditingNewReceiptItemQty) {
+      setState(() {
+        isEditingNewReceiptItemQty = false;
+        isEditingNewReceiptItemCode = true;
+        _textEditingControllerNewReceiptItemQuantity
+            .text = _textEditingControllerNewReceiptItemQuantity.text == "" ||
+                double.parse(
+                        _textEditingControllerNewReceiptItemQuantity.text) <=
+                    0
+            ? "1"
+            : Helpers.cleanDecimal(
+                double.parse(_textEditingControllerNewReceiptItemQuantity.text),
+                3);
+
+        _newReceiptItemCodeFocusNode.requestFocus();
+      });
+    }
+  }
+
+  Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
+    try {
+      await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+    } catch (e) {
+      SnackBarHelper.presentFailSnackBar(context, e.toString());
     }
   }
 }

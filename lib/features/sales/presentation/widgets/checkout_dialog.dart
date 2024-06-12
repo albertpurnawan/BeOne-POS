@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -49,6 +50,7 @@ class CheckoutDialog extends StatefulWidget {
 class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharged = false;
   bool isPaymentSufficient = true;
+  final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   String generateRandomString(int length) {
     const characters =
@@ -60,161 +62,222 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     ));
   }
 
+  Future<void> charge() async {
+    try {
+      final ReceiptEntity state = context.read<ReceiptCubit>().state;
+      if ((state.totalPayment ?? 0) < state.grandTotal) {
+        // context.pop(false);
+        setState(() {
+          isPaymentSufficient = false;
+        });
+        Future.delayed(const Duration(milliseconds: 2000),
+            () => setState(() => isPaymentSufficient = true));
+        return;
+      }
+
+      // Edit to QRIS here
+      final mopSelected = context.read<ReceiptCubit>().state.mopSelection;
+      final grandTotal = Helpers.revertMoneyToString(
+          context.read<ReceiptCubit>().state.grandTotal);
+      dev.log(grandTotal);
+
+      if (mopSelected!.payTypeCode == '5') {
+        final netzme = await GetIt.instance<AppDatabase>().netzmeDao.readAll();
+        final url = netzme[0].url;
+        final clientKey = netzme[0].clientKey;
+        final clientSecret = netzme[0].clientSecret;
+        final privateKey = netzme[0].privateKey;
+
+        final signature = await GetIt.instance<NetzmeApi>()
+            .createSignature(url, clientKey, privateKey);
+        dev.log(signature);
+
+        final accessToken = await GetIt.instance<NetzmeApi>()
+            .requestAccessToken(url, clientKey, privateKey, signature);
+        dev.log(accessToken);
+
+        final bodyDetail = {
+          "custIdMerchant": netzme[0].custIdMerchant, // constant
+          "partnerReferenceNo":
+              generateRandomString(10), // no unique cust aka random
+          "amount": {
+            "value": grandTotal,
+            "currency": "IDR"
+          }, // value grandtotal idr
+          "amountDetail": {
+            "basicAmount": {
+              "value": grandTotal,
+              "currency": "IDR"
+            }, // total semua item
+            "shippingAmount": {"value": "0", "currency": "IDR"}
+          },
+          "PayMethod": "QRIS", // constant
+          "commissionPercentage": "0",
+          "expireInSecond": "3600",
+          "feeType": "on_buyer",
+          "apiSource": "topup_deposit",
+          "additionalInfo": {
+            "email": "testabc@gmail.com",
+            "notes": "desc",
+            "description": "description",
+            "phoneNumber": "+6285270427851",
+            "imageUrl": "a",
+            "fullname": "Tester 213@"
+          }
+        };
+        final serviceSignature = await GetIt.instance<NetzmeApi>()
+            .createSignatureService(url, clientKey, clientSecret, privateKey,
+                accessToken, bodyDetail);
+        dev.log(serviceSignature);
+        final transactionQris = await GetIt.instance<NetzmeApi>()
+            .createTransactionQRIS(url, clientKey, clientSecret, privateKey,
+                serviceSignature, bodyDetail);
+        dev.log("$transactionQris");
+
+        final ReceiptEntity receipt = context.read<ReceiptCubit>().state;
+
+        GetIt.instance<SaveReceiptUseCase>().call(params: receipt);
+
+        dev.log("receipt - $receipt");
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WebViewApp(url: transactionQris),
+          ),
+        );
+        // if qris payment success, go
+        // context.read<ReceiptCubit>().charge();
+        // Future.delayed(Duration(milliseconds: 600), () {
+        //   setState(() {
+        //     isCharged = true;
+        //   });
+        // });
+      } else {
+        context.read<ReceiptCubit>().charge();
+        Future.delayed(Duration(milliseconds: 600), () {
+          setState(() {
+            isCharged = true;
+          });
+        });
+      }
+    } catch (e, s) {
+      print(e);
+      debugPrintStack(stackTrace: s);
+    }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _keyboardListenerFocusNode.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      title: Container(
-        decoration: const BoxDecoration(
-          color: ProjectColors.primary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+    return Focus(
+      autofocus: true,
+      onKeyEvent: (node, value) {
+        if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+
+        if (value.physicalKey == PhysicalKeyboardKey.f12 && !isCharged) {
+          charge();
+          return KeyEventResult.handled;
+        } else if (value.physicalKey == PhysicalKeyboardKey.escape &&
+            !isCharged) {
+          context.pop();
+          return KeyEventResult.handled;
+        } else if (value.physicalKey == PhysicalKeyboardKey.arrowDown &&
+            node.hasPrimaryFocus) {
+          node.nextFocus();
+          return KeyEventResult.handled;
+        }
+
+        return KeyEventResult.ignored;
+      },
+      focusNode: _keyboardListenerFocusNode,
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        title: Container(
+          decoration: const BoxDecoration(
+            color: ProjectColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+          ),
+          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          child: const Text(
+            'Checkout',
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          ),
         ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: const Text(
-          'Checkout',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-        ),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      contentPadding: const EdgeInsets.all(0),
-      content: isCharged
-          ? const _CheckoutSuccessDialogContent()
-          : const CheckoutDialogContent(),
-      actions: isCharged
-          ? [
-              Column(
-                children: [
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //         child: TextButton(
-                  //       style: ButtonStyle(
-                  //           shape: MaterialStatePropertyAll(
-                  //               RoundedRectangleBorder(
-                  //                   borderRadius: BorderRadius.circular(5),
-                  //                   side: const BorderSide(
-                  //                       color: ProjectColors.primary))),
-                  //           backgroundColor: MaterialStateColor.resolveWith(
-                  //               (states) => Colors.white),
-                  //           overlayColor: MaterialStateColor.resolveWith(
-                  //               (states) => Colors.black.withOpacity(.2))),
-                  //       onPressed: () {
-                  //         // Navigator.of(context).pop();
-                  //       },
-                  //       child: const Center(
-                  //           child: Text(
-                  //         "Send Receipt",
-                  //         style: TextStyle(color: ProjectColors.primary),
-                  //       )),
-                  //     )),
-                  //     const SizedBox(
-                  //       width: 10,
-                  //     ),
-                  //     Expanded(
-                  //         child: TextButton(
-                  //       style: ButtonStyle(
-                  //           shape: MaterialStatePropertyAll(
-                  //               RoundedRectangleBorder(
-                  //                   borderRadius: BorderRadius.circular(5),
-                  //                   side: const BorderSide(
-                  //                       color: ProjectColors.primary))),
-                  //           backgroundColor: MaterialStateColor.resolveWith(
-                  //               (states) => Colors.white),
-                  //           overlayColor: MaterialStateColor.resolveWith(
-                  //               (states) => Colors.black.withOpacity(.2))),
-                  //       onPressed: () {
-                  //         GetIt.instance<PrintReceiptUseCase>()
-                  //             .call(params: context.read<ReceiptCubit>().state);
-                  //         // Navigator.of(context).pop();
-                  //       },
-                  //       child: const Center(
-                  //           child: Text(
-                  //         "Print Receipt",
-                  //         style: TextStyle(color: ProjectColors.primary),
-                  //       )),
-                  //     )),
-                  //   ],
-                  // ),
-                  // const SizedBox(
-                  //   height: 10,
-                  // ),
-                  TextButton(
-                    style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => ProjectColors.primary),
-                        overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2))),
-                    onPressed: () {
-                      isCharged = false;
-                      Navigator.of(context).pop();
-                      context.read<ReceiptCubit>().resetReceipt();
-                    },
-                    child: const Center(
-                        child: Text(
-                      "Done",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                  ),
-                ],
-              )
-            ]
-          : <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                      child: TextButton(
-                    style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(
-                                color: ProjectColors.primary))),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.white),
-                        overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.black.withOpacity(.2))),
-                    onPressed: () async {
-                      if (context
-                          .read<ReceiptCubit>()
-                          .state
-                          .vouchers
-                          .isNotEmpty) {
-                        final bool? isProceed = await showDialog<bool>(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) =>
-                              const ConfirmResetVouchersDialog(),
-                        );
-                        if (isProceed == null) return;
-                        if (!isProceed) return;
-                      }
-                      context.pop(false);
-                    },
-                    child: const Center(
-                        child: Text(
-                      "Cancel",
-                      style: TextStyle(color: ProjectColors.primary),
-                    )),
-                  )),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    isPaymentSufficient
-                        ? const SizedBox.shrink()
-                        : const Text(
-                            "Insufficient total payment",
-                            style: TextStyle(
-                                color: ProjectColors.primary,
-                                fontWeight: FontWeight.w700),
-                          ),
+        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        contentPadding: const EdgeInsets.all(0),
+        content: isCharged
+            ? const _CheckoutSuccessDialogContent()
+            : const CheckoutDialogContent(),
+        actions: isCharged
+            ? [
+                Column(
+                  children: [
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //         child: TextButton(
+                    //       style: ButtonStyle(
+                    //           shape: MaterialStatePropertyAll(
+                    //               RoundedRectangleBorder(
+                    //                   borderRadius: BorderRadius.circular(5),
+                    //                   side: const BorderSide(
+                    //                       color: ProjectColors.primary))),
+                    //           backgroundColor: MaterialStateColor.resolveWith(
+                    //               (states) => Colors.white),
+                    //           overlayColor: MaterialStateColor.resolveWith(
+                    //               (states) => Colors.black.withOpacity(.2))),
+                    //       onPressed: () {
+                    //         // Navigator.of(context).pop();
+                    //       },
+                    //       child: const Center(
+                    //           child: Text(
+                    //         "Send Receipt",
+                    //         style: TextStyle(color: ProjectColors.primary),
+                    //       )),
+                    //     )),
+                    //     const SizedBox(
+                    //       width: 10,
+                    //     ),
+                    //     Expanded(
+                    //         child: TextButton(
+                    //       style: ButtonStyle(
+                    //           shape: MaterialStatePropertyAll(
+                    //               RoundedRectangleBorder(
+                    //                   borderRadius: BorderRadius.circular(5),
+                    //                   side: const BorderSide(
+                    //                       color: ProjectColors.primary))),
+                    //           backgroundColor: MaterialStateColor.resolveWith(
+                    //               (states) => Colors.white),
+                    //           overlayColor: MaterialStateColor.resolveWith(
+                    //               (states) => Colors.black.withOpacity(.2))),
+                    //       onPressed: () {
+                    //         GetIt.instance<PrintReceiptUseCase>()
+                    //             .call(params: context.read<ReceiptCubit>().state);
+                    //         // Navigator.of(context).pop();
+                    //       },
+                    //       child: const Center(
+                    //           child: Text(
+                    //         "Print Receipt",
+                    //         style: TextStyle(color: ProjectColors.primary),
+                    //       )),
+                    //     )),
+                    //   ],
+                    // ),
+                    // const SizedBox(
+                    //   height: 10,
+                    // ),
                     TextButton(
                       style: ButtonStyle(
                           shape: MaterialStatePropertyAll(
@@ -224,148 +287,120 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                               (states) => ProjectColors.primary),
                           overlayColor: MaterialStateColor.resolveWith(
                               (states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async {
-                        try {
-                          final ReceiptEntity state =
-                              context.read<ReceiptCubit>().state;
-                          if ((state.totalPayment ?? 0) < state.grandTotal) {
-                            // context.pop(false);
-                            setState(() {
-                              isPaymentSufficient = false;
-                            });
-                            Future.delayed(
-                                const Duration(milliseconds: 2000),
-                                () =>
-                                    setState(() => isPaymentSufficient = true));
-                            return;
-                          }
-
-                          // Edit to QRIS here
-                          final mopSelected =
-                              context.read<ReceiptCubit>().state.mopSelection;
-                          final grandTotal = Helpers.revertMoneyToString(
-                              context.read<ReceiptCubit>().state.grandTotal);
-                          dev.log(grandTotal);
-
-                          if (mopSelected!.payTypeCode == '5') {
-                            final netzme = await GetIt.instance<AppDatabase>()
-                                .netzmeDao
-                                .readAll();
-                            final url = netzme[0].url;
-                            final clientKey = netzme[0].clientKey;
-                            final clientSecret = netzme[0].clientSecret;
-                            final privateKey = netzme[0].privateKey;
-
-                            final signature = await GetIt.instance<NetzmeApi>()
-                                .createSignature(url, clientKey, privateKey);
-                            dev.log(signature);
-
-                            final accessToken =
-                                await GetIt.instance<NetzmeApi>()
-                                    .requestAccessToken(
-                                        url, clientKey, privateKey, signature);
-                            dev.log(accessToken);
-
-                            final bodyDetail = {
-                              "custIdMerchant":
-                                  netzme[0].custIdMerchant, // constant
-                              "partnerReferenceNo": generateRandomString(
-                                  10), // no unique cust aka random
-                              "amount": {
-                                "value": grandTotal,
-                                "currency": "IDR"
-                              }, // value grandtotal idr
-                              "amountDetail": {
-                                "basicAmount": {
-                                  "value": grandTotal,
-                                  "currency": "IDR"
-                                }, // total semua item
-                                "shippingAmount": {
-                                  "value": "0",
-                                  "currency": "IDR"
-                                }
-                              },
-                              "PayMethod": "QRIS", // constant
-                              "commissionPercentage": "0",
-                              "expireInSecond": "3600",
-                              "feeType": "on_buyer",
-                              "apiSource": "topup_deposit",
-                              "additionalInfo": {
-                                "email": "testabc@gmail.com",
-                                "notes": "desc",
-                                "description": "description",
-                                "phoneNumber": "+6285270427851",
-                                "imageUrl": "a",
-                                "fullname": "Tester 213@"
-                              }
-                            };
-                            final serviceSignature =
-                                await GetIt.instance<NetzmeApi>()
-                                    .createSignatureService(
-                                        url,
-                                        clientKey,
-                                        clientSecret,
-                                        privateKey,
-                                        accessToken,
-                                        bodyDetail);
-                            dev.log(serviceSignature);
-                            final transactionQris =
-                                await GetIt.instance<NetzmeApi>()
-                                    .createTransactionQRIS(
-                                        url,
-                                        clientKey,
-                                        clientSecret,
-                                        privateKey,
-                                        serviceSignature,
-                                        bodyDetail);
-                            dev.log("$transactionQris");
-
-                            final ReceiptEntity receipt =
-                                context.read<ReceiptCubit>().state;
-
-                            GetIt.instance<SaveReceiptUseCase>()
-                                .call(params: receipt);
-
-                            dev.log("receipt - $receipt");
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    WebViewApp(url: transactionQris),
-                              ),
-                            );
-                            // if qris payment success, go
-                            // context.read<ReceiptCubit>().charge();
-                            // Future.delayed(Duration(milliseconds: 600), () {
-                            //   setState(() {
-                            //     isCharged = true;
-                            //   });
-                            // });
-                          } else {
-                            context.read<ReceiptCubit>().charge();
-                            Future.delayed(Duration(milliseconds: 600), () {
-                              setState(() {
-                                isCharged = true;
-                              });
-                            });
-                          }
-                        } catch (e, s) {
-                          print(e);
-                          debugPrintStack(stackTrace: s);
-                        }
+                      onPressed: () {
+                        isCharged = false;
+                        Navigator.of(context).pop();
+                        context.read<ReceiptCubit>().resetReceipt();
                       },
                       child: const Center(
                           child: Text(
-                        "Charge",
+                        "Done",
                         style: TextStyle(color: Colors.white),
                       )),
-                    )
-                  ])),
-                ],
-              ),
-            ],
-      actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    ),
+                  ],
+                )
+              ]
+            : <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                        child: TextButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(
+                                      color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.white),
+                          overlayColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.black.withOpacity(.2))),
+                      onPressed: () async {
+                        if (context
+                            .read<ReceiptCubit>()
+                            .state
+                            .vouchers
+                            .isNotEmpty) {
+                          final bool? isProceed = await showDialog<bool>(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) =>
+                                const ConfirmResetVouchersDialog(),
+                          );
+                          if (isProceed == null) return;
+                          if (!isProceed) return;
+                        }
+                        context.pop(false);
+                      },
+                      child: Center(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Cancel",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: "  (Esc)",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                            style: TextStyle(color: ProjectColors.primary),
+                          ),
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                    )),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                      isPaymentSufficient
+                          ? const SizedBox.shrink()
+                          : const Text(
+                              "Insufficient total payment",
+                              style: TextStyle(
+                                  color: ProjectColors.primary,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                      TextButton(
+                        style: ButtonStyle(
+                            shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5))),
+                            backgroundColor: MaterialStateColor.resolveWith(
+                                (states) => ProjectColors.primary),
+                            overlayColor: MaterialStateColor.resolveWith(
+                                (states) => Colors.white.withOpacity(.2))),
+                        onPressed: () async => await charge(),
+                        child: Center(
+                          child: RichText(
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Charge",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                TextSpan(
+                                  text: "  (F12)",
+                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.clip,
+                          ),
+                        ),
+                      )
+                    ])),
+                  ],
+                ),
+              ],
+        actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      ),
     );
   }
 }
@@ -378,6 +413,7 @@ class CheckoutDialogContent extends StatefulWidget {
 }
 
 class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
+  double chipCount = 0;
   String _value = "";
   int _cashAmount = 0;
   int _vouchersAmount = 0;
@@ -385,7 +421,19 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   List<VouchersSelectionEntity> _vouchers = [];
   List<MopSelectionEntity> mopSelectionModels = [];
   final _textEditingControllerCashAmount = TextEditingController();
-  final _focusNodeCashAmount = FocusNode();
+  final _focusNodeCashAmount = FocusNode(
+    onKeyEvent: (node, event) {
+      if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+
+      if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+          node.hasPrimaryFocus) {
+        node.nextFocus();
+        return KeyEventResult.handled;
+      }
+
+      return KeyEventResult.ignored;
+    },
+  );
 
   @override
   void initState() {
@@ -713,28 +761,152 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: List<Widget>.generate(
-                              mopTypes.length,
-                              (int index) {
-                                final mopType = mopTypes[index];
-                                final List<MopSelectionEntity> mopsByType =
-                                    getMopByPayTypeCodes(mopType.payTypeCodes);
+                          child: FocusTraversalGroup(
+                            policy: ReadingOrderTraversalPolicy(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: List<Widget>.generate(
+                                mopTypes.length,
+                                (int index) {
+                                  final mopType = mopTypes[index];
+                                  final List<MopSelectionEntity> mopsByType =
+                                      getMopByPayTypeCodes(
+                                          mopType.payTypeCodes);
 
-                                if (mopsByType.isEmpty) {
-                                  return const SizedBox.shrink();
-                                }
+                                  if (mopsByType.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
 
-                                // [START] UI for TUNAI MOP
-                                if (mopType.payTypeCodes[0] == "1") {
-                                  final List<int> cashAmountSuggestions =
-                                      generateCashAmountSuggestions(context
-                                          .read<ReceiptCubit>()
-                                          .state
-                                          .grandTotal
-                                          .toInt());
+                                  // [START] UI for TUNAI MOP
+                                  if (mopType.payTypeCodes[0] == "1") {
+                                    final List<int> cashAmountSuggestions =
+                                        generateCashAmountSuggestions(context
+                                            .read<ReceiptCubit>()
+                                            .state
+                                            .grandTotal
+                                            .toInt());
 
+                                    return SizedBox(
+                                      width: double.infinity,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            mopType.name,
+                                            style: const TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 15,
+                                          ),
+                                          SizedBox(
+                                            // height: 60,
+                                            // width: 400,
+                                            child: TextField(
+                                              onSubmitted: (value) =>
+                                                  _focusNodeCashAmount
+                                                      .requestFocus(),
+                                              focusNode: _focusNodeCashAmount,
+                                              onTapOutside: (event) =>
+                                                  _focusNodeCashAmount
+                                                      .unfocus(),
+                                              controller:
+                                                  _textEditingControllerCashAmount,
+                                              onTap: () {
+                                                _value = mopsByType[0].tpmt3Id;
+                                                updateReceiptMop();
+                                              },
+                                              onChanged: (value) =>
+                                                  setState(() {
+                                                _value = mopsByType[0].tpmt3Id;
+
+                                                _cashAmount = Helpers
+                                                        .revertMoneyToDecimalFormat(
+                                                            value)
+                                                    .toInt();
+                                                updateReceiptMop();
+                                              }),
+                                              inputFormatters: [
+                                                MoneyInputFormatter()
+                                              ],
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              textAlign: TextAlign.center,
+                                              style:
+                                                  const TextStyle(fontSize: 24),
+                                              decoration: const InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(10),
+                                                  hintText: "Cash Amount",
+                                                  hintStyle: TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      fontSize: 24),
+                                                  border: OutlineInputBorder(),
+                                                  prefixIcon: Icon(
+                                                    Icons.payments_outlined,
+                                                    size: 24,
+                                                  )),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Wrap(
+                                            spacing: 8,
+                                            runSpacing: 8,
+                                            children: List<Widget>.generate(
+                                              cashAmountSuggestions.length,
+                                              (int index) {
+                                                return ChoiceChip(
+                                                  side: const BorderSide(
+                                                      color:
+                                                          ProjectColors.primary,
+                                                      width: 1.5),
+                                                  padding:
+                                                      const EdgeInsets.all(20),
+                                                  label: Text(
+                                                      Helpers.parseMoney(
+                                                          cashAmountSuggestions[
+                                                              index])),
+                                                  selected: _value ==
+                                                          mopsByType[0]
+                                                              .tpmt3Id &&
+                                                      _cashAmount ==
+                                                          cashAmountSuggestions[
+                                                              index],
+                                                  onSelected: (bool selected) {
+                                                    setState(() {
+                                                      _value =
+                                                          mopsByType[0].tpmt3Id;
+                                                      _cashAmount =
+                                                          cashAmountSuggestions[
+                                                              index];
+                                                      _textEditingControllerCashAmount
+                                                              .text =
+                                                          Helpers.parseMoney(
+                                                              cashAmountSuggestions[
+                                                                  index]);
+                                                      updateReceiptMop();
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ).toList(),
+                                          ),
+                                          const SizedBox(
+                                            height: 40,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  // [END] UI for TUNAI MOP
+
+                                  // [START] UI for other MOPs
                                   return SizedBox(
                                     width: double.infinity,
                                     child: Column(
@@ -751,56 +923,13 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                         const SizedBox(
                                           height: 15,
                                         ),
-                                        SizedBox(
-                                          // height: 60,
-                                          // width: 400,
-                                          child: TextField(
-                                            focusNode: _focusNodeCashAmount,
-                                            onTapOutside: (event) =>
-                                                _focusNodeCashAmount.unfocus(),
-                                            controller:
-                                                _textEditingControllerCashAmount,
-                                            onTap: () {
-                                              _value = mopsByType[0].tpmt3Id;
-                                              updateReceiptMop();
-                                            },
-                                            onChanged: (value) => setState(() {
-                                              _cashAmount = Helpers
-                                                      .revertMoneyToDecimalFormat(
-                                                          value)
-                                                  .toInt();
-                                              updateReceiptMop();
-                                            }),
-                                            inputFormatters: [
-                                              MoneyInputFormatter()
-                                            ],
-                                            keyboardType: TextInputType.number,
-                                            textAlign: TextAlign.center,
-                                            style:
-                                                const TextStyle(fontSize: 24),
-                                            decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.all(10),
-                                                hintText: "Cash Amount",
-                                                hintStyle: TextStyle(
-                                                    fontStyle: FontStyle.italic,
-                                                    fontSize: 24),
-                                                border: OutlineInputBorder(),
-                                                prefixIcon: Icon(
-                                                  Icons.payments_outlined,
-                                                  size: 24,
-                                                )),
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
                                         Wrap(
                                           spacing: 8,
                                           runSpacing: 8,
                                           children: List<Widget>.generate(
-                                            cashAmountSuggestions.length,
+                                            mopsByType.length,
                                             (int index) {
+                                              final mop = mopsByType[index];
                                               return ChoiceChip(
                                                 side: const BorderSide(
                                                     color:
@@ -808,26 +937,120 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                     width: 1.5),
                                                 padding:
                                                     const EdgeInsets.all(20),
-                                                label: Text(Helpers.parseMoney(
-                                                    cashAmountSuggestions[
-                                                        index])),
-                                                selected: _value ==
-                                                        mopsByType[0].tpmt3Id &&
-                                                    _cashAmount ==
-                                                        cashAmountSuggestions[
-                                                            index],
-                                                onSelected: (bool selected) {
+                                                label: Text(
+                                                  mop.mopAlias,
+                                                ),
+                                                // CONDITIONAL FOR SET SELECTED
+                                                selected: mopType
+                                                            .payTypeCodes[0] ==
+                                                        "6"
+                                                    ? receipt.vouchers
+                                                        .map((e) => e.tpmt3Id)
+                                                        .contains(mop.tpmt3Id)
+                                                    : _value == mop.tpmt3Id,
+                                                onSelected:
+                                                    (bool selected) async {
+                                                  // VOUCHERS DIALOG HERE
+                                                  if (mopType.payTypeCodes[0] ==
+                                                      "6") {
+                                                    await showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return AlertDialog(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          surfaceTintColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          shape: const RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          5.0))),
+                                                          title: Container(
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                              color:
+                                                                  ProjectColors
+                                                                      .primary,
+                                                              borderRadius:
+                                                                  BorderRadius.vertical(
+                                                                      top: Radius
+                                                                          .circular(
+                                                                              5.0)),
+                                                            ),
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .fromLTRB(
+                                                                    25,
+                                                                    10,
+                                                                    25,
+                                                                    10),
+                                                            child: const Text(
+                                                              'Redeem Voucher',
+                                                              style: TextStyle(
+                                                                  fontSize: 22,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                          ),
+                                                          titlePadding:
+                                                              const EdgeInsets
+                                                                  .fromLTRB(
+                                                                  0, 0, 0, 0),
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .all(0),
+                                                          content: Container(
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                0.5,
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.6,
+                                                            child:
+                                                                VoucherCheckout(
+                                                              onVouchersRedeemed:
+                                                                  handleVouchersRedeemed,
+                                                              tpmt3Id:
+                                                                  mop.tpmt3Id,
+                                                              voucherType:
+                                                                  mop.subType,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    );
+                                                    setState(() {
+                                                      _voucherMopSelections
+                                                          .add(mop);
+                                                      _value = selected
+                                                          ? mop.tpmt3Id
+                                                          : "";
+                                                      _cashAmount = 0;
+                                                      _textEditingControllerCashAmount
+                                                          .text = "";
+                                                      context
+                                                          .read<ReceiptCubit>()
+                                                          .resetMop();
+                                                    });
+                                                    return;
+                                                  }
                                                   setState(() {
-                                                    _value =
-                                                        mopsByType[0].tpmt3Id;
-                                                    _cashAmount =
-                                                        cashAmountSuggestions[
-                                                            index];
+                                                    _value = selected
+                                                        ? mop.tpmt3Id
+                                                        : "";
+                                                    _cashAmount = 0;
                                                     _textEditingControllerCashAmount
-                                                            .text =
-                                                        Helpers.parseMoney(
-                                                            cashAmountSuggestions[
-                                                                index]);
+                                                        .text = "";
                                                     updateReceiptMop();
                                                   });
                                                 },
@@ -841,161 +1064,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       ],
                                     ),
                                   );
-                                }
-                                // [END] UI for TUNAI MOP
-
-                                // [START] UI for other MOPs
-                                return SizedBox(
-                                  width: double.infinity,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        mopType.name,
-                                        style: const TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 15,
-                                      ),
-                                      Wrap(
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children: List<Widget>.generate(
-                                          mopsByType.length,
-                                          (int index) {
-                                            final mop = mopsByType[index];
-                                            return ChoiceChip(
-                                              side: const BorderSide(
-                                                  color: ProjectColors.primary,
-                                                  width: 1.5),
-                                              padding: const EdgeInsets.all(20),
-                                              label: Text(
-                                                mop.mopAlias,
-                                              ),
-                                              // CONDITIONAL FOR SET SELECTED
-                                              selected:
-                                                  mopType.payTypeCodes[0] == "6"
-                                                      ? receipt.vouchers
-                                                          .map((e) => e.tpmt3Id)
-                                                          .contains(mop.tpmt3Id)
-                                                      : _value == mop.tpmt3Id,
-                                              onSelected:
-                                                  (bool selected) async {
-                                                // VOUCHERS DIALOG HERE
-                                                if (mopType.payTypeCodes[0] ==
-                                                    "6") {
-                                                  await showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        surfaceTintColor:
-                                                            Colors.transparent,
-                                                        shape: const RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.all(
-                                                                    Radius.circular(
-                                                                        5.0))),
-                                                        title: Container(
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                            color: ProjectColors
-                                                                .primary,
-                                                            borderRadius:
-                                                                BorderRadius.vertical(
-                                                                    top: Radius
-                                                                        .circular(
-                                                                            5.0)),
-                                                          ),
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .fromLTRB(25,
-                                                                  10, 25, 10),
-                                                          child: const Text(
-                                                            'Redeem Voucher',
-                                                            style: TextStyle(
-                                                                fontSize: 22,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                color: Colors
-                                                                    .white),
-                                                          ),
-                                                        ),
-                                                        titlePadding:
-                                                            const EdgeInsets
-                                                                .fromLTRB(
-                                                                0, 0, 0, 0),
-                                                        contentPadding:
-                                                            const EdgeInsets
-                                                                .all(0),
-                                                        content: Container(
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height *
-                                                              0.5,
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.6,
-                                                          child:
-                                                              VoucherCheckout(
-                                                            onVouchersRedeemed:
-                                                                handleVouchersRedeemed,
-                                                            tpmt3Id:
-                                                                mop.tpmt3Id,
-                                                            voucherType:
-                                                                mop.subType,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
-                                                  setState(() {
-                                                    _voucherMopSelections
-                                                        .add(mop);
-                                                    _value = selected
-                                                        ? mop.tpmt3Id
-                                                        : "";
-                                                    _cashAmount = 0;
-                                                    _textEditingControllerCashAmount
-                                                        .text = "";
-                                                    context
-                                                        .read<ReceiptCubit>()
-                                                        .resetMop();
-                                                  });
-                                                  return;
-                                                }
-                                                setState(() {
-                                                  _value = selected
-                                                      ? mop.tpmt3Id
-                                                      : "";
-                                                  _cashAmount = 0;
-                                                  _textEditingControllerCashAmount
-                                                      .text = "";
-                                                  updateReceiptMop();
-                                                });
-                                              },
-                                            );
-                                          },
-                                        ).toList(),
-                                      ),
-                                      const SizedBox(
-                                        height: 40,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                                // [END] UI for other MOPs
-                              },
+                                  // [END] UI for other MOPs
+                                },
+                              ),
                             ),
                           ),
                         ),
