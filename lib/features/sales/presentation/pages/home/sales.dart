@@ -22,7 +22,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/sales/presentation/pages/home/select_employee_temp.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
@@ -1098,32 +1098,35 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: null,
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.lightBlack,
-                              padding: const EdgeInsets.all(3),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              onPressed: null,
+                              style: OutlinedButton.styleFrom(
+                                elevation: 5,
+                                shadowColor: Colors.black87,
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                foregroundColor: Colors.white,
+                                backgroundColor: ProjectColors.lightBlack,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                side: BorderSide.none,
                               ),
-                              side: BorderSide.none,
-                            ),
-                            child: FittedBox(
                               child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
+                                  Text(
                                     "Invoice Details",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12,
-                                    ),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    "",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w300),
                                   ),
                                 ],
-                              ),
-                            ),
-                          ),
+                              )),
                         ),
                       ),
 
@@ -1166,45 +1169,54 @@ class _SalesPageState extends State<SalesPage> {
                           child: TapRegion(
                             groupId: 1,
                             child: OutlinedButton(
-                              onPressed: () {
-                                final ReceiptItemEntity receiptItemTarget =
-                                    context
-                                        .read<ReceiptCubit>()
-                                        .state
-                                        .receiptItems[indexIsSelect[0]];
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      ItemDetailsDialog(
-                                          indexSelected: indexIsSelect[0]),
-                                );
-                                setState(() {});
-                              },
-                              style: OutlinedButton.styleFrom(
-                                elevation: 5,
-                                shadowColor: Colors.black87,
-                                backgroundColor: ProjectColors.primary,
-                                padding: const EdgeInsets.all(3),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
+                                onPressed: indexIsSelect[0] == -1
+                                    ? null
+                                    : () {
+                                        final ReceiptItemEntity
+                                            receiptItemTarget = context
+                                                .read<ReceiptCubit>()
+                                                .state
+                                                .receiptItems[indexIsSelect[0]];
+                                        log("receiptTarget - $receiptItemTarget");
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              ItemDetailsDialog(
+                                                  indexSelected:
+                                                      indexIsSelect[0]),
+                                        );
+                                        setState(() {});
+                                      },
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: indexIsSelect[0] == -1
+                                      ? ProjectColors.lightBlack
+                                      : ProjectColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  side: BorderSide.none,
                                 ),
-                                side: BorderSide.none,
-                              ),
-                              child: FittedBox(
                                 child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Item Details",
                                       style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                      ),
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      "",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
+                                )),
                           ),
                         ),
                       ),

@@ -1,8 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 
 class ItemDetailsDialog extends StatefulWidget {
   final int indexSelected;
@@ -16,10 +22,31 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _noteController = TextEditingController();
   String? salesSelected;
+  String? tohemIdSelected;
 
   @override
   void initState() {
     super.initState();
+    final ReceiptItemEntity stateItem =
+        context.read<ReceiptCubit>().state.receiptItems[widget.indexSelected];
+    _noteController.text = stateItem.remarks ?? "";
+    tohemIdSelected = stateItem.tohemId;
+    getEmployee(tohemIdSelected ?? "");
+  }
+
+  void getEmployee(String tohemId) async {
+    final result = await GetIt.instance<AppDatabase>()
+        .employeeDao
+        .readByDocId(tohemId, null);
+    if (result != null) {
+      setState(() {
+        salesSelected = result.empName;
+      });
+    } else {
+      setState(() {
+        salesSelected = "Not Found";
+      });
+    }
   }
 
   @override
@@ -65,7 +92,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                     children: [
                       Text(
                         "Item - ${widget.indexSelected} - ${stateItem.itemEntity.itemName}",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: Color.fromARGB(255, 66, 66, 66),
                           fontSize: 16,
@@ -78,7 +105,19 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                             height: 0,
                           ),
                           InkWell(
-                            onTap: () => {},
+                            onTap: () => showDialog<EmployeeEntity>(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  SelectEmployee(),
+                            ).then((selectedEmployee) {
+                              if (selectedEmployee != null) {
+                                setState(() {
+                                  salesSelected = selectedEmployee.empName;
+                                  tohemIdSelected = selectedEmployee.docId;
+                                });
+                                log("selectedEmployee - $selectedEmployee");
+                              }
+                            }),
                             child: Column(
                               children: [
                                 const SizedBox(height: 10),
@@ -104,7 +143,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                     Row(
                                       children: [
                                         Text(
-                                          salesSelected ?? "Not Found",
+                                          salesSelected.toString(),
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -112,12 +151,12 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                                 Color.fromARGB(255, 66, 66, 66),
                                           ),
                                         ),
-                                        SizedBox(width: 5),
+                                        const SizedBox(width: 5),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                               ],
                             ),
                           ),
@@ -140,20 +179,25 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                             child: Container(
                               height: MediaQuery.of(context).size.height * 0.2,
                               decoration: BoxDecoration(
                                   border: Border.all(
                                       color: ProjectColors.primary, width: 2)),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: TextField(
-                                  maxLines: 5,
-                                  controller: _noteController,
-                                  decoration:
-                                      InputDecoration(border: InputBorder.none),
+                              child: Center(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: TextField(
+                                    maxLines: 5,
+                                    maxLength: 300,
+                                    controller: _noteController,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      counterText: "",
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -219,7 +263,16 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                         MaterialStateColor.resolveWith(
                                             (states) =>
                                                 Colors.white.withOpacity(.2))),
-                                onPressed: () {},
+                                onPressed: () {
+                                  context
+                                      .read<ReceiptCubit>()
+                                      .updateTohemIdRemarks(
+                                          tohemIdSelected ?? "",
+                                          _noteController.text,
+                                          widget.indexSelected);
+                                  Navigator.of(context).pop();
+                                  log("receiptAfUpdate - ${context.read<ReceiptCubit>().state.receiptItems[(widget.indexSelected)]}");
+                                },
                                 child: Center(
                                   child: RichText(
                                     text: const TextSpan(

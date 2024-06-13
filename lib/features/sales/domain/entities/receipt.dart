@@ -36,6 +36,7 @@ class ReceiptEntity {
   ReceiptEntity? previousReceiptEntity;
   String? queuedInvoiceHeaderDocId;
   double rounding;
+  String? remarks;
 
   ReceiptEntity({
     required this.docNum,
@@ -64,6 +65,7 @@ class ReceiptEntity {
     this.previousReceiptEntity,
     this.queuedInvoiceHeaderDocId,
     this.rounding = 0,
+    this.remarks,
   });
 
   ReceiptEntity copyWith({
@@ -93,6 +95,7 @@ class ReceiptEntity {
     ReceiptEntity? previousReceiptEntity,
     String? queuedInvoiceHeaderDocId,
     double? rounding,
+    String? remarks,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -122,6 +125,7 @@ class ReceiptEntity {
       queuedInvoiceHeaderDocId:
           queuedInvoiceHeaderDocId ?? this.queuedInvoiceHeaderDocId,
       rounding: rounding ?? this.rounding,
+      remarks: remarks ?? this.remarks,
     );
   }
 
@@ -150,6 +154,7 @@ class ReceiptEntity {
       'discPrctg': discPrctg,
       'discHeaderManual': discHeaderManual,
       'discHeaderPromo': discHeaderPromo,
+      'remarks': remarks,
     };
   }
 
@@ -212,6 +217,7 @@ class ReceiptEntity {
       discHeaderPromo: map['discHeaderPromo'] != null
           ? map['discHeaderPromo'] as double
           : null,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
     );
   }
 
@@ -222,7 +228,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo,
+    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks,
     
     previousReceiptEntity: $previousReceiptEntity)""";
   }
@@ -253,7 +259,8 @@ class ReceiptEntity {
         other.discAmount == discAmount &&
         other.discPrctg == discPrctg &&
         other.discHeaderManual == discHeaderManual &&
-        other.discHeaderPromo == discHeaderPromo;
+        other.discHeaderPromo == discHeaderPromo &&
+        other.remarks == remarks;
     // other.previousReceiptEntity == previousReceiptEntity; kalau tidak ada perubahan apa2 previous gak ke emit
   }
 
@@ -281,7 +288,8 @@ class ReceiptEntity {
         discAmount.hashCode ^
         discPrctg.hashCode ^
         discHeaderManual.hashCode ^
-        discHeaderPromo.hashCode;
+        discHeaderPromo.hashCode ^
+        remarks.hashCode;
     // previousReceiptEntity.hashCode;
   }
 }

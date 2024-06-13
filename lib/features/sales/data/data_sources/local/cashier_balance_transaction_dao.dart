@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:sqflite/sqflite.dart';
@@ -50,7 +52,7 @@ class CashierBalanceTransactionDao
       orderBy: 'createdat DESC',
       limit: 1,
     );
-
+    log("result shift - $result");
     return result.isNotEmpty
         ? CashierBalanceTransactionModel.fromMap(result[0])
         : null;
