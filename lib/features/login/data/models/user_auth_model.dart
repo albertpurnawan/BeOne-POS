@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 

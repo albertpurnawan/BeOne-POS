@@ -9,7 +9,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -49,7 +48,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
           .readByTousrId(user.docId, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
-        if (user.password == hashedPassword) {
+        if (tastr.statusActive != 1) {
+          check = "Unauthorized";
+        } else if (user.password == hashedPassword) {
           check = "Success";
         } else {
           check = "Wrong Password";
@@ -73,7 +74,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
           .read<ReceiptCubit>()
           .updateTotalAmountFromDiscount(widget.discountValue);
       Navigator.of(childContext).pop(); // Close the dialog
-      Navigator.of(childContext).pop(); // Close the previous screen if needed
+      Navigator.of(childContext).pop(); // Close the select method if needed
+      Navigator.of(childContext).pop(); // Close the input discount if needed
       SnackBarHelper.presentSuccessSnackBar(parentContext,
           "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
     } else {

@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
-import 'package:crypto/crypto.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/login/data/models/user_auth_model.dart';
@@ -34,7 +30,7 @@ class UserAuthDao extends BaseDao<UserAuthModel> {
   @override
   Future<List<UserAuthModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result.map((itemData) => UserAuthModel.fromMap(itemData)).toList();
   }

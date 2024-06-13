@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -110,7 +109,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                       onSubmitted: (value) {
                         context
                             .read<CustomersCubit>()
-                            .getCustomers(searchKeyword: value);
+                            .getActiveCustomers(searchKeyword: value);
                         _customerInputFocusNode.requestFocus();
                       },
                       autofocus: true,
@@ -269,6 +268,5 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
         actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       ),
     );
-    ;
   }
 }

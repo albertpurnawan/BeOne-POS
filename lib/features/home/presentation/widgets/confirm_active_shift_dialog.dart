@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 
 class ConfirmActiveShiftDialog extends StatefulWidget {
-  String currentShiftDocId;
+  final String currentShiftDocId;
 
-  ConfirmActiveShiftDialog({
+  const ConfirmActiveShiftDialog({
     Key? key,
     required this.currentShiftDocId,
   }) : super(key: key);
@@ -53,10 +52,10 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
             "assets/images/caution.png",
             width: 80,
           ),
-          SizedBox(
+          const SizedBox(
             width: 30,
           ),
-          Container(
+          SizedBox(
             width: 400,
             child: RichText(
               text: const TextSpan(
@@ -106,7 +105,7 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
                     style: TextStyle(color: ProjectColors.primary),
                   )),
                 )),
-            SizedBox(
+            const SizedBox(
               width: 10,
             ),
             Expanded(
@@ -123,7 +122,7 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ShiftsList(),
+                    builder: (context) => const ShiftsList(),
                   ),
                 );
               },

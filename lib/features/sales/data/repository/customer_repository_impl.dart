@@ -7,8 +7,10 @@ class CustomerRepositoryImpl implements CustomerRepository {
   CustomerRepositoryImpl(this._appDatabase);
 
   @override
-  Future<List<CustomerEntity>> getCustomers({String? searchKeyword}) {
+  Future<List<CustomerEntity>> getCustomers(
+      {String? searchKeyword, int? statusActive}) {
     // TODO: implement getCustomers
-    return _appDatabase.customerDao.readAll(searchKeyword: searchKeyword);
+    return _appDatabase.customerDao
+        .readAll(searchKeyword: searchKeyword, statusActive: statusActive);
   }
 }

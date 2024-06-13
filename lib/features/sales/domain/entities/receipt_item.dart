@@ -18,6 +18,8 @@ class ReceiptItemEntity {
   double? discPrctg;
   double? discHeaderAmount;
   double? subtotalAfterDiscHeader;
+  String? tohemId;
+  String? remarks;
 
   ReceiptItemEntity({
     required this.quantity,
@@ -32,6 +34,8 @@ class ReceiptItemEntity {
     this.discPrctg,
     this.discHeaderAmount,
     this.subtotalAfterDiscHeader,
+    this.tohemId,
+    this.remarks,
   });
 
   ReceiptItemEntity copyWith({
@@ -47,6 +51,8 @@ class ReceiptItemEntity {
     double? discPrctg,
     double? discHeaderAmount,
     double? subtotalAfterDiscHeader,
+    String? tohemId,
+    String? remarks,
   }) {
     return ReceiptItemEntity(
       quantity: quantity ?? this.quantity,
@@ -62,6 +68,8 @@ class ReceiptItemEntity {
       discHeaderAmount: discHeaderAmount ?? this.discHeaderAmount,
       subtotalAfterDiscHeader:
           subtotalAfterDiscHeader ?? this.subtotalAfterDiscHeader,
+      tohemId: tohemId ?? this.tohemId,
+      remarks: remarks ?? this.remarks,
     );
   }
 
@@ -79,6 +87,8 @@ class ReceiptItemEntity {
       'discPrctg': discPrctg,
       'discHeaderAmount': discHeaderAmount,
       'subtotalAfterDiscHeader': subtotalAfterDiscHeader,
+      'tohemId': tohemId,
+      'remarks': remarks,
     };
   }
 
@@ -105,6 +115,8 @@ class ReceiptItemEntity {
       subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null
           ? map['subtotalAfterDiscHeader'] as double
           : null,
+      tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
     );
   }
 
@@ -115,7 +127,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, remarks: $remarks)';
   }
 
   @override
@@ -133,7 +145,9 @@ class ReceiptItemEntity {
         other.discAmount == discAmount &&
         other.discPrctg == discPrctg &&
         other.discHeaderAmount == discHeaderAmount &&
-        other.subtotalAfterDiscHeader == subtotalAfterDiscHeader;
+        other.subtotalAfterDiscHeader == subtotalAfterDiscHeader &&
+        other.tohemId == tohemId &&
+        other.remarks == remarks;
   }
 
   @override
@@ -149,6 +163,8 @@ class ReceiptItemEntity {
         discAmount.hashCode ^
         discPrctg.hashCode ^
         discHeaderAmount.hashCode ^
-        subtotalAfterDiscHeader.hashCode;
+        subtotalAfterDiscHeader.hashCode ^
+        tohemId.hashCode ^
+        remarks.hashCode;
   }
 }

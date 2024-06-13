@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/navigation_helper.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
@@ -123,6 +126,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_serv
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
+import 'package:pos_fe/features/syncdata/domain/usecases/check_credential_active_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -185,7 +189,7 @@ Future<void> syncData() async {
   late List<BillOfMaterialModel> toitt;
   late List<BillOfMaterialLineItemModel> titt1;
 
-  final prefs = await SharedPreferences.getInstance();
+  final prefs = GetIt.instance<SharedPreferences>();
 
   bool? checkSync = prefs.getBool('isSyncing');
   log("Synching data... - $checkSync");
@@ -3385,6 +3389,18 @@ Future<void> syncData() async {
       }
       prefs.setBool('isSyncing', false);
       print('Data synched - $checkSync');
+
+      // VALIDATE INACTIVE tostr, tocsr, tousr, tohem
+      try {
+        await GetIt.instance<CheckCredentialActiveStatusUseCase>().call();
+      } catch (e) {
+        log("VALIDATE INACTIVE MASTER DATA Error: $e");
+        await GetIt.instance<LogoutUseCase>().call();
+        await NavigationHelper.go("/");
+        SnackBarHelper.presentFailSnackBar(
+            NavigationHelper.context, e.toString());
+      }
+      // END OF VALIDATE INACTIVE tostr, tohem, tocsr, tousr
     } catch (error, stack) {
       prefs.setBool('isSyncing', false);
       print("Error synchronizing: $error");

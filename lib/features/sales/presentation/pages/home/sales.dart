@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
@@ -23,6 +22,8 @@ import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
@@ -197,7 +198,6 @@ class _SalesPageState extends State<SalesPage> {
         }
         return KeyEventResult.skipRemainingHandlers;
       } else {
-        print("ignored");
         return KeyEventResult.ignored;
       }
     },
@@ -255,7 +255,6 @@ class _SalesPageState extends State<SalesPage> {
           event.physicalKey == PhysicalKeyboardKey.arrowRight) {
         return KeyEventResult.skipRemainingHandlers;
       } else {
-        print("ignored");
         return KeyEventResult.ignored;
       }
     },
@@ -280,6 +279,7 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   void dispose() {
+    _timer.cancel();
     _scrollControllerMain.dispose();
     _scrollControllerReceiptItems.dispose();
     _scrollControllerReceiptSummary.dispose();
@@ -307,7 +307,7 @@ class _SalesPageState extends State<SalesPage> {
       canPop: false,
       child: Scaffold(
         // backgroundColor: Color.fromRGBO(175, 47, 47, 1),
-        backgroundColor: Color.fromARGB(255, 234, 234, 234),
+        backgroundColor: const Color.fromARGB(255, 234, 234, 234),
         // backgroundColor: Colors.white,
         // resizeToAvoidBottomInset: false,
         body: ScrollWidget(
@@ -438,7 +438,7 @@ class _SalesPageState extends State<SalesPage> {
                             width: 100,
                             padding: const EdgeInsets.fromLTRB(20, 15, 10, 16),
                             decoration: const BoxDecoration(
-                              color: const Color.fromARGB(255, 85, 0, 0),
+                              color: Color.fromARGB(255, 85, 0, 0),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(5),
                                 bottomRight: Radius.circular(45),
@@ -456,13 +456,14 @@ class _SalesPageState extends State<SalesPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.receipt_outlined, color: Colors.white),
-                            SizedBox(
+                            const Icon(Icons.receipt_outlined,
+                                color: Colors.white),
+                            const SizedBox(
                               width: 5,
                             ),
                             Text(
                               context.read<ReceiptCubit>().state.docNum,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
@@ -558,7 +559,7 @@ class _SalesPageState extends State<SalesPage> {
                                       Expanded(
                                           child: Text(
                                         promo.promoDescription,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           fontStyle: FontStyle.italic,
                                           fontWeight: FontWeight.w500,
@@ -567,10 +568,10 @@ class _SalesPageState extends State<SalesPage> {
                                       Expanded(
                                           child: promo.discAmount == null ||
                                                   promo.discAmount == 0
-                                              ? SizedBox.shrink()
+                                              ? const SizedBox.shrink()
                                               : Text(
                                                   "- ${Helpers.parseMoney(promo.discAmount!.round())}",
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     fontSize: 14,
                                                     fontStyle: FontStyle.italic,
                                                     fontWeight: FontWeight.w500,
@@ -826,8 +827,6 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Widget _receiptItemForm() {
-    print(isEditingNewReceiptItemQty);
-    print(isUpdatingReceiptItemQty);
     return Expanded(
       flex: 4,
       child: Container(
@@ -955,7 +954,6 @@ class _SalesPageState extends State<SalesPage> {
                           child: isEditingNewReceiptItemCode
                               ? KeyboardListener(
                                   onKeyEvent: (event) {
-                                    print(123123123123);
                                     handlePhysicalKeyboard(
                                       event,
                                       _textEditingControllerNewReceiptItemCode,
@@ -1063,11 +1061,14 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: null,
+                      onPressed: () {
+                        context.read<ReceiptCubit>().resetReceipt();
+                        setState(() {});
+                      },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
                         shadowColor: Colors.black87,
-                        backgroundColor: ProjectColors.lightBlack,
+                        backgroundColor: ProjectColors.primary,
                         padding: const EdgeInsets.all(3),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -1075,7 +1076,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: Icon(Icons.lock_person_outlined),
+                      child: Icon(Icons.delete_sweep_outlined),
                     ),
                   ),
                 ),
@@ -1095,33 +1096,41 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: () {
-                              context.read<ReceiptCubit>().resetReceipt();
-                              setState(() {});
-                            },
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(3),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      InvoiceDetailsDialog(),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                elevation: 5,
+                                shadowColor: Colors.black87,
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                foregroundColor: Colors.white,
+                                backgroundColor: ProjectColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                side: BorderSide.none,
                               ),
-                              side: BorderSide.none,
-                            ),
-                            child: FittedBox(
                               child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    "Reset",
+                                  Text(
+                                    "Invoice Details",
                                     style:
                                         TextStyle(fontWeight: FontWeight.w600),
                                   ),
+                                  Text(
+                                    "",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w300),
+                                  ),
                                 ],
-                              ),
-                            ),
-                          ),
+                              )),
                         ),
                       ),
 
@@ -1161,51 +1170,60 @@ class _SalesPageState extends State<SalesPage> {
                     children: [
                       Expanded(
                         child: SizedBox.expand(
-                          child: OutlinedButton(
-                            onPressed: null,
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.lightBlack,
-                              padding: const EdgeInsets.all(3),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              side: BorderSide.none,
-                            ),
-                            child: const Text(
-                              "Reprint",
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
+                          child: TapRegion(
+                            groupId: 1,
+                            child: OutlinedButton(
+                                onPressed: indexIsSelect[0] == -1
+                                    ? null
+                                    : () {
+                                        final ReceiptItemEntity
+                                            receiptItemTarget = context
+                                                .read<ReceiptCubit>()
+                                                .state
+                                                .receiptItems[indexIsSelect[0]];
+                                        log("receiptTarget - $receiptItemTarget");
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              ItemDetailsDialog(
+                                                  indexSelected:
+                                                      indexIsSelect[0]),
+                                        );
+                                        setState(() {});
+                                      },
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: indexIsSelect[0] == -1
+                                      ? ProjectColors.lightBlack
+                                      : ProjectColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  side: BorderSide.none,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Item Details",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      "",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                )),
                           ),
                         ),
                       ),
-                      // const SizedBox(
-                      //   width: 5,
-                      // ),
-                      // Expanded(
-                      //   child: SizedBox.expand(
-                      //     child: OutlinedButton(
-                      //       onPressed: () {},
-                      //       style: OutlinedButton.styleFrom(
-                      //         elevation: 5,
-                      //         shadowColor: Colors.black87,
-                      //         backgroundColor: ProjectColors.primary,
-                      //         padding: const EdgeInsets.all(3),
-                      //         foregroundColor: Colors.white,
-                      //         shape: RoundedRectangleBorder(
-                      //           borderRadius: BorderRadius.circular(5),
-                      //         ),
-                      //         side: BorderSide.none,
-                      //       ),
-                      //       child: const Text(
-                      //         "MFR Disc \$",
-                      //         style: TextStyle(fontWeight: FontWeight.w600),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -1231,7 +1249,8 @@ class _SalesPageState extends State<SalesPage> {
                           showDialog(
                                   context: context,
                                   barrierDismissible: false,
-                                  builder: (context) => InputDiscountManual())
+                                  builder: (context) =>
+                                      const InputDiscountManual())
                               .then((value) => setState(() {
                                     isEditingNewReceiptItemCode = true;
                                     _newReceiptItemCodeFocusNode.requestFocus();
@@ -1259,7 +1278,7 @@ class _SalesPageState extends State<SalesPage> {
                         //     ),
                         //   ),
                         // ),
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -1290,7 +1309,7 @@ class _SalesPageState extends State<SalesPage> {
                           showDialog(
                                   context: context,
                                   barrierDismissible: false,
-                                  builder: (context) => QueueListDialog())
+                                  builder: (context) => const QueueListDialog())
                               .then((value) {
                             setState(() {
                               context.read<ItemsCubit>().clearItems();
@@ -1310,7 +1329,7 @@ class _SalesPageState extends State<SalesPage> {
                           ),
                           side: BorderSide.none,
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -1414,16 +1433,16 @@ class _SalesPageState extends State<SalesPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.assignment_ind_outlined,
+                                  const Icon(Icons.assignment_ind_outlined,
                                       color: Colors.white),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   Text(
                                     GetIt.instance<SharedPreferences>()
                                             .getString("username") ??
                                         "-",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.white,
@@ -1448,8 +1467,9 @@ class _SalesPageState extends State<SalesPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Icon(Icons.schedule, color: Colors.white),
-                                  SizedBox(
+                                  const Icon(Icons.schedule,
+                                      color: Colors.white),
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   ValueListenableBuilder<String>(
@@ -1457,7 +1477,7 @@ class _SalesPageState extends State<SalesPage> {
                                     builder: (context, value, child) {
                                       return Text(
                                         value,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.white,
@@ -1509,14 +1529,14 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Header Discount",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 "(${Helpers.parseMoney((state.discHeaderManual ?? 0).round())})",
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
@@ -1526,14 +1546,14 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Total Tax",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 Helpers.parseMoney(state.taxAmount.round()),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
@@ -1543,14 +1563,14 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Rounding",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 Helpers.parseMoney(state.rounding.round()),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
@@ -1690,7 +1710,8 @@ class _SalesPageState extends State<SalesPage> {
                           .read<ReceiptCubit>()
                           .processReceiptBeforeCheckout(context);
 
-                      await Future.delayed(Duration(milliseconds: 300), () {});
+                      await Future.delayed(
+                          const Duration(milliseconds: 300), null);
 
                       final ReceiptEntity receiptEntity =
                           context.read<ReceiptCubit>().state;
@@ -1785,7 +1806,7 @@ class _SalesPageState extends State<SalesPage> {
                       await showDialog<ItemEntity>(
                           context: context,
                           barrierDismissible: false,
-                          builder: (context) => ItemSearchDialog());
+                          builder: (context) => const ItemSearchDialog());
 
                   if (itemEntitySearch != null) {
                     await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
@@ -1823,7 +1844,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Stack(
                     children: [
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Row(
@@ -1879,7 +1900,7 @@ class _SalesPageState extends State<SalesPage> {
                     context: context,
                     barrierDismissible: false, // user must tap button!
                     builder: (BuildContext context) {
-                      return SelectCustomerDialog();
+                      return const SelectCustomerDialog();
                     },
                   ).then((value) => setState(() {
                         context.read<CustomersCubit>().clearCustomers();
@@ -1902,7 +1923,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Stack(
                     children: [
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Row(
@@ -1985,7 +2006,7 @@ class _SalesPageState extends State<SalesPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Stack(
                       children: [
-                        Positioned.fill(
+                        const Positioned.fill(
                           child: Align(
                             alignment: Alignment.topRight,
                             child: Row(
@@ -2078,7 +2099,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Stack(
                     children: [
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Row(
@@ -2618,7 +2639,7 @@ class _SalesPageState extends State<SalesPage> {
               .read<ReceiptCubit>()
               .processReceiptBeforeCheckout(context);
 
-          await Future.delayed(Duration(milliseconds: 300), () {});
+          await Future.delayed(const Duration(milliseconds: 300), () {});
 
           final ReceiptEntity receiptEntity =
               context.read<ReceiptCubit>().state;
@@ -2661,7 +2682,7 @@ class _SalesPageState extends State<SalesPage> {
         final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
             context: context,
             barrierDismissible: false,
-            builder: (context) => ItemSearchDialog());
+            builder: (context) => const ItemSearchDialog());
 
         if (itemEntitySearch != null) {
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
@@ -2692,7 +2713,7 @@ class _SalesPageState extends State<SalesPage> {
           context: context,
           barrierDismissible: false, // user must tap button!
           builder: (BuildContext context) {
-            return SelectCustomerDialog();
+            return const SelectCustomerDialog();
           },
         ).then((value) => setState(() {
               context.read<CustomersCubit>().clearCustomers();
@@ -2750,7 +2771,7 @@ class _SalesPageState extends State<SalesPage> {
         await showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (context) => InputDiscountManual())
+                builder: (context) => const InputDiscountManual())
             .then((value) => setState(() {
                   isEditingNewReceiptItemCode = true;
                   _newReceiptItemCodeFocusNode.requestFocus();
@@ -2765,7 +2786,7 @@ class _SalesPageState extends State<SalesPage> {
         await showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => QueueListDialog()).then((value) {
+            builder: (context) => const QueueListDialog()).then((value) {
           setState(() {
             context.read<ItemsCubit>().clearItems();
             isEditingNewReceiptItemCode = true;
@@ -2793,7 +2814,7 @@ class _SalesPageState extends State<SalesPage> {
   Future<void> scrollToReceiptItemByIndex(int index) async {
     await itemScrollController.scrollTo(
         index: index,
-        duration: Duration(milliseconds: 10),
+        duration: const Duration(milliseconds: 10),
         curve: Curves.easeInOutCubic);
   }
 

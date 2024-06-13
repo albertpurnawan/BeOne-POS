@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/widgets/empty_list.dart';
-import 'package:pos_fe/features/sales/domain/entities/employee.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 
-class SelectEmployee extends StatefulWidget {
-  const SelectEmployee({super.key});
+class SelectAuthDialog extends StatefulWidget {
+  final double discountValue;
+  const SelectAuthDialog({Key? key, required this.discountValue})
+      : super(key: key);
 
   @override
-  State<SelectEmployee> createState() => _SelectEmployeeState();
+  State<SelectAuthDialog> createState() => _SelectAuthDialogState();
 }
 
-class _SelectEmployeeState extends State<SelectEmployee> {
-  EmployeeEntity? radioValue;
-  EmployeeEntity? selectedEmployee;
-  final FocusNode _employeeInputFocusNode = FocusNode();
-  late final TextEditingController _employeeTextController =
-      TextEditingController();
+class _SelectAuthDialogState extends State<SelectAuthDialog> {
+  String? radioValue;
+  String? selectedEmployee;
+  final FocusNode _authFocusNode = FocusNode();
 
   @override
   void dispose() {
-    _employeeInputFocusNode.dispose();
-    _employeeTextController.dispose();
+    _authFocusNode.dispose();
     super.dispose();
   }
 
@@ -39,17 +35,16 @@ class _SelectEmployeeState extends State<SelectEmployee> {
 
           if (event.character != null &&
               RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(event.character!) &&
-              !_employeeInputFocusNode.hasPrimaryFocus) {
-            _employeeInputFocusNode.unfocus();
-            _employeeTextController.text += event.character!;
-            _employeeInputFocusNode.requestFocus();
+              !_authFocusNode.hasPrimaryFocus) {
+            _authFocusNode.unfocus();
+            _authFocusNode.requestFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-              _employeeInputFocusNode.hasPrimaryFocus) {
-            _employeeInputFocusNode.nextFocus();
+              _authFocusNode.hasPrimaryFocus) {
+            _authFocusNode.nextFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
-            _employeeInputFocusNode.unfocus();
+            _authFocusNode.unfocus();
             FocusManager.instance.primaryFocus?.unfocus();
 
             selectedEmployee = radioValue;
@@ -75,7 +70,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
           ),
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
           child: const Text(
-            'Select Employee',
+            'Authorization Method',
             style: TextStyle(
                 fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
@@ -90,86 +85,38 @@ class _SelectEmployeeState extends State<SelectEmployee> {
             fontFamily: 'Roboto',
             useMaterial3: true,
           ),
-          child: StatefulBuilder(builder: (context, setState) {
-            return SizedBox(
-              width: 350,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: IntrinsicHeight(
               child: Column(
                 children: [
                   const SizedBox(
                     height: 15,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: TextField(
-                      onSubmitted: (value) {
-                        context
-                            .read<EmployeesCubit>()
-                            .getEmployees(searchKeyword: value);
-                        _employeeInputFocusNode.requestFocus();
-                      },
-                      autofocus: true,
-                      focusNode: _employeeInputFocusNode,
-                      decoration: const InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.search,
-                          size: 16,
-                        ),
-                        hintText: "Enter employee's name",
-                        hintStyle: TextStyle(
-                          fontSize: 16,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
+                  RadioListTile<String>(
+                    activeColor: ProjectColors.primary,
+                    hoverColor: ProjectColors.primary,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    value: 'OTP',
+                    groupValue: radioValue,
+                    title: const Text('OTP'),
+                    onChanged: (val) => setState(() => radioValue = val),
                   ),
-                  const SizedBox(
-                    height: 15,
+                  RadioListTile<String>(
+                    activeColor: ProjectColors.primary,
+                    hoverColor: ProjectColors.primary,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    value: 'Admin',
+                    groupValue: radioValue,
+                    title: const Text('Admin'),
+                    onChanged: (val) => setState(() => radioValue = val),
                   ),
-                  Expanded(
-                    child: BlocBuilder<EmployeesCubit, List<EmployeeEntity>>(
-                      builder: (context, state) {
-                        if (state.length == 0) {
-                          return const Expanded(
-                              child: EmptyList(
-                            imagePath: "assets/images/empty-search.svg",
-                            sentence:
-                                "Tadaa.. There is nothing here!\nEnter any keyword to search.",
-                          ));
-                        }
-                        return ListView.builder(
-                            padding: const EdgeInsets.all(0),
-                            itemCount: state.length,
-                            itemBuilder: ((context, index) {
-                              final EmployeeEntity employeeEntity =
-                                  state[index];
-
-                              return RadioListTile<EmployeeEntity>(
-                                  activeColor: ProjectColors.primary,
-                                  hoverColor: ProjectColors.primary,
-                                  // selected: index == radioValue,
-                                  selectedTileColor: ProjectColors.primary,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 15,
-                                  ),
-                                  controlAffinity:
-                                      ListTileControlAffinity.trailing,
-                                  value: state[index],
-                                  groupValue: radioValue,
-                                  title: Text(employeeEntity.empName),
-                                  subtitle: Text(employeeEntity.phone),
-                                  onChanged: (val) async {
-                                    setState(() {
-                                      radioValue = val;
-                                    });
-                                  });
-                            }));
-                      },
-                    ),
-                  )
                 ],
               ),
-            );
-          }),
+            ),
+          ),
         ),
         actions: <Widget>[
           Row(
@@ -185,10 +132,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                     overlayColor: MaterialStateColor.resolveWith(
                         (states) => Colors.black.withOpacity(.2))),
                 onPressed: () {
-                  setState(() {
-                    Navigator.of(context).pop();
-                  });
-                  context.read<EmployeesCubit>().clearEmployees();
+                  Navigator.pop(context);
                 },
                 child: Center(
                   child: RichText(
@@ -221,10 +165,13 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                             (states) => ProjectColors.primary),
                         overlayColor: MaterialStateColor.resolveWith(
                             (states) => Colors.white.withOpacity(.2))),
-                    onPressed: () async {
-                      selectedEmployee = radioValue;
-                      Navigator.of(context).pop(selectedEmployee);
-                      context.read<EmployeesCubit>().clearEmployees();
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => AuthInputDiscountDialog(
+                              discountValue: widget.discountValue));
+                      // Navigator.pop(context);
                     },
                     child: Center(
                       child: RichText(
