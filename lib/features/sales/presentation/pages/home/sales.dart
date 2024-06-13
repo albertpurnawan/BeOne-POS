@@ -198,7 +198,6 @@ class _SalesPageState extends State<SalesPage> {
         }
         return KeyEventResult.skipRemainingHandlers;
       } else {
-        print("ignored");
         return KeyEventResult.ignored;
       }
     },
@@ -256,7 +255,6 @@ class _SalesPageState extends State<SalesPage> {
           event.physicalKey == PhysicalKeyboardKey.arrowRight) {
         return KeyEventResult.skipRemainingHandlers;
       } else {
-        print("ignored");
         return KeyEventResult.ignored;
       }
     },
@@ -281,6 +279,7 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   void dispose() {
+    _timer.cancel();
     _scrollControllerMain.dispose();
     _scrollControllerReceiptItems.dispose();
     _scrollControllerReceiptSummary.dispose();
@@ -308,7 +307,7 @@ class _SalesPageState extends State<SalesPage> {
       canPop: false,
       child: Scaffold(
         // backgroundColor: Color.fromRGBO(175, 47, 47, 1),
-        backgroundColor: Color.fromARGB(255, 234, 234, 234),
+        backgroundColor: const Color.fromARGB(255, 234, 234, 234),
         // backgroundColor: Colors.white,
         // resizeToAvoidBottomInset: false,
         body: ScrollWidget(
@@ -439,7 +438,7 @@ class _SalesPageState extends State<SalesPage> {
                             width: 100,
                             padding: const EdgeInsets.fromLTRB(20, 15, 10, 16),
                             decoration: const BoxDecoration(
-                              color: const Color.fromARGB(255, 85, 0, 0),
+                              color: Color.fromARGB(255, 85, 0, 0),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(5),
                                 bottomRight: Radius.circular(45),
@@ -457,13 +456,14 @@ class _SalesPageState extends State<SalesPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.receipt_outlined, color: Colors.white),
-                            SizedBox(
+                            const Icon(Icons.receipt_outlined,
+                                color: Colors.white),
+                            const SizedBox(
                               width: 5,
                             ),
                             Text(
                               context.read<ReceiptCubit>().state.docNum,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
@@ -559,7 +559,7 @@ class _SalesPageState extends State<SalesPage> {
                                       Expanded(
                                           child: Text(
                                         promo.promoDescription,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           fontStyle: FontStyle.italic,
                                           fontWeight: FontWeight.w500,
@@ -568,10 +568,10 @@ class _SalesPageState extends State<SalesPage> {
                                       Expanded(
                                           child: promo.discAmount == null ||
                                                   promo.discAmount == 0
-                                              ? SizedBox.shrink()
+                                              ? const SizedBox.shrink()
                                               : Text(
                                                   "- ${Helpers.parseMoney(promo.discAmount!.round())}",
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     fontSize: 14,
                                                     fontStyle: FontStyle.italic,
                                                     fontWeight: FontWeight.w500,
@@ -827,8 +827,6 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Widget _receiptItemForm() {
-    print(isEditingNewReceiptItemQty);
-    print(isUpdatingReceiptItemQty);
     return Expanded(
       flex: 4,
       child: Container(
@@ -956,7 +954,6 @@ class _SalesPageState extends State<SalesPage> {
                           child: isEditingNewReceiptItemCode
                               ? KeyboardListener(
                                   onKeyEvent: (event) {
-                                    print(123123123123);
                                     handlePhysicalKeyboard(
                                       event,
                                       _textEditingControllerNewReceiptItemCode,
@@ -1252,7 +1249,8 @@ class _SalesPageState extends State<SalesPage> {
                           showDialog(
                                   context: context,
                                   barrierDismissible: false,
-                                  builder: (context) => InputDiscountManual())
+                                  builder: (context) =>
+                                      const InputDiscountManual())
                               .then((value) => setState(() {
                                     isEditingNewReceiptItemCode = true;
                                     _newReceiptItemCodeFocusNode.requestFocus();
@@ -1280,7 +1278,7 @@ class _SalesPageState extends State<SalesPage> {
                         //     ),
                         //   ),
                         // ),
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -1311,7 +1309,7 @@ class _SalesPageState extends State<SalesPage> {
                           showDialog(
                                   context: context,
                                   barrierDismissible: false,
-                                  builder: (context) => QueueListDialog())
+                                  builder: (context) => const QueueListDialog())
                               .then((value) {
                             setState(() {
                               context.read<ItemsCubit>().clearItems();
@@ -1331,7 +1329,7 @@ class _SalesPageState extends State<SalesPage> {
                           ),
                           side: BorderSide.none,
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -1435,16 +1433,16 @@ class _SalesPageState extends State<SalesPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.assignment_ind_outlined,
+                                  const Icon(Icons.assignment_ind_outlined,
                                       color: Colors.white),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   Text(
                                     GetIt.instance<SharedPreferences>()
                                             .getString("username") ??
                                         "-",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.white,
@@ -1469,8 +1467,9 @@ class _SalesPageState extends State<SalesPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Icon(Icons.schedule, color: Colors.white),
-                                  SizedBox(
+                                  const Icon(Icons.schedule,
+                                      color: Colors.white),
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   ValueListenableBuilder<String>(
@@ -1478,7 +1477,7 @@ class _SalesPageState extends State<SalesPage> {
                                     builder: (context, value, child) {
                                       return Text(
                                         value,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.white,
@@ -1530,14 +1529,14 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Header Discount",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 "(${Helpers.parseMoney((state.discHeaderManual ?? 0).round())})",
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
@@ -1547,14 +1546,14 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Total Tax",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 Helpers.parseMoney(state.taxAmount.round()),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
@@ -1564,14 +1563,14 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Rounding",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 Helpers.parseMoney(state.rounding.round()),
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
@@ -1711,7 +1710,8 @@ class _SalesPageState extends State<SalesPage> {
                           .read<ReceiptCubit>()
                           .processReceiptBeforeCheckout(context);
 
-                      await Future.delayed(Duration(milliseconds: 300), () {});
+                      await Future.delayed(
+                          const Duration(milliseconds: 300), null);
 
                       final ReceiptEntity receiptEntity =
                           context.read<ReceiptCubit>().state;
@@ -1806,7 +1806,7 @@ class _SalesPageState extends State<SalesPage> {
                       await showDialog<ItemEntity>(
                           context: context,
                           barrierDismissible: false,
-                          builder: (context) => ItemSearchDialog());
+                          builder: (context) => const ItemSearchDialog());
 
                   if (itemEntitySearch != null) {
                     await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
@@ -1844,7 +1844,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Stack(
                     children: [
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Row(
@@ -1900,7 +1900,7 @@ class _SalesPageState extends State<SalesPage> {
                     context: context,
                     barrierDismissible: false, // user must tap button!
                     builder: (BuildContext context) {
-                      return SelectCustomerDialog();
+                      return const SelectCustomerDialog();
                     },
                   ).then((value) => setState(() {
                         context.read<CustomersCubit>().clearCustomers();
@@ -1923,7 +1923,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Stack(
                     children: [
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Row(
@@ -2006,7 +2006,7 @@ class _SalesPageState extends State<SalesPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Stack(
                       children: [
-                        Positioned.fill(
+                        const Positioned.fill(
                           child: Align(
                             alignment: Alignment.topRight,
                             child: Row(
@@ -2099,7 +2099,7 @@ class _SalesPageState extends State<SalesPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Stack(
                     children: [
-                      Positioned.fill(
+                      const Positioned.fill(
                         child: Align(
                           alignment: Alignment.topRight,
                           child: Row(
@@ -2639,7 +2639,7 @@ class _SalesPageState extends State<SalesPage> {
               .read<ReceiptCubit>()
               .processReceiptBeforeCheckout(context);
 
-          await Future.delayed(Duration(milliseconds: 300), () {});
+          await Future.delayed(const Duration(milliseconds: 300), () {});
 
           final ReceiptEntity receiptEntity =
               context.read<ReceiptCubit>().state;
@@ -2682,7 +2682,7 @@ class _SalesPageState extends State<SalesPage> {
         final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
             context: context,
             barrierDismissible: false,
-            builder: (context) => ItemSearchDialog());
+            builder: (context) => const ItemSearchDialog());
 
         if (itemEntitySearch != null) {
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
@@ -2713,7 +2713,7 @@ class _SalesPageState extends State<SalesPage> {
           context: context,
           barrierDismissible: false, // user must tap button!
           builder: (BuildContext context) {
-            return SelectCustomerDialog();
+            return const SelectCustomerDialog();
           },
         ).then((value) => setState(() {
               context.read<CustomersCubit>().clearCustomers();
@@ -2771,7 +2771,7 @@ class _SalesPageState extends State<SalesPage> {
         await showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (context) => InputDiscountManual())
+                builder: (context) => const InputDiscountManual())
             .then((value) => setState(() {
                   isEditingNewReceiptItemCode = true;
                   _newReceiptItemCodeFocusNode.requestFocus();
@@ -2786,7 +2786,7 @@ class _SalesPageState extends State<SalesPage> {
         await showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => QueueListDialog()).then((value) {
+            builder: (context) => const QueueListDialog()).then((value) {
           setState(() {
             context.read<ItemsCubit>().clearItems();
             isEditingNewReceiptItemCode = true;
@@ -2814,7 +2814,7 @@ class _SalesPageState extends State<SalesPage> {
   Future<void> scrollToReceiptItemByIndex(int index) async {
     await itemScrollController.scrollTo(
         index: index,
-        duration: Duration(milliseconds: 10),
+        duration: const Duration(milliseconds: 10),
         curve: Curves.easeInOutCubic);
   }
 

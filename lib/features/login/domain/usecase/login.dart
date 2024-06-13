@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
+import 'package:pos_fe/features/syncdata/domain/usecases/check_credential_active_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginUseCase implements UseCase<bool?, UserAuthEntity> {
@@ -35,6 +39,16 @@ class LoginUseCase implements UseCase<bool?, UserAuthEntity> {
 
         isLoggedIn = true;
       }
+
+      // VALIDATE INACTIVE tostr, tocsr, tousr, tohem
+      try {
+        await GetIt.instance<CheckCredentialActiveStatusUseCase>().call();
+      } catch (e) {
+        log("VALIDATE INACTIVE ERROR: $e");
+        isLoggedIn = false;
+        await GetIt.instance<LogoutUseCase>().call();
+      }
+      // END OF VALIDATE INACTIVE tostr, tohem, tocsr, tousr
     }
 
     return isLoggedIn;

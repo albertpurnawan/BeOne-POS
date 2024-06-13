@@ -109,7 +109,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                       onSubmitted: (value) {
                         context
                             .read<CustomersCubit>()
-                            .getCustomers(searchKeyword: value);
+                            .getActiveCustomers(searchKeyword: value);
                         _customerInputFocusNode.requestFocus();
                       },
                       autofocus: true,

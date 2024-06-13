@@ -6,6 +6,9 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/navigation_helper.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
@@ -125,6 +128,7 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_serv
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
+import 'package:pos_fe/features/syncdata/domain/usecases/check_credential_active_status.dart';
 import 'package:pos_fe/features/syncdata/presentation/log_error_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -204,7 +208,7 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<BillOfMaterialModel> toitt;
     late List<BillOfMaterialLineItemModel> titt1;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = GetIt.instance<SharedPreferences>();
 
     bool? checkSync = prefs.getBool('isSyncing');
     log("Synching data... - $checkSync");
@@ -3437,6 +3441,41 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        final toposAfterSync =
+            await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+        final singleToposAfterSync = toposAfterSync[0];
+
+        // UPDATE STORE NAME
+        try {
+          final store = await (GetIt.instance<AppDatabase>()
+              .storeMasterDao
+              .readByDocId(singleTopos.tostrId!, null));
+
+          final toposData = POSParameterModel(
+            docId: singleToposAfterSync.docId,
+            createDate: singleToposAfterSync.createDate,
+            updateDate: singleToposAfterSync.updateDate,
+            gtentId: singleToposAfterSync.gtentId,
+            tostrId: singleToposAfterSync.tostrId,
+            storeName: store?.storeName,
+            tocsrId: singleToposAfterSync.tocsrId,
+            baseUrl: singleToposAfterSync.baseUrl,
+            usernameAdmin: singleToposAfterSync.usernameAdmin,
+            passwordAdmin: singleToposAfterSync.passwordAdmin,
+            lastSync: singleToposAfterSync.lastSync,
+          );
+
+          await GetIt.instance<AppDatabase>()
+              .posParameterDao
+              .update(docId: toposId, data: toposData);
+        } catch (e) {
+          handleError(e);
+          rethrow;
+        }
+        // END OF UPDATE STORE NAME
+
+        // REFRESH TOPRM
+        log("INSERTING PROMOS...");
         final promos = <PromotionsModel>[];
         final today = DateTime.now().weekday;
 
@@ -3684,6 +3723,7 @@ class _FetchScreenState extends State<FetchScreen> {
 
         await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
         log("PROMOS INSERTED");
+        // END OF REFRESH TOPRM
 
         totalData = tcurr.length +
             tocry.length +
@@ -3742,7 +3782,9 @@ class _FetchScreenState extends State<FetchScreen> {
             toitt.length +
             titt1.length;
 
+        // REFRESH TABLE ITEMS
         await GetIt.instance<AppDatabase>().refreshItemsTable();
+        // END OF REFRESH TABLE ITEMS
 
         // Check Failed Invoices and Try to Send
         final invoices =
@@ -3770,7 +3812,19 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
         prefs.setBool('isSyncing', false);
-        print('Data synched - $checkSync');
+        print('Data synced - $checkSync');
+
+        // VALIDATE INACTIVE tostr, tocsr, tousr, tohem
+        try {
+          await GetIt.instance<CheckCredentialActiveStatusUseCase>().call();
+        } catch (e) {
+          log("VALIDATE INACTIVE MASTER DATA Error: $e");
+          await GetIt.instance<LogoutUseCase>().call();
+          await NavigationHelper.go("/");
+          SnackBarHelper.presentFailSnackBar(
+              NavigationHelper.context, e.toString());
+        }
+        // END OF VALIDATE INACTIVE tostr, tohem, tocsr, tousr
       } catch (error, stack) {
         prefs.setBool('isSyncing', false);
         print("Error synchronizing: $error");
@@ -4073,8 +4127,8 @@ class _FetchScreenState extends State<FetchScreen> {
 }
 
 // ElevatedButton(
-                      //   onPressed: () async {
-                      //     _fetchData();
-                      //   },
-                      //   child: Text('TEST'),
-                      // ),
+//   onPressed: () async {
+//     _fetchData();
+//   },
+//   child: Text('TEST'),
+// ),

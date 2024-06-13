@@ -502,16 +502,23 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> refreshItemsTable() async {
-    final storeMaster = await storeMasterDao.readAll();
+    final List<POSParameterModel> posParameter =
+        await posParameterDao.readAll();
+    if (posParameter.isEmpty) return;
+    if (posParameter[0].tostrId == null) return;
+
+    final StoreMasterModel? storeMaster =
+        await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
+    if (storeMaster == null) return;
+
     bool taxByItem = false;
     String taxAdditionalQuery = "";
     String? storeTovatId = '""';
     double? storeTaxRate = 0;
 
-    if (storeMaster.isNotEmpty) {
-      if (storeMaster[0].taxBy == 1) {
-        taxByItem = true;
-        taxAdditionalQuery = """
+    if (storeMaster.taxBy == 1) {
+      taxByItem = true;
+      taxAdditionalQuery = """
 INNER JOIN (
     SELECT
       docid AS tovatId,
@@ -522,16 +529,16 @@ INNER JOIN (
       statusactive = 1
   ) as t ON t.tovatId = s.tovatId
 """;
-      } else {
-        print("222222222222");
-        final TaxMasterModel? taxMaster =
-            await taxMasterDao.readByDocId(storeMaster[0].tovatId!, null);
-        storeTovatId = taxMaster!.docId;
-        storeTaxRate = taxMaster.rate;
-        print(storeTovatId);
-        print(storeTaxRate);
-      }
+    } else {
+      print("222222222222");
+      final TaxMasterModel? taxMaster =
+          await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
+      storeTovatId = taxMaster!.docId;
+      storeTaxRate = taxMaster.rate;
+      print(storeTovatId);
+      print(storeTaxRate);
     }
+
     try {
       await _database!.execute("""
 DELETE FROM items

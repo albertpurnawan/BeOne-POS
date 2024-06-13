@@ -47,10 +47,10 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
           .authStoreDao
           .readByTousrId(user.docId, null);
 
-      if (tastr != null &&
-          tastr.tousrdocid == user.docId &&
-          tastr.statusActive != 0) {
-        if (user.password == hashedPassword) {
+      if (tastr != null && tastr.tousrdocid == user.docId) {
+        if (tastr.statusActive != 1) {
+          check = "Unauthorized";
+        } else if (user.password == hashedPassword) {
           check = "Success";
         } else {
           check = "Wrong Password";

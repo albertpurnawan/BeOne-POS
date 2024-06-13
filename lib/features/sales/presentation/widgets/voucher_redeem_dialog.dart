@@ -606,11 +606,24 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Center(
-                      child: Text(
-                    "Cancel",
-                    style: TextStyle(color: ProjectColors.primary),
-                  )),
+                  child: Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Cancel",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          TextSpan(
+                            text: "  (Esc)",
+                            style: TextStyle(fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                        style: TextStyle(color: ProjectColors.primary),
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
                 )),
                 const SizedBox(
                   width: 10,
@@ -625,11 +638,23 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                       overlayColor: MaterialStateColor.resolveWith(
                           (states) => Colors.white.withOpacity(.2))),
                   onPressed: () async => await _redeemVouchers(),
-                  child: const Center(
-                      child: Text(
-                    "Redeem",
-                    style: TextStyle(color: Colors.white),
-                  )),
+                  child: Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Redeem",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          TextSpan(
+                            text: "  (F12)",
+                            style: TextStyle(fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
                 ))
               ],
             ),

@@ -25,11 +25,18 @@ class CustomerDao extends BaseDao<CustomerModel> {
 
   @override
   Future<List<CustomerModel>> readAll(
-      {String? searchKeyword, Transaction? txn}) async {
-    final result = await db.query(tableName,
-        where:
-            "${CustomerFields.custName} LIKE ? OR ${CustomerFields.phone} LIKE ?",
-        whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
+      {String? searchKeyword, Transaction? txn, int? statusActive}) async {
+    String where =
+        "(${CustomerFields.custName} LIKE ? OR ${CustomerFields.phone} LIKE ?)";
+    List<dynamic> whereArgs = ["%$searchKeyword%", "%$searchKeyword%"];
+
+    if (statusActive != null) {
+      where += " AND ${CustomerFields.statusActive} = ?";
+      whereArgs.add(statusActive);
+    }
+
+    final result =
+        await db.query(tableName, where: where, whereArgs: whereArgs);
 
     return result.map((itemData) => CustomerModel.fromMap(itemData)).toList();
   }
