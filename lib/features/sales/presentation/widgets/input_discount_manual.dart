@@ -8,7 +8,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/select_auth_dialog.dart';
 
 class InputDiscountManual extends StatefulWidget {
   const InputDiscountManual({super.key});
@@ -51,8 +51,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
           showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (context) =>
-                  AuthInputDiscountDialog(discountValue: input));
+              builder: (context) => SelectAuthDialog(discountValue: input));
           return KeyEventResult.handled;
         } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
           context.pop();
@@ -106,7 +105,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                         context: context,
                         barrierDismissible: false,
                         builder: (context) =>
-                            AuthInputDiscountDialog(discountValue: input))
+                            SelectAuthDialog(discountValue: input))
                     .then((value) => _discountFocusNode.requestFocus());
               },
               autofocus: true,
@@ -203,14 +202,14 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                         context: context,
                         barrierDismissible: false,
                         builder: (context) =>
-                            AuthInputDiscountDialog(discountValue: input));
+                            SelectAuthDialog(discountValue: input));
                   },
                   child: Center(
                     child: RichText(
                       text: const TextSpan(
                         children: [
                           TextSpan(
-                            text: "Set",
+                            text: "Enter",
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                           TextSpan(
