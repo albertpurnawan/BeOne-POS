@@ -5,7 +5,6 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class SelectEmployee extends StatefulWidget {
   const SelectEmployee({super.key});
@@ -54,11 +53,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
             FocusManager.instance.primaryFocus?.unfocus();
 
             selectedEmployee = radioValue;
-            context
-                .read<ReceiptCubit>()
-                .updateEmployee(selectedEmployee!, context);
-            Navigator.of(context)
-                .pop(selectedEmployee); // Return selectedEmployee
+            Navigator.of(context).pop(selectedEmployee);
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
             Navigator.of(context).pop();

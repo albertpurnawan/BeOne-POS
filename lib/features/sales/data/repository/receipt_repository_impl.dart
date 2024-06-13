@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
@@ -38,6 +39,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
     final prefs = GetIt.instance<SharedPreferences>();
     final tcsr1IdPref = prefs.getString('tcsr1Id');
+    final tohemIdPref = prefs.getString('tohemId');
 
     int countInv;
     final now = DateTime.now();
@@ -57,7 +59,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
 
       final EmployeeModel employee =
-          (await _appDatabase.employeeDao.readByEmpCode("99", txn))!;
+          (await _appDatabase.employeeDao.readByDocId(tohemIdPref!, txn))!;
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -69,7 +71,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         tocusId: receiptEntity.customerEntity?.docId,
         tohemId: employee.docId, // get di sini atau dari awal aja
         transDateTime: null, // dao
-        timezone: "GMT+07",
+        timezone: Helpers.getTimezone(DateTime.now()),
         remarks: receiptEntity.remarks,
         subTotal: receiptEntity.subtotal,
         discPrctg: receiptEntity.discPrctg ?? 0,
@@ -89,7 +91,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docStatus: 0,
         sync: 0,
         syncCRM: 0,
-        toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
+        toinvTohemId:
+            receiptEntity.toinvTohemId ?? employee.docId, // get di sini
         refpos1: tcsr1IdPref, // get di sini
         refpos2: '', //
         tcsr1Id: tcsr1IdPref, // get di sini

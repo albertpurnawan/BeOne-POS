@@ -262,7 +262,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  Future<void> updateTohemIdRemarks(
+  Future<void> updateTohemIdRemarksOnReceiptItem(
       String tohemId, String remarks, int index) async {
     final newReceiptItem = state.receiptItems[index].copyWith(
       remarks: remarks,
@@ -274,6 +274,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState = state.copyWith(
       receiptItems: newReceiptItems,
     );
+    emit(newState);
+  }
+
+  Future<void> updateTohemIdRemarksOnReceipt(
+      String tohemId, String remarks) async {
+    final newState = state.copyWith(
+      remarks: remarks,
+      toinvTohemId: tohemId,
+    );
+
     emit(newState);
   }
 

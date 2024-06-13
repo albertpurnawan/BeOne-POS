@@ -22,6 +22,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
@@ -1098,14 +1099,20 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                              onPressed: null,
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      InvoiceDetailsDialog(),
+                                );
+                              },
                               style: OutlinedButton.styleFrom(
                                 elevation: 5,
                                 shadowColor: Colors.black87,
                                 padding:
                                     const EdgeInsets.fromLTRB(10, 3, 10, 3),
                                 foregroundColor: Colors.white,
-                                backgroundColor: ProjectColors.lightBlack,
+                                backgroundColor: ProjectColors.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5),
                                 ),

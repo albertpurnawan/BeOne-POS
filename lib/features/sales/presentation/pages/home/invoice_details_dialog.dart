@@ -6,19 +6,18 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
-import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 
-class ItemDetailsDialog extends StatefulWidget {
-  final int indexSelected;
-  const ItemDetailsDialog({super.key, required this.indexSelected});
+class InvoiceDetailsDialog extends StatefulWidget {
+  const InvoiceDetailsDialog({super.key});
 
   @override
-  State<ItemDetailsDialog> createState() => _ItemDetailsDialogState();
+  State<InvoiceDetailsDialog> createState() => _InvoiceDetailsDialogState();
 }
 
-class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
+class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _noteController = TextEditingController();
   String? salesSelected;
@@ -27,10 +26,9 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
   @override
   void initState() {
     super.initState();
-    final ReceiptItemEntity stateItem =
-        context.read<ReceiptCubit>().state.receiptItems[widget.indexSelected];
-    _noteController.text = stateItem.remarks ?? "";
-    tohemIdSelected = stateItem.tohemId;
+    final ReceiptEntity stateInvoice = context.read<ReceiptCubit>().state;
+    _noteController.text = stateInvoice.remarks ?? "";
+    tohemIdSelected = stateInvoice.toinvTohemId;
     getEmployee(tohemIdSelected ?? "");
   }
 
@@ -51,9 +49,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final ReceiptItemEntity stateItem =
-        context.read<ReceiptCubit>().state.receiptItems[(widget.indexSelected)];
-
+    final ReceiptEntity stateInvoice = context.read<ReceiptCubit>().state;
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
@@ -66,7 +62,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
         ),
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
-          'Item Details',
+          'Invoice Details',
           style: TextStyle(
               fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
@@ -91,7 +87,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                 child: Column(
                   children: [
                     Text(
-                      (stateItem.itemEntity.itemName),
+                      (stateInvoice.docNum),
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: Color.fromARGB(255, 66, 66, 66),
@@ -262,10 +258,9 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                               onPressed: () {
                                 context
                                     .read<ReceiptCubit>()
-                                    .updateTohemIdRemarksOnReceiptItem(
+                                    .updateTohemIdRemarksOnReceipt(
                                         tohemIdSelected ?? "",
-                                        _noteController.text,
-                                        widget.indexSelected);
+                                        _noteController.text);
                                 Navigator.of(context).pop();
                               },
                               child: Center(
