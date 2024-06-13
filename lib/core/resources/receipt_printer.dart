@@ -8,15 +8,10 @@ import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
-import 'package:thermal_printer/esc_pos_utils_platform/src/commands.dart';
-import 'package:thermal_printer/esc_pos_utils_platform/src/enums.dart';
 import 'package:thermal_printer/thermal_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
-import 'package:thermal_printer/thermal_printer.dart';
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter;
@@ -421,7 +416,7 @@ class ReceiptPrinter {
         connectedTCP = await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
             model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
-        if (!connectedTCP) print(' --- please review your connection ---');
+        if (!connectedTCP) log(' --- please review your connection ---');
         break;
       default:
     }
@@ -751,7 +746,7 @@ class ReceiptPrinter {
         connectedTCP = await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
             model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
-        if (!connectedTCP) print(' --- please review your connection ---');
+        if (!connectedTCP) log(' --- please review your connection ---');
         pendingTask = null;
         break;
       default:

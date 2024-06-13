@@ -333,6 +333,79 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                       Container(
                         constraints: const BoxConstraints(maxWidth: 400),
                         child: CustomInput(
+                          onEditingComplete: () async {
+                            if (!formKey.currentState!.validate()) return;
+
+                            final prefs = GetIt.instance<SharedPreferences>();
+                            await prefs.setBool('isOpen', true);
+
+                            final inputText =
+                                openValueController.text.replaceAll(',', '');
+                            final double inputValue =
+                                double.tryParse(inputText) ?? 0.0;
+
+                            final store = await GetIt.instance<AppDatabase>()
+                                .storeMasterDao
+                                .readAll();
+                            final storeCode = store[0].storeCode;
+                            final date = DateTime.now();
+
+                            String formattedDate =
+                                DateFormat('yyMMddHHmmss').format(date);
+                            final countShift =
+                                await GetIt.instance<AppDatabase>()
+                                    .cashierBalanceTransactionDao
+                                    .readByDate(date);
+
+                            final number = ((countShift!.length) + 1)
+                                .toString()
+                                .padLeft(3, '0');
+                            final docnum =
+                                '$storeCode-$formattedDate-$number-S';
+
+                            final shiftId = const Uuid().v4();
+
+                            final CashierBalanceTransactionModel shift =
+                                CashierBalanceTransactionModel(
+                              docId: shiftId,
+                              createDate: DateTime.now(),
+                              updateDate: DateTime.now(),
+                              tocsrId: widget.cashRegister?.docId,
+                              tousrId: widget.user?.docId,
+                              docNum: docnum,
+                              openDate: DateTime.now(),
+                              openTime: DateTime.now(),
+                              calcDate: DateTime.utc(1970, 1, 1),
+                              calcTime: DateTime.utc(1970, 1, 1),
+                              closeDate: DateTime.utc(1970, 1, 1),
+                              closeTime: DateTime.utc(1970, 1, 1),
+                              timezone: "GMT+07",
+                              openValue: inputValue,
+                              calcValue: 0,
+                              cashValue: 0,
+                              closeValue: 0,
+                              openedbyId: widget.user?.docId,
+                              closedbyId: "",
+                              approvalStatus: 0,
+                              refpos: shiftId,
+                              syncToBos: 0,
+                            );
+                            _insertCashierBalanceTransaction(shift);
+
+                            await prefs.setString('tcsr1Id', shift.docId);
+
+                            final printOpenShiftUsecase =
+                                GetIt.instance<PrintOpenShiftUsecase>();
+                            await printOpenShiftUsecase.call(params: shift);
+                            await GetIt.instance<OpenCashDrawerUseCase>()
+                                .call();
+
+                            context.pop(shift);
+                            // if (!context.mounted) return;
+                            // if (context.mounted)
+                            //   context.pushNamed(RouteConstants.home);
+                          },
+                          autofocus: true,
                           controller: openValueController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {

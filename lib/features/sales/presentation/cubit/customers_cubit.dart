@@ -10,9 +10,10 @@ class CustomersCubit extends Cubit<List<CustomerEntity>> {
 
   CustomersCubit(this._getCustomersUseCase) : super([]);
 
-  void getCustomers({required String searchKeyword}) async {
-    final List<CustomerEntity> newState =
-        await _getCustomersUseCase.call(params: searchKeyword);
+  void getActiveCustomers({required String searchKeyword}) async {
+    final List<CustomerEntity> newState = await _getCustomersUseCase.call(
+        params: GetCustomersUseCaseParams(
+            searchKeyword: searchKeyword, statusActive: 1));
     emit(newState);
   }
 

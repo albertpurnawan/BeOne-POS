@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -147,20 +149,37 @@ import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_serv
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
+import 'package:pos_fe/features/syncdata/domain/usecases/check_credential_active_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+  /**
+   * =================================
+   * PACKAGE AND RESOURCES
+   * =================================
+   */
   sl.registerSingleton<Dio>(Dio());
+  sl.registerSingleton<GoRouter>(AppRouter().router);
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
   sl.registerSingleton<Uuid>(const Uuid());
   sl.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
   sl.registerSingletonAsync<ReceiptPrinter>(() => ReceiptPrinter.init(),
       dependsOn: [SharedPreferences]);
+  /**
+   * =================================
+   * END OF PACKAGE AND RESOURCES
+   * =================================
+   */
 
+  /**
+   * =================================
+   * APIs
+   * =================================
+   */
   sl.registerSingleton<TokenApi>(TokenApi(sl()));
   sl.registerSingleton<UoMApi>(UoMApi(sl()));
   sl.registerSingleton<AuthorizationApi>(AuthorizationApi(sl()));
@@ -256,7 +275,20 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
   sl.registerSingleton<BillOfMaterialLineItemApi>(
       BillOfMaterialLineItemApi(sl()));
+  sl.registerSingletonWithDependencies<MOPAdjustmentService>(
+      () => MOPAdjustmentService(sl(), sl()),
+      dependsOn: [SharedPreferences]);
+  /**
+   * =================================
+   * END OF APIs
+   * =================================
+   */
 
+  /**
+   * =================================
+   * REPOSITORIES
+   * =================================
+   */
   sl.registerSingletonWithDependencies<ItemRepository>(
       () => ItemRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
@@ -302,7 +334,17 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<CustomerGroupRepository>(
       () => CustomerGroupRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  /**
+   * =================================
+   * END OF REPOSITORIES
+   * =================================
+   */
 
+  /**
+   * =================================
+   * USECASES
+   * =================================
+   */
   sl.registerSingletonWithDependencies<GetItemsUseCase>(
       () => GetItemsUseCase(sl()),
       dependsOn: [AppDatabase]);
@@ -384,7 +426,6 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<GetEmployeesUseCase>(
       () => GetEmployeesUseCase(sl()),
       dependsOn: [AppDatabase]);
-
   sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());
   sl.registerSingleton<HandleWithoutPromosUseCase>(
       HandleWithoutPromosUseCase());
@@ -421,10 +462,15 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(
       () => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
-  sl.registerSingletonWithDependencies<MOPAdjustmentService>(
-      () => MOPAdjustmentService(sl(), sl()),
-      dependsOn: [SharedPreferences]);
   sl.registerSingleton<ApplyRoundingUseCase>(ApplyRoundingUseCase());
+  sl.registerSingletonWithDependencies<CheckCredentialActiveStatusUseCase>(
+      () => CheckCredentialActiveStatusUseCase(sl()),
+      dependsOn: [SharedPreferences]);
+  /**
+   * =================================
+   * END OF USECASES
+   * =================================
+   */
 
   return;
 }

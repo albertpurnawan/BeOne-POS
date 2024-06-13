@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 
 class SnackBarHelper {
-  static void presentErrorSnackBar(BuildContext context, String message) {
+  static void presentErrorSnackBar(BuildContext? context, String message) {
+    if (context == null) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(
         mainAxisSize: MainAxisSize.min,
@@ -36,7 +39,10 @@ class SnackBarHelper {
     ));
   }
 
-  static void presentFailSnackBar(BuildContext context, String message) {
+  static void presentFailSnackBar(BuildContext? context, String message) {
+    if (context == null) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(
         mainAxisSize: MainAxisSize.min,
@@ -70,7 +76,9 @@ class SnackBarHelper {
     ));
   }
 
-  static void presentSuccessSnackBar(BuildContext context, String message) {
+  static void presentSuccessSnackBar(BuildContext? context, String message) {
+    if (context == null) return;
+
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(

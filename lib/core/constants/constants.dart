@@ -9,7 +9,7 @@ class Constant {
   static String month = '*';
   static String day = '*';
   static String hour = '*';
-  static String minute = '*/5';
+  static String minute = '*/2';
   static String second = '*';
 
   //TENANTID

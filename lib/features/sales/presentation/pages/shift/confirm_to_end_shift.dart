@@ -35,7 +35,9 @@ class ConfirmToEndShift extends StatelessWidget {
           .readByTousrId(user.docId, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
-        if (user.password == hashedPassword) {
+        if (tastr.statusActive != 1) {
+          check = "Unauthorized";
+        } else if (user.password == hashedPassword) {
           check = "Success";
         } else {
           check = "Wrong Password";

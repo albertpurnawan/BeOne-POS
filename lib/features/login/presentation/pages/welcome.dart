@@ -18,7 +18,6 @@ class WelcomeScreen extends StatefulWidget {
     // final api = Api.of(context);
     final prefs = GetIt.instance<SharedPreferences>();
     bool isLoggedIn = prefs.getBool('logStatus') ?? false;
-    bool isOpen = prefs.getBool('isOpen') ?? false;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -32,9 +31,9 @@ class WelcomeScreen extends StatefulWidget {
                   const BeOneLogo(size: 90),
                   const SizedBox(height: 50),
                   Container(
-                    constraints: BoxConstraints(maxWidth: 400),
+                    constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: Text("Login"),
+                      child: const Text("Login"),
                       onTap: () async {
                         if (isLoggedIn == false) {
                           context.pushNamed(RouteConstants.login);
@@ -80,16 +79,16 @@ class WelcomeScreen extends StatefulWidget {
                   //   //     Helpers.navigate(context, ForgotPasswordScreen()),
                   // ),
                   Container(
-                    constraints: BoxConstraints(maxWidth: 400),
+                    constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: Text("Sync BOS"),
+                      child: const Text("Sync BOS"),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => FetchScreen()),
+                              builder: (context) => const FetchScreen()),
                         ).then((value) => Future.delayed(
-                            Duration(milliseconds: 200),
+                            const Duration(milliseconds: 200),
                             () => SystemChrome.setSystemUIOverlayStyle(
                                 const SystemUiOverlayStyle(
                                     statusBarColor: ProjectColors.primary,
@@ -101,16 +100,16 @@ class WelcomeScreen extends StatefulWidget {
                   ),
                   const SizedBox(height: 10),
                   Container(
-                    constraints: BoxConstraints(maxWidth: 400),
+                    constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: Text("Setup Device"),
+                      child: const Text("Setup Device"),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => SettingsScreen()),
+                              builder: (context) => const SettingsScreen()),
                         ).then((value) => Future.delayed(
-                            Duration(milliseconds: 200),
+                            const Duration(milliseconds: 200),
                             () => SystemChrome.setSystemUIOverlayStyle(
                                 const SystemUiOverlayStyle(
                                     statusBarColor: ProjectColors.primary,
@@ -208,7 +207,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     return Scaffold(
       body: Container(
-        color: Color.fromARGB(255, 234, 234, 234),
+        color: const Color.fromARGB(255, 234, 234, 234),
         child: WelcomeScreen.welcomingButtons(context),
       ),
     );
