@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
@@ -34,19 +35,31 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   Future<ReceiptModel?> createInvoiceHeaderAndDetail(
       ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
-    final String generatedPayMeanDocId = _uuid.v4();
-    final String generatedVoucherDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
+
+    final prefs = GetIt.instance<SharedPreferences>();
+    final tcsr1IdPref = prefs.getString('tcsr1Id');
+    final tohemIdPref = prefs.getString('tohemId');
+
+    int countInv;
+    final now = DateTime.now();
+    final startDate = DateTime(now.year, now.month, now.day, 00, 00, 00, 000);
+    final endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+
+    final invoices =
+        await _appDatabase.invoiceHeaderDao.readBetweenDate(startDate, endDate);
+    if (invoices != null) {
+      countInv = invoices.length;
+    } else {
+      countInv = 0;
+    }
 
     await db.transaction((txn) async {
       final POSParameterModel posParameterModel =
           (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
 
       final EmployeeModel employee =
-          (await _appDatabase.employeeDao.readByEmpCode("99", txn))!;
-
-      final prefs = GetIt.instance<SharedPreferences>();
-      final tcsr1IdPref = prefs.getString('tcsr1Id');
+          (await _appDatabase.employeeDao.readByDocId(tohemIdPref!, txn))!;
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -54,12 +67,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         updateDate: null, // null kah? ini kan bosr punya
         tostrId: posParameterModel.tostrId, // get di sini
         docnum: receiptEntity.docNum, // generate
-        orderNo: 1, // generate
+        orderNo: countInv + 1, // generate
         tocusId: receiptEntity.customerEntity?.docId,
         tohemId: employee.docId, // get di sini atau dari awal aja
         transDateTime: null, // dao
-        timezone: "GMT+07",
-        remarks: null, // sementara hardcode
+        timezone: Helpers.getTimezone(DateTime.now()),
+        remarks: receiptEntity.remarks,
         subTotal: receiptEntity.subtotal,
         discPrctg: receiptEntity.discPrctg ?? 0,
         discAmount: (receiptEntity.discHeaderManual ?? 0) +
@@ -78,7 +91,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docStatus: 0,
         sync: 0,
         syncCRM: 0,
-        toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
+        toinvTohemId:
+            receiptEntity.toinvTohemId ?? employee.docId, // get di sini
         refpos1: tcsr1IdPref, // get di sini
         refpos2: '', //
         tcsr1Id: tcsr1IdPref, // get di sini
@@ -102,9 +116,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           createDate: null, // null
           updateDate: null, // null
           toinvId: generatedInvoiceHeaderDocId, // get lagi yg created?
-          lineNum: index, // pakai index
+          lineNum: index + 1, // pakai index
           docNum: receiptEntity.docNum, // generate
-          idNumber: 10, // ? harcode dulu
+          idNumber: (index + 1) * 10,
           toitmId: e.itemEntity.toitmId,
           quantity: e.quantity,
           sellingPrice: e.sellingPrice,
@@ -118,7 +132,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           promotionId: e.promos.isEmpty
               ? ""
               : e.promos.first.promoId.toString(), // kalau promo > 1?
-          remarks: null,
+          remarks: e.remarks,
           editTime: DateTime.now(), // ?
           cogs: 0,
           tovatId: e.itemEntity.tovatId, // get disini/dari sales page
@@ -131,7 +145,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           tbitmId: e.itemEntity.tbitmId,
           discHeaderAmount: e.discHeaderAmount, //get disini
           subtotalAfterDiscHeader: e.subtotalAfterDiscHeader, //get disini
-          tohemId: "", // get tohemId from selected tohem
+          tohemId: e.tohemId ?? "",
         );
       }).toList();
 

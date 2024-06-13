@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:sqflite/sqflite.dart';
 
 class EmployeeDao extends BaseDao<EmployeeModel> {
+  String statusActive = "AND statusactive = 1";
   EmployeeDao(Database db)
       : super(
             db: db,
@@ -47,9 +50,9 @@ class EmployeeDao extends BaseDao<EmployeeModel> {
       {String? searchKeyword, Transaction? txn}) async {
     final result = await db.query(tableName,
         where:
-            "${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?",
+            "(${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?) $statusActive",
         whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
-
+    log("(${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?) $statusActive");
     return result.map((itemData) => EmployeeModel.fromMap(itemData)).toList();
   }
 }

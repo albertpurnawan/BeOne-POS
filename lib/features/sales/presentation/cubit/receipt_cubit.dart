@@ -7,11 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
-import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
@@ -265,6 +263,31 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
+  Future<void> updateTohemIdRemarksOnReceiptItem(
+      String tohemId, String remarks, int index) async {
+    final newReceiptItem = state.receiptItems[index].copyWith(
+      remarks: remarks,
+      tohemId: tohemId,
+    );
+    final newReceiptItems = List<ReceiptItemEntity>.from(state.receiptItems);
+    newReceiptItems[index] = newReceiptItem;
+
+    final newState = state.copyWith(
+      receiptItems: newReceiptItems,
+    );
+    emit(newState);
+  }
+
+  Future<void> updateTohemIdRemarksOnReceipt(
+      String tohemId, String remarks) async {
+    final newState = state.copyWith(
+      remarks: remarks,
+      toinvTohemId: tohemId,
+    );
+
+    emit(newState);
+  }
+
   Future<void> updateCustomer(
       CustomerEntity customerEntity, BuildContext context) async {
     if (state.previousReceiptEntity != null &&
@@ -282,6 +305,26 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
     emit(state.copyWith(
         customerEntity: customerEntity,
+        previousReceiptEntity: state.previousReceiptEntity));
+  }
+
+  Future<void> updateEmployee(
+      EmployeeEntity employeeEntity, BuildContext context) async {
+    if (state.previousReceiptEntity != null &&
+        state.employeeEntity?.docId != employeeEntity.docId) {
+      final bool? isProceed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => ConfirmResetPromoDialog(),
+      );
+      if (isProceed == null) return;
+      if (!isProceed) return;
+
+      return emit(state.previousReceiptEntity!
+          .copyWith(employeeEntity: employeeEntity));
+    }
+    emit(state.copyWith(
+        employeeEntity: employeeEntity,
         previousReceiptEntity: state.previousReceiptEntity));
   }
 
