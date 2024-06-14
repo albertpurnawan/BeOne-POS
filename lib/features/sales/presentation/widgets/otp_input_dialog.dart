@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 
 class OTPInputDialog extends StatefulWidget {
@@ -116,7 +117,11 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                       width: 60,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       child: TextField(
+                        focusNode: index == 0 ? _otpFocusNode : null,
                         controller: _otpControllers[index],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                        ],
                         maxLength: 1,
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
