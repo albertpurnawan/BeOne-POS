@@ -33,7 +33,6 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     isAndYCondition = widget.toprb.getCondition == 1;
     remainingQty = isAndYCondition ? 0 : widget.toprb.maxGet;
@@ -99,7 +98,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
               ),
               Text(
                 '${widget.loopTracker.currentLoop}/${widget.loopTracker.totalLoop}',
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w500,
                     color: Colors.white),
@@ -118,14 +117,14 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
             useMaterial3: true,
           ),
           child: Container(
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             width: MediaQuery.of(context).size.width * 0.65,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               // crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ...[
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   Row(
@@ -134,12 +133,12 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 15,
                           ),
                           Text(
                             "Get Items (${isAndYCondition ? "AND" : "OR"})",
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 22, fontWeight: FontWeight.w700),
                           ),
                         ],
@@ -147,7 +146,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               color: remainingQty > 0
@@ -159,19 +158,19 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
+                                const Text(
                                   "Remaining Get Qty.",
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
                                 Text(
                                   Helpers.cleanDecimal(remainingQty, 5),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white),
@@ -179,19 +178,18 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                               ],
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 30,
                           )
                         ],
                       )
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   )
                 ],
                 ...widget.conditionAndItemYs.asMap().entries.map((entry) {
-                  int index = entry.key;
                   final PromoBuyXGetYGetConditionAndItemEntity
                       conditionAndItemY = entry.value;
                   return Column(

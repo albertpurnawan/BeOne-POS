@@ -22,7 +22,6 @@ class _ConfirmResetVouchersDialogState
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
@@ -72,10 +71,10 @@ class _ConfirmResetVouchersDialogState
               "assets/images/caution.png",
               width: 80,
             ),
-            SizedBox(
+            const SizedBox(
               width: 30,
             ),
-            Container(
+            SizedBox(
               width: 400,
               child: RichText(
                 text: const TextSpan(
@@ -139,7 +138,7 @@ class _ConfirmResetVouchersDialogState
                       ),
                     ),
                   )),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Expanded(

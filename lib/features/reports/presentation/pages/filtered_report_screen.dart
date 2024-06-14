@@ -86,7 +86,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   width: 100,
                                   height: 30,
                                   child: Text(
@@ -98,7 +98,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 20,
                                   height: 30,
                                   child: Text(
@@ -121,7 +121,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                               DateTime.now().toLocal())
                                           : '${selectedFromDate!.toLocal()}'
                                               .split(' ')[0],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: ProjectColors.mediumBlack,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
@@ -131,10 +131,10 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Row(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   width: 100,
                                   height: 30,
                                   child: Text(
@@ -146,7 +146,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 20,
                                   height: 30,
                                   child: Text(
@@ -169,7 +169,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                               DateTime.now().toLocal())
                                           : '${selectedToDate!.toLocal()}'
                                               .split(' ')[0],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: ProjectColors.mediumBlack,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
@@ -182,7 +182,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(width: 20),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -190,7 +190,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                           children: [
                             Row(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   width: 100,
                                   height: 30,
                                   child: Text(
@@ -202,7 +202,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 20,
                                   height: 30,
                                   child: Text(
@@ -222,12 +222,12 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     isExpanded: true,
                                     icon: null,
                                     elevation: 18,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: ProjectColors.mediumBlack,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
                                     ),
-                                    underline: SizedBox(),
+                                    underline: const SizedBox(),
                                     onChanged: (String? newValue) {
                                       setState(() {
                                         selectedFilter = newValue!;
@@ -245,7 +245,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Row(
                               children: [
                                 SizedBox(

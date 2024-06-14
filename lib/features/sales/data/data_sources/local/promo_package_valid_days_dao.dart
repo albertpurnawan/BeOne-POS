@@ -27,7 +27,7 @@ class PromoPackageValidDaysDao extends BaseDao<PromoPackageValidDaysModel> {
   @override
   Future<List<PromoPackageValidDaysModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => PromoPackageValidDaysModel.fromMap(itemData))

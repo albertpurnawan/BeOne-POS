@@ -27,16 +27,17 @@ class ReceiptContentDao extends BaseDao<ReceiptContentModel> {
   @override
   Future<List<ReceiptContentModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => ReceiptContentModel.fromMap(itemData))
         .toList();
   }
 
+  @override
   Future<void> deleteAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.delete(tableName);
+    await dbExecutor.delete(tableName);
 
     return;
   }

@@ -1,7 +1,7 @@
-import 'package:pos_fe/core/resources/error_handler.dart';
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
-import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -51,7 +51,7 @@ class PrintReceiptUseCase implements UseCase<void, ReceiptEntity?> {
 
       await _receiptPrinter.printReceipt(printReceiptDetail);
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 }

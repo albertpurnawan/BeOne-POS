@@ -9,7 +9,6 @@ class GetItemByBarcodeUseCase implements UseCase<ItemEntity?, String> {
 
   @override
   Future<ItemEntity?> call({String? params}) {
-    // TODO: implement call
     return _itemRepository.getItemByBarcode(params!);
   }
 }

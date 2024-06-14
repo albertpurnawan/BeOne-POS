@@ -9,7 +9,6 @@ class CheckVoucherUseCase implements UseCase<VouchersSelectionEntity, String?> {
 
   @override
   Future<VouchersSelectionEntity> call({String? params}) {
-    // TODO: implement call
     return _vouchersSelectionRepository.checkVoucher(params!);
   }
 }

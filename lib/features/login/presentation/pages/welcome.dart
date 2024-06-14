@@ -14,9 +14,68 @@ import 'package:shared_preferences/shared_preferences.dart';
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
 
-  static Widget welcomingButtons(BuildContext context) {
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class LanguageSwitchButton extends StatelessWidget {
+  const LanguageSwitchButton({
+    Key? key,
+    this.color,
+  }) : super(key: key);
+
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
     // final api = Api.of(context);
-    final prefs = GetIt.instance<SharedPreferences>();
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ClickableText(
+          "Bahasa Indonesia",
+          textStyle: TextStyle(color: color, fontWeight: FontWeight.bold),
+          // onTap: () {
+          //   api
+          //     ..lang.changeLanguage("id")
+          //     ..rootState.refresh();
+          // },
+        ),
+        const SizedBox(width: 5),
+        ClickableText(
+          "English",
+          textStyle: TextStyle(color: color, fontWeight: FontWeight.bold),
+          // onTap: () {
+          //   api
+          //     ..lang.changeLanguage("en")
+          //     ..rootState.refresh();
+          // },
+        ),
+      ],
+    );
+  }
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  // bool isOpen = false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _checkShiftStatus();
+  // }
+
+  // Future<void> _checkShiftStatus() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     isOpen = prefs.getBool('isOpen') ?? false;
+  //   });
+  // }
+
+  final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  Widget welcomingButtons(BuildContext context) {
+    // final api = Api.of(context);
     bool isLoggedIn = prefs.getBool('logStatus') ?? false;
 
     return Container(
@@ -140,65 +199,6 @@ class WelcomeScreen extends StatefulWidget {
   }
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
-}
-
-class LanguageSwitchButton extends StatelessWidget {
-  const LanguageSwitchButton({
-    Key? key,
-    this.color,
-  }) : super(key: key);
-
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    // final api = Api.of(context);
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ClickableText(
-          "Bahasa Indonesia",
-          textStyle: TextStyle(color: color, fontWeight: FontWeight.bold),
-          // onTap: () {
-          //   api
-          //     ..lang.changeLanguage("id")
-          //     ..rootState.refresh();
-          // },
-        ),
-        const SizedBox(width: 5),
-        ClickableText(
-          "English",
-          textStyle: TextStyle(color: color, fontWeight: FontWeight.bold),
-          // onTap: () {
-          //   api
-          //     ..lang.changeLanguage("en")
-          //     ..rootState.refresh();
-          // },
-        ),
-      ],
-    );
-  }
-}
-
-class _WelcomeScreenState extends State<WelcomeScreen> {
-  // bool isOpen = false;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _checkShiftStatus();
-  // }
-
-  // Future<void> _checkShiftStatus() async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     isOpen = prefs.getBool('isOpen') ?? false;
-  //   });
-  // }
-
-  @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: ProjectColors.primary,
@@ -208,7 +208,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       body: Container(
         color: const Color.fromARGB(255, 234, 234, 234),
-        child: WelcomeScreen.welcomingButtons(context),
+        child: welcomingButtons(context),
       ),
     );
   }

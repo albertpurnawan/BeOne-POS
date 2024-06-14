@@ -25,7 +25,7 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
   @override
   Future<List<ItemMasterModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
   }
@@ -33,8 +33,8 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
   Future<List<ItemMasterModel>> readAllByTocatId(
       {required String tocatId, Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result =
-        await db.query(tableName, where: "tocatId = ?", whereArgs: [tocatId]);
+    final result = await dbExecutor
+        .query(tableName, where: "tocatId = ?", whereArgs: [tocatId]);
 
     return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
   }

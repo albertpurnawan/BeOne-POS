@@ -137,7 +137,7 @@ class FetchScreen extends StatefulWidget {
   const FetchScreen({Key? key}) : super(key: key);
 
   @override
-  _FetchScreenState createState() => _FetchScreenState();
+  State<FetchScreen> createState() => _FetchScreenState();
 }
 
 class _FetchScreenState extends State<FetchScreen> {
@@ -3406,35 +3406,35 @@ class _FetchScreenState extends State<FetchScreen> {
             }
           },
         ];
+
+        final nextSyncDate = DateTime.now().toUtc().toIso8601String();
+
+        final store = await (GetIt.instance<AppDatabase>()
+            .storeMasterDao
+            .readByDocId(singleTopos.tostrId!, null));
+
+        final strName = store?.storeName;
+
+        final toposData = POSParameterModel(
+          docId: toposId,
+          createDate: singleTopos.createDate,
+          updateDate: singleTopos.updateDate,
+          gtentId: singleTopos.gtentId,
+          tostrId: singleTopos.tostrId,
+          storeName: strName,
+          tocsrId: singleTopos.tocsrId,
+          baseUrl: singleTopos.baseUrl,
+          usernameAdmin: singleTopos.usernameAdmin,
+          passwordAdmin: singleTopos.passwordAdmin,
+          lastSync: nextSyncDate,
+        );
+        await GetIt.instance<AppDatabase>()
+            .posParameterDao
+            .update(docId: toposId, data: toposData);
+
         for (final fetchFunction in fetchFunctions) {
           try {
             await fetchFunction();
-
-            final nextSyncDate = DateTime.now().toUtc().toIso8601String();
-
-            final store = await (GetIt.instance<AppDatabase>()
-                .storeMasterDao
-                .readByDocId(singleTopos.tostrId!, null));
-
-            final strName = store?.storeName;
-
-            final toposData = POSParameterModel(
-              docId: toposId,
-              createDate: singleTopos.createDate,
-              updateDate: singleTopos.updateDate,
-              gtentId: singleTopos.gtentId,
-              tostrId: singleTopos.tostrId,
-              storeName: strName,
-              tocsrId: singleTopos.tocsrId,
-              baseUrl: singleTopos.baseUrl,
-              usernameAdmin: singleTopos.usernameAdmin,
-              passwordAdmin: singleTopos.passwordAdmin,
-              lastSync: nextSyncDate,
-            );
-
-            await GetIt.instance<AppDatabase>()
-                .posParameterDao
-                .update(docId: toposId, data: toposData);
           } catch (e) {
             handleError(e);
             rethrow;
@@ -3812,7 +3812,7 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
         prefs.setBool('isSyncing', false);
-        print('Data synced - $checkSync');
+        log('Data synced - $checkSync');
 
         // VALIDATE INACTIVE tostr, tocsr, tousr, tohem
         try {
@@ -3827,7 +3827,7 @@ class _FetchScreenState extends State<FetchScreen> {
         // END OF VALIDATE INACTIVE tostr, tohem, tocsr, tousr
       } catch (error, stack) {
         prefs.setBool('isSyncing', false);
-        print("Error synchronizing: $error");
+        log("Error synchronizing: $error");
         debugPrintStack(stackTrace: stack);
       }
     } else {
@@ -3836,96 +3836,96 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
-  Future<String> _fetchSingleData() async {
-    try {
-      return "";
-    } catch (error) {
-      handleError(error);
-      setState(() {
-        statusCode = handleError(error)['statusCode'];
-        errorMessage = handleError(error)['message'];
-        _clearErrorMessageAfterDelay();
-      });
-      rethrow;
-    }
-  }
+  // Future<String> _fetchSingleData() async {
+  //   try {
+  //     return "";
+  //   } catch (error) {
+  //     handleError(error);
+  //     setState(() {
+  //       statusCode = handleError(error)['statusCode'];
+  //       errorMessage = handleError(error)['message'];
+  //       _clearErrorMessageAfterDelay();
+  //     });
+  //     rethrow;
+  //   }
+  // }
 
-  void _clearErrorMessageAfterDelay() {
-    Future.delayed(Duration(seconds: 3), () {
-      setState(() {
-        statusCode = 0;
-        errorMessage = '';
-      });
-    });
-  }
+  // void _clearErrorMessageAfterDelay() {
+  //   Future.delayed(const Duration(seconds: 3), () {
+  //     setState(() {
+  //       statusCode = 0;
+  //       errorMessage = '';
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final List<String> entries = [
-      'Currency',
-      'Country',
-      'Province',
-      'Zipcode',
-      'Employee',
-      'Tax',
-      'Payment Type',
-      'MOP',
-      'Credit Card',
-      'Pricelist',
-      'Store',
-      'MOP By Store',
-      'Cash Register',
-      'Unit of Measurement',
-      'User Role',
-      'User',
-      'Pricelist Period',
-      'Item Category',
-      'Item',
-      'Item By Store',
-      'Item Barcode',
-      'Item Remarks',
-      'Vendor Group',
-      'Vendor',
-      'Preferred Vendor',
-      'Customer Group',
-      'Customer',
-      'Price By Item',
-      'Assign Price Member',
-      'Price By Item Barcode',
-      'Harga Special H',
-      'Harga Special B',
-      'Harga Special A',
-      'Harga Special C',
-      'Bonus Multi Item H',
-      'Bonus Multi Item B',
-      'Bonus Multi Item A',
-      'Bonus Multi Item G',
-      'Bonus Multi Item C',
-      'Diskon Iten H',
-      'Diskon Iten B',
-      'Diskon Iten A',
-      'Diskon Iten G',
-      'Diskon Iten C',
-      'Diskon Group Item H',
-      'Diskon Group Item A',
-      'Diskon Group Item G',
-      'Diskon Group Item C',
-      'Buy X Get Y H',
-      'Buy X Get Y B',
-      'Buy X Get Y A',
-      'Buy X Get Y G',
-      'Buy X Get Y C',
-      'Auth Store',
-      'Bill of Material',
-      'BoM Line Item',
-    ];
+    // final List<String> entries = [
+    //   'Currency',
+    //   'Country',
+    //   'Province',
+    //   'Zipcode',
+    //   'Employee',
+    //   'Tax',
+    //   'Payment Type',
+    //   'MOP',
+    //   'Credit Card',
+    //   'Pricelist',
+    //   'Store',
+    //   'MOP By Store',
+    //   'Cash Register',
+    //   'Unit of Measurement',
+    //   'User Role',
+    //   'User',
+    //   'Pricelist Period',
+    //   'Item Category',
+    //   'Item',
+    //   'Item By Store',
+    //   'Item Barcode',
+    //   'Item Remarks',
+    //   'Vendor Group',
+    //   'Vendor',
+    //   'Preferred Vendor',
+    //   'Customer Group',
+    //   'Customer',
+    //   'Price By Item',
+    //   'Assign Price Member',
+    //   'Price By Item Barcode',
+    //   'Harga Special H',
+    //   'Harga Special B',
+    //   'Harga Special A',
+    //   'Harga Special C',
+    //   'Bonus Multi Item H',
+    //   'Bonus Multi Item B',
+    //   'Bonus Multi Item A',
+    //   'Bonus Multi Item G',
+    //   'Bonus Multi Item C',
+    //   'Diskon Iten H',
+    //   'Diskon Iten B',
+    //   'Diskon Iten A',
+    //   'Diskon Iten G',
+    //   'Diskon Iten C',
+    //   'Diskon Group Item H',
+    //   'Diskon Group Item A',
+    //   'Diskon Group Item G',
+    //   'Diskon Group Item C',
+    //   'Buy X Get Y H',
+    //   'Buy X Get Y B',
+    //   'Buy X Get Y A',
+    //   'Buy X Get Y G',
+    //   'Buy X Get Y C',
+    //   'Auth Store',
+    //   'Bill of Material',
+    //   'BoM Line Item',
+    // ];
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 234, 234, 234),
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
-        title: Text('Sync Data'),
+        title: const Text('Sync Data'),
       ),
       body: Column(
         children: [
@@ -3963,7 +3963,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 //     },
                 //   ),
                 // ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Row(
@@ -3979,9 +3979,9 @@ class _FetchScreenState extends State<FetchScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => LogErrorScreen()),
+                                builder: (context) => const LogErrorScreen()),
                           ).then((value) => Future.delayed(
-                              Duration(milliseconds: 200),
+                              const Duration(milliseconds: 200),
                               () => SystemChrome.setSystemUIOverlayStyle(
                                   const SystemUiOverlayStyle(
                                       statusBarColor: ProjectColors.primary,
@@ -3993,19 +3993,19 @@ class _FetchScreenState extends State<FetchScreen> {
                           shape: MaterialStatePropertyAll(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(100),
-                              side: BorderSide(
+                              side: const BorderSide(
                                 color: ProjectColors.primary,
                                 width: 2,
                               ),
                             ),
                           ),
-                          backgroundColor: MaterialStatePropertyAll(
+                          backgroundColor: const MaterialStatePropertyAll(
                             Color.fromARGB(255, 234, 234, 234),
                           ),
-                          foregroundColor:
-                              MaterialStatePropertyAll(ProjectColors.primary),
+                          foregroundColor: const MaterialStatePropertyAll(
+                              ProjectColors.primary),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Logs',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
@@ -4014,7 +4014,7 @@ class _FetchScreenState extends State<FetchScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Stack(
@@ -4029,8 +4029,8 @@ class _FetchScreenState extends State<FetchScreen> {
                               value: syncProgress,
                               backgroundColor:
                                   const Color.fromARGB(255, 184, 183, 183),
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.teal),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.teal),
                             ),
                           ),
                         ),
@@ -4041,7 +4041,7 @@ class _FetchScreenState extends State<FetchScreen> {
                               syncProgress == 1.0
                                   ? "Data Synced: $totalData"
                                   : "${(syncProgress * 100).round().toString()}%",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -4050,7 +4050,7 @@ class _FetchScreenState extends State<FetchScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.1,
                       child: ElevatedButton(
@@ -4061,19 +4061,19 @@ class _FetchScreenState extends State<FetchScreen> {
                           shape: MaterialStatePropertyAll(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(100),
-                              side: BorderSide(
+                              side: const BorderSide(
                                 color: ProjectColors.primary,
                                 width: 2,
                               ),
                             ),
                           ),
-                          backgroundColor: MaterialStatePropertyAll(
+                          backgroundColor: const MaterialStatePropertyAll(
                             Color.fromARGB(255, 234, 234, 234),
                           ),
-                          foregroundColor:
-                              MaterialStatePropertyAll(ProjectColors.primary),
+                          foregroundColor: const MaterialStatePropertyAll(
+                              ProjectColors.primary),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Reset',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
@@ -4082,7 +4082,7 @@ class _FetchScreenState extends State<FetchScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.1,
                       child: ElevatedButton(
@@ -4094,13 +4094,13 @@ class _FetchScreenState extends State<FetchScreen> {
                           prefs.setBool('isSyncing', false);
                           manualSync();
                         },
-                        style: ButtonStyle(
+                        style: const ButtonStyle(
                           backgroundColor:
                               MaterialStatePropertyAll(ProjectColors.primary),
                           foregroundColor:
                               MaterialStatePropertyAll(Colors.white),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Sync',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,

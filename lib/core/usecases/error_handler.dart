@@ -1,7 +1,9 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 
 Map<String, dynamic> handleError(dynamic error) {
-  print('Error $error');
+  log('Error $error');
   Map<String, dynamic> resp = {'statusCode': 0, 'message': ''};
   if (error is DioException) {
     switch (error.type) {

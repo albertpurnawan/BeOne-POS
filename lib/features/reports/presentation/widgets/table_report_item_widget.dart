@@ -110,7 +110,7 @@ class _TableReportItemState extends State<TableReportItem> {
                           children: [
                             TableRow(
                               decoration:
-                                  BoxDecoration(color: ProjectColors.primary),
+                                  const BoxDecoration(color: ProjectColors.primary),
                               children: tableHead.map((header) {
                                 return TableCell(
                                   child: Container(

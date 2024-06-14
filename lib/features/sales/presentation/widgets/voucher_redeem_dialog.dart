@@ -1,9 +1,7 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -86,7 +84,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 width: 40,
                 child: Text(
                   "${isExisting ? index + 1 : index + 1 + context.read<ReceiptCubit>().state.vouchers.length}",
-                  style: TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(
@@ -95,7 +93,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
               Expanded(
                 child: Text(
                   voucher.serialNo,
-                  style: TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(
@@ -104,7 +102,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
               Expanded(
                 child: Text(
                   voucher.voucherAlias,
-                  style: TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(
@@ -115,28 +113,28 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     isExisting
-                        ? Icon(
+                        ? const Icon(
                             Icons.done_rounded,
                             size: 18,
                             weight: 2,
-                            color: const Color.fromARGB(255, 86, 147, 99),
+                            color: Color.fromARGB(255, 86, 147, 99),
                           )
-                        : SizedBox.shrink(),
+                        : const SizedBox.shrink(),
                     isExisting
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 10,
                           )
-                        : SizedBox.shrink(),
+                        : const SizedBox.shrink(),
                     Text(
                       Helpers.parseMoney(voucher.voucherAmount),
-                      style: TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 3,
           ),
         ]),
@@ -150,7 +148,6 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     try {
       final voucher = await GetIt.instance<VouchersSelectionApi>()
           .checkVoucher(serialNumber);
-      if (voucher == null) throw "Voucher not found";
       checkVoucher = voucher..tpmt3Id = widget.tpmt3Id;
       bool checkSerialNo = vouchers.any((v) => v.serialNo == voucher.serialNo);
       log("vouchertype ${widget.voucherType} checkVoucher ${checkVoucher.type}");
@@ -169,7 +166,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
           _voucherFocusNode.unfocus();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Voucher can\'t be used'),
             ),
           );
@@ -191,7 +188,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
       errMessage = err.toString();
       setState(() {});
 
-      Future.delayed(Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 2), () {
         isError = false;
         errMessage = "";
         setState(() {});
@@ -281,7 +278,6 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _voucherFocusNode.dispose();
     _voucherCheckController.dispose();
     _keyboardListenerFocusNode.dispose();
@@ -321,7 +317,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Row(
@@ -343,12 +339,13 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 24),
                     decoration: InputDecoration(
-                      constraints: BoxConstraints(minHeight: 48, maxHeight: 48),
-                      contentPadding: EdgeInsets.all(10),
+                      constraints:
+                          const BoxConstraints(minHeight: 48, maxHeight: 48),
+                      contentPadding: const EdgeInsets.all(10),
                       hintText: "Serial Number",
-                      hintStyle:
-                          TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
-                      border: OutlineInputBorder(),
+                      hintStyle: const TextStyle(
+                          fontStyle: FontStyle.italic, fontSize: 24),
+                      border: const OutlineInputBorder(),
                       prefixIcon: Icon(
                         Icons.confirmation_number_outlined,
                         size: 24,
@@ -367,10 +364,10 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                     },
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
-                Container(
+                SizedBox(
                     width: 80,
                     height: 48,
                     child: TextButton(
@@ -396,14 +393,14 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 ? const Text("")
                 : Text(
                     errMessage,
-                    style: TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red),
                   ),
             Row(children: [
-              SizedBox(
+              const SizedBox(
                 width: 140,
                 child: Text(
                   "Count",
-                  style: const TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               Text(
@@ -412,11 +409,11 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
               ),
             ]),
             Row(children: [
-              SizedBox(
+              const SizedBox(
                 width: 140,
                 child: Text(
                   "Total Amount",
-                  style: const TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               Text(
@@ -424,11 +421,11 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 style: const TextStyle(fontSize: 18),
               ),
             ]),
-            Divider(
+            const Divider(
               color: Colors.black,
             ),
             if (vouchers.isNotEmpty || receiptCubit.state.vouchers.isNotEmpty)
-              SizedBox(
+              const SizedBox(
                 width: double.infinity,
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Row(
@@ -443,7 +440,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                               color: ProjectColors.lightBlack),
                         ),
                       ),
-                      const SizedBox(
+                      SizedBox(
                         width: 15,
                       ),
                       Expanded(
@@ -455,7 +452,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                               color: ProjectColors.lightBlack),
                         ),
                       ),
-                      const SizedBox(
+                      SizedBox(
                         width: 15,
                       ),
                       Expanded(
@@ -467,7 +464,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                               color: ProjectColors.lightBlack),
                         ),
                       ),
-                      const SizedBox(
+                      SizedBox(
                         width: 15,
                       ),
                       Expanded(
@@ -490,7 +487,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 ]),
               ),
             if (vouchers.isNotEmpty || receiptCubit.state.vouchers.isNotEmpty)
-              SizedBox(
+              const SizedBox(
                 height: 7,
               ),
             Expanded(
@@ -504,7 +501,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                     children: [
                       if (vouchers.isEmpty &&
                           receiptCubit.state.vouchers.isEmpty)
-                        Padding(
+                        const Padding(
                           padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                           child: EmptyList(
                               height: 70,

@@ -23,7 +23,6 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _customerInputFocusNode.dispose();
     _textEditingControllerCustomer.dispose();
     super.dispose();
@@ -86,7 +85,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        contentPadding: EdgeInsets.all(0),
+        contentPadding: const EdgeInsets.all(0),
         content: Theme(
           data: ThemeData(
             splashColor: const Color.fromARGB(40, 169, 0, 0),
@@ -140,7 +139,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                   Expanded(
                     child: BlocBuilder<CustomersCubit, List<CustomerEntity>>(
                       builder: (context, state) {
-                        if (state.length == 0) {
+                        if (state.isEmpty) {
                           return const Expanded(
                               child: EmptyList(
                             imagePath: "assets/images/empty-search.svg",
@@ -149,7 +148,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                           ));
                         }
                         return ListView.builder(
-                            padding: EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(0),
                             itemCount: state.length,
                             itemBuilder: ((context, index) {
                               final CustomerEntity customerEntity =

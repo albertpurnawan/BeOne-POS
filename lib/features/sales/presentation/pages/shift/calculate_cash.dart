@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CalculateCash extends StatefulWidget {
   final Function(Map<String, dynamic>) setTotal;
 
-  const CalculateCash(this.setTotal, {Key? key}) : super(key: key);
+  const CalculateCash({super.key, required this.setTotal});
 
   @override
   State<CalculateCash> createState() => _CalculateCashState();
@@ -50,7 +50,6 @@ class _CalculateCashState extends State<CalculateCash> {
 
   @override
   void dispose() {
-    super.dispose();
     controller100k.dispose();
     controller50k.dispose();
     controller20k.dispose();
@@ -62,10 +61,10 @@ class _CalculateCashState extends State<CalculateCash> {
     controller200.dispose();
     controller100.dispose();
     controller50.dispose();
+    super.dispose();
   }
 
   void _changeTotalCash(List values) {
-    String totalCash = calculateTotalCash(values);
     widget.setTotal({
       '100k': controller100k.text,
       '50k': controller50k.text,
@@ -82,11 +81,11 @@ class _CalculateCashState extends State<CalculateCash> {
 
   @override
   Widget build(BuildContext context) {
-    double calculateContainerWidth(int maxLength, double fontSize) {
-      return (maxLength * 10) + (fontSize * 2);
-    }
+    // double calculateContainerWidth(int maxLength, double fontSize) {
+    //   return (maxLength * 10) + (fontSize * 2);
+    // }
 
-    double containerWidth = calculateContainerWidth(maxLength, 20);
+    // double containerWidth = calculateContainerWidth(maxLength, 20);
 
     String total100k = calculateTotal100k(
         controller100k.text.isEmpty ? '0' : controller100k.text);
@@ -146,9 +145,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller100k,
                 onChanged: (value) {
@@ -215,9 +212,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller50k,
                 onChanged: (value) {
@@ -284,9 +279,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller20k,
                 onChanged: (value) {
@@ -353,9 +346,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller10k,
                 onChanged: (value) {
@@ -422,9 +413,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller5k,
                 onChanged: (value) {
@@ -491,9 +480,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller2k,
                 onChanged: (value) {
@@ -560,9 +547,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller1k,
                 onChanged: (value) {
@@ -629,9 +614,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller500,
                 onChanged: (value) {
@@ -698,9 +681,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller200,
                 onChanged: (value) {
@@ -767,9 +748,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller100,
                 onChanged: (value) {
@@ -836,9 +815,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: TextFormField(
                 controller: controller50,
                 onChanged: (value) {
@@ -906,9 +883,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            SizedBox(
-              height: 30,
-              width: containerWidth,
+            Expanded(
               child: const Text(""),
             ),
             SizedBox(

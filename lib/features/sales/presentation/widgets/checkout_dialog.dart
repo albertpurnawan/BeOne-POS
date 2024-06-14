@@ -1,7 +1,6 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -132,7 +131,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         final transactionQris = await GetIt.instance<NetzmeApi>()
             .createTransactionQRIS(url, clientKey, clientSecret, privateKey,
                 serviceSignature, bodyDetail);
-        dev.log("$transactionQris");
+        dev.log(transactionQris);
 
         final ReceiptEntity receipt = context.read<ReceiptCubit>().state;
 
@@ -155,23 +154,21 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         // });
       } else {
         context.read<ReceiptCubit>().charge();
-        Future.delayed(Duration(milliseconds: 600), () {
+        Future.delayed(const Duration(milliseconds: 600), () {
           setState(() {
             isCharged = true;
           });
         });
       }
     } catch (e, s) {
-      print(e);
+      dev.log(e.toString());
       debugPrintStack(stackTrace: s);
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
-
     super.dispose();
   }
 
@@ -417,8 +414,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   String _value = "";
   int _cashAmount = 0;
   int _vouchersAmount = 0;
-  List<MopSelectionEntity> _voucherMopSelections = [];
-  List<VouchersSelectionEntity> _vouchers = [];
+  final List<MopSelectionEntity> _voucherMopSelections = [];
+  final List<VouchersSelectionEntity> _vouchers = [];
   List<MopSelectionEntity> mopSelectionModels = [];
   final _textEditingControllerCashAmount = TextEditingController();
   final _focusNodeCashAmount = FocusNode(
@@ -454,7 +451,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
           ),
         ],
         color: color == 1
-            ? Color.fromARGB(255, 11, 57, 84)
+            ? const Color.fromARGB(255, 11, 57, 84)
             // : const Color.fromARGB(255, 255, 102, 99),
             : const Color.fromARGB(255, 255, 149, 5),
       ),
@@ -592,7 +589,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                 Container(
                   width: double.infinity,
                   // color: const Color.fromARGB(255, 86, 147, 99),
-                  color: Color.fromARGB(255, 231, 231, 231),
+                  color: const Color.fromARGB(255, 231, 231, 231),
 
                   child: Center(
                     child: Row(
@@ -682,7 +679,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                   width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                   // color: const Color.fromARGB(255, 58, 104, 68),
-                  color: Color.fromARGB(255, 223, 223, 223),
+                  color: const Color.fromARGB(255, 223, 223, 223),
                   child: Row(
                     children: [
                       const Text(
@@ -1005,7 +1002,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                           contentPadding:
                                                               const EdgeInsets
                                                                   .all(0),
-                                                          content: Container(
+                                                          content: SizedBox(
                                                             height: MediaQuery.of(
                                                                         context)
                                                                     .size
@@ -1101,7 +1098,7 @@ class ChipLabelColor extends Color implements MaterialStateColor {
 }
 
 class _CheckoutSuccessDialogContent extends StatefulWidget {
-  const _CheckoutSuccessDialogContent({super.key});
+  const _CheckoutSuccessDialogContent();
 
   @override
   State<_CheckoutSuccessDialogContent> createState() =>
@@ -1112,7 +1109,6 @@ class __CheckoutSuccessDialogContentState
     extends State<_CheckoutSuccessDialogContent> {
   @override
   Widget build(BuildContext context) {
-    final ReceiptEntity state = context.read<ReceiptCubit>().state;
     dev.log("CHECKOUT STATE - ${context.read<ReceiptCubit>().state}");
     return Theme(
         data: ThemeData(

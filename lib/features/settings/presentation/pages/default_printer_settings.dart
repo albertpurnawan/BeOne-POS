@@ -1,15 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
-import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
@@ -351,7 +347,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
         connectedTCP = await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
             model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
-        if (!connectedTCP) print(' --- please review your connection ---');
+        if (!connectedTCP) log(' --- please review your connection ---');
         break;
       default:
     }
@@ -404,14 +400,14 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       appBar: AppBar(
         title: const Text('Default Printer'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Center(
-        child: Container(
+        child: SizedBox(
           width: 0.5 * MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -465,7 +461,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                   });
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Visibility(
@@ -511,7 +507,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                 constraints: BoxConstraints(
                     maxHeight: 0.5 * MediaQuery.of(context).size.height),
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(),
+                  padding: const EdgeInsets.symmetric(),
                   child: Column(
                     children: [
                       Column(
@@ -563,7 +559,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                                     selectedPrinter?.deviceName
                                             ? MaterialStateBorderSide
                                                 .resolveWith((states) {
-                                                states.map((e) => print(e));
+                                                states.map(
+                                                    (e) => log(e.toString()));
                                                 return const BorderSide(
                                                   color: Color.fromARGB(
                                                       255, 111, 111, 111),
@@ -571,7 +568,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                               })
                                             : MaterialStateBorderSide
                                                 .resolveWith((states) {
-                                                states.map((e) => print(e));
+                                                states.map(
+                                                    (e) => log(e.toString()));
                                                 return const BorderSide(
                                                   color: ProjectColors.primary,
                                                 );
@@ -635,8 +633,9 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                           padding: const EdgeInsets.only(top: 10.0),
                           child: OutlinedButton(
                             onPressed: () async {
-                              if (_ipController.text.isNotEmpty)
+                              if (_ipController.text.isNotEmpty) {
                                 setIpAddress(_ipController.text);
+                              }
                               _printReceiveTest();
                             },
                             child: const Padding(
@@ -652,7 +651,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Padding(
@@ -723,21 +722,20 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                     Expanded(
                       child: ElevatedButton(
                         style: ButtonStyle(
-                            padding: MaterialStatePropertyAll(
+                            padding: const MaterialStatePropertyAll(
                                 EdgeInsets.symmetric(vertical: 10)),
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5))),
+                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5))),
                             backgroundColor: selectedPrinter == null || _isConnected
                                 ? MaterialStateColor.resolveWith((states) =>
-                                    Color.fromARGB(255, 200, 200, 200))
+                                    const Color.fromARGB(255, 200, 200, 200))
                                 : MaterialStateColor.resolveWith(
                                     (states) => ProjectColors.primary),
                             foregroundColor: selectedPrinter == null || _isConnected
                                 ? MaterialStateColor.resolveWith((states) =>
-                                    Color.fromARGB(255, 111, 111, 111))
+                                    const Color.fromARGB(255, 111, 111, 111))
                                 : MaterialStateColor.resolveWith((states) =>
-                                    Color.fromARGB(255, 255, 255, 255)),
+                                    const Color.fromARGB(255, 255, 255, 255)),
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: selectedPrinter == null || _isConnected
                             ? null

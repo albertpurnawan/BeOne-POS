@@ -27,7 +27,7 @@ class CreditMemoDetailDao extends BaseDao<CreditMemoDetailModel> {
   @override
   Future<List<CreditMemoDetailModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => CreditMemoDetailModel.fromMap(itemData))

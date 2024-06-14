@@ -27,7 +27,7 @@ class CustomerAddressDao extends BaseDao<CustomerAddressModel> {
   @override
   Future<List<CustomerAddressModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => CustomerAddressModel.fromMap(itemData))

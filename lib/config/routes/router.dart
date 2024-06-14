@@ -7,6 +7,7 @@ import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
 import 'package:pos_fe/features/mop_adjustment/presentation/pages/mop_adjustment_screen.dart';
 import 'package:pos_fe/features/reports/presentation/pages/filtered_report_screen.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:pos_fe/features/settings/presentation/pages/settings.dart';
 
@@ -17,7 +18,7 @@ class AppRouter {
         name: RouteConstants.welcome,
         path: "/",
         pageBuilder: (context, state) {
-          return MaterialPage(
+          return const MaterialPage(
             child: WelcomeScreen(),
           );
         },
@@ -26,7 +27,7 @@ class AppRouter {
         name: RouteConstants.home,
         path: "/home",
         pageBuilder: (context, state) {
-          return MaterialPage(
+          return const MaterialPage(
             child: Scaffold(
               body: HomeScreen(),
             ),
@@ -48,7 +49,7 @@ class AppRouter {
         name: RouteConstants.sales,
         path: "/sales",
         pageBuilder: (context, state) {
-          return MaterialPage(
+          return const MaterialPage(
             child: SalesPage(),
           );
         },
@@ -76,6 +77,17 @@ class AppRouter {
         path: "/shifts",
         pageBuilder: (context, state) {
           return const MaterialPage(child: ShiftsList());
+        },
+      ),
+      GoRoute(
+        name: RouteConstants.closeShift,
+        path: "/shifts/close",
+        pageBuilder: (context, state) {
+          final Map<String, String> data = state.extra as Map<String, String>;
+          return MaterialPage(
+              child: CloseShiftScreen(
+                  shiftId: data["shiftId"] as String,
+                  username: data["username"]));
         },
       ),
       GoRoute(

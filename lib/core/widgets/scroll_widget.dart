@@ -24,14 +24,14 @@ class ScrollWidget extends StatelessWidget {
           child: SingleChildScrollView(
               controller: _controller,
               padding: padding,
-              child: child,
-              physics: const BouncingScrollPhysics()));
+              physics: const BouncingScrollPhysics(),
+              child: child));
     }
 
     return SingleChildScrollView(
         controller: controller,
         padding: padding,
-        child: child,
-        physics: const BouncingScrollPhysics());
+        physics: const BouncingScrollPhysics(),
+        child: child);
   }
 }

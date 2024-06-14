@@ -11,7 +11,6 @@ class GetCustomersUseCase
 
   @override
   Future<List<CustomerEntity>> call({GetCustomersUseCaseParams? params}) {
-    // TODO: implement call
     return _customerRepository.getCustomers(
         searchKeyword: params?.searchKeyword,
         statusActive: params?.statusActive);

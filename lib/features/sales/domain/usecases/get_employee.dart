@@ -11,7 +11,6 @@ class GetEmployeeUseCase implements UseCase<EmployeeEntity?, void> {
 
   @override
   Future<EmployeeEntity?> call({void params}) async {
-    // TODO: implement call
     final String? tohemId = _prefs.getString("tohemId");
     if (tohemId == null) return null;
     return await _employeeRepository.getEmployee(tohemId);

@@ -25,7 +25,7 @@ class PricelistDao extends BaseDao<PricelistModel> {
   @override
   Future<List<PricelistModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result.map((itemData) => PricelistModel.fromMap(itemData)).toList();
   }

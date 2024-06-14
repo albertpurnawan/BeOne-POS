@@ -1076,7 +1076,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         side: BorderSide.none,
                       ),
-                      child: Icon(Icons.delete_sweep_outlined),
+                      child: const Icon(Icons.delete_forever_outlined),
                     ),
                   ),
                 ),
@@ -1100,8 +1100,13 @@ class _SalesPageState extends State<SalesPage> {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) =>
-                                      InvoiceDetailsDialog(),
-                                );
+                                      const InvoiceDetailsDialog(),
+                                ).then((value) {
+                                  setState(() {
+                                    isEditingNewReceiptItemCode = true;
+                                    _newReceiptItemCodeFocusNode.requestFocus();
+                                  });
+                                });
                               },
                               style: OutlinedButton.styleFrom(
                                 elevation: 5,
@@ -1115,7 +1120,7 @@ class _SalesPageState extends State<SalesPage> {
                                 ),
                                 side: BorderSide.none,
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
@@ -1188,8 +1193,21 @@ class _SalesPageState extends State<SalesPage> {
                                               ItemDetailsDialog(
                                                   indexSelected:
                                                       indexIsSelect[0]),
-                                        );
-                                        setState(() {});
+                                        ).then((value) {
+                                          setState(() {
+                                            indexIsSelect = [-1, 0];
+                                            _textEditingControllerNewReceiptItemQuantity
+                                                .text = "1";
+                                            _textEditingControllerNewReceiptItemCode
+                                                .text = "";
+                                            _newReceiptItemQuantityFocusNode
+                                                .unfocus();
+                                            isUpdatingReceiptItemQty = false;
+                                            isEditingNewReceiptItemCode = true;
+                                            _newReceiptItemCodeFocusNode
+                                                .requestFocus();
+                                          });
+                                        });
                                       },
                                 style: OutlinedButton.styleFrom(
                                   elevation: 5,
@@ -1205,7 +1223,7 @@ class _SalesPageState extends State<SalesPage> {
                                   ),
                                   side: BorderSide.none,
                                 ),
-                                child: Row(
+                                child: const Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
@@ -2180,325 +2198,319 @@ class _SalesPageState extends State<SalesPage> {
 
               _newReceiptItemCodeFocusNode.requestFocus();
             });
+          } else {
+            _newReceiptItemCodeFocusNode.requestFocus();
           }
         },
-        child: Container(
-          child: Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          _numpadNumButton("7"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _numpadNumButton("8"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _numpadNumButton("9"),
-                        ],
-                      ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        _numpadNumButton("7"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _numpadNumButton("8"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _numpadNumButton("9"),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 10,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        _numpadNumButton("4"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _numpadNumButton("5"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _numpadNumButton("6")
+                      ],
                     ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          _numpadNumButton("4"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _numpadNumButton("5"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _numpadNumButton("6")
-                        ],
-                      ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        _numpadNumButton("1"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _numpadNumButton("2"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _numpadNumButton("3")
+                      ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          _numpadNumButton("1"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _numpadNumButton("2"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          _numpadNumButton("3")
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          _numpadNumButton("0"),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: SizedBox.expand(
-                              child: FilledButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if (!_newReceiptItemCodeFocusNode
-                                        .hasPrimaryFocus) {
-                                      _newReceiptItemCodeFocusNode
-                                          .requestFocus();
-                                      _textEditingControllerNewReceiptItemCode
-                                          .text = "00";
-                                    } else if (_newReceiptItemCodeFocusNode
-                                        .hasPrimaryFocus) {
-                                      _textEditingControllerNewReceiptItemCode
-                                          .text += "00";
-                                    }
-                                  });
-                                },
-                                style: FilledButton.styleFrom(
-                                    elevation: 5,
-                                    backgroundColor:
-                                        const Color.fromRGBO(48, 48, 48, 1),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                                child: const Text(
-                                  "00",
-                                  style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w700),
-                                ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        _numpadNumButton("0"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: SizedBox.expand(
+                            child: FilledButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (!_newReceiptItemCodeFocusNode
+                                      .hasPrimaryFocus) {
+                                    _newReceiptItemCodeFocusNode.requestFocus();
+                                    _textEditingControllerNewReceiptItemCode
+                                        .text = "00";
+                                  } else if (_newReceiptItemCodeFocusNode
+                                      .hasPrimaryFocus) {
+                                    _textEditingControllerNewReceiptItemCode
+                                        .text += "00";
+                                  }
+                                });
+                              },
+                              style: FilledButton.styleFrom(
+                                  elevation: 5,
+                                  backgroundColor:
+                                      const Color.fromRGBO(48, 48, 48, 1),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10))),
+                              child: const Text(
+                                "00",
+                                style: TextStyle(
+                                    fontSize: 32, fontWeight: FontWeight.w700),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
-              const SizedBox(width: 5),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: SizedBox.expand(
-                              child: FilledButton(
-                                onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode
-                                      .hasPrimaryFocus) {
-                                    final currentLength =
-                                        _textEditingControllerNewReceiptItemCode
-                                            .text.length;
-                                    if (currentLength == 0) return;
-                                    _textEditingControllerNewReceiptItemCode
-                                            .text =
-                                        _textEditingControllerNewReceiptItemCode
-                                            .text
-                                            .substring(0, currentLength - 1);
-                                  } else if (_newReceiptItemQuantityFocusNode
-                                      .hasPrimaryFocus) {
-                                    final currentLength =
-                                        _textEditingControllerNewReceiptItemQuantity
-                                            .text.length;
-                                    if (currentLength == 0) return;
-                                    _textEditingControllerNewReceiptItemQuantity
-                                            .text =
-                                        _textEditingControllerNewReceiptItemQuantity
-                                            .text
-                                            .substring(0, currentLength - 1);
-                                  }
-                                },
-                                style: FilledButton.styleFrom(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(3, 3, 6, 3),
-                                    elevation: 5,
-                                    backgroundColor:
-                                        const Color.fromRGBO(243, 0, 0, 1),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                                child: const Icon(
-                                  Icons.backspace_outlined,
-                                  size: 36,
-                                ),
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              flex: 1,
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: SizedBox.expand(
+                            child: FilledButton(
+                              onPressed: () {
+                                if (_newReceiptItemCodeFocusNode
+                                    .hasPrimaryFocus) {
+                                  final currentLength =
+                                      _textEditingControllerNewReceiptItemCode
+                                          .text.length;
+                                  if (currentLength == 0) return;
+                                  _textEditingControllerNewReceiptItemCode
+                                          .text =
+                                      _textEditingControllerNewReceiptItemCode
+                                          .text
+                                          .substring(0, currentLength - 1);
+                                } else if (_newReceiptItemQuantityFocusNode
+                                    .hasPrimaryFocus) {
+                                  final currentLength =
+                                      _textEditingControllerNewReceiptItemQuantity
+                                          .text.length;
+                                  if (currentLength == 0) return;
+                                  _textEditingControllerNewReceiptItemQuantity
+                                          .text =
+                                      _textEditingControllerNewReceiptItemQuantity
+                                          .text
+                                          .substring(0, currentLength - 1);
+                                }
+                              },
+                              style: FilledButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(3, 3, 6, 3),
+                                  elevation: 5,
+                                  backgroundColor:
+                                      const Color.fromRGBO(243, 0, 0, 1),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10))),
+                              child: const Icon(
+                                Icons.backspace_outlined,
+                                size: 36,
                               ),
                             ),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: SizedBox.expand(
-                              child: FilledButton(
-                                onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode
-                                      .hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemCode
-                                        .text = "";
-                                  } else if (_newReceiptItemQuantityFocusNode
-                                      .hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemQuantity
-                                        .text = "";
-                                  }
-                                },
-                                style: FilledButton.styleFrom(
-                                    elevation: 5,
-                                    backgroundColor:
-                                        const Color.fromRGBO(255, 113, 5, 1),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                                child: const Text(
-                                  "C",
-                                  style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w600),
-                                ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: SizedBox.expand(
+                            child: FilledButton(
+                              onPressed: () {
+                                if (_newReceiptItemCodeFocusNode
+                                    .hasPrimaryFocus) {
+                                  _textEditingControllerNewReceiptItemCode
+                                      .text = "";
+                                } else if (_newReceiptItemQuantityFocusNode
+                                    .hasPrimaryFocus) {
+                                  _textEditingControllerNewReceiptItemQuantity
+                                      .text = "";
+                                }
+                              },
+                              style: FilledButton.styleFrom(
+                                  elevation: 5,
+                                  backgroundColor:
+                                      const Color.fromRGBO(255, 113, 5, 1),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10))),
+                              child: const Text(
+                                "C",
+                                style: TextStyle(
+                                    fontSize: 32, fontWeight: FontWeight.w600),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: SizedBox.expand(
-                        child: FilledButton(
-                          onPressed: () async {
-                            if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                              await addUpdateReceiptItems(
-                                  AddUpdateReceiptItemsParams(
-                                      barcode:
-                                          _textEditingControllerNewReceiptItemCode
-                                              .text,
-                                      itemEntity: null,
-                                      quantity: double.parse(
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: SizedBox.expand(
+                      child: FilledButton(
+                        onPressed: () async {
+                          if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                            await addUpdateReceiptItems(
+                                AddUpdateReceiptItemsParams(
+                                    barcode:
+                                        _textEditingControllerNewReceiptItemCode
+                                            .text,
+                                    itemEntity: null,
+                                    quantity: double.parse(
+                                        _textEditingControllerNewReceiptItemQuantity
+                                            .text),
+                                    context: context,
+                                    onOpenPriceInputted: () => setState(() {
+                                          isEditingNewReceiptItemCode = true;
+                                          _newReceiptItemCodeFocusNode
+                                              .requestFocus();
+                                        })));
+                            setState(() {
+                              _textEditingControllerNewReceiptItemCode.text =
+                                  "";
+                              _textEditingControllerNewReceiptItemQuantity
+                                  .text = "1";
+                            });
+
+                            await scrollToReceiptItemByIndex(context
+                                    .read<ReceiptCubit>()
+                                    .state
+                                    .receiptItems
+                                    .length -
+                                1);
+                          } else if (isUpdatingReceiptItemQty) {
+                            await addUpdateReceiptItems(
+                                AddUpdateReceiptItemsParams(
+                                    barcode:
+                                        _textEditingControllerNewReceiptItemCode
+                                            .text,
+                                    itemEntity: null,
+                                    quantity: double.parse(
+                                        _textEditingControllerNewReceiptItemQuantity
+                                            .text),
+                                    context: context,
+                                    onOpenPriceInputted: () => setState(() {
+                                          isEditingNewReceiptItemCode = true;
+                                          _newReceiptItemCodeFocusNode
+                                              .requestFocus();
+                                        })));
+
+                            setState(() {
+                              indexIsSelect = [-1, 0];
+                              _textEditingControllerNewReceiptItemQuantity
+                                  .text = "1";
+                              _textEditingControllerNewReceiptItemCode.text =
+                                  "";
+                              _newReceiptItemQuantityFocusNode.unfocus();
+                              isUpdatingReceiptItemQty = false;
+                              isEditingNewReceiptItemCode = true;
+                              _newReceiptItemCodeFocusNode.requestFocus();
+                            });
+
+                            await scrollToReceiptItemByIndex(context
+                                    .read<ReceiptCubit>()
+                                    .state
+                                    .receiptItems
+                                    .length -
+                                1);
+                          } else if (_newReceiptItemQuantityFocusNode
+                              .hasPrimaryFocus) {
+                            setState(() {
+                              _textEditingControllerNewReceiptItemQuantity
+                                  .text = _textEditingControllerNewReceiptItemQuantity
+                                              .text ==
+                                          "" ||
+                                      double.parse(
+                                              _textEditingControllerNewReceiptItemQuantity
+                                                  .text) <=
+                                          0
+                                  ? "1"
+                                  : Helpers.cleanDecimal(
+                                      double.parse(
                                           _textEditingControllerNewReceiptItemQuantity
                                               .text),
-                                      context: context,
-                                      onOpenPriceInputted: () => setState(() {
-                                            isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
-                                          })));
-                              setState(() {
-                                _textEditingControllerNewReceiptItemCode.text =
-                                    "";
-                                _textEditingControllerNewReceiptItemQuantity
-                                    .text = "1";
-                              });
+                                      3);
 
-                              await scrollToReceiptItemByIndex(context
-                                      .read<ReceiptCubit>()
-                                      .state
-                                      .receiptItems
-                                      .length -
-                                  1);
-                            } else if (isUpdatingReceiptItemQty) {
-                              await addUpdateReceiptItems(
-                                  AddUpdateReceiptItemsParams(
-                                      barcode:
-                                          _textEditingControllerNewReceiptItemCode
-                                              .text,
-                                      itemEntity: null,
-                                      quantity: double.parse(
-                                          _textEditingControllerNewReceiptItemQuantity
-                                              .text),
-                                      context: context,
-                                      onOpenPriceInputted: () => setState(() {
-                                            isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
-                                          })));
-
-                              setState(() {
-                                indexIsSelect = [-1, 0];
-                                _textEditingControllerNewReceiptItemQuantity
-                                    .text = "1";
-                                _textEditingControllerNewReceiptItemCode.text =
-                                    "";
-                                _newReceiptItemQuantityFocusNode.unfocus();
-                                isUpdatingReceiptItemQty = false;
-                                isEditingNewReceiptItemCode = true;
-                                _newReceiptItemCodeFocusNode.requestFocus();
-                              });
-
-                              await scrollToReceiptItemByIndex(context
-                                      .read<ReceiptCubit>()
-                                      .state
-                                      .receiptItems
-                                      .length -
-                                  1);
-                            } else if (_newReceiptItemQuantityFocusNode
-                                .hasPrimaryFocus) {
-                              setState(() {
-                                _textEditingControllerNewReceiptItemQuantity
-                                    .text = _textEditingControllerNewReceiptItemQuantity
-                                                .text ==
-                                            "" ||
-                                        double.parse(
-                                                _textEditingControllerNewReceiptItemQuantity
-                                                    .text) <=
-                                            0
-                                    ? "1"
-                                    : Helpers.cleanDecimal(
-                                        double.parse(
-                                            _textEditingControllerNewReceiptItemQuantity
-                                                .text),
-                                        3);
-
-                                _newReceiptItemQuantityFocusNode.unfocus();
-                                isEditingNewReceiptItemQty = false;
-                                isEditingNewReceiptItemCode = true;
-                                _newReceiptItemCodeFocusNode.requestFocus();
-                              });
-                            }
-                          },
-                          style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.all(3),
-                              elevation: 5,
-                              backgroundColor:
-                                  const Color.fromRGBO(14, 68, 193, 1),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10))),
-                          child: const Text(
-                            "OK",
-                            style: TextStyle(
-                                fontSize: 32, fontWeight: FontWeight.w600),
-                          ),
+                              _newReceiptItemQuantityFocusNode.unfocus();
+                              isEditingNewReceiptItemQty = false;
+                              isEditingNewReceiptItemCode = true;
+                              _newReceiptItemCodeFocusNode.requestFocus();
+                            });
+                          }
+                        },
+                        style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.all(3),
+                            elevation: 5,
+                            backgroundColor:
+                                const Color.fromRGBO(14, 68, 193, 1),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        child: const Text(
+                          "OK",
+                          style: TextStyle(
+                              fontSize: 32, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
-                  ],
-                ),
-              )
-            ],
-          ),
+                  ),
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -2776,7 +2788,7 @@ class _SalesPageState extends State<SalesPage> {
                   isEditingNewReceiptItemCode = true;
                   _newReceiptItemCodeFocusNode.requestFocus();
                 }));
-      } else if (event.physicalKey == (PhysicalKeyboardKey.f3)) {
+      } else if (event.physicalKey == (PhysicalKeyboardKey.f4)) {
         setState(() {
           isEditingNewReceiptItemCode = false;
           isEditingNewReceiptItemQty = false;
@@ -2841,8 +2853,10 @@ class _SalesPageState extends State<SalesPage> {
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
       await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+      _newReceiptItemCodeFocusNode.requestFocus();
     } catch (e) {
-      SnackBarHelper.presentFailSnackBar(context, e.toString());
+      SnackBarHelper.presentFailSnackBar(params.context, e.toString());
+      _newReceiptItemCodeFocusNode.requestFocus();
     }
   }
 }

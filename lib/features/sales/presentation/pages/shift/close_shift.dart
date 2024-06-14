@@ -19,20 +19,12 @@ import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.da
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-class CloseShiftScreen extends StatefulWidget {
+class CloseShiftScreen extends StatelessWidget {
   final String shiftId;
   final String? username;
   const CloseShiftScreen({Key? key, required this.shiftId, this.username})
       : super(key: key);
 
-  @override
-  State<CloseShiftScreen> createState() =>
-      _CloseShiftScreenState(shiftId: shiftId);
-}
-
-class _CloseShiftScreenState extends State<CloseShiftScreen> {
-  final String shiftId;
-  _CloseShiftScreenState({required this.shiftId});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,15 +36,15 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
       ),
       body: ShaderMask(
         shaderCallback: (Rect rect) {
-          return LinearGradient(
+          return const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
               Color.fromARGB(134, 234, 234, 234),
-              const Color.fromARGB(43, 234, 234, 234),
+              Color.fromARGB(43, 234, 234, 234),
               Colors.transparent,
               Colors.transparent,
-              const Color.fromARGB(43, 234, 234, 234),
+              Color.fromARGB(43, 234, 234, 234),
               Color.fromARGB(134, 234, 234, 234),
             ],
             stops: [
@@ -69,7 +61,7 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
         // padding: EdgeInsets.symmetric(vertical: 20),
         // width: double.infinity,
         child: SingleChildScrollView(
-          clipBehavior: Clip.antiAliasWithSaveLayer,
+          // clipBehavior: Clip.antiAliasWithSaveLayer,
           padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.2,
               vertical: 40),
@@ -81,7 +73,7 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
                 const SizedBox(height: 10),
                 CloseShiftForm(
                   shiftId: shiftId,
-                  username: widget.username!,
+                  username: username!,
                 ),
               ],
             ),
@@ -99,22 +91,20 @@ class CloseShiftForm extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<CloseShiftForm> createState() => _CloseShiftFormState(shiftId: shiftId);
+  State<CloseShiftForm> createState() => _CloseShiftFormState();
 }
 
 class _CloseShiftFormState extends State<CloseShiftForm> {
-  final String shiftId;
+  late final String shiftId = widget.shiftId;
   CashierBalanceTransactionModel? activeShift;
   late List<InvoiceHeaderModel?> transactions = [];
-  late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCash = '0';
   String totalNonCash = '0';
   String totalSales = '0';
   String expectedCash = "0";
   String calculatedTotalCash = '0';
   Map<String, dynamic>? denomination;
-
-  _CloseShiftFormState({required this.shiftId});
 
   @override
   void initState() {
@@ -128,10 +118,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchData() async {
-    prefs = await SharedPreferences.getInstance();
     await fetchActiveShift();
     await fetchInvoices();
-    updateActiveShift();
+    await updateActiveShift();
   }
 
   Future<void> fetchActiveShift() async {
@@ -159,7 +148,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     });
   }
 
-  void updateActiveShift() async {
+  Future<void> updateActiveShift() async {
     if (activeShift != null && transactions.isNotEmpty) {
       double nonCash = 0.0;
       double salesAmount = 0.0;
@@ -235,7 +224,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   @override
   Widget build(BuildContext context) {
     if (activeShift == null) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     String formattedOpenDate =
@@ -246,6 +235,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     final cashier = prefs.getString('username');
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
@@ -296,7 +286,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 30,
         ),
         const Row(
@@ -469,7 +459,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           height: 20,
           color: Colors.grey,
         ),
-        CalculateCash(updateTotalCash),
+        CalculateCash(setTotal: updateTotalCash),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(
@@ -514,7 +504,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                         final nominal = int.parse(key.replaceAll('k', '000'));
                         final count = int.parse(value);
                         list.add(MoneyDenominationModel(
-                          docId: Uuid().v4(),
+                          docId: const Uuid().v4(),
                           createDate: DateTime.now(),
                           updateDate: DateTime.now(),
                           nominal: nominal,

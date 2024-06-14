@@ -1,14 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -30,7 +26,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getPosParameter();
   }
@@ -42,7 +37,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _scrollController.dispose();
     super.dispose();
   }
@@ -57,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 234, 234, 234),
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
         title: const Text('Settings'),
         backgroundColor: ProjectColors.primary,
@@ -66,16 +60,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: Center(
-          child: Container(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width * 0.6,
             child: Scrollbar(
               controller: _scrollController,
               thickness: 4,
-              radius: Radius.circular(30),
+              radius: const Radius.circular(30),
               thumbVisibility: true,
               child: SingleChildScrollView(
                 controller: _scrollController,
-                padding: EdgeInsets.symmetric(horizontal: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
@@ -83,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       Column(
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               Text(
                                 "Account",
@@ -95,24 +89,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
                             onTap: () => {},
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
@@ -137,7 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           GetIt.instance<SharedPreferences>()
                                                   .getString("username") ??
                                               "Not Found",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
                                             color:
@@ -152,34 +146,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         //   color:
                                         //       Color.fromARGB(255, 66, 66, 66),
                                         // ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
                             onTap: () => {},
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
@@ -204,7 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           GetIt.instance<SharedPreferences>()
                                                   .getString("email") ??
                                               "Not Found",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
                                                   255, 66, 66, 66),
@@ -218,20 +212,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         //   color:
                                         //       Color.fromARGB(255, 66, 66, 66),
                                         // ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           // InkWell(
@@ -297,12 +291,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // ),
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 35,
                       ),
                       Column(
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               Text(
                                 "Config",
@@ -313,29 +307,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
                             onTap: () {},
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
                                         ),
-                                        const Icon(
+                                        Icon(
                                           Icons.business_outlined,
                                           color:
                                               Color.fromARGB(255, 66, 66, 66),
@@ -352,9 +346,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          "${_posParameterEntity?.gtentId}" ??
-                                              "Not Set",
-                                          style: TextStyle(
+                                          "${_posParameterEntity?.gtentId}",
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
                                                   255, 66, 66, 66),
@@ -364,39 +357,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         //   width: 15,
                                         // ),
                                         // Icon(Icons.navigate_next),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
                             onTap: () {},
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
                                         ),
-                                        const Icon(
+                                        Icon(
                                           Icons.store_outlined,
                                           color:
                                               Color.fromARGB(255, 66, 66, 66),
@@ -415,7 +408,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           _posParameterEntity?.tostrId ??
                                               "Not Set",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
                                                   255, 66, 66, 66),
@@ -425,39 +418,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         //   width: 15,
                                         // ),
                                         // Icon(Icons.navigate_next),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
                             onTap: () {},
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
                                         ),
-                                        const Icon(
+                                        Icon(
                                           Icons.point_of_sale_outlined,
                                           color:
                                               Color.fromARGB(255, 66, 66, 66),
@@ -476,7 +469,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           _posParameterEntity?.tocsrId ??
                                               "Not Set",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
                                                   255, 66, 66, 66),
@@ -486,39 +479,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         //   width: 15,
                                         // ),
                                         // Icon(Icons.navigate_next),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
                             onTap: () {},
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
                                         ),
-                                        const Icon(
+                                        Icon(
                                           Icons.link,
                                           color:
                                               Color.fromARGB(255, 66, 66, 66),
@@ -537,7 +530,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           _posParameterEntity?.baseUrl ??
                                               "Not Set",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
                                                   255, 66, 66, 66),
@@ -547,30 +540,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         //   width: 15,
                                         // ),
                                         // Icon(Icons.navigate_next),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 35,
                       ),
                       Column(
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               Text(
                                 "Printer",
@@ -581,10 +574,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
@@ -593,14 +586,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 .then((value) => setState(() {})),
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
@@ -626,34 +619,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   .getStringList(
                                                       "defaultPrinter")?[0] ??
                                               "Not Set",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
                                                   255, 66, 66, 66),
                                               fontSize: 16),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 15,
                                         ),
-                                        Icon(
+                                        const Icon(
                                           Icons.navigate_next,
                                           color:
                                               Color.fromARGB(255, 66, 66, 66),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
@@ -662,14 +655,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 .then((value) => setState(() {})),
                             child: Column(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    const Row(
                                       children: [
                                         SizedBox(
                                           width: 5,
@@ -694,44 +687,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           GetIt.instance<SharedPreferences>()
                                                   .getString("paperSize") ??
                                               "Not Set",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(
                                                   255, 66, 66, 66),
                                               fontSize: 16),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 15,
                                         ),
-                                        Icon(
+                                        const Icon(
                                           Icons.navigate_next,
                                           color:
                                               Color.fromARGB(255, 66, 66, 66),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 5,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 35,
                       ),
                       Column(
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               Text(
                                 "Cache",
@@ -742,10 +735,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           InkWell(
@@ -753,7 +746,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               GetIt.instance<SharedPreferences>().clear();
                               context.goNamed(RouteConstants.welcome);
                             },
-                            child: Column(
+                            child: const Column(
                               children: [
                                 SizedBox(
                                   height: 20,
@@ -767,7 +760,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         SizedBox(
                                           width: 5,
                                         ),
-                                        const Icon(
+                                        Icon(
                                           Icons.delete_outline,
                                           color:
                                               Color.fromARGB(255, 66, 66, 66),
@@ -804,7 +797,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ],
                             ),
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                         ],

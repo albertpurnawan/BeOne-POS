@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +15,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
@@ -21,7 +24,7 @@ class AuthInputDiscountDialog extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AuthInputDiscountDialogState createState() =>
+  State<AuthInputDiscountDialog> createState() =>
       _AuthInputDiscountDialogState();
 }
 
@@ -33,6 +36,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   final _usernameFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   bool _obscureText = true;
+  bool _isOTPClicked = false;
+  bool _isSendingOTP = false;
 
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
@@ -87,9 +92,13 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     }
   }
 
+  Future<void> sendOTP() async {
+    await Future.delayed(const Duration(seconds: 3));
+    log("OTP SENDED");
+  }
+
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
@@ -192,7 +201,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(10),
+                                contentPadding: const EdgeInsets.all(10),
                                 hintText: "Password",
                                 hintStyle: const TextStyle(
                                     fontStyle: FontStyle.italic, fontSize: 20),
@@ -218,8 +227,57 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                             ),
                           ),
                           const SizedBox(height: 15),
+                          Column(
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Use OTP Instead',
+                                      style: TextStyle(
+                                        color: _isOTPClicked
+                                            ? Colors.grey
+                                            : Colors.black,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () async {
+                                          setState(() {
+                                            _isOTPClicked = true;
+                                            _isSendingOTP = true;
+                                          });
+
+                                          await sendOTP();
+
+                                          setState(() {
+                                            _isOTPClicked = false;
+                                            _isSendingOTP = false;
+                                          });
+
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (context) =>
+                                                OTPInputDialog(),
+                                          );
+                                        },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (_isSendingOTP) ...[
+                                const SizedBox(height: 15),
+                                Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                const SizedBox(height: 15),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 15),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 22),
+                            padding: const EdgeInsets.symmetric(horizontal: 22),
                             child: Row(
                               children: [
                                 Expanded(

@@ -22,7 +22,6 @@ class _ConfirmRedeemVouchersSuccessDialogState
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
@@ -72,10 +71,10 @@ class _ConfirmRedeemVouchersSuccessDialogState
               "assets/images/3d-success.png",
               width: 80,
             ),
-            SizedBox(
+            const SizedBox(
               width: 30,
             ),
-            Container(
+            SizedBox(
               width: 400,
               child: RichText(
                 text: const TextSpan(

@@ -191,7 +191,7 @@ class ConfirmEndShift extends StatelessWidget {
                             textAlign: TextAlign.left,
                             style: const TextStyle(fontSize: 20),
                             decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
+                              contentPadding: const EdgeInsets.all(10),
                               hintText: "Password",
                               hintStyle: const TextStyle(
                                   fontStyle: FontStyle.italic, fontSize: 20),
@@ -280,21 +280,21 @@ class ConfirmEndShift extends StatelessWidget {
                                     backgroundColor: Colors.white,
                                     surfaceTintColor: Colors.transparent,
                                     shape: RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: ProjectColors.primary,
                                           width: 1),
                                       borderRadius: BorderRadius.circular(5),
                                     ),
                                     title: Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.error,
                                           color: ProjectColors.mediumBlack,
                                         ),
-                                        SizedBox(width: 10),
+                                        const SizedBox(width: 10),
                                         Text(
                                           message,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: ProjectColors.primary,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -306,7 +306,7 @@ class ConfirmEndShift extends StatelessWidget {
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
-                                        child: Text(
+                                        child: const Text(
                                           'OK',
                                           style: TextStyle(
                                             color: ProjectColors.mediumBlack,

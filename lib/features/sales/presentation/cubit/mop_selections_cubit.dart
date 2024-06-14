@@ -16,7 +16,6 @@ class MopSelectionsCubit extends Cubit<List<MopSelectionEntity>> {
       final newState = await _getMopSelectionsUseCase.call();
       emit(newState);
     } catch (e, s) {
-      print("getMopSelectionsError");
       debugPrintStack(stackTrace: s);
     }
   }

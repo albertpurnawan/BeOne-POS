@@ -27,7 +27,7 @@ class PromoPackageBuyDao extends BaseDao<PromoPackageBuyModel> {
   @override
   Future<List<PromoPackageBuyModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => PromoPackageBuyModel.fromMap(itemData))
