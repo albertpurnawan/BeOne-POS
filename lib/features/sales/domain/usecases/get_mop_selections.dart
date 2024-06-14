@@ -10,7 +10,6 @@ class GetMopSelectionsUseCase
 
   @override
   Future<List<MopSelectionEntity>> call({void params}) {
-    // TODO: implement call
     return _mopSelectionRepository.getMopSelections();
   }
 }

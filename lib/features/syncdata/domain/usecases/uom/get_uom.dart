@@ -9,7 +9,6 @@ class GetUoMUseCase implements UseCase<UomEntity?, String> {
 
   @override
   Future<UomEntity?> call({String? params}) {
-    // TODO: implement call
     return _uoMRepository.getSingleUoM();
   }
 }

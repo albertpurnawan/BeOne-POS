@@ -26,7 +26,7 @@ class PaymentTypeDao extends BaseDao<PaymentTypeModel> {
   @override
   Future<List<PaymentTypeModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => PaymentTypeModel.fromMap(itemData))

@@ -26,10 +26,8 @@ class NetzmeApi {
     int hours = now.timeZoneOffset.inHours.abs();
     int minutes = now.timeZoneOffset.inMinutes.abs() % 60;
 
-    String formattedOffset = timezoneOffset +
-        hours.toString().padLeft(2, '0') +
-        ":" +
-        minutes.toString().padLeft(2, '0');
+    String formattedOffset =
+        "$timezoneOffset${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
     timestamp = formattedDateTime + formattedOffset;
     return timestamp;
   }

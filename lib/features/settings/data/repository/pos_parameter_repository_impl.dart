@@ -10,20 +10,17 @@ class POSParameterRepositoryImpl implements POSParameterRepository {
 
   @override
   Future<void> createPosParameter(POSParameterEntity posParameterEntity) async {
-    // TODO: implement createPosParameter
     await appDatabase.posParameterDao
         .create(data: POSParameterModel.fromEntity(posParameterEntity));
   }
 
   @override
   Future<POSParameterEntity> getPosParameter() async {
-    // TODO: implement getPosParameter
     return (await appDatabase.posParameterDao.readAll()).first;
   }
 
   @override
   Future<void> updatePosParemeter(POSParameterEntity posParameterEntity) async {
-    // TODO: implement updatePosParemeter
     await appDatabase.posParameterDao.update(
         docId: posParameterEntity.docId,
         data: POSParameterModel.fromEntity(posParameterEntity));

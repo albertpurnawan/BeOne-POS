@@ -9,7 +9,6 @@ class ReceiptContentRepositoryImpl implements ReceiptContentRepository {
 
   @override
   Future<List<ReceiptContentEntity?>> getReceiptContents() async {
-    // TODO: implement getReceiptContents
     return await appDatabase.receiptContentDao.readAll();
   }
 }

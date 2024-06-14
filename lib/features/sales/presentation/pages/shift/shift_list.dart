@@ -40,20 +40,20 @@ class _ShiftsListState extends State<ShiftsList> {
           onPressed: () => context.pushNamed(RouteConstants.home),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+      body: const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
-            const ActiveShift(),
-            const SizedBox(height: 5),
+            ActiveShift(),
+            SizedBox(height: 5),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 200),
+              padding: EdgeInsets.symmetric(horizontal: 200),
               child: Divider(
                 color: Colors.black,
                 thickness: 2,
               ),
             ),
-            const AllShift(),
+            AllShift(),
           ],
         ),
       ),
@@ -203,7 +203,8 @@ class _ActiveShiftState extends State<ActiveShift> {
                           await showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) => ConfirmQueuedInvoiceDialog(),
+                            builder: (context) =>
+                                const ConfirmQueuedInvoiceDialog(),
                           );
                         } else {
                           await showDialog(
@@ -279,7 +280,7 @@ class _AllShiftState extends State<AllShift> {
     }
 
     List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries =
-        groupedShifts.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
+        groupedShifts.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
 
     for (var entry in sortedEntries) {
       entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));
@@ -313,7 +314,7 @@ class _AllShiftState extends State<AllShift> {
                             color: Colors.black,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         for (var shift in entry.value)
@@ -412,7 +413,7 @@ class _AllShiftState extends State<AllShift> {
                                           ),
                                   ],
                                 ),
-                                Divider(
+                                const Divider(
                                   color: Colors.grey,
                                 )
                               ],

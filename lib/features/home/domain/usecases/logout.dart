@@ -8,7 +8,6 @@ class LogoutUseCase implements UseCase<void, void> {
 
   @override
   Future<void> call({void params}) async {
-    // TODO: implement call
     await _prefs.setBool("logStatus", false);
     await _prefs.remove("username");
     await _prefs.remove("email");

@@ -421,7 +421,7 @@ Future<void> initializeDependencies() async {
       () => GetUserUseCase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<RecalculateTaxUseCase>(
-      () => RecalculateTaxUseCase(sl()),
+      () => RecalculateTaxUseCase(),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetEmployeesUseCase>(
       () => GetEmployeesUseCase(sl()),

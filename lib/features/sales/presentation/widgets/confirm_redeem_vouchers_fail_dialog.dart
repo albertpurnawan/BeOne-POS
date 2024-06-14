@@ -23,7 +23,6 @@ class _ConfirmRedeemVouchersFailDialogState
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
@@ -71,10 +70,10 @@ class _ConfirmRedeemVouchersFailDialogState
               "assets/images/3d-fail.png",
               width: 80,
             ),
-            SizedBox(
+            const SizedBox(
               width: 30,
             ),
-            Container(
+            SizedBox(
               width: 400,
               child: RichText(
                 text: widget.message != null
@@ -82,19 +81,19 @@ class _ConfirmRedeemVouchersFailDialogState
                         children: [
                           TextSpan(
                             text: widget.message,
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                            style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
-                          TextSpan(
+                          const TextSpan(
                             text:
                                 "\n\nPlease reinput the vouchers and try again",
                           )
                         ],
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,
                         ),
                       )
-                    : TextSpan(
+                    : const TextSpan(
                         children: [
                           TextSpan(
                             text: "Redeem was failed for one or more vouchers",

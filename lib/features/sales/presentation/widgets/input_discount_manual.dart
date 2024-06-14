@@ -140,7 +140,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
         //     horizontal: 20, vertical: 5),
         actions: <Widget>[
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 22),
+            padding: const EdgeInsets.symmetric(horizontal: 22),
             child: Row(
               children: [
                 Expanded(

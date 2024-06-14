@@ -33,13 +33,11 @@ class ItemRepositoryImpl implements ItemRepository {
 
   @override
   Future<ItemEntity?> getItem(int id) {
-    // TODO: implement getItem
     return _appDatabase.itemsDao.readItem(id);
   }
 
   @override
   Future<ItemEntity?> getItemByBarcode(String barcode) {
-    // TODO: implement getItemByBarcode
     return _appDatabase.itemsDao.readItemByBarcode(barcode);
   }
 }

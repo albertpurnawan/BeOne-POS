@@ -27,7 +27,7 @@ class BillOfMaterialLineItemDao extends BaseDao<BillOfMaterialLineItemModel> {
   @override
   Future<List<BillOfMaterialLineItemModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => BillOfMaterialLineItemModel.fromMap(itemData))

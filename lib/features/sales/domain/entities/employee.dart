@@ -81,7 +81,7 @@ class EmployeeEntity {
     String? idCard,
     String? gender,
     DateTime? birthdate,
-    dynamic? photo,
+    dynamic photo,
     DateTime? joinDate,
     DateTime? resignDate,
     int? statusActive,

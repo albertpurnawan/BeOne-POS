@@ -24,7 +24,6 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
   @override
   Future<ReceiptEntity?> createQueuedReceipt(
       ReceiptEntity receiptEntity) async {
-    // TODO: implement createQueuedReceipt
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
 
@@ -121,7 +120,6 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
 
   @override
   Future<ReceiptEntity?> getQueuedReceiptByDocId(String docId) async {
-    // TODO: implement getQueuedReceiptById
     final Database db = await _appDatabase.getDB();
     ReceiptModel? receiptModel;
 
@@ -188,9 +186,6 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         ));
       }
 
-      print(invoiceHeaderModel.transDateTime);
-      print(invoiceHeaderModel.transDateTime?.toLocal());
-
       receiptModel = ReceiptModel(
         toinvId: invoiceHeaderModel.docId,
         receiptItems: receiptItemModels,
@@ -219,7 +214,6 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
 
   @override
   Future<List<ReceiptEntity>> getQueuedReceipts() async {
-    // TODO: implement getQueuedReceipts
     final Database db = await _appDatabase.getDB();
     List<ReceiptEntity> queuedReceiptModels = [];
 

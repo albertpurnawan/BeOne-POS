@@ -21,7 +21,6 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
@@ -67,10 +66,10 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
               "assets/images/caution.png",
               width: 80,
             ),
-            SizedBox(
+            const SizedBox(
               width: 30,
             ),
-            Container(
+            SizedBox(
               width: 400,
               child: RichText(
                 text: const TextSpan(
@@ -135,7 +134,7 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
                       ),
                     ),
                   )),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Expanded(

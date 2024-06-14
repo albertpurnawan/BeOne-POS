@@ -26,7 +26,7 @@ class ItemPictureDao extends BaseDao<ItemPictureModel> {
   @override
   Future<List<ItemPictureModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => ItemPictureModel.fromMap(itemData))

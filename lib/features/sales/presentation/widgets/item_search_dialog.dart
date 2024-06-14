@@ -8,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
@@ -30,7 +29,6 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _searchInputFocusNode.dispose();
     _scrollController.dispose();
     _textEditingController.dispose();
@@ -94,7 +92,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        contentPadding: EdgeInsets.all(0),
+        contentPadding: const EdgeInsets.all(0),
         content: Theme(
           data: ThemeData(
             splashColor: const Color.fromARGB(40, 169, 0, 0),
@@ -119,7 +117,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                     textInputAction: TextInputAction.search,
                     controller: _textEditingController,
                     onSubmitted: (value) {
-                      print(value);
+                      log(value);
                       context.read<ItemsCubit>().getItems(searchKeyword: value);
                       _searchInputFocusNode.requestFocus();
 
@@ -162,7 +160,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                   child: BlocBuilder<ItemsCubit, List<ItemEntity>>(
                     builder: (context, state) {
                       if (state.isEmpty) {
-                        return EmptyList(
+                        return const EmptyList(
                           imagePath: "assets/images/empty-search.svg",
                           sentence:
                               "Tadaa.. There is nothing here!\nEnter any keyword to search.",
@@ -171,11 +169,11 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                       return Scrollbar(
                         controller: _scrollController,
                         thickness: 4,
-                        radius: Radius.circular(30),
+                        radius: const Radius.circular(30),
                         thumbVisibility: true,
                         child: ListView.builder(
                             controller: _scrollController,
-                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
                             itemCount: state.length,
                             itemBuilder: ((context, index) {
                               final ItemEntity itemEntity = state[index];
@@ -234,7 +232,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                             const SizedBox(
                                               width: 20,
                                             ),
-                                            Icon(
+                                            const Icon(
                                               Icons.sell_outlined,
                                               size: 20,
                                             ),
@@ -242,9 +240,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                               width: 5,
                                             ),
                                             Text(
-                                              "Rp " +
-                                                  Helpers.parseMoney(
-                                                      itemEntity.dpp.toInt()),
+                                              "Rp ${Helpers.parseMoney(itemEntity.dpp.toInt())}",
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w500,
@@ -258,7 +254,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                           radioValue = val;
                                         });
                                       }),
-                                  Divider(
+                                  const Divider(
                                     height: 1,
                                     thickness: 0.5,
                                     color: Color.fromARGB(100, 118, 118, 118),

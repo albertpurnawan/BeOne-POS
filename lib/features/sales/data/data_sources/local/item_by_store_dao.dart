@@ -25,7 +25,7 @@ class ItemByStoreDao extends BaseDao<ItemByStoreModel> {
   @override
   Future<List<ItemByStoreModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => ItemByStoreModel.fromMap(itemData))

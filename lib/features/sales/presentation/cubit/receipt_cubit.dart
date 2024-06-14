@@ -8,7 +8,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
-import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
@@ -144,7 +143,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         final bool? isProceed = await showDialog<bool>(
           context: params.context!,
           barrierDismissible: false,
-          builder: (context) => ConfirmResetPromoDialog(),
+          builder: (context) => const ConfirmResetPromoDialog(),
         );
         if (isProceed == null) return;
         if (!isProceed) return;
@@ -190,7 +189,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           if (newPrice == null) throw "Price is required";
           receiptItemEntity = await _handleOpenPriceUseCase(
               params: HandleOpenPriceUseCaseParams(
-                  receiptItemEntity: receiptItemEntity, newPrice: newPrice!));
+                  receiptItemEntity: receiptItemEntity, newPrice: newPrice));
         }
       }
 
@@ -295,7 +294,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       final bool? isProceed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => ConfirmResetPromoDialog(),
+        builder: (context) => const ConfirmResetPromoDialog(),
       );
       if (isProceed == null) return;
       if (!isProceed) return;
@@ -315,7 +314,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       final bool? isProceed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => ConfirmResetPromoDialog(),
+        builder: (context) => const ConfirmResetPromoDialog(),
       );
       if (isProceed == null) return;
       if (!isProceed) return;
@@ -385,7 +384,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         await _printReceiptUsecase.call(params: createdReceipt);
         await _openCashDrawerUseCase.call();
       } catch (e) {
-        print(e);
+        dev.log(e.toString());
       }
       final invHead =
           await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
@@ -511,8 +510,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       final POSParameterEntity? posParameterEntity =
           await _getPosParameterUseCase.call();
       if (posParameterEntity == null) throw "POS Parameter not found";
-      final StoreMasterEntity? storeMasterEntity = await _getStoreMasterUseCase
-          .call(params: posParameterEntity!.tostrId);
+      final StoreMasterEntity? storeMasterEntity =
+          await _getStoreMasterUseCase.call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
       final CashRegisterEntity? cashRegisterEntity =
           await _getCashRegisterUseCase.call(

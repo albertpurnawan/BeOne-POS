@@ -345,9 +345,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         totalVoucherAmount += voucherModel.voucherAmount;
       }
 
-      print(invoiceHeaderModel.transDateTime);
-      print(invoiceHeaderModel.transDateTime?.toLocal());
-
       receiptModel = ReceiptModel(
         toinvId: invoiceHeaderModel.docId,
         receiptItems: receiptItemModels,

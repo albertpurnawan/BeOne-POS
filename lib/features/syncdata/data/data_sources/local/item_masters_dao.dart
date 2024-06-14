@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
@@ -15,9 +17,6 @@ class ItemsDaoTest {
 
       for (final datum in data) {
         final ItemMasterModel item = ItemMasterModel.fromMap(datum);
-
-        print('here');
-
         final List<String> excludedFields = [
           'createby',
           'updateby',
@@ -116,7 +115,7 @@ class ItemsDaoTest {
       }
       return data;
     } catch (err) {
-      print('Error $err');
+      log('Error $err');
       rethrow;
     }
   }

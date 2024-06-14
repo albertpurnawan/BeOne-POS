@@ -1,14 +1,9 @@
 import 'dart:developer';
-import 'dart:ffi';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -17,7 +12,6 @@ import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -46,15 +40,12 @@ class _QueueListDialogState extends State<QueueListDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // _keyboardListenerFocusNode.requestFocus();
     getQueuedReceipts();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _scrollController.dispose();
     _keyboardListenerFocusNode.dispose();
     super.dispose();
@@ -68,7 +59,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
   Future<void> scrollToReceiptItemByIndex(int index) async {
     await itemScrollController.scrollTo(
         index: index,
-        duration: Duration(milliseconds: 10),
+        duration: const Duration(milliseconds: 10),
         curve: Curves.easeInOutCubic);
   }
 
@@ -127,7 +118,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        contentPadding: EdgeInsets.all(10),
+        contentPadding: const EdgeInsets.all(10),
         content: Theme(
           data: ThemeData(
             splashColor: const Color.fromARGB(40, 169, 0, 0),
@@ -139,23 +130,22 @@ class _QueueListDialogState extends State<QueueListDialog> {
           child: SizedBox(
             width: MediaQuery.of(context).size.width * 0.65,
             height: MediaQuery.of(context).size.width * 0.65,
-            child: queuedReceipts.length != 0
+            child: queuedReceipts.isNotEmpty
                 ? RawScrollbar(
                     thumbColor: const Color.fromARGB(255, 192, 192, 192),
                     controller: _scrollController,
                     thickness: 4,
-                    radius: Radius.circular(30),
+                    radius: const Radius.circular(30),
                     child: ScrollablePositionedList.builder(
                       itemScrollController: itemScrollController,
                       scrollOffsetController: scrollOffsetController,
                       itemPositionsListener: itemPositionsListener,
                       scrollOffsetListener: scrollOffsetListener,
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       itemCount: queuedReceipts.length,
                       itemBuilder: (BuildContext context, int index) {
                         final ReceiptEntity queuedReceipt =
                             queuedReceipts[index];
-                        print(queuedReceipt.receiptItems.length);
                         return InkWell(
                           onTap: () {
                             context
@@ -165,16 +155,16 @@ class _QueueListDialogState extends State<QueueListDialog> {
                           },
                           child: Container(
                             color: index == currentIndex
-                                ? Color.fromARGB(20, 128, 0, 0)
+                                ? const Color.fromARGB(20, 128, 0, 0)
                                 : null,
                             child: Column(
                               children: [
                                 index == 0
-                                    ? Divider(
+                                    ? const Divider(
                                         height: 0,
                                       )
-                                    : SizedBox.shrink(),
-                                SizedBox(
+                                    : const SizedBox.shrink(),
+                                const SizedBox(
                                   height: 20,
                                 ),
                                 Row(
@@ -190,12 +180,12 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                               child: Text(
                                                 (index + 1).toString(),
                                                 textAlign: TextAlign.center,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 18,
                                                     fontWeight:
                                                         FontWeight.w500),
                                               )),
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 15,
                                           ),
                                           Expanded(
@@ -204,17 +194,11 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  queuedReceipt.receiptItems
-                                                          .take(4)
-                                                          .map((e) => e
-                                                              .itemEntity
-                                                              .itemName)
-                                                          .join("   |   ") +
-                                                      "${queuedReceipt.receiptItems.length > 4 ? "    |   ..." : ""}",
-                                                  style:
-                                                      TextStyle(fontSize: 18),
+                                                  "${queuedReceipt.receiptItems.take(4).map((e) => e.itemEntity.itemName).join("   |   ")}${queuedReceipt.receiptItems.length > 4 ? "    |   ..." : ""}",
+                                                  style: const TextStyle(
+                                                      fontSize: 18),
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 10,
                                                 ),
                                               ],
@@ -223,8 +207,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                         ],
                                       ),
                                     ),
-                                    Container(
-                                      // alignment: Alignment.center,
+                                    const SizedBox(
                                       width: 100,
                                       child: Icon(
                                         Icons.navigate_next,
@@ -240,7 +223,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                       alignment: Alignment.center,
                                       width: 60,
                                       child: InkWell(
-                                        customBorder: CircleBorder(),
+                                        customBorder: const CircleBorder(),
                                         onTap: () async {
                                           GetIt.instance<
                                                   DeleteQueuedReceiptUseCase>()
@@ -251,7 +234,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                         },
                                         splashColor: Colors.white38,
                                         child: Ink(
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
                                             color: Colors.transparent,
                                             // boxShadow: const [
@@ -263,8 +246,8 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                             //   ),
                                             // ],
                                           ),
-                                          padding: EdgeInsets.all(7),
-                                          child: Center(
+                                          padding: const EdgeInsets.all(7),
+                                          child: const Center(
                                             child: Icon(
                                               Icons.delete_forever_rounded,
                                               color: ProjectColors.swatch,
@@ -274,7 +257,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 15,
                                     ),
                                     Expanded(
@@ -283,20 +266,16 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                           Expanded(
                                             child: Row(
                                               children: [
-                                                Text(
+                                                const Text(
                                                   "Total Qty",
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.w700,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              139,
-                                                              139,
-                                                              139)),
+                                                      color: Color.fromARGB(
+                                                          255, 139, 139, 139)),
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   width: 10,
                                                 ),
                                                 Text(
@@ -316,8 +295,8 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                                               .receiptItems[0]
                                                               .quantity,
                                                       3),
-                                                  style:
-                                                      TextStyle(fontSize: 16),
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
                                                 ),
                                               ],
                                             ),
@@ -326,26 +305,22 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                             flex: 1,
                                             child: Row(
                                               children: [
-                                                Text(
+                                                const Text(
                                                   "Grand Total",
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.w700,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              139,
-                                                              139,
-                                                              139)),
+                                                      color: Color.fromARGB(
+                                                          255, 139, 139, 139)),
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   width: 10,
                                                 ),
                                                 Text(
                                                   "Rp ${Helpers.parseMoney(queuedReceipt.grandTotal.toInt())}",
-                                                  style:
-                                                      TextStyle(fontSize: 16),
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
                                                 ),
                                               ],
                                             ),
@@ -356,28 +331,24 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.end,
                                               children: [
-                                                Text(
+                                                const Text(
                                                   "Queued at",
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.w700,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              139,
-                                                              139,
-                                                              139)),
+                                                      color: Color.fromARGB(
+                                                          255, 139, 139, 139)),
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   width: 10,
                                                 ),
                                                 Text(
                                                   DateFormat.Hm().format(
                                                       queuedReceipt
                                                           .transDateTime!),
-                                                  style:
-                                                      TextStyle(fontSize: 16),
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
                                                 ),
                                               ],
                                             ),
@@ -385,15 +356,15 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 100,
                                     ),
                                   ],
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 20,
                                 ),
-                                Divider(
+                                const Divider(
                                   height: 0,
                                 ),
                               ],
@@ -403,7 +374,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                       },
                     ),
                   )
-                : EmptyList(
+                : const EmptyList(
                     imagePath: "assets/images/empty-search.svg",
                     sentence: "Tadaa.. There is nothing here!",
                   ),

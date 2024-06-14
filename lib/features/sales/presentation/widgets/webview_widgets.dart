@@ -1,4 +1,5 @@
 import 'dart:async'; // Import for Future.delayed
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -25,7 +26,7 @@ class _WebViewStackState extends State<WebViewStack> {
           setState(() {
             loadingPercentage = 0;
           });
-          print('Page started loading: $url'); // Add logging
+          log('Page started loading: $url'); // Add logging
         },
         onProgress: (progress) {
           setState(() {
@@ -36,7 +37,7 @@ class _WebViewStackState extends State<WebViewStack> {
           setState(() {
             loadingPercentage = 100;
           });
-          print('Page finished loading: $url'); // Add logging
+          log('Page finished loading: $url'); // Add logging
 
           // Inject JavaScript to check for payment success indication
           final success = await controller.runJavaScriptReturningResult('''
@@ -47,12 +48,12 @@ class _WebViewStackState extends State<WebViewStack> {
           ''');
 
           if (success == true) {
-            print('Payment success detected'); // Add logging
+            log('Payment success detected'); // Add logging
             // Delay for 5 seconds before navigating to the success screen
-            Future.delayed(Duration(seconds: 5), () {
+            Future.delayed(const Duration(seconds: 5), () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => SuccessScreen()),
+                MaterialPageRoute(builder: (context) => const SuccessScreen()),
               );
             });
           }
@@ -91,13 +92,15 @@ class _WebViewStackState extends State<WebViewStack> {
 }
 
 class SuccessScreen extends StatelessWidget {
+  const SuccessScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payment Successful'),
       ),
-      body: Center(
+      body: const Center(
         child: Text(
           'Payment was successful!',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

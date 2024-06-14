@@ -9,7 +9,6 @@ class GetUoMsUseCase implements UseCase<List<UomEntity>, void> {
 
   @override
   Future<List<UomEntity>> call({void params}) {
-    // TODO: implement call
     return _uoMRepository.getUoMs();
   }
 }

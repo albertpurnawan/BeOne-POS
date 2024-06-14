@@ -8,7 +8,6 @@ class MopSelectionRepositoryImpl implements MopSelectionRepository {
 
   @override
   Future<List<MopSelectionModel>> getMopSelections() async {
-    // TODO: implement getMopSelections
     return await _appDatabase.mopByStoreDao.readAllIncludeRelations();
   }
 

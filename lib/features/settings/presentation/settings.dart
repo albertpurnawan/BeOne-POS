@@ -38,8 +38,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      backgroundColor: Color.fromARGB(255, 234, 234, 234),
-      body: Center(
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
+      body: const Center(
         child: Padding(
           padding: EdgeInsets.all(50),
           child: SingleChildScrollView(
@@ -54,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 //       fontWeight: FontWeight.bold),
                 // ),
                 // const SizedBox(height: 30),
-                const SettingsForm()
+                SettingsForm()
               ],
             ),
           ),

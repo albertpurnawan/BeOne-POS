@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
@@ -59,7 +58,6 @@ class _OpenShiftSuccessAlertDialogState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     populateData();
   }
@@ -156,9 +154,9 @@ class _OpenShiftSuccessAlertDialogState
                               const SizedBox(
                                 width: 10,
                               ),
-                              Text(
+                              const Text(
                                 "Open Shift Success",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.w700,
                                   // color: const Color.fromARGB(255, 33, 33, 33),
@@ -334,7 +332,7 @@ class _OpenShiftSuccessAlertDialogState
                         // side: const BorderSide(color: ProjectColors.primary),
                       )),
                       backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => Color.fromARGB(255, 56, 56, 56),
+                        (states) => const Color.fromARGB(255, 56, 56, 56),
                       ),
                       overlayColor: MaterialStateColor.resolveWith(
                           (states) => Colors.black.withOpacity(.2))),

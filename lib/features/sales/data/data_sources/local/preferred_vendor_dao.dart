@@ -26,7 +26,7 @@ class PreferredVendorDao extends BaseDao<PreferredVendorModel> {
   @override
   Future<List<PreferredVendorModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => PreferredVendorModel.fromMap(itemData))

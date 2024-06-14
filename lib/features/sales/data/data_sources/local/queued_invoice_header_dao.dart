@@ -1,9 +1,5 @@
-import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_header.dart';
-import 'package:pos_fe/features/sales/data/models/receipt.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class QueuedInvoiceHeaderDao extends BaseDao<QueuedInvoiceHeaderModel> {
@@ -67,7 +63,6 @@ class QueuedInvoiceHeaderDao extends BaseDao<QueuedInvoiceHeaderModel> {
 
   Future<void> deleteByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    print("docId $docId");
     await dbExecutor.delete(
       tableName,
       where: 'docid = ?',

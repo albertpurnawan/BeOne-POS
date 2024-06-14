@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
           )),
           Expanded(
               child: Container(
-            color: Color.fromRGBO(128, 0, 0, 1),
+            color: const Color.fromRGBO(128, 0, 0, 1),
             child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.36,
               child: Stack(
@@ -111,21 +111,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                           text: GetIt.instance<
                                                   SharedPreferences>()
                                               .getString("username"),
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.w700)),
                                       TextSpan(
                                         text: " $symbol",
                                       )
                                     ],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 28,
                                     ),
                                   )),
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30),
                               child: Text(
                                 "Have a great day!",
                                 textAlign: TextAlign.left,
@@ -137,25 +136,28 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 20,
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    elevation: MaterialStatePropertyAll(2),
-                                    padding: MaterialStatePropertyAll(
+                                    elevation:
+                                        const MaterialStatePropertyAll(2),
+                                    padding: const MaterialStatePropertyAll(
                                         EdgeInsets.symmetric(vertical: 20)),
                                     shape: MaterialStatePropertyAll(
                                         RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor
-                                        .resolveWith((states) =>
-                                            Color.fromARGB(255, 255, 255, 255)),
+                                    foregroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => const Color.fromARGB(
+                                                255, 255, 255, 255)),
                                     overlayColor:
                                         MaterialStateColor.resolveWith(
                                             (states) =>
@@ -185,24 +187,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: MaterialStatePropertyAll(
+                                    padding: const MaterialStatePropertyAll(
                                         EdgeInsets.symmetric(vertical: 20)),
                                     shape: MaterialStatePropertyAll(
                                         RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor
-                                        .resolveWith((states) =>
-                                            Color.fromARGB(255, 255, 255, 255)),
+                                    foregroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => const Color.fromARGB(
+                                                255, 255, 255, 255)),
                                     overlayColor:
                                         MaterialStateColor.resolveWith(
                                             (states) =>
@@ -223,24 +227,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: MaterialStatePropertyAll(
+                                    padding: const MaterialStatePropertyAll(
                                         EdgeInsets.symmetric(vertical: 20)),
                                     shape: MaterialStatePropertyAll(
                                         RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor
-                                        .resolveWith((states) =>
-                                            Color.fromARGB(255, 255, 255, 255)),
+                                    foregroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => const Color.fromARGB(
+                                                255, 255, 255, 255)),
                                     overlayColor:
                                         MaterialStateColor.resolveWith(
                                             (states) =>
@@ -262,24 +268,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: MaterialStatePropertyAll(
+                                    padding: const MaterialStatePropertyAll(
                                         EdgeInsets.symmetric(vertical: 20)),
                                     shape: MaterialStatePropertyAll(
                                         RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor
-                                        .resolveWith((states) =>
-                                            Color.fromARGB(255, 255, 255, 255)),
+                                    foregroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => const Color.fromARGB(
+                                                255, 255, 255, 255)),
                                     overlayColor:
                                         MaterialStateColor.resolveWith(
                                             (states) =>
@@ -302,24 +310,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: MaterialStatePropertyAll(
+                                    padding: const MaterialStatePropertyAll(
                                         EdgeInsets.symmetric(vertical: 20)),
                                     shape: MaterialStatePropertyAll(
                                         RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor
-                                        .resolveWith((states) =>
-                                            Color.fromARGB(255, 255, 255, 255)),
+                                    foregroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => const Color.fromARGB(
+                                                255, 255, 255, 255)),
                                     overlayColor:
                                         MaterialStateColor.resolveWith(
                                             (states) =>
@@ -401,24 +411,26 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
 
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: MaterialStatePropertyAll(
+                                    padding: const MaterialStatePropertyAll(
                                         EdgeInsets.symmetric(vertical: 20)),
                                     shape: MaterialStatePropertyAll(
                                         RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
                                     backgroundColor:
                                         MaterialStateColor.resolveWith(
                                             (states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor
-                                        .resolveWith((states) =>
-                                            Color.fromARGB(255, 255, 255, 255)),
+                                    foregroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => const Color.fromARGB(
+                                                255, 255, 255, 255)),
                                     overlayColor:
                                         MaterialStateColor.resolveWith(
                                             (states) =>
@@ -440,8 +452,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     }
                                   }
 
-                                  context.goNamed(RouteConstants.welcome);
                                   GetIt.instance<LogoutUseCase>().call();
+                                  context.goNamed(RouteConstants.welcome);
                                 },
                                 child: const Text(
                                   "Logout",
@@ -474,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: 130,
                             padding: const EdgeInsets.fromLTRB(10, 16, 0, 15),
                             decoration: const BoxDecoration(
-                              color: const Color.fromARGB(255, 85, 0, 0),
+                              color: Color.fromARGB(255, 85, 0, 0),
                               borderRadius: BorderRadius.only(
                                 // topLeft: Radius.circular(5),
                                 topLeft: Radius.circular(60),

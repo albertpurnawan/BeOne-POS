@@ -9,7 +9,6 @@ class GetItemsUseCase implements UseCase<List<ItemEntity>, String?> {
 
   @override
   Future<List<ItemEntity>> call({String? params}) {
-    // TODO: implement call
     return _itemRepository.getItems(searchKeyword: params);
   }
 }

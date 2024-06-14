@@ -10,6 +10,6 @@ class GetStoreMasterUseCase implements UseCase<StoreMasterEntity?, String> {
   @override
   Future<StoreMasterEntity?> call({String? params}) {
     if (params == null) return Future(() => null);
-    return _storeMasterRepository.getStoreMaster(params!);
+    return _storeMasterRepository.getStoreMaster(params);
   }
 }

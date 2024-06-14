@@ -1,10 +1,6 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
-import 'package:pos_fe/features/sales/domain/entities/promo_diskon_item_buy_condition.dart';
-import 'package:pos_fe/features/sales/domain/entities/promo_diskon_item_customer_group.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_diskon_item_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -22,10 +18,6 @@ class ApplyPromoTopdiUseCase
 
       final PromoDiskonItemHeaderEntity topdi =
           params.topdiHeaderAndDetail.topdi;
-      final List<PromoDiskonItemBuyConditionEntity> tpdi1 =
-          params.topdiHeaderAndDetail.tpdi1;
-      final List<PromoDiskonItemCustomerGroupEntity> tpdi5 =
-          params.topdiHeaderAndDetail.tpdi5;
 
       final ReceiptEntity receiptEntity =
           params.handlePromosUseCaseParams.receiptEntity;

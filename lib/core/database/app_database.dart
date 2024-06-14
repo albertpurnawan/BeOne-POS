@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
@@ -349,11 +350,11 @@ class AppDatabase {
       final path = join(dbPath, _databaseName);
       await databaseFactory.deleteDatabase(path);
       _database = null;
-      print("Database Dropped before Updated");
+      log("Database Dropped before Updated");
       await _initDB(path);
-      print("Database reinisiated");
+      log("Database reinisiated");
     } catch (error) {
-      print("Error emptying database: $error");
+      log("Error emptying database: $error");
     }
   }
 
@@ -530,13 +531,10 @@ INNER JOIN (
   ) as t ON t.tovatId = s.tovatId
 """;
     } else {
-      print("222222222222");
       final TaxMasterModel? taxMaster =
           await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
       storeTovatId = taxMaster!.docId;
       storeTaxRate = taxMaster.rate;
-      print(storeTovatId);
-      print(storeTaxRate);
     }
 
     try {
@@ -3315,7 +3313,7 @@ CREATE TABLE $tableLogError (
 """);
       });
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 
@@ -3350,7 +3348,7 @@ CREATE TABLE $tableLogError (
         ''', obj);
       });
     } catch (err) {
-      print(err);
+      log(err.toString());
     }
   }
 

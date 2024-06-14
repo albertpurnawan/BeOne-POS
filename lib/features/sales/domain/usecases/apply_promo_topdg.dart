@@ -1,10 +1,6 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
-import 'package:pos_fe/features/sales/domain/entities/promo_diskon_group_item_buy_condition.dart';
-import 'package:pos_fe/features/sales/domain/entities/promo_diskon_group_item_customer_group.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_diskon_group_item_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -22,10 +18,6 @@ class ApplyPromoTopdgUseCase
 
       final PromoDiskonGroupItemHeaderEntity topdg =
           params.topdgHeaderAndDetail.topdg;
-      final List<PromoDiskonGroupItemBuyConditionEntity> tpdg1 =
-          params.topdgHeaderAndDetail.tpdg1;
-      final List<PromoDiskonGroupItemCustomerGroupEntity> tpdg5 =
-          params.topdgHeaderAndDetail.tpdg5;
 
       final SplitListResult<ReceiptItemEntity> splitListResult =
           Helpers.splitList<ReceiptItemEntity>(
@@ -46,7 +38,7 @@ class ApplyPromoTopdgUseCase
 
         // apply promo
         final double discValue = topdg.promoValue;
-        final double discValuePctg = topdg.promoValue /
+        final double discValuePctg = discValue /
             (receiptEntity.subtotal - (receiptEntity.discHeaderPromo ?? 0));
         final List<ReceiptItemEntity> newReceiptItems = [];
         for (final receiptItem

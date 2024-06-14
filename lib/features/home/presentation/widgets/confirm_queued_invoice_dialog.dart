@@ -6,7 +6,7 @@ import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
 
 class ConfirmQueuedInvoiceDialog extends StatefulWidget {
-  ConfirmQueuedInvoiceDialog({
+  const ConfirmQueuedInvoiceDialog({
     Key? key,
   }) : super(key: key);
 
@@ -50,10 +50,10 @@ class _ConfirmQueuedInvoiceDialogState
             "assets/images/caution.png",
             width: 80,
           ),
-          SizedBox(
+          const SizedBox(
             width: 30,
           ),
-          Container(
+          SizedBox(
             width: 400,
             child: RichText(
               text: const TextSpan(
