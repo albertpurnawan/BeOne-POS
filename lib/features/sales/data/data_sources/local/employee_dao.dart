@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:sqflite/sqflite.dart';
@@ -52,7 +50,7 @@ class EmployeeDao extends BaseDao<EmployeeModel> {
         where:
             "(${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?) $statusActive",
         whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
-    log("(${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?) $statusActive");
+
     return result.map((itemData) => EmployeeModel.fromMap(itemData)).toList();
   }
 }

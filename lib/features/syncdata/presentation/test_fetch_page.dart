@@ -3406,35 +3406,35 @@ class _FetchScreenState extends State<FetchScreen> {
             }
           },
         ];
+
+        final nextSyncDate = DateTime.now().toUtc().toIso8601String();
+
+        final store = await (GetIt.instance<AppDatabase>()
+            .storeMasterDao
+            .readByDocId(singleTopos.tostrId!, null));
+
+        final strName = store?.storeName;
+
+        final toposData = POSParameterModel(
+          docId: toposId,
+          createDate: singleTopos.createDate,
+          updateDate: singleTopos.updateDate,
+          gtentId: singleTopos.gtentId,
+          tostrId: singleTopos.tostrId,
+          storeName: strName,
+          tocsrId: singleTopos.tocsrId,
+          baseUrl: singleTopos.baseUrl,
+          usernameAdmin: singleTopos.usernameAdmin,
+          passwordAdmin: singleTopos.passwordAdmin,
+          lastSync: nextSyncDate,
+        );
+        await GetIt.instance<AppDatabase>()
+            .posParameterDao
+            .update(docId: toposId, data: toposData);
+
         for (final fetchFunction in fetchFunctions) {
           try {
             await fetchFunction();
-
-            final nextSyncDate = DateTime.now().toUtc().toIso8601String();
-
-            final store = await (GetIt.instance<AppDatabase>()
-                .storeMasterDao
-                .readByDocId(singleTopos.tostrId!, null));
-
-            final strName = store?.storeName;
-
-            final toposData = POSParameterModel(
-              docId: toposId,
-              createDate: singleTopos.createDate,
-              updateDate: singleTopos.updateDate,
-              gtentId: singleTopos.gtentId,
-              tostrId: singleTopos.tostrId,
-              storeName: strName,
-              tocsrId: singleTopos.tocsrId,
-              baseUrl: singleTopos.baseUrl,
-              usernameAdmin: singleTopos.usernameAdmin,
-              passwordAdmin: singleTopos.passwordAdmin,
-              lastSync: nextSyncDate,
-            );
-
-            await GetIt.instance<AppDatabase>()
-                .posParameterDao
-                .update(docId: toposId, data: toposData);
           } catch (e) {
             handleError(e);
             rethrow;
