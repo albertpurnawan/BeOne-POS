@@ -13,7 +13,6 @@ class ItemsDao extends BaseDao<ItemModel> {
         whereArgs: [barcode]);
 
     if (maps.isNotEmpty) {
-      print(maps.first);
       return ItemModel.fromMap(maps.first);
     } else {
       throw Exception("ID $barcode is not found");
@@ -59,9 +58,6 @@ class ItemsDao extends BaseDao<ItemModel> {
       orderBy: "itemname",
       limit: 300,
     );
-    print(123123123123);
-    print(searchKeyword);
-    print(result);
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 

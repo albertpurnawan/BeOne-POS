@@ -18,13 +18,11 @@ class RecapShiftScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<RecapShiftScreen> createState() =>
-      _RecapShiftScreenState(shiftId: shiftId);
+  State<RecapShiftScreen> createState() => _RecapShiftScreenState();
 }
 
 class _RecapShiftScreenState extends State<RecapShiftScreen> {
-  final String shiftId;
-  _RecapShiftScreenState({required this.shiftId});
+  late final String shiftId = widget.shiftId;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,11 +64,11 @@ class CloseShiftForm extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CloseShiftForm> createState() => _CloseShiftFormState(shiftId: shiftId);
+  State<CloseShiftForm> createState() => _CloseShiftFormState();
 }
 
 class _CloseShiftFormState extends State<CloseShiftForm> {
-  final String shiftId;
+  late final String shiftId = widget.shiftId;
   CashierBalanceTransactionModel? tcsr1;
   late List<InvoiceHeaderModel?> transactions = [];
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -78,8 +76,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalNonCash = '0';
   String totalSales = '0';
   String calculatedTotalCash = '0';
-
-  _CloseShiftFormState({required this.shiftId});
 
   @override
   void initState() {
@@ -125,19 +121,16 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   @override
   Widget build(BuildContext context) {
     if (tcsr1 == null) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     String formattedOpenDate = Helpers.formatDateNoSeconds(tcsr1!.openDate);
     String formattedOpenValue =
         NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
-    String formattedCashValue =
-        NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
-    String formattedCalcValue =
-        NumberFormat.decimalPattern().format(tcsr1!.calcValue.toInt());
+    NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
+    NumberFormat.decimalPattern().format(tcsr1!.calcValue.toInt());
     double cashFlow = 0.0;
-    String formattedCashFlow =
-        NumberFormat.decimalPattern().format(cashFlow.toInt());
+    NumberFormat.decimalPattern().format(cashFlow.toInt());
     double expectedCash = tcsr1!.openValue + tcsr1!.cashValue + cashFlow;
     String formattedExpectedCash =
         NumberFormat.decimalPattern().format(expectedCash.toInt());
@@ -368,7 +361,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         const SizedBox(
           height: 10,
         ),
-        CalculateCash(updateTotalCash),
+        CalculateCash(setTotal: updateTotalCash),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(

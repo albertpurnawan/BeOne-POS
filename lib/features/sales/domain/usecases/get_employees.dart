@@ -9,7 +9,6 @@ class GetEmployeesUseCase implements UseCase<List<EmployeeEntity>, String?> {
 
   @override
   Future<List<EmployeeEntity>> call({String? params}) {
-    // TODO: implement call
     return _employeeRepository.getEmployees(searchKeyword: params);
   }
 }

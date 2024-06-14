@@ -24,7 +24,7 @@ class AuthInputDiscountDialog extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AuthInputDiscountDialogState createState() =>
+  State<AuthInputDiscountDialog> createState() =>
       _AuthInputDiscountDialogState();
 }
 
@@ -99,7 +99,6 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
@@ -202,7 +201,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(10),
+                                contentPadding: const EdgeInsets.all(10),
                                 hintText: "Password",
                                 hintStyle: const TextStyle(
                                     fontStyle: FontStyle.italic, fontSize: 20),
@@ -278,7 +277,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                           ),
                           const SizedBox(height: 15),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 22),
+                            padding: const EdgeInsets.symmetric(horizontal: 22),
                             child: Row(
                               children: [
                                 Expanded(

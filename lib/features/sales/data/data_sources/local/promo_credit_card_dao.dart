@@ -27,7 +27,7 @@ class PromoCreditCardDao extends BaseDao<PromoCreditCardModel> {
   @override
   Future<List<PromoCreditCardModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => PromoCreditCardModel.fromMap(itemData))

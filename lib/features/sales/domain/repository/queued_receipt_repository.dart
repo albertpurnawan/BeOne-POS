@@ -1,4 +1,3 @@
-import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
 abstract class QueuedReceiptRepository {

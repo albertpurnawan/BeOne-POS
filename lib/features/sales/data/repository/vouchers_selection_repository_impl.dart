@@ -8,7 +8,6 @@ class VouchersSelectionRepositoryImpl extends VouchersSelectionRepository {
 
   @override
   Future<VouchersSelectionEntity> checkVoucher(String serialno) async {
-    // TODO: implement checkVoucher
     return await _appDatabase.vouchersSelectionDao.checkVoucher(serialno);
   }
 
@@ -18,7 +17,7 @@ class VouchersSelectionRepositoryImpl extends VouchersSelectionRepository {
       return await _appDatabase.vouchersSelectionDao.readBytinv2Id(tinv2id);
     } catch (e) {
       // Handle errors appropriately
-      throw e;
+      rethrow;
     }
   }
 }

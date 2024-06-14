@@ -128,7 +128,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                   Expanded(
                     child: BlocBuilder<EmployeesCubit, List<EmployeeEntity>>(
                       builder: (context, state) {
-                        if (state.length == 0) {
+                        if (state.isEmpty) {
                           return const Expanded(
                               child: EmptyList(
                             imagePath: "assets/images/empty-search.svg",

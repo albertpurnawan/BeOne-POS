@@ -40,7 +40,7 @@ class CashierBalanceTransactionDetails extends StatelessWidget {
             const SizedBox(height: 8),
             _buildRow(
               leftText: "Shift End",
-              rightText: Helpers.formatDate(transaction.closeDate!),
+              rightText: Helpers.formatDate(transaction.closeDate),
             ),
             const Divider(
               height: 20,

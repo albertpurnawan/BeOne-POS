@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:pos_fe/core/resources/base_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -23,7 +25,7 @@ abstract class BaseDao<T extends BaseModel> {
       }
 
       final res = await batch.commit(noResult: true);
-      print(res.toString());
+      log(res.toString());
     } else {
       await db.transaction((txn) async {
         try {
@@ -34,9 +36,9 @@ abstract class BaseDao<T extends BaseModel> {
           }
 
           final res = await batch.commit(noResult: true);
-          print(res.toString());
+          log(res.toString());
         } catch (e) {
-          print(e);
+          log(e.toString());
           rethrow;
         }
       });
@@ -215,7 +217,7 @@ abstract class BaseDao<T extends BaseModel> {
       await deleteAll();
       await bulkCreate(data: data, txn: txn);
     } catch (err, stack) {
-      print(err);
+      log(err.toString());
       debugPrintStack(stackTrace: stack);
       rethrow;
     }

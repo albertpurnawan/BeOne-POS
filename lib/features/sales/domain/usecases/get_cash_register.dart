@@ -9,7 +9,6 @@ class GetCashRegisterUseCase implements UseCase<CashRegisterEntity?, String> {
 
   @override
   Future<CashRegisterEntity?> call({String params = ""}) async {
-    // TODO: implement call
     if (params.isEmpty) return null;
     return await _cashRegisterRepository.getCashRegisterByDocId(params);
   }

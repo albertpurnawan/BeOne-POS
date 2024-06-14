@@ -26,7 +26,7 @@ class UserRoleDao extends BaseDao<UserRoleModel> {
   @override
   Future<List<UserRoleModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result.map((itemData) => UserRoleModel.fromMap(itemData)).toList();
   }

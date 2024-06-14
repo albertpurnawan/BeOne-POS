@@ -30,7 +30,7 @@ class PromoMultiItemAssignStoreDao
   Future<List<PromoBonusMultiItemAssignStoreModel>> readAll(
       {Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map(

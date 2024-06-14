@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,7 +17,6 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     final String? prefPaperSize =
         GetIt.instance<SharedPreferences>().getString("paperSize");
@@ -41,7 +39,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       appBar: AppBar(
         title: const Text('Paper Size'),
         backgroundColor: ProjectColors.primary,
@@ -49,13 +47,13 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
       ),
       body: Center(
         child: Container(
-          constraints: BoxConstraints(
+          constraints: const BoxConstraints(
             maxHeight: 300,
             maxWidth: 600,
           ),
           child: Column(
             children: [
-              Divider(
+              const Divider(
                 height: 0,
               ),
               RadioListTile<PaperSize>(
@@ -78,7 +76,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
                       radioValue = val;
                     });
                   }),
-              Divider(
+              const Divider(
                 height: 0,
               ),
               RadioListTile<PaperSize>(
@@ -101,32 +99,32 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
                       radioValue = val;
                     });
                   }),
-              Divider(
+              const Divider(
                 height: 0,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ButtonStyle(
-                      padding: MaterialStatePropertyAll(
+                      padding: const MaterialStatePropertyAll(
                           EdgeInsets.symmetric(vertical: 10)),
                       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5))),
                       backgroundColor: radioValue == null
-                          ? MaterialStateColor.resolveWith(
-                              (states) => Color.fromARGB(255, 200, 200, 200))
+                          ? MaterialStateColor.resolveWith((states) =>
+                              const Color.fromARGB(255, 200, 200, 200))
                           : MaterialStateColor.resolveWith(
                               (states) => ProjectColors.primary),
                       foregroundColor: radioValue == null
-                          ? MaterialStateColor.resolveWith(
-                              (states) => Color.fromARGB(255, 111, 111, 111))
-                          : MaterialStateColor.resolveWith(
-                              (states) => Color.fromARGB(255, 255, 255, 255)),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.white.withOpacity(.2))),
+                          ? MaterialStateColor.resolveWith((states) =>
+                              const Color.fromARGB(255, 111, 111, 111))
+                          : MaterialStateColor.resolveWith((states) =>
+                              const Color.fromARGB(255, 255, 255, 255)),
+                      overlayColor:
+                          MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                   onPressed: radioValue == null
                       ? null
                       : () {

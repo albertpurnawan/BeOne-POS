@@ -26,7 +26,7 @@ class BatchInvoiceDao extends BaseDao<BatchInvoiceModel> {
   @override
   Future<List<BatchInvoiceModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => BatchInvoiceModel.fromMap(itemData))

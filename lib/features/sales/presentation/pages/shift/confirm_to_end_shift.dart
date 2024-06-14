@@ -1,24 +1,34 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ConfirmToEndShift extends StatelessWidget {
+class ConfirmToEndShift extends StatefulWidget {
   final CashierBalanceTransactionModel shift;
 
-  ConfirmToEndShift(this.shift, {Key? key}) : super(key: key);
+  const ConfirmToEndShift(this.shift, {Key? key}) : super(key: key);
 
-  final formKey = GlobalKey<FormState>();
+  @override
+  State<ConfirmToEndShift> createState() => _ConfirmToEndShiftState();
+}
+
+class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
+  final _formKey = GlobalKey<FormState>();
+
   final usernameController = TextEditingController();
+
   final passwordController = TextEditingController();
+
   final prefs = GetIt.instance<SharedPreferences>();
 
   Future<String> checkPassword(String username, String password) async {
@@ -52,24 +62,24 @@ class ConfirmToEndShift extends StatelessWidget {
   }
 
   Future<void> onSubmit(BuildContext context) async {
-    if (!formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
     String passwordCorrect =
         await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
 
       Navigator.pop(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CloseShiftScreen(
-              shiftId: shift.docId, username: usernameController.text),
-        ),
-      );
+      Helpers.navigate(
+          context,
+          CloseShiftScreen(
+            shiftId: widget.shift.docId,
+            username: usernameController.text,
+          ));
+
       try {
         await GetIt.instance<OpenCashDrawerUseCase>().call();
       } catch (e) {
-        print(e.toString());
+        log(e.toString());
       }
     } else {
       final message = passwordCorrect == "Wrong Password"
@@ -81,19 +91,19 @@ class ConfirmToEndShift extends StatelessWidget {
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: ProjectColors.primary, width: 1),
+            side: const BorderSide(color: ProjectColors.primary, width: 1),
             borderRadius: BorderRadius.circular(5),
           ),
           title: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.error,
                 color: ProjectColors.mediumBlack,
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
                 message,
-                style: TextStyle(
+                style: const TextStyle(
                   color: ProjectColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -105,7 +115,7 @@ class ConfirmToEndShift extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'OK',
                 style: TextStyle(
                   color: ProjectColors.mediumBlack,
@@ -152,7 +162,7 @@ class ConfirmToEndShift extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
               child: Form(
-                key: formKey,
+                key: _formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -200,7 +210,7 @@ class ConfirmToEndShift extends StatelessWidget {
                             textAlign: TextAlign.left,
                             style: const TextStyle(fontSize: 20),
                             decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
+                              contentPadding: const EdgeInsets.all(10),
                               hintText: "Password",
                               hintStyle: const TextStyle(
                                   fontStyle: FontStyle.italic, fontSize: 20),

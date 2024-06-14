@@ -26,7 +26,7 @@ class PriceByItemBarcodeDao extends BaseDao<PriceByItemBarcodeModel> {
   @override
   Future<List<PriceByItemBarcodeModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => PriceByItemBarcodeModel.fromMap(itemData))

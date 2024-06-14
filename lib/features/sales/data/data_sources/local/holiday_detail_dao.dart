@@ -27,7 +27,7 @@ class HolidayDetailDao extends BaseDao<HolidayDetailModel> {
   @override
   Future<List<HolidayDetailModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => HolidayDetailModel.fromMap(itemData))

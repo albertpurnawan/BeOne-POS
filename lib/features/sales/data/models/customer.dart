@@ -83,6 +83,7 @@ class CustomerModel extends CustomerEntity implements BaseModel {
     required super.activated,
     required super.isEmployee,
     required super.tohemId,
+    // ignore: non_constant_identifier_names
     required super.docid_crm,
   });
 

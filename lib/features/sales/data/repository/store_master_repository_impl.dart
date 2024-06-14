@@ -9,7 +9,6 @@ class StoreMasterRepositoryImpl implements StoreMasterRepository {
 
   @override
   Future<StoreMasterEntity?> getStoreMaster(String docId) async {
-    // TODO: implement getStoreMaster
     return await appDatabase.storeMasterDao.readByDocId(docId, null);
   }
 }

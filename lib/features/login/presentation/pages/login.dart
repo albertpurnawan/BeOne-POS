@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      backgroundColor: Color.fromARGB(255, 234, 234, 234),
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -151,8 +151,8 @@ class _LoginFormState extends State<LoginForm> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(5.0)),
                           ),
-                          contentPadding: EdgeInsets.all(0),
-                          titlePadding: EdgeInsets.all(0),
+                          contentPadding: const EdgeInsets.all(0),
+                          titlePadding: const EdgeInsets.all(0),
                           title: Container(
                             decoration: const BoxDecoration(
                               color: ProjectColors.primary,

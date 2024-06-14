@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
@@ -52,7 +54,7 @@ class UsersDao {
       }
       return usersData.cast<UsersModel>();
     } catch (err) {
-      print('Error $err');
+      log('Error $err');
       rethrow;
     }
   }

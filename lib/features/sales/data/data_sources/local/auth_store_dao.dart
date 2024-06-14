@@ -25,7 +25,7 @@ class AuthStoreDao extends BaseDao<AuthStoreModel> {
   @override
   Future<List<AuthStoreModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result.map((itemData) => AuthStoreModel.fromMap(itemData)).toList();
   }

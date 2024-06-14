@@ -81,7 +81,7 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: const Color.fromARGB(255, 234, 234, 234),
+        color: Color.fromARGB(255, 234, 234, 234),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(5.0)),
       ),
       child: SingleChildScrollView(
@@ -147,8 +147,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
 
   @override
   void dispose() {
-    super.dispose();
+    _timer.cancel();
     openValueController.dispose();
+    super.dispose();
   }
 
   @override
@@ -159,29 +160,29 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
         child: Form(
             key: formKey,
             child: Column(children: [
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       flex: 3,
                       child: Text(
                         'Store',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       ':',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -201,22 +202,22 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       flex: 3,
                       child: Text(
                         'Cash Register',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       ':',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -236,22 +237,22 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       flex: 3,
                       child: Text(
                         'Cashier',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       ':',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -271,22 +272,22 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       flex: 3,
                       child: Text(
                         'Opened at',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       ':',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -295,7 +296,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                         valueListenable: formattedDate,
                         builder: (context, value, child) {
                           return Text(
-                            '$value',
+                            value,
                             style: const TextStyle(
                               fontSize: 18,
                             ),
@@ -318,7 +319,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                   ),
                   child: Column(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       const Text(
@@ -454,7 +455,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                       flex: 3,
                       child: Container(
                           height: 55,
-                          padding: EdgeInsets.fromLTRB(10, 0, 0, 10),
+                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
                           child: TextButton(
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
@@ -480,16 +481,16 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             )),
                           )),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
                       flex: 3,
                       child: Container(
                         height: 55,
-                        padding: EdgeInsets.fromLTRB(0, 0, 10, 10),
+                        padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
                         child: CustomButton(
-                          padding: EdgeInsets.all(0),
+                          padding: const EdgeInsets.all(0),
                           child: const Text("Open Shift"),
                           onTap: () async {
                             if (!formKey.currentState!.validate()) return;

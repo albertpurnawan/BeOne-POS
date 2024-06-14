@@ -9,7 +9,6 @@ class GetPosParameterUseCase implements UseCase<POSParameterEntity, void> {
 
   @override
   Future<POSParameterEntity> call({void params}) {
-    // TODO: implement call
     return _posParameterRepository.getPosParameter();
   }
 }

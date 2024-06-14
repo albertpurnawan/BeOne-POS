@@ -7,7 +7,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
 class OpenPriceDialog extends StatefulWidget {
-  OpenPriceDialog(
+  const OpenPriceDialog(
       {super.key, required this.receiptItemEntity, required this.quantity});
 
   final ReceiptItemEntity receiptItemEntity;
@@ -66,7 +66,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.5,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
           child: TextFormField(
             focusNode: _focusNodeOpenPrice,
             controller: _textEditingControllerOpenPrice,

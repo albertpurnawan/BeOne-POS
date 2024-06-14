@@ -75,7 +75,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
       contentPadding: const EdgeInsets.all(0),
       content: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Container(
+        child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.6,
           child: Scrollbar(
             controller: _scrollController,
@@ -107,7 +107,8 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                         InkWell(
                           onTap: () => showDialog<EmployeeEntity>(
                             context: context,
-                            builder: (BuildContext context) => SelectEmployee(),
+                            builder: (BuildContext context) =>
+                                const SelectEmployee(),
                           ).then((selectedEmployee) {
                             if (selectedEmployee != null) {
                               setState(() {

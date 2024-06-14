@@ -3388,7 +3388,7 @@ Future<void> syncData() async {
         }
       }
       prefs.setBool('isSyncing', false);
-      print('Data synched - $checkSync');
+      log('Data synched - $checkSync');
 
       // VALIDATE INACTIVE tostr, tocsr, tousr, tohem
       try {
@@ -3403,7 +3403,7 @@ Future<void> syncData() async {
       // END OF VALIDATE INACTIVE tostr, tohem, tocsr, tousr
     } catch (error, stack) {
       prefs.setBool('isSyncing', false);
-      print("Error synchronizing: $error");
+      log("Error synchronizing: $error");
       debugPrintStack(stackTrace: stack);
     }
   } else {

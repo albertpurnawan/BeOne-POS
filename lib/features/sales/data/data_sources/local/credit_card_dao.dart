@@ -26,7 +26,7 @@ class CreditCardDao extends BaseDao<CreditCardModel> {
   @override
   Future<List<CreditCardModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result.map((itemData) => CreditCardModel.fromMap(itemData)).toList();
   }

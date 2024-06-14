@@ -22,8 +22,9 @@ class PrintOpenShiftUsecase
   @override
   Future<void> call({CashierBalanceTransactionEntity? params}) async {
     try {
-      if (params == null || params.tocsrId == null || params.tousrId == null)
+      if (params == null || params.tocsrId == null || params.tousrId == null) {
         return;
+      }
 
       final CashRegisterEntity? cashRegisterEntityRes =
           await _cashRegisterRepository.getCashRegisterByDocId(params.tocsrId!);

@@ -26,7 +26,7 @@ class VendorGroupDao extends BaseDao<VendorGroupModel> {
   @override
   Future<List<VendorGroupModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await db.query(tableName);
+    final result = await dbExecutor.query(tableName);
 
     return result
         .map((itemData) => VendorGroupModel.fromMap(itemData))

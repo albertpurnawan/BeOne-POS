@@ -181,7 +181,7 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
           final List<String> sortedDates = transactionsByDate.keys.toList();
           sortedDates.sort((a, b) => b.compareTo(a));
 
-          return Container(
+          return SizedBox(
             height: 500,
             child: ListView.builder(
               itemCount: sortedDates.length,

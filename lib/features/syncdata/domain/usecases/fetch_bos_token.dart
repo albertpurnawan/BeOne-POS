@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 
 class AuthApi {
@@ -21,7 +23,7 @@ class AuthApi {
 
       return null;
     } catch (e) {
-      print("Error fetching: $e");
+      log("Error fetching: $e");
       return null;
     }
   }

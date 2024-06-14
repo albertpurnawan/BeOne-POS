@@ -16,6 +16,7 @@ class CustomerEntity {
   final DateTime? joinDate;
   final int isEmployee;
   final String? tohemId;
+  // ignore: non_constant_identifier_names
   final String? docid_crm;
   final int statusActive;
   final int activated;
@@ -35,6 +36,7 @@ class CustomerEntity {
     required this.joinDate,
     required this.isEmployee,
     required this.tohemId,
+    // ignore: non_constant_identifier_names
     required this.docid_crm,
     required this.statusActive,
     required this.activated,
@@ -55,6 +57,7 @@ class CustomerEntity {
     DateTime? joinDate,
     int? isEmployee,
     String? tohemId,
+    // ignore: non_constant_identifier_names
     String? docid_crm,
     int? statusActive,
     int? activated,

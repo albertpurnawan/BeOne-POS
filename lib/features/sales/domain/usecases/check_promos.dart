@@ -9,7 +9,6 @@ class CheckPromoUseCase implements UseCase<List<PromotionsEntity?>, String?> {
 
   @override
   Future<List<PromotionsEntity?>> call({String? params}) async {
-    // TODO: implement call
     return await _promotionsRepository.checkPromos(params!);
   }
 }

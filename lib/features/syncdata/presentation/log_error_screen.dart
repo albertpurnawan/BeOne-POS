@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -26,7 +28,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
     try {
       logErr = await GetIt.instance<AppDatabase>().logErrorDao.readAll();
     } catch (e) {
-      print("Error fetching log errors: $e");
+      log("Error fetching log errors: $e");
     } finally {
       setState(() {
         isLoading = false;
@@ -41,7 +43,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
         logErr = [];
       });
     } catch (e) {
-      print("Error clearing log errors: $e");
+      log("Error clearing log errors: $e");
     }
   }
 
@@ -55,7 +57,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
         title: const Text('Error Logs'),
         actions: [
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () async {
               await clearLogErrors();
             },
@@ -64,7 +66,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

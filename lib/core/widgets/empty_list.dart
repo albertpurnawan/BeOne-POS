@@ -20,7 +20,7 @@ class EmptyList extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       width: double.infinity,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         // border: Border.all(
         //     color: Color.fromRGBO(195, 53, 53, 1),
         //     width: 4.0),

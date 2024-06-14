@@ -9,7 +9,6 @@ class GetItemUseCase implements UseCase<ItemEntity?, int> {
 
   @override
   Future<ItemEntity?> call({int? params}) {
-    // TODO: implement call
     return _itemRepository.getItem(params!);
   }
 }

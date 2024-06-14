@@ -21,7 +21,7 @@ class StoreMasterEntity {
   final double sqm;
   final String? tcurrId;
   final String? toplnId;
-  final dynamic? storePic;
+  final dynamic storePic;
   final String? tovatId;
   final DateTime storeOpening;
   final int statusActive;
@@ -148,7 +148,7 @@ class StoreMasterEntity {
     double? sqm,
     String? tcurrId,
     String? toplnId,
-    dynamic? storePic,
+    dynamic storePic,
     String? tovatId,
     DateTime? storeOpening,
     int? statusActive,

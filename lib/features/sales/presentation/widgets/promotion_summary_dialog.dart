@@ -23,7 +23,7 @@ class PromotionSummaryDialog extends StatelessWidget {
             color: ProjectColors.primary,
             fontSize: 16),
       ),
-      SizedBox(
+      const SizedBox(
         height: 15,
       ),
     ];
@@ -113,7 +113,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                       )))),
         ],
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       )
     ]);
@@ -147,13 +147,13 @@ class PromotionSummaryDialog extends StatelessWidget {
           children: [
             SizedBox(
                 width: 175,
-                child: itemYUIs.length == 0
+                child: itemYUIs.isEmpty
                     ? Text(
                         buyXGetYpromo.promoDescription,
                         style: const TextStyle(fontSize: 14),
                       )
-                    : SizedBox.shrink()),
-            SizedBox(
+                    : const SizedBox.shrink()),
+            const SizedBox(
               width: 20,
             ),
             SizedBox(
@@ -162,7 +162,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                   itemY.itemEntity.barcode,
                   style: const TextStyle(fontSize: 14),
                 )),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             SizedBox(
@@ -171,7 +171,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                   itemY.itemEntity.itemName,
                   style: const TextStyle(fontSize: 14),
                 )),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             Expanded(
@@ -181,7 +181,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                       Helpers.cleanDecimal(associatedPromo.quantity, 3),
                       style: const TextStyle(fontSize: 14),
                     ))),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             SizedBox(
@@ -192,7 +192,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                       Helpers.parseMoney(associatedPromo.sellingPrice.round()),
                       style: const TextStyle(fontSize: 14),
                     ))),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             SizedBox(
@@ -205,7 +205,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                     ))),
           ],
         ));
-        itemYUIs.add(SizedBox(
+        itemYUIs.add(const SizedBox(
           height: 10,
         ));
       }
@@ -216,22 +216,22 @@ class PromotionSummaryDialog extends StatelessWidget {
     totalPrice = subtotal + taxAmount;
 
     widgets.addAll([
-      SizedBox(
+      const SizedBox(
         height: 15,
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 80,
             child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Subtotal",
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 )),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           SizedBox(
@@ -244,22 +244,22 @@ class PromotionSummaryDialog extends StatelessWidget {
                   ))),
         ],
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 80,
             child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Total Tax",
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 )),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           SizedBox(
@@ -272,23 +272,22 @@ class PromotionSummaryDialog extends StatelessWidget {
                   ))),
         ],
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 80,
             child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Total Price",
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                 )),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           SizedBox(
@@ -301,7 +300,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                   ))),
         ],
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       ),
     ]);
@@ -313,7 +312,7 @@ class PromotionSummaryDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: widgets,
           )),
-      Divider(),
+      const Divider(),
     ];
   }
 
@@ -326,7 +325,7 @@ class PromotionSummaryDialog extends StatelessWidget {
             color: ProjectColors.primary,
             fontSize: 16),
       ),
-      SizedBox(
+      const SizedBox(
         height: 15,
       ),
     ];
@@ -364,7 +363,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                   ))),
         ],
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       )
     ]);
@@ -401,7 +400,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                     discountItemByItemPromo.promoDescription,
                     style: const TextStyle(fontSize: 14),
                   )),
-              SizedBox(
+              const SizedBox(
                 width: 20,
               ),
               SizedBox(
@@ -412,7 +411,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                   )),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
         ],
@@ -421,22 +420,22 @@ class PromotionSummaryDialog extends StatelessWidget {
     widgets.add(Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
+        const SizedBox(
           height: 25,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 25,
             ),
-            SizedBox(
+            const SizedBox(
                 width: 345,
                 child: Text(
                   "Total Discount",
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 )),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             SizedBox(
@@ -447,7 +446,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                 )),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 5,
         ),
       ],
@@ -460,7 +459,7 @@ class PromotionSummaryDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: widgets,
           )),
-      Divider(),
+      const Divider(),
     ];
   }
 
@@ -473,7 +472,7 @@ class PromotionSummaryDialog extends StatelessWidget {
             color: ProjectColors.primary,
             fontSize: 16),
       ),
-      SizedBox(
+      const SizedBox(
         height: 15,
       ),
     ];
@@ -511,7 +510,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                   ))),
         ],
       ),
-      SizedBox(
+      const SizedBox(
         height: 5,
       )
     ]);
@@ -546,7 +545,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                     discountItemByItemPromo.promoDescription,
                     style: const TextStyle(fontSize: 14),
                   )),
-              SizedBox(
+              const SizedBox(
                 width: 20,
               ),
               SizedBox(
@@ -557,7 +556,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                   )),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
         ],
@@ -567,19 +566,19 @@ class PromotionSummaryDialog extends StatelessWidget {
     widgets.add(Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
+        const SizedBox(
           height: 25,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
                 width: 345,
                 child: Text(
                   "Total Discount",
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 )),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             SizedBox(
@@ -590,7 +589,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                 )),
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 5,
         ),
       ],
@@ -603,7 +602,7 @@ class PromotionSummaryDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: widgets,
           )),
-      Divider(),
+      const Divider(),
     ];
   }
 
@@ -650,14 +649,14 @@ class PromotionSummaryDialog extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 200,
                       child: Text(
                         "Previous Grand Total",
                         style: TextStyle(fontSize: 14),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 20,
                     ),
                     Container(
@@ -671,19 +670,19 @@ class PromotionSummaryDialog extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 200,
                       child: Text(
                         "Promotion Adjustment",
                         style: TextStyle(fontSize: 14),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 20,
                     ),
                     Container(
@@ -697,12 +696,12 @@ class PromotionSummaryDialog extends StatelessWidget {
                     )
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 200,
                       child: Text(
                         "Final Grand Total",
@@ -710,7 +709,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                             fontWeight: FontWeight.w700, fontSize: 14),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 20,
                     ),
                     Container(
@@ -722,20 +721,20 @@ class PromotionSummaryDialog extends StatelessWidget {
                         )),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
-                Text(
+                const Text(
                   "Applied Promotions",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
-                Divider(),
+                const Divider(),
                 ..._buildBuyXGetYDetails(),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 ..._buildDiscountItemByItemDetails(),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 ..._buildDiscountItemByGroupDetails(),

@@ -1,10 +1,7 @@
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
-import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
-import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/repository/item_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 
 class HandleWithoutPromosUseCase
@@ -13,7 +10,6 @@ class HandleWithoutPromosUseCase
 
   @override
   Future<ReceiptEntity> call({HandlePromosUseCaseParams? params}) async {
-    // TODO: implement call
     try {
       if (params == null) throw "HandleWithoutPromosUseCase requires params";
 

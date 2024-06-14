@@ -39,6 +39,7 @@ class CustomerCstFields {
   static const String joinDate = "joindate";
   static const String isEmployee = "isemployee";
   static const String tohemId = "tohemId";
+  // ignore: constant_identifier_names
   static const String docid_crm = "docid_crm";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
@@ -61,6 +62,7 @@ class CustomerCstModel extends CustomerCstEntity implements BaseModel {
     required super.joinDate,
     required super.isEmployee,
     required super.tohemId,
+    // ignore: non_constant_identifier_names
     required super.docid_crm,
     required super.statusActive,
     required super.activated,
