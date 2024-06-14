@@ -279,7 +279,7 @@ class _AllShiftState extends State<AllShift> {
     }
 
     List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries =
-        groupedShifts.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
+        groupedShifts.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
 
     for (var entry in sortedEntries) {
       entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));
