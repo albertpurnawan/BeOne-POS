@@ -7,9 +7,9 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart
 
 class HandlePromosUseCase
     implements UseCase<List<ReceiptItemEntity>, HandlePromosUseCaseParams> {
-  final HandleWithoutPromosUseCase handleWithoutPromosUseCase;
+  final HandleWithoutPromosUseCase _handleWithoutPromosUseCase;
 
-  HandlePromosUseCase(this.handleWithoutPromosUseCase);
+  HandlePromosUseCase(this._handleWithoutPromosUseCase);
 
   @override
   Future<List<ReceiptItemEntity>> call(
