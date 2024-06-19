@@ -303,7 +303,6 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   Widget build(BuildContext context) {
-    log("build sales");
     isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
     isEditingReceiptItemQty =
         isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;

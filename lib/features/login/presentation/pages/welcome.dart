@@ -179,20 +179,41 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
+                  // Container(
+                  //   constraints: const BoxConstraints(maxWidth: 400),
+                  //   child: CustomButton(
+                  //     child: const Text("ByPass DevPurpose"),
+                  //     onTap: () {
+                  //       Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //             builder: (context) => const HomeScreen()),
+                  //       ).then((value) => Future.delayed(
+                  //           const Duration(milliseconds: 200),
+                  //           () => SystemChrome.setSystemUIOverlayStyle(
+                  //               const SystemUiOverlayStyle(
+                  //                   statusBarColor: ProjectColors.primary,
+                  //                   statusBarBrightness: Brightness.light,
+                  //                   statusBarIconBrightness:
+                  //                       Brightness.light))));
+                  //     },
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 10),
                 ],
               ),
             ),
           ),
           // const LanguageSwitchButton(color: ProjectColors.primary),
-          // const SizedBox(height: 5),
-          // const Padding(
-          //   padding: EdgeInsets.only(bottom: 30),
-          //   child: Text(
-          //       "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
-          //       textAlign: TextAlign.center,
-          //       style:
-          //           TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),
-          // )
+          const SizedBox(height: 5),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 30),
+            child: Text(
+                "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),
+          )
         ],
       ),
     );

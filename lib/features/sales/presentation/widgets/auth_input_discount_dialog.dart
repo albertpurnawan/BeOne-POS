@@ -80,7 +80,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
           .updateTotalAmountFromDiscount(widget.discountValue);
       Navigator.of(childContext).pop(); // Close the dialog
       Navigator.of(childContext).pop(); // Close the select method if needed
-      Navigator.of(childContext).pop(); // Close the input discount if needed
+      // Navigator.of(childContext).pop(); // Close the input discount if needed
       SnackBarHelper.presentSuccessSnackBar(parentContext,
           "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
     } else {
@@ -237,7 +237,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                       style: TextStyle(
                                         color: _isOTPClicked
                                             ? Colors.grey
-                                            : Colors.black,
+                                            : ProjectColors.lightBlack,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
                                       ),
@@ -259,7 +259,10 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                             context: context,
                                             barrierDismissible: false,
                                             builder: (context) =>
-                                                OTPInputDialog(),
+                                                OTPInputDialog(
+                                              discountValue:
+                                                  widget.discountValue,
+                                            ),
                                           );
                                         },
                                     ),

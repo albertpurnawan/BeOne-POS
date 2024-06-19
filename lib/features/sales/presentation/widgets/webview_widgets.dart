@@ -6,7 +6,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewStack extends StatefulWidget {
   final String xurl;
-  const WebViewStack({Key? key, required this.xurl}) : super(key: key);
+  final Function(bool) onPaymentSuccess;
+
+  const WebViewStack(
+      {Key? key, required this.xurl, required this.onPaymentSuccess})
+      : super(key: key);
 
   @override
   State<WebViewStack> createState() => _WebViewStackState();
@@ -14,11 +18,13 @@ class WebViewStack extends StatefulWidget {
 
 class _WebViewStackState extends State<WebViewStack> {
   var loadingPercentage = 0;
+  bool qrizSuccess = false;
   late final WebViewController controller;
 
   @override
   void initState() {
     super.initState();
+    qrizSuccess = false;
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
@@ -26,7 +32,7 @@ class _WebViewStackState extends State<WebViewStack> {
           setState(() {
             loadingPercentage = 0;
           });
-          log('Page started loading: $url'); // Add logging
+          log('Page started loading: $url');
         },
         onProgress: (progress) {
           setState(() {
@@ -37,9 +43,17 @@ class _WebViewStackState extends State<WebViewStack> {
           setState(() {
             loadingPercentage = 100;
           });
-          log('Page finished loading: $url'); // Add logging
+          await controller.runJavaScript('''
+            (function() {
+              var height = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+              window.scrollTo(0, (height - window.innerHeight) / 2);
+            })();
+          ''');
 
-          // Inject JavaScript to check for payment success indication
+          log('Page finished loading: $url');
+
+          // final success = await GetIt.instance<NetzmeApi>()
+
           final success = await controller.runJavaScriptReturningResult('''
             (function() {
               // Example: check if certain text is present on the page
@@ -48,13 +62,12 @@ class _WebViewStackState extends State<WebViewStack> {
           ''');
 
           if (success == true) {
-            log('Payment success detected'); // Add logging
-            // Delay for 5 seconds before navigating to the success screen
-            Future.delayed(const Duration(seconds: 5), () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const SuccessScreen()),
-              );
+            log('Payment success detected');
+
+            widget.onPaymentSuccess(true);
+
+            Future.delayed(const Duration(seconds: 2), () {
+              Navigator.pop(context, true);
             });
           }
         },
@@ -87,25 +100,6 @@ class _WebViewStackState extends State<WebViewStack> {
             ),
           ),
       ],
-    );
-  }
-}
-
-class SuccessScreen extends StatelessWidget {
-  const SuccessScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment Successful'),
-      ),
-      body: const Center(
-        child: Text(
-          'Payment was successful!',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      ),
     );
   }
 }
