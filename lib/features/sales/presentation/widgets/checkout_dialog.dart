@@ -99,7 +99,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       final mopSelected = context.read<ReceiptCubit>().state.mopSelection;
       final grandTotal = Helpers.revertMoneyToString(
           context.read<ReceiptCubit>().state.grandTotal);
-      dev.log(grandTotal);
 
       if (mopSelected!.payTypeCode == '5') {
         setState(() {

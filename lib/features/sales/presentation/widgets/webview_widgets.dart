@@ -52,6 +52,8 @@ class _WebViewStackState extends State<WebViewStack> {
 
           log('Page finished loading: $url');
 
+          // final success = await GetIt.instance<NetzmeApi>()
+
           final success = await controller.runJavaScriptReturningResult('''
             (function() {
               // Example: check if certain text is present on the page
