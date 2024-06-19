@@ -883,8 +883,8 @@ class _CalculateCashState extends State<CalculateCash> {
                 textAlign: TextAlign.start,
               ),
             ),
-            Expanded(
-              child: const Text(""),
+            const Expanded(
+              child: Text(""),
             ),
             SizedBox(
               width: 300,

@@ -237,7 +237,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                       style: TextStyle(
                                         color: _isOTPClicked
                                             ? Colors.grey
-                                            : Colors.black,
+                                            : ProjectColors.lightBlack,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
                                       ),

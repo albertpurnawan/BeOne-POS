@@ -16,7 +16,6 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.da
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
-import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
@@ -49,6 +48,7 @@ class CheckoutDialog extends StatefulWidget {
 class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharged = false;
   bool isPaymentSufficient = true;
+  bool isLoading = false;
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   String generateRandomString(int length) {
@@ -59,6 +59,27 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       length,
       (_) => characters.codeUnitAt(random.nextInt(characters.length)),
     ));
+  }
+
+  void showWebViewPopup(BuildContext context, String transactionQris) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return WebViewApp(
+          url: transactionQris,
+          onPaymentSuccess: (bool success) {
+            if (success) {
+              context.read<ReceiptCubit>().charge();
+              Future.delayed(const Duration(seconds: 3), () {
+                setState(() {
+                  isCharged = true;
+                });
+              });
+            }
+          },
+        );
+      },
+    );
   }
 
   Future<void> charge() async {
@@ -81,6 +102,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       dev.log(grandTotal);
 
       if (mopSelected!.payTypeCode == '5') {
+        setState(() {
+          isLoading = true;
+        });
         final netzme = await GetIt.instance<AppDatabase>().netzmeDao.readAll();
         final url = netzme[0].url;
         final clientKey = netzme[0].clientKey;
@@ -133,25 +157,15 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                 serviceSignature, bodyDetail);
         dev.log(transactionQris);
 
-        final ReceiptEntity receipt = context.read<ReceiptCubit>().state;
+        setState(() {
+          isLoading = false;
+        });
 
-        GetIt.instance<SaveReceiptUseCase>().call(params: receipt);
+        final ReceiptEntity receipt = context.read<ReceiptCubit>().state;
 
         dev.log("receipt - $receipt");
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WebViewApp(url: transactionQris),
-          ),
-        );
-        // if qris payment success, go
-        // context.read<ReceiptCubit>().charge();
-        // Future.delayed(Duration(milliseconds: 600), () {
-        //   setState(() {
-        //     isCharged = true;
-        //   });
-        // });
+        showWebViewPopup(context, transactionQris);
       } else {
         context.read<ReceiptCubit>().charge();
         Future.delayed(const Duration(milliseconds: 600), () {
