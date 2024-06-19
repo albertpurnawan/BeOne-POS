@@ -4,10 +4,17 @@ import 'dart:developer';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class OTPInputDialog extends StatefulWidget {
-  const OTPInputDialog({Key? key}) : super(key: key);
+  final double discountValue;
+
+  const OTPInputDialog({Key? key, required this.discountValue})
+      : super(key: key);
 
   @override
   State<OTPInputDialog> createState() => _OTPInputDialogState();
@@ -51,6 +58,18 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
     });
     await showOTPSent();
     _startTimer();
+  }
+
+  Future<void> onSubmit(BuildContext context) async {
+    // if otp send == otp received
+    context
+        .read<ReceiptCubit>()
+        .updateTotalAmountFromDiscount(widget.discountValue);
+    Navigator.of(context).pop(); // Close the dialog
+    Navigator.of(context).pop(); // Close the select method if needed
+    Navigator.of(context).pop(); // Close the input discount if needed
+    SnackBarHelper.presentSuccessSnackBar(context,
+        "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
   }
 
   Future<void> showOTPSent() async {
@@ -289,8 +308,9 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                           (states) => ProjectColors.primary),
                       overlayColor: MaterialStateColor.resolveWith(
                           (states) => Colors.white.withOpacity(.2))),
-                  onPressed: () {
+                  onPressed: () async {
                     log("OTP Code: $_otpCode");
+                    await onSubmit(context);
                   },
                   child: Center(
                     child: RichText(

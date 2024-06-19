@@ -160,10 +160,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           isLoading = false;
         });
 
-        final ReceiptEntity receipt = context.read<ReceiptCubit>().state;
-
-        dev.log("receipt - $receipt");
-
         showWebViewPopup(context, transactionQris);
       } else {
         context.read<ReceiptCubit>().charge();
