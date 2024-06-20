@@ -205,15 +205,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ),
           // const LanguageSwitchButton(color: ProjectColors.primary),
-          const SizedBox(height: 5),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 30),
-            child: Text(
-                "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
-                textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),
-          )
+          // const SizedBox(height: 5),
+          // const Padding(
+          //   padding: EdgeInsets.only(bottom: 30),
+          //   child: Text(
+          //       "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
+          //       textAlign: TextAlign.center,
+          //       style:
+          //           TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),
+          // )
         ],
       ),
     );

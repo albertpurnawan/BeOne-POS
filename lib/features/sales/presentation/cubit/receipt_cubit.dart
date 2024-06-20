@@ -429,12 +429,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       await GetIt.instance<AppDatabase>()
           .invoiceHeaderDao
           .update(docId: invHead[0].docId!, data: invHeadSuccess);
-      await GetIt.instance<InvoiceApi>().sendInvoice();
 
       CashierBalanceTransactionModel? shift =
           await GetIt.instance<AppDatabase>()
               .cashierBalanceTransactionDao
               .readLastValue();
+
       if (shift != null) {
         final transaction = await GetIt.instance<AppDatabase>()
             .invoiceHeaderDao
@@ -493,6 +493,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
               .update(docId: shift.docId, data: data);
         }
       }
+      await GetIt.instance<InvoiceApi>().sendInvoice();
     }
   }
 
