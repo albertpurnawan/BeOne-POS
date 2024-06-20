@@ -56,41 +56,25 @@ class InvoiceApi {
               final vouchers = await GetIt.instance<AppDatabase>()
                   .vouchersSelectionDao
                   .readBytinv2Id(entry['docid'], txn: null);
-
+              log("vouchers - $vouchers");
               if (vouchers.isNotEmpty) {
-                Map<int, List<Map<String, dynamic>>> groupedVouchers = {};
                 for (var voucher in vouchers) {
-                  if (!groupedVouchers.containsKey(voucher.type)) {
-                    groupedVouchers[voucher.type] = [];
-                  }
-                  groupedVouchers[voucher.type]?.add({
-                    "serialNo": voucher.serialNo,
-                    "voucherAmount": voucher.voucherAmount
-                  });
-                }
-                for (var voucherType in groupedVouchers.keys) {
-                  List<Map<String, dynamic>> voucherDetails =
-                      groupedVouchers[voucherType]!;
-                  double totalAmount = voucherDetails.fold(
-                      0, (sum, item) => sum + item['voucherAmount']);
-
-                  invoicePayments.add({
+                  Map<String, dynamic> invoicePaymentEntry = {
                     "tpmt3_id": entry['tpmt3Id'],
-                    "amount": totalAmount,
+                    "amount": voucher.voucherAmount,
                     "sisavoucher": 0,
                     "invoice_voucher": [
                       {
-                        "serialno": voucherDetails
-                            .map((item) => item['serialNo'])
-                            .toList(),
-                        "type": voucherType
+                        "serialno": [voucher.serialNo],
+                        "type": voucher.type
                       }
                     ]
-                  });
+                  };
+                  invoicePayments.add(invoicePaymentEntry);
+                  log("invoicePayment - $invoicePayments");
                 }
               }
               break;
-
             default:
               invoicePayments.add(
                   {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});

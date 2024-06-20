@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -261,8 +259,7 @@ class _AllShiftState extends State<AllShift> {
     final shift = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .readLastValue();
-    log("allShift - $shifts");
-    log("activeShift - $shift");
+
     setState(() {
       allShift = shifts;
       activeShift = shift;

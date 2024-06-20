@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
@@ -58,7 +59,7 @@ class LanguageSwitchButton extends StatelessWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  // bool isOpen = false;
+  bool haveTopos = false;
 
   // @override
   // void initState() {
@@ -66,12 +67,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   //   _checkShiftStatus();
   // }
 
-  // Future<void> _checkShiftStatus() async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     isOpen = prefs.getBool('isOpen') ?? false;
-  //   });
-  // }
+  Future<void> checkTopos() async {
+    final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+  }
 
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   Widget welcomingButtons(BuildContext context) {

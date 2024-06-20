@@ -90,12 +90,15 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                 width: MediaQuery.of(context).size.width * 0.6,
                 child: Column(
                   children: [
-                    Text(
-                      (stateItem.itemEntity.itemName),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Color.fromARGB(255, 66, 66, 66),
-                        fontSize: 16,
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        (stateItem.itemEntity.itemName),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Color.fromARGB(255, 66, 66, 66),
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                     Column(
