@@ -3,10 +3,18 @@ import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class OTPInputDialog extends StatefulWidget {
-  const OTPInputDialog({Key? key}) : super(key: key);
+  final double discountValue;
+
+  const OTPInputDialog({Key? key, required this.discountValue})
+      : super(key: key);
 
   @override
   State<OTPInputDialog> createState() => _OTPInputDialogState();
@@ -17,10 +25,11 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
       6, (index) => TextEditingController());
   String _otpCode = '';
   late Timer _timer;
-  int _remainingSeconds = 60;
+  int _remainingSeconds = 30;
   bool _isTimeUp = false;
   bool _isSendingOTP = false;
   bool _isOTPClicked = false;
+  bool _isOTPSent = false;
   late FocusNode _otpFocusNode;
 
   @override
@@ -44,6 +53,31 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
   Future<void> resendOTP() async {
     await Future.delayed(const Duration(seconds: 3));
     log("OTP SENDED");
+    setState(() {
+      _isOTPSent = true;
+    });
+    await showOTPSent();
+    _startTimer();
+  }
+
+  Future<void> onSubmit(BuildContext context) async {
+    // if otp send == otp received
+    context
+        .read<ReceiptCubit>()
+        .updateTotalAmountFromDiscount(widget.discountValue);
+    Navigator.of(context).pop(); // Close the dialog
+    Navigator.of(context).pop(); // Close the select method if needed
+    Navigator.of(context).pop(); // Close the input discount if needed
+    SnackBarHelper.presentSuccessSnackBar(context,
+        "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
+  }
+
+  Future<void> showOTPSent() async {
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _isOTPSent = false;
+      _remainingSeconds = 30;
+    });
   }
 
   void _updateOtpCode() {
@@ -53,7 +87,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
@@ -116,11 +150,15 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                       width: 60,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       child: TextField(
+                        focusNode: index == 0 ? _otpFocusNode : null,
                         controller: _otpControllers[index],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                        ],
                         maxLength: 1,
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w300,
                         ),
@@ -142,8 +180,11 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                             FocusScope.of(context).previousFocus();
                           } else if (value.isNotEmpty && index < 5) {
                             FocusScope.of(context).nextFocus();
+                          } else if (value.isNotEmpty && index == 5) {
+                            _updateOtpCode();
+                            FocusScope.of(context).unfocus();
+                            log("OTP Code: $_otpCode");
                           }
-                          _updateOtpCode();
                         },
                       ),
                     );
@@ -171,6 +212,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                               setState(() {
                                 _isOTPClicked = true;
                                 _isSendingOTP = true;
+                                _isOTPSent = false;
                               });
 
                               await resendOTP();
@@ -178,12 +220,39 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                               setState(() {
                                 _isOTPClicked = false;
                                 _isSendingOTP = false;
+                                _isTimeUp = false;
                               });
                             },
                         ),
                       ],
                     ),
                   ),
+                ],
+                if (_isSendingOTP) ...[
+                  const SizedBox(height: 15),
+                  (_isOTPSent)
+                      ? const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "OTP SENT",
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Icon(
+                              Icons.check_circle_outline,
+                              size: 22,
+                              color: Colors.green,
+                            ),
+                          ],
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                 ],
               ],
             ),
@@ -192,7 +261,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
       ),
       actions: <Widget>[
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 22),
+          padding: const EdgeInsets.symmetric(horizontal: 22),
           child: Row(
             children: [
               Expanded(
@@ -239,8 +308,9 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                           (states) => ProjectColors.primary),
                       overlayColor: MaterialStateColor.resolveWith(
                           (states) => Colors.white.withOpacity(.2))),
-                  onPressed: () {
-                    log("OTP Code: ${_otpCode}");
+                  onPressed: () async {
+                    log("OTP Code: $_otpCode");
+                    await onSubmit(context);
                   },
                   child: Center(
                     child: RichText(

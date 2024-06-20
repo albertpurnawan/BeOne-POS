@@ -15,7 +15,7 @@ class ItemsDao extends BaseDao<ItemModel> {
     if (maps.isNotEmpty) {
       return ItemModel.fromMap(maps.first);
     } else {
-      throw Exception("ID $barcode is not found");
+      throw "Barcode [$barcode] is not found";
     }
   }
 

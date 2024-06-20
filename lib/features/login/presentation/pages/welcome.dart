@@ -179,6 +179,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
+                  // Container(
+                  //   constraints: const BoxConstraints(maxWidth: 400),
+                  //   child: CustomButton(
+                  //     child: const Text("ByPass DevPurpose"),
+                  //     onTap: () {
+                  //       Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //             builder: (context) => const HomeScreen()),
+                  //       ).then((value) => Future.delayed(
+                  //           const Duration(milliseconds: 200),
+                  //           () => SystemChrome.setSystemUIOverlayStyle(
+                  //               const SystemUiOverlayStyle(
+                  //                   statusBarColor: ProjectColors.primary,
+                  //                   statusBarBrightness: Brightness.light,
+                  //                   statusBarIconBrightness:
+                  //                       Brightness.light))));
+                  //     },
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 10),
                 ],
               ),
             ),
