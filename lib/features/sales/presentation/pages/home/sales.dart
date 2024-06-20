@@ -13,11 +13,9 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
-import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -125,18 +123,18 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowLeft ||
           event.physicalKey == PhysicalKeyboardKey.arrowRight) {
         return KeyEventResult.skipRemainingHandlers;
-      } else if (event.physicalKey == PhysicalKeyboardKey.f1 ||
+      } else if ( // F1 is Item Attr.
           event.physicalKey == PhysicalKeyboardKey.f2 ||
-          event.physicalKey == PhysicalKeyboardKey.f3 ||
-          event.physicalKey == PhysicalKeyboardKey.f4 ||
-          event.physicalKey == PhysicalKeyboardKey.f5 ||
-          event.physicalKey == PhysicalKeyboardKey.f6 ||
-          // F7 is Remove item
-          event.physicalKey == PhysicalKeyboardKey.f8 ||
-          event.physicalKey == PhysicalKeyboardKey.f9 ||
-          event.physicalKey == PhysicalKeyboardKey.f10 ||
-          event.physicalKey == PhysicalKeyboardKey.f11 ||
-          event.physicalKey == PhysicalKeyboardKey.f12) {
+              event.physicalKey == PhysicalKeyboardKey.f3 ||
+              event.physicalKey == PhysicalKeyboardKey.f4 ||
+              event.physicalKey == PhysicalKeyboardKey.f5 ||
+              event.physicalKey == PhysicalKeyboardKey.f6 ||
+              // F7 is Remove item
+              event.physicalKey == PhysicalKeyboardKey.f8 ||
+              event.physicalKey == PhysicalKeyboardKey.f9 ||
+              event.physicalKey == PhysicalKeyboardKey.f10 ||
+              event.physicalKey == PhysicalKeyboardKey.f11 ||
+              event.physicalKey == PhysicalKeyboardKey.f12) {
         if (isUpdatingReceiptItemQty) {
           setState(() {
             indexIsSelect = [-1, 0];
@@ -1126,17 +1124,18 @@ class _SalesPageState extends State<SalesPage> {
                         Expanded(
                           child: SizedBox.expand(
                             child: OutlinedButton(
-                                onPressed: () {
-                                  showDialog(
+                                onPressed: () async {
+                                  await showDialog(
                                     context: context,
                                     builder: (BuildContext context) =>
                                         const InvoiceDetailsDialog(),
-                                  ).then((value) {
-                                    setState(() {
-                                      isEditingNewReceiptItemCode = true;
-                                      _newReceiptItemCodeFocusNode
-                                          .requestFocus();
-                                    });
+                                  );
+                                  setState(() {
+                                    isEditingNewReceiptItemCode = true;
+                                    Future.delayed(
+                                        const Duration(milliseconds: 50),
+                                        () => _newReceiptItemCodeFocusNode
+                                            .requestFocus());
                                   });
                                 },
                                 style: OutlinedButton.styleFrom(
@@ -1156,12 +1155,16 @@ class _SalesPageState extends State<SalesPage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      "Invoice Details",
+                                      "Header Attr.",
+                                      softWrap: true,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w600),
                                     ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
                                     Text(
-                                      "",
+                                      "F2",
                                       style: TextStyle(
                                           fontWeight: FontWeight.w300),
                                     ),
@@ -1169,32 +1172,6 @@ class _SalesPageState extends State<SalesPage> {
                                 )),
                           ),
                         ),
-
-                        // const SizedBox(
-                        //   width: 5,
-                        // ),
-                        // Expanded(
-                        //   child: SizedBox.expand(
-                        //     child: OutlinedButton(
-                        //       onPressed: () {},
-                        //       style: OutlinedButton.styleFrom(
-                        //         elevation: 5,
-                        //         shadowColor: Colors.black87,
-                        //         backgroundColor: ProjectColors.primary,
-                        //         padding: const EdgeInsets.all(3),
-                        //         foregroundColor: Colors.white,
-                        //         shape: RoundedRectangleBorder(
-                        //           borderRadius: BorderRadius.circular(5),
-                        //         ),
-                        //         side: BorderSide.none,
-                        //       ),
-                        //       child: const Text(
-                        //         "Item Disc \$",
-                        //         style: TextStyle(fontWeight: FontWeight.w600),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
@@ -1209,7 +1186,7 @@ class _SalesPageState extends State<SalesPage> {
                             child: TapRegion(
                               groupId: 1,
                               child: OutlinedButton(
-                                  onPressed: indexIsSelect[0] == -1
+                                  onPressed: indexIsSelect[1] == 0
                                       ? null
                                       : () {
                                           final ReceiptItemEntity
@@ -1261,12 +1238,12 @@ class _SalesPageState extends State<SalesPage> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "Item Details",
+                                        "Item Attr.",
                                         style: TextStyle(
                                             fontWeight: FontWeight.w600),
                                       ),
                                       Text(
-                                        "",
+                                        "F1",
                                         style: TextStyle(
                                             fontWeight: FontWeight.w300),
                                       ),
@@ -1291,22 +1268,24 @@ class _SalesPageState extends State<SalesPage> {
                   Expanded(
                     child: SizedBox.expand(
                       child: OutlinedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             setState(() {
                               isEditingNewReceiptItemCode = false;
                               isEditingNewReceiptItemQty = false;
                               isUpdatingReceiptItemQty = false;
                             });
-                            showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) =>
-                                        const InputDiscountManual())
-                                .then((value) => setState(() {
-                                      isEditingNewReceiptItemCode = true;
-                                      _newReceiptItemCodeFocusNode
-                                          .requestFocus();
-                                    }));
+                            await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) =>
+                                    const InputDiscountManual());
+                            setState(() {
+                              isEditingNewReceiptItemCode = true;
+                              Future.delayed(
+                                  const Duration(milliseconds: 50),
+                                  () => _newReceiptItemCodeFocusNode
+                                      .requestFocus());
+                            });
                           },
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
@@ -1319,17 +1298,6 @@ class _SalesPageState extends State<SalesPage> {
                             ),
                             side: BorderSide.none,
                           ),
-                          // style: ButtonStyle(
-                          //   foregroundColor:
-                          //       MaterialStatePropertyAll<Color>(
-                          //           Color.fromRGBO(195, 53, 53, 1)),
-                          //   side: MaterialStatePropertyAll<BorderSide>(
-                          //     BorderSide(
-                          //       color: Color.fromRGBO(195, 53, 53, 1),
-                          //       width: 3,
-                          //     ),
-                          //   ),
-                          // ),
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -2861,12 +2829,35 @@ class _SalesPageState extends State<SalesPage> {
           });
         });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f2)) {
-        context.read<ReceiptCubit>().resetReceipt();
-        setState(() {});
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) => const InvoiceDetailsDialog(),
+        );
+        setState(() {
+          isEditingNewReceiptItemCode = true;
+          Future.delayed(const Duration(milliseconds: 50),
+              () => _newReceiptItemCodeFocusNode.requestFocus());
+        });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
-        context.read<ReceiptCubit>().resetReceipt();
-        setState(() {});
-        Navigator.pop(context);
+        if (indexIsSelect[1] != 0) {
+          final ReceiptItemEntity receiptItemTarget =
+              context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
+          log("receiptTarget - $receiptItemTarget");
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) =>
+                ItemDetailsDialog(indexSelected: indexIsSelect[0]),
+          );
+          setState(() {
+            indexIsSelect = [-1, 0];
+            _textEditingControllerNewReceiptItemQuantity.text = "1";
+            _textEditingControllerNewReceiptItemCode.text = "";
+            _newReceiptItemQuantityFocusNode.unfocus();
+            isUpdatingReceiptItemQty = false;
+            isEditingNewReceiptItemCode = true;
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        }
       }
     } else {
       textFieldFocusNode.requestFocus();

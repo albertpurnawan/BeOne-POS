@@ -83,7 +83,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.5,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
             child: TextFormField(
               focusNode: _discountFocusNode,
               controller: _textEditorDiscountController,
@@ -140,91 +140,87 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
         // contentPadding: const EdgeInsets.symmetric(
         //     horizontal: 20, vertical: 5),
         actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
-            child: Row(
-              children: [
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side:
-                              const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.white),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => ProjectColors.primary.withOpacity(.2))),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Cancel",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          TextSpan(
-                            text: "  (Esc)",
-                            style: TextStyle(fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                        style: TextStyle(color: ProjectColors.primary),
-                      ),
-                      overflow: TextOverflow.clip,
-                    ),
-                  ),
-                )),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+          Row(
+            children: [
+              Expanded(
+                  child: TextButton(
+                style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary),
-                      )),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => ProjectColors.primary),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.white.withOpacity(.2))),
-                  onPressed: () {
-                    double input = Helpers.revertMoneyToDecimalFormat(
-                        _textEditorDiscountController.text);
-                    final ReceiptEntity state =
-                        context.read<ReceiptCubit>().state;
-                    if (input > state.subtotal - (state.discAmount ?? 0)) {
-                      context.pop();
-                      return ErrorHandler.presentErrorSnackBar(
-                          context, "Invalid discount amount");
-                    }
-                    showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) =>
-                            AuthInputDiscountDialog(discountValue: input));
-                  },
-                  child: Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Enter",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          TextSpan(
-                            text: "  (Enter)",
-                            style: TextStyle(fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                      ),
-                      overflow: TextOverflow.clip,
+                        side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith(
+                        (states) => ProjectColors.primary.withOpacity(.2))),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Center(
+                  child: RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Cancel",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: "  (Esc)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                      style: TextStyle(color: ProjectColors.primary),
                     ),
+                    overflow: TextOverflow.clip,
                   ),
-                )),
-              ],
-            ),
+                ),
+              )),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: TextButton(
+                style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      side: const BorderSide(color: ProjectColors.primary),
+                    )),
+                    backgroundColor: MaterialStateColor.resolveWith(
+                        (states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.white.withOpacity(.2))),
+                onPressed: () {
+                  double input = Helpers.revertMoneyToDecimalFormat(
+                      _textEditorDiscountController.text);
+                  final ReceiptEntity state =
+                      context.read<ReceiptCubit>().state;
+                  if (input > state.subtotal - (state.discAmount ?? 0)) {
+                    context.pop();
+                    return ErrorHandler.presentErrorSnackBar(
+                        context, "Invalid discount amount");
+                  }
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) =>
+                          AuthInputDiscountDialog(discountValue: input));
+                },
+                child: Center(
+                  child: RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Enter",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: "  (Enter)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    ),
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
+              )),
+            ],
           ),
         ],
         actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
