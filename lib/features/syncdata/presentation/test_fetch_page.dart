@@ -143,13 +143,14 @@ class FetchScreen extends StatefulWidget {
 class _FetchScreenState extends State<FetchScreen> {
   final TextEditingController _docIdController = TextEditingController();
 
+  bool isManualSyncing = false;
   int statusCode = 0;
   String errorMessage = '';
   double syncProgress = 0.0;
   int totalData = 0;
   int totalTable = 57;
 
-  void manualSync() async {
+  Future<void> manualSync() async {
     late List<CurrencyModel> tcurr;
     late List<CountryModel> tocry;
     late List<ProvinceModel> toprv;
@@ -4005,11 +4006,14 @@ class _FetchScreenState extends State<FetchScreen> {
                           foregroundColor: const MaterialStatePropertyAll(
                               ProjectColors.primary),
                         ),
-                        child: const Text(
-                          'Logs',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Logs',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ),
@@ -4054,30 +4058,42 @@ class _FetchScreenState extends State<FetchScreen> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.1,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          await GetIt.instance<AppDatabase>().resetDatabase();
-                        },
+                        onPressed: isManualSyncing
+                            ? null
+                            : () async {
+                                await GetIt.instance<AppDatabase>()
+                                    .resetDatabase();
+                              },
                         style: ButtonStyle(
                           shape: MaterialStatePropertyAll(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(100),
-                              side: const BorderSide(
-                                color: ProjectColors.primary,
+                              side: BorderSide(
+                                color: isManualSyncing
+                                    ? const Color.fromARGB(255, 114, 114, 114)
+                                    : ProjectColors.primary,
                                 width: 2,
                               ),
                             ),
                           ),
-                          backgroundColor: const MaterialStatePropertyAll(
-                            Color.fromARGB(255, 234, 234, 234),
+                          backgroundColor: MaterialStatePropertyAll(
+                            isManualSyncing
+                                ? Colors.grey
+                                : const Color.fromARGB(255, 234, 234, 234),
                           ),
-                          foregroundColor: const MaterialStatePropertyAll(
-                              ProjectColors.primary),
+                          foregroundColor: MaterialStatePropertyAll(
+                              isManualSyncing
+                                  ? const Color.fromARGB(255, 114, 114, 114)
+                                  : ProjectColors.primary),
                         ),
-                        child: const Text(
-                          'Reset',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Reset',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ),
@@ -4086,27 +4102,48 @@ class _FetchScreenState extends State<FetchScreen> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.1,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            syncProgress = 0;
-                          });
-                          final prefs = await SharedPreferences.getInstance();
-                          prefs.setBool('isSyncing', false);
-                          manualSync();
-                        },
+                        onPressed: isManualSyncing
+                            ? null
+                            : () async {
+                                setState(() {
+                                  syncProgress = 0;
+                                  isManualSyncing = true;
+                                });
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool('isSyncing', false);
+                                await manualSync();
+                                setState(() {
+                                  isManualSyncing = false;
+                                });
+                              },
                         style: const ButtonStyle(
                           backgroundColor:
                               MaterialStatePropertyAll(ProjectColors.primary),
                           foregroundColor:
                               MaterialStatePropertyAll(Colors.white),
                         ),
-                        child: const Text(
-                          'Sync',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
-                        ),
+                        child: isManualSyncing
+                            ? const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator.adaptive(
+                                      // backgroundColor: Colors.white,
+                                      ),
+                                ),
+                              )
+                            : const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  'Sync',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
                       ),
                     ),
                   ],

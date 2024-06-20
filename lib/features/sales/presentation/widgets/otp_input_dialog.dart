@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -109,160 +110,204 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      title: Container(
-        decoration: const BoxDecoration(
-          color: ProjectColors.primary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-        ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: const Text(
-          'OTP Confirmation',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-        ),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      contentPadding: const EdgeInsets.all(0),
-      content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.5,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
-          child: IntrinsicHeight(
-            child: Column(
-              children: [
-                const Text(
-                  'Insert OTP Code You Received',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.black),
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(6, (index) {
-                    return Container(
-                      width: 60,
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      child: TextField(
-                        focusNode: index == 0 ? _otpFocusNode : null,
-                        controller: _otpControllers[index],
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                        ],
-                        maxLength: 1,
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w300,
-                        ),
-                        decoration: const InputDecoration(
-                          counterText: '',
-                          filled: true,
-                          fillColor: Colors.white,
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: ProjectColors.primary, width: 2),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.green, width: 2),
-                          ),
-                        ),
-                        onChanged: (value) {
-                          if (value.isEmpty && index > 0) {
-                            FocusScope.of(context).previousFocus();
-                          } else if (value.isNotEmpty && index < 5) {
-                            FocusScope.of(context).nextFocus();
-                          } else if (value.isNotEmpty && index == 5) {
-                            _updateOtpCode();
-                            FocusScope.of(context).unfocus();
-                            log("OTP Code: $_otpCode");
-                          }
-                        },
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                    "Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
-                if (_isTimeUp) ...[
-                  const SizedBox(height: 10),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Resend OTP',
-                          style: TextStyle(
-                            color: _isOTPClicked
-                                ? Colors.grey
-                                : ProjectColors.primary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              setState(() {
-                                _isOTPClicked = true;
-                                _isSendingOTP = true;
-                                _isOTPSent = false;
-                              });
+    return Focus(
+      onKeyEvent: (node, value) {
+        log("otpinputdialog $value");
+        if (value.runtimeType == KeyUpEvent) {
+          return KeyEventResult.handled;
+        }
 
-                              await resendOTP();
+        if (value.physicalKey == PhysicalKeyboardKey.enter) {
+          onSubmit(context);
+          return KeyEventResult.handled;
+        } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
+          context.pop();
+        } else if (value.physicalKey == PhysicalKeyboardKey.f11) {
+          setState(() {
+            _isOTPClicked = true;
+            _isSendingOTP = true;
+            _isOTPSent = false;
+            _otpFocusNode.requestFocus();
 
-                              setState(() {
-                                _isOTPClicked = false;
-                                _isSendingOTP = false;
-                                _isTimeUp = false;
-                              });
-                            },
-                        ),
-                      ],
-                    ),
+            for (int i = 0; i < 6; i++) {
+              _otpControllers[i].text = "";
+            }
+          });
+
+          resendOTP().then((value) {
+            setState(() {
+              _isOTPClicked = false;
+              _isSendingOTP = false;
+              _isTimeUp = false;
+            });
+          });
+        }
+
+        return KeyEventResult.ignored;
+      },
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        title: Container(
+          decoration: const BoxDecoration(
+            color: ProjectColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+          ),
+          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          child: const Text(
+            'OTP Confirmation',
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          ),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        contentPadding: const EdgeInsets.all(0),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.5,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  const Text(
+                    'Insert OTP Code You Received',
+                    style: TextStyle(fontSize: 22, color: Colors.black),
                   ),
-                ],
-                if (_isSendingOTP) ...[
-                  const SizedBox(height: 15),
-                  (_isOTPSent)
-                      ? const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "OTP SENT",
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Icon(
-                              Icons.check_circle_outline,
-                              size: 22,
-                              color: Colors.green,
-                            ),
+                  const SizedBox(height: 25),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(6, (index) {
+                      return Container(
+                        width: 60,
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        child: TextField(
+                          focusNode: index == 0 ? _otpFocusNode : null,
+                          controller: _otpControllers[index],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
                           ],
-                        )
-                      : const Center(
-                          child: CircularProgressIndicator(),
+                          maxLength: 1,
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w300,
+                          ),
+                          decoration: const InputDecoration(
+                            counterText: '',
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: ProjectColors.primary, width: 2),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.green, width: 2),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            if (value.isEmpty && index > 0) {
+                              FocusScope.of(context).previousFocus();
+                            } else if (value.isNotEmpty && index < 5) {
+                              FocusScope.of(context).nextFocus();
+                            } else if (value.isNotEmpty && index == 5) {
+                              _updateOtpCode();
+                              // FocusScope.of(context).unfocus();
+                              log("OTP Code: $_otpCode");
+                            }
+                          },
                         ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                      "Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
+                  if (_isTimeUp && !_isSendingOTP) ...[
+                    const SizedBox(height: 10),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Resend OTP',
+                            style: TextStyle(
+                              color: _isOTPClicked
+                                  ? Colors.grey
+                                  : ProjectColors.primary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                setState(() {
+                                  _isOTPClicked = true;
+                                  _isSendingOTP = true;
+                                  _isOTPSent = false;
+                                  _otpFocusNode.requestFocus();
+
+                                  for (int i = 0; i < 6; i++) {
+                                    _otpControllers[i].text = "";
+                                  }
+                                });
+
+                                await resendOTP();
+                                setState(() {
+                                  _isOTPClicked = false;
+                                  _isSendingOTP = false;
+                                  _isTimeUp = false;
+                                });
+                              },
+                          ),
+                          TextSpan(
+                            text: " (F11)",
+                            style: TextStyle(
+                                color: _isOTPClicked
+                                    ? Colors.grey
+                                    : ProjectColors.primary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (_isTimeUp && _isSendingOTP) ...[
+                    const SizedBox(height: 15),
+                    (_isOTPSent)
+                        ? const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "OTP SENT",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: ProjectColors.green,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Icon(
+                                Icons.check_circle_outline,
+                                size: 24,
+                                color: ProjectColors.green,
+                              ),
+                            ],
+                          )
+                        : const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
-      ),
-      actions: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22),
-          child: Row(
+        actions: <Widget>[
+          Row(
             children: [
               Expanded(
                   child: TextButton(
@@ -333,9 +378,9 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
               ),
             ],
           ),
-        ),
-      ],
-      actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+        ],
+        actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      ),
     );
   }
 }

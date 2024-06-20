@@ -93,7 +93,8 @@ class _QueueListDialogState extends State<QueueListDialog> {
               .retrieveFromQueue(queuedReceipts[currentIndex], context);
           Navigator.pop(context);
           return KeyEventResult.skipRemainingHandlers;
-        } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
+        } else if (event.physicalKey == PhysicalKeyboardKey.f12 ||
+            event.physicalKey == PhysicalKeyboardKey.escape) {
           Navigator.pop(context);
           return KeyEventResult.skipRemainingHandlers;
         }

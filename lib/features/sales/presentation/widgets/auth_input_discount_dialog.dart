@@ -34,7 +34,6 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   final passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
   final _usernameFocusNode = FocusNode();
-  final FocusNode _keyboardListenerFocusNode = FocusNode();
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
@@ -99,7 +98,6 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   @override
   void dispose() {
-    _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
 
@@ -120,6 +118,26 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 parentContext.pop();
+              } else if (value.physicalKey == PhysicalKeyboardKey.f11) {
+                setState(() {
+                  _isOTPClicked = true;
+                  _isSendingOTP = true;
+                });
+
+                sendOTP().then((value) {
+                  setState(() {
+                    _isOTPClicked = false;
+                    _isSendingOTP = false;
+                  });
+
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => OTPInputDialog(
+                      discountValue: widget.discountValue,
+                    ),
+                  );
+                });
               }
 
               return KeyEventResult.ignored;
@@ -150,8 +168,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                 child: SizedBox(
                   width: MediaQuery.of(childContext).size.width * 0.5,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 30, horizontal: 40),
+                    padding: const EdgeInsets.fromLTRB(30, 30, 30, 15),
                     child: Form(
                       key: formKey,
                       child: Column(
@@ -227,7 +244,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          Column(
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               RichText(
                                 text: TextSpan(
@@ -266,108 +284,113 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                           );
                                         },
                                     ),
+                                    TextSpan(
+                                      text: " (F11)",
+                                      style: TextStyle(
+                                          color: _isOTPClicked
+                                              ? Colors.grey
+                                              : ProjectColors.lightBlack,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w300),
+                                    ),
                                   ],
                                 ),
                               ),
-                              if (_isSendingOTP) ...[
-                                const SizedBox(height: 15),
-                                Center(
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              if (_isSendingOTP)
+                                const SizedBox(
+                                  height: 16,
+                                  width: 16,
                                   child: CircularProgressIndicator(),
                                 ),
-                                const SizedBox(height: 15),
-                              ],
                             ],
                           ),
-                          const SizedBox(height: 15),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 22),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: TextButton(
-                                  style: ButtonStyle(
-                                      shape: MaterialStatePropertyAll(
-                                          RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              side: const BorderSide(
-                                                  color:
-                                                      ProjectColors.primary))),
-                                      backgroundColor:
-                                          MaterialStateColor.resolveWith(
-                                              (states) => Colors.white),
-                                      overlayColor:
-                                          MaterialStateColor.resolveWith(
-                                              (states) => ProjectColors.primary
-                                                  .withOpacity(.2))),
-                                  onPressed: () {
-                                    Navigator.of(childContext).pop();
-                                  },
-                                  child: Center(
-                                    child: RichText(
-                                      text: const TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Cancel",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          TextSpan(
-                                            text: "  (Esc)",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w300),
-                                          ),
-                                        ],
-                                        style: TextStyle(
-                                            color: ProjectColors.primary),
-                                      ),
-                                      overflow: TextOverflow.clip,
+                          const SizedBox(height: 30),
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: TextButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary))),
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => Colors.white),
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => ProjectColors.primary
+                                                .withOpacity(.2))),
+                                onPressed: () {
+                                  Navigator.of(childContext).pop();
+                                },
+                                child: Center(
+                                  child: RichText(
+                                    text: const TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: "Cancel",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        TextSpan(
+                                          text: "  (Esc)",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                      ],
+                                      style: TextStyle(
+                                          color: ProjectColors.primary),
                                     ),
+                                    overflow: TextOverflow.clip,
                                   ),
-                                )),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                    child: TextButton(
-                                  style: ButtonStyle(
-                                      shape: MaterialStatePropertyAll(
-                                          RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              side: const BorderSide(
-                                                  color:
-                                                      ProjectColors.primary))),
-                                      backgroundColor:
-                                          MaterialStateColor.resolveWith(
-                                              (states) =>
-                                                  ProjectColors.primary),
-                                      overlayColor:
-                                          MaterialStateColor.resolveWith(
-                                              (states) => Colors.white
-                                                  .withOpacity(.2))),
-                                  onPressed: () async => await onSubmit(
-                                      childContext, parentContext),
-                                  child: Center(
-                                    child: RichText(
-                                      text: const TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "Confirm",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          TextSpan(
-                                            text: "  (Enter)",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w300),
-                                          ),
-                                        ],
-                                      ),
-                                      overflow: TextOverflow.clip,
+                                ),
+                              )),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                  child: TextButton(
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary))),
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => ProjectColors.primary),
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) =>
+                                                Colors.white.withOpacity(.2))),
+                                onPressed: () async =>
+                                    await onSubmit(childContext, parentContext),
+                                child: Center(
+                                  child: RichText(
+                                    text: const TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: "Confirm",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        TextSpan(
+                                          text: "  (Enter)",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                      ],
                                     ),
+                                    overflow: TextOverflow.clip,
                                   ),
-                                )),
-                              ],
-                            ),
+                                ),
+                              )),
+                            ],
                           ),
                         ],
                       ),

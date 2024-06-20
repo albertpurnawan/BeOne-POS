@@ -53,20 +53,20 @@ void main() async {
   await initializeDependencies();
   await GetIt.instance.allReady();
   await syncWithBOS();
-  await SentryFlutter.init(
-    (options) {
-      options.dsn =
-          'https://51c31424041afb915d53816fc77070dd@o4507457904312320.ingest.de.sentry.io/4507458001502288';
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-      // We recommend adjusting this value in production.
-      options.tracesSampleRate = 1.0;
-      // The sampling rate for profiling is relative to tracesSampleRate
-      // Setting to 1.0 will profile 100% of sampled transactions:
-      options.profilesSampleRate = 1.0;
-    },
-    appRunner: () => runApp(MyApp()),
-  );
-  // runApp(const MyApp());
+  // await SentryFlutter.init(
+  //   (options) {
+  //     options.dsn =
+  //         'https://51c31424041afb915d53816fc77070dd@o4507457904312320.ingest.de.sentry.io/4507458001502288';
+  //     // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+  //     // We recommend adjusting this value in production.
+  //     options.tracesSampleRate = 1.0;
+  //     // The sampling rate for profiling is relative to tracesSampleRate
+  //     // Setting to 1.0 will profile 100% of sampled transactions:
+  //     options.profilesSampleRate = 1.0;
+  //   },
+  //   appRunner: () => runApp(const MyApp()),
+  // );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
