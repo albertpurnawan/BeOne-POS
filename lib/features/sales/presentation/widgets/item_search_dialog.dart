@@ -121,15 +121,17 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                       context.read<ItemsCubit>().getItems(searchKeyword: value);
                       _searchInputFocusNode.requestFocus();
 
-                      Future.delayed(const Duration(milliseconds: 300))
-                          .then((value) {
-                        SchedulerBinding.instance.addPostFrameCallback((_) {
-                          _scrollController.animateTo(
-                              _scrollController.position.minScrollExtent,
-                              duration: const Duration(milliseconds: 400),
-                              curve: Curves.fastOutSlowIn);
+                      if (_scrollController.hasClients) {
+                        Future.delayed(const Duration(milliseconds: 300))
+                            .then((value) {
+                          SchedulerBinding.instance.addPostFrameCallback((_) {
+                            _scrollController.animateTo(
+                                _scrollController.position.minScrollExtent,
+                                duration: const Duration(milliseconds: 400),
+                                curve: Curves.fastOutSlowIn);
+                          });
                         });
-                      });
+                      }
                     },
                     autofocus: true,
                     focusNode: _searchInputFocusNode,

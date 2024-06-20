@@ -408,7 +408,7 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   // =================================================
-  //             [START] Smaller Widgets
+  //             [START] Widgets
   // =================================================
 
   Widget _receiptItemsList() {
@@ -2618,7 +2618,7 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   // =================================================
-  //              [END] Smaller Widgets
+  //              [END] Widgets
   // =================================================
 
   // =================================================
@@ -2879,10 +2879,12 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Future<void> scrollToReceiptItemByIndex(int index) async {
-    await itemScrollController.scrollTo(
-        index: index,
-        duration: const Duration(milliseconds: 10),
-        curve: Curves.easeInOutCubic);
+    if (itemScrollController.isAttached) {
+      await itemScrollController.scrollTo(
+          index: index,
+          duration: const Duration(milliseconds: 10),
+          curve: Curves.easeInOutCubic);
+    }
   }
 
   void checkIsEditingNewReceiptItemQty() {
