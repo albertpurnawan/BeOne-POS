@@ -60,18 +60,24 @@ class LanguageSwitchButton extends StatelessWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool isLoggedIn = false;
-  // bool isOpen = false;
   bool haveTopos = false;
 
   @override
   void initState() {
+    checkTopos();
     super.initState();
     isLoggedIn = prefs.getBool('logStatus') ?? false;
-    // _checkShiftStatus();
   }
 
   Future<void> checkTopos() async {
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    (topos.isNotEmpty)
+        ? setState(() {
+            haveTopos = true;
+          })
+        : setState(() {
+            haveTopos = false;
+          });
   }
 
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
@@ -141,23 +147,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(height: 10),
                   Container(
                     constraints: const BoxConstraints(maxWidth: 400),
-                    child: CustomButton(
-                      child: const Text("Setup Device"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SettingsScreen()),
-                        ).then((value) => Future.delayed(
-                            const Duration(milliseconds: 200),
-                            () => SystemChrome.setSystemUIOverlayStyle(
-                                const SystemUiOverlayStyle(
-                                    statusBarColor: ProjectColors.primary,
-                                    statusBarBrightness: Brightness.light,
-                                    statusBarIconBrightness:
-                                        Brightness.light))));
-                      },
-                    ),
+                    child: haveTopos
+                        ? null
+                        : CustomButton(
+                            child: const Text("Setup Device"),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SettingsScreen()),
+                              ).then((value) => Future.delayed(
+                                  const Duration(milliseconds: 200),
+                                  () => SystemChrome.setSystemUIOverlayStyle(
+                                      const SystemUiOverlayStyle(
+                                          statusBarColor: ProjectColors.primary,
+                                          statusBarBrightness: Brightness.light,
+                                          statusBarIconBrightness:
+                                              Brightness.light))));
+                            },
+                          ),
                   ),
                   const SizedBox(height: 10),
                   // Container(
