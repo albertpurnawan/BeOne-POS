@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
@@ -92,10 +91,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     }
   }
 
-  Future<void> sendOTP() async {
-    await Future.delayed(const Duration(seconds: 3));
+  Future<void> createOTP() async {
     await GetIt.instance<OTPServiceAPi>().createSendOTP();
-    log("HEREEEEEEEEE");
   }
 
   @override
@@ -126,7 +123,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                   _isSendingOTP = true;
                 });
 
-                sendOTP().then((value) {
+                createOTP().then((value) {
                   setState(() {
                     _isOTPClicked = false;
                     _isSendingOTP = false;
@@ -268,7 +265,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                             _isSendingOTP = true;
                                           });
 
-                                          await sendOTP();
+                                          await createOTP();
 
                                           setState(() {
                                             _isOTPClicked = false;
