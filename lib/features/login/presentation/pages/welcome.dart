@@ -8,8 +8,8 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/features/settings/presentation/settings.dart';
-import 'package:pos_fe/features/syncdata/presentation/test_fetch_page.dart';
+import 'package:pos_fe/features/settings/presentation/device_setup.dart';
+import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -156,7 +156,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const SettingsScreen()),
+                                        const DeviceSetupScreen()),
                               ).then((value) => Future.delayed(
                                   const Duration(milliseconds: 200),
                                   () => SystemChrome.setSystemUIOverlayStyle(

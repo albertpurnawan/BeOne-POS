@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/models/user_master_model.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/user_masters_service.dart';
+import 'package:pos_fe/features/settings/data/models/user_master_model.dart';
 
 class UsersDao {
   final AppDatabase db;
