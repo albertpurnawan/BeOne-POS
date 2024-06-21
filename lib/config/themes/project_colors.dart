@@ -10,4 +10,5 @@ abstract class ProjectColors {
   static const Color lightBlack = Color(0xFF555555);
 
   static const Color green = Color.fromARGB(255, 38, 106, 53);
+  static const Color blue = Color.fromRGBO(14, 68, 193, 1);
 }

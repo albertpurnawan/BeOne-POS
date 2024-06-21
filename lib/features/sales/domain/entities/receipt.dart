@@ -9,6 +9,13 @@ import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 
+/// ========================================================================================================
+///                                        !!! IMPORTANT !!!
+/// ========================================================================================================
+/// - <previousReceiptEntity> has customized code on the data class, thus automatic generation of data class
+///   will lead to different behaviors on the app. Please make changes manually.
+/// ========================================================================================================
+
 class ReceiptEntity {
   String docNum;
   List<ReceiptItemEntity> receiptItems;

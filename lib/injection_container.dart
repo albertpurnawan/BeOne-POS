@@ -10,6 +10,7 @@ import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dar
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/cash_register_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_group_repository_impl.dart';
@@ -222,7 +223,6 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<InvoiceDetailApi>(InvoiceDetailApi(sl()));
   sl.registerSingletonWithDependencies<InvoiceApi>(() => InvoiceApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
-  // sl.registerSingleton<InvoiceApi>(InvoiceApi(sl(), sl()));
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
   sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
   sl.registerSingleton<PromoHargaSpesialApi>(PromoHargaSpesialApi(sl()));
@@ -277,6 +277,9 @@ Future<void> initializeDependencies() async {
       BillOfMaterialLineItemApi(sl()));
   sl.registerSingletonWithDependencies<MOPAdjustmentService>(
       () => MOPAdjustmentService(sl(), sl()),
+      dependsOn: [SharedPreferences]);
+  sl.registerSingletonWithDependencies<OTPServiceAPi>(
+      () => OTPServiceAPi(sl(), sl()),
       dependsOn: [SharedPreferences]);
   /**
    * =================================

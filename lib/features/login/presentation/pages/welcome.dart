@@ -59,13 +59,16 @@ class LanguageSwitchButton extends StatelessWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  bool isLoggedIn = false;
+  // bool isOpen = false;
   bool haveTopos = false;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _checkShiftStatus();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    isLoggedIn = prefs.getBool('logStatus') ?? false;
+    // _checkShiftStatus();
+  }
 
   Future<void> checkTopos() async {
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -74,7 +77,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   Widget welcomingButtons(BuildContext context) {
     // final api = Api.of(context);
-    bool isLoggedIn = prefs.getBool('logStatus') ?? false;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -92,29 +94,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     child: CustomButton(
                       child: const Text("Login"),
                       onTap: () async {
-                        if (isLoggedIn == false) {
-                          context.pushNamed(RouteConstants.login);
-                          // } else if (isLoggedIn && isOpen == false) {
-                          //   Helpers.navigate(context, LoginScreen());
-                          // if (!context.mounted) return;
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (BuildContext context) {
-                          //     return AlertDialog(
-                          //       shape: const RoundedRectangleBorder(
-                          //         borderRadius:
-                          //             BorderRadius.all(Radius.circular(10.0)),
-                          //       ),
-                          //       content: SizedBox(
-                          //         width:
-                          //             MediaQuery.of(context).size.width * 0.7,
-                          //         child: const OpenShiftScreen(),
-                          //       ),
-                          //     );
-                          //   },
-                          // );
-                        } else {
+                        if (isLoggedIn) {
                           context.pushNamed(RouteConstants.home);
+                        } else {
+                          context.pushNamed(RouteConstants.login);
                         }
                       },
                     ),
@@ -138,7 +121,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: const Text("Sync BOS"),
+                      child: const Text("Sync Data"),
                       onTap: () {
                         Navigator.push(
                           context,

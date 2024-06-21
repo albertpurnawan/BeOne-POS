@@ -288,46 +288,43 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
         actions: <Widget>[
           Row(
             children: [
-              if (!isAndYCondition) ...[
-                Expanded(
-                    flex: 1,
-                    child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  side: const BorderSide(
-                                      color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.white),
-                          overlayColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.black.withOpacity(.2))),
-                      onPressed: () {
-                        context.pop(<PromoBuyXGetYGetConditionAndItemEntity>[]);
-                      },
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Skip",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              TextSpan(
-                                text: "  (Esc)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
-                            style: TextStyle(color: ProjectColors.primary),
-                          ),
-                          overflow: TextOverflow.clip,
+              Expanded(
+                  flex: 1,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: const BorderSide(
+                                color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.white),
+                        overlayColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.black.withOpacity(.2))),
+                    onPressed: () {
+                      context.pop(<PromoBuyXGetYGetConditionAndItemEntity>[]);
+                    },
+                    child: Center(
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Skip",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            TextSpan(
+                              text: "  (Esc)",
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                          style: TextStyle(color: ProjectColors.primary),
                         ),
+                        overflow: TextOverflow.clip,
                       ),
-                    )),
-                const SizedBox(
-                  width: 10,
-                ),
-              ],
+                    ),
+                  )),
+              const SizedBox(
+                width: 10,
+              ),
               Expanded(
                   flex: 2,
                   child: TextButton(
