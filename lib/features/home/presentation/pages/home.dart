@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(
-                              height: 30,
+                              height: 50,
                             ),
                             Container(
                               padding:

@@ -42,4 +42,12 @@ class AuthStoreDao extends BaseDao<AuthStoreModel> {
 
     return res.isNotEmpty ? AuthStoreModel.fromMap(res[0]) : null;
   }
+
+  Future<List<dynamic>?> readEmailByTousrId() async {
+    final res = await db.rawQuery('''
+    SELECT x0.*, x1.username, x1.email FROM tastr AS x0 INNER JOIN tousr AS x1 
+      ON x0.tousrdocid = x1.docid
+    ''');
+    return res;
+  }
 }

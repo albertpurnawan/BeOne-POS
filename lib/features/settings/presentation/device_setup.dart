@@ -13,18 +13,18 @@ import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/token_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+class DeviceSetupScreen extends StatefulWidget {
+  const DeviceSetupScreen({Key? key}) : super(key: key);
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  State<DeviceSetupScreen> createState() => _DeviceSetupScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

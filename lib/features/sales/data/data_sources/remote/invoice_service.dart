@@ -56,41 +56,51 @@ class InvoiceApi {
               final vouchers = await GetIt.instance<AppDatabase>()
                   .vouchersSelectionDao
                   .readBytinv2Id(entry['docid'], txn: null);
+              log("vouchers - $vouchers");
+
+              Map<String, Map<String, dynamic>> groupedPayments = {};
 
               if (vouchers.isNotEmpty) {
-                Map<int, List<Map<String, dynamic>>> groupedVouchers = {};
                 for (var voucher in vouchers) {
-                  if (!groupedVouchers.containsKey(voucher.type)) {
-                    groupedVouchers[voucher.type] = [];
+                  String tpmt3Id = voucher.tpmt3Id!;
+                  if (!groupedPayments.containsKey(tpmt3Id)) {
+                    groupedPayments[tpmt3Id] = {
+                      "tpmt3_id": tpmt3Id,
+                      "amount": 0.0,
+                      "sisavoucher": 0,
+                      "invoice_voucher": []
+                    };
                   }
-                  groupedVouchers[voucher.type]?.add({
-                    "serialNo": voucher.serialNo,
-                    "voucherAmount": voucher.voucherAmount
-                  });
-                }
-                for (var voucherType in groupedVouchers.keys) {
-                  List<Map<String, dynamic>> voucherDetails =
-                      groupedVouchers[voucherType]!;
-                  double totalAmount = voucherDetails.fold(
-                      0, (sum, item) => sum + item['voucherAmount']);
 
-                  invoicePayments.add({
-                    "tpmt3_id": entry['tpmt3Id'],
-                    "amount": totalAmount,
-                    "sisavoucher": 0,
-                    "invoice_voucher": [
-                      {
-                        "serialno": voucherDetails
-                            .map((item) => item['serialNo'])
-                            .toList(),
-                        "type": voucherType
-                      }
-                    ]
-                  });
+                  groupedPayments[tpmt3Id]!['amount'] += voucher.voucherAmount;
+
+                  bool typeExists = false;
+                  for (var voucherEntry
+                      in groupedPayments[tpmt3Id]!['invoice_voucher']) {
+                    if (voucherEntry['type'] == voucher.type) {
+                      voucherEntry['serialno'].add(voucher.serialNo);
+                      typeExists = true;
+                      break;
+                    }
+                  }
+                  if (!typeExists) {
+                    groupedPayments[tpmt3Id]!['invoice_voucher'].add({
+                      "serialno": [voucher.serialNo],
+                      "type": voucher.type
+                    });
+                  }
+                }
+
+                List<Map<String, dynamic>> groupedPaymentsList =
+                    groupedPayments.values.toList();
+
+                for (var groupedPayment in groupedPaymentsList) {
+                  invoicePayments.add(groupedPayment);
+                  log("invoicePayment - $invoicePayments");
                 }
               }
-              break;
 
+              break;
             default:
               invoicePayments.add(
                   {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
@@ -268,32 +278,72 @@ class InvoiceApi {
 
       final payMean = await GetIt.instance<AppDatabase>()
           .payMeansDao
-          .readByToinvId(invHead.docId.toString(), null);
-      log(payMean.toString());
-
-      final vouchers = await GetIt.instance<AppDatabase>()
-          .vouchersSelectionDao
-          .readBytinv2Id(payMean[0].docId.toString(), txn: null);
-      log("$vouchers");
+          .readByToinvShowTopmt(invHead.docId.toString());
+      log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
-      for (var payment in payMean) {
-        if (payment.tpmt3Id == "07be062c-1b8c-41fd-a16c-9f3d6b228c66") {
-          invoicePayments
-              .add({"tpmt3_id": payment.tpmt3Id, "amount": payment.amount});
-        } else if (payment.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
-          invoicePayments.add({
-            "tpmt3_id": payment.tpmt3Id,
-            "amount": payment.amount,
-            "sisavoucher": 0,
-            "invoice_voucher": [
-              {
-                "serialno":
-                    vouchers.map((voucher) => voucher.serialNo).toList(),
-                "type": 1
+
+      if (payMean != null) {
+        for (var entry in payMean) {
+          switch (entry['paytypecode']) {
+            case "1": // TUNAI
+              invoicePayments.add(
+                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              break;
+            case "6": // VOUCHERS
+              final vouchers = await GetIt.instance<AppDatabase>()
+                  .vouchersSelectionDao
+                  .readBytinv2Id(entry['docid'], txn: null);
+              log("vouchers - $vouchers");
+
+              Map<String, Map<String, dynamic>> groupedPayments = {};
+
+              if (vouchers.isNotEmpty) {
+                for (var voucher in vouchers) {
+                  String tpmt3Id = voucher.tpmt3Id!;
+                  if (!groupedPayments.containsKey(tpmt3Id)) {
+                    groupedPayments[tpmt3Id] = {
+                      "tpmt3_id": tpmt3Id,
+                      "amount": 0.0,
+                      "sisavoucher": 0,
+                      "invoice_voucher": []
+                    };
+                  }
+
+                  groupedPayments[tpmt3Id]!['amount'] += voucher.voucherAmount;
+
+                  bool typeExists = false;
+                  for (var voucherEntry
+                      in groupedPayments[tpmt3Id]!['invoice_voucher']) {
+                    if (voucherEntry['type'] == voucher.type) {
+                      voucherEntry['serialno'].add(voucher.serialNo);
+                      typeExists = true;
+                      break;
+                    }
+                  }
+                  if (!typeExists) {
+                    groupedPayments[tpmt3Id]!['invoice_voucher'].add({
+                      "serialno": [voucher.serialNo],
+                      "type": voucher.type
+                    });
+                  }
+                }
+
+                List<Map<String, dynamic>> groupedPaymentsList =
+                    groupedPayments.values.toList();
+
+                for (var groupedPayment in groupedPaymentsList) {
+                  invoicePayments.add(groupedPayment);
+                  log("invoicePayment - $invoicePayments");
+                }
               }
-            ]
-          });
+
+              break;
+            default:
+              invoicePayments.add(
+                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              break;
+          }
         }
       }
 
@@ -388,67 +438,65 @@ class InvoiceApi {
         "invoice_payment": invoicePayments
       };
 
-      log("Data2Send: $dataToSend");
+      log("Data2Send: ${jsonEncode(dataToSend)}");
 
-      if (invHead.paymentSuccess == '1') {
-        Response response = await _dio.post(
-          "$url/tenant-invoice/",
-          data: dataToSend,
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
+      Response response = await _dio.post(
+        "$url/tenant-invoice/",
+        data: dataToSend,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      log("response - $response");
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        log("Success Post");
+        final invHeaderSuccess = InvoiceHeaderModel(
+          docId: invHead.docId,
+          createDate: invHead.createDate,
+          updateDate: invHead.updateDate,
+          tostrId: invHead.tostrId,
+          docnum: invHead.docnum,
+          orderNo: invHead.orderNo,
+          tocusId: invHead.tocusId,
+          tohemId: invHead.tohemId,
+          transDateTime: invHead.transDateTime,
+          timezone: invHead.timezone,
+          remarks: invHead.remarks,
+          subTotal: invHead.subTotal,
+          discPrctg: invHead.discPrctg,
+          discAmount: invHead.discAmount,
+          discountCard: invHead.discountCard,
+          coupon: invHead.coupon,
+          discountCoupun: invHead.discountCoupun,
+          taxPrctg: invHead.taxPrctg,
+          taxAmount: invHead.taxAmount,
+          addCost: invHead.addCost,
+          rounding: invHead.rounding,
+          grandTotal: invHead.grandTotal,
+          changed: invHead.changed,
+          totalPayment: invHead.totalPayment,
+          tocsrId: invHead.tocsrId,
+          docStatus: invHead.docStatus,
+          sync: invHead.sync,
+          syncCRM: invHead.syncCRM,
+          toinvTohemId: invHead.toinvTohemId,
+          refpos1: invHead.refpos1,
+          refpos2: invHead.refpos2,
+          tcsr1Id: invHead.tcsr1Id,
+          discHeaderManual: invHead.discHeaderManual,
+          discHeaderPromo: invHead.discHeaderPromo,
+          syncToBos: response.data['docid'],
+          paymentSuccess: invHead.paymentSuccess,
         );
-        log("response - $response");
 
-        if (response.statusCode! >= 200 && response.statusCode! < 300) {
-          log("Success Post");
-          final invHeaderSuccess = InvoiceHeaderModel(
-            docId: invHead.docId,
-            createDate: invHead.createDate,
-            updateDate: invHead.updateDate,
-            tostrId: invHead.tostrId,
-            docnum: invHead.docnum,
-            orderNo: invHead.orderNo,
-            tocusId: invHead.tocusId,
-            tohemId: invHead.tohemId,
-            transDateTime: invHead.transDateTime,
-            timezone: invHead.timezone,
-            remarks: invHead.remarks,
-            subTotal: invHead.subTotal,
-            discPrctg: invHead.discPrctg,
-            discAmount: invHead.discAmount,
-            discountCard: invHead.discountCard,
-            coupon: invHead.coupon,
-            discountCoupun: invHead.discountCoupun,
-            taxPrctg: invHead.taxPrctg,
-            taxAmount: invHead.taxAmount,
-            addCost: invHead.addCost,
-            rounding: invHead.rounding,
-            grandTotal: invHead.grandTotal,
-            changed: invHead.changed,
-            totalPayment: invHead.totalPayment,
-            tocsrId: invHead.tocsrId,
-            docStatus: invHead.docStatus,
-            sync: invHead.sync,
-            syncCRM: invHead.syncCRM,
-            toinvTohemId: invHead.toinvTohemId,
-            refpos1: invHead.refpos1,
-            refpos2: invHead.refpos2,
-            tcsr1Id: invHead.tcsr1Id,
-            discHeaderManual: invHead.discHeaderManual,
-            discHeaderPromo: invHead.discHeaderPromo,
-            syncToBos: response.data['docid'],
-            paymentSuccess: invHead.paymentSuccess,
-          );
-          await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
-                docId: invHead.docId!,
-                data: invHeaderSuccess,
-              );
-        }
+        await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
+              docId: invHead.docId!,
+              data: invHeaderSuccess,
+            );
       }
-      // handle payment == 0
     } catch (err) {
       handleError(err);
       rethrow;

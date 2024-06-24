@@ -15,7 +15,7 @@ import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_adjustment_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/mop_adjustment_service.dart';
 import 'package:uuid/uuid.dart';
 
 class MOPAdjustmentScreen extends StatefulWidget {

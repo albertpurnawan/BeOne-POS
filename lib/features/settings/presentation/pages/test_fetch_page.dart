@@ -71,65 +71,67 @@ import 'package:pos_fe/features/sales/data/models/vendor.dart';
 import 'package:pos_fe/features/sales/data/models/vendor_group.dart';
 import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/assign_price_member_per_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/auth_store_services.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/bill_of_material_line_item_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/bill_of_material_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/cash_register_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/country_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/credit_card_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/currency_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_group_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/customer_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/employee_services.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_barcode_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_by_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_category_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_remarks_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_by_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/mop_masters_servive.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/payment_type_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/preferred_vendor_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_barcode_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/price_by_item_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/pricelist_period_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_assign_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_buy_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_customer_group_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_get_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_bonus_multi_item_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_assign_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_buy_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_get_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_group_item_header_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_assign_store_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_buy_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_customer_group_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_get_condition_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_diskon_item_header_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_assign_store.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_buy_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_customer_group_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/promo_harga_spesial_header_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/province_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/store_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/tax_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/uom_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_masters_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/user_role_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_group_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/vendor_service.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/zipcode_service.dart';
-import 'package:pos_fe/features/syncdata/domain/usecases/check_credential_active_status.dart';
-import 'package:pos_fe/features/syncdata/presentation/log_error_screen.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_line_item_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/cash_register_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/country_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/customer_group_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/employee_services.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/item_barcode_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/item_by_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/item_category_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/item_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/item_remarks_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/mop_by_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/mop_masters_servive.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/payment_type_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/preferred_vendor_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/price_by_item_barcode_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/price_by_item_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/pricelist_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/pricelist_period_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_bonus_multi_item_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_bonus_multi_item_buy_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_bonus_multi_item_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_bonus_multi_item_get_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_bonus_multi_item_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_buy_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_get_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_item_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_item_buy_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_item_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_item_get_condition_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_item_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_assign_store.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_buy_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/province_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/store_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/tax_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/uom_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/user_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/user_role_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_service.dart';
+import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
+import 'package:pos_fe/features/settings/presentation/pages/log_error_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -141,7 +143,7 @@ class FetchScreen extends StatefulWidget {
 }
 
 class _FetchScreenState extends State<FetchScreen> {
-  final TextEditingController _docIdController = TextEditingController();
+  POSParameterEntity? _posParameterEntity;
 
   bool isManualSyncing = false;
   int statusCode = 0;
@@ -149,6 +151,17 @@ class _FetchScreenState extends State<FetchScreen> {
   double syncProgress = 0.0;
   int totalData = 0;
   int totalTable = 57;
+
+  @override
+  void initState() {
+    super.initState();
+    getPosParameter();
+  }
+
+  void getPosParameter() async {
+    _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+    setState(() {});
+  }
 
   Future<void> manualSync() async {
     late List<CurrencyModel> tcurr;
@@ -216,11 +229,11 @@ class _FetchScreenState extends State<FetchScreen> {
     if (checkSync == null || checkSync == false) {
       try {
         prefs.setBool('isSyncing', true);
-        final topos =
-            await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-        final singleTopos = topos[0];
-        final toposId = singleTopos.docId;
-        final lastSyncDate = topos[0].lastSync!;
+        // final topos =
+        //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+        final singleTopos = _posParameterEntity;
+        final toposId = singleTopos!.docId;
+        final lastSyncDate = _posParameterEntity!.lastSync!;
 
         final fetchFunctions = [
           () async {
@@ -270,7 +283,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTcurr",
+                  processInfo: "ManualSync: Tcurr",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -325,7 +338,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTocry",
+                  processInfo: "ManualSync: Tocry",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -380,7 +393,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncToprv",
+                  processInfo: "ManualSync: Toprv",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -435,7 +448,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTozcd",
+                  processInfo: "ManualSync: Tozcd",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -490,7 +503,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTohem",
+                  processInfo: "ManualSync: Tohem",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -545,7 +558,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTovat",
+                  processInfo: "ManualSync: Tovat",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -600,7 +613,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTopmt",
+                  processInfo: "ManualSync: Topmt",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -655,7 +668,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpmt1",
+                  processInfo: "ManualSync: Tpmt1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -710,7 +723,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpmt2",
+                  processInfo: "ManualSync: Tpmt2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -765,7 +778,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTopln",
+                  processInfo: "ManualSync: Topln",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -820,7 +833,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTostr",
+                  processInfo: "ManualSync: Tostr",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -875,7 +888,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpmt3",
+                  processInfo: "ManualSync: Tpmt3",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -930,7 +943,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTocsr",
+                  processInfo: "ManualSync: Tocsr",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -984,7 +997,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTuom",
+                  processInfo: "ManualSync: Tuom",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1039,7 +1052,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTorol",
+                  processInfo: "ManualSync: Torol",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1093,7 +1106,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTousr",
+                  processInfo: "ManualSync: Tousr",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1149,7 +1162,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpln1",
+                  processInfo: "ManualSync: Tpln1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1204,7 +1217,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTocat",
+                  processInfo: "ManualSync: Tocat",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1259,7 +1272,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncToitm",
+                  processInfo: "ManualSync: Toitm",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1314,7 +1327,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTsitm",
+                  processInfo: "ManualSync: Tsitm",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1369,7 +1382,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTbitm",
+                  processInfo: "ManualSync: Tbitm",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1424,7 +1437,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTritm",
+                  processInfo: "ManualSync: Tritm",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1479,7 +1492,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTovdg",
+                  processInfo: "ManualSync: Tovdg",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1534,7 +1547,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncToven",
+                  processInfo: "ManualSync: Toven",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1590,7 +1603,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTvitm",
+                  processInfo: "ManualSync: Tvitm",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1646,7 +1659,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTocrg",
+                  processInfo: "ManualSync: Tocrg",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1702,7 +1715,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTocus",
+                  processInfo: "ManualSync: Tocus",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1757,7 +1770,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpln2",
+                  processInfo: "ManualSync: Tpln2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1813,7 +1826,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpln3",
+                  processInfo: "ManualSync: Tpln3",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1869,7 +1882,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpln4",
+                  processInfo: "ManualSync: Tpln4",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1924,7 +1937,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTastr",
+                  processInfo: "ManualSync: Tastr",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -1980,7 +1993,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTopsb",
+                  processInfo: "ManualSync: Topsb",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2036,7 +2049,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpsb1",
+                  processInfo: "ManualSync: Tpsb1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2092,7 +2105,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpsb2",
+                  processInfo: "ManualSync: Tpsb2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2150,7 +2163,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpsb4",
+                  processInfo: "ManualSync: Tpsb4",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2206,7 +2219,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTopmi",
+                  processInfo: "ManualSync: Topmi",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2264,7 +2277,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpmi1",
+                  processInfo: "ManualSync: Tpmi1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2322,7 +2335,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpmi2",
+                  processInfo: "ManualSync: Tpmi2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2380,7 +2393,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpmi4",
+                  processInfo: "ManualSync: Tpmi4",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2438,7 +2451,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpmi5",
+                  processInfo: "ManualSync: Tpmi5",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2494,7 +2507,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTopdi",
+                  processInfo: "ManualSync: Topdi",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2550,7 +2563,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdi1",
+                  processInfo: "ManualSync: Tpdi1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2606,7 +2619,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdi2",
+                  processInfo: "ManualSync: Tpdi2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2662,7 +2675,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdi4",
+                  processInfo: "ManualSync: Tpdi4",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2718,7 +2731,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdi5",
+                  processInfo: "ManualSync: Tpdi5",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2774,7 +2787,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTopdg",
+                  processInfo: "ManualSync: Topdg",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2832,7 +2845,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdg1",
+                  processInfo: "ManualSync: Tpdg1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2890,7 +2903,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdg2",
+                  processInfo: "ManualSync: Tpdg2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -2948,7 +2961,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdg4",
+                  processInfo: "ManualSync: Tpdg4",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3007,7 +3020,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTpdg5",
+                  processInfo: "ManualSync: Tpdg5",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3063,7 +3076,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncToprb",
+                  processInfo: "ManualSync: Toprb",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3119,7 +3132,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTprb1",
+                  processInfo: "ManualSync: Tprb1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3175,7 +3188,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTprb2",
+                  processInfo: "ManualSync: Tprb2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3231,7 +3244,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTprb2",
+                  processInfo: "ManualSync: Tprb2",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3287,7 +3300,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTprb5",
+                  processInfo: "ManualSync: Tprb5",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3343,7 +3356,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncToitt",
+                  processInfo: "ManualSync: Toitt",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3399,7 +3412,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncTitt1",
+                  processInfo: "ManualSync: Titt1",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -3804,7 +3817,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   docId: const Uuid().v4(),
                   createDate: DateTime.now(),
                   updateDate: DateTime.now(),
-                  processInfo: "SyncSendToinv",
+                  processInfo: "ManualSync: SendToinv",
                   description: e.toString());
               await GetIt.instance<AppDatabase>()
                   .logErrorDao
@@ -4158,14 +4171,6 @@ class _FetchScreenState extends State<FetchScreen> {
 
   @override
   void dispose() {
-    _docIdController.dispose();
     super.dispose();
   }
 }
-
-// ElevatedButton(
-//   onPressed: () async {
-//     _fetchData();
-//   },
-//   child: Text('TEST'),
-// ),

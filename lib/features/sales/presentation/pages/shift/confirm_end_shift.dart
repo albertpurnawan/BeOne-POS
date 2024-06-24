@@ -13,7 +13,7 @@ import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.da
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/cashier_balance_transactions_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmEndShift extends StatelessWidget {

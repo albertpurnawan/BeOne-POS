@@ -4,11 +4,12 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/features/settings/presentation/settings.dart';
-import 'package:pos_fe/features/syncdata/presentation/test_fetch_page.dart';
+import 'package:pos_fe/features/settings/presentation/device_setup.dart';
+import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -60,10 +61,11 @@ class LanguageSwitchButton extends StatelessWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool isLoggedIn = false;
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-  // bool isOpen = false;
+  bool haveTopos = false;
 
   @override
   void initState() {
+    checkTopos();
     super.initState();
     prefs.reload().then((value) {
       setState(() {
@@ -73,16 +75,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     // _checkShiftStatus();
   }
 
-  // Future<void> _checkShiftStatus() async {
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     isOpen = prefs.getBool('isOpen') ?? false;
-  //   });
-  // }
+  Future<void> checkTopos() async {
+    final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    (topos.isNotEmpty)
+        ? setState(() {
+            haveTopos = true;
+          })
+        : setState(() {
+            haveTopos = false;
+          });
+  }
 
   Widget welcomingButtons(BuildContext context) {
-    // final api = Api.of(context);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 50),
       child: Column(
@@ -127,7 +131,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: const Text("Sync BOS"),
+                      child: const Text("Sync Data"),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -147,23 +151,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   const SizedBox(height: 10),
                   Container(
                     constraints: const BoxConstraints(maxWidth: 400),
-                    child: CustomButton(
-                      child: const Text("Setup Device"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SettingsScreen()),
-                        ).then((value) => Future.delayed(
-                            const Duration(milliseconds: 200),
-                            () => SystemChrome.setSystemUIOverlayStyle(
-                                const SystemUiOverlayStyle(
-                                    statusBarColor: ProjectColors.primary,
-                                    statusBarBrightness: Brightness.light,
-                                    statusBarIconBrightness:
-                                        Brightness.light))));
-                      },
-                    ),
+                    child: haveTopos
+                        ? null
+                        : CustomButton(
+                            child: const Text("Setup Device"),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const DeviceSetupScreen()),
+                              ).then((value) => Future.delayed(
+                                  const Duration(milliseconds: 200),
+                                  () => SystemChrome.setSystemUIOverlayStyle(
+                                      const SystemUiOverlayStyle(
+                                          statusBarColor: ProjectColors.primary,
+                                          statusBarBrightness: Brightness.light,
+                                          statusBarIconBrightness:
+                                              Brightness.light))));
+                            },
+                          ),
                   ),
                   const SizedBox(height: 10),
                   // Container(
