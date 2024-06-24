@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
+import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -89,5 +90,22 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
     ''', [toinvId]);
 
     return result;
+  }
+
+  Future<List<MopSelectionModel>> readMopSelectionsByToinvId(
+      String toinvId, txn) async {
+    final DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.rawQuery('''
+      SELECT x0.docid as tinv2Id, x0.*, x1.docid as tpmt3Id, x3.paytypecode, x3.paytypecode, x3.description, x2.docid as tpmt1Id, x2.mopalias, x2.bankcharge, x2.topmtId, x2.subtype
+      FROM tinv2 as x0 
+      INNER JOIN tpmt3 as x1 ON x0.tpmt3Id = x1.docid
+      INNER JOIN tpmt1 as x2 ON x1.tpmt1Id = x2.docid
+      INNER JOIN topmt as x3 ON x2.topmtId = x3.docid
+      WHERE x0.toinvId = ?
+    ''', [toinvId]);
+
+    return result
+        .map((itemData) => MopSelectionModel.fromMap(itemData))
+        .toList();
   }
 }

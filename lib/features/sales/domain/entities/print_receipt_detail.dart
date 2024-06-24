@@ -8,10 +8,13 @@ class PrintReceiptDetail {
   final POSParameterEntity posParameterEntity;
   final StoreMasterEntity storeMasterEntity;
   final List<ReceiptContentEntity?> receiptContentEntities;
+  final bool isDraft;
 
-  PrintReceiptDetail(
-      {required this.receiptEntity,
-      required this.posParameterEntity,
-      required this.storeMasterEntity,
-      required this.receiptContentEntities});
+  PrintReceiptDetail({
+    required this.receiptEntity,
+    required this.posParameterEntity,
+    required this.storeMasterEntity,
+    required this.receiptContentEntities,
+    required this.isDraft,
+  });
 }

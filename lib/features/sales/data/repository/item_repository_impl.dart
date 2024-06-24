@@ -9,7 +9,6 @@ class ItemRepositoryImpl implements ItemRepository {
 
   @override
   Future<List<ItemModel>> getItems({String? searchKeyword}) async {
-    // TODO: implement getItems
     // try {
     //   final httpResponse = await _itemService.getItems();
 

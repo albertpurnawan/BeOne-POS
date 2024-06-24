@@ -31,6 +31,8 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
       autofocus: true,
       focusNode: _keyboardListenerFocusNode,
       onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+
         if (event.physicalKey == PhysicalKeyboardKey.f12) {
           context.pop(true);
           return KeyEventResult.handled;

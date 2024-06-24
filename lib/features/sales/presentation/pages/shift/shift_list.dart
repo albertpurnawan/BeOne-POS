@@ -259,6 +259,7 @@ class _AllShiftState extends State<AllShift> {
     final shift = await GetIt.instance<AppDatabase>()
         .cashierBalanceTransactionDao
         .readLastValue();
+
     setState(() {
       allShift = shifts;
       activeShift = shift;

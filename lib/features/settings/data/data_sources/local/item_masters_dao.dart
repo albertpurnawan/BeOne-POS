@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
-import 'package:pos_fe/features/syncdata/data/data_sources/remote/item_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/item_masters_service.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemsDaoTest {

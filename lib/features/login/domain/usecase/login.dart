@@ -7,7 +7,7 @@ import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
-import 'package:pos_fe/features/syncdata/domain/usecases/check_credential_active_status.dart';
+import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginUseCase implements UseCase<bool?, UserAuthEntity> {
