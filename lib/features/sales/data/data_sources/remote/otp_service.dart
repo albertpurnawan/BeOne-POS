@@ -42,6 +42,7 @@ class OTPServiceAPi {
         data: dataToSend,
         options: options,
       );
+      log("response: $response");
 
       return response.data;
     } catch (e) {
