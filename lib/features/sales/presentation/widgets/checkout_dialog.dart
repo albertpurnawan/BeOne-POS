@@ -82,6 +82,17 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     );
   }
 
+  // void showWebViewPopup(BuildContext context, String base64) {
+  //   if (base64.isNotEmpty) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return QRIZDialog(base64: base64);
+  //       },
+  //     );
+  //   } else {}
+  // }
+
   Future<void> charge() async {
     try {
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
