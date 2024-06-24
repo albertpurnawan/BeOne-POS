@@ -39,7 +39,6 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _scrollController.dispose();
     _noteController.dispose();
     _noteFocusNode.dispose();

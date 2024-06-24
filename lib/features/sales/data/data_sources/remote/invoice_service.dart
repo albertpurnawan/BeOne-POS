@@ -196,7 +196,8 @@ class InvoiceApi {
             "totaldiscbarcode": 0.0,
             "qtyconv": 0.0,
             "discprctgmember": 0.0,
-            "discamountmember": 0.0
+            "discamountmember": 0.0,
+            "tohem_id": item.tohemId ?? ""
           };
         }).toList(),
         "invoice_payment": invoicePayments
