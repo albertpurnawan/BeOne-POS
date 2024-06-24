@@ -235,6 +235,8 @@ class _FetchScreenState extends State<FetchScreen> {
         final toposId = singleTopos!.docId;
         final lastSyncDate = _posParameterEntity!.lastSync!;
 
+        final nextSyncDate = DateTime.now().toUtc().toIso8601String();
+
         final fetchFunctions = [
           () async {
             try {
@@ -3421,8 +3423,6 @@ class _FetchScreenState extends State<FetchScreen> {
           },
         ];
 
-        final nextSyncDate = DateTime.now().toUtc().toIso8601String();
-
         final store = await (GetIt.instance<AppDatabase>()
             .storeMasterDao
             .readByDocId(singleTopos.tostrId!, null));
@@ -3442,6 +3442,7 @@ class _FetchScreenState extends State<FetchScreen> {
           passwordAdmin: singleTopos.passwordAdmin,
           lastSync: nextSyncDate,
         );
+
         await GetIt.instance<AppDatabase>()
             .posParameterDao
             .update(docId: toposId, data: toposData);

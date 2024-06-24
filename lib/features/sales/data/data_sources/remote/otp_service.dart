@@ -51,6 +51,7 @@ class OTPServiceAPi {
         data: dataToSend,
         options: options,
       );
+      log("response: $response");
 
       log("response otp $response");
 

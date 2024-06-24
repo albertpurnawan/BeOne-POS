@@ -200,7 +200,9 @@ Future<void> syncData() async {
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleTopos = topos[0];
       final toposId = singleTopos.docId;
-      final lastSyncDate = topos[0].lastSync!;
+      final lastSyncDate = singleTopos.lastSync!;
+
+      final nextSyncDate = DateTime.now().toUtc().toIso8601String();
 
       final fetchFunctions = [
         () async {
@@ -244,7 +246,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tcurr",
+                processInfo: "ManualSync: Tcurr",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -293,7 +295,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tocry",
+                processInfo: "ManualSync: Tocry",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -342,7 +344,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Toprv",
+                processInfo: "ManualSync: Toprv",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -391,7 +393,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tozcd",
+                processInfo: "ManualSync: Tozcd",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -440,7 +442,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tohem",
+                processInfo: "ManualSync: Tohem",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -489,7 +491,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tovat",
+                processInfo: "ManualSync: Tovat",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -538,7 +540,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Topmt",
+                processInfo: "ManualSync: Topmt",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -586,7 +588,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpmt1",
+                processInfo: "ManualSync: Tpmt1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -635,7 +637,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpmt2",
+                processInfo: "ManualSync: Tpmt2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -684,7 +686,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Topln",
+                processInfo: "ManualSync: Topln",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -733,7 +735,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tostr",
+                processInfo: "ManualSync: Tostr",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -782,7 +784,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpmt3",
+                processInfo: "ManualSync: Tpmt3",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -831,7 +833,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tocsr",
+                processInfo: "ManualSync: Tocsr",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -879,7 +881,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tuom",
+                processInfo: "ManualSync: Tuom",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -928,7 +930,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Torol",
+                processInfo: "ManualSync: Torol",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -976,7 +978,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tousr",
+                processInfo: "ManualSync: Tousr",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1026,7 +1028,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpln1",
+                processInfo: "ManualSync: Tpln1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1075,7 +1077,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tocat",
+                processInfo: "ManualSync: Tocat",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1119,13 +1121,12 @@ Future<void> syncData() async {
                   .itemMasterDao
                   .bulkCreate(data: toitm);
             }
-          } catch (e, s) {
-            debugPrintStack(stackTrace: s);
+          } catch (e) {
             final logErr = LogErrorModel(
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Toitm",
+                processInfo: "ManualSync: Toitm",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1174,7 +1175,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tsitm",
+                processInfo: "ManualSync: Tsitm",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1223,7 +1224,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tbitm",
+                processInfo: "ManualSync: Tbitm",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1272,7 +1273,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tritm",
+                processInfo: "ManualSync: Tritm",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1321,7 +1322,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tovdg",
+                processInfo: "ManualSync: Tovdg",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1369,7 +1370,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Toven",
+                processInfo: "ManualSync: Toven",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1419,7 +1420,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tvitm",
+                processInfo: "ManualSync: Tvitm",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1468,7 +1469,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tocrg",
+                processInfo: "ManualSync: Tocrg",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1518,7 +1519,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tocus",
+                processInfo: "ManualSync: Tocus",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1567,7 +1568,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpln2",
+                processInfo: "ManualSync: Tpln2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1616,7 +1617,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpln3",
+                processInfo: "ManualSync: Tpln3",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1666,7 +1667,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpln4",
+                processInfo: "ManualSync: Tpln4",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1715,7 +1716,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tastr",
+                processInfo: "ManualSync: Tastr",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1765,7 +1766,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Topsb",
+                processInfo: "ManualSync: Topsb",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1815,7 +1816,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpsb1",
+                processInfo: "ManualSync: Tpsb1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1865,7 +1866,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpsb2",
+                processInfo: "ManualSync: Tpsb2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1915,7 +1916,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpsb4",
+                processInfo: "ManualSync: Tpsb4",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -1965,7 +1966,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Topmi",
+                processInfo: "ManualSync: Topmi",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2015,7 +2016,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpmi1",
+                processInfo: "ManualSync: Tpmi1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2065,7 +2066,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpmi2",
+                processInfo: "ManualSync: Tpmi2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2115,7 +2116,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpmi4",
+                processInfo: "ManualSync: Tpmi4",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2167,7 +2168,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpmi5",
+                processInfo: "ManualSync: Tpmi5",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2217,7 +2218,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Topdi",
+                processInfo: "ManualSync: Topdi",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2267,7 +2268,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdi1",
+                processInfo: "ManualSync: Tpdi1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2317,7 +2318,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdi2",
+                processInfo: "ManualSync: Tpdi2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2367,7 +2368,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdi4",
+                processInfo: "ManualSync: Tpdi4",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2417,7 +2418,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdi5",
+                processInfo: "ManualSync: Tpdi5",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2467,7 +2468,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Topdg",
+                processInfo: "ManualSync: Topdg",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2519,7 +2520,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdg1",
+                processInfo: "ManualSync: Tpdg1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2569,7 +2570,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdg2",
+                processInfo: "ManualSync: Tpdg2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2621,7 +2622,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdg4",
+                processInfo: "ManualSync: Tpdg4",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2664,6 +2665,7 @@ Future<void> syncData() async {
               tpdg5 =
                   await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
                       .fetchData("2000-01-01 00:00:00");
+
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemCustomerGroupDao
                   .bulkCreate(data: tpdg5);
@@ -2673,7 +2675,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tpdg5",
+                processInfo: "ManualSync: Tpdg5",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2723,7 +2725,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Toprb",
+                processInfo: "ManualSync: Toprb",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2773,7 +2775,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tprb1",
+                processInfo: "ManualSync: Tprb1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2823,7 +2825,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tprb2",
+                processInfo: "ManualSync: Tprb2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2873,7 +2875,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tprb2",
+                processInfo: "ManualSync: Tprb2",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2923,7 +2925,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Tprb5",
+                processInfo: "ManualSync: Tprb5",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -2972,7 +2974,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Toitt",
+                processInfo: "ManualSync: Toitt",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -3022,7 +3024,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "AutoSync: Titt1",
+                processInfo: "ManualSync: Titt1",
                 description: e.toString());
             await GetIt.instance<AppDatabase>()
                 .logErrorDao
@@ -3030,40 +3032,75 @@ Future<void> syncData() async {
           }
         },
       ];
+
+      final store = await (GetIt.instance<AppDatabase>()
+          .storeMasterDao
+          .readByDocId(singleTopos.tostrId!, null));
+
+      final strName = store?.storeName;
+
+      final toposData = POSParameterModel(
+        docId: toposId,
+        createDate: singleTopos.createDate,
+        updateDate: singleTopos.updateDate,
+        gtentId: singleTopos.gtentId,
+        tostrId: singleTopos.tostrId,
+        storeName: strName,
+        tocsrId: singleTopos.tocsrId,
+        baseUrl: singleTopos.baseUrl,
+        usernameAdmin: singleTopos.usernameAdmin,
+        passwordAdmin: singleTopos.passwordAdmin,
+        lastSync: nextSyncDate,
+      );
+
+      await GetIt.instance<AppDatabase>()
+          .posParameterDao
+          .update(docId: toposId, data: toposData);
+
       for (final fetchFunction in fetchFunctions) {
         try {
           await fetchFunction();
-          final nextSyncDate = DateTime.now().toUtc().toIso8601String();
-
-          final store = await (GetIt.instance<AppDatabase>()
-              .storeMasterDao
-              .readByDocId(singleTopos.tostrId!, null));
-
-          final strName = store?.storeName;
-
-          final toposData = POSParameterModel(
-            docId: toposId,
-            createDate: singleTopos.createDate,
-            updateDate: singleTopos.updateDate,
-            gtentId: singleTopos.gtentId,
-            tostrId: singleTopos.tostrId,
-            storeName: strName,
-            tocsrId: singleTopos.tocsrId,
-            baseUrl: singleTopos.baseUrl,
-            usernameAdmin: singleTopos.usernameAdmin,
-            passwordAdmin: singleTopos.passwordAdmin,
-            lastSync: nextSyncDate,
-          );
-
-          await GetIt.instance<AppDatabase>()
-              .posParameterDao
-              .update(docId: toposId, data: toposData);
         } catch (e) {
           handleError(e);
           rethrow;
         }
       }
 
+      final toposAfterSync =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      final singleToposAfterSync = toposAfterSync[0];
+
+      // UPDATE STORE NAME
+      try {
+        final store = await (GetIt.instance<AppDatabase>()
+            .storeMasterDao
+            .readByDocId(singleTopos.tostrId!, null));
+
+        final toposData = POSParameterModel(
+          docId: singleToposAfterSync.docId,
+          createDate: singleToposAfterSync.createDate,
+          updateDate: singleToposAfterSync.updateDate,
+          gtentId: singleToposAfterSync.gtentId,
+          tostrId: singleToposAfterSync.tostrId,
+          storeName: store?.storeName,
+          tocsrId: singleToposAfterSync.tocsrId,
+          baseUrl: singleToposAfterSync.baseUrl,
+          usernameAdmin: singleToposAfterSync.usernameAdmin,
+          passwordAdmin: singleToposAfterSync.passwordAdmin,
+          lastSync: singleToposAfterSync.lastSync,
+        );
+
+        await GetIt.instance<AppDatabase>()
+            .posParameterDao
+            .update(docId: toposId, data: toposData);
+      } catch (e) {
+        handleError(e);
+        rethrow;
+      }
+      // END OF UPDATE STORE NAME
+
+      // REFRESH TOPRM
+      log("INSERTING PROMOS...");
       final promos = <PromotionsModel>[];
       final today = DateTime.now().weekday;
 
@@ -3074,6 +3111,7 @@ Future<void> syncData() async {
           .readAll();
       for (final header in topsb) {
         if (header.statusActive != 1) continue;
+
         final tpsb2 = await GetIt.instance<AppDatabase>()
             .promoHargaSpesialAssignStoreDao
             .readByTopsbId(header.docId, null);
@@ -3116,6 +3154,7 @@ Future<void> syncData() async {
           await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
       for (final header in topmi) {
         if (header.statusActive != 1) continue;
+
         final tpmi1 = await GetIt.instance<AppDatabase>()
             .promoMultiItemBuyConditionDao
             .readByTopmiId(header.docId, null);
@@ -3163,6 +3202,7 @@ Future<void> syncData() async {
           .readAll();
       for (final header in topdi) {
         if (header.statusActive != 1) continue;
+
         final tpdi1 = await GetIt.instance<AppDatabase>()
             .promoDiskonItemBuyConditionDao
             .readByTopdiId(header.docId, null);
@@ -3208,8 +3248,10 @@ Future<void> syncData() async {
       topdg = await GetIt.instance<AppDatabase>()
           .promoDiskonGroupItemHeaderDao
           .readAll();
+
       for (final header in topdg) {
         if (header.statusActive != 1) continue;
+
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
             .readByTopdgId(header.docId, null);
@@ -3219,7 +3261,6 @@ Future<void> syncData() async {
         final tpdg5 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemCustomerGroupDao
             .readByTopdgId(header.docId, null);
-
         final dayProperties = {
           1: tpdg2.day1,
           2: tpdg2.day2,
@@ -3263,6 +3304,7 @@ Future<void> syncData() async {
           await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
       for (final header in toprb) {
         if (header.statusActive != 1) continue;
+
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao
             .readByToprbId(header.docId, null);
@@ -3304,6 +3346,7 @@ Future<void> syncData() async {
 
       await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
       log("PROMOS INSERTED");
+      // END OF REFRESH TOPRM
 
       // fetched = tcurr.length +
       //     tocry.length +
@@ -3360,7 +3403,9 @@ Future<void> syncData() async {
       //     tprb4.length +
       //     tprb5.length;
 
+      // REFRESH TABLE ITEMS
       await GetIt.instance<AppDatabase>().refreshItemsTable();
+      // END OF REFRESH TABLE ITEMS
 
       // Check Failed Invoices and Try to Send
       final invoices =
