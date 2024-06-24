@@ -152,6 +152,7 @@ class NetzmeApi {
   ) async {
     try {
       String transactionQRIS = '';
+      String imageQRIZ = '';
       externalId = (Random().nextDouble() * pow(10, 21)).floor().toString();
       final header = {
         "X-TIMESTAMP": timestamp,
@@ -171,9 +172,9 @@ class NetzmeApi {
         data: bodyDetail,
         options: Options(headers: header),
       );
-      dev.log("$response");
 
       transactionQRIS = response.data['paymentUrl'];
+      imageQRIZ = response.data['additionalInfo']['qrImage'];
 
       dev.log("CreateTransaction Done");
       return transactionQRIS;

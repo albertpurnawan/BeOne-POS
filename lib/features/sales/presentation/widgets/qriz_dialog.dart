@@ -1,3 +1,4 @@
+// import 'dart:convert';
 // import 'dart:typed_data';
 
 // import 'package:flutter/material.dart';
@@ -12,15 +13,24 @@
 // }
 
 // class _QRIZDialogState extends State<QRIZDialog> {
+//   Uint8List base64Decode(String str) {
+//     final decoder = base64.decoder;
+//     return decoder.convert(str);
+//   }
+
 //   @override
 //   Widget build(BuildContext context) {
-//     if (widget.base64 == null) return Container();
-//     Uint8List bytes = BASE64.decode(widget.base64);
 //     return Scaffold(
-//       appBar: AppBar(title: Text('Example App')),
-//       body: ListTile(
-//         leading: Image.memory(bytes),
-//         title: Text(widget.base64),
+//       appBar: AppBar(
+//         title: Text("QRIZ"),
+//       ),
+//       body: Center(
+//         child: Container(
+//           child: Image.memory(
+//             base64Decode(widget.base64),
+//             fit: BoxFit.contain, // Adjust as needed
+//           ),
+//         ),
 //       ),
 //     );
 //   }
