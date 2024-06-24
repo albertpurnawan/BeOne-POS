@@ -369,7 +369,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         discHeaderPromo: invoiceHeaderModel.discHeaderPromo,
       );
     });
-
+    log("Receipt 2 - $receiptModel");
     return receiptModel;
   }
 

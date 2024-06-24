@@ -295,23 +295,49 @@ class InvoiceApi {
                   .vouchersSelectionDao
                   .readBytinv2Id(entry['docid'], txn: null);
               log("vouchers - $vouchers");
+
+              Map<String, Map<String, dynamic>> groupedPayments = {};
+
               if (vouchers.isNotEmpty) {
                 for (var voucher in vouchers) {
-                  Map<String, dynamic> invoicePaymentEntry = {
-                    "tpmt3_id": entry['tpmt3Id'],
-                    "amount": voucher.voucherAmount,
-                    "sisavoucher": 0,
-                    "invoice_voucher": [
-                      {
-                        "serialno": [voucher.serialNo],
-                        "type": voucher.type
-                      }
-                    ]
-                  };
-                  invoicePayments.add(invoicePaymentEntry);
+                  String tpmt3Id = voucher.tpmt3Id!;
+                  if (!groupedPayments.containsKey(tpmt3Id)) {
+                    groupedPayments[tpmt3Id] = {
+                      "tpmt3_id": tpmt3Id,
+                      "amount": 0.0,
+                      "sisavoucher": 0,
+                      "invoice_voucher": []
+                    };
+                  }
+
+                  groupedPayments[tpmt3Id]!['amount'] += voucher.voucherAmount;
+
+                  bool typeExists = false;
+                  for (var voucherEntry
+                      in groupedPayments[tpmt3Id]!['invoice_voucher']) {
+                    if (voucherEntry['type'] == voucher.type) {
+                      voucherEntry['serialno'].add(voucher.serialNo);
+                      typeExists = true;
+                      break;
+                    }
+                  }
+                  if (!typeExists) {
+                    groupedPayments[tpmt3Id]!['invoice_voucher'].add({
+                      "serialno": [voucher.serialNo],
+                      "type": voucher.type
+                    });
+                  }
+                }
+
+                List<Map<String, dynamic>> groupedPaymentsList =
+                    groupedPayments.values.toList();
+
+                for (var groupedPayment in groupedPaymentsList) {
+                  invoicePayments.add(groupedPayment);
                   log("invoicePayment - $invoicePayments");
                 }
               }
+
               break;
             default:
               invoicePayments.add(
