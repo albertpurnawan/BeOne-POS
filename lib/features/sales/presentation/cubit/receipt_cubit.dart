@@ -379,7 +379,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             .deleteByDocId(newState.queuedInvoiceHeaderDocId!, null);
       }
       emit(createdReceipt);
-      dev.log("createdReceipt $createdReceipt");
+      dev.log("createdReceipt onCharge $createdReceipt");
       try {
         await _printReceiptUsecase.call(params: createdReceipt);
         await _openCashDrawerUseCase.call();

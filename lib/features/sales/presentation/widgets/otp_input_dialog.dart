@@ -96,7 +96,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
             "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
       }
     } else {
-      const message = "Wrong OTP, Please Check Again";
+      const message = "Wrong Code, Please Check Again";
       log(response);
       if (childContext.mounted) {
         SnackBarHelper.presentErrorSnackBar(childContext, message);
