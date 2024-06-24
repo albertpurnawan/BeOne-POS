@@ -1,7 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
 
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -11,7 +13,7 @@ import 'package:pos_fe/features/sales/domain/repository/receipt_content_reposito
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 
-class PrintReceiptUseCase implements UseCase<void, ReceiptEntity?> {
+class PrintReceiptUseCase implements UseCase<void, PrintReceiptUseCaseParams?> {
   // POS Parameter
   final POSParameterRepository _posParameterRepository;
   final StoreMasterRepository _storeMasterRepository;
@@ -24,7 +26,7 @@ class PrintReceiptUseCase implements UseCase<void, ReceiptEntity?> {
   // Receipt kurang tovat, tohem, toven
 
   @override
-  Future<void> call({ReceiptEntity? params}) async {
+  Future<void> call({PrintReceiptUseCaseParams? params}) async {
     /**
      * Algoritma
      * 1. Ambil receipt content
@@ -33,6 +35,8 @@ class PrintReceiptUseCase implements UseCase<void, ReceiptEntity?> {
      */
 
     try {
+      if (params == null) throw "PrintReceiptUseCaseParams required";
+
       final POSParameterEntity posParameterEntity =
           await _posParameterRepository.getPosParameter();
 
@@ -43,15 +47,27 @@ class PrintReceiptUseCase implements UseCase<void, ReceiptEntity?> {
       final List<ReceiptContentEntity?> receiptContentEntities =
           await _receiptContentRepository.getReceiptContents();
       final PrintReceiptDetail printReceiptDetail = PrintReceiptDetail(
-        receiptEntity: params!,
+        receiptEntity: params.receiptEntity,
         posParameterEntity: posParameterEntity,
         storeMasterEntity: storeMasterEntity,
         receiptContentEntities: receiptContentEntities,
+        isDraft: params.isDraft,
       );
 
-      await _receiptPrinter.printReceipt(printReceiptDetail);
-    } catch (e) {
+      await _receiptPrinter.printReceipt(printReceiptDetail, params.isDraft);
+    } catch (e, s) {
       log(e.toString());
+      log(s.toString());
     }
   }
+}
+
+class PrintReceiptUseCaseParams {
+  ReceiptEntity receiptEntity;
+  bool isDraft;
+
+  PrintReceiptUseCaseParams({
+    required this.receiptEntity,
+    required this.isDraft,
+  });
 }

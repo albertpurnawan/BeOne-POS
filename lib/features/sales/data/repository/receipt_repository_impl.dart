@@ -277,12 +277,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
               .readByDocId(invoiceHeaderModel.tohemId!, txn)
           : null;
 
-      final List<PayMeansModel> payMeansModels =
-          await _appDatabase.payMeansDao.readByToinvId(docId, txn);
-      final MopSelectionModel? mopSelectionModel = payMeansModels.isNotEmpty
-          ? await _appDatabase.mopByStoreDao
-              .readByDocIdIncludeRelations(payMeansModels[0].tpmt3Id!, txn)
-          : null;
+      final List<MopSelectionModel> mopSelectionModels =
+          await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
+      final MopSelectionModel mopSelectionModel = mopSelectionModels
+          .firstWhere((element) => element.payTypeCode != "6");
 
       final List<InvoiceDetailModel> invoiceDetailModels =
           await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
@@ -295,9 +293,11 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         if (itemMasterModel == null) throw "Item not found";
         receiptItemModels.add(ReceiptItemModel(
           quantity: invoiceDetailModel.quantity,
-          totalGross: invoiceDetailModel.totalAmount *
-              100 /
-              (100 + invoiceDetailModel.taxPrctg),
+          totalGross: ((invoiceDetailModel.totalAmount *
+                  100 /
+                  (100 + invoiceDetailModel.taxPrctg)) +
+              invoiceDetailModel.discAmount +
+              (invoiceDetailModel.discHeaderAmount ?? 0)),
           taxAmount: invoiceDetailModel.totalAmount *
               (invoiceDetailModel.taxPrctg / 100),
           itemEntity: ItemModel(
@@ -323,7 +323,23 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           totalAmount: invoiceDetailModel.totalAmount,
           totalSellBarcode:
               invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity,
-          promos: [],
+          promos: invoiceDetailModel.promotionId == ""
+              ? []
+              : [
+                  PromotionsModel(
+                    docId: docId,
+                    toitmId: "",
+                    promoType: 0,
+                    promoId: "",
+                    date: DateTime.now(),
+                    startTime: DateTime.now(),
+                    endTime: DateTime.now(),
+                    tocrgId: "",
+                    promoDescription: "",
+                    tocatId: "",
+                    remarks: "",
+                  )
+                ],
         ));
       }
 
@@ -331,12 +347,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       List<PromotionsModel> promoModels = [];
       int totalVoucherAmount = 0;
 
-      for (var payMeansModel in payMeansModels) {
-        if (payMeansModel.tpmt3Id == "532da15b-1e97-4616-9ea3-ee9072bbc6b1") {
+      for (var mopSelectionModel in mopSelectionModels) {
+        if (mopSelectionModel.payTypeCode == "6") {
           List<VouchersSelectionModel> vouchers =
               await GetIt.instance<AppDatabase>()
                   .vouchersSelectionDao
-                  .readBytinv2Id(docId.toString(), txn: txn);
+                  .readBytinv2Id(mopSelectionModel.tinv2Id ?? "", txn: txn);
           voucherModels.addAll(vouchers);
         }
       }
@@ -362,10 +378,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         changed: invoiceHeaderModel.changed,
         vouchers: voucherModels,
         totalVoucher: totalVoucherAmount,
-        totalNonVoucher: invoiceHeaderModel.grandTotal,
+        totalNonVoucher: invoiceHeaderModel.totalPayment - totalVoucherAmount,
         promos: promoModels,
         discHeaderManual: invoiceHeaderModel.discHeaderManual,
         discHeaderPromo: invoiceHeaderModel.discHeaderPromo,
+        discAmount: invoiceHeaderModel.discAmount,
+        rounding: invoiceHeaderModel.rounding,
       );
     });
 

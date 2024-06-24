@@ -59,12 +59,17 @@ class LanguageSwitchButton extends StatelessWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool isLoggedIn = false;
+  final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   // bool isOpen = false;
 
   @override
   void initState() {
     super.initState();
-    isLoggedIn = prefs.getBool('logStatus') ?? false;
+    prefs.reload().then((value) {
+      setState(() {
+        isLoggedIn = prefs.getBool('logStatus') ?? false;
+      });
+    });
     // _checkShiftStatus();
   }
 
@@ -75,7 +80,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   //   });
   // }
 
-  final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   Widget welcomingButtons(BuildContext context) {
     // final api = Api.of(context);
 
@@ -95,6 +99,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     child: CustomButton(
                       child: const Text("Login"),
                       onTap: () async {
+                        isLoggedIn = prefs.getBool('logStatus') ?? false;
                         if (isLoggedIn) {
                           context.pushNamed(RouteConstants.home);
                         } else {

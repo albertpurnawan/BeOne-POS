@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -1122,35 +1124,36 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: SizedBox.expand(
-                            child: OutlinedButton(
-                                onPressed: () async {
-                                  await showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        const InvoiceDetailsDialog(),
-                                  );
-                                  setState(() {
-                                    isEditingNewReceiptItemCode = true;
-                                    Future.delayed(
-                                        const Duration(milliseconds: 50),
-                                        () => _newReceiptItemCodeFocusNode
-                                            .requestFocus());
-                                  });
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  elevation: 5,
-                                  shadowColor: Colors.black87,
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: ProjectColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  side: BorderSide.none,
+                          child: OutlinedButton(
+                              onPressed: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      const InvoiceDetailsDialog(),
+                                );
+                                setState(() {
+                                  isEditingNewReceiptItemCode = true;
+                                  Future.delayed(
+                                      const Duration(milliseconds: 50),
+                                      () => _newReceiptItemCodeFocusNode
+                                          .requestFocus());
+                                });
+                              },
+                              style: OutlinedButton.styleFrom(
+                                elevation: 5,
+                                shadowColor: Colors.black87,
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                foregroundColor: Colors.white,
+                                backgroundColor: ProjectColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
-                                child: const Row(
+                                side: BorderSide.none,
+                              ),
+                              child: const SizedBox(
+                                height: double.infinity,
+                                child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
@@ -1160,17 +1163,21 @@ class _SalesPageState extends State<SalesPage> {
                                       style: TextStyle(
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    SizedBox(
-                                      width: 15,
-                                    ),
-                                    Text(
-                                      "F2",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w300),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(
+                                          "F2",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                )),
-                          ),
+                                ),
+                              )),
                         ),
                       ],
                     ),
@@ -1182,58 +1189,57 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: SizedBox.expand(
-                            child: TapRegion(
-                              groupId: 1,
-                              child: OutlinedButton(
-                                  onPressed: indexIsSelect[1] == 0
-                                      ? null
-                                      : () {
-                                          final ReceiptItemEntity
-                                              receiptItemTarget = context
-                                                      .read<ReceiptCubit>()
-                                                      .state
-                                                      .receiptItems[
-                                                  indexIsSelect[0]];
-                                          log("receiptTarget - $receiptItemTarget");
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) =>
-                                                ItemDetailsDialog(
-                                                    indexSelected:
-                                                        indexIsSelect[0]),
-                                          ).then((value) {
-                                            setState(() {
-                                              indexIsSelect = [-1, 0];
-                                              _textEditingControllerNewReceiptItemQuantity
-                                                  .text = "1";
-                                              _textEditingControllerNewReceiptItemCode
-                                                  .text = "";
-                                              _newReceiptItemQuantityFocusNode
-                                                  .unfocus();
-                                              isUpdatingReceiptItemQty = false;
-                                              isEditingNewReceiptItemCode =
-                                                  true;
-                                              _newReceiptItemCodeFocusNode
-                                                  .requestFocus();
-                                            });
+                          child: TapRegion(
+                            groupId: 1,
+                            child: OutlinedButton(
+                                onPressed: indexIsSelect[1] == 0
+                                    ? null
+                                    : () {
+                                        final ReceiptItemEntity
+                                            receiptItemTarget = context
+                                                .read<ReceiptCubit>()
+                                                .state
+                                                .receiptItems[indexIsSelect[0]];
+                                        log("receiptTarget - $receiptItemTarget");
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              ItemDetailsDialog(
+                                                  indexSelected:
+                                                      indexIsSelect[0]),
+                                        ).then((value) {
+                                          setState(() {
+                                            indexIsSelect = [-1, 0];
+                                            _textEditingControllerNewReceiptItemQuantity
+                                                .text = "1";
+                                            _textEditingControllerNewReceiptItemCode
+                                                .text = "";
+                                            _newReceiptItemQuantityFocusNode
+                                                .unfocus();
+                                            isUpdatingReceiptItemQty = false;
+                                            isEditingNewReceiptItemCode = true;
+                                            _newReceiptItemCodeFocusNode
+                                                .requestFocus();
                                           });
-                                        },
-                                  style: OutlinedButton.styleFrom(
-                                    elevation: 5,
-                                    shadowColor: Colors.black87,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: indexIsSelect[0] == -1
-                                        ? ProjectColors.lightBlack
-                                        : ProjectColors.primary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    side: BorderSide.none,
+                                        });
+                                      },
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: indexIsSelect[0] == -1
+                                      ? ProjectColors.lightBlack
+                                      : ProjectColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
                                   ),
-                                  child: const Row(
+                                  side: BorderSide.none,
+                                ),
+                                child: const SizedBox(
+                                  height: double.infinity,
+                                  child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
@@ -1242,14 +1248,21 @@ class _SalesPageState extends State<SalesPage> {
                                         style: TextStyle(
                                             fontWeight: FontWeight.w600),
                                       ),
-                                      Text(
-                                        "F1",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w300),
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(
+                                            "F1",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
                                       ),
                                     ],
-                                  )),
-                            ),
+                                  ),
+                                )),
                           ),
                         ),
                       ],
@@ -1747,6 +1760,8 @@ class _SalesPageState extends State<SalesPage> {
                         final ReceiptEntity receiptEntity =
                             context.read<ReceiptCubit>().state;
 
+                        log("before summary ${context.read<ReceiptCubit>().state}");
+
                         if (receiptEntity.promos.length !=
                             receiptEntity
                                 .previousReceiptEntity?.promos.length) {
@@ -2189,6 +2204,8 @@ class _SalesPageState extends State<SalesPage> {
           groupId: isUpdatingReceiptItemQty ? 1 : null,
           onTapOutside: (event) {
             log("ontapoutside");
+            if (ModalRoute.of(context)?.isCurrent != true) return;
+
             if (isUpdatingReceiptItemQty) {
               setState(() {
                 indexIsSelect = [-1, 0];

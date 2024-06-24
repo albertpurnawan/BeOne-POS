@@ -1,18 +1,31 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/promotion_detail.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
-class PromotionSummaryDialog extends StatelessWidget {
+class PromotionSummaryDialog extends StatefulWidget {
   PromotionSummaryDialog({super.key, required this.receiptEntity});
 
   final ReceiptEntity receiptEntity;
+
+  @override
+  State<PromotionSummaryDialog> createState() => _PromotionSummaryDialogState();
+}
+
+class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
   final FocusNode _keyboardListenerFocusNode = FocusNode();
+  late final double previousGrandTotal;
 
   List<Widget> _buildBuyXGetYDetails() {
     final List<Widget> widgets = [
@@ -28,7 +41,7 @@ class PromotionSummaryDialog extends StatelessWidget {
       ),
     ];
 
-    final List<PromotionsEntity> buyXGetYpromos = receiptEntity.promos
+    final List<PromotionsEntity> buyXGetYpromos = widget.receiptEntity.promos
         .where((element) => element.promoType == 103)
         .toList();
     if (buyXGetYpromos.isEmpty) return [];
@@ -123,7 +136,7 @@ class PromotionSummaryDialog extends StatelessWidget {
     double totalPrice = 0;
 
     for (final buyXGetYpromo in buyXGetYpromos) {
-      final List<ReceiptItemEntity> itemYs = receiptEntity.receiptItems
+      final List<ReceiptItemEntity> itemYs = widget.receiptEntity.receiptItems
           .where((e1) => e1.promos
               .where((e2) =>
                   e2.promoId == buyXGetYpromo.promoId &&
@@ -330,7 +343,8 @@ class PromotionSummaryDialog extends StatelessWidget {
       ),
     ];
 
-    final List<PromotionsEntity> discountItemByItemPromos = receiptEntity.promos
+    final List<PromotionsEntity> discountItemByItemPromos = widget
+        .receiptEntity.promos
         .where((element) => element.promoType == 203)
         .toList();
     if (discountItemByItemPromos.isEmpty) return [];
@@ -371,7 +385,8 @@ class PromotionSummaryDialog extends StatelessWidget {
     double totalDisc = 0;
 
     for (final discountItemByItemPromo in discountItemByItemPromos) {
-      final List<ReceiptItemEntity> appliedItems = receiptEntity.receiptItems
+      final List<ReceiptItemEntity> appliedItems = widget
+          .receiptEntity.receiptItems
           .where((e1) => e1.promos
               .where((e2) =>
                   e2.promoId == discountItemByItemPromo.promoId &&
@@ -477,7 +492,8 @@ class PromotionSummaryDialog extends StatelessWidget {
       ),
     ];
 
-    final List<PromotionsEntity> discountItemByItemPromos = receiptEntity.promos
+    final List<PromotionsEntity> discountItemByItemPromos = widget
+        .receiptEntity.promos
         .where((element) => element.promoType == 204)
         .toList();
     if (discountItemByItemPromos.isEmpty) return [];
@@ -517,7 +533,8 @@ class PromotionSummaryDialog extends StatelessWidget {
 
     double totalDisc = 0;
     for (final discountItemByItemPromo in discountItemByItemPromos) {
-      final List<ReceiptItemEntity> appliedItems = receiptEntity.receiptItems
+      final List<ReceiptItemEntity> appliedItems = widget
+          .receiptEntity.receiptItems
           .where((e1) => e1.promos
               .where((e2) =>
                   e2.promoId == discountItemByItemPromo.promoId &&
@@ -607,16 +624,42 @@ class PromotionSummaryDialog extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    log("init promotion");
+    _keyboardListenerFocusNode.requestFocus();
+
+    _keyboardListenerFocusNode.addListener(() {
+      if (!_keyboardListenerFocusNode.hasFocus) {
+        _keyboardListenerFocusNode.requestFocus();
+        setState(() {});
+      }
+    });
+    previousGrandTotal = widget.receiptEntity.previousReceiptEntity!.grandTotal;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _keyboardListenerFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Focus(
       autofocus: true,
       focusNode: _keyboardListenerFocusNode,
       onKeyEvent: (node, event) {
+        log("masuk applied $event");
         if (event.runtimeType == KeyUpEvent) {
           return KeyEventResult.handled;
         }
 
         if (event.physicalKey == PhysicalKeyboardKey.f12) {
+          log("masuk applied f12");
+
           context.pop(true);
           return KeyEventResult.handled;
         }
@@ -663,8 +706,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                       width: 150,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        Helpers.parseMoney(
-                            receiptEntity.previousReceiptEntity!.grandTotal),
+                        Helpers.parseMoney(previousGrandTotal),
                         style: const TextStyle(fontSize: 14),
                       ),
                     ),
@@ -678,7 +720,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                     const SizedBox(
                       width: 200,
                       child: Text(
-                        "Promotion Adjustment",
+                        "Promotions & Tax Adjustment",
                         style: TextStyle(fontSize: 14),
                       ),
                     ),
@@ -689,8 +731,12 @@ class PromotionSummaryDialog extends StatelessWidget {
                       width: 150,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        Helpers.parseMoney(receiptEntity.grandTotal -
-                            receiptEntity.previousReceiptEntity!.grandTotal),
+                        widget.receiptEntity.grandTotal - previousGrandTotal >=
+                                0
+                            ? Helpers.parseMoney(
+                                widget.receiptEntity.grandTotal -
+                                    previousGrandTotal)
+                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal)})",
                         style: const TextStyle(fontSize: 14),
                       ),
                     )
@@ -716,7 +762,7 @@ class PromotionSummaryDialog extends StatelessWidget {
                         width: 150,
                         alignment: Alignment.centerRight,
                         child: Text(
-                          Helpers.parseMoney(receiptEntity.grandTotal),
+                          Helpers.parseMoney(widget.receiptEntity.grandTotal),
                           style: const TextStyle(fontSize: 14),
                         )),
                   ],

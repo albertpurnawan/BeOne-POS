@@ -283,6 +283,24 @@ abstract class Helpers {
   //   print("$day");
   //   return day;
   // }
+
+  static alignRightByAddingSpace(String string, int n) {
+    if (string.length > n) {
+      return string;
+    } else {
+      final String spaces =
+          List.generate(n - string.length, (index) => " ").join("");
+      return spaces + string;
+    }
+  }
+
+  static clipStringAndAddEllipsis(String string, int n) {
+    if (string.length < n) {
+      return string;
+    } else {
+      return "${string.substring(0, n)}...";
+    }
+  }
 }
 
 class SplitListResult<T> {

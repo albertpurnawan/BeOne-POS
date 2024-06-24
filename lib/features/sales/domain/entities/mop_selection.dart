@@ -10,6 +10,7 @@ class MopSelectionEntity {
   final String description;
   final double? amount;
   final int subType;
+  final String? tinv2Id;
 
   MopSelectionEntity({
     required this.tpmt3Id,
@@ -20,6 +21,7 @@ class MopSelectionEntity {
     required this.description,
     required this.amount,
     required this.subType,
+    this.tinv2Id,
   });
 
   MopSelectionEntity copyWith({
@@ -31,6 +33,7 @@ class MopSelectionEntity {
     String? description,
     double? amount,
     int? subType,
+    String? tinv2Id,
   }) {
     return MopSelectionEntity(
       tpmt3Id: tpmt3Id ?? this.tpmt3Id,
@@ -41,6 +44,7 @@ class MopSelectionEntity {
       description: description ?? this.description,
       amount: amount ?? this.amount,
       subType: subType ?? this.subType,
+      tinv2Id: tinv2Id ?? this.tinv2Id,
     );
   }
 
@@ -54,6 +58,7 @@ class MopSelectionEntity {
       'description': description,
       'amount': amount,
       'subType': subType,
+      'tinv2Id': tinv2Id,
     };
   }
 
@@ -69,6 +74,7 @@ class MopSelectionEntity {
       description: map['description'] as String,
       amount: map['amount'] != null ? map['amount'] as double : null,
       subType: map['subType'] as int,
+      tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
     );
   }
 
@@ -79,7 +85,7 @@ class MopSelectionEntity {
 
   @override
   String toString() {
-    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType)';
+    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType, tinv2Id: $tinv2Id)';
   }
 
   @override
@@ -93,7 +99,8 @@ class MopSelectionEntity {
         other.payTypeCode == payTypeCode &&
         other.description == description &&
         other.amount == amount &&
-        other.subType == subType;
+        other.subType == subType &&
+        other.tinv2Id == tinv2Id;
   }
 
   @override
@@ -105,6 +112,7 @@ class MopSelectionEntity {
         payTypeCode.hashCode ^
         description.hashCode ^
         amount.hashCode ^
-        subType.hashCode;
+        subType.hashCode ^
+        tinv2Id.hashCode;
   }
 }
