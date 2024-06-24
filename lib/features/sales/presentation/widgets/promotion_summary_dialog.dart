@@ -628,6 +628,8 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     // TODO: implement initState
     super.initState();
     log("init promotion");
+    FocusManager.instance.primaryFocus?.unfocus();
+
     _keyboardListenerFocusNode.requestFocus();
 
     _keyboardListenerFocusNode.addListener(() {
@@ -814,10 +816,10 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                           text: "Done",
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        TextSpan(
-                          text: "  (F12)",
-                          style: TextStyle(fontWeight: FontWeight.w300),
-                        ),
+                        // TextSpan(
+                        //   text: "  (F12)",
+                        //   style: TextStyle(fontWeight: FontWeight.w300),
+                        // ),
                       ],
                     ),
                     overflow: TextOverflow.clip,

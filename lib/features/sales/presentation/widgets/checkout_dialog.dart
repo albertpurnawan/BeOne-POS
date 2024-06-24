@@ -49,6 +49,7 @@ class CheckoutDialog extends StatefulWidget {
 }
 
 class _CheckoutDialogState extends State<CheckoutDialog> {
+  bool isPrinting = false;
   bool isCharged = false;
   bool isPaymentSufficient = true;
   bool isLoading = false;
@@ -181,11 +182,21 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
   Future<void> printDraftBill() async {
     try {
+      setState(() {
+        isPrinting = true;
+      });
+      await Future.delayed(Durations.extralong1, null);
       await GetIt.instance<PrintReceiptUseCase>().call(
           params: PrintReceiptUseCaseParams(
               isDraft: true,
               receiptEntity: context.read<ReceiptCubit>().state));
+      setState(() {
+        isPrinting = false;
+      });
     } catch (e) {
+      setState(() {
+        isPrinting = false;
+      });
       SnackBarHelper.presentFailSnackBar(context, "Failed to print draft bill");
     }
   }
@@ -197,6 +208,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         builder: (context) => PromotionSummaryDialog(
               receiptEntity: context.read<ReceiptCubit>().state,
             ));
+
+    _keyboardListenerFocusNode.requestFocus();
   }
 
   @override
@@ -262,108 +275,111 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               ),
               isCharged
                   ? const SizedBox.shrink()
-                  : ExcludeFocusTraversal(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(10),
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OutlinedButton(
+                          focusNode: FocusNode(skipTraversal: true),
+                          style: OutlinedButton.styleFrom(
+                            elevation: 5,
+                            shadowColor: Colors.black87,
+                            backgroundColor: ProjectColors.primary,
+                            padding: const EdgeInsets.all(10),
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                          ),
+                          onPressed: () async => await showAppliedPromotions(),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.discount_outlined,
+                                size: 18,
                                 color: Colors.white,
-                                width: 1.5,
                               ),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                            ),
-                            onPressed: () async =>
-                                await showAppliedPromotions(),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.discount_outlined,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 6,
-                                ),
-                                RichText(
-                                  text: const TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Applied Promotions",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      TextSpan(
-                                        text: " (F10)",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w300),
-                                      ),
-                                    ],
-                                    style: TextStyle(height: 1),
-                                  ),
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(10),
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(
-                                color: Colors.white,
-                                width: 1.5,
+                              const SizedBox(
+                                width: 6,
                               ),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                            ),
-                            onPressed: () async => await printDraftBill(),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.print_outlined,
-                                  size: 18,
-                                  color: Colors.white,
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Applied Promotions",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    TextSpan(
+                                      text: " (F10)",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                  style: TextStyle(height: 1),
                                 ),
-                                const SizedBox(
-                                  width: 6,
-                                ),
-                                RichText(
-                                  text: const TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Print Draft Bill",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      TextSpan(
-                                        text: " (F11)",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w300),
-                                      ),
-                                    ],
-                                    style: TextStyle(height: 1),
-                                  ),
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ],
-                            ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            elevation: 5,
+                            shadowColor: Colors.black87,
+                            backgroundColor: ProjectColors.primary,
+                            padding: const EdgeInsets.all(10),
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                          ),
+                          onPressed: () async => await printDraftBill(),
+                          child: isPrinting
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator.adaptive())
+                              : Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.print_outlined,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Print Draft Bill",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F11)",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1),
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ],
                     )
             ],
           ),
