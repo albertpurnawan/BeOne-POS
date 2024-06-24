@@ -29,13 +29,11 @@ class OTPServiceAPi {
       final formattedDateTime = formatter.format(DateTime.now().toUtc());
 
       final dataToSend = {
-        "channelId": "de1a9ca7-4b13-45f8-acf2-930e0cff477a", //uuid dari channel
+        "channelId": "cc985aff-654d-41fb-84d0-2f2eea388729", //uuid dari channel
         "Destination": spv![0]['email'],
         "Expired": formattedExpired,
         "RequestTimestamp": formattedDateTime,
-        "Requester": cashier,
-        "isIssued": true,
-        "isUsed": false
+        "Requester": cashier
       };
       // log("Data2Send: ${jsonEncode(dataToSend)}");
 
