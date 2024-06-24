@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,7 +76,7 @@ class ReceiptPrinter {
   }
 
   String _convertPrintReceiptContentToText(
-      PrintReceiptContent printReceiptContent) {
+      PrintReceiptContent printReceiptContent, bool isDraft) {
     switch (printReceiptContent.printReceiptContentType) {
       case PrintReceiptContentType.storeName:
         return currentPrintReceiptDetail?.storeMasterEntity.storeName ?? "";
@@ -86,8 +87,9 @@ class ReceiptPrinter {
         return DateFormat('hh:mm aaa')
             .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
-        return DateFormat('yyyy-MM-dd - hh:mm aaa')
-            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
+        return DateFormat('yyyy-MM-dd hh:mm aaa').format(isDraft
+            ? DateTime.now()
+            : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
       case PrintReceiptContentType.employeeCodeAndName:
@@ -105,6 +107,10 @@ class ReceiptPrinter {
         return currentPrintReceiptDetail?.storeMasterEntity.addr3 ?? "";
       case PrintReceiptContentType.city:
         return currentPrintReceiptDetail?.storeMasterEntity.city ?? "";
+      case PrintReceiptContentType.footer01:
+        return currentPrintReceiptDetail?.storeMasterEntity.footer01
+                ?.replaceAll("\\n", "\n") ??
+            "";
       case PrintReceiptContentType.customRow1:
       case PrintReceiptContentType.customRow2:
       case PrintReceiptContentType.customRow3:
@@ -122,7 +128,9 @@ class ReceiptPrinter {
   }
 
   List<int> _convertPrintReceiptContentToBytes(
-      List<PrintReceiptContent> printReceiptContentsRow, Generator generator) {
+      List<PrintReceiptContent> printReceiptContentsRow,
+      Generator generator,
+      bool isDraft) {
     List<int> bytes = [];
 
     if (printReceiptContentsRow.length == 1) {
@@ -136,29 +144,51 @@ class ReceiptPrinter {
         case PrintReceiptContentType.items:
           for (final item
               in currentPrintReceiptDetail!.receiptEntity.receiptItems) {
-            bytes += generator.text(
-                "${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.itemEntity.dpp)} ${item.itemEntity.itemName}");
             bytes += generator.row([
               PosColumn(
-                  width: 8,
-                  text:
-                      "   ${item.itemEntity.barcode} ${item.itemEntity.itemName}",
+                  width: 5,
+                  text: Helpers.clipStringAndAddEllipsis(
+                      "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
+                      35),
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
                     width: printReceiptContent.fontSize,
                     bold: printReceiptContent.isBold,
-                    // codeTable: 'CP1252',
+                    codeTable: 'CP1252',
                   )),
               PosColumn(
-                  width: 4,
-                  text: Helpers.parseMoney(item.totalGross),
+                  width: 1,
+                  text: Helpers.alignRightByAddingSpace(
+                      Helpers.cleanDecimal(item.quantity, 3), 3),
                   styles: PosStyles(
-                    align: PosAlign.right,
+                    align: PosAlign.left,
                     height: printReceiptContent.fontSize,
                     width: printReceiptContent.fontSize,
                     bold: printReceiptContent.isBold,
-                    // codeTable: 'CP1252',
+                    codeTable: 'CP1252',
+                  )),
+              PosColumn(
+                  width: 3,
+                  text: Helpers.alignRightByAddingSpace(
+                      Helpers.parseMoney(item.itemEntity.dpp.round()), 10),
+                  styles: PosStyles(
+                    align: PosAlign.left,
+                    height: printReceiptContent.fontSize,
+                    width: printReceiptContent.fontSize,
+                    bold: printReceiptContent.isBold,
+                    codeTable: 'CP1252',
+                  )),
+              PosColumn(
+                  width: 3,
+                  text: Helpers.alignRightByAddingSpace(
+                      Helpers.parseMoney(item.totalGross.round()), 11),
+                  styles: PosStyles(
+                    align: PosAlign.left,
+                    height: printReceiptContent.fontSize,
+                    width: printReceiptContent.fontSize,
+                    bold: printReceiptContent.isBold,
+                    codeTable: 'CP1252',
                   )),
             ]);
           }
@@ -172,42 +202,154 @@ class ReceiptPrinter {
                   height: printReceiptContent.fontSize,
                   width: printReceiptContent.fontSize,
                   bold: printReceiptContent.isBold,
-                  // codeTable: 'CP1252',
+                  codeTable: 'CP1252',
                 )),
             PosColumn(
                 width: 8,
-                text: Helpers.parseMoney(currentPrintReceiptDetail!
-                    .receiptEntity.grandTotal
-                    .toInt()),
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!
+                        .receiptEntity.grandTotal
+                        .round()),
+                    15),
                 styles: PosStyles(
-                  align: PosAlign.right,
+                  align: PosAlign.left,
                   height: printReceiptContent.fontSize,
                   width: printReceiptContent.fontSize,
                   bold: printReceiptContent.isBold,
-                  // codeTable: 'CP1252',
+                  codeTable: 'CP1252',
                 )),
           ]);
         case PrintReceiptContentType.taxDetails:
           bytes += generator.row([
             PosColumn(
                 width: 8,
-                text: "Tax Amount",
+                text: "Total Gross",
                 styles: const PosStyles(
                   align: PosAlign.left,
-                  // codeTable: 'CP1252',
+                  codeTable: 'CP1252',
                 )),
             PosColumn(
                 width: 4,
-                text: Helpers.parseMoney(
-                    currentPrintReceiptDetail!.receiptEntity.taxAmount.toInt()),
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!
+                        .receiptEntity.subtotal
+                        .round()),
+                    15),
                 styles: const PosStyles(
-                  align: PosAlign.right,
-                  // codeTable: 'CP1252',
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
                 )),
           ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Promotions Discount",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    "(${Helpers.parseMoney(((currentPrintReceiptDetail!.receiptEntity.discAmount ?? 0) - (currentPrintReceiptDetail!.receiptEntity.discHeaderManual ?? 0)).round())})",
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Subtotal",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  bold: true,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(
+                        (currentPrintReceiptDetail!.receiptEntity.subtotal -
+                                (currentPrintReceiptDetail!
+                                        .receiptEntity.discAmount ??
+                                    0) +
+                                (currentPrintReceiptDetail!
+                                        .receiptEntity.discHeaderManual ??
+                                    0))
+                            .round()),
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  bold: true,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.emptyLines(1);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Header Discount",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    "(${Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.discHeaderManual != null ? currentPrintReceiptDetail!.receiptEntity.discHeaderManual!.round() : 0)})",
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Tax Amount",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!
+                        .receiptEntity.taxAmount
+                        .round()),
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Rounding",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!
+                        .receiptEntity.rounding
+                        .round()),
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+
+          bytes += generator.emptyLines(1);
         case PrintReceiptContentType.totalQty:
           bytes += generator.text(
-              'Total Qty. : ${currentPrintReceiptDetail!.receiptEntity.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element).toString()}',
+              'Total Qty.: ${Helpers.cleanDecimal(currentPrintReceiptDetail!.receiptEntity.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element), 3)}',
               styles: PosStyles(
                 align: PosAlign.left,
                 height: printReceiptContent.fontSize,
@@ -227,10 +369,113 @@ class ReceiptPrinter {
           bytes += generator.qrcode(
               currentPrintReceiptDetail!.receiptEntity.docNum,
               size: QRSize.Size6);
+        case PrintReceiptContentType.mopAlias:
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: currentPrintReceiptDetail!
+                        .receiptEntity.mopSelection?.mopAlias ??
+                    "MOP",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!
+                            .receiptEntity.totalNonVoucher ??
+                        0),
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Vouchers",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(
+                        currentPrintReceiptDetail!.receiptEntity.totalVoucher ??
+                            0),
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Total Payment",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  bold: true,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(
+                        currentPrintReceiptDetail!.receiptEntity.totalPayment ??
+                            0),
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  bold: true,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+          bytes += generator.row([
+            PosColumn(
+                width: 8,
+                text: "Change",
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+            PosColumn(
+                width: 4,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(
+                        currentPrintReceiptDetail!.receiptEntity.changed ?? 0),
+                    15),
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                  codeTable: 'CP1252',
+                )),
+          ]);
+        case PrintReceiptContentType.draftWatermarkTop:
+          if (isDraft == false) break;
+          bytes += generator.hr();
+          bytes += generator.text("DRAFT BILL",
+              styles: const PosStyles(
+                align: PosAlign.center,
+                bold: true,
+              ));
+          bytes += generator.hr();
+        case PrintReceiptContentType.draftWatermarkBottom:
+          if (isDraft == false) break;
+          bytes += generator.text("DRAFT BILL",
+              styles: const PosStyles(
+                align: PosAlign.center,
+                bold: true,
+              ));
+          bytes += generator.hr();
         case PrintReceiptContentType.logo:
         default:
-          bytes += generator.text(
-              _convertPrintReceiptContentToText(printReceiptContent),
+          final String text =
+              _convertPrintReceiptContentToText(printReceiptContent, isDraft);
+          if (text == "") break;
+          bytes += generator.text(text,
               styles: PosStyles(
                 align: printReceiptContent.alignment,
                 height: printReceiptContent.fontSize,
@@ -242,12 +487,16 @@ class ReceiptPrinter {
       bytes += generator.row(printReceiptContentsRow
           .map((e) => PosColumn(
               width: 12 ~/ printReceiptContentsRow.length,
-              text: _convertPrintReceiptContentToText(e),
+              text: e.alignment == PosAlign.right
+                  ? Helpers.alignRightByAddingSpace(
+                      _convertPrintReceiptContentToText(e, isDraft), 23)
+                  : _convertPrintReceiptContentToText(e, isDraft),
               styles: PosStyles(
+                codeTable: 'CP1252',
                 bold: e.isBold,
                 height: e.fontSize,
                 width: e.fontSize,
-                align: e.alignment,
+                align: PosAlign.left,
               )))
           .toList());
     }
@@ -278,7 +527,8 @@ class ReceiptPrinter {
     }
   }
 
-  Future<void> printReceipt(PrintReceiptDetail printReceiptDetail) async {
+  Future<void> printReceipt(
+      PrintReceiptDetail printReceiptDetail, bool isDraft) async {
     List<int> bytes = [];
     final String? paperSize =
         GetIt.instance<SharedPreferences>().getString("paperSize");
@@ -290,6 +540,7 @@ class ReceiptPrinter {
                 ? PaperSize.mm80
                 : PaperSize.mm58,
         profile);
+    bytes += generator.setGlobalCodeTable('CP1252');
     currentPrintReceiptDetail = printReceiptDetail;
 
     List<List<PrintReceiptContent>> printReceiptContents = [];
@@ -330,7 +581,7 @@ class ReceiptPrinter {
 
     for (int i = 0; i < printReceiptContents.length; i++) {
       final List<PrintReceiptContent> row = printReceiptContents[i];
-      bytes.addAll(_convertPrintReceiptContentToBytes(row, generator));
+      bytes.addAll(_convertPrintReceiptContentToBytes(row, generator, isDraft));
     }
 
     _printEscPos(bytes, generator);
@@ -671,6 +922,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
 
+    log("closeshift bytes $bytes");
     _printEscPos(bytes, generator);
   }
 
@@ -846,4 +1098,9 @@ enum PrintReceiptContentType {
   customRow8,
   customRow9,
   customRow10,
+
+  footer01,
+
+  draftWatermarkTop,
+  draftWatermarkBottom,
 }

@@ -25,6 +25,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.discHeaderManual,
     super.discHeaderPromo,
     super.queuedInvoiceHeaderDocId,
+    super.discAmount,
+    super.rounding,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -51,6 +53,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       discHeaderManual: entity.discHeaderManual,
       discHeaderPromo: entity.discHeaderPromo,
       queuedInvoiceHeaderDocId: entity.queuedInvoiceHeaderDocId,
+      discAmount: entity.discAmount,
+      rounding: entity.rounding,
     );
   }
 }

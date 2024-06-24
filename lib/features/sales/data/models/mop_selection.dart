@@ -10,6 +10,7 @@ class MopSelectionModel extends MopSelectionEntity {
     required super.description,
     required super.amount,
     required super.subType,
+    required super.tinv2Id,
   });
 
   factory MopSelectionModel.fromMap(Map<String, dynamic> map) {
@@ -24,6 +25,7 @@ class MopSelectionModel extends MopSelectionEntity {
       description: map['description'] as String,
       amount: map['amount'] != null ? map['amount'] as double : null,
       subType: map['subtype'],
+      tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
     );
   }
 }

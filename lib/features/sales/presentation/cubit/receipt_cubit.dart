@@ -145,6 +145,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           barrierDismissible: false,
           builder: (context) => const ConfirmResetPromoDialog(),
         );
+        dev.log("isProceed $isProceed");
         if (isProceed == null) return;
         if (!isProceed) return;
       }
@@ -381,7 +382,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       emit(createdReceipt);
       dev.log("createdReceipt onCharge $createdReceipt");
       try {
-        await _printReceiptUsecase.call(params: createdReceipt);
+        await _printReceiptUsecase.call(
+            params: PrintReceiptUseCaseParams(
+                receiptEntity: createdReceipt, isDraft: false));
         await _openCashDrawerUseCase.call();
       } catch (e) {
         dev.log(e.toString());
@@ -753,13 +756,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             previousReceiptEntity: null),
       )}");
 
+      dev.log("previousreceipt before emit ${state.previousReceiptEntity}");
+
       emit(newReceipt.copyWith(
-        previousReceiptEntity: state.previousReceiptEntity ??
-            state.copyWith(
-                receiptItems:
-                    state.receiptItems.map((e) => e.copyWith()).toList(),
-                previousReceiptEntity: null),
+        previousReceiptEntity: state.copyWith(
+            receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
+            previousReceiptEntity: null),
       ));
+
+      dev.log("after emit $state");
       return;
     } catch (e) {
       rethrow;

@@ -12,13 +12,16 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/webview_page.dart';
 
@@ -46,9 +49,11 @@ class CheckoutDialog extends StatefulWidget {
 }
 
 class _CheckoutDialogState extends State<CheckoutDialog> {
+  bool isPrinting = false;
   bool isCharged = false;
   bool isPaymentSufficient = true;
   bool isLoading = false;
+  final FocusScopeNode _focusScopeNode = FocusScopeNode(skipTraversal: true);
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   String generateRandomString(int length) {
@@ -186,6 +191,38 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     }
   }
 
+  Future<void> printDraftBill() async {
+    try {
+      setState(() {
+        isPrinting = true;
+      });
+      await Future.delayed(Durations.extralong1, null);
+      await GetIt.instance<PrintReceiptUseCase>().call(
+          params: PrintReceiptUseCaseParams(
+              isDraft: true,
+              receiptEntity: context.read<ReceiptCubit>().state));
+      setState(() {
+        isPrinting = false;
+      });
+    } catch (e) {
+      setState(() {
+        isPrinting = false;
+      });
+      SnackBarHelper.presentFailSnackBar(context, "Failed to print draft bill");
+    }
+  }
+
+  Future<void> showAppliedPromotions() async {
+    await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => PromotionSummaryDialog(
+              receiptEntity: context.read<ReceiptCubit>().state,
+            ));
+
+    _keyboardListenerFocusNode.requestFocus();
+  }
+
   @override
   void dispose() {
     _keyboardListenerFocusNode.dispose();
@@ -202,6 +239,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         if (value.physicalKey == PhysicalKeyboardKey.f12 && !isCharged) {
           charge();
           return KeyEventResult.handled;
+        } else if (value.physicalKey == PhysicalKeyboardKey.f12 && isCharged) {
+          isCharged = false;
+          Navigator.of(context).pop();
+          context.read<ReceiptCubit>().resetReceipt();
+          return KeyEventResult.handled;
         } else if (value.physicalKey == PhysicalKeyboardKey.escape &&
             !isCharged) {
           context.pop();
@@ -209,6 +251,12 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         } else if (value.physicalKey == PhysicalKeyboardKey.arrowDown &&
             node.hasPrimaryFocus) {
           node.nextFocus();
+          return KeyEventResult.handled;
+        } else if (value.physicalKey == PhysicalKeyboardKey.f10 && !isCharged) {
+          showAppliedPromotions();
+          return KeyEventResult.handled;
+        } else if (value.physicalKey == PhysicalKeyboardKey.f11 && !isCharged) {
+          printDraftBill();
           return KeyEventResult.handled;
         }
 
@@ -226,10 +274,125 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: const Text(
-            'Checkout',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Checkout',
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
+              ),
+              isCharged
+                  ? const SizedBox.shrink()
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OutlinedButton(
+                          focusNode: FocusNode(skipTraversal: true),
+                          style: OutlinedButton.styleFrom(
+                            elevation: 5,
+                            shadowColor: Colors.black87,
+                            backgroundColor: ProjectColors.primary,
+                            padding: const EdgeInsets.all(10),
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                          ),
+                          onPressed: () async => await showAppliedPromotions(),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.discount_outlined,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(
+                                width: 6,
+                              ),
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Applied Promotions",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    TextSpan(
+                                      text: " (F10)",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                  style: TextStyle(height: 1),
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            elevation: 5,
+                            shadowColor: Colors.black87,
+                            backgroundColor: ProjectColors.primary,
+                            padding: const EdgeInsets.all(10),
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                          ),
+                          onPressed: () async => await printDraftBill(),
+                          child: isPrinting
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator.adaptive())
+                              : Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.print_outlined,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Print Draft Bill",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F11)",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1),
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ],
+                    )
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -309,11 +472,23 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                         Navigator.of(context).pop();
                         context.read<ReceiptCubit>().resetReceipt();
                       },
-                      child: const Center(
-                          child: Text(
-                        "Done",
-                        style: TextStyle(color: Colors.white),
-                      )),
+                      child: Center(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Done",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: "  (F12)",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                          ),
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
                     ),
                   ],
                 )
