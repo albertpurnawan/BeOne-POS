@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 
 class NetzmeApi {
   final Dio _dio;
@@ -142,7 +143,7 @@ class NetzmeApi {
     }
   }
 
-  Future<String> createTransactionQRIS(
+  Future<NetzMeEntity> createTransactionQRIS(
     String url,
     String clientKey,
     String clientSecret,
@@ -151,8 +152,8 @@ class NetzmeApi {
     Map<String, dynamic> bodyDetail,
   ) async {
     try {
-      String transactionQRIS = '';
-      String imageQRIZ = '';
+      String qrImage = '';
+
       externalId = (Random().nextDouble() * pow(10, 21)).floor().toString();
       final header = {
         "X-TIMESTAMP": timestamp,
@@ -172,12 +173,26 @@ class NetzmeApi {
         data: bodyDetail,
         options: Options(headers: header),
       );
+      dev.log("response - $response");
+      qrImage = response.data['additionalInfo']['qrImage'];
+      RegExp regex = RegExp(r'data:image/png;base64,(.*)$');
+      Match match = regex.firstMatch(qrImage) as Match;
+      String imageString = match.group(1)!;
 
-      transactionQRIS = response.data['paymentUrl'];
-      imageQRIZ = response.data['additionalInfo']['qrImage'];
+      final NetzMeEntity responseDetails = NetzMeEntity(
+        responseMessage: response.data['responseMessage'],
+        paymentUrl: response.data['paymentUrl'],
+        qrImage: imageString,
+        terminalId: response.data['additionalInfo']['terminalId'],
+        nmid: response.data['additionalInfo']['nmid'],
+        feeAmount: response.data['additionalInfo']['feeAmount'],
+        totalAmount: response.data['additionalInfo']['totalAmount'],
+        createdTs: response.data['additionalInfo']['createdTs'],
+        expiredTs: response.data['additionalInfo']['expiredTs'],
+      );
 
       dev.log("CreateTransaction Done");
-      return transactionQRIS;
+      return responseDetails;
     } catch (err) {
       handleError(err);
       rethrow;

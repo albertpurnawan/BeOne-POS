@@ -132,7 +132,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                           alignment: Alignment.center,
                           child: Container(
                             // width: double.infinity,
-                            padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
+                            padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
 
                             decoration: BoxDecoration(
                               color: ProjectColors.primary,

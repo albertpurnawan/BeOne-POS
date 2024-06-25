@@ -10,7 +10,6 @@ import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:pos_fe/features/settings/presentation/pages/settings.dart';
-import 'package:uuid/uuid.dart';
 
 class AppRouter {
   GoRouter router = GoRouter(

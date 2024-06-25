@@ -15,6 +15,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
@@ -22,8 +23,8 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/webview_page.dart';
 
 final List<MopType> mopTypes = [
   MopType(name: "Tunai", payTypeCodes: ["1"]),
@@ -66,37 +67,36 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     ));
   }
 
-  void showWebViewPopup(BuildContext context, String transactionQris) {
+  // void showWebViewPopup(BuildContext context, String transactionQris) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return WebViewApp(
+  //         url: transactionQris,
+  //         onPaymentSuccess: (bool success) {
+  //           if (success) {
+  //             context.read<ReceiptCubit>().charge();
+  //             Future.delayed(const Duration(seconds: 3), () {
+  //               setState(() {
+  //                 isCharged = true;
+  //               });
+  //             });
+  //           }
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+  void showWebViewPopup(BuildContext context, NetzMeEntity data) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return WebViewApp(
-          url: transactionQris,
-          onPaymentSuccess: (bool success) {
-            if (success) {
-              context.read<ReceiptCubit>().charge();
-              Future.delayed(const Duration(seconds: 3), () {
-                setState(() {
-                  isCharged = true;
-                });
-              });
-            }
-          },
-        );
+        return QRISDialog(data: data);
       },
     );
   }
-
-  // void showWebViewPopup(BuildContext context, String base64) {
-  //   if (base64.isNotEmpty) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return QRIZDialog(base64: base64);
-  //       },
-  //     );
-  //   } else {}
-  // }
 
   Future<void> charge() async {
     try {
@@ -170,7 +170,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         final transactionQris = await GetIt.instance<NetzmeApi>()
             .createTransactionQRIS(url, clientKey, clientSecret, privateKey,
                 serviceSignature, bodyDetail);
-        dev.log(transactionQris);
+        // dev.log(transactionQris);
 
         setState(() {
           isLoading = false;
