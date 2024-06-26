@@ -609,6 +609,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   String _value = "";
   int _cashAmount = 0;
   int _vouchersAmount = 0;
+  bool voucherIsExceedPurchase = false;
+
   final List<MopSelectionEntity> _voucherMopSelections = [];
   final List<VouchersSelectionEntity> _vouchers = [];
   List<MopSelectionEntity> mopSelectionModels = [];
@@ -703,16 +705,19 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
   List<int> generateCashAmountSuggestions(int receiptTotalAmount) {
     List<int> cashAmountSuggestions = [receiptTotalAmount - _vouchersAmount];
-    final List<int> multipliers = [5000, 10000, 50000, 100000];
+    if (voucherIsExceedPurchase) {
+      cashAmountSuggestions = [0];
+    } else {
+      final List<int> multipliers = [5000, 10000, 50000, 100000];
 
-    for (final multiplier in multipliers) {
-      if (cashAmountSuggestions.last % multiplier != 0) {
-        cashAmountSuggestions.add((receiptTotalAmount - _vouchersAmount) +
-            multiplier -
-            ((receiptTotalAmount - _vouchersAmount) % multiplier));
+      for (final multiplier in multipliers) {
+        if (cashAmountSuggestions.last % multiplier != 0) {
+          cashAmountSuggestions.add((receiptTotalAmount - _vouchersAmount) +
+              multiplier -
+              ((receiptTotalAmount - _vouchersAmount) % multiplier));
+        }
       }
     }
-
     return cashAmountSuggestions;
   }
 
@@ -757,6 +762,17 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     });
     context.read<ReceiptCubit>().updateVouchersSelection(
         vouchersSelectionEntity: _vouchers, vouchersAmount: _vouchersAmount);
+    final receiptGrandTotal =
+        context.read<ReceiptCubit>().state.grandTotal.toInt();
+    final receiptTotalVouchers =
+        context.read<ReceiptCubit>().state.totalVoucher;
+    if (receiptTotalVouchers! >= receiptGrandTotal) {
+      dev.log("receiptTotal - $receiptGrandTotal");
+      dev.log("receiptTotalVouchers - $receiptTotalVouchers");
+      setState(() {
+        voucherIsExceedPurchase = true;
+      });
+    }
   }
 
   @override

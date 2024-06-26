@@ -153,9 +153,9 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
       log("vouchertype ${widget.voucherType} checkVoucher ${checkVoucher.type}");
       // if (checkVoucher.type != widget.voucherType) return;
 
-      log("${receiptCubit.state.subtotal} ${voucher.minPurchase}");
+      log("${receiptCubit.state.grandTotal} ${voucher.minPurchase}");
 
-      if (receiptCubit.state.subtotal >= voucher.minPurchase) {
+      if (receiptCubit.state.grandTotal >= voucher.minPurchase) {
         if (!checkSerialNo) {
           setState(() {
             vouchers.add(voucher);
