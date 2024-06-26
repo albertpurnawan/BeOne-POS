@@ -1,24 +1,125 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/qris_expired_dialog.dart';
 
 class QRISDialog extends StatefulWidget {
   final NetzMeEntity data;
+  final String accessToken;
+  final void Function(String status) onPaymentSuccess;
 
-  const QRISDialog({Key? key, required this.data}) : super(key: key);
+  const QRISDialog({
+    Key? key,
+    required this.data,
+    required this.accessToken,
+    required this.onPaymentSuccess,
+  }) : super(key: key);
 
   @override
   State<QRISDialog> createState() => _QRISDialogState();
 }
 
 class _QRISDialogState extends State<QRISDialog> {
+  bool isCheckingStatus = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCheckQRISStatus();
+  }
+
+  @override
+  void dispose() {
+    isCheckingStatus = false;
+    super.dispose();
+  }
+
+  void _startCheckQRISStatus() async {
+    setState(() {
+      isCheckingStatus = true;
+    });
+
+    for (int i = 0; i < 36; i++) {
+      String status = '';
+      await Future.delayed(const Duration(seconds: 5), () async {
+        status = await _checkQRISStatus();
+        dev.log("status - $status");
+      });
+      if (status == 'paid') {
+        widget.onPaymentSuccess(status);
+        break;
+      }
+      if (status == 'expired') {
+        if (mounted) {
+          showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (context) {
+                return const QRISExpiredDialog();
+              });
+        }
+        break;
+      }
+    }
+
+    setState(() {
+      isCheckingStatus = false;
+    });
+  }
+
   Uint8List base64Decode(String str) {
     final decoder = base64.decoder;
     return decoder.convert(str);
+  }
+
+  String generateRandomString(int length) {
+    const characters =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    Random random = Random();
+    return String.fromCharCodes(Iterable.generate(
+      length,
+      (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+    ));
+  }
+
+  Future<String> _checkQRISStatus() async {
+    final netzme = await GetIt.instance<AppDatabase>().netzmeDao.readAll();
+    final url = netzme[0].url;
+    final clientKey = netzme[0].clientKey;
+    final clientSecret = netzme[0].clientSecret;
+    final privateKey = netzme[0].privateKey;
+    final bodyDetail = {
+      "originalPartnerReferenceNo": widget.data.trxId,
+      "additionalInfo": {"partnerReferenceNo": generateRandomString(10)}
+    };
+    final serviceSignature = await GetIt.instance<NetzmeApi>()
+        .createSignatureService(
+            url,
+            clientKey,
+            clientSecret,
+            privateKey,
+            widget.accessToken,
+            "api-invoice/v1.0/transaction-history-detail",
+            bodyDetail);
+
+    final paymentStatus = await GetIt.instance<NetzmeApi>().checkPaymentStatus(
+      url,
+      clientKey,
+      privateKey,
+      serviceSignature,
+      bodyDetail,
+    );
+    return paymentStatus;
   }
 
   @override

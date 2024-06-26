@@ -62,7 +62,7 @@ class NetzmeApi {
         "$url/api/v1/utilities/signature-auth",
         options: Options(headers: header),
       );
-      dev.log("$response");
+
       signature = response.data['signature'];
 
       dev.log("Signature Created");
@@ -112,11 +112,11 @@ class NetzmeApi {
     String clientSecret,
     String privateKey,
     String xaccessToken,
+    String serviceUrl,
     Map<String, dynamic> bodyDetail,
   ) async {
     try {
       String serviceSignature = "";
-      String serviceUrl = "api/v1.0/invoice/create-transaction";
 
       final header = {
         "X-TIMESTAMP": timestamp,
@@ -163,17 +163,16 @@ class NetzmeApi {
         "X-PARTNER-ID": clientKey,
         "X-EXTERNAL-ID": externalId,
         "CHANNEL-ID": channelId,
-        "x-callback-token": "UIEFnYhIPHP43s5tRYJPR4ZU/gPBdwtS5n5ONN8F/3g=",
+        // "x-callback-token": "UIEFnYhIPHP43s5tRYJPR4ZU/gPBdwtS5n5ONN8F/3g=",
         "X-SIGNATURE": xsignature,
       };
-      dev.log("$header");
-      dev.log("$bodyDetail");
+
       final response = await _dio.post(
         "$url/api/v1.0/invoice/create-transaction",
         data: bodyDetail,
         options: Options(headers: header),
       );
-      dev.log("response - $response");
+
       qrImage = response.data['additionalInfo']['qrImage'];
       RegExp regex = RegExp(r'data:image/png;base64,(.*)$');
       Match match = regex.firstMatch(qrImage) as Match;
@@ -183,6 +182,7 @@ class NetzmeApi {
         responseMessage: response.data['responseMessage'],
         paymentUrl: response.data['paymentUrl'],
         qrImage: imageString,
+        trxId: response.data['additionalInfo']['trxId'],
         terminalId: response.data['additionalInfo']['terminalId'],
         nmid: response.data['additionalInfo']['nmid'],
         feeAmount: response.data['additionalInfo']['feeAmount'],
@@ -195,6 +195,39 @@ class NetzmeApi {
       return responseDetails;
     } catch (err) {
       handleError(err);
+      rethrow;
+    }
+  }
+
+  Future<String> checkPaymentStatus(
+    String url,
+    String clientKey,
+    String privateKey,
+    String xsignature,
+    Map<String, dynamic> bodyDetail,
+  ) async {
+    try {
+      externalId = (Random().nextDouble() * pow(10, 21)).floor().toString();
+      final header = {
+        "Content-Type": "application/json",
+        "CHANNEL-ID": channelId,
+        "X-EXTERNAL-ID": externalId,
+        "X-PARTNER-ID": clientKey,
+        "X-SIGNATURE": xsignature,
+        "X-TIMESTAMP": timestamp,
+        "Authorization": "Bearer $accessToken",
+      };
+
+      final response = await _dio.post(
+        "$url/api-invoice/v1.0/transaction-history-detail",
+        data: bodyDetail,
+        options: Options(headers: header),
+      );
+
+      dev.log("CheckQRISStatus Done");
+      return response.data['additionalInfo']['invoiceStatus'];
+    } catch (e) {
+      handleError(e);
       rethrow;
     }
   }
