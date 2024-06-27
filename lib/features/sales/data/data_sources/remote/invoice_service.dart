@@ -35,7 +35,7 @@ class InvoiceApi {
 
       final invDet = await GetIt.instance<AppDatabase>()
           .invoiceDetailDao
-          .readByToinvId(invHead[0].docId.toString(), null);
+          .readByToinvIdAddQtyBarcode(invHead[0].docId.toString());
       log(invDet.toString());
 
       final payMean = await GetIt.instance<AppDatabase>()
@@ -155,32 +155,33 @@ class InvoiceApi {
         "refpos1": invHead[0].refpos1,
         "invoice_item": invDet.map((item) {
           return {
-            "docnum": item.docNum,
-            "idnumber": item.idNumber,
-            "toitm_id": item.toitmId,
-            "quantity": item.quantity,
-            "sellingprice": item.sellingPrice.round(),
-            "discprctg": item.discPrctg,
-            "discamount": item.discAmount,
-            "totalamount": ((item.quantity *
-                        item.sellingPrice *
-                        (100 / (100 + item.taxPrctg))) -
-                    item.discAmount)
+            "docnum": item['docnum'],
+            "idnumber": item['idnumber'],
+            "toitm_id": item['toitmId'],
+            "quantity": item['quantity'],
+            "sellingprice": item['sellingprice'].round(),
+            "discprctg": item['discprctg'],
+            "discamount": item['discamount'],
+            "totalamount": ((item['quantity'] *
+                        item['sellingprice'] *
+                        (100 / (100 + item['taxprctg']))) -
+                    item['discamount'])
                 .round(),
-            "taxprctg": item.taxPrctg,
-            "promotiontype": item.promotionType,
-            "promotionid": item.promotionId,
-            "remarks": item.remarks ?? "",
-            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                .format(item.editTime),
-            "cogs": item.cogs,
-            "tovat_id": item.tovatId,
-            "promotiontingkat": item.promotionTingkat ?? "",
-            "promovoucherno": item.promoVoucherNo ?? "",
-            "includetax": item.includeTax,
-            "toven_id": item.tovenId,
-            "tbitm_id": item.tbitmId,
-            "qtybarcode": 0.0,
+            "taxprctg": item['taxprctg'],
+            "promotiontype": item['promotiontype'],
+            "promotionid": item['promotionid'],
+            "remarks": item['remarks'] ?? "",
+            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(
+                DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                    .parse(item['edittime'])),
+            "cogs": item['cogs'],
+            "tovat_id": item['tovatId'],
+            "promotiontingkat": item['promotiontingkat'] ?? "",
+            "promovoucherno": item['promovoucherno'] ?? "",
+            "includetax": item['includetax'],
+            "toven_id": item['tovenId'],
+            "tbitm_id": item['tbitmId'],
+            "qtybarcode": item['quantity'], // quantity barcode scanned x times
             "sellpricebarcode": 0.0,
             "totalsellbarcode": 0.0,
             "disc1pct": 0.0,
@@ -196,10 +197,10 @@ class InvoiceApi {
             "disc3pctbarcode": 0.0,
             "disc3amtbarcode": 0.0,
             "totaldiscbarcode": 0.0,
-            "qtyconv": 0.0,
+            "qtyconv": item['qtybarcode'], // qtybarcode * qtytbitm
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item.tohemId ?? ""
+            "tohem_id": item['tohemId'] ?? ""
           };
         }).toList(),
         "invoice_payment": invoicePayments
