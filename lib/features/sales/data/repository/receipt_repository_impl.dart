@@ -85,7 +85,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         addCost: 0,
         rounding: receiptEntity.rounding,
         grandTotal: receiptEntity.grandTotal,
-        changed: (receiptEntity.totalPayment ?? 0) - receiptEntity.grandTotal,
+        changed: receiptEntity.changed ?? 0,
         totalPayment: receiptEntity.totalPayment!,
         tocsrId: posParameterModel.tocsrId, // get di sini
         docStatus: 0,
@@ -110,7 +110,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           receiptEntity.receiptItems.asMap().entries.map((entry) {
         final int index = entry.key;
         final ReceiptItemEntity e = entry.value;
-        log("receiptEntity E - $e");
+        log("receiptItemEntity E - $e");
         return InvoiceDetailModel(
           docId: _uuid.v4(), // dao
           createDate: null, // null
@@ -154,6 +154,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       await _appDatabase.invoiceDetailDao
           .bulkCreate(data: invoiceDetailModels, txn: txn);
 
+      log("ReceiptEntityMOP - ${receiptEntity.mopSelection}");
       final PayMeansModel paymeansModel = PayMeansModel(
         docId: _uuid.v4(),
         createDate: null,

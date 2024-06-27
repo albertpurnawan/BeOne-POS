@@ -49,8 +49,10 @@ class InvoiceApi {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
-              invoicePayments.add(
-                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              if (entry['amount'] != 0) {
+                invoicePayments.add(
+                    {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              }
               break;
             case "6": // VOUCHERS
               final vouchers = await GetIt.instance<AppDatabase>()

@@ -1268,15 +1268,17 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                     });
                                                     return;
                                                   }
-                                                  setState(() {
-                                                    _value = selected
-                                                        ? mop.tpmt3Id
-                                                        : "";
-                                                    _cashAmount = 0;
-                                                    _textEditingControllerCashAmount
-                                                        .text = "";
-                                                    updateReceiptMop();
-                                                  });
+                                                  voucherIsExceedPurchase
+                                                      ? null
+                                                      : setState(() {
+                                                          _value = selected
+                                                              ? mop.tpmt3Id
+                                                              : "";
+                                                          _cashAmount = 0;
+                                                          _textEditingControllerCashAmount
+                                                              .text = "";
+                                                          updateReceiptMop();
+                                                        });
                                                 },
                                               );
                                             },

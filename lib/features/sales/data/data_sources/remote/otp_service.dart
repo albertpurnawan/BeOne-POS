@@ -18,7 +18,6 @@ class OTPServiceAPi {
     try {
       log("CREATE & SEND OTP");
       String url = "http://110.239.68.248:7070/api/otp/send-mailer";
-      final String? cashier = prefs.getString('username');
       final spv =
           await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
 
@@ -57,7 +56,6 @@ class OTPServiceAPi {
       log("VALIDATE OTP");
       String url = "http://110.239.68.248:7070/api/otp/submit";
       final options = Options(headers: {"Content-Type": "application/json"});
-      final String? cashier = prefs.getString('username');
 
       final dataToSend = {
         "otp": otp,

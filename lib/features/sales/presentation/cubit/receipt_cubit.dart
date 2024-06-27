@@ -363,8 +363,17 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   Future<void> charge() async {
-    final newState =
-        state.copyWith(changed: state.totalPayment! - state.grandTotal);
+    ReceiptEntity? newState;
+    if (state.totalVoucher! >= state.grandTotal) {
+      newState = state.copyWith(
+        mopSelection: state.mopSelection?.copyWith(amount: 0),
+        changed: 0,
+        totalNonVoucher: 0,
+      );
+    } else {
+      newState =
+          state.copyWith(changed: state.totalPayment! - state.grandTotal);
+    }
 
     dev.log("ON CHARGE - $newState");
     final ReceiptEntity? createdReceipt =
