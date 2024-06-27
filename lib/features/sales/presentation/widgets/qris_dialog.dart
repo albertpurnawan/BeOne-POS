@@ -49,9 +49,9 @@ class _QRISDialogState extends State<QRISDialog> {
       isCheckingStatus = true;
     });
 
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < 90; i++) {
       String status = '';
-      await Future.delayed(const Duration(seconds: 5), () async {
+      await Future.delayed(const Duration(seconds: 3), () async {
         status = await _checkQRISStatus();
         dev.log("status - $status");
       });
