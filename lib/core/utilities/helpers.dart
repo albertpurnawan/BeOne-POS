@@ -243,6 +243,14 @@ abstract class Helpers {
     return formatter.format(dTime).toString();
   }
 
+  static String dateYYYYmmDD(String dTime) {
+    DateTime dateTime = DateTime.parse(dTime);
+
+    String formattedString =
+        DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime.toLocal());
+    return formattedString;
+  }
+
   static String formatDateNoSeconds(DateTime dTime) {
     final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy HH:mm');
     return formatter.format(dTime).toString();

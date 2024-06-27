@@ -91,8 +91,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     }
   }
 
-  Future<void> createOTP() async {
-    await GetIt.instance<OTPServiceAPi>().createSendOTP();
+  Future<String> createOTP() async {
+    final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
+    return response['Requester'];
   }
 
   @override
@@ -134,6 +135,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                     barrierDismissible: false,
                     builder: (context) => OTPInputDialog(
                       discountValue: widget.discountValue,
+                      requester: value,
                     ),
                   );
                 });
@@ -265,7 +267,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                             _isSendingOTP = true;
                                           });
 
-                                          await createOTP();
+                                          final requester = await createOTP();
 
                                           setState(() {
                                             _isOTPClicked = false;
@@ -279,6 +281,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                                 OTPInputDialog(
                                               discountValue:
                                                   widget.discountValue,
+                                              requester: requester,
                                             ),
                                           );
                                         },

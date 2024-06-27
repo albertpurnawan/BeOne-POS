@@ -19,7 +19,6 @@ class OTPServiceAPi {
     try {
       log("CREATE & SEND OTP");
       String url = "http://110.239.68.248:7070/api/otp/send-mailer";
-      final String? cashier = prefs.getString('username');
       final spv =
           await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
 
@@ -30,11 +29,12 @@ class OTPServiceAPi {
       final formattedDateTime = formatter.format(DateTime.now().toUtc());
 
       final dataToSend = {
-        "channelId": "cc985aff-654d-41fb-84d0-2f2eea388729", //uuid dari channel
+        "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
+        "channelId": "cc985aff-654d-41fb-84d0-2f2eea388729", // uuid smtp
         "Destination": spv![0]['email'],
         "Expired": formattedExpired,
         "RequestTimestamp": formattedDateTime,
-        "Requester": cashier
+        "isUsed": false
       };
       log("Data2Send: ${jsonEncode(dataToSend)}");
 
@@ -54,16 +54,16 @@ class OTPServiceAPi {
     }
   }
 
-  Future<String> validateOTP(
-    String otp,
-  ) async {
+  Future<String> validateOTP(String otp, String requester) async {
     try {
       log("VALIDATE OTP");
       String url = "http://110.239.68.248:7070/api/otp/submit";
       final options = Options(headers: {"Content-Type": "application/json"});
-      final String? cashier = prefs.getString('username');
 
-      final dataToSend = {"otp": otp, "requesterId": cashier};
+      final dataToSend = {
+        "otp": otp,
+        "requesterId": "Top-Golf",
+      }; // need to change the requesterId
       // log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(

@@ -60,7 +60,17 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
       INNER JOIN toitm AS i ON d.toitmId = i.docid
       WHERE d.createdat BETWEEN ? AND ?
       GROUP BY d.toitmId
-      ''', [startDate, endDate]);
+    ''', [startDate, endDate]);
+
+    return result;
+  }
+
+  Future<List<dynamic>> readByToinvIdAddQtyBarcode(String toinvId) async {
+    final result = await db.rawQuery('''
+    SELECT x0.*, x1.quantity AS qtybarcode FROM tinv1 AS x0 
+      INNER JOIN tbitm AS x1 ON x0.toitmId = x1.toitmId 
+      WHERE x0.toinvId = ?
+    ''', [toinvId]);
 
     return result;
   }
