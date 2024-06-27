@@ -56,6 +56,7 @@ class PrintCloseShiftUsecase
         totalSales: params.totalSales.round(),
         cashReceived: params.cashReceived.round(),
         difference: params.difference.round(),
+        approverName: params.approverName,
       ));
     } catch (e) {
       rethrow;
@@ -71,6 +72,7 @@ class PrintCloseShiftUsecaseParams {
   final double totalSales;
   final double cashReceived;
   final double difference;
+  final String approverName;
 
   PrintCloseShiftUsecaseParams({
     required this.cashierBalanceTransactionEntity,
@@ -80,6 +82,7 @@ class PrintCloseShiftUsecaseParams {
     required this.totalSales,
     required this.cashReceived,
     required this.difference,
+    required this.approverName,
   });
 }
 
@@ -94,6 +97,7 @@ class PrintCloseShiftDetail {
   final int totalSales;
   final int cashReceived;
   final int difference;
+  final String approverName;
 
   PrintCloseShiftDetail({
     required this.storeMasterEntity,
@@ -106,5 +110,6 @@ class PrintCloseShiftDetail {
     required this.totalSales,
     required this.cashReceived,
     required this.difference,
+    required this.approverName,
   });
 }

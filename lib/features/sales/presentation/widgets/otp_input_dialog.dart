@@ -15,8 +15,10 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class OTPInputDialog extends StatefulWidget {
   final double discountValue;
+  final String requester;
 
-  const OTPInputDialog({Key? key, required this.discountValue})
+  const OTPInputDialog(
+      {Key? key, required this.discountValue, required this.requester})
       : super(key: key);
 
   @override
@@ -63,9 +65,10 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
     _startTimer();
   }
 
-  Future<void> onSubmit(
-      BuildContext parentContext, BuildContext childContext, String otp) async {
-    final response = await GetIt.instance<OTPServiceAPi>().validateOTP(otp);
+  Future<void> onSubmit(BuildContext parentContext, BuildContext childContext,
+      String otp, String requester) async {
+    final response =
+        await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
 
     if (response == "200") {
       if (childContext.mounted) {
@@ -151,7 +154,8 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
               }
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
-                onSubmit(parentContext, childContext, _otpCode);
+                onSubmit(
+                    parentContext, childContext, _otpCode, widget.requester);
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 parentContext.pop();
@@ -255,8 +259,8 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                                     _updateOtpCode();
                                     // FocusScope.of(context).unfocus();
                                     log("OTP Code: $_otpCode");
-                                    await onSubmit(
-                                        parentContext, childContext, _otpCode);
+                                    await onSubmit(parentContext, childContext,
+                                        _otpCode, widget.requester);
                                   }
                                 },
                               ),
@@ -400,7 +404,8 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                                 (states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
                           log("OTP Code: $_otpCode");
-                          await onSubmit(parentContext, childContext, _otpCode);
+                          await onSubmit(parentContext, childContext, _otpCode,
+                              widget.requester);
                         },
                         child: Center(
                           child: RichText(

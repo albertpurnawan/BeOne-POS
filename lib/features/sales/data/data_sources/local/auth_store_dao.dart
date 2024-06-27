@@ -36,7 +36,7 @@ class AuthStoreDao extends BaseDao<AuthStoreModel> {
     final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
-      where: 'tousrdocid = ?',
+      where: 'tousrdocid = ? AND statusactive = 1',
       whereArgs: [tousrdocid],
     );
 
@@ -45,8 +45,10 @@ class AuthStoreDao extends BaseDao<AuthStoreModel> {
 
   Future<List<dynamic>?> readEmailByTousrId() async {
     final res = await db.rawQuery('''
-    SELECT x0.*, x1.username, x1.email FROM tastr AS x0 INNER JOIN tousr AS x1 
+    SELECT x0.*, x1.username, x1.email FROM tastr AS x0 
+      INNER JOIN tousr AS x1 
       ON x0.tousrdocid = x1.docid
+      WHERE x0.statusactive = 1
     ''');
     return res;
   }

@@ -200,7 +200,9 @@ Future<void> syncData() async {
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleTopos = topos[0];
       final toposId = singleTopos.docId;
-      final lastSyncDate = topos[0].lastSync!;
+      final lastSyncDate = singleTopos.lastSync!;
+
+      final nextSyncDate = DateTime.now().toUtc().toIso8601String();
 
       final fetchFunctions = [
         () async {
@@ -1119,8 +1121,7 @@ Future<void> syncData() async {
                   .itemMasterDao
                   .bulkCreate(data: toitm);
             }
-          } catch (e, s) {
-            debugPrintStack(stackTrace: s);
+          } catch (e) {
             final logErr = LogErrorModel(
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
@@ -2664,6 +2665,7 @@ Future<void> syncData() async {
               tpdg5 =
                   await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
                       .fetchData("2000-01-01 00:00:00");
+
               await GetIt.instance<AppDatabase>()
                   .promoDiskonGroupItemCustomerGroupDao
                   .bulkCreate(data: tpdg5);
@@ -3030,40 +3032,75 @@ Future<void> syncData() async {
           }
         },
       ];
+
+      final store = await (GetIt.instance<AppDatabase>()
+          .storeMasterDao
+          .readByDocId(singleTopos.tostrId!, null));
+
+      final strName = store?.storeName;
+
+      final toposData = POSParameterModel(
+        docId: toposId,
+        createDate: singleTopos.createDate,
+        updateDate: singleTopos.updateDate,
+        gtentId: singleTopos.gtentId,
+        tostrId: singleTopos.tostrId,
+        storeName: strName,
+        tocsrId: singleTopos.tocsrId,
+        baseUrl: singleTopos.baseUrl,
+        usernameAdmin: singleTopos.usernameAdmin,
+        passwordAdmin: singleTopos.passwordAdmin,
+        lastSync: nextSyncDate,
+      );
+
+      await GetIt.instance<AppDatabase>()
+          .posParameterDao
+          .update(docId: toposId, data: toposData);
+
       for (final fetchFunction in fetchFunctions) {
         try {
           await fetchFunction();
-          final nextSyncDate = DateTime.now().toUtc().toIso8601String();
-
-          final store = await (GetIt.instance<AppDatabase>()
-              .storeMasterDao
-              .readByDocId(singleTopos.tostrId!, null));
-
-          final strName = store?.storeName;
-
-          final toposData = POSParameterModel(
-            docId: toposId,
-            createDate: singleTopos.createDate,
-            updateDate: singleTopos.updateDate,
-            gtentId: singleTopos.gtentId,
-            tostrId: singleTopos.tostrId,
-            storeName: strName,
-            tocsrId: singleTopos.tocsrId,
-            baseUrl: singleTopos.baseUrl,
-            usernameAdmin: singleTopos.usernameAdmin,
-            passwordAdmin: singleTopos.passwordAdmin,
-            lastSync: nextSyncDate,
-          );
-
-          await GetIt.instance<AppDatabase>()
-              .posParameterDao
-              .update(docId: toposId, data: toposData);
         } catch (e) {
           handleError(e);
           rethrow;
         }
       }
 
+      final toposAfterSync =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      final singleToposAfterSync = toposAfterSync[0];
+
+      // UPDATE STORE NAME
+      try {
+        final store = await (GetIt.instance<AppDatabase>()
+            .storeMasterDao
+            .readByDocId(singleTopos.tostrId!, null));
+
+        final toposData = POSParameterModel(
+          docId: singleToposAfterSync.docId,
+          createDate: singleToposAfterSync.createDate,
+          updateDate: singleToposAfterSync.updateDate,
+          gtentId: singleToposAfterSync.gtentId,
+          tostrId: singleToposAfterSync.tostrId,
+          storeName: store?.storeName,
+          tocsrId: singleToposAfterSync.tocsrId,
+          baseUrl: singleToposAfterSync.baseUrl,
+          usernameAdmin: singleToposAfterSync.usernameAdmin,
+          passwordAdmin: singleToposAfterSync.passwordAdmin,
+          lastSync: singleToposAfterSync.lastSync,
+        );
+
+        await GetIt.instance<AppDatabase>()
+            .posParameterDao
+            .update(docId: toposId, data: toposData);
+      } catch (e) {
+        handleError(e);
+        rethrow;
+      }
+      // END OF UPDATE STORE NAME
+
+      // REFRESH TOPRM
+      log("INSERTING PROMOS...");
       final promos = <PromotionsModel>[];
       final today = DateTime.now().weekday;
 
@@ -3074,6 +3111,7 @@ Future<void> syncData() async {
           .readAll();
       for (final header in topsb) {
         if (header.statusActive != 1) continue;
+
         final tpsb2 = await GetIt.instance<AppDatabase>()
             .promoHargaSpesialAssignStoreDao
             .readByTopsbId(header.docId, null);
@@ -3116,6 +3154,7 @@ Future<void> syncData() async {
           await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
       for (final header in topmi) {
         if (header.statusActive != 1) continue;
+
         final tpmi1 = await GetIt.instance<AppDatabase>()
             .promoMultiItemBuyConditionDao
             .readByTopmiId(header.docId, null);
@@ -3163,6 +3202,7 @@ Future<void> syncData() async {
           .readAll();
       for (final header in topdi) {
         if (header.statusActive != 1) continue;
+
         final tpdi1 = await GetIt.instance<AppDatabase>()
             .promoDiskonItemBuyConditionDao
             .readByTopdiId(header.docId, null);
@@ -3208,8 +3248,10 @@ Future<void> syncData() async {
       topdg = await GetIt.instance<AppDatabase>()
           .promoDiskonGroupItemHeaderDao
           .readAll();
+
       for (final header in topdg) {
         if (header.statusActive != 1) continue;
+
         final tpdg1 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemBuyConditionDao
             .readByTopdgId(header.docId, null);
@@ -3219,7 +3261,6 @@ Future<void> syncData() async {
         final tpdg5 = await GetIt.instance<AppDatabase>()
             .promoDiskonGroupItemCustomerGroupDao
             .readByTopdgId(header.docId, null);
-
         final dayProperties = {
           1: tpdg2.day1,
           2: tpdg2.day2,
@@ -3263,6 +3304,7 @@ Future<void> syncData() async {
           await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
       for (final header in toprb) {
         if (header.statusActive != 1) continue;
+
         final tprb1 = await GetIt.instance<AppDatabase>()
             .promoBuyXGetYBuyConditionDao
             .readByToprbId(header.docId, null);
@@ -3304,6 +3346,7 @@ Future<void> syncData() async {
 
       await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
       log("PROMOS INSERTED");
+      // END OF REFRESH TOPRM
 
       // fetched = tcurr.length +
       //     tocry.length +
@@ -3360,7 +3403,9 @@ Future<void> syncData() async {
       //     tprb4.length +
       //     tprb5.length;
 
+      // REFRESH TABLE ITEMS
       await GetIt.instance<AppDatabase>().refreshItemsTable();
+      // END OF REFRESH TABLE ITEMS
 
       // Check Failed Invoices and Try to Send
       final invoices =

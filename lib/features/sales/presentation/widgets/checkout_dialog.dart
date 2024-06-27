@@ -15,6 +15,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
@@ -22,16 +23,16 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/webview_page.dart';
 
 final List<MopType> mopTypes = [
-  MopType(name: "Tunai", payTypeCodes: ["1"]),
-  MopType(name: "E-Wallet", payTypeCodes: ["5"]),
-  MopType(name: "Debit", payTypeCodes: ["2"]),
-  MopType(name: "Kredit", payTypeCodes: ["3"]),
-  MopType(name: "Voucher", payTypeCodes: ["6"]),
-  MopType(name: "Lainnya", payTypeCodes: ["4"])
+  MopType(name: "CASH", payTypeCodes: ["1"]),
+  MopType(name: "E-WALLET", payTypeCodes: ["5"]),
+  MopType(name: "DEBIT", payTypeCodes: ["2"]),
+  MopType(name: "KREDIT", payTypeCodes: ["3"]),
+  MopType(name: "VOUCHERS", payTypeCodes: ["6"]),
+  MopType(name: "OTHERS", payTypeCodes: ["4"])
 ];
 
 class MopType {
@@ -42,7 +43,8 @@ class MopType {
 }
 
 class CheckoutDialog extends StatefulWidget {
-  const CheckoutDialog({super.key});
+  final bool? isCharged;
+  const CheckoutDialog({super.key, this.isCharged});
 
   @override
   State<CheckoutDialog> createState() => _CheckoutDialogState();
@@ -52,8 +54,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isPrinting = false;
   bool isCharged = false;
   bool isPaymentSufficient = true;
-  bool isLoading = false;
-  final FocusScopeNode _focusScopeNode = FocusScopeNode(skipTraversal: true);
+  bool isLoadingQRIS = false;
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   String generateRandomString(int length) {
@@ -66,19 +67,29 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     ));
   }
 
-  void showWebViewPopup(BuildContext context, String transactionQris) {
+  void showQRISDialog(
+      BuildContext context, NetzMeEntity data, String accessToken) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return WebViewApp(
-          url: transactionQris,
-          onPaymentSuccess: (bool success) {
-            if (success) {
-              context.read<ReceiptCubit>().charge();
-              Future.delayed(const Duration(seconds: 3), () {
-                setState(() {
-                  isCharged = true;
-                });
+        return QRISDialog(
+          data: data,
+          accessToken: accessToken,
+          onPaymentSuccess: (String status) async {
+            if (status == 'paid') {
+              await context.read<ReceiptCubit>().charge();
+
+              await Future.delayed(const Duration(milliseconds: 200), () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const CheckoutDialog(
+                        isCharged: true,
+                      );
+                    });
               });
             }
           },
@@ -87,16 +98,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     );
   }
 
-  // void showWebViewPopup(BuildContext context, String base64) {
-  //   if (base64.isNotEmpty) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return QRIZDialog(base64: base64);
-  //       },
-  //     );
-  //   } else {}
-  // }
+  @override
+  void initState() {
+    super.initState();
+    isCharged = widget.isCharged ?? false;
+  }
 
   Future<void> charge() async {
     try {
@@ -115,10 +121,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       final mopSelected = context.read<ReceiptCubit>().state.mopSelection;
       final grandTotal = Helpers.revertMoneyToString(
           context.read<ReceiptCubit>().state.grandTotal);
+      final invoiceDocNum = context.read<ReceiptCubit>().state.docNum;
 
       if (mopSelected!.payTypeCode == '5') {
         setState(() {
-          isLoading = true;
+          isLoadingQRIS = true;
         });
         final netzme = await GetIt.instance<AppDatabase>().netzmeDao.readAll();
         final url = netzme[0].url;
@@ -128,16 +135,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
         final signature = await GetIt.instance<NetzmeApi>()
             .createSignature(url, clientKey, privateKey);
-        dev.log(signature);
 
         final accessToken = await GetIt.instance<NetzmeApi>()
             .requestAccessToken(url, clientKey, privateKey, signature);
-        dev.log(accessToken);
 
         final bodyDetail = {
           "custIdMerchant": netzme[0].custIdMerchant, // constant
-          "partnerReferenceNo":
-              generateRandomString(10), // no unique cust aka random
+          "partnerReferenceNo": invoiceDocNum +
+              generateRandomString(5), // invoice docnum + channel
           "amount": {
             "value": grandTotal,
             "currency": "IDR"
@@ -165,18 +170,18 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         };
         final serviceSignature = await GetIt.instance<NetzmeApi>()
             .createSignatureService(url, clientKey, clientSecret, privateKey,
-                accessToken, bodyDetail);
-        dev.log(serviceSignature);
+                accessToken, "api/v1.0/invoice/create-transaction", bodyDetail);
+
         final transactionQris = await GetIt.instance<NetzmeApi>()
             .createTransactionQRIS(url, clientKey, clientSecret, privateKey,
                 serviceSignature, bodyDetail);
-        dev.log(transactionQris);
+        // dev.log("transactionQris - $transactionQris");
 
         setState(() {
-          isLoading = false;
+          isLoadingQRIS = false;
         });
 
-        showWebViewPopup(context, transactionQris);
+        showQRISDialog(context, transactionQris, accessToken);
       } else {
         context.read<ReceiptCubit>().charge();
         Future.delayed(const Duration(milliseconds: 600), () {
@@ -568,23 +573,34 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                 (states) => ProjectColors.primary),
                             overlayColor: MaterialStateColor.resolveWith(
                                 (states) => Colors.white.withOpacity(.2))),
-                        onPressed: () async => await charge(),
+                        onPressed:
+                            isLoadingQRIS ? null : () async => await charge(),
                         child: Center(
-                          child: RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Charge",
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                          child: isLoadingQRIS
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator.adaptive(
+                                      // backgroundColor: Colors.white,
+                                      ),
+                                )
+                              : RichText(
+                                  text: const TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: "Charge",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      TextSpan(
+                                        text: "  (F12)",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w300),
+                                      ),
+                                    ],
+                                  ),
+                                  overflow: TextOverflow.clip,
                                 ),
-                                TextSpan(
-                                  text: "  (F12)",
-                                  style: TextStyle(fontWeight: FontWeight.w300),
-                                ),
-                              ],
-                            ),
-                            overflow: TextOverflow.clip,
-                          ),
                         ),
                       )
                     ])),
@@ -609,6 +625,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   String _value = "";
   int _cashAmount = 0;
   int _vouchersAmount = 0;
+  bool voucherIsExceedPurchase = false;
+
   final List<MopSelectionEntity> _voucherMopSelections = [];
   final List<VouchersSelectionEntity> _vouchers = [];
   List<MopSelectionEntity> mopSelectionModels = [];
@@ -703,16 +721,19 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
   List<int> generateCashAmountSuggestions(int receiptTotalAmount) {
     List<int> cashAmountSuggestions = [receiptTotalAmount - _vouchersAmount];
-    final List<int> multipliers = [5000, 10000, 50000, 100000];
+    if (voucherIsExceedPurchase) {
+      cashAmountSuggestions = [0];
+    } else {
+      final List<int> multipliers = [5000, 10000, 50000, 100000];
 
-    for (final multiplier in multipliers) {
-      if (cashAmountSuggestions.last % multiplier != 0) {
-        cashAmountSuggestions.add((receiptTotalAmount - _vouchersAmount) +
-            multiplier -
-            ((receiptTotalAmount - _vouchersAmount) % multiplier));
+      for (final multiplier in multipliers) {
+        if (cashAmountSuggestions.last % multiplier != 0) {
+          cashAmountSuggestions.add((receiptTotalAmount - _vouchersAmount) +
+              multiplier -
+              ((receiptTotalAmount - _vouchersAmount) % multiplier));
+        }
       }
     }
-
     return cashAmountSuggestions;
   }
 
@@ -757,6 +778,17 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     });
     context.read<ReceiptCubit>().updateVouchersSelection(
         vouchersSelectionEntity: _vouchers, vouchersAmount: _vouchersAmount);
+    final receiptGrandTotal =
+        context.read<ReceiptCubit>().state.grandTotal.toInt();
+    final receiptTotalVouchers =
+        context.read<ReceiptCubit>().state.totalVoucher;
+    if (receiptTotalVouchers! >= receiptGrandTotal) {
+      dev.log("receiptTotal - $receiptGrandTotal");
+      dev.log("receiptTotalVouchers - $receiptTotalVouchers");
+      setState(() {
+        voucherIsExceedPurchase = true;
+      });
+    }
   }
 
   @override
@@ -1236,15 +1268,17 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                     });
                                                     return;
                                                   }
-                                                  setState(() {
-                                                    _value = selected
-                                                        ? mop.tpmt3Id
-                                                        : "";
-                                                    _cashAmount = 0;
-                                                    _textEditingControllerCashAmount
-                                                        .text = "";
-                                                    updateReceiptMop();
-                                                  });
+                                                  voucherIsExceedPurchase
+                                                      ? null
+                                                      : setState(() {
+                                                          _value = selected
+                                                              ? mop.tpmt3Id
+                                                              : "";
+                                                          _cashAmount = 0;
+                                                          _textEditingControllerCashAmount
+                                                              .text = "";
+                                                          updateReceiptMop();
+                                                        });
                                                 },
                                               );
                                             },

@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -23,6 +21,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
@@ -51,6 +50,7 @@ class _SalesPageState extends State<SalesPage> {
   List<int> indexIsSelect = [-1, 0];
   bool isUpdatingReceiptItemQty = false;
   bool isEditingReceiptItemQty = false;
+  bool isNewItemAdded = false;
 
   // States for handling current time
   late Timer _timer;
@@ -158,7 +158,7 @@ class _SalesPageState extends State<SalesPage> {
                 _textEditingControllerNewReceiptItemQuantity.text == "" ||
                         double.parse(
                                 _textEditingControllerNewReceiptItemQuantity
-                                    .text) <=
+                                    .text) ==
                             0
                     ? "1"
                     : Helpers.cleanDecimal(
@@ -192,7 +192,7 @@ class _SalesPageState extends State<SalesPage> {
                 _textEditingControllerNewReceiptItemQuantity.text == "" ||
                         double.parse(
                                 _textEditingControllerNewReceiptItemQuantity
-                                    .text) <=
+                                    .text) ==
                             0
                     ? "1"
                     : Helpers.cleanDecimal(
@@ -644,13 +644,25 @@ class _SalesPageState extends State<SalesPage> {
                                               ),
                                             ],
                                           ),
-                                        Container(
+                                        AnimatedContainer(
+                                          duration: index == indexIsSelect[0] &&
+                                                  indexIsSelect[1] == 1
+                                              ? Duration.zero
+                                              : const Duration(
+                                                  milliseconds: 200),
                                           padding: const EdgeInsets.all(0),
                                           color: index == indexIsSelect[0] &&
                                                   indexIsSelect[1] == 1
-                                              ? const Color.fromARGB(
-                                                  20, 169, 0, 0)
-                                              : null,
+                                              ? Color.fromARGB(
+                                                  255, 255, 222, 222)
+                                              : isNewItemAdded &&
+                                                      (index ==
+                                                          state.receiptItems
+                                                                  .length -
+                                                              1)
+                                                  ? Color.fromARGB(
+                                                      95, 100, 202, 122)
+                                                  : Colors.white,
                                           child: Padding(
                                             padding: const EdgeInsets.fromLTRB(
                                                 20, 10, 20, 10),
@@ -771,7 +783,7 @@ class _SalesPageState extends State<SalesPage> {
                                                             child: Column(
                                                               children: [
                                                                 Text(
-                                                                  "@ ${Helpers.parseMoney(e.itemEntity.dpp.round())}",
+                                                                  "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
                                                                   textAlign:
                                                                       TextAlign
                                                                           .right,
@@ -793,9 +805,9 @@ class _SalesPageState extends State<SalesPage> {
                                                               child: Column(
                                                                 children: [
                                                                   Text(
-                                                                    Helpers.parseMoney(
-                                                                        (e.totalGross)
-                                                                            .round()),
+                                                                    Helpers.parseMoney((e.sellingPrice *
+                                                                            e.quantity)
+                                                                        .round()),
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             16,
@@ -1733,61 +1745,7 @@ class _SalesPageState extends State<SalesPage> {
               Expanded(
                 child: SizedBox.expand(
                   child: OutlinedButton(
-                    onPressed: () async {
-                      try {
-                        if (context
-                            .read<ReceiptCubit>()
-                            .state
-                            .receiptItems
-                            .isEmpty) {
-                          return SnackBarHelper.presentErrorSnackBar(
-                              context, "Receipt cannot be empty");
-                        }
-
-                        setState(() {
-                          isEditingNewReceiptItemCode = false;
-                          isEditingNewReceiptItemQty = false;
-                          isUpdatingReceiptItemQty = false;
-                        });
-
-                        await context
-                            .read<ReceiptCubit>()
-                            .processReceiptBeforeCheckout(context);
-
-                        await Future.delayed(
-                            const Duration(milliseconds: 300), null);
-
-                        final ReceiptEntity receiptEntity =
-                            context.read<ReceiptCubit>().state;
-
-                        log("before summary ${context.read<ReceiptCubit>().state}");
-
-                        if (receiptEntity.promos.length !=
-                            receiptEntity
-                                .previousReceiptEntity?.promos.length) {
-                          await showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => PromotionSummaryDialog(
-                                    receiptEntity:
-                                        context.read<ReceiptCubit>().state,
-                                  ));
-                        }
-
-                        await showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => const CheckoutDialog())
-                            .then((value) {
-                          setState(() {
-                            isEditingNewReceiptItemCode = true;
-                            _newReceiptItemCodeFocusNode.requestFocus();
-                          });
-                        });
-                      } catch (e, s) {
-                        debugPrintStack(stackTrace: s);
-                      }
-                    },
+                    onPressed: () async => await checkout(),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(20, 3, 20, 3),
                       // elevation: 5,
@@ -2118,7 +2076,7 @@ class _SalesPageState extends State<SalesPage> {
                                   "" ||
                               double.parse(
                                       _textEditingControllerNewReceiptItemQuantity
-                                          .text) <=
+                                          .text) ==
                                   0
                           ? "1"
                           : Helpers.cleanDecimal(
@@ -2225,7 +2183,7 @@ class _SalesPageState extends State<SalesPage> {
                             "" ||
                         double.parse(
                                 _textEditingControllerNewReceiptItemQuantity
-                                    .text) <=
+                                    .text) ==
                             0
                     ? "1"
                     : Helpers.cleanDecimal(
@@ -2509,7 +2467,7 @@ class _SalesPageState extends State<SalesPage> {
                                             "" ||
                                         double.parse(
                                                 _textEditingControllerNewReceiptItemQuantity
-                                                    .text) <=
+                                                    .text) ==
                                             0
                                     ? "1"
                                     : Helpers.cleanDecimal(
@@ -2661,7 +2619,7 @@ class _SalesPageState extends State<SalesPage> {
                 _textEditingControllerNewReceiptItemQuantity.text == "" ||
                         double.parse(
                                 _textEditingControllerNewReceiptItemQuantity
-                                    .text) <=
+                                    .text) ==
                             0
                     ? "1"
                     : Helpers.cleanDecimal(
@@ -2676,49 +2634,7 @@ class _SalesPageState extends State<SalesPage> {
           });
         }
       } else if (event.physicalKey == (PhysicalKeyboardKey.f12)) {
-        try {
-          if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
-            return SnackBarHelper.presentErrorSnackBar(
-                context, "Receipt cannot be empty");
-          }
-
-          setState(() {
-            isEditingNewReceiptItemCode = false;
-            isEditingNewReceiptItemQty = false;
-            isUpdatingReceiptItemQty = false;
-          });
-
-          await context
-              .read<ReceiptCubit>()
-              .processReceiptBeforeCheckout(context);
-
-          await Future.delayed(const Duration(milliseconds: 300), () {});
-
-          final ReceiptEntity receiptEntity =
-              context.read<ReceiptCubit>().state;
-
-          if (receiptEntity.promos.length !=
-              receiptEntity.previousReceiptEntity?.promos.length) {
-            await showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => PromotionSummaryDialog(
-                      receiptEntity: context.read<ReceiptCubit>().state,
-                    ));
-          }
-
-          await showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => const CheckoutDialog()).then((value) {
-            setState(() {
-              isEditingNewReceiptItemCode = true;
-              _newReceiptItemCodeFocusNode.requestFocus();
-            });
-          });
-        } catch (e, s) {
-          debugPrintStack(stackTrace: s);
-        }
+        await checkout();
       } else if (event.physicalKey == (PhysicalKeyboardKey.f11)) {
         if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
           return SnackBarHelper.presentErrorSnackBar(
@@ -2802,7 +2718,7 @@ class _SalesPageState extends State<SalesPage> {
           _textEditingControllerNewReceiptItemQuantity
               .text = _textEditingControllerNewReceiptItemQuantity.text == "" ||
                   double.parse(
-                          _textEditingControllerNewReceiptItemQuantity.text) <=
+                          _textEditingControllerNewReceiptItemQuantity.text) ==
                       0
               ? "1"
               : Helpers.cleanDecimal(
@@ -2903,7 +2819,7 @@ class _SalesPageState extends State<SalesPage> {
         _textEditingControllerNewReceiptItemQuantity
             .text = _textEditingControllerNewReceiptItemQuantity.text == "" ||
                 double.parse(
-                        _textEditingControllerNewReceiptItemQuantity.text) <=
+                        _textEditingControllerNewReceiptItemQuantity.text) ==
                     0
             ? "1"
             : Helpers.cleanDecimal(
@@ -2928,7 +2844,14 @@ class _SalesPageState extends State<SalesPage> {
 
       _newReceiptItemQuantityFocusNode.unfocus();
       _newReceiptItemCodeFocusNode.requestFocus();
+      isNewItemAdded = true;
       setState(() {});
+
+      Future.delayed(
+          const Duration(milliseconds: 400),
+          () => setState(() {
+                isNewItemAdded = false;
+              }));
 
       if (itemScrollController.isAttached) {
         await scrollToReceiptItemByIndex(
@@ -2950,6 +2873,61 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
+  Future<void> checkout() async {
+    try {
+      if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
+        return SnackBarHelper.presentErrorSnackBar(
+            context, "Receipt cannot be empty");
+      }
+
+      if (context.read<ReceiptCubit>().state.grandTotal < 0) {
+        return SnackBarHelper.presentErrorSnackBar(
+            context, "Grand total cannot be negative");
+      }
+
+      if (context.read<ReceiptCubit>().state.grandTotal == 0) {
+        final bool? isAuthorized = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const ApprovalDialog());
+        if (isAuthorized != true) return;
+      }
+
+      setState(() {
+        isEditingNewReceiptItemCode = false;
+        isEditingNewReceiptItemQty = false;
+        isUpdatingReceiptItemQty = false;
+      });
+
+      await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
+
+      await Future.delayed(const Duration(milliseconds: 300), null);
+
+      final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
+
+      if (receiptEntity.promos.length !=
+          receiptEntity.previousReceiptEntity?.promos.length) {
+        await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => PromotionSummaryDialog(
+                  receiptEntity: context.read<ReceiptCubit>().state,
+                ));
+      }
+
+      await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const CheckoutDialog()).then((value) {
+        setState(() {
+          isEditingNewReceiptItemCode = true;
+          _newReceiptItemCodeFocusNode.requestFocus();
+        });
+      });
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
   // =================================================
   //             [END] Other Functions
   // =================================================

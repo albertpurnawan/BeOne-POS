@@ -511,6 +511,7 @@ PRAGMA foreign_keys = ON;
     final StoreMasterModel? storeMaster =
         await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
     if (storeMaster == null) return;
+    if (storeMaster.tcurrId == null) return;
 
     bool taxByItem = false;
     String taxAdditionalQuery = "";
@@ -537,12 +538,8 @@ INNER JOIN (
       storeTaxRate = taxMaster.rate;
     }
 
-    try {
-      await _database!.execute("""
-DELETE FROM items
-""");
-      // refresh table
-      await _database!.execute("""
+    final String mainQuery = """DELETE FROM items;
+
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId)
 SELECT 
   i.itemname, 
@@ -593,7 +590,7 @@ FROM
           tpln2
       ) AS pr ON pr.tpln1Id = pp.tpln1Id 
     WHERE 
-      pl.tcurrId = '259eff8d-2105-41ea-978f-45ea417e0799'
+      pl.tcurrId = '${storeMaster.tcurrId}'
       AND 
       statusactive = 1
     GROUP BY 
@@ -656,8 +653,10 @@ FROM
     FROM
       tvitm
   ) as v ON v.tsitmId = s.tsitmId
-  ${taxByItem ? taxAdditionalQuery : ""} 
-""");
+  ${taxByItem ? taxAdditionalQuery : ""}""";
+
+    try {
+      await _database!.execute(mainQuery);
     } catch (e, s) {
       debugPrintStack(stackTrace: s);
     }

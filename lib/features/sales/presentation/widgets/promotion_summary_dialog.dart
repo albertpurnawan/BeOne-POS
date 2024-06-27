@@ -2,17 +2,13 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/promotion_detail.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class PromotionSummaryDialog extends StatefulWidget {
   PromotionSummaryDialog({super.key, required this.receiptEntity});
@@ -625,7 +621,6 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     log("init promotion");
     FocusManager.instance.primaryFocus?.unfocus();
@@ -643,7 +638,6 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }

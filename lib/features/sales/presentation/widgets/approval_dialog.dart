@@ -5,30 +5,24 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthInputDiscountDialog extends StatefulWidget {
-  final double discountValue;
-  const AuthInputDiscountDialog({Key? key, required this.discountValue})
-      : super(key: key);
+class ApprovalDialog extends StatefulWidget {
+  final Future<void> Function()? onSuccess;
+  const ApprovalDialog({Key? key, this.onSuccess}) : super(key: key);
 
   @override
-  State<AuthInputDiscountDialog> createState() =>
-      _AuthInputDiscountDialogState();
+  State<ApprovalDialog> createState() => _ApprovalDialogState();
 }
 
-class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
+class _ApprovalDialogState extends State<ApprovalDialog> {
   final formKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -74,14 +68,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     String passwordCorrect =
         await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
-      childContext
-          .read<ReceiptCubit>()
-          .updateTotalAmountFromDiscount(widget.discountValue);
-      Navigator.of(childContext).pop(); // Close the dialog
-      Navigator.of(childContext).pop(); // Close the select method if needed
-      // Navigator.of(childContext).pop(); // Close the input discount if needed
-      SnackBarHelper.presentSuccessSnackBar(parentContext,
-          "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
+      parentContext.pop(true);
     } else {
       final message = passwordCorrect == "Wrong Password"
           ? "Invalid username or password"
@@ -91,9 +78,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     }
   }
 
-  Future<String> createOTP() async {
-    final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
-    return response['Requester'];
+  Future<void> createOTP() async {
+    await GetIt.instance<OTPServiceAPi>().createSendOTP();
   }
 
   @override
@@ -130,14 +116,13 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                     _isSendingOTP = false;
                   });
 
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => OTPInputDialog(
-                      discountValue: widget.discountValue,
-                      requester: value,
-                    ),
-                  );
+                  // showDialog(
+                  //   context: context,
+                  //   barrierDismissible: false,
+                  //   builder: (context) => OTPInputDialog(
+                  //     discountValue: widget.discountValue,
+                  //   ),
+                  // );
                 });
               }
 
@@ -267,23 +252,22 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                             _isSendingOTP = true;
                                           });
 
-                                          final requester = await createOTP();
+                                          await createOTP();
 
                                           setState(() {
                                             _isOTPClicked = false;
                                             _isSendingOTP = false;
                                           });
 
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (context) =>
-                                                OTPInputDialog(
-                                              discountValue:
-                                                  widget.discountValue,
-                                              requester: requester,
-                                            ),
-                                          );
+                                          // showDialog(
+                                          //   context: context,
+                                          //   barrierDismissible: false,
+                                          //   builder: (context) =>
+                                          //       OTPInputDialog(
+                                          //     discountValue:
+                                          //         widget.discountValue,
+                                          //   ),
+                                          // );
                                         },
                                     ),
                                     TextSpan(

@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -821,7 +820,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: 'Opened At',
+          text: 'Opened at',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
           width: 7,
@@ -832,7 +831,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: 'Closed At',
+          text: 'Closed at',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
       PosColumn(
           width: 7,
@@ -840,6 +839,17 @@ class ReceiptPrinter {
               ":  ${Helpers.dateddMMMyyyyHHmmss(printCloseShiftDetail.cashierBalanceTransactionEntity.closeDate)}",
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: 'Approved by',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 7,
+          text: ":  ${printCloseShiftDetail.approverName}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+
     bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(
@@ -902,7 +912,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: 'Cash Received',
+          text: 'Actual Cash',
           styles: const PosStyles(
               align: PosAlign.left, codeTable: 'CP1252', bold: true)),
       PosColumn(
@@ -922,7 +932,6 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
     ]);
 
-    log("closeshift bytes $bytes");
     _printEscPos(bytes, generator);
   }
 
