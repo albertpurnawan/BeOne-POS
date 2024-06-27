@@ -10,8 +10,6 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
@@ -121,8 +119,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Check qty
-      if (params.quantity <= 0) {
-        throw "Quantity must be greater than 0";
+      if (params.quantity == 0) {
+        throw "Quantity cannot be 0";
       }
 
       // Initialize some values
@@ -136,9 +134,30 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ReceiptItemEntity receiptItemEntity;
       final List<PromotionsEntity?> availablePromos;
 
-      dev.log("addUpdateItems");
-      dev.log(state.previousReceiptEntity.toString());
+      // Handle negative quantity
+      final ReceiptItemEntity? currentReceiptItemEntity = state.receiptItems
+          .where((e) =>
+              e.itemEntity.barcode ==
+              (params.barcode ?? params.itemEntity!.barcode))
+          .firstOrNull;
+      if (currentReceiptItemEntity != null) {
+        if (currentReceiptItemEntity.quantity + params.quantity == 0) {
+          await removeReceiptItem(currentReceiptItemEntity, params.context!);
+          return;
+        } else if (params.quantity < 0 &&
+            currentReceiptItemEntity.quantity > 0) {
+          await removeReceiptItem(currentReceiptItemEntity, params.context!);
+          await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+              barcode: params.barcode,
+              itemEntity: params.itemEntity,
+              quantity: currentReceiptItemEntity.quantity + params.quantity,
+              context: params.context,
+              onOpenPriceInputted: params.onOpenPriceInputted));
+          return;
+        }
+      }
 
+      // Handle reset promo
       if (state.previousReceiptEntity != null) {
         final bool? isProceed = await showDialog<bool>(
           context: params.context!,
@@ -160,7 +179,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
       if (itemEntity == null) throw "Item not found";
 
-      // Convert item entity to receipt item entity
+      // Convert item entity to receipt item entity **qty conversion can be placed here**
       receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(
           itemEntity, params.quantity);
 
@@ -328,7 +347,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         previousReceiptEntity: state.previousReceiptEntity));
   }
 
-  void removeReceiptItem(
+  Future<void> removeReceiptItem(
       ReceiptItemEntity receiptItemEntity, BuildContext context) async {
     List<ReceiptItemEntity> newReceiptItems = [];
 
@@ -389,113 +408,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       } catch (e) {
         dev.log(e.toString());
       }
-      final invHead =
-          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
-      final invHeadSuccess = InvoiceHeaderModel(
-        docId: invHead[0].docId,
-        createDate: invHead[0].createDate,
-        updateDate: invHead[0].updateDate,
-        tostrId: invHead[0].tostrId,
-        docnum: invHead[0].docnum,
-        orderNo: invHead[0].orderNo,
-        tocusId: invHead[0].tocusId,
-        tohemId: invHead[0].tohemId,
-        transDateTime: invHead[0].transDateTime,
-        timezone: invHead[0].timezone,
-        remarks: invHead[0].remarks,
-        subTotal: invHead[0].subTotal,
-        discPrctg: invHead[0].discPrctg,
-        discAmount: invHead[0].discAmount,
-        discountCard: invHead[0].discountCard,
-        coupon: invHead[0].coupon,
-        discountCoupun: invHead[0].discountCoupun,
-        taxPrctg: invHead[0].taxPrctg,
-        taxAmount: invHead[0].taxAmount,
-        addCost: invHead[0].addCost,
-        rounding: invHead[0].rounding,
-        grandTotal: invHead[0].grandTotal,
-        changed: invHead[0].changed,
-        totalPayment: invHead[0].totalPayment,
-        tocsrId: invHead[0].tocsrId,
-        docStatus: invHead[0].docStatus,
-        sync: invHead[0].sync,
-        syncCRM: invHead[0].syncCRM,
-        tcsr1Id: invHead[0].tcsr1Id,
-        toinvTohemId: invHead[0].toinvTohemId,
-        refpos1: invHead[0].refpos1,
-        refpos2: invHead[0].refpos2,
-        discHeaderManual: invHead[0].discHeaderManual,
-        discHeaderPromo: invHead[0].discHeaderPromo,
-        syncToBos: invHead[0].syncToBos,
-        paymentSuccess: '1',
-      );
-      await GetIt.instance<AppDatabase>()
-          .invoiceHeaderDao
-          .update(docId: invHead[0].docId!, data: invHeadSuccess);
 
-      CashierBalanceTransactionModel? shift =
-          await GetIt.instance<AppDatabase>()
-              .cashierBalanceTransactionDao
-              .readLastValue();
-
-      if (shift != null) {
-        final transaction = await GetIt.instance<AppDatabase>()
-            .invoiceHeaderDao
-            .readByShift(shift.docId);
-        double nonCash = 0.0;
-        double salesAmount = 0.0;
-        final DateTime now = DateTime.now();
-        final start = shift.openDate
-            .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
-        final end = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          23,
-          59,
-          59,
-          999,
-        );
-        final fetched = await GetIt.instance<AppDatabase>()
-            .payMeansDao
-            .readByTpmt3BetweenDate(start, end);
-        for (final mop in fetched!) {
-          if ((mop['description'] != 'TUNAI')) {
-            nonCash += mop['totalamount'];
-          }
-        }
-        for (final trx in transaction) {
-          salesAmount += trx.grandTotal;
-          CashierBalanceTransactionModel data = CashierBalanceTransactionModel(
-            docId: shift.docId,
-            createDate: shift.createDate,
-            updateDate: shift.updateDate,
-            tocsrId: shift.tocsrId,
-            tousrId: shift.tousrId,
-            docNum: shift.docNum,
-            openDate: shift.openDate,
-            openTime: shift.openTime,
-            calcDate: shift.calcDate,
-            calcTime: shift.calcTime,
-            closeDate: shift.closeDate,
-            closeTime: shift.closeTime,
-            timezone: shift.timezone,
-            openValue: shift.openValue,
-            calcValue: shift.calcValue,
-            cashValue: salesAmount,
-            closeValue: shift.closeValue,
-            openedbyId: shift.openedbyId,
-            closedbyId: shift.closedbyId,
-            approvalStatus: shift.approvalStatus,
-            refpos: shift.docId,
-            syncToBos: shift.syncToBos,
-          );
-
-          await GetIt.instance<AppDatabase>()
-              .cashierBalanceTransactionDao
-              .update(docId: shift.docId, data: data);
-        }
-      }
       await GetIt.instance<InvoiceApi>().sendInvoice();
     }
   }
@@ -759,9 +672,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       dev.log("previousreceipt before emit ${state.previousReceiptEntity}");
 
       emit(newReceipt.copyWith(
-        previousReceiptEntity: state.copyWith(
-            receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
-            previousReceiptEntity: null),
+        previousReceiptEntity: state.previousReceiptEntity ??
+            state.copyWith(
+                receiptItems:
+                    state.receiptItems.map((e) => e.copyWith()).toList(),
+                previousReceiptEntity: null),
       ));
 
       dev.log("after emit $state");

@@ -8,14 +8,20 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/navigation_helper.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
+import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift_success_alert_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -104,7 +110,12 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalSales = '0';
   String expectedCash = "0";
   String calculatedTotalCash = '0';
+  String difference = "0";
   Map<String, dynamic>? denomination;
+  UserEntity? closeShiftApproverUser;
+  EmployeeEntity? closeShiftApproverEmployee;
+  UserEntity? openShiftApproverUser;
+  EmployeeEntity? openShiftApproverEmployee;
 
   @override
   void initState() {
@@ -121,6 +132,63 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     await fetchActiveShift();
     await fetchInvoices();
     await updateActiveShift();
+    await fetchOpenShiftApprover();
+    await fetchCloseShiftApprover();
+  }
+
+  Future<void> fetchCloseShiftApprover() async {
+    try {
+      final UserEntity? user = await GetIt.instance<AppDatabase>()
+          .userDao
+          .readByUsername(widget.username!, null);
+
+      if (user == null) throw "User not found";
+      setState(() {
+        closeShiftApproverUser = user;
+      });
+
+      if (user.tohemId == null) throw "Employee ID not found in user";
+      final EmployeeEntity? employee = await GetIt.instance<AppDatabase>()
+          .employeeDao
+          .readByDocId(user.tohemId!, null);
+
+      if (employee == null) throw "Employee not found";
+      setState(() {
+        closeShiftApproverEmployee = employee;
+      });
+
+      return;
+    } catch (e) {
+      log("$e when fetch close shift approver");
+    }
+  }
+
+  Future<void> fetchOpenShiftApprover() async {
+    try {
+      if (activeShift == null) throw "Active shift not found";
+      final UserEntity? user = await GetIt.instance<AppDatabase>()
+          .userDao
+          .readByDocId(activeShift!.openedbyId!, null);
+
+      if (user == null) throw "User not found";
+      setState(() {
+        openShiftApproverUser = user;
+      });
+
+      if (user.tohemId == null) throw "Employee ID not found in user";
+      final EmployeeEntity? employee = await GetIt.instance<AppDatabase>()
+          .employeeDao
+          .readByDocId(user.tohemId!, null);
+
+      if (employee == null) throw "Employee not found";
+      setState(() {
+        openShiftApproverEmployee = employee;
+      });
+
+      return;
+    } catch (e) {
+      log("$e when fetch open shift approver");
+    }
   }
 
   Future<void> fetchActiveShift() async {
@@ -129,6 +197,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         .readByDocId(shiftId, null);
     setState(() {
       activeShift = shift;
+      expectedCash = Helpers.parseMoney(shift?.openValue ?? 0);
+      difference = Helpers.parseMoney(
+          Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+              Helpers.revertMoneyToDecimalFormat(expectedCash));
     });
   }
 
@@ -141,10 +213,20 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     });
   }
 
-  void updateTotalCash(Map<String, dynamic> total) {
+  void updateTotalCash(Map<String, String> total) {
     setState(() {
-      calculatedTotalCash = totalCash;
+      int totalCash = 0;
+      for (String key in total.keys) {
+        totalCash += (Helpers.revertMoneyToDecimalFormat(
+                    total[key] == "" ? "0" : total[key]!) *
+                int.parse(key.replaceAll('k', "000")))
+            .round();
+      }
+      calculatedTotalCash = Helpers.parseMoney(totalCash);
       denomination = total;
+      difference = Helpers.parseMoney(
+          Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+              Helpers.revertMoneyToDecimalFormat(expectedCash));
     });
   }
 
@@ -215,6 +297,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 NumberFormat.decimalPattern().format(salesAmount - nonCash);
             expectedCash = NumberFormat.decimalPattern()
                 .format(data.openValue + (salesAmount - nonCash));
+            difference = Helpers.parseMoney(
+                Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+                    Helpers.revertMoneyToDecimalFormat(expectedCash));
           });
         }
       }
@@ -238,6 +323,26 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                "Shift",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+          ],
+        ),
+        const Divider(
+          height: 20,
+          color: Colors.grey,
+        ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -246,7 +351,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Cashier",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -255,7 +360,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 cashier!,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -270,7 +375,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Opened at",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -279,7 +384,36 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 formattedOpenDate,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Close Shift Approver",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                closeShiftApproverEmployee?.empName ??
+                    closeShiftApproverUser?.username ??
+                    "null",
+                style: const TextStyle(
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -297,7 +431,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Sales",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.start,
@@ -317,7 +451,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Opening Balance",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -326,7 +460,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 formattedOpenValue,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -341,7 +475,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Total Cash Sales",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -350,7 +484,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 totalCash,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -365,7 +499,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Expected Cash",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: ProjectColors.mediumBlack,
                 ),
@@ -376,7 +510,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 expectedCash,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: ProjectColors.mediumBlack,
                 ),
@@ -396,7 +530,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Total Non Cash Sales",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -405,7 +539,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 totalNonCash,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -420,7 +554,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Total Sales",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -429,7 +563,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 totalSales,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -445,9 +579,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           children: [
             Expanded(
               child: Text(
-                "Cash Received",
+                "Actual Cash",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.start,
@@ -460,12 +594,105 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           color: Colors.grey,
         ),
         CalculateCash(setTotal: updateTotalCash),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(
+              width: 300,
+              child: Text(
+                "Total Actual Cash",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            const Expanded(
+              child: Text(""),
+            ),
+            SizedBox(
+              width: 300,
+              child: Text(
+                calculatedTotalCash,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Difference",
+                  style: TextStyle(
+                    height: 1,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Helpers.revertMoneyToDecimalFormat(difference) < 0
+                        ? Colors.red
+                        : Helpers.revertMoneyToDecimalFormat(difference) > 0
+                            ? Colors.orange
+                            : Colors.green,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Icon(
+                  Helpers.revertMoneyToDecimalFormat(difference) < 0
+                      ? Icons.warning_amber_rounded
+                      : Helpers.revertMoneyToDecimalFormat(difference) > 0
+                          ? Icons.warning_amber_rounded
+                          : Icons.check_circle_outlined,
+                  color: Helpers.revertMoneyToDecimalFormat(difference) < 0
+                      ? Colors.red
+                      : Helpers.revertMoneyToDecimalFormat(difference) > 0
+                          ? Colors.orange
+                          : Colors.green,
+                ),
+              ],
+            ),
+            const Expanded(
+              child: Text(""),
+            ),
+            Text(
+              difference,
+              style: TextStyle(
+                height: 1,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Helpers.revertMoneyToDecimalFormat(difference) < 0
+                    ? Colors.red
+                    : Helpers.revertMoneyToDecimalFormat(difference) > 0
+                        ? Colors.orange
+                        : Colors.green,
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ],
+        ),
+        const Divider(
+          height: 50,
+          color: Colors.grey,
+        ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(
               child: const Text("End Shift"),
               onTap: () async {
-                if (activeShift != null) {
+                try {
+                  if (activeShift == null) throw "Current shift not found";
                   final userId = await GetIt.instance<AppDatabase>()
                       .userDao
                       .readByUsername(widget.username!, null);
@@ -518,6 +745,24 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
                   final denominationList =
                       createDenominationList(denomination!);
+
+                  final bool? isProceed = await showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) {
+                        final double numDifference =
+                            Helpers.revertMoneyToDecimalFormat(difference);
+                        final String absDifference =
+                            Helpers.parseMoney(numDifference.abs());
+                        return ConfirmationDialog(
+                            primaryMsg: "Are you sure to close current shift?",
+                            secondaryMsg: numDifference != 0
+                                ? "There is a $absDifference ${numDifference > 0 ? "surplus" : "deficit"} between expected cash and actual cash."
+                                : "Great! Actual cash has matched the expected cash.");
+                      });
+
+                  if (isProceed != true) return;
+
                   await GetIt.instance<AppDatabase>()
                       .moneyDenominationDao
                       .bulkCreate(data: denominationList);
@@ -534,10 +779,14 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                       await GetIt.instance<AppDatabase>()
                           .cashierBalanceTransactionDao
                           .readByDocId(shift.docId, null);
-                  await GetIt.instance<PrintCloseShiftUsecase>().call(
-                      params: PrintCloseShiftUsecaseParams(
+                  if (cashierBalanceTransactionEntity == null) {
+                    throw "Close shift failed, current shift not found";
+                  }
+                  final PrintCloseShiftUsecaseParams
+                      printCloseShiftUsecaseParams =
+                      PrintCloseShiftUsecaseParams(
                           cashierBalanceTransactionEntity:
-                              cashierBalanceTransactionEntity!,
+                              cashierBalanceTransactionEntity,
                           totalCashSales:
                               Helpers.revertMoneyToDecimalFormat(totalCash),
                           expectedCash:
@@ -550,10 +799,25 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                               calculatedTotalCash),
                           difference: Helpers.revertMoneyToDecimalFormat(
                                   calculatedTotalCash) -
-                              Helpers.revertMoneyToDecimalFormat(totalCash)));
+                              Helpers.revertMoneyToDecimalFormat(expectedCash),
+                          approverName: closeShiftApproverEmployee?.empName ??
+                              closeShiftApproverUser?.username ??
+                              "");
+                  await GetIt.instance<PrintCloseShiftUsecase>()
+                      .call(params: printCloseShiftUsecaseParams);
                   await GetIt.instance<LogoutUseCase>().call();
                   if (!context.mounted) return;
                   context.goNamed(RouteConstants.welcome);
+                  await Future.delayed(Durations.medium1);
+                  await showDialog(
+                      context: NavigationHelper.context!,
+                      builder: (context) => CloseShiftSuccessAlertDialog(
+                            closedShift: cashierBalanceTransactionEntity,
+                            printCloseShiftUsecaseParams:
+                                printCloseShiftUsecaseParams,
+                          ));
+                } catch (e) {
+                  SnackBarHelper.presentFailSnackBar(context, e.toString());
                 }
               }),
         ),

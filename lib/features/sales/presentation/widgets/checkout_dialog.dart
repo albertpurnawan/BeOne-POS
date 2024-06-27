@@ -26,12 +26,12 @@ import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog
 import 'package:pos_fe/features/sales/presentation/widgets/webview_page.dart';
 
 final List<MopType> mopTypes = [
-  MopType(name: "Tunai", payTypeCodes: ["1"]),
-  MopType(name: "E-Wallet", payTypeCodes: ["5"]),
-  MopType(name: "Debit", payTypeCodes: ["2"]),
-  MopType(name: "Kredit", payTypeCodes: ["3"]),
-  MopType(name: "Voucher", payTypeCodes: ["6"]),
-  MopType(name: "Lainnya", payTypeCodes: ["4"])
+  MopType(name: "CASH", payTypeCodes: ["1"]),
+  MopType(name: "E-WALLET", payTypeCodes: ["5"]),
+  MopType(name: "DEBIT", payTypeCodes: ["2"]),
+  MopType(name: "KREDIT", payTypeCodes: ["3"]),
+  MopType(name: "VOUCHERS", payTypeCodes: ["6"]),
+  MopType(name: "OTHERS", payTypeCodes: ["4"])
 ];
 
 class MopType {
@@ -53,7 +53,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharged = false;
   bool isPaymentSufficient = true;
   bool isLoading = false;
-  final FocusScopeNode _focusScopeNode = FocusScopeNode(skipTraversal: true);
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   String generateRandomString(int length) {

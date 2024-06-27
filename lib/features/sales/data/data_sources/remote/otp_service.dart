@@ -6,8 +6,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/core/utilities/navigation_helper.dart';
-import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OTPServiceAPi {
@@ -31,9 +29,6 @@ class OTPServiceAPi {
           .format(DateTime.now().toUtc().add(const Duration(hours: 1)));
       final formattedDateTime = formatter.format(DateTime.now().toUtc());
 
-      SnackBarHelper.presentSuccessSnackBar(
-          NavigationHelper.context, "1 Spv: $spv");
-
       final dataToSend = {
         "channelId": "cc985aff-654d-41fb-84d0-2f2eea388729", //uuid dari channel
         "Destination": spv![0]['email'],
@@ -42,9 +37,6 @@ class OTPServiceAPi {
         "Requester": cashier
       };
       log("Data2Send: ${jsonEncode(dataToSend)}");
-
-      SnackBarHelper.presentSuccessSnackBar(NavigationHelper.context,
-          "2 Spv: $spv Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         url,
@@ -55,14 +47,8 @@ class OTPServiceAPi {
 
       log("response otp $response");
 
-      SnackBarHelper.presentSuccessSnackBar(
-          NavigationHelper.context, response.toString());
-
       return response.data;
-    } catch (e, s) {
-      SnackBarHelper.presentFailSnackBar(
-          NavigationHelper.context, s.toString());
-
+    } catch (e) {
       handleError(e);
       rethrow;
     }
