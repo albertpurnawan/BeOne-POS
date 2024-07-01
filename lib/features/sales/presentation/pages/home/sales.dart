@@ -587,7 +587,6 @@ class _SalesPageState extends State<SalesPage> {
                                                   promo.discAmount == 0
                                               ? const SizedBox.shrink()
                                               : Text(
-                                                  // e.itemEntity.includeTax == 1
                                                   (e.itemEntity.includeTax == 1)
                                                       ? "- ${Helpers.parseMoney((((promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
                                                       : "- ${Helpers.parseMoney(((promo.discAmount!).round()))}",
@@ -1185,7 +1184,7 @@ class _SalesPageState extends State<SalesPage> {
                                     Row(
                                       children: [
                                         SizedBox(
-                                          width: 10,
+                                          width: 2,
                                         ),
                                         Text(
                                           "F2",
@@ -1731,7 +1730,7 @@ class _SalesPageState extends State<SalesPage> {
                               "Queue",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontSize: 17,
                               ),
                             ),
                           ],
@@ -1739,7 +1738,7 @@ class _SalesPageState extends State<SalesPage> {
                         Text(
                           "F11",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w300),
+                              fontSize: 17, fontWeight: FontWeight.w300),
                         ),
                       ],
                     ),
@@ -1781,14 +1780,14 @@ class _SalesPageState extends State<SalesPage> {
                             Text(
                               "Checkout",
                               style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 18),
+                                  fontWeight: FontWeight.w600, fontSize: 17),
                             ),
                           ],
                         ),
                         Text(
                           "F12",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w300),
+                              fontSize: 17, fontWeight: FontWeight.w300),
                         ),
                       ],
                     ),
@@ -1959,7 +1958,7 @@ class _SalesPageState extends State<SalesPage> {
                               text: const TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: "Select\nCustomer",
+                                    text: "Select\nCust.",
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12),

@@ -47,7 +47,7 @@ class _ShiftsListState extends State<ShiftsList> {
             ActiveShift(),
             SizedBox(height: 5),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 200),
+              padding: EdgeInsets.symmetric(horizontal: 75),
               child: Divider(
                 color: Colors.black,
                 thickness: 2,
@@ -103,7 +103,7 @@ class _ActiveShiftState extends State<ActiveShift> {
 
     if (!hasActiveShift) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 200.0),
+        padding: const EdgeInsets.symmetric(horizontal: 100.0),
         child: Container(
           decoration: BoxDecoration(
             color: null,
@@ -145,7 +145,7 @@ class _ActiveShiftState extends State<ActiveShift> {
     final cashier = prefs.getString('username');
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 200.0),
+      padding: const EdgeInsets.symmetric(horizontal: 75.0),
       child: Container(
         decoration: BoxDecoration(
           color: null,
@@ -293,7 +293,7 @@ class _AllShiftState extends State<AllShift> {
           return Container(
             height: constraints.maxHeight - 40,
             width: constraints.maxWidth,
-            padding: const EdgeInsets.symmetric(horizontal: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 75),
             decoration: BoxDecoration(
               color: null,
               borderRadius: BorderRadius.circular(5),
@@ -331,52 +331,41 @@ class _AllShiftState extends State<AllShift> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          SizedBox(
-                                            width: 350,
+                                          Expanded(
+                                            flex: 4,
                                             child: Text(
-                                              shift.docNum,
+                                              "${shift.docNum}xxxxxxxxxxxxxxxxxxxx",
                                               textAlign: TextAlign.start,
                                               style:
                                                   const TextStyle(fontSize: 20),
                                             ),
                                           ),
-                                          SizedBox(
-                                            width: 250,
+                                          Expanded(
+                                            flex: 2,
                                             child: Text(
-                                              NumberFormat.decimalPattern()
-                                                  .format((shift.cashValue
-                                                      .toInt())),
+                                              "aaaaasdskdmekmfkemvkemekm${NumberFormat.decimalPattern().format(shift.cashValue.toInt())}",
                                               style:
                                                   const TextStyle(fontSize: 18),
                                               textAlign: TextAlign.end,
                                             ),
                                           ),
-                                          shift.approvalStatus == 0
-                                              ? const SizedBox(
-                                                  width: 200,
-                                                  child: Text(
-                                                    'OPEN',
-                                                    textAlign: TextAlign.end,
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Color.fromARGB(
-                                                          255, 47, 143, 8),
-                                                    ),
-                                                  ),
-                                                )
-                                              : const SizedBox(
-                                                  width: 200,
-                                                  child: Text(
-                                                    'CLOSED',
-                                                    textAlign: TextAlign.end,
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.w700),
-                                                  ),
-                                                ),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Text(
+                                              shift.approvalStatus == 0
+                                                  ? 'OPEN'
+                                                  : 'CLOSED',
+                                              textAlign: TextAlign.end,
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                                color: shift.approvalStatus == 0
+                                                    ? Color.fromARGB(
+                                                        255, 47, 143, 8)
+                                                    : null,
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),

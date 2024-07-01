@@ -117,7 +117,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                     textInputAction: TextInputAction.search,
                     controller: _textEditingController,
                     onSubmitted: (value) {
-                      log(value);
+                      log("value - $value");
                       context.read<ItemsCubit>().getItems(searchKeyword: value);
                       _searchInputFocusNode.requestFocus();
 
@@ -242,7 +242,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                               width: 5,
                                             ),
                                             Text(
-                                              "Rp ${Helpers.parseMoney(itemEntity.dpp.toInt())}",
+                                              "Rp ${Helpers.parseMoney(itemEntity.price.toInt())}",
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w500,

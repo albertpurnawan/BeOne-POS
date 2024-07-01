@@ -11,6 +11,9 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/settings/presentation/pages/default_printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/paper_size_settings.dart';
+import 'package:pos_fe/features/settings/presentation/pages/price_type_settings.dart';
+import 'package:pos_fe/features/settings/presentation/pages/show_hide_settings.dart';
+import 'package:pos_fe/features/settings/presentation/pages/show_hode_subtotal.settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -773,6 +776,235 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Text(
                                           GetIt.instance<SharedPreferences>()
                                                   .getString("paperSize") ??
+                                              "Not Set",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 16),
+                                        ),
+                                        const SizedBox(
+                                          width: 15,
+                                        ),
+                                        const Icon(
+                                          Icons.navigate_next,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            height: 0,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 35,
+                      ),
+                      Column(
+                        children: [
+                          const Row(
+                            children: [
+                              Text(
+                                "Preferences",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Color.fromARGB(255, 66, 66, 66),
+                                    fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          const Divider(
+                            height: 0,
+                          ),
+                          InkWell(
+                            onTap: () => Helpers.navigate(
+                                    context, const ShowHideSubTotalSettings())
+                                .then((value) => setState(() {})),
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.calculate_outlined,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Show/Hide Subtotal",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          GetIt.instance<SharedPreferences>()
+                                                  .getString(
+                                                      "showHideSubtotal") ??
+                                              "Not Set",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 16),
+                                        ),
+                                        const SizedBox(
+                                          width: 15,
+                                        ),
+                                        const Icon(
+                                          Icons.navigate_next,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            height: 0,
+                          ),
+                          InkWell(
+                            onTap: () => Helpers.navigate(
+                                    context, const ShowHideTaxSettings())
+                                .then((value) => setState(() {})),
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.money_off_csred_outlined,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Show/Hide Tax",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          GetIt.instance<SharedPreferences>()
+                                                  .getString("showHideTax") ??
+                                              "Not Set",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(
+                                                  255, 66, 66, 66),
+                                              fontSize: 16),
+                                        ),
+                                        const SizedBox(
+                                          width: 15,
+                                        ),
+                                        const Icon(
+                                          Icons.navigate_next,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            height: 0,
+                          ),
+                          InkWell(
+                            onTap: () => Helpers.navigate(
+                                    context, const PriceTypeSettings())
+                                .then((value) => setState(() {})),
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.request_quote_outlined,
+                                          color:
+                                              Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Price After/Before Tax",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          GetIt.instance<SharedPreferences>()
+                                                  .getString("priceType") ??
                                               "Not Set",
                                           style: const TextStyle(
                                               fontWeight: FontWeight.w700,
