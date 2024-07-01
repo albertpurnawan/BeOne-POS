@@ -196,9 +196,17 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
             SizedBox(
                 width: 150,
                 child: Align(
+                    // PromoPriceUI
                     alignment: Alignment.centerRight,
                     child: Text(
-                      Helpers.parseMoney(associatedPromo.sellingPrice.round()),
+                      (itemY.itemEntity.includeTax == 1)
+                          ? Helpers.parseMoney(
+                              (((associatedPromo.sellingPrice) *
+                                      ((100 + itemY.itemEntity.taxRate) / 100))
+                                  .round()))
+                          : Helpers.parseMoney(
+                              ((associatedPromo.sellingPrice).round())),
+                      // Helpers.parseMoney(associatedPromo.sellingPrice.round()),
                       style: const TextStyle(fontSize: 14),
                     ))),
             const SizedBox(
@@ -209,7 +217,11 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                 child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      Helpers.parseMoney(priceQty.round()),
+                      (itemY.itemEntity.includeTax == 1)
+                          ? Helpers.parseMoney((((priceQty) *
+                                  ((100 + itemY.itemEntity.taxRate) / 100))
+                              .round()))
+                          : Helpers.parseMoney(priceQty.round()),
                       style: const TextStyle(fontSize: 14),
                     ))),
           ],

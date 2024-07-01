@@ -538,8 +538,7 @@ INNER JOIN (
       storeTaxRate = taxMaster.rate;
     }
 
-    final String mainQuery = """DELETE FROM items;
-
+    final String mainQuery = """
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId)
 SELECT 
   i.itemname, 
@@ -656,6 +655,10 @@ FROM
   ${taxByItem ? taxAdditionalQuery : ""}""";
 
     try {
+      await _database!.execute("""
+        DELETE FROM items
+      """);
+
       await _database!.execute(mainQuery);
     } catch (e, s) {
       debugPrintStack(stackTrace: s);

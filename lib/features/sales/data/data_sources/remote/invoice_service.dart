@@ -197,7 +197,8 @@ class InvoiceApi {
             "disc3pctbarcode": 0.0,
             "disc3amtbarcode": 0.0,
             "totaldiscbarcode": 0.0,
-            "qtyconv": item['qtybarcode'], // qtybarcode * qtytbitm
+            "qtyconv":
+                item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": item['tohemId'] ?? ""

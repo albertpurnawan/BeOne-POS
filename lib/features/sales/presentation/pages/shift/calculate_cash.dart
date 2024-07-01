@@ -69,6 +69,7 @@ class _CalculateCashState extends State<CalculateCash> {
       '20k': controller20k.text,
       '10k': controller10k.text,
       '5k': controller5k.text,
+      '2k': controller2k.text,
       '1k': controller1k.text,
       '500': controller500.text,
       '200': controller200.text,

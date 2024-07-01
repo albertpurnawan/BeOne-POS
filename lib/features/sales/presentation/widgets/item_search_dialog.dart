@@ -44,7 +44,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
           if (event.runtimeType == KeyUpEvent) {
             return KeyEventResult.handled;
           }
-          log(_searchInputFocusNode.hasPrimaryFocus.toString());
+
           if (event.character != null &&
               RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(event.character!) &&
               !_searchInputFocusNode.hasPrimaryFocus) {

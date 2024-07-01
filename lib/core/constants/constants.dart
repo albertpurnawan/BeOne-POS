@@ -19,11 +19,12 @@ class Constant {
   //STOREID
   static String tostrId = '';
   // StoreId : e24bd658-bfb6-404f-b867-3e294b8d5b0b
+  // bcdd7f7e-b7a2-4a11-8267-1a3d41a34b64
 
   //CASHIERID
   static String tocsrId = '';
-  // 4ca46d3e-30ff-4441-98f8-3fdcf81dc230
   // CashierId : c9d19f0c-8350-4494-8b97-a7262b14d74a
+  // 280f4d9c-24be-4bcb-998d-b7742ff81a4c
 
   // BASEURL
   static String url = "";

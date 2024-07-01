@@ -19,7 +19,7 @@ import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 class ReceiptEntity {
   String docNum;
   List<ReceiptItemEntity> receiptItems;
-  MopSelectionEntity? mopSelection;
+  MopSelectionEntity? mopSelection; // change to List<MOPSelection>?
   CustomerEntity? customerEntity;
   EmployeeEntity? employeeEntity;
   double totalTax;

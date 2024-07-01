@@ -22,6 +22,7 @@ import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift_success_alert_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -276,7 +277,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             timezone: activeShift!.timezone,
             openValue: activeShift!.openValue,
             calcValue: activeShift!.calcValue,
-            cashValue: salesAmount,
+            cashValue: salesAmount - nonCash,
             closeValue: activeShift!.closeValue,
             openedbyId: activeShift!.openedbyId,
             closedbyId: activeShift!.closedbyId,
@@ -285,9 +286,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             syncToBos: activeShift!.syncToBos,
           );
 
-          await GetIt.instance<AppDatabase>()
-              .cashierBalanceTransactionDao
-              .update(docId: shiftId, data: data);
+          // await GetIt.instance<AppDatabase>()
+          //     .cashierBalanceTransactionDao
+          //     .update(docId: shiftId, data: data);
 
           setState(() {
             activeShift = data;
@@ -706,8 +707,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     docNum: activeShift!.docNum,
                     openDate: activeShift!.openDate,
                     openTime: activeShift!.openTime,
-                    calcDate: activeShift!.calcDate,
-                    calcTime: activeShift!.calcTime,
+                    calcDate: DateTime.now(),
+                    calcTime: DateTime.now(),
                     closeDate: DateTime.now(),
                     closeTime: DateTime.now(),
                     timezone: activeShift!.timezone,
@@ -772,8 +773,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                   await GetIt.instance<AppDatabase>()
                       .cashierBalanceTransactionDao
                       .update(docId: shiftId, data: shift);
-                  // await GetIt.instance<CashierBalanceTransactionApi>()
-                  //     .sendTransactions(shift);
+                  await GetIt.instance<CashierBalanceTransactionApi>()
+                      .sendTransactions(shift);
                   final CashierBalanceTransactionEntity?
                       cashierBalanceTransactionEntity =
                       await GetIt.instance<AppDatabase>()

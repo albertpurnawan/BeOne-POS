@@ -582,11 +582,15 @@ class _SalesPageState extends State<SalesPage> {
                                         ),
                                       )),
                                       Expanded(
+                                          // DiscountUI
                                           child: promo.discAmount == null ||
                                                   promo.discAmount == 0
                                               ? const SizedBox.shrink()
                                               : Text(
-                                                  "- ${Helpers.parseMoney(promo.discAmount!.round())}",
+                                                  // e.itemEntity.includeTax == 1
+                                                  (e.itemEntity.includeTax == 1)
+                                                      ? "- ${Helpers.parseMoney((((promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
+                                                      : "- ${Helpers.parseMoney(((promo.discAmount!).round()))}",
                                                   style: const TextStyle(
                                                     fontSize: 14,
                                                     fontStyle: FontStyle.italic,
@@ -653,14 +657,14 @@ class _SalesPageState extends State<SalesPage> {
                                           padding: const EdgeInsets.all(0),
                                           color: index == indexIsSelect[0] &&
                                                   indexIsSelect[1] == 1
-                                              ? Color.fromARGB(
+                                              ? const Color.fromARGB(
                                                   255, 255, 222, 222)
                                               : isNewItemAdded &&
                                                       (index ==
                                                           state.receiptItems
                                                                   .length -
                                                               1)
-                                                  ? Color.fromARGB(
+                                                  ? const Color.fromARGB(
                                                       95, 100, 202, 122)
                                                   : Colors.white,
                                           child: Padding(
@@ -762,6 +766,7 @@ class _SalesPageState extends State<SalesPage> {
                                                           Expanded(
                                                             flex: 1,
                                                             child: Column(
+                                                              // QuantityUI
                                                               children: [
                                                                 Text(
                                                                   "${Helpers.cleanDecimal(e.quantity, 3)} x",
@@ -781,6 +786,7 @@ class _SalesPageState extends State<SalesPage> {
                                                           Expanded(
                                                             flex: 1,
                                                             child: Column(
+                                                              // PriceUI
                                                               children: [
                                                                 Text(
                                                                   "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
@@ -803,6 +809,7 @@ class _SalesPageState extends State<SalesPage> {
                                                               alignment: Alignment
                                                                   .centerRight,
                                                               child: Column(
+                                                                // TotalPriceUI
                                                                 children: [
                                                                   Text(
                                                                     Helpers.parseMoney((e.sellingPrice *
@@ -2480,7 +2487,7 @@ class _SalesPageState extends State<SalesPage> {
                                 isEditingNewReceiptItemQty = false;
                                 isEditingNewReceiptItemCode = true;
                                 Future.delayed(
-                                    Duration(milliseconds: 20),
+                                    const Duration(milliseconds: 20),
                                     () => _newReceiptItemCodeFocusNode
                                         .requestFocus());
                               });
@@ -2524,13 +2531,13 @@ class _SalesPageState extends State<SalesPage> {
                 log("numpadnumbutton 1");
 
                 _textEditingControllerNewReceiptItemCode.text = buttonNumber;
-                Future.delayed(Duration(milliseconds: 20),
+                Future.delayed(const Duration(milliseconds: 20),
                     () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemCode) {
                 log("numpadnumbutton 2");
 
                 _textEditingControllerNewReceiptItemCode.text += buttonNumber;
-                Future.delayed(Duration(milliseconds: 20),
+                Future.delayed(const Duration(milliseconds: 20),
                     () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemQty ||
                   isUpdatingReceiptItemQty) {
@@ -2538,7 +2545,7 @@ class _SalesPageState extends State<SalesPage> {
 
                 _textEditingControllerNewReceiptItemQuantity.text +=
                     buttonNumber;
-                Future.delayed(Duration(milliseconds: 20),
+                Future.delayed(const Duration(milliseconds: 20),
                     () => _newReceiptItemQuantityFocusNode.requestFocus());
               }
             });
