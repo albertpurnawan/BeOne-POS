@@ -21,7 +21,6 @@ import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
@@ -2883,14 +2882,6 @@ class _SalesPageState extends State<SalesPage> {
       if (context.read<ReceiptCubit>().state.grandTotal < 0) {
         return SnackBarHelper.presentErrorSnackBar(
             context, "Grand total cannot be negative");
-      }
-
-      if (context.read<ReceiptCubit>().state.grandTotal == 0) {
-        final bool? isAuthorized = await showDialog<bool>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const ApprovalDialog());
-        if (isAuthorized != true) return;
       }
 
       setState(() {

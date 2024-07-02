@@ -18,6 +18,7 @@ import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
@@ -154,22 +155,26 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       await _appDatabase.invoiceDetailDao
           .bulkCreate(data: invoiceDetailModels, txn: txn);
 
-      log("ReceiptEntityMOP - ${receiptEntity.mopSelection}");
-      final PayMeansModel paymeansModel = PayMeansModel(
-        docId: _uuid.v4(),
-        createDate: null,
-        updateDate: null,
-        toinvId: generatedInvoiceHeaderDocId,
-        lineNum: 1,
-        tpmt3Id: receiptEntity.mopSelection!.tpmt3Id,
-        amount: receiptEntity.mopSelection!.amount ?? 0,
-        tpmt2Id: null,
-        cardNo: null,
-        cardHolder: null,
-        sisaVoucher: null,
-      );
+      log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
+      final List<PayMeansModel> payMeansModels = [];
+      for (final MopSelectionEntity mopSelectionEntity
+          in receiptEntity.mopSelections) {
+        payMeansModels.add(PayMeansModel(
+          docId: _uuid.v4(),
+          createDate: null,
+          updateDate: null,
+          toinvId: generatedInvoiceHeaderDocId,
+          lineNum: 1,
+          tpmt3Id: mopSelectionEntity.tpmt3Id,
+          amount: mopSelectionEntity.amount ?? 0,
+          tpmt2Id: null,
+          cardNo: null,
+          cardHolder: null,
+          sisaVoucher: null,
+        ));
+      }
 
-      await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
+      await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
 
       List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
       log("vouchers - $vouchers");
@@ -281,8 +286,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
       final List<MopSelectionModel> mopSelectionModels =
           await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
-      final MopSelectionModel mopSelectionModel = mopSelectionModels
-          .firstWhere((element) => element.payTypeCode != "6");
+      final List<MopSelectionModel> mopSelectionModelsWithoutVoucher =
+          mopSelectionModels
+              .where((element) => element.payTypeCode != "6")
+              .toList();
 
       final List<InvoiceDetailModel> invoiceDetailModels =
           await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
@@ -369,7 +376,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         subtotal: invoiceHeaderModel.subTotal,
         docNum: invoiceHeaderModel.docnum,
         totalTax: invoiceHeaderModel.taxAmount,
-        mopSelection: mopSelectionModel,
+        mopSelections: mopSelectionModelsWithoutVoucher,
         customerEntity: customerModel,
         employeeEntity: employeeModel,
         transStart: DateTime.now(),

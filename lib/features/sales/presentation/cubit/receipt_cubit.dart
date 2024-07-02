@@ -258,12 +258,19 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void updateMopSelection(
-      {required MopSelectionEntity mopSelectionEntity,
-      required double amountReceived}) {
+      {required List<MopSelectionEntity> mopSelectionEntities}) {
     final newState = state.copyWith(
-        mopSelection: mopSelectionEntity,
-        totalPayment: amountReceived,
-        totalNonVoucher: mopSelectionEntity.amount,
+        mopSelections: mopSelectionEntities,
+        totalPayment: mopSelectionEntities.isEmpty
+            ? 0
+            : mopSelectionEntities
+                .map((e) => e.amount)
+                .reduce((value, element) => (value ?? 0) + (element ?? 0)),
+        totalNonVoucher: mopSelectionEntities.isEmpty
+            ? 0
+            : mopSelectionEntities
+                .map((e) => e.amount)
+                .reduce((value, element) => (value ?? 0) + (element ?? 0)),
         previousReceiptEntity: state.previousReceiptEntity);
     emit(newState);
   }
@@ -275,7 +282,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState = state.copyWith(
       vouchers: vouchersSelectionEntity,
       totalVoucher: vouchersAmount,
-      totalPayment: (state.mopSelection?.amount ?? 0) + vouchersAmount,
+      totalPayment: (state.totalNonVoucher ?? 0) + vouchersAmount,
       previousReceiptEntity: state.previousReceiptEntity,
     );
 
@@ -385,7 +392,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     ReceiptEntity? newState;
     if (state.totalVoucher! >= state.grandTotal) {
       newState = state.copyWith(
-        mopSelection: state.mopSelection?.copyWith(amount: 0),
+        mopSelections: [],
         changed: 0,
         totalNonVoucher: 0,
       );
@@ -527,7 +534,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         changed: 0,
         totalVoucher: 0,
         totalNonVoucher: 0,
-      )..mopSelection = null;
+      )..mopSelections = [];
       List<String> skippedPromoIds = [];
 
       dev.log("First entry $newReceipt");
@@ -704,7 +711,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         changed: 0,
         totalVoucher: 0,
         totalNonVoucher: 0,
-      )..mopSelection = null,
+      )..mopSelections = [],
     );
     return;
   }
@@ -716,7 +723,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         totalPayment: state.totalVoucher?.toDouble() ?? 0,
         changed: 0,
         totalNonVoucher: 0,
-      )..mopSelection = null,
+      )..mopSelections = [],
     );
     return;
   }

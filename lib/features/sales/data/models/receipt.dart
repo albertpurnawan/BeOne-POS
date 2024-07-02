@@ -5,7 +5,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
   ReceiptModel({
     required super.docNum,
     required super.receiptItems,
-    super.mopSelection,
+    super.mopSelections,
     super.customerEntity,
     super.employeeEntity,
     required super.totalTax,
@@ -33,7 +33,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     return ReceiptModel(
       docNum: entity.docNum,
       receiptItems: entity.receiptItems,
-      mopSelection: entity.mopSelection,
+      mopSelections: entity.mopSelections,
       customerEntity: entity.customerEntity,
       employeeEntity: entity.employeeEntity,
       totalTax: entity.totalTax,

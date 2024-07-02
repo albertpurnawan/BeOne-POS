@@ -12,6 +12,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/otp_submission_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApprovalDialog extends StatefulWidget {
@@ -78,8 +79,9 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     }
   }
 
-  Future<void> createOTP() async {
-    await GetIt.instance<OTPServiceAPi>().createSendOTP();
+  Future<String> createOTP() async {
+    final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
+    return response['Requester'];
   }
 
   @override
@@ -116,13 +118,13 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                     _isSendingOTP = false;
                   });
 
-                  // showDialog(
-                  //   context: context,
-                  //   barrierDismissible: false,
-                  //   builder: (context) => OTPInputDialog(
-                  //     discountValue: widget.discountValue,
-                  //   ),
-                  // );
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => OTPSubmissionDialog(
+                      requester: value,
+                    ),
+                  );
                 });
               }
 
@@ -141,7 +143,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
                 child: const Text(
-                  'Header Discount Authorization',
+                  'Approval',
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w500,
