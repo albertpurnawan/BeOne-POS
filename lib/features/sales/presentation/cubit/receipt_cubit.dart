@@ -390,7 +390,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> charge() async {
     ReceiptEntity? newState;
-    if (state.totalVoucher! >= state.grandTotal) {
+    if (state.totalVoucher! >= state.grandTotal && state.grandTotal != 0) {
       newState = state.copyWith(
         mopSelections: [],
         changed: 0,

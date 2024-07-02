@@ -34,7 +34,7 @@ class RecalculateReceiptUseCase
         subtotal: subtotal,
         discAmount: discAmount,
         discHeaderPromo: discHeaderPromo,
-        discPrctg: (discAmount / subtotal) * 100,
+        discPrctg: subtotal == 0 ? 0 : (discAmount / subtotal) * 100,
         taxAmount: taxAmount,
         grandTotal: grandTotal,
       );

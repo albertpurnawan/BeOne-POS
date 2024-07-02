@@ -5,5 +5,5 @@ abstract class MopSelectionRepository {
 
   Future<MopSelectionEntity?> getMopSelectionByTpmt3Id(String tpmt3Id);
 
-  // Future<MopSelectionEntity?> getItem(int id);
+  Future<MopSelectionEntity> getCashMopSelection();
 }

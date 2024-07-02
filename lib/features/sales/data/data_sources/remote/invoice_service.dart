@@ -49,10 +49,10 @@ class InvoiceApi {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
-              if (entry['amount'] != 0) {
-                invoicePayments.add(
-                    {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
-              }
+              if (entry['amount'] < 0) break;
+              if (entry['amount'] == 0 && invHead[0].grandTotal != 0) break;
+              invoicePayments.add(
+                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
             case "6": // VOUCHERS
               final vouchers = await GetIt.instance<AppDatabase>()
@@ -133,11 +133,13 @@ class InvoiceApi {
                 invHead[0].discAmount +
                 (invHead[0].discHeaderManual ?? 0))
             .round(),
-        "discprctg": 100 *
-            ((invHead[0].discHeaderManual ?? 0) /
-                (invHead[0].subTotal -
-                    invHead[0].discAmount +
-                    (invHead[0].discHeaderManual ?? 0))),
+        "discprctg": invHead[0].subTotal == 0
+            ? 0
+            : 100 *
+                ((invHead[0].discHeaderManual ?? 0) /
+                    (invHead[0].subTotal -
+                        invHead[0].discAmount +
+                        (invHead[0].discHeaderManual ?? 0))),
         "discamount": invHead[0].discHeaderManual,
         "discountcard": invHead[0].discountCard,
         "coupon": invHead[0].coupon,
