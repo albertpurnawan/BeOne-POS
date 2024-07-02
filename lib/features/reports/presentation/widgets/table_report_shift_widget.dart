@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 
 class TableReportShift extends StatefulWidget {
@@ -25,7 +26,7 @@ class TableReportShift extends StatefulWidget {
 
 class _TableReportShiftState extends State<TableReportShift> {
   final tableHead = ["No", "Date", "Shift", "Cashier", "Amount"];
-  List<InvoiceHeaderModel>? fetched;
+  List<dynamic>? fetched;
   bool isLoading = true;
   List<CashierBalanceTransactionModel?> tcsr1Data = [];
   List<UserModel?> userData = [];
@@ -37,39 +38,18 @@ class _TableReportShiftState extends State<TableReportShift> {
   }
 
   Future<void> _fetchData() async {
+    log("searchQuery - ${widget.searchQuery}");
     if (widget.fromDate == null || widget.toDate == null) {
       return;
     }
 
     final fetchedInvoice = await GetIt.instance<AppDatabase>()
         .invoiceHeaderDao
-        .readBetweenDate(widget.fromDate!, widget.toDate!);
-
-    if (fetchedInvoice != null) {
-      final List<Future<CashierBalanceTransactionModel?>> invFetched =
-          fetchedInvoice.map((invoice) async {
-        return await GetIt.instance<AppDatabase>()
-            .cashierBalanceTransactionDao
-            .readByDocId(invoice.tcsr1Id!, null);
-      }).toList();
-
-      tcsr1Data = await Future.wait(invFetched);
-
-      final List<Future<UserModel?>> userFetched = tcsr1Data.map((shift) async {
-        if (shift != null) {
-          return await GetIt.instance<AppDatabase>()
-              .userDao
-              .readByDocId(shift.tousrId!, null);
-        }
-      }).toList();
-
-      userData = await Future.wait(userFetched);
-
-      setState(() {
-        fetched = fetchedInvoice;
-        isLoading = false;
-      });
-    }
+        .readByUserBetweenDate(widget.fromDate!, widget.toDate!);
+    setState(() {
+      fetched = fetchedInvoice;
+      isLoading = false;
+    });
   }
 
   @override
@@ -78,8 +58,9 @@ class _TableReportShiftState extends State<TableReportShift> {
 
     if (fetched != null) {
       grandTotal = fetched!
-          .map((shift) => shift.grandTotal)
+          .map((shift) => shift['grandtotal'])
           .fold(0.0, (previous, current) => previous + current);
+      // log("grandTotal - $grandTotal");
     }
 
     return isLoading
@@ -135,14 +116,10 @@ class _TableReportShiftState extends State<TableReportShift> {
                         final index = entry.key;
                         final shift = entry.value;
                         final isLastRow = index == fetched!.length - 1;
-                        final shiftName =
-                            tcsr1Data.isNotEmpty && tcsr1Data[index] != null
-                                ? tcsr1Data[index]!.docNum
-                                : 'N/A';
-                        final userName =
-                            userData.isNotEmpty && userData[index] != null
-                                ? userData[index]!.username
-                                : 'N/A';
+                        final shiftName = shift['docnum'];
+                        final userName = shift['username'];
+                        final transDate =
+                            "${shift['transdate']} ${shift['transtime']}";
 
                         return TableRow(
                           children: [
@@ -185,7 +162,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      Helpers.formatDate(shift.transDateTime!),
+                                      transDate,
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -254,7 +231,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(shift.grandTotal)},00",
+                                      "Rp ${Helpers.parseMoney(shift['grandtotal'])},00",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],

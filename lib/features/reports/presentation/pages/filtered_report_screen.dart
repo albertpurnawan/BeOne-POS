@@ -20,6 +20,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
   DateTime? selectedToDate;
   String? searchedQuery;
   TextEditingController searchController = TextEditingController();
+  bool showTable = false;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
     final DateTime now = DateTime.now();
     selectedFromDate = DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
     selectedToDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+    searchedQuery = "";
   }
 
   @override
@@ -69,22 +71,25 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
           padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
           child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.13,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
+                        flex: 2,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const SizedBox(
                                   width: 100,
@@ -113,7 +118,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                 GestureDetector(
                                   onTap: () => selectDate(context, true),
                                   child: SizedBox(
-                                    width: 300,
+                                    width: 100,
                                     height: 30,
                                     child: Text(
                                       selectedFromDate == null
@@ -161,7 +166,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                 GestureDetector(
                                   onTap: () => selectDate(context, false),
                                   child: SizedBox(
-                                    width: 300,
+                                    width: 100,
                                     height: 30,
                                     child: Text(
                                       selectedToDate == null
@@ -184,9 +189,10 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                       ),
                       const SizedBox(width: 20),
                       Expanded(
+                        flex: 2,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
@@ -215,7 +221,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 300,
+                                  width: 280,
                                   height: 30,
                                   child: DropdownButton<String>(
                                     value: selectedFilter,
@@ -249,7 +255,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                             Row(
                               children: [
                                 SizedBox(
-                                  width: 420,
+                                  width: 400,
                                   height: 30,
                                   child: TextField(
                                     controller: searchController,
@@ -271,11 +277,30 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                       fontWeight: FontWeight.w700,
                                     ),
                                     onChanged: (value) {
-                                      searchedQuery = searchController.text;
+                                      setState(() {
+                                        searchedQuery = searchController.text;
+                                      });
                                     },
                                   ),
                                 ),
                               ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            OutlinedButton(
+                              onPressed: () {
+                                setState(() {
+                                  showTable = true;
+                                });
+                              },
+                              child: const Text("Find"),
                             ),
                           ],
                         ),
@@ -296,19 +321,19 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                   height: MediaQuery.of(context).size.height * 0.6,
                   width: MediaQuery.of(context).size.width,
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  child: selectedFilter == "Invoice"
+                  child: (selectedFilter == "Invoice" && showTable == true)
                       ? TableReportShift(
                           fromDate: selectedFromDate,
                           toDate: selectedToDate,
                           searchQuery: searchedQuery ?? "",
                         )
-                      : selectedFilter == "MOP"
+                      : (selectedFilter == "MOP" && showTable == true)
                           ? TableReportMop(
                               fromDate: selectedFromDate,
                               toDate: selectedToDate,
                               searchQuery: searchedQuery ?? "",
                             )
-                          : selectedFilter == "Item"
+                          : (selectedFilter == "Item" && showTable == true)
                               ? TableReportItem(
                                   fromDate: selectedFromDate,
                                   toDate: selectedToDate,
