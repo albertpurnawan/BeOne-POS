@@ -1,12 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/data/models/user.dart';
 
 class TableReportShift extends StatefulWidget {
   final DateTime? fromDate;
@@ -28,8 +24,6 @@ class _TableReportShiftState extends State<TableReportShift> {
   final tableHead = ["No", "Date", "Shift", "Cashier", "Amount"];
   List<dynamic>? fetched;
   bool isLoading = true;
-  List<CashierBalanceTransactionModel?> tcsr1Data = [];
-  List<UserModel?> userData = [];
 
   @override
   void initState() {
@@ -37,8 +31,22 @@ class _TableReportShiftState extends State<TableReportShift> {
     _fetchData();
   }
 
+  @override
+  void didUpdateWidget(TableReportShift oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchQuery != widget.searchQuery ||
+        oldWidget.fromDate != widget.fromDate ||
+        oldWidget.toDate != widget.toDate) {
+      _fetchData();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _fetchData() async {
-    log("searchQuery - ${widget.searchQuery}");
     if (widget.fromDate == null || widget.toDate == null) {
       return;
     }
@@ -46,10 +54,30 @@ class _TableReportShiftState extends State<TableReportShift> {
     final fetchedInvoice = await GetIt.instance<AppDatabase>()
         .invoiceHeaderDao
         .readByUserBetweenDate(widget.fromDate!, widget.toDate!);
-    setState(() {
-      fetched = fetchedInvoice;
-      isLoading = false;
-    });
+
+    // Apply Search Query
+    if (fetchedInvoice != null) {
+      final filteredInvoice = fetchedInvoice.where((invoice) {
+        return invoice['docnum']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['username']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['transdate']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase());
+      }).toList();
+      setState(() {
+        fetched = filteredInvoice;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        fetched = fetchedInvoice;
+        isLoading = false;
+      });
+    }
   }
 
   @override

@@ -31,6 +31,21 @@ class _TableReportMopState extends State<TableReportMop> {
     _fetchData();
   }
 
+  @override
+  void didUpdateWidget(TableReportMop oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchQuery != widget.searchQuery ||
+        oldWidget.fromDate != widget.fromDate ||
+        oldWidget.toDate != widget.toDate) {
+      _fetchData();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _fetchData() async {
     if (widget.fromDate == null || widget.toDate == null) {
       return;
@@ -70,11 +85,26 @@ class _TableReportMopState extends State<TableReportMop> {
     }
 
     final aggregatedList = aggregatedData.values.toList();
-
-    setState(() {
-      fetched = aggregatedList;
-      isLoading = false;
-    });
+    // Apply Search Query
+    if (aggregatedList.isNotEmpty) {
+      final filteredList = aggregatedList.where((e) {
+        return e['mopcode']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase()) ||
+            e['description']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase());
+      }).toList();
+      setState(() {
+        fetched = filteredList;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        fetched = aggregatedList;
+        isLoading = false;
+      });
+    }
   }
 
   @override

@@ -20,7 +20,6 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
   DateTime? selectedToDate;
   String? searchedQuery;
   TextEditingController searchController = TextEditingController();
-  bool showTable = false;
 
   @override
   void initState() {
@@ -237,6 +236,8 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     onChanged: (String? newValue) {
                                       setState(() {
                                         selectedFilter = newValue!;
+                                        searchController.text = "";
+                                        searchedQuery = "";
                                       });
                                     },
                                     items: filterOptions
@@ -278,29 +279,12 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     ),
                                     onChanged: (value) {
                                       setState(() {
-                                        searchedQuery = searchController.text;
+                                        searchedQuery = value;
                                       });
                                     },
                                   ),
                                 ),
                               ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            OutlinedButton(
-                              onPressed: () {
-                                setState(() {
-                                  showTable = true;
-                                });
-                              },
-                              child: const Text("Find"),
                             ),
                           ],
                         ),
@@ -321,23 +305,23 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                   height: MediaQuery.of(context).size.height * 0.6,
                   width: MediaQuery.of(context).size.width,
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  child: (selectedFilter == "Invoice" && showTable == true)
+                  child: (selectedFilter == "Invoice")
                       ? TableReportShift(
                           fromDate: selectedFromDate,
                           toDate: selectedToDate,
-                          searchQuery: searchedQuery ?? "",
+                          searchQuery: searchedQuery,
                         )
-                      : (selectedFilter == "MOP" && showTable == true)
+                      : (selectedFilter == "MOP")
                           ? TableReportMop(
                               fromDate: selectedFromDate,
                               toDate: selectedToDate,
-                              searchQuery: searchedQuery ?? "",
+                              searchQuery: searchedQuery,
                             )
-                          : (selectedFilter == "Item" && showTable == true)
+                          : (selectedFilter == "Item")
                               ? TableReportItem(
                                   fromDate: selectedFromDate,
                                   toDate: selectedToDate,
-                                  searchQuery: searchedQuery ?? "",
+                                  searchQuery: searchedQuery,
                                 )
                               : null,
                 ),
