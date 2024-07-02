@@ -334,7 +334,7 @@ class _AllShiftState extends State<AllShift> {
                                           Expanded(
                                             flex: 4,
                                             child: Text(
-                                              "${shift.docNum}xxxxxxxxxxxxxxxxxxxx",
+                                              shift.docNum,
                                               textAlign: TextAlign.start,
                                               style:
                                                   const TextStyle(fontSize: 20),
@@ -343,7 +343,9 @@ class _AllShiftState extends State<AllShift> {
                                           Expanded(
                                             flex: 2,
                                             child: Text(
-                                              "aaaaasdskdmekmfkemvkemekm${NumberFormat.decimalPattern().format(shift.cashValue.toInt())}",
+                                              NumberFormat.decimalPattern()
+                                                  .format(
+                                                      shift.cashValue.toInt()),
                                               style:
                                                   const TextStyle(fontSize: 18),
                                               textAlign: TextAlign.end,
