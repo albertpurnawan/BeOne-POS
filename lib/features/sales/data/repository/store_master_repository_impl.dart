@@ -11,4 +11,10 @@ class StoreMasterRepositoryImpl implements StoreMasterRepository {
   Future<StoreMasterEntity?> getStoreMaster(String docId) async {
     return await appDatabase.storeMasterDao.readByDocId(docId, null);
   }
+
+  @override
+  Future<bool?> getTaxSettings(StoreMasterEntity storeMasterEntity) {
+    // TODO: implement getTaxSettings
+    throw UnimplementedError();
+  }
 }

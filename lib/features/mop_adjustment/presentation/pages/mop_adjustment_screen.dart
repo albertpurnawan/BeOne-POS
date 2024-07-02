@@ -159,6 +159,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text('MOP Adjustment'),
+        centerTitle: false,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -177,8 +178,8 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                         Row(
                           children: [
                             SizedBox(
-                              width: MediaQuery.of(context).size.width / 2,
-                              height: 120,
+                              width: MediaQuery.of(context).size.width / 2.9,
+                              height: MediaQuery.of(context).size.height * 0.2,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -202,9 +203,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                               child: SizedBox(
-                                width: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 2,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +214,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       height: 40,
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                            MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
@@ -279,7 +280,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       height: 40,
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                            MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
@@ -329,7 +330,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       height: 40,
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                            MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
@@ -389,7 +390,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                           color: ProjectColors.primary,
                         ),
                         const SizedBox(
-                          height: 20,
+                          height: 30,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

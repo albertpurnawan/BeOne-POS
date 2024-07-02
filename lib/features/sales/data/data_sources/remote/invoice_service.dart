@@ -101,6 +101,15 @@ class InvoiceApi {
                   log("invoicePayment - $invoicePayments");
                 }
               }
+              double totalAmount = 0.0;
+              for (var payment in invoicePayments) {
+                totalAmount += payment['amount'];
+              }
+              if (totalAmount > invHead[0].grandTotal) {
+                double excessAmount = totalAmount - invHead[0].grandTotal;
+                invoicePayments[invoicePayments.length - 1]['sisavoucher'] =
+                    excessAmount;
+              }
 
               break;
             default:
@@ -199,7 +208,8 @@ class InvoiceApi {
             "disc3pctbarcode": 0.0,
             "disc3amtbarcode": 0.0,
             "totaldiscbarcode": 0.0,
-            "qtyconv": item['qtybarcode'], // qtybarcode * qtytbitm
+            "qtyconv":
+                item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": item['tohemId'] ?? ""

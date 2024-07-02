@@ -14,14 +14,14 @@ class HandleOpenPriceUseCase
       if (params.newPrice < 0) throw "Negative price not allowed";
       return ReceiptHelper.updateReceiptItemAggregateFields(
           params.receiptItemEntity.copyWith(
-              itemEntity: params.receiptItemEntity.itemEntity.copyWith(
-                  price: params.newPrice,
-                  dpp: params.receiptItemEntity.itemEntity.includeTax == 1
-                      ? params.newPrice *
-                          (100 /
-                              (100 +
-                                  params.receiptItemEntity.itemEntity.taxRate))
-                      : params.newPrice)));
+        itemEntity: params.receiptItemEntity.itemEntity.copyWith(
+            price: params.newPrice,
+            dpp: params.receiptItemEntity.itemEntity.includeTax == 1
+                ? params.newPrice *
+                    (100 / (100 + params.receiptItemEntity.itemEntity.taxRate))
+                : params.newPrice),
+        sellingPrice: params.newPrice,
+      ));
     } catch (e) {
       rethrow;
     }

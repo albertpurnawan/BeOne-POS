@@ -7,12 +7,10 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
+import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
-import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter;
@@ -171,7 +169,7 @@ class ReceiptPrinter {
               PosColumn(
                   width: 3,
                   text: Helpers.alignRightByAddingSpace(
-                      Helpers.parseMoney(item.itemEntity.dpp.round()), 10),
+                      Helpers.parseMoney(item.itemEntity.price.round()), 10),
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
@@ -182,7 +180,7 @@ class ReceiptPrinter {
               PosColumn(
                   width: 3,
                   text: Helpers.alignRightByAddingSpace(
-                      Helpers.parseMoney(item.totalGross.round()), 11),
+                      Helpers.parseMoney(item.totalAmount.round()), 11),
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,

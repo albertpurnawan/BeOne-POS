@@ -196,9 +196,16 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
             SizedBox(
                 width: 150,
                 child: Align(
+                    // PromoPriceUI
                     alignment: Alignment.centerRight,
                     child: Text(
-                      Helpers.parseMoney(associatedPromo.sellingPrice.round()),
+                      (itemY.itemEntity.includeTax == 1)
+                          ? Helpers.parseMoney(
+                              (((associatedPromo.sellingPrice) *
+                                      ((100 + itemY.itemEntity.taxRate) / 100))
+                                  .round()))
+                          : Helpers.parseMoney(
+                              ((associatedPromo.sellingPrice).round())),
                       style: const TextStyle(fontSize: 14),
                     ))),
             const SizedBox(
@@ -209,7 +216,11 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                 child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      Helpers.parseMoney(priceQty.round()),
+                      (itemY.itemEntity.includeTax == 1)
+                          ? Helpers.parseMoney((((priceQty) *
+                                  ((100 + itemY.itemEntity.taxRate) / 100))
+                              .round()))
+                          : Helpers.parseMoney(priceQty.round()),
                       style: const TextStyle(fontSize: 14),
                     ))),
           ],
@@ -228,62 +239,62 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
       const SizedBox(
         height: 15,
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const SizedBox(
-            width: 80,
-            child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Subtotal",
-                  style: TextStyle(fontSize: 14),
-                )),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-              width: 150,
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    Helpers.parseMoney(subtotal.round()),
-                    style: const TextStyle(fontSize: 14),
-                  ))),
-        ],
-      ),
-      const SizedBox(
-        height: 5,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const SizedBox(
-            width: 80,
-            child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Total Tax",
-                  style: TextStyle(fontSize: 14),
-                )),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-              width: 150,
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    Helpers.parseMoney(taxAmount.round()),
-                    style: const TextStyle(fontSize: 14),
-                  ))),
-        ],
-      ),
-      const SizedBox(
-        height: 5,
-      ),
+      // Row(
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   children: [
+      //     const SizedBox(
+      //       width: 80,
+      //       child: Align(
+      //           alignment: Alignment.centerLeft,
+      //           child: Text(
+      //             "Subtotal",
+      //             style: TextStyle(fontSize: 14),
+      //           )),
+      //     ),
+      //     const SizedBox(
+      //       width: 20,
+      //     ),
+      //     SizedBox(
+      //         width: 150,
+      //         child: Align(
+      //             alignment: Alignment.centerRight,
+      //             child: Text(
+      //               Helpers.parseMoney(subtotal.round()),
+      //               style: const TextStyle(fontSize: 14),
+      //             ))),
+      //   ],
+      // ),
+      // const SizedBox(
+      //   height: 5,
+      // ),
+      // Row(
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   children: [
+      //     const SizedBox(
+      //       width: 80,
+      //       child: Align(
+      //           alignment: Alignment.centerLeft,
+      //           child: Text(
+      //             "Total Tax",
+      //             style: TextStyle(fontSize: 14),
+      //           )),
+      //     ),
+      //     const SizedBox(
+      //       width: 20,
+      //     ),
+      //     SizedBox(
+      //         width: 150,
+      //         child: Align(
+      //             alignment: Alignment.centerRight,
+      //             child: Text(
+      //               Helpers.parseMoney(taxAmount.round()),
+      //               style: const TextStyle(fontSize: 14),
+      //             ))),
+      //   ],
+      // ),
+      // const SizedBox(
+      //   height: 5,
+      // ),
       Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -389,14 +400,17 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                   (e2.discAmount ?? 0) != 0)
               .isNotEmpty)
           .toList();
-      final double totalDiscByPromoId = appliedItems
-          .map((e1) =>
-              e1.promos
-                  .where((e2) => e2.promoId == discountItemByItemPromo.promoId)
-                  .first
-                  .discAmount ??
-              0)
-          .reduce((value, e3) => value + e3);
+      final double totalDiscByPromoId = appliedItems.map((e1) {
+        final double discAmount = e1.promos
+                .where((e2) => e2.promoId == discountItemByItemPromo.promoId)
+                .first
+                .discAmount ??
+            0;
+
+        return e1.itemEntity.includeTax == 1
+            ? discAmount * (100 + e1.itemEntity.taxRate) / 100
+            : discAmount;
+      }).reduce((value, e3) => value + e3);
 
       totalDisc += totalDiscByPromoId;
       widgets.add(Column(
@@ -537,14 +551,17 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                   (e2.discAmount ?? 0) != 0)
               .isNotEmpty)
           .toList();
-      final double totalDiscByPromoId = appliedItems
-          .map((e1) =>
-              e1.promos
-                  .where((e2) => e2.promoId == discountItemByItemPromo.promoId)
-                  .first
-                  .discAmount ??
-              0)
-          .reduce((value, e3) => value + e3);
+      final double totalDiscByPromoId = appliedItems.map((e1) {
+        final double discAmount = e1.promos
+                .where((e2) => e2.promoId == discountItemByItemPromo.promoId)
+                .first
+                .discAmount ??
+            0;
+
+        return e1.itemEntity.includeTax == 1
+            ? discAmount * (100 + e1.itemEntity.taxRate) / 100
+            : discAmount;
+      }).reduce((value, e3) => value + e3);
       totalDisc += totalDiscByPromoId;
       widgets.add(Column(
         crossAxisAlignment: CrossAxisAlignment.start,

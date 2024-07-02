@@ -581,11 +581,14 @@ class _SalesPageState extends State<SalesPage> {
                                         ),
                                       )),
                                       Expanded(
+                                          // DiscountUI
                                           child: promo.discAmount == null ||
                                                   promo.discAmount == 0
                                               ? const SizedBox.shrink()
                                               : Text(
-                                                  "- ${Helpers.parseMoney(promo.discAmount!.round())}",
+                                                  (e.itemEntity.includeTax == 1)
+                                                      ? "- ${Helpers.parseMoney((((promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
+                                                      : "- ${Helpers.parseMoney(((promo.discAmount!).round()))}",
                                                   style: const TextStyle(
                                                     fontSize: 14,
                                                     fontStyle: FontStyle.italic,
@@ -652,14 +655,14 @@ class _SalesPageState extends State<SalesPage> {
                                           padding: const EdgeInsets.all(0),
                                           color: index == indexIsSelect[0] &&
                                                   indexIsSelect[1] == 1
-                                              ? Color.fromARGB(
+                                              ? const Color.fromARGB(
                                                   255, 255, 222, 222)
                                               : isNewItemAdded &&
                                                       (index ==
                                                           state.receiptItems
                                                                   .length -
                                                               1)
-                                                  ? Color.fromARGB(
+                                                  ? const Color.fromARGB(
                                                       95, 100, 202, 122)
                                                   : Colors.white,
                                           child: Padding(
@@ -761,6 +764,7 @@ class _SalesPageState extends State<SalesPage> {
                                                           Expanded(
                                                             flex: 1,
                                                             child: Column(
+                                                              // QuantityUI
                                                               children: [
                                                                 Text(
                                                                   "${Helpers.cleanDecimal(e.quantity, 3)} x",
@@ -780,6 +784,7 @@ class _SalesPageState extends State<SalesPage> {
                                                           Expanded(
                                                             flex: 1,
                                                             child: Column(
+                                                              // PriceUI
                                                               children: [
                                                                 Text(
                                                                   "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
@@ -802,6 +807,7 @@ class _SalesPageState extends State<SalesPage> {
                                                               alignment: Alignment
                                                                   .centerRight,
                                                               child: Column(
+                                                                // TotalPriceUI
                                                                 children: [
                                                                   Text(
                                                                     Helpers.parseMoney((e.sellingPrice *
@@ -1177,7 +1183,7 @@ class _SalesPageState extends State<SalesPage> {
                                     Row(
                                       children: [
                                         SizedBox(
-                                          width: 10,
+                                          width: 2,
                                         ),
                                         Text(
                                           "F2",
@@ -1550,26 +1556,26 @@ class _SalesPageState extends State<SalesPage> {
                         controller: _scrollControllerReceiptSummary,
                         children: [
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Subtotal",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                Helpers.parseMoney((state.subtotal -
-                                        (state.discAmount ?? 0) +
-                                        (state.discHeaderManual ?? 0))
-                                    .round()),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 25),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     const Text(
+                          //       "Subtotal",
+                          //       style: TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //     Text(
+                          //       Helpers.parseMoney((state.subtotal -
+                          //               (state.discAmount ?? 0) +
+                          //               (state.discHeaderManual ?? 0))
+                          //           .round()),
+                          //       style: const TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 25),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1587,39 +1593,39 @@ class _SalesPageState extends State<SalesPage> {
                             ],
                           ),
                           const SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Total Tax",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                Helpers.parseMoney(state.taxAmount.round()),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Rounding",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                Helpers.parseMoney(state.rounding.round()),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     const Text(
+                          //       "Total Tax",
+                          //       style: TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //     Text(
+                          //       Helpers.parseMoney(state.taxAmount.round()),
+                          //       style: const TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 5),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     const Text(
+                          //       "Rounding",
+                          //       style: TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //     Text(
+                          //       Helpers.parseMoney(state.rounding.round()),
+                          //       style: const TextStyle(
+                          //           fontSize: 18, fontWeight: FontWeight.w500),
+                          //     ),
+                          //   ],
+                          // ),
                         ],
                       ),
                     ),
@@ -1723,7 +1729,7 @@ class _SalesPageState extends State<SalesPage> {
                               "Queue",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontSize: 17,
                               ),
                             ),
                           ],
@@ -1731,7 +1737,7 @@ class _SalesPageState extends State<SalesPage> {
                         Text(
                           "F11",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w300),
+                              fontSize: 17, fontWeight: FontWeight.w300),
                         ),
                       ],
                     ),
@@ -1773,14 +1779,14 @@ class _SalesPageState extends State<SalesPage> {
                             Text(
                               "Checkout",
                               style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 18),
+                                  fontWeight: FontWeight.w600, fontSize: 17),
                             ),
                           ],
                         ),
                         Text(
                           "F12",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w300),
+                              fontSize: 17, fontWeight: FontWeight.w300),
                         ),
                       ],
                     ),
@@ -1951,7 +1957,7 @@ class _SalesPageState extends State<SalesPage> {
                               text: const TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: "Select\nCustomer",
+                                    text: "Select\nCust.",
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12),
@@ -2479,7 +2485,7 @@ class _SalesPageState extends State<SalesPage> {
                                 isEditingNewReceiptItemQty = false;
                                 isEditingNewReceiptItemCode = true;
                                 Future.delayed(
-                                    Duration(milliseconds: 20),
+                                    const Duration(milliseconds: 20),
                                     () => _newReceiptItemCodeFocusNode
                                         .requestFocus());
                               });
@@ -2523,13 +2529,13 @@ class _SalesPageState extends State<SalesPage> {
                 log("numpadnumbutton 1");
 
                 _textEditingControllerNewReceiptItemCode.text = buttonNumber;
-                Future.delayed(Duration(milliseconds: 20),
+                Future.delayed(const Duration(milliseconds: 20),
                     () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemCode) {
                 log("numpadnumbutton 2");
 
                 _textEditingControllerNewReceiptItemCode.text += buttonNumber;
-                Future.delayed(Duration(milliseconds: 20),
+                Future.delayed(const Duration(milliseconds: 20),
                     () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemQty ||
                   isUpdatingReceiptItemQty) {
@@ -2537,7 +2543,7 @@ class _SalesPageState extends State<SalesPage> {
 
                 _textEditingControllerNewReceiptItemQuantity.text +=
                     buttonNumber;
-                Future.delayed(Duration(milliseconds: 20),
+                Future.delayed(const Duration(milliseconds: 20),
                     () => _newReceiptItemQuantityFocusNode.requestFocus());
               }
             });

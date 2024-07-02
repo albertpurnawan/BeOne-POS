@@ -3,9 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
-import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
-import 'package:pos_fe/features/sales/data/models/user.dart';
 
 class TableReportShift extends StatefulWidget {
   final DateTime? fromDate;
@@ -25,15 +22,28 @@ class TableReportShift extends StatefulWidget {
 
 class _TableReportShiftState extends State<TableReportShift> {
   final tableHead = ["No", "Date", "Shift", "Cashier", "Amount"];
-  List<InvoiceHeaderModel>? fetched;
+  List<dynamic>? fetched;
   bool isLoading = true;
-  List<CashierBalanceTransactionModel?> tcsr1Data = [];
-  List<UserModel?> userData = [];
 
   @override
   void initState() {
     super.initState();
     _fetchData();
+  }
+
+  @override
+  void didUpdateWidget(TableReportShift oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchQuery != widget.searchQuery ||
+        oldWidget.fromDate != widget.fromDate ||
+        oldWidget.toDate != widget.toDate) {
+      _fetchData();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
@@ -43,28 +53,26 @@ class _TableReportShiftState extends State<TableReportShift> {
 
     final fetchedInvoice = await GetIt.instance<AppDatabase>()
         .invoiceHeaderDao
-        .readBetweenDate(widget.fromDate!, widget.toDate!);
+        .readByUserBetweenDate(widget.fromDate!, widget.toDate!);
 
+    // Apply Search Query
     if (fetchedInvoice != null) {
-      final List<Future<CashierBalanceTransactionModel?>> invFetched =
-          fetchedInvoice.map((invoice) async {
-        return await GetIt.instance<AppDatabase>()
-            .cashierBalanceTransactionDao
-            .readByDocId(invoice.tcsr1Id!, null);
+      final filteredInvoice = fetchedInvoice.where((invoice) {
+        return invoice['docnum']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['username']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['transdate']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase());
       }).toList();
-
-      tcsr1Data = await Future.wait(invFetched);
-
-      final List<Future<UserModel?>> userFetched = tcsr1Data.map((shift) async {
-        if (shift != null) {
-          return await GetIt.instance<AppDatabase>()
-              .userDao
-              .readByDocId(shift.tousrId!, null);
-        }
-      }).toList();
-
-      userData = await Future.wait(userFetched);
-
+      setState(() {
+        fetched = filteredInvoice;
+        isLoading = false;
+      });
+    } else {
       setState(() {
         fetched = fetchedInvoice;
         isLoading = false;
@@ -78,8 +86,9 @@ class _TableReportShiftState extends State<TableReportShift> {
 
     if (fetched != null) {
       grandTotal = fetched!
-          .map((shift) => shift.grandTotal)
+          .map((shift) => shift['grandtotal'])
           .fold(0.0, (previous, current) => previous + current);
+      // log("grandTotal - $grandTotal");
     }
 
     return isLoading
@@ -135,14 +144,10 @@ class _TableReportShiftState extends State<TableReportShift> {
                         final index = entry.key;
                         final shift = entry.value;
                         final isLastRow = index == fetched!.length - 1;
-                        final shiftName =
-                            tcsr1Data.isNotEmpty && tcsr1Data[index] != null
-                                ? tcsr1Data[index]!.docNum
-                                : 'N/A';
-                        final userName =
-                            userData.isNotEmpty && userData[index] != null
-                                ? userData[index]!.username
-                                : 'N/A';
+                        final shiftName = shift['docnum'];
+                        final userName = shift['username'];
+                        final transDate =
+                            "${shift['transdate']} ${shift['transtime']}";
 
                         return TableRow(
                           children: [
@@ -185,7 +190,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      Helpers.formatDate(shift.transDateTime!),
+                                      transDate,
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -254,7 +259,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(shift.grandTotal)},00",
+                                      "Rp ${Helpers.parseMoney(shift['grandtotal'])},00",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],

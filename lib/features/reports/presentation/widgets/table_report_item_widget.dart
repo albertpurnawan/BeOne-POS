@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
-import 'package:pos_fe/features/sales/data/models/item_master.dart';
 
 class TableReportItem extends StatefulWidget {
   final DateTime? fromDate;
@@ -27,12 +28,26 @@ class _TableReportItemState extends State<TableReportItem> {
   List<dynamic>? fetched;
   List<InvoiceHeaderModel>? fetchedInvHeader;
   bool isLoading = true;
-  List<ItemMasterModel?> toitmData = [];
 
   @override
   void initState() {
     super.initState();
     _fetchData();
+  }
+
+  @override
+  void didUpdateWidget(TableReportItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchQuery != widget.searchQuery ||
+        oldWidget.fromDate != widget.fromDate ||
+        oldWidget.toDate != widget.toDate) {
+      _fetchData();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
@@ -43,14 +58,34 @@ class _TableReportItemState extends State<TableReportItem> {
     final fetchedTinv1 = await GetIt.instance<AppDatabase>()
         .invoiceDetailDao
         .readByItemBetweenDate(widget.fromDate!, widget.toDate!);
-    final fetchedToinv = await GetIt.instance<AppDatabase>()
-        .invoiceHeaderDao
-        .readBetweenDate(widget.fromDate!, widget.toDate!);
-    setState(() {
-      fetched = fetchedTinv1;
-      fetchedInvHeader = fetchedToinv;
-      isLoading = false;
-    });
+    log("fetchedTinv1 - $fetchedTinv1");
+    // final fetchedToinv = await GetIt.instance<AppDatabase>()
+    //     .invoiceHeaderDao
+    //     .readBetweenDate(widget.fromDate!, widget.toDate!);
+    // log("fetchedToinv - $fetchedToinv");
+
+    // Apply Search Query
+    if (fetchedTinv1 != null) {
+      final filteredTinv1 = fetchedTinv1.where((invoice) {
+        return invoice['itemcode']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['itemname']
+                .toLowerCase()
+                .contains(widget.searchQuery!.toLowerCase());
+      }).toList();
+      setState(() {
+        fetched = filteredTinv1;
+        // fetchedInvHeader = fetchedToinv;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        fetched = fetchedTinv1;
+        // fetchedInvHeader = fetchedToinv;
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -58,26 +93,20 @@ class _TableReportItemState extends State<TableReportItem> {
     double totalAmount = 0.0;
     double taxAmount = 0.0;
     double totalDiscount = 0.0;
-    double totalRounding = 0.0;
     double grandTotal = 0.0;
 
     if (fetched != null) {
       for (var item in fetched!) {
         double itemTotalAmount =
             item['totalamount'] * (100 / (100 + item['taxprctg'])) as double;
-
+        double itemTaxAmount =
+            item['taxamount'] * (100 / (100 + item['taxprctg'])) as double;
+        double itemTotalDiscount = item['discamount'] as double;
         totalAmount += itemTotalAmount;
-      }
-      for (var invHead in fetchedInvHeader!) {
-        double itemTaxAmount = invHead.taxAmount;
-        double itemTotalDiscount = invHead.discAmount;
-        double itemTotalRounding = invHead.rounding;
-        double itemGrandTotal = invHead.grandTotal;
         taxAmount += itemTaxAmount;
         totalDiscount += itemTotalDiscount;
-        totalRounding += itemTotalRounding;
-        grandTotal += itemGrandTotal;
       }
+      grandTotal = totalAmount + taxAmount;
     }
 
     return isLoading
@@ -109,8 +138,8 @@ class _TableReportItemState extends State<TableReportItem> {
                           },
                           children: [
                             TableRow(
-                              decoration:
-                                  const BoxDecoration(color: ProjectColors.primary),
+                              decoration: const BoxDecoration(
+                                  color: ProjectColors.primary),
                               children: tableHead.map((header) {
                                 return TableCell(
                                   child: Container(
@@ -123,7 +152,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           header,
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                             color: Colors.white,
                                           ),
@@ -293,7 +322,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Total Amount:',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -310,7 +339,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Rp ${Helpers.parseMoney(totalAmount.round())}.00',
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -341,7 +370,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Total Tax:',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -358,7 +387,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Rp ${Helpers.parseMoney(taxAmount.round())}.00',
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -389,7 +418,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Total Discount:',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -406,55 +435,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Rp ${Helpers.parseMoney(totalDiscount)}.00',
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // Total Rounding
-                            TableRow(
-                              children: [
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          'Total Rounding:',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                TableCell(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          'Rp ${Helpers.parseMoney(totalRounding)}.00',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
