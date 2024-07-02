@@ -101,6 +101,15 @@ class InvoiceApi {
                   log("invoicePayment - $invoicePayments");
                 }
               }
+              double totalAmount = 0.0;
+              for (var payment in invoicePayments) {
+                totalAmount += payment['amount'];
+              }
+              if (totalAmount > invHead[0].grandTotal) {
+                double excessAmount = totalAmount - invHead[0].grandTotal;
+                invoicePayments[invoicePayments.length - 1]['sisavoucher'] =
+                    excessAmount;
+              }
 
               break;
             default:

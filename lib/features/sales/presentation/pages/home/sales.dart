@@ -1557,29 +1557,24 @@ class _SalesPageState extends State<SalesPage> {
                         controller: _scrollControllerReceiptSummary,
                         children: [
                           const SizedBox(height: 10),
-                          Visibility(
-                            visible: false,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Subtotal",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                Text(
-                                  Helpers.parseMoney((state.subtotal -
-                                          (state.discAmount ?? 0) +
-                                          (state.discHeaderManual ?? 0))
-                                      .round()),
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Subtotal",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                Helpers.parseMoney((state.subtotal -
+                                        (state.discAmount ?? 0) +
+                                        (state.discHeaderManual ?? 0))
+                                    .round()),
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 25),
                           Row(
