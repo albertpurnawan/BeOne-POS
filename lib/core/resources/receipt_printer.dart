@@ -4,7 +4,9 @@ import 'dart:io';
 
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
