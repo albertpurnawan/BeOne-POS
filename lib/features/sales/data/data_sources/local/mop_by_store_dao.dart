@@ -32,7 +32,8 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
     return result.map((itemData) => MOPByStoreModel.fromMap(itemData)).toList();
   }
 
-  Future<List<MopSelectionModel>> readAllIncludeRelations() async {
+  Future<List<MopSelectionModel>> readAllIncludeRelations(
+      {String? payTypeCode}) async {
     final result = await db.rawQuery("""
 SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description, p1.subtype FROM tpmt3 as p3
 INNER JOIN (
@@ -40,6 +41,7 @@ SELECT mopalias, bankcharge, docid, topmtId, subtype FROM tpmt1
 ) as p1 ON p3.tpmt1Id = p1.docid
 INNER JOIN (
 SELECT paytypecode, description, docid FROM topmt
+${payTypeCode == null ? "" : "WHERE paytypecode = '$payTypeCode'"}
 ) as p ON p1.topmtId = p.docid;
 """);
     return result

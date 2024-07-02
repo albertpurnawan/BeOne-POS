@@ -39,7 +39,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
   initState() {
     super.initState();
     _textEditingControllerOpenPrice.text =
-        Helpers.parseMoney(widget.receiptItemEntity.itemEntity.dpp.toInt());
+        Helpers.parseMoney(widget.receiptItemEntity.itemEntity.price.toInt());
   }
 
   @override

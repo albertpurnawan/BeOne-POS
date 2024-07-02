@@ -13,13 +13,13 @@ import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 ///                                        !!! IMPORTANT !!!
 /// ========================================================================================================
 /// - <previousReceiptEntity> has customized code on the data class, thus automatic generation of data class
-///   will lead to different behaviors on the app. Please make changes manually.
+///   will lead to wrong behaviors on the app. Please make changes manually.
 /// ========================================================================================================
 
 class ReceiptEntity {
   String docNum;
   List<ReceiptItemEntity> receiptItems;
-  MopSelectionEntity? mopSelection;
+  List<MopSelectionEntity> mopSelections;
   CustomerEntity? customerEntity;
   EmployeeEntity? employeeEntity;
   double totalTax;
@@ -49,7 +49,7 @@ class ReceiptEntity {
   ReceiptEntity({
     required this.docNum,
     required this.receiptItems,
-    this.mopSelection,
+    this.mopSelections = const [],
     this.customerEntity,
     this.employeeEntity,
     required this.totalTax,
@@ -80,7 +80,7 @@ class ReceiptEntity {
   ReceiptEntity copyWith({
     String? docNum,
     List<ReceiptItemEntity>? receiptItems,
-    MopSelectionEntity? mopSelection,
+    List<MopSelectionEntity>? mopSelections,
     CustomerEntity? customerEntity,
     EmployeeEntity? employeeEntity,
     double? totalTax,
@@ -110,7 +110,7 @@ class ReceiptEntity {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
       receiptItems: receiptItems ?? this.receiptItems,
-      mopSelection: mopSelection ?? this.mopSelection,
+      mopSelections: mopSelections ?? this.mopSelections,
       customerEntity: customerEntity ?? this.customerEntity,
       employeeEntity: employeeEntity ?? this.employeeEntity,
       totalTax: totalTax ?? this.totalTax,
@@ -144,7 +144,7 @@ class ReceiptEntity {
     return <String, dynamic>{
       'docNum': docNum,
       'receiptItems': receiptItems.map((x) => x.toMap()).toList(),
-      'mopSelection': mopSelection?.toMap(),
+      'mopSelection': mopSelections.map((e) => e.toMap()),
       'customerEntity': customerEntity?.toMap(),
       'employeeEntity': employeeEntity?.toMap(),
       'totalTax': totalTax,
@@ -178,10 +178,10 @@ class ReceiptEntity {
           (x) => ReceiptItemEntity.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      mopSelection: map['mopSelection'] != null
-          ? MopSelectionEntity.fromMap(
-              map['mopSelection'] as Map<String, dynamic>)
-          : null,
+      mopSelections: map['mopSelections'].isNotEmpty
+          ? map['mopSelections']
+              .map((e) => MopSelectionEntity.fromMap(e as Map<String, dynamic>))
+          : [],
       customerEntity: map['customerEntity'] != null
           ? CustomerEntity.fromMap(
               map['customerEntity'] as Map<String, dynamic>)
@@ -242,7 +242,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelection, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId,
+    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelections, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId,
     
     previousReceiptEntity: $previousReceiptEntity)""";
   }
@@ -253,7 +253,7 @@ class ReceiptEntity {
 
     return other.docNum == docNum &&
         listEquals(other.receiptItems, receiptItems) &&
-        other.mopSelection == mopSelection &&
+        other.mopSelections == mopSelections &&
         other.customerEntity == customerEntity &&
         other.employeeEntity == employeeEntity &&
         other.totalTax == totalTax &&
@@ -283,7 +283,7 @@ class ReceiptEntity {
   int get hashCode {
     return docNum.hashCode ^
         receiptItems.hashCode ^
-        mopSelection.hashCode ^
+        mopSelections.hashCode ^
         customerEntity.hashCode ^
         employeeEntity.hashCode ^
         totalTax.hashCode ^

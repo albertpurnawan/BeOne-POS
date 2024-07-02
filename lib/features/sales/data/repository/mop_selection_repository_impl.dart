@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
 
 class MopSelectionRepositoryImpl implements MopSelectionRepository {
@@ -15,5 +19,19 @@ class MopSelectionRepositoryImpl implements MopSelectionRepository {
   Future<MopSelectionModel?> getMopSelectionByTpmt3Id(String tpmt3Id) async {
     return await _appDatabase.mopByStoreDao
         .readByDocIdIncludeRelations(tpmt3Id, null);
+  }
+
+  @override
+  Future<MopSelectionModel> getCashMopSelection() async {
+    try {
+      final List<MopSelectionModel> cashMopSelections = await _appDatabase
+          .mopByStoreDao
+          .readAllIncludeRelations(payTypeCode: "1");
+      if (cashMopSelections.isEmpty) throw "Cash MOP not found";
+      return cashMopSelections.first;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 }

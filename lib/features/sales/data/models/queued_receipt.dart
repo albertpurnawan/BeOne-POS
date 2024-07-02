@@ -5,7 +5,7 @@ class QueuedReceiptModel extends ReceiptEntity implements BaseModel {
   QueuedReceiptModel({
     required super.docNum,
     required super.receiptItems,
-    super.mopSelection,
+    super.mopSelections,
     super.customerEntity,
     super.employeeEntity,
     required super.totalTax,
@@ -27,7 +27,7 @@ class QueuedReceiptModel extends ReceiptEntity implements BaseModel {
     return QueuedReceiptModel(
       docNum: entity.docNum,
       receiptItems: entity.receiptItems,
-      mopSelection: entity.mopSelection,
+      mopSelections: entity.mopSelections,
       customerEntity: entity.customerEntity,
       employeeEntity: entity.employeeEntity,
       totalTax: entity.totalTax,

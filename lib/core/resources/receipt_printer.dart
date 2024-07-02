@@ -4,14 +4,15 @@ import 'dart:io';
 
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
+import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
-import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter;
@@ -94,10 +95,10 @@ class ReceiptPrinter {
       case PrintReceiptContentType.employeeCodeAndName:
         // return "";
         return "${currentPrintReceiptDetail?.receiptEntity.employeeEntity?.empCode} - ${currentPrintReceiptDetail?.receiptEntity.employeeEntity?.empName}";
-      case PrintReceiptContentType.mopAlias:
-        return currentPrintReceiptDetail
-                ?.receiptEntity.mopSelection?.mopAlias ??
-            "";
+      // case PrintReceiptContentType.mopAlias:
+      //   return currentPrintReceiptDetail
+      //           ?.receiptEntity.mopSelection?.mopAlias ??
+      //       "";
       case PrintReceiptContentType.address1:
         return currentPrintReceiptDetail?.storeMasterEntity.addr1 ?? "";
       case PrintReceiptContentType.address2:
@@ -170,7 +171,7 @@ class ReceiptPrinter {
               PosColumn(
                   width: 3,
                   text: Helpers.alignRightByAddingSpace(
-                      Helpers.parseMoney(item.itemEntity.dpp.round()), 10),
+                      Helpers.parseMoney(item.itemEntity.price.round()), 10),
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
@@ -181,7 +182,7 @@ class ReceiptPrinter {
               PosColumn(
                   width: 3,
                   text: Helpers.alignRightByAddingSpace(
-                      Helpers.parseMoney(item.totalGross.round()), 11),
+                      Helpers.parseMoney(item.totalAmount.round()), 11),
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
@@ -369,28 +370,26 @@ class ReceiptPrinter {
               currentPrintReceiptDetail!.receiptEntity.docNum,
               size: QRSize.Size6);
         case PrintReceiptContentType.mopAlias:
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: currentPrintReceiptDetail!
-                        .receiptEntity.mopSelection?.mopAlias ??
-                    "MOP",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(currentPrintReceiptDetail!
-                            .receiptEntity.totalNonVoucher ??
-                        0),
-                    15),
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-          ]);
+          for (final MopSelectionEntity mopSelection
+              in currentPrintReceiptDetail!.receiptEntity.mopSelections) {
+            bytes += generator.row([
+              PosColumn(
+                  width: 8,
+                  text: mopSelection.mopAlias,
+                  styles: const PosStyles(
+                    align: PosAlign.left,
+                    codeTable: 'CP1252',
+                  )),
+              PosColumn(
+                  width: 4,
+                  text: Helpers.alignRightByAddingSpace(
+                      Helpers.parseMoney(mopSelection.amount ?? 0), 15),
+                  styles: const PosStyles(
+                    align: PosAlign.left,
+                    codeTable: 'CP1252',
+                  )),
+            ]);
+          }
           bytes += generator.row([
             PosColumn(
                 width: 8,

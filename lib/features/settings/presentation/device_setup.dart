@@ -275,7 +275,7 @@ class _SettingsFormState extends State<SettingsForm> {
                         .update(docId: netz[0].docId, data: netz[0]);
                   }
 
-                  Navigator.pop(context);
+                  Navigator.pop(context, true);
                 } catch (e, s) {
                   ErrorHandler.presentErrorSnackBar(context, "$e $s");
                 }

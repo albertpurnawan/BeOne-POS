@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -75,6 +77,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     // _checkShiftStatus();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> checkTopos() async {
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
     (topos.isNotEmpty)
@@ -84,6 +91,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         : setState(() {
             haveTopos = false;
           });
+    log("TOPOS CHECKED - $haveTopos");
   }
 
   Widget welcomingButtons(BuildContext context) {
@@ -155,20 +163,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ? null
                         : CustomButton(
                             child: const Text("Setup Device"),
-                            onTap: () {
-                              Navigator.push(
+                            onTap: () async {
+                              final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const DeviceSetupScreen()),
-                              ).then((value) => Future.delayed(
-                                  const Duration(milliseconds: 200),
-                                  () => SystemChrome.setSystemUIOverlayStyle(
-                                      const SystemUiOverlayStyle(
-                                          statusBarColor: ProjectColors.primary,
-                                          statusBarBrightness: Brightness.light,
-                                          statusBarIconBrightness:
-                                              Brightness.light))));
+                                  builder: (context) =>
+                                      const DeviceSetupScreen(),
+                                ),
+                              );
+                              if (result == true) {
+                                await checkTopos();
+                              }
+                              await Future.delayed(
+                                const Duration(milliseconds: 200),
+                                () => SystemChrome.setSystemUIOverlayStyle(
+                                  const SystemUiOverlayStyle(
+                                    statusBarColor: ProjectColors.primary,
+                                    statusBarBrightness: Brightness.light,
+                                    statusBarIconBrightness: Brightness.light,
+                                  ),
+                                ),
+                              );
                             },
                           ),
                   ),

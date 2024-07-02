@@ -143,6 +143,22 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     return result;
   }
 
+  Future<List<dynamic>?> readByUserBetweenDate(
+      DateTime start, DateTime end) async {
+    final startDate = start.toUtc().toIso8601String();
+    final endDate = end.toUtc().toIso8601String();
+
+    final result = await db.rawQuery('''
+      SELECT x1.docnum, x0.transdate, x0.transtime, x2.username, x0.grandtotal
+      FROM $tableName AS x0
+      INNER JOIN tcsr1 AS x1 ON  x1.docid = x0.tcsr1Id
+      INNER JOIN tousr AS x2 ON x1.tousrId = x2.docid
+      WHERE x0.createdat BETWEEN ? AND ?
+      ''', [startDate, endDate]);
+
+    return result;
+  }
+
   Future<InvoiceHeaderModel?> readByDocNum(
       String docNum, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
