@@ -93,7 +93,6 @@ class _TableReportItemState extends State<TableReportItem> {
     double totalAmount = 0.0;
     double taxAmount = 0.0;
     double totalDiscount = 0.0;
-    double totalRounding = 0.0;
     double grandTotal = 0.0;
 
     if (fetched != null) {
@@ -103,13 +102,11 @@ class _TableReportItemState extends State<TableReportItem> {
         double itemTaxAmount =
             item['taxamount'] * (100 / (100 + item['taxprctg'])) as double;
         double itemTotalDiscount = item['discamount'] as double;
-        double itemTotalRounding = item['rounding'] as double;
         totalAmount += itemTotalAmount;
         taxAmount += itemTaxAmount;
         totalDiscount += itemTotalDiscount;
-        totalRounding += itemTotalRounding;
       }
-      grandTotal = totalAmount + taxAmount + totalRounding + totalDiscount;
+      grandTotal = totalAmount + taxAmount + totalDiscount;
     }
 
     return isLoading
@@ -437,54 +434,6 @@ class _TableReportItemState extends State<TableReportItem> {
                                       children: [
                                         Text(
                                           'Rp ${Helpers.parseMoney(totalDiscount)}.00',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // Total Rounding
-                            TableRow(
-                              children: [
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          'Total Rounding:',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                TableCell(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          'Rp ${Helpers.parseMoney(totalRounding)}.00',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,

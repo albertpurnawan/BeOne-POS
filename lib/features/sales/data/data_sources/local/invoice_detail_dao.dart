@@ -54,7 +54,7 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
     final endDate = end.toUtc().toIso8601String();
 
     final result = await db.rawQuery('''
-    SELECT x0.toitmId, x1.itemname, x1.itemcode, x0.taxprctg, x0.discamount, x2.rounding,
+    SELECT x0.toitmId, x1.itemname, x1.itemcode, x0.taxprctg, x0.discamount,
       SUM(x0.quantity) AS totalquantity, SUM(x0.totalamount) AS totalamount, (SUM(x0.totalamount) * x0.taxprctg / 100) AS taxamount
       FROM tinv1 AS x0
       INNER JOIN toitm AS x1 ON x0.toitmId = x1.docid
