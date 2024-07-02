@@ -106,7 +106,7 @@ class _TableReportItemState extends State<TableReportItem> {
         taxAmount += itemTaxAmount;
         totalDiscount += itemTotalDiscount;
       }
-      grandTotal = totalAmount + taxAmount + totalDiscount;
+      grandTotal = totalAmount + taxAmount;
     }
 
     return isLoading
@@ -152,7 +152,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           header,
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                             color: Colors.white,
                                           ),
@@ -322,7 +322,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Total Amount:',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -339,7 +339,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Rp ${Helpers.parseMoney(totalAmount.round())}.00',
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -370,7 +370,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Total Tax:',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -387,7 +387,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Rp ${Helpers.parseMoney(taxAmount.round())}.00',
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -418,7 +418,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Total Discount:',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
@@ -435,7 +435,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                         Text(
                                           'Rp ${Helpers.parseMoney(totalDiscount)}.00',
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                           ),
                                         ),
