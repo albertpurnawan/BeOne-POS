@@ -1648,7 +1648,7 @@ class _SalesPageState extends State<SalesPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Total Amount",
+                          "Grand Total",
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w600),
                         ),
