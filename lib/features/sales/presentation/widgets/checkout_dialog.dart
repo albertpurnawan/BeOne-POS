@@ -879,8 +879,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     _focusNodeCashAmount.dispose();
   }
 
-  List<int> generateCashAmountSuggestions(int receiptTotalAmount) {
-    List<int> cashAmountSuggestions = [receiptTotalAmount - _vouchersAmount];
+  List<int> generateCashAmountSuggestions(int targetAmount) {
+    List<int> cashAmountSuggestions = [targetAmount];
     if (voucherIsExceedPurchase) {
       cashAmountSuggestions = [0];
     } else {
@@ -888,9 +888,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
       for (final multiplier in multipliers) {
         if (cashAmountSuggestions.last % multiplier != 0) {
-          cashAmountSuggestions.add((receiptTotalAmount - _vouchersAmount) +
-              multiplier -
-              ((receiptTotalAmount - _vouchersAmount) % multiplier));
+          cashAmountSuggestions
+              .add(targetAmount + multiplier - (targetAmount % multiplier));
         }
       }
     }
@@ -943,8 +942,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     });
     context.read<ReceiptCubit>().updateVouchersSelection(
         vouchersSelectionEntity: _vouchers, vouchersAmount: _vouchersAmount);
-    final receiptGrandTotal =
-        context.read<ReceiptCubit>().state.grandTotal.toInt();
+    final receiptGrandTotal = context.read<ReceiptCubit>().state.grandTotal;
     final receiptTotalVouchers =
         context.read<ReceiptCubit>().state.totalVoucher;
     if (receiptTotalVouchers! >= receiptGrandTotal) {
@@ -1218,7 +1216,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     width: double.infinity,
                                     // padding:
                                     //     const EdgeInsets.symmetric(horizontal: 20),
@@ -1244,36 +1242,30 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                             // [START] UI for TUNAI MOP
                                             if (paymentType.payTypeCode[0] ==
                                                 "1") {
-                                              final List<MopSelectionEntity>
-                                                  mopSelectionWithoutCash =
-                                                  receipt.mopSelections
-                                                      .where((element) =>
-                                                          element.payTypeCode !=
-                                                          "1")
-                                                      .toList();
-                                              final double totalCash =
-                                                  mopSelectionWithoutCash
-                                                          .isEmpty
-                                                      ? 0
-                                                      : mopSelectionWithoutCash
-                                                          .map((e) =>
-                                                              e.amount ?? 0)
-                                                          .reduce((value,
-                                                                  element) =>
-                                                              value + element);
+                                              // final List<MopSelectionEntity>
+                                              //     mopSelectionWithoutCash =
+                                              //     receipt.mopSelections
+                                              //         .where((element) =>
+                                              //             element.payTypeCode !=
+                                              //             "1")
+                                              //         .toList();
+                                              // final double totalCash =
+                                              //     mopSelectionWithoutCash
+                                              //             .isEmpty
+                                              //         ? 0
+                                              //         : mopSelectionWithoutCash
+                                              //             .map((e) =>
+                                              //                 e.amount ?? 0)
+                                              //             .reduce((value,
+                                              //                     element) =>
+                                              //                 value + element);
                                               final List<int>
                                                   cashAmountSuggestions =
-                                                  generateCashAmountSuggestions((widget
-                                                              .isMultiMOPs
-                                                          ? (receipt
-                                                                  .grandTotal -
-                                                              ((receipt.totalVoucher ??
-                                                                      0) +
-                                                                  totalCash))
-                                                          : receipt.grandTotal -
-                                                              (receipt.totalVoucher ??
+                                                  generateCashAmountSuggestions(
+                                                      (receipt.grandTotal -
+                                                              (receipt.totalPayment ??
                                                                   0))
-                                                      .round());
+                                                          .round());
 
                                               return Column(
                                                 children: [
@@ -1425,7 +1417,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 .length,
                                                             (int index) {
                                                               if (cashAmountSuggestions[
-                                                                      index] ==
+                                                                      index] <=
                                                                   0) {
                                                                 return const SizedBox
                                                                     .shrink();
@@ -1495,7 +1487,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                             // [START] UI for other MOPs
                                             return Column(
                                               children: [
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 10,
                                                 ),
                                                 Container(
@@ -1824,13 +1816,13 @@ class __CheckoutSuccessDialogContentState
         child: SingleChildScrollView(
           child: SizedBox(
             // width: MediaQuery.of(context).size.width * 0.7,
-            width: 600,
+            // width: 600,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 60),
-                  width: double.infinity,
+                  // width: double.infinity,
                   color: const Color.fromARGB(255, 134, 1, 1),
                   child: Center(
                     child: Column(
@@ -1894,8 +1886,8 @@ class __CheckoutSuccessDialogContentState
                         Text(
                           context.read<ReceiptCubit>().state.transDateTime !=
                                   null
-                              ? DateFormat("EEE, dd MMM yyyy - hh:mm aaa")
-                                  .format(context
+                              ? DateFormat("EEE, dd MMM yyyy hh:mm aaa").format(
+                                  context
                                       .read<ReceiptCubit>()
                                       .state
                                       .transDateTime!)
@@ -1919,7 +1911,7 @@ class __CheckoutSuccessDialogContentState
                 Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 25, vertical: 10),
-                    width: double.infinity,
+                    // width: double.infinity,
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1935,18 +1927,18 @@ class __CheckoutSuccessDialogContentState
                     )),
                 Container(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
-                    width: double.infinity,
+                    // width: double.infinity,
                     child: Table(columnWidths: const {
-                      0: FlexColumnWidth(4),
+                      0: FlexColumnWidth(3),
                       1: FlexColumnWidth(1),
-                      2: FlexColumnWidth(4),
+                      2: FlexColumnWidth(5),
                     }, children: [
                       TableRow(
                         children: [
                           const Text(
                             "Invoice Number",
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -1955,33 +1947,9 @@ class __CheckoutSuccessDialogContentState
                           ),
                           Text(
                             context.read<ReceiptCubit>().state.docNum,
+                            textAlign: TextAlign.right,
                             style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          )
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          const Text(
-                            "Payment",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            context
-                                .read<ReceiptCubit>()
-                                .state
-                                .mopSelections[0]
-                                .mopAlias,
-                            style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           )
@@ -1992,7 +1960,7 @@ class __CheckoutSuccessDialogContentState
                           const Text(
                             "Total Bill",
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -2000,14 +1968,64 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "$currencyName${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
+                            textAlign: TextAlign.right,
+                            Helpers.parseMoney(context
+                                .read<ReceiptCubit>()
+                                .state
+                                .grandTotal
+                                .toInt()),
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           )
                         ],
                       ),
+                      const TableRow(children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        )
+                      ]),
+                      ...List.generate(
+                          context
+                              .read<ReceiptCubit>()
+                              .state
+                              .mopSelections
+                              .length, (index) {
+                        final MopSelectionEntity mop = context
+                            .read<ReceiptCubit>()
+                            .state
+                            .mopSelections[index];
+
+                        return TableRow(
+                          children: [
+                            Text(
+                              mop.mopAlias,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              Helpers.parseMoney(mop.amount!),
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          ],
+                        );
+                      }),
                       if (context
                           .read<ReceiptCubit>()
                           .state
@@ -2018,7 +2036,7 @@ class __CheckoutSuccessDialogContentState
                             const Text(
                               "Vouchers",
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -2026,20 +2044,36 @@ class __CheckoutSuccessDialogContentState
                               width: 5,
                             ),
                             Text(
-                              "$currencyName${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalVoucher!.toInt())}",
+                              Helpers.parseMoney(context
+                                  .read<ReceiptCubit>()
+                                  .state
+                                  .totalVoucher!
+                                  .toInt()),
+                              textAlign: TextAlign.right,
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
                             )
                           ],
                         ),
+                      const TableRow(children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        )
+                      ]),
                       TableRow(
                         children: [
                           const Text(
-                            "Received",
+                            "Total Payment",
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -2047,9 +2081,14 @@ class __CheckoutSuccessDialogContentState
                             width: 5,
                           ),
                           Text(
-                            "$currencyName${Helpers.parseMoney(context.read<ReceiptCubit>().state.totalPayment!.toInt())}",
+                            Helpers.parseMoney(context
+                                .read<ReceiptCubit>()
+                                .state
+                                .totalPayment!
+                                .toInt()),
+                            textAlign: TextAlign.right,
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           )
@@ -2060,7 +2099,7 @@ class __CheckoutSuccessDialogContentState
                           const Text(
                             "Change",
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -2069,10 +2108,15 @@ class __CheckoutSuccessDialogContentState
                           ),
                           Text(
                             context.read<ReceiptCubit>().state.changed != null
-                                ? "$currencyName${Helpers.parseMoney(context.read<ReceiptCubit>().state.changed!.round())}"
+                                ? Helpers.parseMoney(context
+                                    .read<ReceiptCubit>()
+                                    .state
+                                    .changed!
+                                    .round())
                                 : "",
+                            textAlign: TextAlign.right,
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           )

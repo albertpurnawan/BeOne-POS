@@ -262,10 +262,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final newState = state.copyWith(
         mopSelections: mopSelectionEntities,
         totalPayment: mopSelectionEntities.isEmpty
-            ? 0
-            : mopSelectionEntities
-                .map((e) => e.amount)
-                .reduce((value, element) => (value ?? 0) + (element ?? 0)),
+            ? state.totalVoucher?.toDouble() ?? 0
+            : (mopSelectionEntities.map((e) => e.amount).reduce(
+                        (value, element) => (value ?? 0) + (element ?? 0)) ??
+                    0) +
+                (state.totalVoucher ?? 0),
         totalNonVoucher: mopSelectionEntities.isEmpty
             ? 0
             : mopSelectionEntities
