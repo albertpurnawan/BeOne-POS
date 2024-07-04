@@ -46,4 +46,14 @@ class MeansOfPaymentDao extends BaseDao<MeansOfPaymentModel> {
 
     return res.isNotEmpty ? MeansOfPaymentModel.fromMap(res[0]) : null;
   }
+
+  Future<List<dynamic>?> readByPaytypeCode(String payTypeCode) async {
+    final result = await db.rawQuery('''
+      SELECT x0.* FROM tpmt1 AS x0 
+      INNER JOIN topmt AS x1 ON x0.topmtId = x1.docid
+      WHERE x1.paytypecode = ?
+    ''', [payTypeCode]);
+
+    return result;
+  }
 }

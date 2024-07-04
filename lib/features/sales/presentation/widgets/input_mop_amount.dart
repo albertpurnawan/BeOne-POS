@@ -6,7 +6,6 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 
 class InputMopAmountDialog extends StatefulWidget {
   const InputMopAmountDialog({
@@ -153,11 +152,10 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                     final double mopAmount = Helpers.revertMoneyToDecimalFormat(
                         _textEditingControllerOpenPrice.text);
                     if (mopAmount > widget.max) return;
-                    showDialog(
-                        context: context,
-                        builder: (context) => EDCDialog(
-                              mopAmount: mopAmount,
-                            )).then((value) => context.pop(mopAmount));
+                    // showDialog(
+                    //         context: context,
+                    //         builder: (context) => const EDCDialog())
+                    //     .then((value) => context.pop(mopAmount));
                   },
                   decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
@@ -240,14 +238,12 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   overlayColor: MaterialStateColor.resolveWith(
                       (states) => Colors.white.withOpacity(.2))),
               onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) => EDCDialog(
-                          mopAmount: Helpers.revertMoneyToDecimalFormat(
-                              _textEditingControllerOpenPrice.text),
-                        )).then((value) => context.pop(
-                    Helpers.revertMoneyToDecimalFormat(
-                        _textEditingControllerOpenPrice.text)));
+                // showDialog(
+                //         context: context,
+                //         builder: (context) => const EDCDialog())
+                //     .then((value) => context.pop(
+                //         Helpers.revertMoneyToDecimalFormat(
+                //             _textEditingControllerOpenPrice.text)));
               },
               child: Center(
                 child: RichText(

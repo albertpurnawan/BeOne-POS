@@ -9,7 +9,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -32,6 +31,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
@@ -167,15 +167,16 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           "PayMethod": "QRIS", // constant
           "commissionPercentage": "0",
           "expireInSecond": "3600",
-          "feeType": "on_buyer",
+          "feeType": "on_seller",
           "apiSource": "topup_deposit",
           "additionalInfo": {
-            "email": "testabc@gmail.com",
+            "email": "testabc@gmail.com", // diambil dari customer kalau member
             "notes": "desc",
             "description": "description",
-            "phoneNumber": "+6285270427851",
+            "phoneNumber":
+                "+6285270427851", // diambil dari customer kalau member
             "imageUrl": "a",
-            "fullname": "Tester 213@"
+            "fullname": "Tester 213@" // diambil dari customer kalau member
           }
         };
         final serviceSignature = await GetIt.instance<NetzmeApi>()
@@ -1626,6 +1627,34 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         ),
                                                                       );
                                                                     },
+                                                                  );
+                                                                  setState(() {
+                                                                    _textEditingControllerCashAmount
+                                                                        .text = "";
+                                                                    context
+                                                                        .read<
+                                                                            ReceiptCubit>()
+                                                                        .resetMop();
+                                                                    _values =
+                                                                        [];
+                                                                  });
+                                                                  return;
+                                                                } else if (paymentType
+                                                                        .payTypeCode ==
+                                                                    "2") {
+                                                                  await showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    barrierDismissible:
+                                                                        false,
+                                                                    builder:
+                                                                        (context) =>
+                                                                            EDCDialog(
+                                                                      mopSelectionEntity:
+                                                                          mop,
+                                                                      max: receipt
+                                                                          .grandTotal,
+                                                                    ),
                                                                   );
                                                                   setState(() {
                                                                     _textEditingControllerCashAmount

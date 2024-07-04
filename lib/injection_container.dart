@@ -13,6 +13,7 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.da
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/cash_register_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/credit_card_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_group_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.dart';
@@ -27,6 +28,7 @@ import 'package:pos_fe/features/sales/data/repository/store_master_repository_im
 import 'package:pos_fe/features/sales/data/repository/user_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/vouchers_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/domain/repository/cash_register_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/credit_card_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_group_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
@@ -52,6 +54,7 @@ import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_credit_cards.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
@@ -319,6 +322,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<EmployeeRepository>(
       () => EmployeeRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CreditCardRepository>(
+      () => CreditCardRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<QueuedReceiptRepository>(
       () => QueuedReceiptRepositoryImpl(sl(), sl()),
       dependsOn: [AppDatabase]);
@@ -428,6 +434,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetEmployeesUseCase>(
       () => GetEmployeesUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetCreditCardUseCase>(
+      () => GetCreditCardUseCase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());
   sl.registerSingleton<HandleWithoutPromosUseCase>(

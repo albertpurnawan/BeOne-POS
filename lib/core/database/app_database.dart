@@ -1368,6 +1368,7 @@ CREATE TABLE $tableCC (
   ${CreditCardFields.statusActive} int NOT NULL DEFAULT '0',
   ${CreditCardFields.activated} int NOT NULL DEFAULT '0',
   ${CreditCardFields.form} varchar(1) NOT NULL,
+  ${CreditCardFields.bankIssuer} varchar(30) NOT NULL,
   $createdAtDefinition
 )
 """);
