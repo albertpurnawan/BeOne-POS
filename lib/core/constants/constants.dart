@@ -37,6 +37,12 @@ class Constant {
   // PASS ADMIN
   static String passwordAdmin = "";
 
+  // OTP CHANNEL
+  static String otpChannel = "";
+  // TG Test: ae974546-58ac-4add-b560-2966cfcad33d
+  // TG UAT: fd6a1e8d-379c-4a58-bfb8-89ef13c9037f
+  // TG Live: eaba4456-e7d8-478c-a82e-7c9a26d377db
+
   static void updateTopos(
     String tenantId,
     String storeId,

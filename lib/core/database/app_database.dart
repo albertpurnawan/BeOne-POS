@@ -2730,6 +2730,7 @@ CREATE TABLE $tablePOSParameter (
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
   ${POSParameterFields.usernameAdmin} text DEFAULT NULL,
   ${POSParameterFields.passwordAdmin} text DEFAULT NULL,
+  ${POSParameterFields.otpChannel} text DEFAULT NULL,
   ${POSParameterFields.lastSync} text DEFAULT NULL,
   $createdAtDefinition
 )

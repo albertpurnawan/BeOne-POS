@@ -77,7 +77,8 @@ class _SettingsFormState extends State<SettingsForm> {
       tocsrController,
       urlController,
       emailController,
-      passwordController;
+      passwordController,
+      otpChannelController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String dflDate = "2000-01-01 00:00:00";
@@ -92,6 +93,7 @@ class _SettingsFormState extends State<SettingsForm> {
     urlController = TextEditingController();
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    otpChannelController = TextEditingController();
 
     oldGtentId = Constant.gtentId;
     oldTostrId = Constant.tostrId;
@@ -117,6 +119,7 @@ class _SettingsFormState extends State<SettingsForm> {
     urlController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    otpChannelController.dispose();
   }
 
   @override
@@ -201,6 +204,18 @@ class _SettingsFormState extends State<SettingsForm> {
               prefixIcon: const Icon(Icons.password_outlined),
             ),
           ),
+          const SizedBox(height: 15),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: CustomInput(
+              controller: otpChannelController,
+              validator: (val) =>
+                  val == null || val.isEmpty ? "OTP Channel is required" : null,
+              label: "OTP Channel",
+              hint: "OTP Channel",
+              prefixIcon: const Icon(Icons.vpn_key),
+            ),
+          ),
           const SizedBox(height: 25),
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
@@ -227,6 +242,7 @@ class _SettingsFormState extends State<SettingsForm> {
                     baseUrl: urlController.text,
                     usernameAdmin: emailController.text,
                     passwordAdmin: hashedPass,
+                    otpChannel: otpChannelController.text,
                     lastSync: '2000-01-01 00:00:00',
                   );
 

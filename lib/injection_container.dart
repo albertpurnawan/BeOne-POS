@@ -281,8 +281,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<MOPAdjustmentService>(
       () => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
-  sl.registerSingletonWithDependencies<OTPServiceAPi>(
-      () => OTPServiceAPi(sl(), sl()),
+  sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()),
       dependsOn: [SharedPreferences]);
   /**
    * =================================

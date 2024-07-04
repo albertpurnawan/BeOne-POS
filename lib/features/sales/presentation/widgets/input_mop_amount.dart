@@ -156,6 +156,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                     //         context: context,
                     //         builder: (context) => const EDCDialog())
                     //     .then((value) => context.pop(mopAmount));
+                    context.pop(mopAmount);
                   },
                   decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
@@ -244,6 +245,8 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                 //     .then((value) => context.pop(
                 //         Helpers.revertMoneyToDecimalFormat(
                 //             _textEditingControllerOpenPrice.text)));
+                context.pop(Helpers.revertMoneyToDecimalFormat(
+                    _textEditingControllerOpenPrice.text));
               },
               child: Center(
                 child: RichText(

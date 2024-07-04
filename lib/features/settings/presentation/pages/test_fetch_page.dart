@@ -3440,6 +3440,7 @@ class _FetchScreenState extends State<FetchScreen> {
           baseUrl: singleTopos.baseUrl,
           usernameAdmin: singleTopos.usernameAdmin,
           passwordAdmin: singleTopos.passwordAdmin,
+          otpChannel: singleTopos.otpChannel,
           lastSync: nextSyncDate,
         );
 
@@ -3477,6 +3478,7 @@ class _FetchScreenState extends State<FetchScreen> {
             baseUrl: singleToposAfterSync.baseUrl,
             usernameAdmin: singleToposAfterSync.usernameAdmin,
             passwordAdmin: singleToposAfterSync.passwordAdmin,
+            otpChannel: singleToposAfterSync.otpChannel,
             lastSync: singleToposAfterSync.lastSync,
           );
 

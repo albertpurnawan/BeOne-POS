@@ -1,20 +1,30 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
+import 'package:pos_fe/features/sales/domain/entities/edc_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_card_type.dart';
+import 'package:uuid/uuid.dart';
 
 class EDCDialog extends StatefulWidget {
   const EDCDialog({
     Key? key,
     required this.mopSelectionEntity,
+    required this.onEDCSelected,
     this.max = double.infinity,
   }) : super(key: key);
 
+  final Function(
+    EDCSelectionEntity,
+  ) onEDCSelected;
   final MopSelectionEntity mopSelectionEntity;
   final double max;
 
@@ -23,26 +33,63 @@ class EDCDialog extends StatefulWidget {
 }
 
 class _EDCDialogState extends State<EDCDialog> {
-  final TextEditingController cardNumberController = TextEditingController();
-  final TextEditingController cardHolderController = TextEditingController();
-  final TextEditingController amounController = TextEditingController();
+  EDCSelectionEntity? edcSelected;
+  final TextEditingController _cardNumber1Controller = TextEditingController();
+  final TextEditingController _cardNumber2Controller = TextEditingController();
+  final TextEditingController _cardHolderController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
   bool isCredit = false;
   List<String> mopDescriptionList = [];
   List<dynamic> mopList = [];
-  String? cardSelected;
+  String? mopSelected;
+  String cardName = "Select Card Here...";
+  CreditCardEntity? cardSelected;
   String? tpmt2IdSelected;
+  String? campaignSelected = "Select Campaign Here...";
+  bool isErr = false;
+  String errMsg = "Invalid amount";
+
+  late final _focusNodeAmount = FocusNode(
+    onKeyEvent: (node, event) {
+      if (event.runtimeType == KeyUpEvent) {
+        return KeyEventResult.handled;
+      }
+
+      if (event.physicalKey == PhysicalKeyboardKey.f12) {
+        final double mopAmount =
+            Helpers.revertMoneyToDecimalFormat(_amountController.text);
+        if (mopAmount > widget.max) {
+          setState(() {
+            isErr = true;
+            errMsg = "Invalid amount";
+          });
+
+          return KeyEventResult.handled;
+        }
+        context.pop(mopAmount);
+        return KeyEventResult.handled;
+      } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+        Navigator.of(context).pop();
+        return KeyEventResult.handled;
+      }
+
+      return KeyEventResult.ignored;
+    },
+  );
 
   @override
   void initState() {
     fetchMOP();
+    log("mop - ${widget.max}");
     super.initState();
   }
 
   @override
   void dispose() {
-    cardNumberController.dispose();
-    cardHolderController.dispose();
-    amounController.dispose();
+    _cardNumber1Controller.dispose();
+    _cardNumber2Controller.dispose();
+    _cardHolderController.dispose();
+    _amountController.dispose();
     super.dispose();
   }
 
@@ -87,7 +134,7 @@ class _EDCDialogState extends State<EDCDialog> {
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       contentPadding: const EdgeInsets.all(0),
       content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.9,
+        width: MediaQuery.of(context).size.width * 0.7,
         height: MediaQuery.of(context).size.height * 0.9,
         child: SingleChildScrollView(
           child: Padding(
@@ -112,13 +159,14 @@ class _EDCDialogState extends State<EDCDialog> {
                       spacing: 8,
                       runSpacing: 8,
                       children: mopDescriptionList
-                          .map((String cardType) => ChoiceChip(
-                                side: const BorderSide(
-                                    color: ProjectColors.primary, width: 1.5),
-                                label: Text(cardType),
-                                padding: const EdgeInsets.all(15),
+                          .map((String description) => MopChoiceChip(
+                                description: description,
                                 selected: false,
-                                onSelected: (bool selected) {},
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    mopSelected = selected ? description : null;
+                                  });
+                                },
                               ))
                           .toList(),
                     ),
@@ -161,7 +209,8 @@ class _EDCDialogState extends State<EDCDialog> {
                             ).then((selectedCard) {
                               if (selectedCard != null) {
                                 setState(() {
-                                  cardSelected = selectedCard.description;
+                                  cardSelected = selectedCard;
+                                  cardName = selectedCard.description;
                                   tpmt2IdSelected = selectedCard.docId;
                                 });
                                 log("selectedCard - $selectedCard");
@@ -178,18 +227,18 @@ class _EDCDialogState extends State<EDCDialog> {
                                 ),
                               ),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "Select Card Here...",
-                                  style: TextStyle(
+                                  cardName.toString(),
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     color: ProjectColors.mediumBlack,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                Icon(Icons.arrow_right_outlined),
+                                const Icon(Icons.arrow_right_outlined),
                               ],
                             ),
                           ),
@@ -227,16 +276,65 @@ class _EDCDialogState extends State<EDCDialog> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.4,
                           height: 50,
-                          child: TextFormField(
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(fontSize: 18),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
-                              hintText: "Card Number",
-                              hintStyle: TextStyle(
-                                  fontStyle: FontStyle.italic, fontSize: 18),
-                              border: OutlineInputBorder(),
-                            ),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.1,
+                                child: TextFormField(
+                                  textAlign: TextAlign.center,
+                                  controller: _cardNumber1Controller,
+                                  style: const TextStyle(fontSize: 18),
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.all(10),
+                                    hintText: "____",
+                                    hintStyle: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 18,
+                                    ),
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(4),
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                child: const Center(
+                                  child: Text(
+                                    " **** **** ",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.1,
+                                child: TextFormField(
+                                  textAlign: TextAlign.center,
+                                  controller: _cardNumber2Controller,
+                                  style: const TextStyle(fontSize: 18),
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.all(10),
+                                    hintText: "____",
+                                    hintStyle: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 18,
+                                    ),
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(4),
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ], // Limit input to 4 digits
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -274,6 +372,7 @@ class _EDCDialogState extends State<EDCDialog> {
                           height: 50,
                           child: TextFormField(
                             textAlign: TextAlign.left,
+                            controller: _cardHolderController,
                             style: const TextStyle(fontSize: 18),
                             decoration: const InputDecoration(
                               contentPadding: EdgeInsets.all(10),
@@ -317,15 +416,46 @@ class _EDCDialogState extends State<EDCDialog> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.4,
                           height: 50,
-                          child: TextFormField(
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(fontSize: 18),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
-                              hintText: "Campaign",
-                              hintStyle: TextStyle(
-                                  fontStyle: FontStyle.italic, fontSize: 18),
-                              border: OutlineInputBorder(),
+                          child: OutlinedButton(
+                            onPressed: () {}
+                            // showDialog<CreditCardEntity>(
+                            //   context: context,
+                            //   builder: (BuildContext context) =>
+                            //       const SelectCardType(),
+                            // ).then((selectedCard) {
+                            //   if (selectedCard != null) {
+                            //     setState(() {
+                            //       cardName = selectedCard.description;
+                            //       tpmt2IdSelected = selectedCard.docId;
+                            //     });
+                            //     log("selectedCard - $selectedCard");
+                            //   }
+                            // })
+                            ,
+                            style: ButtonStyle(
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                const EdgeInsets.all(10.0),
+                              ),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  campaignSelected.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: ProjectColors.mediumBlack,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const Icon(Icons.arrow_right_outlined),
+                              ],
                             ),
                           ),
                         ),
@@ -363,15 +493,51 @@ class _EDCDialogState extends State<EDCDialog> {
                           width: MediaQuery.of(context).size.width * 0.4,
                           height: 50,
                           child: TextFormField(
+                            focusNode: _focusNodeAmount,
                             textAlign: TextAlign.left,
+                            controller: _amountController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [MoneyInputFormatter()],
                             style: const TextStyle(fontSize: 18),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(10),
-                              hintText: "Amount",
-                              hintStyle: TextStyle(
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.all(10),
+                              hintText: "Enter Amount",
+                              hintStyle: const TextStyle(
                                   fontStyle: FontStyle.italic, fontSize: 18),
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
+                              suffix: isErr
+                                  ? Text(
+                                      errMsg,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontStyle: FontStyle.normal,
+                                          fontWeight: FontWeight.w700,
+                                          color: ProjectColors.swatch),
+                                    )
+                                  : null,
                             ),
+                            onChanged: (value) {
+                              final double mopAmount =
+                                  Helpers.revertMoneyToDecimalFormat(value);
+                              if (mopAmount > widget.max) {
+                                setState(() {
+                                  isErr = true;
+                                  errMsg = "Invalid amount";
+                                });
+                              } else if (isErr) {
+                                setState(() {
+                                  isErr = false;
+                                  // errMsg = "Invalid amount";
+                                });
+                              }
+                            },
+                            // onEditingComplete: () {
+                            //   final double mopAmount =
+                            //       Helpers.revertMoneyToDecimalFormat(
+                            //           _amountController.text);
+                            //   if (mopAmount > widget.max) return;
+                            //   context.pop(mopAmount);
+                            // },
                           ),
                         ),
                       ],
@@ -402,8 +568,6 @@ class _EDCDialogState extends State<EDCDialog> {
               onPressed: () {
                 setState(() {
                   Navigator.of(context).pop();
-                  // Future.delayed(const Duration(milliseconds: 200),
-                  //     () => _newReceiptItemCodeFocusNode.requestFocus());
                 });
               },
               child: Center(
@@ -438,7 +602,19 @@ class _EDCDialogState extends State<EDCDialog> {
                   overlayColor: MaterialStateColor.resolveWith(
                       (states) => Colors.white.withOpacity(.2))),
               onPressed: () {
-                //onPressed
+                final edc = EDCSelectionEntity(
+                  docId: const Uuid().v4(),
+                  creditCard: cardSelected!,
+                  tpmt1Id: "",
+                  tpmt2Id: cardSelected!.docId,
+                  cardNoPrefix: _cardNumber1Controller.text,
+                  cardNoSuffix: _cardNumber2Controller.text,
+                  campaign: "",
+                  amount: Helpers.revertMoneyToDecimalFormatDouble(
+                      _amountController.text),
+                );
+                widget.onEDCSelected(edc);
+                context.pop();
               },
               child: Center(
                 child: RichText(
@@ -462,6 +638,30 @@ class _EDCDialogState extends State<EDCDialog> {
         ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(25, 10, 25, 25),
+    );
+  }
+}
+
+class MopChoiceChip extends StatelessWidget {
+  final String description;
+  final bool selected;
+  final Function(bool) onSelected;
+
+  const MopChoiceChip({
+    super.key,
+    required this.description,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ChoiceChip(
+      side: const BorderSide(color: ProjectColors.primary, width: 1.5),
+      label: Text(description),
+      padding: const EdgeInsets.all(15),
+      selected: selected,
+      onSelected: onSelected,
     );
   }
 }

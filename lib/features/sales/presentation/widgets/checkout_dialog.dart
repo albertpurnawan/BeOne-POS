@@ -16,6 +16,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
+import 'package:pos_fe/features/sales/domain/entities/edc_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -957,6 +958,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     }
   }
 
+  void handleEDCSelected(MopSelectionEntity mop, EDCSelectionEntity edc) {}
+
   void checkAndHandleZeroGrandTotal() async {
     try {
       if (context.read<ReceiptCubit>().state.grandTotal != 0) {
@@ -1650,10 +1653,17 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     builder:
                                                                         (context) =>
                                                                             EDCDialog(
+                                                                      onEDCSelected:
+                                                                          (context) {
+                                                                        dev.log(
+                                                                            "EDC Selected - $context");
+                                                                      },
                                                                       mopSelectionEntity:
                                                                           mop,
                                                                       max: receipt
-                                                                          .grandTotal,
+                                                                              .grandTotal -
+                                                                          (receipt.totalPayment ??
+                                                                              0),
                                                                     ),
                                                                   );
                                                                   setState(() {
