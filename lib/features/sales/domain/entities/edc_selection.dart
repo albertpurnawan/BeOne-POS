@@ -7,7 +7,6 @@ class EDCSelectionEntity {
   final String docId;
   final CreditCardEntity creditCard;
   String? tpmt1Id;
-  String? tpmt2Id;
   final String cardNoPrefix;
   final String cardNoSuffix;
   String? campaign;
@@ -17,7 +16,6 @@ class EDCSelectionEntity {
     required this.docId,
     required this.creditCard,
     this.tpmt1Id,
-    this.tpmt2Id,
     required this.cardNoPrefix,
     required this.cardNoSuffix,
     this.campaign,
@@ -28,7 +26,6 @@ class EDCSelectionEntity {
     String? docId,
     CreditCardEntity? creditCard,
     String? tpmt1Id,
-    String? tpmt2Id,
     String? cardNoPrefix,
     String? cardNoSuffix,
     String? campaign,
@@ -38,7 +35,6 @@ class EDCSelectionEntity {
       docId: docId ?? this.docId,
       creditCard: creditCard ?? this.creditCard,
       tpmt1Id: tpmt1Id ?? this.tpmt1Id,
-      tpmt2Id: tpmt2Id ?? this.tpmt2Id,
       cardNoPrefix: cardNoPrefix ?? this.cardNoPrefix,
       cardNoSuffix: cardNoSuffix ?? this.cardNoSuffix,
       campaign: campaign ?? this.campaign,
@@ -51,7 +47,6 @@ class EDCSelectionEntity {
       'docId': docId,
       'creditCard': creditCard.toMap(),
       'tpmt1Id': tpmt1Id,
-      'tpmt2Id': tpmt2Id,
       'cardNoPrefix': cardNoPrefix,
       'cardNoSuffix': cardNoSuffix,
       'campaign': campaign,
@@ -65,7 +60,6 @@ class EDCSelectionEntity {
       creditCard:
           CreditCardEntity.fromMap(map['creditCard'] as Map<String, dynamic>),
       tpmt1Id: map['tpmt1Id'] != null ? map['tpmt1Id'] as String : null,
-      tpmt2Id: map['tpmt2Id'] != null ? map['tpmt2Id'] as String : null,
       cardNoPrefix: map['cardNoPrefix'] as String,
       cardNoSuffix: map['cardNoSuffix'] as String,
       campaign: map['campaign'] != null ? map['campaign'] as String : null,
@@ -80,7 +74,7 @@ class EDCSelectionEntity {
 
   @override
   String toString() {
-    return 'EDCSelectionEntity(docId: $docId, creditCard: $creditCard, tpmt1Id: $tpmt1Id, tpmt2Id: $tpmt2Id, cardNoPrefix: $cardNoPrefix, cardNoSuffix: $cardNoSuffix, campaign: $campaign, amount: $amount)';
+    return 'EDCSelectionEntity(docId: $docId, creditCard: $creditCard, tpmt1Id: $tpmt1Id, cardNoPrefix: $cardNoPrefix, cardNoSuffix: $cardNoSuffix, campaign: $campaign, amount: $amount)';
   }
 
   @override
@@ -90,7 +84,6 @@ class EDCSelectionEntity {
     return other.docId == docId &&
         other.creditCard == creditCard &&
         other.tpmt1Id == tpmt1Id &&
-        other.tpmt2Id == tpmt2Id &&
         other.cardNoPrefix == cardNoPrefix &&
         other.cardNoSuffix == cardNoSuffix &&
         other.campaign == campaign &&
@@ -102,7 +95,6 @@ class EDCSelectionEntity {
     return docId.hashCode ^
         creditCard.hashCode ^
         tpmt1Id.hashCode ^
-        tpmt2Id.hashCode ^
         cardNoPrefix.hashCode ^
         cardNoSuffix.hashCode ^
         campaign.hashCode ^

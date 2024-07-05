@@ -108,11 +108,13 @@ import 'package:pos_fe/features/sales/data/data_sources/local/zipcode_dao.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
+import 'package:pos_fe/features/sales/data/models/bank_issuer.dart';
 import 'package:pos_fe/features/sales/data/models/base_pay_term.dart';
 import 'package:pos_fe/features/sales/data/models/batch_credit_memo.dart';
 import 'package:pos_fe/features/sales/data/models/batch_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
+import 'package:pos_fe/features/sales/data/models/campaign.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/close_shift.dart';
@@ -126,6 +128,7 @@ import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
 import 'package:pos_fe/features/sales/data/models/holiday.dart';
@@ -914,6 +917,7 @@ CREATE TABLE $tableItemMasters (
   ${ItemMasterFields.syncCRM} int NOT NULL DEFAULT '0',
   ${ItemMasterFields.mergeQuantity} int NOT NULL DEFAULT '0',
   ${ItemMasterFields.form} varchar(1) NOT NULL,
+  ${ItemMasterFields.shortName} varchar(20) DEFAULT NULL,
   $createdAtDefinition
   
 )
@@ -1436,6 +1440,14 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.mtxline03} varchar(100) DEFAULT '',
   ${StoreMasterFields.mtxline04} varchar(100) DEFAULT '',
   ${StoreMasterFields.form} varchar(1) NOT NULL,
+  ${StoreMasterFields.salesViewType} int DEFAULT NULL,
+  ${StoreMasterFields.otpChannel} varchar(191) DEFAULT NULL,
+  ${StoreMasterFields.otpUrl} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeUrl} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeClientKey} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeClientSecret} text DEFAULT NULL,
+  ${StoreMasterFields.netzmePrivateKey} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeCustidMerchant} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -1553,6 +1565,42 @@ CREATE TABLE $tableAPMPS (
   $createdAtDefinition,
   CONSTRAINT `tpln3_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tpln3_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableEDC (
+  $uuidDefinition,
+  ${EDCFields.createDate} datetime NOT NULL,
+  ${EDCFields.updateDate} datetime DEFAULT NULL,
+  ${EDCFields.edcCode} varchar(30) NOT NULL,
+  ${EDCFields.description} varchar(100) NOT NULL,
+  ${EDCFields.form} varchar(1) NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableBankIssuer (
+  $uuidDefinition,
+  ${BankIssuerFields.createDate} datetime NOT NULL,
+  ${BankIssuerFields.updateDate} datetime DEFAULT NULL,
+  ${BankIssuerFields.bankCode} varchar(30) NOT NULL,
+  ${BankIssuerFields.description} varchar(100) NOT NULL,
+  ${BankIssuerFields.form} varchar(1) NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableCampaign (
+  $uuidDefinition,
+  ${CampaignFields.createDate} datetime NOT NULL,
+  ${CampaignFields.updateDate} datetime DEFAULT NULL,
+  ${CampaignFields.campaignCode} varchar(30) NOT NULL,
+  ${CampaignFields.description} varchar(100) NOT NULL,
+  ${CampaignFields.form} varchar(1) NOT NULL,
+  $createdAtDefinition
 )
 """);
 

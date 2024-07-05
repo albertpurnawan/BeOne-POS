@@ -153,7 +153,10 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
+import 'package:pos_fe/features/settings/domain/usecases/decrypt.dart';
+import 'package:pos_fe/features/settings/domain/usecases/encrypt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/settings/domain/usecases/refresh_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -477,6 +480,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<CheckCredentialActiveStatusUseCase>(
       () => CheckCredentialActiveStatusUseCase(sl()),
       dependsOn: [SharedPreferences]);
+  sl.registerSingleton<EncryptPasswordUseCase>(EncryptPasswordUseCase());
+  sl.registerSingleton<DecryptPasswordUseCase>(DecryptPasswordUseCase());
+  sl.registerSingleton<RefreshTokenUseCase>(RefreshTokenUseCase());
   /**
    * =================================
    * END OF USECASES

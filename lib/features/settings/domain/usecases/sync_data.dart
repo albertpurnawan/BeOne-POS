@@ -127,6 +127,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
+import 'package:pos_fe/features/settings/domain/usecases/refresh_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -190,12 +191,14 @@ Future<void> syncData() async {
   late List<BillOfMaterialLineItemModel> titt1;
 
   final prefs = GetIt.instance<SharedPreferences>();
+  final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
 
   bool? checkSync = prefs.getBool('isSyncing');
   log("Synching data... - $checkSync");
   if (checkSync == null || checkSync == false) {
     try {
       prefs.setBool('isSyncing', true);
+      await refreshTokenUsecase.call();
       final topos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleTopos = topos[0];

@@ -71,7 +71,6 @@ class _LoginFormState extends State<LoginForm> {
   @override
   void initState() {
     super.initState();
-
     usernameController = TextEditingController();
     passwordController = TextEditingController();
   }
@@ -82,6 +81,24 @@ class _LoginFormState extends State<LoginForm> {
     usernameController.dispose();
     passwordController.dispose();
   }
+
+  // Future<void> refreshToken() async {
+  //   final username = usernameController.text;
+  //   final password = passwordController.text;
+  //   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  //   SharedPreferences.getInstance();
+
+  //   final url = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+
+  //   final user = await GetIt.instance<AppDatabase>()
+  //       .userDao
+  //       .readByUsername(username, null);
+
+  //   final token = await GetIt.instance<TokenApi>()
+  //       .getToken(url[0].baseUrl!, user!.email, password);
+  //   log("$token");
+  //   prefs.setString('adminToken', token.toString());
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +142,7 @@ class _LoginFormState extends State<LoginForm> {
               child: const Text("Login"),
               onTap: () async {
                 if (!formKey.currentState!.validate()) return;
+                // await refreshToken();
                 final loginSuccess = await GetIt.instance<LoginUseCase>().call(
                     params: UserAuthEntity(
                         docId: null,

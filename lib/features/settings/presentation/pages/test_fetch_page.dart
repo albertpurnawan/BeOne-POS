@@ -131,6 +131,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
+import 'package:pos_fe/features/settings/domain/usecases/refresh_token.dart';
 import 'package:pos_fe/features/settings/presentation/pages/log_error_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -144,6 +145,7 @@ class FetchScreen extends StatefulWidget {
 
 class _FetchScreenState extends State<FetchScreen> {
   POSParameterEntity? _posParameterEntity;
+  final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
 
   bool isManualSyncing = false;
   int statusCode = 0;
@@ -161,6 +163,10 @@ class _FetchScreenState extends State<FetchScreen> {
   void getPosParameter() async {
     _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
     setState(() {});
+  }
+
+  Future<void> refreshToken() async {
+    await refreshTokenUsecase.call();
   }
 
   Future<void> manualSync() async {
@@ -4121,6 +4127,7 @@ class _FetchScreenState extends State<FetchScreen> {
                         onPressed: isManualSyncing
                             ? null
                             : () async {
+                                await refreshToken();
                                 setState(() {
                                   syncProgress = 0;
                                   isManualSyncing = true;
