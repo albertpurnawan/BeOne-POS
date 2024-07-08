@@ -36,27 +36,7 @@ class VoucherCheckout extends StatefulWidget {
 
 class _VoucherCheckoutState extends State<VoucherCheckout> {
   final _voucherCheckController = TextEditingController();
-  late final FocusNode _voucherFocusNode = FocusNode(
-      // onKeyEvent: (node, value) {
-      //   log(value.physicalKey.toString());
-      //   if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
-
-      //   if (value.physicalKey == PhysicalKeyboardKey.f12) {
-      //     _redeemVouchers();
-      //     return KeyEventResult.handled;
-      //   } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
-      //     context.pop();
-      //     return KeyEventResult.handled;
-      //   } else if ((value.physicalKey == PhysicalKeyboardKey.enter ||
-      //           value.physicalKey == PhysicalKeyboardKey.arrowDown) &&
-      //       !node.hasPrimaryFocus) {
-      //     node.requestFocus();
-      //     return KeyEventResult.handled;
-      //   }
-
-      //   return KeyEventResult.ignored;
-      // },
-      );
+  late final FocusNode _voucherFocusNode = FocusNode();
   List<VouchersSelectionModel> vouchers = [];
   int vouchersAmount = 0;
   bool minPurchaseFulfilled = true;
@@ -69,7 +49,12 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     List<VouchersSelectionModel> vouchers,
     bool isExisting,
   ) {
-    return vouchers.asMap().entries.map((entry) {
+    return vouchers
+        .where((element) => element.type == widget.voucherType)
+        .toList()
+        .asMap()
+        .entries
+        .map((entry) {
       int index = entry.key;
       VouchersSelectionModel voucher = entry.value;
       // return Text(
@@ -151,7 +136,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
       checkVoucher = voucher..tpmt3Id = widget.tpmt3Id;
       bool checkSerialNo = vouchers.any((v) => v.serialNo == voucher.serialNo);
       log("vouchertype ${widget.voucherType} checkVoucher ${checkVoucher.type}");
-      // if (checkVoucher.type != widget.voucherType) return;
+      if (checkVoucher.type != widget.voucherType) throw "Invalid voucher type";
 
       log("${receiptCubit.state.grandTotal} ${voucher.minPurchase}");
 
@@ -173,9 +158,6 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
         }
       } else {
         setState(() {
-          // vouchers.add(voucher);
-          // vouchersAmount += voucher.voucherAmount;
-          // _voucherCheckController.clear();
           errMessage =
               "Minimum purchase is Rp ${Helpers.parseMoney(voucher.minPurchase)}";
           minPurchaseFulfilled = false;
@@ -404,7 +386,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 ),
               ),
               Text(
-                ":  ${(vouchers.length + receiptCubit.state.vouchers.length).toString()}",
+                ":  ${(vouchers.length + receiptCubit.state.vouchers.where((element) => element.type == widget.voucherType).length).toString()}",
                 style: const TextStyle(fontSize: 18),
               ),
             ]),
@@ -417,7 +399,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 ),
               ),
               Text(
-                ":  ${Helpers.parseMoney(vouchersAmount + (receiptCubit.state.totalVoucher ?? 0))}",
+                ":  ${Helpers.parseMoney(vouchersAmount + (receiptCubit.state.vouchers.where((element) => element.type == widget.voucherType).map((e) => e.voucherAmount).fold<num>(0, (value, element) => value + element)))}",
                 style: const TextStyle(fontSize: 18),
               ),
             ]),

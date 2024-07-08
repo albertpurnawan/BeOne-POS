@@ -27,6 +27,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.queuedInvoiceHeaderDocId,
     super.discAmount,
     super.rounding,
+    super.toinvTohemId,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {

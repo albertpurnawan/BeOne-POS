@@ -314,7 +314,11 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             itemName: itemMasterModel.itemName,
             itemCode: itemMasterModel.itemCode,
             barcode: "",
-            price: 0,
+            price: itemMasterModel.includeTax == 1
+                ? invoiceDetailModel.sellingPrice
+                : invoiceDetailModel.sellingPrice *
+                    100 /
+                    (100 + invoiceDetailModel.taxPrctg),
             toitmId: itemMasterModel.docId,
             tbitmId: invoiceDetailModel.tbitmId!,
             tpln2Id: "",
@@ -349,6 +353,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                     remarks: "",
                   )
                 ],
+          tohemId: invoiceDetailModel.tohemId,
+          discAmount: invoiceDetailModel.discAmount,
         ));
       }
 
@@ -393,6 +399,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         discHeaderPromo: invoiceHeaderModel.discHeaderPromo,
         discAmount: invoiceHeaderModel.discAmount,
         rounding: invoiceHeaderModel.rounding,
+        toinvTohemId: invoiceHeaderModel.toinvTohemId,
       );
     });
     log("Receipt 2 - $receiptModel");
