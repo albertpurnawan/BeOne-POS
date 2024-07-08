@@ -8,6 +8,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
 import 'package:pos_fe/features/sales/domain/entities/edc_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -40,8 +41,7 @@ class _EDCDialogState extends State<EDCDialog> {
   final TextEditingController _cardHolderController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   bool isCredit = false;
-  List<String> mopDescriptionList = [];
-  List<dynamic> mopList = [];
+  List<MopSelectionModel> mopList = [];
   String? mopSelected;
   String cardName = "Select Card Here...";
   CreditCardEntity? cardSelected;
@@ -80,7 +80,6 @@ class _EDCDialogState extends State<EDCDialog> {
   @override
   void initState() {
     fetchMOP();
-    log("mop - ${widget.max}");
     super.initState();
   }
 
@@ -94,21 +93,13 @@ class _EDCDialogState extends State<EDCDialog> {
   }
 
   Future<void> fetchMOP() async {
+    final edc = widget.mopSelectionEntity.edcDesc;
     final tpmt1List = await GetIt.instance<AppDatabase>()
         .meansOfPaymentDao
-        .readByPaytypeCode("2");
-
-    List<String> descriptionList = [];
-    if (tpmt1List != null) {
-      for (var mop in tpmt1List) {
-        String description = mop['description'];
-        descriptionList.add(description);
-      }
-    }
+        .readByPaytypeCode("2", edc!);
 
     setState(() {
-      mopDescriptionList.addAll(descriptionList);
-      mopList.addAll(tpmt1List!);
+      mopList.addAll(tpmt1List);
     });
   }
 
@@ -174,17 +165,19 @@ class _EDCDialogState extends State<EDCDialog> {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: mopDescriptionList
-                            .map((String description) => ChoiceChip(
+                        children: mopList
+                            .map((MopSelectionModel mop) => ChoiceChip(
                                   side: const BorderSide(
                                       color: ProjectColors.primary, width: 1.5),
                                   padding: const EdgeInsets.all(15),
-                                  label: Text(description),
-                                  selected: mopSelected == description,
+                                  label: Text(mop.mopAlias),
+                                  selected: mopSelected == mop.edcDesc,
                                   onSelected: (bool selected) {
                                     setState(() {
                                       mopSelected =
-                                          selected ? description : null;
+                                          selected ? mop.description : null;
+                                      log("mopSelected - $mopSelected");
+                                      log("mopEntity - ${widget.mopSelectionEntity}");
                                     });
                                   },
                                 ))

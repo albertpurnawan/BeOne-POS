@@ -902,11 +902,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   List<MopSelectionEntity> getMopByPayTypeCode(String payTypeCode) {
     /**
      * 1 - Tunai
-     * 2 - Debit
-     * 3 - Kredit
-     * 4 - Lainnya
-     * 5 - E-Wallet
-     * 6 - Voucher */
+     * 2 - EDC
+     * 3 - Others
+     * 4 - QRIS
+     * 5 - Voucher
+    */
+
     List<MopSelectionEntity> mops = [];
 
     final List<MopSelectionEntity> temp = context
@@ -1491,6 +1492,135 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                     ),
                                                   ),
                                                   Divider(),
+                                                ],
+                                              );
+                                            }
+                                            // [END] UI for TUNAI MOP
+
+                                            // [START] UI for EDC MOP
+                                            if (paymentType.payTypeCode[0] ==
+                                                "2") {
+                                              return Column(
+                                                children: [
+                                                  SizedBox(height: 10),
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 20),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          paymentType
+                                                              .description,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 15),
+                                                        Wrap(
+                                                          spacing: 8,
+                                                          runSpacing: 8,
+                                                          children: List<
+                                                              Widget>.generate(
+                                                            mopsByType
+                                                                .map((mop) =>
+                                                                    mop.edcDesc)
+                                                                .toSet()
+                                                                .length, // Get the length of distinct edcDesc
+                                                            (int index) {
+                                                              final distinctEdcDesc =
+                                                                  mopsByType
+                                                                      .map((mop) =>
+                                                                          mop.edcDesc)
+                                                                      .toSet()
+                                                                      .toList();
+                                                              final mop = mopsByType
+                                                                  .firstWhere((mop) =>
+                                                                      mop.edcDesc ==
+                                                                      distinctEdcDesc[
+                                                                          index]);
+
+                                                              return ChoiceChip(
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors
+                                                                        .primary,
+                                                                    width: 1.5),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        20),
+                                                                label: Text(mop
+                                                                        .edcDesc ??
+                                                                    mop.mopAlias),
+                                                                // CONDITIONAL FOR SET SELECTED
+                                                                selected: _values
+                                                                    .map((e) => e
+                                                                        .tpmt3Id)
+                                                                    .contains(mop
+                                                                        .tpmt3Id),
+                                                                onSelected: (bool
+                                                                    selected) async {
+                                                                  if (selected) {
+                                                                    await showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      barrierDismissible:
+                                                                          false,
+                                                                      builder:
+                                                                          (context) =>
+                                                                              EDCDialog(
+                                                                        onEDCSelected:
+                                                                            (context) {
+                                                                          dev.log(
+                                                                              "EDC Selected - $context");
+                                                                        },
+                                                                        mopSelectionEntity:
+                                                                            mop,
+                                                                        max: receipt.grandTotal -
+                                                                            (receipt.totalPayment ??
+                                                                                0),
+                                                                      ),
+                                                                    );
+                                                                    setState(
+                                                                        () {
+                                                                      _textEditingControllerCashAmount
+                                                                          .text = "";
+                                                                      context
+                                                                          .read<
+                                                                              ReceiptCubit>()
+                                                                          .resetMop();
+                                                                      _values =
+                                                                          [];
+                                                                    });
+                                                                  } else {
+                                                                    _values = _values
+                                                                        .where((e) =>
+                                                                            e.tpmt3Id !=
+                                                                            mop.tpmt3Id)
+                                                                        .toList();
+                                                                  }
+                                                                  setState(
+                                                                      () {});
+                                                                  updateReceiptMop();
+                                                                },
+                                                              );
+                                                            },
+                                                          ).toList(),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 20),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
                                                 ],
                                               );
                                             }

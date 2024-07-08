@@ -14,7 +14,6 @@ class CreditCardFields {
     statusActive,
     activated,
     form,
-    bankIssuer,
   ];
 
   static const String docId = "docid";
@@ -26,7 +25,6 @@ class CreditCardFields {
   static const String statusActive = "statusactive";
   static const String activated = "activated";
   static const String form = "form";
-  static const String bankIssuer = "bankissuer";
 }
 
 class CreditCardModel extends CreditCardEntity implements BaseModel {
@@ -40,7 +38,6 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
     required super.statusActive,
     required super.activated,
     required super.form,
-    required super.bankIssuer,
   });
 
   @override
@@ -55,7 +52,6 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
       'statusactive': statusActive,
       'activated': activated,
       'form': form,
-      'bankissuer': bankIssuer,
     };
   }
 
@@ -72,7 +68,6 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
       form: map['form'] as String,
-      bankIssuer: map['bankissuer'] != null ? map['bankissuer'] as String : "",
     );
   }
 
@@ -87,7 +82,6 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
       statusActive: entity.statusActive,
       activated: entity.activated,
       form: entity.form,
-      bankIssuer: entity.bankIssuer,
     );
   }
 }
