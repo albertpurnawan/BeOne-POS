@@ -31,8 +31,10 @@ import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/auth_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/authorization_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/bank_issuer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/bill_of_material_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/bill_of_material_line_item_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/campaign_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/cash_register_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/cashier_balance_transaction_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/country_dao.dart';
@@ -41,6 +43,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart'
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_cst_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/edc_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/employee_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/invoice_detail_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/invoice_header_dao.dart';
@@ -330,6 +333,9 @@ class AppDatabase {
   late LogErrorDao logErrorDao;
   late MOPAdjustmentHeaderDao mopAdjustmentHeaderDao;
   late MOPAdjustmentDetailDao mopAdjustmentDetailDao;
+  late EDCDao edcDao;
+  late BankIssuerDao bankIssuerDao;
+  late CampaignDao campaignDao;
 
   AppDatabase._init();
 
@@ -454,6 +460,9 @@ PRAGMA foreign_keys = ON;
     logErrorDao = LogErrorDao(_database!);
     mopAdjustmentHeaderDao = MOPAdjustmentHeaderDao(_database!);
     mopAdjustmentDetailDao = MOPAdjustmentDetailDao(_database!);
+    edcDao = EDCDao(_database!);
+    bankIssuerDao = BankIssuerDao(_database!);
+    campaignDao = CampaignDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(

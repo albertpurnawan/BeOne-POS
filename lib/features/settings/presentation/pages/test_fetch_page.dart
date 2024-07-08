@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
@@ -12,14 +13,17 @@ import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
+import 'package:pos_fe/features/sales/data/models/bank_issuer.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
+import 'package:pos_fe/features/sales/data/models/campaign.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
@@ -75,14 +79,17 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_line_item_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/campaign_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/edc_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/item_by_store_service.dart';
@@ -152,7 +159,7 @@ class _FetchScreenState extends State<FetchScreen> {
   String errorMessage = '';
   double syncProgress = 0.0;
   int totalData = 0;
-  int totalTable = 57;
+  int totalTable = 60;
 
   @override
   void initState() {
@@ -227,6 +234,9 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<AuthStoreModel> tastr;
     late List<BillOfMaterialModel> toitt;
     late List<BillOfMaterialLineItemModel> titt1;
+    late List<EDCModel> tpmt4;
+    late List<BankIssuerModel> tpmt5;
+    late List<CampaignModel> tpmt6;
 
     final prefs = GetIt.instance<SharedPreferences>();
 
@@ -3427,7 +3437,172 @@ class _FetchScreenState extends State<FetchScreen> {
                   .create(data: logErr);
             }
           },
+          () async {
+            try {
+              final tpmt4Db =
+                  await GetIt.instance<AppDatabase>().edcDao.readAll();
+
+              if (tpmt4Db.isNotEmpty) {
+                final tpmt4DbMap = {
+                  for (var datum in tpmt4Db) datum.docId: datum
+                };
+
+                tpmt4 = await GetIt.instance<EDCApi>().fetchData(lastSyncDate);
+                for (final datumBos in tpmt4) {
+                  final datumDb = tpmt4DbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" &&
+                        (datumBos.updateDate
+                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                            false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .edcDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>()
+                        .edcDao
+                        .create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                tpmt4 = await GetIt.instance<EDCApi>()
+                    .fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>()
+                    .edcDao
+                    .bulkCreate(data: tpmt4);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Tpmt4",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>()
+                  .logErrorDao
+                  .create(data: logErr);
+            }
+          },
+          () async {
+            try {
+              final tpmt5Db =
+                  await GetIt.instance<AppDatabase>().bankIssuerDao.readAll();
+
+              if (tpmt5Db.isNotEmpty) {
+                final tpmt5DbMap = {
+                  for (var datum in tpmt5Db) datum.docId: datum
+                };
+
+                tpmt5 = await GetIt.instance<BankIssuerApi>()
+                    .fetchData(lastSyncDate);
+                for (final datumBos in tpmt5) {
+                  final datumDb = tpmt5DbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" &&
+                        (datumBos.updateDate
+                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                            false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .bankIssuerDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>()
+                        .bankIssuerDao
+                        .create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                tpmt5 = await GetIt.instance<BankIssuerApi>()
+                    .fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>()
+                    .bankIssuerDao
+                    .bulkCreate(data: tpmt5);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Tpmt5",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>()
+                  .logErrorDao
+                  .create(data: logErr);
+            }
+          },
+          () async {
+            try {
+              final tpmt6Db =
+                  await GetIt.instance<AppDatabase>().campaignDao.readAll();
+
+              if (tpmt6Db.isNotEmpty) {
+                final tpmt6DbMap = {
+                  for (var datum in tpmt6Db) datum.docId: datum
+                };
+
+                tpmt6 =
+                    await GetIt.instance<CampaignApi>().fetchData(lastSyncDate);
+                for (final datumBos in tpmt6) {
+                  final datumDb = tpmt6DbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" &&
+                        (datumBos.updateDate
+                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                            false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .campaignDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>()
+                        .campaignDao
+                        .create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                tpmt6 = await GetIt.instance<CampaignApi>()
+                    .fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>()
+                    .campaignDao
+                    .bulkCreate(data: tpmt6);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Tpmt6",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>()
+                  .logErrorDao
+                  .create(data: logErr);
+            }
+          },
         ];
+        // ------------------- END OF FETCHING FUNCTIONS-------------------
 
         final store = await (GetIt.instance<AppDatabase>()
             .storeMasterDao
@@ -3803,7 +3978,10 @@ class _FetchScreenState extends State<FetchScreen> {
             tprb4.length +
             tprb5.length +
             toitt.length +
-            titt1.length;
+            titt1.length +
+            tpmt4.length +
+            tpmt5.length +
+            tpmt6.length;
 
         // REFRESH TABLE ITEMS
         await GetIt.instance<AppDatabase>().refreshItemsTable();
@@ -3858,29 +4036,6 @@ class _FetchScreenState extends State<FetchScreen> {
       prefs.setBool('isSyncing', false);
     }
   }
-
-  // Future<String> _fetchSingleData() async {
-  //   try {
-  //     return "";
-  //   } catch (error) {
-  //     handleError(error);
-  //     setState(() {
-  //       statusCode = handleError(error)['statusCode'];
-  //       errorMessage = handleError(error)['message'];
-  //       _clearErrorMessageAfterDelay();
-  //     });
-  //     rethrow;
-  //   }
-  // }
-
-  // void _clearErrorMessageAfterDelay() {
-  //   Future.delayed(const Duration(seconds: 3), () {
-  //     setState(() {
-  //       statusCode = 0;
-  //       errorMessage = '';
-  //     });
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -3941,6 +4096,9 @@ class _FetchScreenState extends State<FetchScreen> {
     //   'Auth Store',
     //   'Bill of Material',
     //   'BoM Line Item',
+    //   'EDC',
+    //   'BankIssuer',
+    //   'Campaign,'
     // ];
 
     return Scaffold(
@@ -3958,34 +4116,6 @@ class _FetchScreenState extends State<FetchScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // const Text(
-                //   "Syncing: ",
-                //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                //   textAlign: TextAlign.start,
-                // ),
-                // Divider(),
-                // Container(
-                //   width: MediaQuery.of(context).size.width * 0.9,
-                //   height: 500,
-                //   child: GridView.builder(
-                //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                //       crossAxisCount: 5,
-                //       childAspectRatio: (100 / 20),
-                //     ),
-                //     itemCount: entries.length,
-                //     itemBuilder: (context, index) {
-                //       return Container(
-                //         child: Text(
-                //           entries[index],
-                //           style: TextStyle(
-                //             fontSize: 16,
-                //           ),
-                //           textAlign: TextAlign.start,
-                //         ),
-                //       );
-                //     },
-                //   ),
-                // ),
                 const SizedBox(
                   height: 20,
                 ),
@@ -4139,6 +4269,9 @@ class _FetchScreenState extends State<FetchScreen> {
                                 setState(() {
                                   isManualSyncing = false;
                                 });
+                                if (context.mounted) {
+                                  context.pop();
+                                }
                               },
                         style: const ButtonStyle(
                           backgroundColor:

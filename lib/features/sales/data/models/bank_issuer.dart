@@ -45,7 +45,7 @@ class BankIssuerModel extends BankIssuerEntity implements BaseModel {
 
   factory BankIssuerModel.fromMap(Map<String, dynamic> map) {
     return BankIssuerModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
@@ -54,6 +54,13 @@ class BankIssuerModel extends BankIssuerEntity implements BaseModel {
       description: map['description'] as String,
       form: map['form'] as String,
     );
+  }
+
+  factory BankIssuerModel.fromMapRemote(Map<String, dynamic> map) {
+    return BankIssuerModel.fromMap({
+      ...map,
+      "description": map['descriptionn'] as String,
+    });
   }
 
   factory BankIssuerModel.fromEntity(BankIssuerEntity entity) {

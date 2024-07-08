@@ -45,7 +45,7 @@ class CampaignModel extends CampaignEntity implements BaseModel {
 
   factory CampaignModel.fromMap(Map<String, dynamic> map) {
     return CampaignModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
@@ -54,6 +54,13 @@ class CampaignModel extends CampaignEntity implements BaseModel {
       description: map['description'] as String,
       form: map['form'] as String,
     );
+  }
+
+  factory CampaignModel.fromMapRemote(Map<String, dynamic> map) {
+    return CampaignModel.fromMap({
+      ...map,
+      "description": map['descriptionn'] as String,
+    });
   }
 
   factory CampaignModel.fromEntity(CampaignEntity entity) {

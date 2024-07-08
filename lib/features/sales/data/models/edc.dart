@@ -45,7 +45,7 @@ class EDCModel extends EDCEntity implements BaseModel {
 
   factory EDCModel.fromMap(Map<String, dynamic> map) {
     return EDCModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null
           ? DateTime.parse(map['updatedate'] as String).toLocal()
@@ -54,6 +54,13 @@ class EDCModel extends EDCEntity implements BaseModel {
       description: map['description'] as String,
       form: map['form'] as String,
     );
+  }
+
+  factory EDCModel.fromMapRemote(Map<String, dynamic> map) {
+    return EDCModel.fromMap({
+      ...map,
+      "description": map['descriptionn'] as String,
+    });
   }
 
   factory EDCModel.fromEntity(EDCEntity entity) {

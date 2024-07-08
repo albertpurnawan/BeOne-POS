@@ -88,8 +88,10 @@ import 'package:pos_fe/features/settings/data/data_sources/local/user_masters_da
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/authorization_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_line_item_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/campaign_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/country_service.dart';
@@ -97,6 +99,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_se
 import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/edc_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/invoice_detail_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/invoice_header_service.dart';
@@ -281,6 +284,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
   sl.registerSingleton<BillOfMaterialLineItemApi>(
       BillOfMaterialLineItemApi(sl()));
+  sl.registerSingleton<EDCApi>(EDCApi(sl()));
+  sl.registerSingleton<BankIssuerApi>(BankIssuerApi(sl()));
+  sl.registerSingleton<CampaignApi>(CampaignApi(sl()));
   sl.registerSingletonWithDependencies<MOPAdjustmentService>(
       () => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
