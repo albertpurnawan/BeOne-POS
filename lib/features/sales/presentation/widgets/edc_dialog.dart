@@ -8,11 +8,12 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
-import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/campaign.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
 import 'package:pos_fe/features/sales/domain/entities/edc_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/select_campaign_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_card_type.dart';
 import 'package:uuid/uuid.dart';
 
@@ -22,13 +23,16 @@ class EDCDialog extends StatefulWidget {
     required this.mopSelectionEntity,
     required this.onEDCSelected,
     this.max = double.infinity,
+    required this.isMultiMOPs,
   }) : super(key: key);
 
   final Function(
     EDCSelectionEntity,
+    MopSelectionEntity,
   ) onEDCSelected;
   final MopSelectionEntity mopSelectionEntity;
   final double max;
+  final bool isMultiMOPs;
 
   @override
   State<EDCDialog> createState() => _EDCDialogState();
@@ -41,11 +45,12 @@ class _EDCDialogState extends State<EDCDialog> {
   final TextEditingController _cardHolderController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   bool isCredit = false;
-  List<MopSelectionModel> mopList = [];
-  String? mopSelected;
+  List<MopSelectionEntity> mopList = [];
+  MopSelectionEntity? mopSelected;
   String cardName = "Select Card Here...";
   CreditCardEntity? cardSelected;
-  String? campaignSelected = "Select Campaign Here...";
+  CampaignEntity? campaignSelected;
+  String campaignName = "Select Campaign Here...";
   bool isErr = false;
   String errMsg = "Invalid amount";
 
@@ -166,16 +171,15 @@ class _EDCDialogState extends State<EDCDialog> {
                         spacing: 8,
                         runSpacing: 8,
                         children: mopList
-                            .map((MopSelectionModel mop) => ChoiceChip(
+                            .map((MopSelectionEntity mop) => ChoiceChip(
                                   side: const BorderSide(
                                       color: ProjectColors.primary, width: 1.5),
                                   padding: const EdgeInsets.all(15),
                                   label: Text(mop.mopAlias),
-                                  selected: mopSelected == mop.edcDesc,
+                                  selected: mopSelected == mop,
                                   onSelected: (bool selected) {
                                     setState(() {
-                                      mopSelected =
-                                          selected ? mop.description : null;
+                                      mopSelected = selected ? mop : null;
                                       log("mopSelected - $mopSelected");
                                       log("mopEntity - ${widget.mopSelectionEntity}");
                                     });
@@ -225,7 +229,6 @@ class _EDCDialogState extends State<EDCDialog> {
                                     cardSelected = selectedCard;
                                     cardName = selectedCard.description;
                                   });
-                                  log("selectedCard - $selectedCard");
                                 }
                               }),
                               style: ButtonStyle(
@@ -244,7 +247,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    cardName.toString(),
+                                    cardName,
                                     style: const TextStyle(
                                       fontSize: 18,
                                       color: ProjectColors.mediumBlack,
@@ -433,21 +436,18 @@ class _EDCDialogState extends State<EDCDialog> {
                             width: MediaQuery.of(context).size.width * 0.4,
                             height: 50,
                             child: OutlinedButton(
-                              onPressed: () {}
-                              // showDialog<CreditCardEntity>(
-                              //   context: context,
-                              //   builder: (BuildContext context) =>
-                              //       const SelectCardType(),
-                              // ).then((selectedCard) {
-                              //   if (selectedCard != null) {
-                              //     setState(() {
-                              //       cardName = selectedCard.description;
-                              //       tpmt2IdSelected = selectedCard.docId;
-                              //     });
-                              //     log("selectedCard - $selectedCard");
-                              //   }
-                              // })
-                              ,
+                              onPressed: () => showDialog<CampaignEntity>(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    const SelectCampaign(),
+                              ).then((selectedCampaign) {
+                                if (selectedCampaign != null) {
+                                  setState(() {
+                                    campaignSelected = selectedCampaign;
+                                    campaignName = selectedCampaign.description;
+                                  });
+                                }
+                              }),
                               style: ButtonStyle(
                                 padding: MaterialStateProperty.all<EdgeInsets>(
                                   const EdgeInsets.all(10.0),
@@ -464,7 +464,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    campaignSelected.toString(),
+                                    campaignName,
                                     style: const TextStyle(
                                       fontSize: 18,
                                       color: ProjectColors.mediumBlack,
@@ -511,14 +511,14 @@ class _EDCDialogState extends State<EDCDialog> {
                             height: 50,
                             child: TextFormField(
                               focusNode: _focusNodeAmount,
-                              textAlign: TextAlign.left,
                               controller: _amountController,
+                              textAlign: TextAlign.left,
                               keyboardType: TextInputType.number,
                               inputFormatters: [MoneyInputFormatter()],
                               style: const TextStyle(fontSize: 18),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.all(10),
-                                hintText: "Enter Amount",
+                                hintText: "${widget.max}",
                                 hintStyle: const TextStyle(
                                     fontStyle: FontStyle.italic, fontSize: 18),
                                 border: const OutlineInputBorder(),
@@ -533,6 +533,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                       )
                                     : null,
                               ),
+                              enabled: widget.isMultiMOPs,
+                              // initialValue: widget.isMultiMOPs
+                              //     ? null
+                              //     : widget.max.toString(),
                               onChanged: (value) {
                                 final double mopAmount =
                                     Helpers.revertMoneyToDecimalFormat(value);
@@ -548,13 +552,6 @@ class _EDCDialogState extends State<EDCDialog> {
                                   });
                                 }
                               },
-                              // onEditingComplete: () {
-                              //   final double mopAmount =
-                              //       Helpers.revertMoneyToDecimalFormat(
-                              //           _amountController.text);
-                              //   if (mopAmount > widget.max) return;
-                              //   context.pop(mopAmount);
-                              // },
                             ),
                           ),
                         ],
@@ -619,17 +616,26 @@ class _EDCDialogState extends State<EDCDialog> {
                     overlayColor: MaterialStateColor.resolveWith(
                         (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
+                  final edcAmount = widget.isMultiMOPs
+                      ? Helpers.revertMoneyToDecimalFormatDouble(
+                          _amountController.text)
+                      : widget.max;
                   final edc = EDCSelectionEntity(
                     docId: const Uuid().v4(),
                     creditCard: cardSelected!,
                     tpmt1Id: "",
                     cardNoPrefix: _cardNumber1Controller.text,
                     cardNoSuffix: _cardNumber2Controller.text,
-                    campaign: "",
-                    amount: Helpers.revertMoneyToDecimalFormatDouble(
-                        _amountController.text),
+                    campaign: campaignSelected,
+                    amount: edcAmount,
                   );
-                  widget.onEDCSelected(edc);
+                  final mopEDC = mopSelected!.copyWith(
+                    amount: edcAmount,
+                    tpmt2Id: cardSelected!.docId,
+                    cardNo: cardSelected!.ccCode,
+                    cardHolder: _cardHolderController.text,
+                  );
+                  widget.onEDCSelected(edc, mopEDC);
                   context.pop();
                 },
                 child: Center(

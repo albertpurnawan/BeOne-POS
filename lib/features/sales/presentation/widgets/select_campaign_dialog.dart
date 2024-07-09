@@ -3,27 +3,27 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
-import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/credit_card_cubit.dart';
+import 'package:pos_fe/features/sales/domain/entities/campaign.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/campaign_cubit.dart';
 
-class SelectCardType extends StatefulWidget {
-  const SelectCardType({super.key});
+class SelectCampaign extends StatefulWidget {
+  const SelectCampaign({super.key});
 
   @override
-  State<SelectCardType> createState() => _SelectCardTypeState();
+  State<SelectCampaign> createState() => _SelectCampaignState();
 }
 
-class _SelectCardTypeState extends State<SelectCardType> {
-  CreditCardEntity? radioValue;
-  CreditCardEntity? selectedCreditCard;
-  final FocusNode _creditCardInputFocusNode = FocusNode();
-  late final TextEditingController _creditCardTextController =
+class _SelectCampaignState extends State<SelectCampaign> {
+  CampaignEntity? radioValue;
+  CampaignEntity? selectedCampaign;
+  final FocusNode _campaignInputFocusNode = FocusNode();
+  late final TextEditingController _campaignTextController =
       TextEditingController();
 
   @override
   void dispose() {
-    _creditCardInputFocusNode.dispose();
-    _creditCardTextController.dispose();
+    _campaignInputFocusNode.dispose();
+    _campaignTextController.dispose();
     super.dispose();
   }
 
@@ -39,21 +39,21 @@ class _SelectCardTypeState extends State<SelectCardType> {
 
           if (event.character != null &&
               RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(event.character!) &&
-              !_creditCardInputFocusNode.hasPrimaryFocus) {
-            _creditCardInputFocusNode.unfocus();
-            _creditCardTextController.text += event.character!;
-            _creditCardInputFocusNode.requestFocus();
+              !_campaignInputFocusNode.hasPrimaryFocus) {
+            _campaignInputFocusNode.unfocus();
+            _campaignTextController.text += event.character!;
+            _campaignInputFocusNode.requestFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-              _creditCardInputFocusNode.hasPrimaryFocus) {
-            _creditCardInputFocusNode.nextFocus();
+              _campaignInputFocusNode.hasPrimaryFocus) {
+            _campaignInputFocusNode.nextFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
-            _creditCardInputFocusNode.unfocus();
+            _campaignInputFocusNode.unfocus();
             FocusManager.instance.primaryFocus?.unfocus();
 
-            selectedCreditCard = radioValue;
-            Navigator.of(context).pop(selectedCreditCard);
+            selectedCampaign = radioValue;
+            Navigator.of(context).pop(selectedCampaign);
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
             Navigator.of(context).pop();
@@ -75,7 +75,7 @@ class _SelectCardTypeState extends State<SelectCardType> {
           ),
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
           child: const Text(
-            'Select Credit Card',
+            'Select Campaign',
             style: TextStyle(
                 fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
@@ -103,18 +103,18 @@ class _SelectCardTypeState extends State<SelectCardType> {
                     child: TextField(
                       onSubmitted: (value) {
                         context
-                            .read<CreditCardCubit>()
-                            .getCreditCards(searchKeyword: value);
-                        _creditCardInputFocusNode.requestFocus();
+                            .read<CampaignCubit>()
+                            .getCampaigns(searchKeyword: value);
+                        _campaignInputFocusNode.requestFocus();
                       },
                       autofocus: true,
-                      focusNode: _creditCardInputFocusNode,
+                      focusNode: _campaignInputFocusNode,
                       decoration: const InputDecoration(
                         suffixIcon: Icon(
                           Icons.search,
                           size: 16,
                         ),
-                        hintText: "Search Card",
+                        hintText: "Search Campaign",
                         hintStyle: TextStyle(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
@@ -126,7 +126,7 @@ class _SelectCardTypeState extends State<SelectCardType> {
                     height: 15,
                   ),
                   Expanded(
-                    child: BlocBuilder<CreditCardCubit, List<CreditCardEntity>>(
+                    child: BlocBuilder<CampaignCubit, List<CampaignEntity>>(
                       builder: (context, state) {
                         if (state.isEmpty) {
                           return const Expanded(
@@ -140,10 +140,10 @@ class _SelectCardTypeState extends State<SelectCardType> {
                             padding: const EdgeInsets.all(0),
                             itemCount: state.length,
                             itemBuilder: ((context, index) {
-                              final CreditCardEntity creditCardEntity =
+                              final CampaignEntity campaignEntity =
                                   state[index];
 
-                              return RadioListTile<CreditCardEntity>(
+                              return RadioListTile<CampaignEntity>(
                                   activeColor: ProjectColors.primary,
                                   hoverColor: ProjectColors.primary,
                                   // selected: index == radioValue,
@@ -155,8 +155,8 @@ class _SelectCardTypeState extends State<SelectCardType> {
                                       ListTileControlAffinity.trailing,
                                   value: state[index],
                                   groupValue: radioValue,
-                                  title: Text(creditCardEntity.description),
-                                  subtitle: Text(creditCardEntity.ccCode),
+                                  title: Text(campaignEntity.description),
+                                  subtitle: Text(campaignEntity.campaignCode),
                                   onChanged: (val) async {
                                     setState(() {
                                       radioValue = val;
@@ -188,7 +188,7 @@ class _SelectCardTypeState extends State<SelectCardType> {
                   setState(() {
                     Navigator.of(context).pop();
                   });
-                  context.read<CreditCardCubit>().clearCreditCards();
+                  context.read<CampaignCubit>().clearCampaigns();
                 },
                 child: Center(
                   child: RichText(
@@ -222,9 +222,9 @@ class _SelectCardTypeState extends State<SelectCardType> {
                         overlayColor: MaterialStateColor.resolveWith(
                             (states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
-                      selectedCreditCard = radioValue;
-                      Navigator.of(context).pop(selectedCreditCard);
-                      context.read<CreditCardCubit>().clearCreditCards();
+                      selectedCampaign = radioValue;
+                      Navigator.of(context).pop(selectedCampaign);
+                      context.read<CampaignCubit>().clearCampaigns();
                     },
                     child: Center(
                       child: RichText(

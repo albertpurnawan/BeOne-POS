@@ -6,6 +6,7 @@ class EDCSelectionModel extends EDCSelectionEntity {
     required super.creditCard,
     required super.cardNoPrefix,
     required super.cardNoSuffix,
+    required super.campaign,
     required super.amount,
   });
 }

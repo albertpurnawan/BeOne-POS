@@ -13,6 +13,9 @@ class MopSelectionEntity {
   final String? tinv2Id;
   final String? tpmt4Id;
   final String? edcDesc;
+  final String? tpmt2Id;
+  final String? cardNo;
+  final String? cardHolder;
 
   MopSelectionEntity({
     required this.tpmt3Id,
@@ -26,6 +29,9 @@ class MopSelectionEntity {
     this.tinv2Id,
     this.tpmt4Id,
     this.edcDesc,
+    this.tpmt2Id,
+    this.cardNo,
+    this.cardHolder,
   });
 
   MopSelectionEntity copyWith({
@@ -40,6 +46,9 @@ class MopSelectionEntity {
     String? tinv2Id,
     String? tpmt4Id,
     String? edcDesc,
+    String? tpmt2Id,
+    String? cardNo,
+    String? cardHolder,
   }) {
     return MopSelectionEntity(
       tpmt3Id: tpmt3Id ?? this.tpmt3Id,
@@ -53,6 +62,9 @@ class MopSelectionEntity {
       tinv2Id: tinv2Id ?? this.tinv2Id,
       tpmt4Id: tpmt4Id ?? this.tpmt4Id,
       edcDesc: edcDesc ?? this.edcDesc,
+      tpmt2Id: tpmt2Id ?? this.tpmt2Id,
+      cardNo: cardNo ?? this.cardNo,
+      cardHolder: cardHolder ?? this.cardHolder,
     );
   }
 
@@ -69,6 +81,9 @@ class MopSelectionEntity {
       'tinv2Id': tinv2Id,
       'tpmt4Id': tpmt4Id,
       'edcDesc': edcDesc,
+      'tpmt2Id': tpmt2Id,
+      'cardNo': cardNo,
+      'cardHolder': cardHolder,
     };
   }
 
@@ -87,6 +102,10 @@ class MopSelectionEntity {
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
       tpmt4Id: map['tpmt4Id'] != null ? map['tpmt4Id'] as String : null,
       edcDesc: map['edcDesc'] != null ? map['edcDesc'] as String : null,
+      tpmt2Id: map['tpmt2Id'] != null ? map['tpmt2Id'] as String : null,
+      cardNo: map['cardNo'] != null ? map['cardNo'] as String : null,
+      cardHolder:
+          map['cardHolder'] != null ? map['cardHolder'] as String : null,
     );
   }
 
@@ -97,7 +116,7 @@ class MopSelectionEntity {
 
   @override
   String toString() {
-    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType, tinv2Id: $tinv2Id, tpmt4Id: $tpmt4Id, edcDesc: $edcDesc)';
+    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType, tinv2Id: $tinv2Id, tpmt4Id: $tpmt4Id, edcDesc: $edcDesc, tpmt2Id: $tpmt2Id, cardNo: $cardNo, cardHolder: $cardHolder)';
   }
 
   @override
@@ -114,7 +133,10 @@ class MopSelectionEntity {
         other.subType == subType &&
         other.tinv2Id == tinv2Id &&
         other.tpmt4Id == tpmt4Id &&
-        other.edcDesc == edcDesc;
+        other.edcDesc == edcDesc &&
+        other.tpmt2Id == tpmt2Id &&
+        other.cardNo == cardNo &&
+        other.cardHolder == cardHolder;
   }
 
   @override
@@ -129,6 +151,9 @@ class MopSelectionEntity {
         subType.hashCode ^
         tinv2Id.hashCode ^
         tpmt4Id.hashCode ^
-        edcDesc.hashCode;
+        edcDesc.hashCode ^
+        tpmt2Id.hashCode ^
+        cardNo.hashCode ^
+        cardHolder.hashCode;
   }
 }

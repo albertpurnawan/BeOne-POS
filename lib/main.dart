@@ -11,6 +11,7 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_campaigns_usecase.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_credit_cards.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
@@ -34,6 +35,7 @@ import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/campaign_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/credit_card_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
@@ -138,6 +140,9 @@ class MyApp extends StatelessWidget {
             BlocProvider<CreditCardCubit>(
                 create: (context) =>
                     CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
+            BlocProvider<CampaignCubit>(
+                create: (context) =>
+                    CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {
