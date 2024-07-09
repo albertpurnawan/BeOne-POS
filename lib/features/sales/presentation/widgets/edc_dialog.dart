@@ -150,7 +150,7 @@ class _EDCDialogState extends State<EDCDialog> {
           height: MediaQuery.of(context).size.height * 0.9,
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +322,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                       MediaQuery.of(context).size.width * 0.2,
                                   child: const Center(
                                     child: Text(
-                                      " **** **** ",
+                                      " - xxxx - xxxx - ",
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontStyle: FontStyle.italic,
@@ -350,7 +350,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                     inputFormatters: [
                                       LengthLimitingTextInputFormatter(4),
                                       FilteringTextInputFormatter.digitsOnly,
-                                    ], // Limit input to 4 digits
+                                    ],
                                   ),
                                 ),
                               ],
@@ -473,6 +473,52 @@ class _EDCDialogState extends State<EDCDialog> {
                                   ),
                                   const Icon(Icons.arrow_right_outlined),
                                 ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                            height: 50,
+                            child: const Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Reference Number",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            height: 50,
+                            child: TextFormField(
+                              textAlign: TextAlign.left,
+                              controller: _cardHolderController,
+                              style: const TextStyle(fontSize: 18),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(10),
+                                hintText: "Reference Number",
+                                hintStyle: TextStyle(
+                                    fontStyle: FontStyle.italic, fontSize: 18),
+                                border: OutlineInputBorder(),
                               ),
                             ),
                           ),
