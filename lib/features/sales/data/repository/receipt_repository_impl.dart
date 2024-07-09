@@ -167,9 +167,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           lineNum: 1,
           tpmt3Id: mopSelectionEntity.tpmt3Id,
           amount: mopSelectionEntity.amount ?? 0,
-          tpmt2Id: null,
-          cardNo: null,
-          cardHolder: null,
+          tpmt2Id: mopSelectionEntity.tpmt2Id,
+          cardNo: mopSelectionEntity.cardNo,
+          cardHolder: mopSelectionEntity.cardHolder,
           sisaVoucher: null,
         ));
       }

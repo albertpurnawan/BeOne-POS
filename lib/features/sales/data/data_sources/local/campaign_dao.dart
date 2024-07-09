@@ -3,6 +3,7 @@ import 'package:pos_fe/features/sales/data/models/campaign.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CampaignDao extends BaseDao<CampaignModel> {
+  String statusActive = "AND statusactive = 1";
   CampaignDao(Database db)
       : super(
             db: db,
@@ -26,6 +27,16 @@ class CampaignDao extends BaseDao<CampaignModel> {
   Future<List<CampaignModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
+
+    return result.map((itemData) => CampaignModel.fromMap(itemData)).toList();
+  }
+
+  Future<List<CampaignModel>> readAllWithSearch(
+      {String? searchKeyword, Transaction? txn}) async {
+    final result = await db.query(tableName,
+        where:
+            "(${CampaignFields.description} LIKE ? OR ${CampaignFields.campaignCode} LIKE ?)",
+        whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
 
     return result.map((itemData) => CampaignModel.fromMap(itemData)).toList();
   }

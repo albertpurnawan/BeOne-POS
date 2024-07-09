@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:pos_fe/features/sales/domain/entities/campaign.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
 
 class EDCSelectionEntity {
@@ -9,7 +10,7 @@ class EDCSelectionEntity {
   String? tpmt1Id;
   final String cardNoPrefix;
   final String cardNoSuffix;
-  String? campaign;
+  final CampaignEntity? campaign;
   final double? amount;
 
   EDCSelectionEntity({
@@ -18,7 +19,7 @@ class EDCSelectionEntity {
     this.tpmt1Id,
     required this.cardNoPrefix,
     required this.cardNoSuffix,
-    this.campaign,
+    required this.campaign,
     required this.amount,
   });
 
@@ -28,7 +29,7 @@ class EDCSelectionEntity {
     String? tpmt1Id,
     String? cardNoPrefix,
     String? cardNoSuffix,
-    String? campaign,
+    CampaignEntity? campaign,
     double? amount,
   }) {
     return EDCSelectionEntity(
@@ -49,7 +50,7 @@ class EDCSelectionEntity {
       'tpmt1Id': tpmt1Id,
       'cardNoPrefix': cardNoPrefix,
       'cardNoSuffix': cardNoSuffix,
-      'campaign': campaign,
+      'campaign': campaign?.toMap(),
       'amount': amount,
     };
   }
@@ -62,7 +63,9 @@ class EDCSelectionEntity {
       tpmt1Id: map['tpmt1Id'] != null ? map['tpmt1Id'] as String : null,
       cardNoPrefix: map['cardNoPrefix'] as String,
       cardNoSuffix: map['cardNoSuffix'] as String,
-      campaign: map['campaign'] != null ? map['campaign'] as String : null,
+      campaign: map['campaign'] != null
+          ? CampaignEntity.fromMap(map['campaign'] as Map<String, dynamic>)
+          : null,
       amount: map['amount'] != null ? map['amount'] as double : null,
     );
   }

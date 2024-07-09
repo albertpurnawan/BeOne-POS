@@ -54,6 +54,15 @@ class InvoiceApi {
               invoicePayments.add(
                   {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
+            case "2": // EDC
+              invoicePayments.add({
+                "tpmt3_id": entry['tpmt3Id'],
+                "amount": entry['amount'],
+                "tpmt2_id": entry['tpmt2Id'],
+                "cardno": entry['cardno'],
+                "cardholder": entry['cardholder'],
+              });
+              break;
             case "6": // VOUCHERS
               final vouchers = await GetIt.instance<AppDatabase>()
                   .vouchersSelectionDao

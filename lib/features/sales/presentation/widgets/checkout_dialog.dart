@@ -1502,7 +1502,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                 "2") {
                                               return Column(
                                                 children: [
-                                                  SizedBox(height: 10),
+                                                  const SizedBox(height: 10),
                                                   Container(
                                                     padding: const EdgeInsets
                                                         .symmetric(
@@ -1534,7 +1534,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 .map((mop) =>
                                                                     mop.edcDesc)
                                                                 .toSet()
-                                                                .length, // Get the length of distinct edcDesc
+                                                                .length,
                                                             (int index) {
                                                               final distinctEdcDesc =
                                                                   mopsByType
@@ -1560,7 +1560,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 label: Text(mop
                                                                         .edcDesc ??
                                                                     mop.mopAlias),
-                                                                // CONDITIONAL FOR SET SELECTED
                                                                 selected: _values
                                                                     .map((e) => e
                                                                         .tpmt3Id)
@@ -1569,37 +1568,95 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 onSelected: (bool
                                                                     selected) async {
                                                                   if (selected) {
-                                                                    await showDialog(
-                                                                      context:
-                                                                          context,
-                                                                      barrierDismissible:
-                                                                          false,
-                                                                      builder:
-                                                                          (context) =>
-                                                                              EDCDialog(
-                                                                        onEDCSelected:
-                                                                            (context) {
-                                                                          dev.log(
-                                                                              "EDC Selected - $context");
-                                                                        },
-                                                                        mopSelectionEntity:
-                                                                            mop,
-                                                                        max: receipt.grandTotal -
-                                                                            (receipt.totalPayment ??
-                                                                                0),
-                                                                      ),
-                                                                    );
-                                                                    setState(
-                                                                        () {
+                                                                    double?
+                                                                        mopAmount =
+                                                                        0;
+                                                                    if (widget
+                                                                        .isMultiMOPs) {
+                                                                      if ((receipt.totalPayment ??
+                                                                              0) >=
+                                                                          receipt
+                                                                              .grandTotal) {
+                                                                        return;
+                                                                      }
+                                                                      mopAmount =
+                                                                          await showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        builder:
+                                                                            (context) =>
+                                                                                EDCDialog(
+                                                                          onEDCSelected:
+                                                                              (edc, mopEDC) {
+                                                                            setState(() {
+                                                                              _values = _values.where((e) => e.tpmt3Id != mopEDC.tpmt3Id).toList();
+                                                                              _values.add(mopEDC);
+                                                                              dev.log("values - $_values");
+                                                                            });
+                                                                          },
+                                                                          mopSelectionEntity:
+                                                                              mop,
+                                                                          max: receipt.grandTotal -
+                                                                              (receipt.totalPayment ?? 0),
+                                                                          isMultiMOPs:
+                                                                              true,
+                                                                        ),
+                                                                      );
+                                                                      updateReceiptMop();
+                                                                    } else {
+                                                                      setState(
+                                                                          () {
+                                                                        _values =
+                                                                            [];
+                                                                      });
+                                                                      mopAmount =
+                                                                          await showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        builder:
+                                                                            (context) =>
+                                                                                EDCDialog(
+                                                                          onEDCSelected:
+                                                                              (edc, mopEDC) {
+                                                                            setState(() {
+                                                                              _values.add(mopEDC);
+                                                                            });
+                                                                            dev.log("edc - $edc");
+                                                                            dev.log("mopEDC - $mopEDC");
+                                                                          },
+                                                                          mopSelectionEntity:
+                                                                              mop,
+                                                                          max: receipt
+                                                                              .grandTotal,
+                                                                          isMultiMOPs:
+                                                                              false,
+                                                                        ),
+                                                                      );
+                                                                      updateReceiptMop();
+                                                                    }
+
+                                                                    if (mopAmount ==
+                                                                            null ||
+                                                                        mopAmount ==
+                                                                            0) {
+                                                                      return;
+                                                                    }
+
+                                                                    _values =
+                                                                        (widget.isMultiMOPs ? _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList() : <MopSelectionEntity>[]) +
+                                                                            [
+                                                                              mop.copyWith(amount: mopAmount)
+                                                                            ];
+
+                                                                    if (!widget
+                                                                        .isMultiMOPs) {
                                                                       _textEditingControllerCashAmount
                                                                           .text = "";
-                                                                      context
-                                                                          .read<
-                                                                              ReceiptCubit>()
-                                                                          .resetMop();
-                                                                      _values =
-                                                                          [];
-                                                                    });
+                                                                    }
                                                                   } else {
                                                                     _values = _values
                                                                         .where((e) =>
@@ -1607,6 +1664,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                             mop.tpmt3Id)
                                                                         .toList();
                                                                   }
+
                                                                   setState(
                                                                       () {});
                                                                   updateReceiptMop();
@@ -1624,7 +1682,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                 ],
                                               );
                                             }
-                                            // [END] UI for TUNAI MOP
+                                            // [END] UI for EDC MOP
 
                                             // [START] UI for other MOPs
                                             return Column(
@@ -1760,41 +1818,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         ),
                                                                       );
                                                                     },
-                                                                  );
-                                                                  setState(() {
-                                                                    _textEditingControllerCashAmount
-                                                                        .text = "";
-                                                                    context
-                                                                        .read<
-                                                                            ReceiptCubit>()
-                                                                        .resetMop();
-                                                                    _values =
-                                                                        [];
-                                                                  });
-                                                                  return;
-                                                                } else if (paymentType
-                                                                        .payTypeCode ==
-                                                                    "2") {
-                                                                  await showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    barrierDismissible:
-                                                                        false,
-                                                                    builder:
-                                                                        (context) =>
-                                                                            EDCDialog(
-                                                                      onEDCSelected:
-                                                                          (context) {
-                                                                        dev.log(
-                                                                            "EDC Selected - $context");
-                                                                      },
-                                                                      mopSelectionEntity:
-                                                                          mop,
-                                                                      max: receipt
-                                                                              .grandTotal -
-                                                                          (receipt.totalPayment ??
-                                                                              0),
-                                                                    ),
                                                                   );
                                                                   setState(() {
                                                                     _textEditingControllerCashAmount

@@ -32,13 +32,13 @@ class CreditCardDao extends BaseDao<CreditCardModel> {
     return result.map((itemData) => CreditCardModel.fromMap(itemData)).toList();
   }
 
-  // Future<List<CreditCardModel>> readAllWithSearch(
-  //     {String? searchKeyword, Transaction? txn}) async {
-  //   // final result = await db.query(tableName,
-  //   //     where:
-  //   //         "(${CreditCardFields.description} LIKE ? OR ${CreditCardFields.bankIssuer} LIKE ?) $statusActive",
-  //   //     whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
+  Future<List<CreditCardModel>> readAllWithSearch(
+      {String? searchKeyword, Transaction? txn}) async {
+    final result = await db.query(tableName,
+        where:
+            "(${CreditCardFields.description} LIKE ? OR ${CreditCardFields.ccCode} LIKE ?) $statusActive",
+        whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
 
-  //   return result.map((itemData) => CreditCardModel.fromMap(itemData)).toList();
-  // }
+    return result.map((itemData) => CreditCardModel.fromMap(itemData)).toList();
+  }
 }
