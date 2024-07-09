@@ -44,6 +44,7 @@ class ItemMasterFields {
     syncCRM,
     mergeQuantity,
     form,
+    shortName,
   ];
 
   static const String docId = "docid";
@@ -85,6 +86,7 @@ class ItemMasterFields {
   static const String syncCRM = "synccrm";
   static const String mergeQuantity = "mergequantity";
   static const String form = "form";
+  static const String shortName = "shortname";
 }
 
 class ItemMasterModel extends ItemMasterEntity implements BaseModel {
@@ -128,6 +130,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
     required super.syncCRM,
     required super.mergeQuantity,
     required super.form,
+    required super.shortName,
   });
 
   @override
@@ -172,6 +175,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       'synccrm': syncCRM,
       'mergequantity': mergeQuantity,
       'form': form,
+      'shortname': shortName,
     };
   }
 
@@ -236,6 +240,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       syncCRM: map['synccrm'] as int,
       mergeQuantity: map['mergequantity'] as int,
       form: map['form'] as String,
+      shortName: map['shortname'] != null ? map['shortname'] as String : null,
     );
   }
 
@@ -301,6 +306,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       syncCRM: entity.syncCRM,
       mergeQuantity: entity.mergeQuantity,
       form: entity.form,
+      shortName: entity.shortName,
     );
   }
 }

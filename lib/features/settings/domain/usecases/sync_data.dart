@@ -10,14 +10,17 @@ import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
+import 'package:pos_fe/features/sales/data/models/bank_issuer.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material.dart';
 import 'package:pos_fe/features/sales/data/models/bill_of_material_line_item.dart';
+import 'package:pos_fe/features/sales/data/models/campaign.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/country.dart';
 import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:pos_fe/features/sales/data/models/currency.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_by_store.dart';
@@ -71,14 +74,17 @@ import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_line_item_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/campaign_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/edc_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/item_barcode_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/item_by_store_service.dart';
@@ -127,6 +133,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
+import 'package:pos_fe/features/settings/domain/usecases/refresh_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -188,14 +195,19 @@ Future<void> syncData() async {
   late List<AuthStoreModel> tastr;
   late List<BillOfMaterialModel> toitt;
   late List<BillOfMaterialLineItemModel> titt1;
+  late List<EDCModel> tpmt4;
+  late List<BankIssuerModel> tpmt5;
+  late List<CampaignModel> tpmt6;
 
   final prefs = GetIt.instance<SharedPreferences>();
+  final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
 
   bool? checkSync = prefs.getBool('isSyncing');
   log("Synching data... - $checkSync");
   if (checkSync == null || checkSync == false) {
     try {
       prefs.setBool('isSyncing', true);
+      await refreshTokenUsecase.call();
       final topos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleTopos = topos[0];
@@ -3031,7 +3043,154 @@ Future<void> syncData() async {
                 .create(data: logErr);
           }
         },
+        () async {
+          try {
+            final tpmt4Db =
+                await GetIt.instance<AppDatabase>().edcDao.readAll();
+
+            if (tpmt4Db.isNotEmpty) {
+              final tpmt4DbMap = {
+                for (var datum in tpmt4Db) datum.docId: datum
+              };
+
+              tpmt4 = await GetIt.instance<EDCApi>().fetchData(lastSyncDate);
+              for (final datumBos in tpmt4) {
+                final datumDb = tpmt4DbMap[datumBos.docId];
+
+                if (datumDb != null) {
+                  if (datumBos.form == "U" &&
+                      (datumBos.updateDate
+                              ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                          false)) {
+                    await GetIt.instance<AppDatabase>()
+                        .edcDao
+                        .update(docId: datumDb.docId, data: datumBos);
+                  }
+                } else {
+                  await GetIt.instance<AppDatabase>()
+                      .edcDao
+                      .create(data: datumBos);
+                }
+              }
+            } else {
+              tpmt4 = await GetIt.instance<EDCApi>()
+                  .fetchData("2000-01-01 00:00:00");
+              await GetIt.instance<AppDatabase>()
+                  .edcDao
+                  .bulkCreate(data: tpmt4);
+            }
+          } catch (e) {
+            final logErr = LogErrorModel(
+                docId: const Uuid().v4(),
+                createDate: DateTime.now(),
+                updateDate: DateTime.now(),
+                processInfo: "ManualSync: Tpmt4",
+                description: e.toString());
+            await GetIt.instance<AppDatabase>()
+                .logErrorDao
+                .create(data: logErr);
+          }
+        },
+        () async {
+          try {
+            final tpmt5Db =
+                await GetIt.instance<AppDatabase>().bankIssuerDao.readAll();
+
+            if (tpmt5Db.isNotEmpty) {
+              final tpmt5DbMap = {
+                for (var datum in tpmt5Db) datum.docId: datum
+              };
+
+              tpmt5 =
+                  await GetIt.instance<BankIssuerApi>().fetchData(lastSyncDate);
+              for (final datumBos in tpmt5) {
+                final datumDb = tpmt5DbMap[datumBos.docId];
+
+                if (datumDb != null) {
+                  if (datumBos.form == "U" &&
+                      (datumBos.updateDate
+                              ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                          false)) {
+                    await GetIt.instance<AppDatabase>()
+                        .bankIssuerDao
+                        .update(docId: datumDb.docId, data: datumBos);
+                  }
+                } else {
+                  await GetIt.instance<AppDatabase>()
+                      .bankIssuerDao
+                      .create(data: datumBos);
+                }
+              }
+            } else {
+              tpmt5 = await GetIt.instance<BankIssuerApi>()
+                  .fetchData("2000-01-01 00:00:00");
+              await GetIt.instance<AppDatabase>()
+                  .bankIssuerDao
+                  .bulkCreate(data: tpmt5);
+            }
+          } catch (e) {
+            final logErr = LogErrorModel(
+                docId: const Uuid().v4(),
+                createDate: DateTime.now(),
+                updateDate: DateTime.now(),
+                processInfo: "ManualSync: Tpmt5",
+                description: e.toString());
+            await GetIt.instance<AppDatabase>()
+                .logErrorDao
+                .create(data: logErr);
+          }
+        },
+        () async {
+          try {
+            final tpmt6Db =
+                await GetIt.instance<AppDatabase>().campaignDao.readAll();
+
+            if (tpmt6Db.isNotEmpty) {
+              final tpmt6DbMap = {
+                for (var datum in tpmt6Db) datum.docId: datum
+              };
+
+              tpmt6 =
+                  await GetIt.instance<CampaignApi>().fetchData(lastSyncDate);
+              for (final datumBos in tpmt6) {
+                final datumDb = tpmt6DbMap[datumBos.docId];
+
+                if (datumDb != null) {
+                  if (datumBos.form == "U" &&
+                      (datumBos.updateDate
+                              ?.isAfter(DateTime.parse(lastSyncDate)) ??
+                          false)) {
+                    await GetIt.instance<AppDatabase>()
+                        .campaignDao
+                        .update(docId: datumDb.docId, data: datumBos);
+                  }
+                } else {
+                  await GetIt.instance<AppDatabase>()
+                      .campaignDao
+                      .create(data: datumBos);
+                }
+              }
+            } else {
+              tpmt6 = await GetIt.instance<CampaignApi>()
+                  .fetchData("2000-01-01 00:00:00");
+              await GetIt.instance<AppDatabase>()
+                  .campaignDao
+                  .bulkCreate(data: tpmt6);
+            }
+          } catch (e) {
+            final logErr = LogErrorModel(
+                docId: const Uuid().v4(),
+                createDate: DateTime.now(),
+                updateDate: DateTime.now(),
+                processInfo: "ManualSync: Tpmt6",
+                description: e.toString());
+            await GetIt.instance<AppDatabase>()
+                .logErrorDao
+                .create(data: logErr);
+          }
+        },
       ];
+      // ------------------- END OF FETCHING FUNCTIONS-------------------
 
       final store = await (GetIt.instance<AppDatabase>()
           .storeMasterDao
@@ -3050,6 +3209,7 @@ Future<void> syncData() async {
         baseUrl: singleTopos.baseUrl,
         usernameAdmin: singleTopos.usernameAdmin,
         passwordAdmin: singleTopos.passwordAdmin,
+        otpChannel: singleTopos.otpChannel,
         lastSync: nextSyncDate,
       );
 
@@ -3087,6 +3247,7 @@ Future<void> syncData() async {
           baseUrl: singleToposAfterSync.baseUrl,
           usernameAdmin: singleToposAfterSync.usernameAdmin,
           passwordAdmin: singleToposAfterSync.passwordAdmin,
+          otpChannel: singleToposAfterSync.otpChannel,
           lastSync: singleToposAfterSync.lastSync,
         );
 

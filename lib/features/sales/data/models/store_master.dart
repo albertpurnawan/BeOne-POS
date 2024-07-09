@@ -66,6 +66,14 @@ class StoreMasterFields {
     mtxline03,
     mtxline04,
     form,
+    salesViewType,
+    otpChannel,
+    otpUrl,
+    netzmeUrl,
+    netzmeClientKey,
+    netzmeClientSecret,
+    netzmePrivateKey,
+    netzmeCustidMerchant,
   ];
 
   static const String docId = 'docid';
@@ -129,6 +137,14 @@ class StoreMasterFields {
   static const String mtxline03 = 'mtxline03';
   static const String mtxline04 = 'mtxline04';
   static const String form = 'form';
+  static const salesViewType = 'salesviewtype';
+  static const otpChannel = 'otpchannel';
+  static const otpUrl = 'otpurl';
+  static const netzmeUrl = 'netzmeurl';
+  static const netzmeClientKey = 'netzmeclientkey';
+  static const netzmeClientSecret = 'netzmeclientsecret';
+  static const netzmePrivateKey = 'netzmeprivatekey';
+  static const netzmeCustidMerchant = 'netzmecustidmerchant';
 }
 
 class StoreMasterModel extends StoreMasterEntity implements BaseModel {
@@ -194,6 +210,14 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     required super.mtxline03,
     required super.mtxline04,
     required super.form,
+    required super.salesViewType,
+    required super.otpChannel,
+    required super.otpUrl,
+    required super.netzmeUrl,
+    required super.netzmeClientKey,
+    required super.netzmeClientSecret,
+    required super.netzmePrivateKey,
+    required super.netzmeCustidMerchant,
   });
 
   @override
@@ -260,6 +284,14 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
       'form': form,
+      'salesViewType': salesViewType,
+      'otpChannel': otpChannel,
+      'otpUrl': otpUrl,
+      'netzmeUrl': netzmeUrl,
+      'netzmeClientKey': netzmeClientKey,
+      'netzmeClientSecret': netzmeClientSecret,
+      'netzmePrivateKey': netzmePrivateKey,
+      'netzmeCustidMerchant': netzmeCustidMerchant,
     };
   }
 
@@ -336,6 +368,24 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
       form: map['form'] as String,
+      salesViewType:
+          map['salesviewtype'] != null ? map['salesviewtype'] as int : null,
+      otpChannel:
+          map['otpchannel'] != null ? map['otpchannel'] as String : null,
+      otpUrl: map['otpurl'] != null ? map['otpurl'] as String : null,
+      netzmeUrl: map['netzmeurl'] != null ? map['netzmeurl'] as String : null,
+      netzmeClientKey: map['netzmeclientkey'] != null
+          ? map['netzmeclientkey'] as String
+          : null,
+      netzmeClientSecret: map['netzmeclientsecret'] != null
+          ? map['netzmeclientsecret'] as String
+          : null,
+      netzmePrivateKey: map['netzmeprivatekey'] != null
+          ? map['netzmeprivatekey'] as String
+          : null,
+      netzmeCustidMerchant: map['netzmecustidmerchant'] != null
+          ? map['netzmecustidmerchant'] as String
+          : null,
     );
   }
 
@@ -429,6 +479,14 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       mtxline03: entity.mtxline03,
       mtxline04: entity.mtxline04,
       form: entity.form,
+      salesViewType: entity.salesViewType,
+      otpChannel: entity.otpChannel,
+      otpUrl: entity.otpUrl,
+      netzmeUrl: entity.netzmeUrl,
+      netzmeClientKey: entity.netzmeClientKey,
+      netzmeClientSecret: entity.netzmeClientSecret,
+      netzmePrivateKey: entity.netzmePrivateKey,
+      netzmeCustidMerchant: entity.netzmeCustidMerchant,
     );
   }
 }

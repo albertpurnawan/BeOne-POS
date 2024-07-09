@@ -13,6 +13,7 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.da
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/cash_register_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/credit_card_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_group_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/customer_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/employee_repository_impl.dart';
@@ -27,6 +28,7 @@ import 'package:pos_fe/features/sales/data/repository/store_master_repository_im
 import 'package:pos_fe/features/sales/data/repository/user_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/vouchers_selection_repository_impl.dart';
 import 'package:pos_fe/features/sales/domain/repository/cash_register_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/credit_card_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_group_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
@@ -52,6 +54,7 @@ import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_all_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_credit_cards.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
@@ -86,8 +89,10 @@ import 'package:pos_fe/features/settings/data/data_sources/local/user_masters_da
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/authorization_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_line_item_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/campaign_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/cash_register_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/country_service.dart';
@@ -95,6 +100,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_se
 import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/edc_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/invoice_detail_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/invoice_header_service.dart';
@@ -151,7 +157,10 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_group_s
 import 'package:pos_fe/features/settings/data/data_sources/remote/vendor_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_service.dart';
 import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
+import 'package:pos_fe/features/settings/domain/usecases/decrypt.dart';
+import 'package:pos_fe/features/settings/domain/usecases/encrypt.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/settings/domain/usecases/refresh_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -276,11 +285,13 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
   sl.registerSingleton<BillOfMaterialLineItemApi>(
       BillOfMaterialLineItemApi(sl()));
+  sl.registerSingleton<EDCApi>(EDCApi(sl()));
+  sl.registerSingleton<BankIssuerApi>(BankIssuerApi(sl()));
+  sl.registerSingleton<CampaignApi>(CampaignApi(sl()));
   sl.registerSingletonWithDependencies<MOPAdjustmentService>(
       () => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
-  sl.registerSingletonWithDependencies<OTPServiceAPi>(
-      () => OTPServiceAPi(sl(), sl()),
+  sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()),
       dependsOn: [SharedPreferences]);
   /**
    * =================================
@@ -319,6 +330,9 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<EmployeeRepository>(
       () => EmployeeRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CreditCardRepository>(
+      () => CreditCardRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<QueuedReceiptRepository>(
       () => QueuedReceiptRepositoryImpl(sl(), sl()),
@@ -433,6 +447,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<GetEmployeesUseCase>(
       () => GetEmployeesUseCase(sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetCreditCardUseCase>(
+      () => GetCreditCardUseCase(sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());
   sl.registerSingleton<HandleWithoutPromosUseCase>(
       HandleWithoutPromosUseCase());
@@ -473,6 +490,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<CheckCredentialActiveStatusUseCase>(
       () => CheckCredentialActiveStatusUseCase(sl()),
       dependsOn: [SharedPreferences]);
+  sl.registerSingleton<EncryptPasswordUseCase>(EncryptPasswordUseCase());
+  sl.registerSingleton<DecryptPasswordUseCase>(DecryptPasswordUseCase());
+  sl.registerSingleton<RefreshTokenUseCase>(RefreshTokenUseCase());
   /**
    * =================================
    * END OF USECASES

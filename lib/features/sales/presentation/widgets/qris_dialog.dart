@@ -57,15 +57,19 @@ class _QRISDialogState extends State<QRISDialog> {
     });
 
     for (int i = 0; i < 90; i++) {
+      if (!mounted) break;
+
       String status = '';
       await Future.delayed(const Duration(seconds: 3), () async {
         status = await _checkQRISStatus();
         dev.log("status - $status");
       });
+
       if (status == 'paid') {
         widget.onPaymentSuccess(status);
         break;
       }
+
       if (status == 'expired') {
         if (mounted) {
           showDialog(
@@ -79,9 +83,11 @@ class _QRISDialogState extends State<QRISDialog> {
       }
     }
 
-    setState(() {
-      isCheckingStatus = false;
-    });
+    if (mounted) {
+      setState(() {
+        isCheckingStatus = false;
+      });
+    }
   }
 
   Uint8List base64Decode(String str) {
@@ -100,6 +106,7 @@ class _QRISDialogState extends State<QRISDialog> {
   }
 
   Future<String> _checkQRISStatus() async {
+    if (!mounted) return "";
     final netzme = await GetIt.instance<AppDatabase>().netzmeDao.readAll();
     final url = netzme[0].url;
     final clientKey = netzme[0].clientKey;

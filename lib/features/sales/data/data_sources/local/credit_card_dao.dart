@@ -3,6 +3,7 @@ import 'package:pos_fe/features/sales/data/models/credit_card.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CreditCardDao extends BaseDao<CreditCardModel> {
+  String statusActive = "AND statusactive = 1";
   CreditCardDao(Database db)
       : super(
           db: db,
@@ -30,4 +31,14 @@ class CreditCardDao extends BaseDao<CreditCardModel> {
 
     return result.map((itemData) => CreditCardModel.fromMap(itemData)).toList();
   }
+
+  // Future<List<CreditCardModel>> readAllWithSearch(
+  //     {String? searchKeyword, Transaction? txn}) async {
+  //   // final result = await db.query(tableName,
+  //   //     where:
+  //   //         "(${CreditCardFields.description} LIKE ? OR ${CreditCardFields.bankIssuer} LIKE ?) $statusActive",
+  //   //     whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
+
+  //   return result.map((itemData) => CreditCardModel.fromMap(itemData)).toList();
+  // }
 }

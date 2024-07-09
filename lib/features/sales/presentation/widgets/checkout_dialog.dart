@@ -9,7 +9,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -17,6 +16,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
+import 'package:pos_fe/features/sales/domain/entities/edc_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -32,6 +32,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
@@ -167,15 +168,16 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           "PayMethod": "QRIS", // constant
           "commissionPercentage": "0",
           "expireInSecond": "3600",
-          "feeType": "on_buyer",
+          "feeType": "on_seller",
           "apiSource": "topup_deposit",
           "additionalInfo": {
-            "email": "testabc@gmail.com",
+            "email": "testabc@gmail.com", // diambil dari customer kalau member
             "notes": "desc",
             "description": "description",
-            "phoneNumber": "+6285270427851",
+            "phoneNumber":
+                "+6285270427851", // diambil dari customer kalau member
             "imageUrl": "a",
-            "fullname": "Tester 213@"
+            "fullname": "Tester 213@" // diambil dari customer kalau member
           }
         };
         final serviceSignature = await GetIt.instance<NetzmeApi>()
@@ -922,11 +924,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   List<MopSelectionEntity> getMopByPayTypeCode(String payTypeCode) {
     /**
      * 1 - Tunai
-     * 2 - Debit
-     * 3 - Kredit
-     * 4 - Lainnya
-     * 5 - E-Wallet
-     * 6 - Voucher */
+     * 2 - EDC
+     * 3 - Others
+     * 4 - QRIS
+     * 5 - Voucher
+    */
+
     List<MopSelectionEntity> mops = [];
 
     final List<MopSelectionEntity> temp = context
@@ -978,6 +981,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
     await _refreshVouchersChips(context.read<ReceiptCubit>().state.vouchers, 2);
   }
+
+  void handleEDCSelected(MopSelectionEntity mop, EDCSelectionEntity edc) {}
 
   void checkAndHandleZeroGrandTotal() async {
     try {
@@ -1511,6 +1516,135 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                             }
                                             // [END] UI for TUNAI MOP
 
+                                            // [START] UI for EDC MOP
+                                            if (paymentType.payTypeCode[0] ==
+                                                "2") {
+                                              return Column(
+                                                children: [
+                                                  SizedBox(height: 10),
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 20),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          paymentType
+                                                              .description,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 15),
+                                                        Wrap(
+                                                          spacing: 8,
+                                                          runSpacing: 8,
+                                                          children: List<
+                                                              Widget>.generate(
+                                                            mopsByType
+                                                                .map((mop) =>
+                                                                    mop.edcDesc)
+                                                                .toSet()
+                                                                .length, // Get the length of distinct edcDesc
+                                                            (int index) {
+                                                              final distinctEdcDesc =
+                                                                  mopsByType
+                                                                      .map((mop) =>
+                                                                          mop.edcDesc)
+                                                                      .toSet()
+                                                                      .toList();
+                                                              final mop = mopsByType
+                                                                  .firstWhere((mop) =>
+                                                                      mop.edcDesc ==
+                                                                      distinctEdcDesc[
+                                                                          index]);
+
+                                                              return ChoiceChip(
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors
+                                                                        .primary,
+                                                                    width: 1.5),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        20),
+                                                                label: Text(mop
+                                                                        .edcDesc ??
+                                                                    mop.mopAlias),
+                                                                // CONDITIONAL FOR SET SELECTED
+                                                                selected: _values
+                                                                    .map((e) => e
+                                                                        .tpmt3Id)
+                                                                    .contains(mop
+                                                                        .tpmt3Id),
+                                                                onSelected: (bool
+                                                                    selected) async {
+                                                                  if (selected) {
+                                                                    await showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      barrierDismissible:
+                                                                          false,
+                                                                      builder:
+                                                                          (context) =>
+                                                                              EDCDialog(
+                                                                        onEDCSelected:
+                                                                            (context) {
+                                                                          dev.log(
+                                                                              "EDC Selected - $context");
+                                                                        },
+                                                                        mopSelectionEntity:
+                                                                            mop,
+                                                                        max: receipt.grandTotal -
+                                                                            (receipt.totalPayment ??
+                                                                                0),
+                                                                      ),
+                                                                    );
+                                                                    setState(
+                                                                        () {
+                                                                      _textEditingControllerCashAmount
+                                                                          .text = "";
+                                                                      context
+                                                                          .read<
+                                                                              ReceiptCubit>()
+                                                                          .resetMop();
+                                                                      _values =
+                                                                          [];
+                                                                    });
+                                                                  } else {
+                                                                    _values = _values
+                                                                        .where((e) =>
+                                                                            e.tpmt3Id !=
+                                                                            mop.tpmt3Id)
+                                                                        .toList();
+                                                                  }
+                                                                  setState(
+                                                                      () {});
+                                                                  updateReceiptMop();
+                                                                },
+                                                              );
+                                                            },
+                                                          ).toList(),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 20),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
+                                                ],
+                                              );
+                                            }
+                                            // [END] UI for TUNAI MOP
+
                                             // [START] UI for other MOPs
                                             return Column(
                                               children: [
@@ -1645,6 +1779,41 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         ),
                                                                       );
                                                                     },
+                                                                  );
+                                                                  setState(() {
+                                                                    _textEditingControllerCashAmount
+                                                                        .text = "";
+                                                                    context
+                                                                        .read<
+                                                                            ReceiptCubit>()
+                                                                        .resetMop();
+                                                                    _values =
+                                                                        [];
+                                                                  });
+                                                                  return;
+                                                                } else if (paymentType
+                                                                        .payTypeCode ==
+                                                                    "2") {
+                                                                  await showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    barrierDismissible:
+                                                                        false,
+                                                                    builder:
+                                                                        (context) =>
+                                                                            EDCDialog(
+                                                                      onEDCSelected:
+                                                                          (context) {
+                                                                        dev.log(
+                                                                            "EDC Selected - $context");
+                                                                      },
+                                                                      mopSelectionEntity:
+                                                                          mop,
+                                                                      max: receipt
+                                                                              .grandTotal -
+                                                                          (receipt.totalPayment ??
+                                                                              0),
+                                                                    ),
                                                                   );
                                                                   setState(() {
                                                                     _textEditingControllerCashAmount

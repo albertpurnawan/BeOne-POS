@@ -17,13 +17,13 @@ class TokenApi {
         "email": emailAdmin,
         "password": passwordAdmin,
       };
-
+      // log("formData - $formData");
       final response = await _dio.post("$url/auth/login",
           data: formData,
           options: Options(
             validateStatus: (_) => true,
           ));
-
+      // log("response - $response");
       return response.data['token'];
     } catch (err, s) {
       debugPrintStack(stackTrace: s);

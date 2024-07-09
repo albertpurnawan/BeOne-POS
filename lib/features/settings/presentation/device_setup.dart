@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'dart:developer';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -14,6 +12,7 @@ import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/token_service.dart';
+import 'package:pos_fe/features/settings/domain/usecases/encrypt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -77,7 +76,8 @@ class _SettingsFormState extends State<SettingsForm> {
       tocsrController,
       urlController,
       emailController,
-      passwordController;
+      passwordController,
+      otpChannelController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String dflDate = "2000-01-01 00:00:00";
@@ -92,6 +92,7 @@ class _SettingsFormState extends State<SettingsForm> {
     urlController = TextEditingController();
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    otpChannelController = TextEditingController();
 
     oldGtentId = Constant.gtentId;
     oldTostrId = Constant.tostrId;
@@ -117,6 +118,19 @@ class _SettingsFormState extends State<SettingsForm> {
     urlController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    otpChannelController.dispose();
+  }
+
+  Future<String> encryptPassword(String rawPassword) async {
+    final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
+    try {
+      final encryptedPassword =
+          await encryptPasswordUseCase.call(params: rawPassword);
+      return encryptedPassword;
+    } catch (e, s) {
+      debugPrintStack(stackTrace: s);
+      return '';
+    }
   }
 
   @override
@@ -201,6 +215,18 @@ class _SettingsFormState extends State<SettingsForm> {
               prefixIcon: const Icon(Icons.password_outlined),
             ),
           ),
+          const SizedBox(height: 15),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: CustomInput(
+              controller: otpChannelController,
+              validator: (val) =>
+                  val == null || val.isEmpty ? "OTP Channel is required" : null,
+              label: "OTP Channel",
+              hint: "OTP Channel",
+              prefixIcon: const Icon(Icons.vpn_key),
+            ),
+          ),
           const SizedBox(height: 25),
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
@@ -213,8 +239,13 @@ class _SettingsFormState extends State<SettingsForm> {
                       .posParameterDao
                       .deleteTopos();
 
-                  final hashedPass =
-                      md5.convert(utf8.encode("BeOne\$\$123")).toString();
+                  // call the encryptpassword here?
+                  final hashedPassword =
+                      await encryptPassword(passwordController.text);
+
+                  // final hashedPass = md5
+                  //     .convert(utf8.encode(passwordController.text))
+                  //     .toString();
 
                   final topos = POSParameterModel(
                     docId: const Uuid().v4(),
@@ -226,7 +257,8 @@ class _SettingsFormState extends State<SettingsForm> {
                     tocsrId: tocsrController.text,
                     baseUrl: urlController.text,
                     usernameAdmin: emailController.text,
-                    passwordAdmin: hashedPass,
+                    passwordAdmin: hashedPassword,
+                    otpChannel: otpChannelController.text,
                     lastSync: '2000-01-01 00:00:00',
                   );
 
@@ -235,16 +267,6 @@ class _SettingsFormState extends State<SettingsForm> {
                       .create(data: topos);
 
                   log("TOPOS CREATED");
-
-                  Constant.updateTopos(
-                    gtentController.text,
-                    tostrController.text,
-                    tocsrController.text,
-                    urlController.text,
-                    emailController.text,
-                    hashedPass,
-                    dflDate,
-                  );
 
                   final token = await GetIt.instance<TokenApi>().getToken(
                       urlController.text,

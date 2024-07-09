@@ -13,6 +13,7 @@ class POSParameterEntity {
   final String? baseUrl;
   final String? usernameAdmin;
   final String? passwordAdmin;
+  final String? otpChannel;
   final String? lastSync;
 
   POSParameterEntity({
@@ -26,6 +27,7 @@ class POSParameterEntity {
     this.baseUrl,
     this.usernameAdmin,
     this.passwordAdmin,
+    this.otpChannel,
     this.lastSync,
   });
 
@@ -40,6 +42,7 @@ class POSParameterEntity {
     String? baseUrl,
     String? usernameAdmin,
     String? passwordAdmin,
+    String? otpChannel,
     String? lastSync,
   }) {
     return POSParameterEntity(
@@ -53,6 +56,7 @@ class POSParameterEntity {
       baseUrl: baseUrl ?? this.baseUrl,
       usernameAdmin: usernameAdmin ?? this.usernameAdmin,
       passwordAdmin: passwordAdmin ?? this.passwordAdmin,
+      otpChannel: otpChannel ?? this.otpChannel,
       lastSync: lastSync ?? this.lastSync,
     );
   }
@@ -69,6 +73,7 @@ class POSParameterEntity {
       'baseUrl': baseUrl,
       'usernameAdmin': usernameAdmin,
       'passwordAdmin': passwordAdmin,
+      'otpChannel': otpChannel,
       'lastSync': lastSync,
     };
   }
@@ -91,6 +96,8 @@ class POSParameterEntity {
           map['usernameAdmin'] != null ? map['usernameAdmin'] as String : null,
       passwordAdmin:
           map['passwordAdmin'] != null ? map['passwordAdmin'] as String : null,
+      otpChannel:
+          map['otpChannel'] != null ? map['otpChannel'] as String : null,
       lastSync: map['lastSync'] != null ? map['lastSync'] as String : null,
     );
   }
@@ -102,7 +109,7 @@ class POSParameterEntity {
 
   @override
   String toString() {
-    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, lastSync: $lastSync)';
+    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, otpChannel: $otpChannel, lastSync: $lastSync)';
   }
 
   @override
@@ -119,6 +126,7 @@ class POSParameterEntity {
         other.baseUrl == baseUrl &&
         other.usernameAdmin == usernameAdmin &&
         other.passwordAdmin == passwordAdmin &&
+        other.otpChannel == otpChannel &&
         other.lastSync == lastSync;
   }
 
@@ -134,6 +142,7 @@ class POSParameterEntity {
         baseUrl.hashCode ^
         usernameAdmin.hashCode ^
         passwordAdmin.hashCode ^
+        otpChannel.hashCode ^
         lastSync.hashCode;
   }
 }
