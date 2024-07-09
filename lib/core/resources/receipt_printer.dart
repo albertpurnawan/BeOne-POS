@@ -331,7 +331,7 @@ class ReceiptPrinter {
                   )),
             ]);
             bytes += generator.text(
-                "${item.itemEntity.itemName.substring(0, 20)} <${Helpers.clipStringAndAddEllipsis(salesEmployeeEntity?.empName ?? "", 19)}>",
+                "${item.itemEntity.itemName.substring(0, 20)} <${salesEmployeeEntity?.empName ?? ""}>",
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
