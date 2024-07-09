@@ -10,5 +10,7 @@ class ReceiptItemModel extends ReceiptItemEntity {
     required super.totalAmount,
     required super.totalSellBarcode,
     required super.promos,
+    super.discAmount,
+    super.tohemId,
   });
 }

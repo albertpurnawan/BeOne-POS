@@ -263,7 +263,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                                 width: 10,
                               ),
                               Text(
-                                "Rp ${Helpers.parseMoney((conditionAndItemY.itemEntity.includeTax == 1 ? conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice * (100 / (100 + conditionAndItemY.itemEntity.taxRate)) : conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice).round())}",
+                                "Rp ${Helpers.parseMoney((conditionAndItemY.itemEntity.includeTax == 1 ? conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice : conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice * (100 / (100 + conditionAndItemY.itemEntity.taxRate))).round())}",
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,

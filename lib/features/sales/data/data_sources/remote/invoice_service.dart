@@ -54,6 +54,15 @@ class InvoiceApi {
               invoicePayments.add(
                   {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
+            case "2": // EDC
+              invoicePayments.add({
+                "tpmt3_id": entry['tpmt3Id'],
+                "amount": entry['amount'],
+                "tpmt2_id": entry['tpmt2Id'],
+                "cardno": entry['cardno'],
+                "cardholder": entry['cardholder'],
+              });
+              break;
             case "6": // VOUCHERS
               final vouchers = await GetIt.instance<AppDatabase>()
                   .vouchersSelectionDao
@@ -209,7 +218,7 @@ class InvoiceApi {
             "disc3amtbarcode": 0.0,
             "totaldiscbarcode": 0.0,
             "qtyconv":
-                item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm
+                item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": item['tohemId'] ?? ""
@@ -291,6 +300,9 @@ class InvoiceApi {
       List<POSParameterModel> pos =
           await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
+
+      log("$invHead");
+      log("$invDet");
 
       final payMean = await GetIt.instance<AppDatabase>()
           .payMeansDao
@@ -430,7 +442,7 @@ class InvoiceApi {
             "includetax": item.includeTax,
             "toven_id": item.tovenId,
             "tbitm_id": item.tbitmId,
-            "qtybarcode": 0.0,
+            "qtybarcode": item.quantity,
             "sellpricebarcode": 0.0,
             "totalsellbarcode": 0.0,
             "disc1pct": 0.0,

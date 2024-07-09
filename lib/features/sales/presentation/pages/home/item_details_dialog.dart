@@ -136,7 +136,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
 
                             decoration: BoxDecoration(
                               color: ProjectColors.primary,
-                              borderRadius: BorderRadius.circular(60),
+                              borderRadius: BorderRadius.circular(5),
                               boxShadow: const [
                                 BoxShadow(
                                   spreadRadius: 0.5,

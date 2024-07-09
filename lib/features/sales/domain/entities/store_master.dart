@@ -63,6 +63,14 @@ class StoreMasterEntity {
   final String? mtxline03;
   final String? mtxline04;
   final String form;
+  final int? salesViewType;
+  final String? otpChannel;
+  final String? otpUrl;
+  final String? netzmeUrl;
+  final String? netzmeClientKey;
+  final String? netzmeClientSecret;
+  final String? netzmePrivateKey;
+  final String? netzmeCustidMerchant;
 
   StoreMasterEntity({
     required this.docId,
@@ -126,6 +134,14 @@ class StoreMasterEntity {
     this.mtxline03,
     this.mtxline04,
     required this.form,
+    this.salesViewType,
+    this.otpChannel,
+    this.otpUrl,
+    this.netzmeUrl,
+    this.netzmeClientKey,
+    this.netzmeClientSecret,
+    this.netzmePrivateKey,
+    this.netzmeCustidMerchant,
   });
 
   StoreMasterEntity copyWith({
@@ -190,6 +206,14 @@ class StoreMasterEntity {
     String? mtxline03,
     String? mtxline04,
     String? form,
+    int? salesViewType,
+    String? otpChannel,
+    String? otpUrl,
+    String? netzmeUrl,
+    String? netzmeClientKey,
+    String? netzmeClientSecret,
+    String? netzmePrivateKey,
+    String? netzmeCustidMerchant,
   }) {
     return StoreMasterEntity(
       docId: docId ?? this.docId,
@@ -253,6 +277,14 @@ class StoreMasterEntity {
       mtxline03: mtxline03 ?? this.mtxline03,
       mtxline04: mtxline04 ?? this.mtxline04,
       form: form ?? this.form,
+      salesViewType: salesViewType ?? this.salesViewType,
+      otpChannel: otpChannel ?? this.otpChannel,
+      otpUrl: otpUrl ?? this.otpUrl,
+      netzmeUrl: netzmeUrl ?? this.netzmeUrl,
+      netzmeClientKey: netzmeClientKey ?? this.netzmeClientKey,
+      netzmeClientSecret: netzmeClientSecret ?? this.netzmeClientSecret,
+      netzmePrivateKey: netzmePrivateKey ?? this.netzmePrivateKey,
+      netzmeCustidMerchant: netzmeCustidMerchant ?? this.netzmeCustidMerchant,
     );
   }
 
@@ -319,6 +351,14 @@ class StoreMasterEntity {
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
       'form': form,
+      'salesViewType': salesViewType,
+      'otpChannel': otpChannel,
+      'otpUrl': otpUrl,
+      'netzmeUrl': netzmeUrl,
+      'netzmeClientKey': netzmeClientKey,
+      'netzmeClientSecret': netzmeClientSecret,
+      'netzmePrivateKey': netzmePrivateKey,
+      'netzmeCustidMerchant': netzmeCustidMerchant,
     };
   }
 
@@ -345,7 +385,7 @@ class StoreMasterEntity {
       sqm: map['sqm'] as double,
       tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      storePic: map['storePic'] != null ? map['storePic'] as dynamic : null,
+      storePic: map['storePic'] as dynamic,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
       storeOpening:
           DateTime.fromMillisecondsSinceEpoch(map['storeOpening'] as int),
@@ -396,6 +436,24 @@ class StoreMasterEntity {
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
       form: map['form'] as String,
+      salesViewType:
+          map['salesViewType'] != null ? map['salesViewType'] as int : null,
+      otpChannel:
+          map['otpChannel'] != null ? map['otpChannel'] as String : null,
+      otpUrl: map['otpUrl'] != null ? map['otpUrl'] as String : null,
+      netzmeUrl: map['netzmeUrl'] != null ? map['netzmeUrl'] as String : null,
+      netzmeClientKey: map['netzmeClientKey'] != null
+          ? map['netzmeClientKey'] as String
+          : null,
+      netzmeClientSecret: map['netzmeClientSecret'] != null
+          ? map['netzmeClientSecret'] as String
+          : null,
+      netzmePrivateKey: map['netzmePrivateKey'] != null
+          ? map['netzmePrivateKey'] as String
+          : null,
+      netzmeCustidMerchant: map['netzmeCustidMerchant'] != null
+          ? map['netzmeCustidMerchant'] as String
+          : null,
     );
   }
 
@@ -406,7 +464,7 @@ class StoreMasterEntity {
 
   @override
   String toString() {
-    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, form: $form)';
+    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, form: $form, salesViewType: $salesViewType, otpChannel: $otpChannel, otpUrl: $otpUrl, netzmeUrl: $netzmeUrl, netzmeClientKey: $netzmeClientKey, netzmeClientSecret: $netzmeClientSecret, netzmePrivateKey: $netzmePrivateKey, netzmeCustidMerchant: $netzmeCustidMerchant)';
   }
 
   @override
@@ -473,7 +531,15 @@ class StoreMasterEntity {
         other.mtxline02 == mtxline02 &&
         other.mtxline03 == mtxline03 &&
         other.mtxline04 == mtxline04 &&
-        other.form == form;
+        other.form == form &&
+        other.salesViewType == salesViewType &&
+        other.otpChannel == otpChannel &&
+        other.otpUrl == otpUrl &&
+        other.netzmeUrl == netzmeUrl &&
+        other.netzmeClientKey == netzmeClientKey &&
+        other.netzmeClientSecret == netzmeClientSecret &&
+        other.netzmePrivateKey == netzmePrivateKey &&
+        other.netzmeCustidMerchant == netzmeCustidMerchant;
   }
 
   @override
@@ -538,6 +604,14 @@ class StoreMasterEntity {
         mtxline02.hashCode ^
         mtxline03.hashCode ^
         mtxline04.hashCode ^
-        form.hashCode;
+        form.hashCode ^
+        salesViewType.hashCode ^
+        otpChannel.hashCode ^
+        otpUrl.hashCode ^
+        netzmeUrl.hashCode ^
+        netzmeClientKey.hashCode ^
+        netzmeClientSecret.hashCode ^
+        netzmePrivateKey.hashCode ^
+        netzmeCustidMerchant.hashCode;
   }
 }

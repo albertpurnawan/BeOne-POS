@@ -10,6 +10,7 @@ import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:pos_fe/features/sales/data/models/mop_selection.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
@@ -167,9 +168,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           lineNum: 1,
           tpmt3Id: mopSelectionEntity.tpmt3Id,
           amount: mopSelectionEntity.amount ?? 0,
-          tpmt2Id: null,
-          cardNo: null,
-          cardHolder: null,
+          tpmt2Id: mopSelectionEntity.tpmt2Id,
+          cardNo: mopSelectionEntity.cardNo,
+          cardHolder: mopSelectionEntity.cardHolder,
           sisaVoucher: null,
         ));
       }
@@ -300,6 +301,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             .itemMasterDao
             .readByDocId(invoiceDetailModel.toitmId!, txn);
         if (itemMasterModel == null) throw "Item not found";
+
+        final ItemBarcodeModel? itemBarcodeModel = await _appDatabase
+            .itemBarcodeDao
+            .readByDocId(invoiceDetailModel.tbitmId!, txn);
+        if (itemBarcodeModel == null) throw "Barcode not found";
+
         receiptItemModels.add(ReceiptItemModel(
           quantity: invoiceDetailModel.quantity,
           totalGross: ((invoiceDetailModel.totalAmount *
@@ -313,8 +320,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             id: null,
             itemName: itemMasterModel.itemName,
             itemCode: itemMasterModel.itemCode,
-            barcode: "",
-            price: 0,
+            barcode: itemBarcodeModel.barcode,
+            price: invoiceDetailModel.sellingPrice,
             toitmId: itemMasterModel.docId,
             tbitmId: invoiceDetailModel.tbitmId!,
             tpln2Id: "",
@@ -349,6 +356,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                     remarks: "",
                   )
                 ],
+          tohemId: invoiceDetailModel.tohemId,
+          discAmount: invoiceDetailModel.discAmount,
         ));
       }
 
@@ -393,6 +402,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         discHeaderPromo: invoiceHeaderModel.discHeaderPromo,
         discAmount: invoiceHeaderModel.discAmount,
         rounding: invoiceHeaderModel.rounding,
+        toinvTohemId: invoiceHeaderModel.toinvTohemId,
       );
     });
     log("Receipt 2 - $receiptModel");

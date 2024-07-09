@@ -11,6 +11,11 @@ class MopSelectionModel extends MopSelectionEntity {
     required super.amount,
     required super.subType,
     required super.tinv2Id,
+    required super.tpmt4Id,
+    required super.edcDesc,
+    required super.tpmt2Id,
+    required super.cardNo,
+    required super.cardHolder,
   });
 
   factory MopSelectionModel.fromMap(Map<String, dynamic> map) {
@@ -26,6 +31,12 @@ class MopSelectionModel extends MopSelectionEntity {
       amount: map['amount'] != null ? map['amount'] as double : null,
       subType: map['subtype'],
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
+      tpmt4Id: map['tpmt4Id'] != null ? map['tpmt4Id'] as String : null,
+      edcDesc: map['edcdesc'] != null ? map['edcdesc'] as String : null,
+      tpmt2Id: map['tpmt2Id'] != null ? map['tpmt2Id'] as String : null,
+      cardNo: map['cardno'] != null ? map['cardno'] as String : null,
+      cardHolder:
+          map['cardholder'] != null ? map['cardholder'] as String : null,
     );
   }
 }

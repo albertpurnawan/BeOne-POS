@@ -1,5 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
 class Constant {
   //TOKEN
   static const String token = '';
@@ -37,33 +35,12 @@ class Constant {
   // PASS ADMIN
   static String passwordAdmin = "";
 
-  static void updateTopos(
-    String tenantId,
-    String storeId,
-    String cashRegisterId,
-    String baseUrl,
-    String emailAdmin,
-    String passwordAdmin,
-    String defaultDate,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('gtentId', tenantId);
-    prefs.setString('tostrId', storeId);
-    prefs.setString('tocsrId', tenantId);
-    prefs.setString('baseUrl', baseUrl);
-    prefs.setString('emailAdmin', emailAdmin);
-    prefs.setString('passwordAdmin', passwordAdmin);
-    prefs.setString('defaultDate', defaultDate);
+  // OTP CHANNEL
+  static String otpChannel = "";
+  // Topgolf: cc985aff-654d-41fb-84d0-2f2eea388729
+  // TG Test: ae974546-58ac-4add-b560-2966cfcad33d
+  // TG UAT: fd6a1e8d-379c-4a58-bfb8-89ef13c9037f
+  // TG Live: eaba4456-e7d8-478c-a82e-7c9a26d377db
 
-    gtentId = tenantId;
-    tostrId = storeId;
-    tocsrId = cashRegisterId;
-  }
-
-  static Future<void> loadTopos() async {
-    final prefs = await SharedPreferences.getInstance();
-    gtentId = prefs.getString('gtentId') ?? '';
-    tostrId = prefs.getString('tostrId') ?? '';
-    tocsrId = prefs.getString('tocsrId') ?? '';
-  }
+  static String secretkey = "my32lengthsupersecretnooneknows1";
 }

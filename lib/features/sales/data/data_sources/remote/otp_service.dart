@@ -6,18 +6,20 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class OTPServiceAPi {
   final Dio _dio;
   String? token;
-  final SharedPreferences prefs;
+  String? otpChannel;
 
-  OTPServiceAPi(this._dio, this.prefs);
+  OTPServiceAPi(this._dio);
 
   Future<Map<String, dynamic>> createSendOTP() async {
     try {
       log("CREATE & SEND OTP");
+      final otpDao =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      otpChannel = otpDao[0].otpChannel;
       String url = "http://110.239.68.248:7070/api/otp/send-mailer";
       final spv =
           await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
@@ -30,7 +32,7 @@ class OTPServiceAPi {
 
       final dataToSend = {
         "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
-        "channelId": "cc985aff-654d-41fb-84d0-2f2eea388729", // uuid smtp
+        "channelId": otpChannel, // uuid smtp
         "Destination": spv![0]['email'],
         "Expired": formattedExpired,
         "RequestTimestamp": formattedDateTime,
@@ -43,10 +45,8 @@ class OTPServiceAPi {
         data: dataToSend,
         options: options,
       );
-      log("response: $response");
-
-      log("response otp $response");
-
+      // log("response otp $response");
+      log("OTP SENT");
       return response.data;
     } catch (e) {
       handleError(e);

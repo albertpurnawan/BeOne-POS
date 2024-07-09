@@ -11,7 +11,9 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_campaigns_usecase.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_credit_cards.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
@@ -33,6 +35,8 @@ import 'package:pos_fe/features/sales/domain/usecases/queue_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/campaign_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/credit_card_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
@@ -40,16 +44,18 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
+    // await hotKeyManager.unregister(
+    //     HotKey(key: LogicalKeyboardKey.f10, scope: HotKeyScope.system));
   }
-  WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
   await GetIt.instance.allReady();
   await syncWithBOS();
@@ -131,6 +137,12 @@ class MyApp extends StatelessWidget {
             BlocProvider<EmployeesCubit>(
                 create: (context) =>
                     EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
+            BlocProvider<CreditCardCubit>(
+                create: (context) =>
+                    CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
+            BlocProvider<CampaignCubit>(
+                create: (context) =>
+                    CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {

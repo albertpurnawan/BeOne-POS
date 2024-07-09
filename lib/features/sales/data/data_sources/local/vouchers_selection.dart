@@ -60,7 +60,7 @@ class VouchersSelectionDao extends BaseDao<VouchersSelectionModel> {
       final result = await txn.query(
         tableName,
         columns: modelFields,
-        where: 'tinv2id = ?',
+        where: 'tinv2Id = ?',
         whereArgs: [tinv2id],
       );
       return result
@@ -70,7 +70,7 @@ class VouchersSelectionDao extends BaseDao<VouchersSelectionModel> {
       final result = await db.query(
         tableName,
         columns: modelFields,
-        where: 'tinv2id = ?',
+        where: 'tinv2Id = ?',
         whereArgs: [tinv2id],
       );
       return result
