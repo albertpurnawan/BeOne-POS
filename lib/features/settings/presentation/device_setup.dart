@@ -9,7 +9,6 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
-import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/token_service.dart';
 import 'package:pos_fe/features/settings/domain/usecases/encrypt.dart';
@@ -274,28 +273,6 @@ class _SettingsFormState extends State<SettingsForm> {
                       passwordController.text);
 
                   prefs.setString('adminToken', token.toString());
-
-                  final tntzm = [
-                    NetzmeModel(
-                        docId: const Uuid().v4(),
-                        url: "https://tokoapisnap-stg.netzme.com",
-                        clientKey: "pt_bak",
-                        clientSecret: "61272364208846ee9366dc204f81fce6",
-                        privateKey:
-                            "MIIBOgIBAAJBAMjxtB9QVz9KLCe5DAqJoLlz7e9ZhS5EE5YhC0E1F7+a14GLpm7mqcSN0alAmOK5DQZW4JufhzFmDpwB3a4+vskCAwEAAQJAfDYkcILaG64+0yMo1U6zwk9uEdkVYT8FmHS+n0Uxc+cqgs9UGb8uFoZmswGhs5HpfxpgEOckucwqi4SrgqXWMQIhAM4DOyj8SVCbvieRjOruhLjuh6S9wQmingB7A9+b58bVAiEA+bOjL0CothyHnfNgaY2IBT9TIO0FefTE1IfcukbH+iUCIHeyTOdNXlOlieB3owbFOvwwK0O+tLAieecRkniTnyFZAiA5uQsqKzpVDvdSziYlgHBHNkJTRDeV3714nAeskBw+eQIhAKkIuZjqXadPACYDNUXrfm5GGWZ2BKUjujJIZXjaRLnA",
-                        custIdMerchant: "M_b7uJH43W")
-                  ];
-                  final netz =
-                      await GetIt.instance<AppDatabase>().netzmeDao.readAll();
-                  if (netz.isEmpty) {
-                    await GetIt.instance<AppDatabase>()
-                        .netzmeDao
-                        .bulkCreate(data: tntzm);
-                  } else {
-                    await GetIt.instance<AppDatabase>()
-                        .netzmeDao
-                        .update(docId: netz[0].docId, data: netz[0]);
-                  }
 
                   Navigator.pop(context, true);
                 } catch (e, s) {

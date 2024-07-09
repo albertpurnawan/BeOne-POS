@@ -5,14 +5,19 @@ import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
+import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_qris_payment.dart';
 import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
+import 'package:image/image.dart' as img;
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter;
@@ -127,10 +132,10 @@ class ReceiptPrinter {
     }
   }
 
-  List<int> _convertPrintReceiptContentToBytes(
+  Future<List<int>> _convertPrintReceiptContentToBytes(
       List<PrintReceiptContent> printReceiptContentsRow,
       Generator generator,
-      bool isDraft) {
+      bool isDraft) async {
     List<int> bytes = [];
 
     if (printReceiptContentsRow.length == 1) {
@@ -144,12 +149,157 @@ class ReceiptPrinter {
         case PrintReceiptContentType.items:
           for (final item
               in currentPrintReceiptDetail!.receiptEntity.receiptItems) {
+            EmployeeEntity? salesEmployeeEntity;
+            log("toinvtohemId ${currentPrintReceiptDetail!.receiptEntity.toinvTohemId}");
+            if (item.tohemId != null && item.tohemId != "") {
+              salesEmployeeEntity = await GetIt.instance<EmployeeRepository>()
+                  .getEmployee(item.tohemId!);
+            } else if (currentPrintReceiptDetail!.receiptEntity.toinvTohemId !=
+                null) {
+              salesEmployeeEntity = await GetIt.instance<EmployeeRepository>()
+                  .getEmployee(
+                      currentPrintReceiptDetail!.receiptEntity.toinvTohemId!);
+              log("toinvtohemId employe $salesEmployeeEntity");
+            }
+
+            // Layout1
+            // bytes += generator.row([
+            //   PosColumn(
+            //       width: 4,
+            //       text:
+            //           "${item.promos.isEmpty || item.discAmount! <= 0 ? "" : "*"}${item.itemEntity.itemCode}",
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   PosColumn(
+            //       width: 5,
+            //       // text: Helpers.clipStringAndAddEllipsis(
+            //       //     "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
+            //       //     35),
+            //       text: " ${item.itemEntity.itemName}".substring(0, 19),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   // PosColumn(
+            //   //     width: 1,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.cleanDecimal(item.quantity, 3), 3),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   // PosColumn(
+            //   //     width: 3,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.parseMoney(item.itemEntity.price.round()), 10),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   PosColumn(
+            //       width: 3,
+            //       text: Helpers.alignRightByAddingSpace(
+            //           Helpers.parseMoney(item.totalAmount.round()), 11),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            // ]);
+            // bytes += generator.row([
+            //   PosColumn(
+            //       width: 5,
+            //       text: Helpers.clipStringAndAddEllipsis(
+            //           ' ${salesEmployeeEntity?.empName ?? ""}', 15),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   // PosColumn(
+            //   //     width: 1,
+            //   //     // text: Helpers.clipStringAndAddEllipsis(
+            //   //     //     "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
+            //   //     //     35),
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         "${Helpers.cleanDecimal(item.quantity, 3)}x", 3),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   // PosColumn(
+            //   //     width: 1,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.cleanDecimal(item.quantity, 3), 3),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   // PosColumn(
+            //   //     width: 3,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.parseMoney(item.itemEntity.price.round()), 10),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   PosColumn(
+            //       width: 4,
+            //       text: Helpers.alignRightByAddingSpace(
+            //           "${Helpers.cleanDecimal(item.quantity, 3)}x @${Helpers.parseMoney(item.sellingPrice.round())}",
+            //           15),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   PosColumn(
+            //       width: 3,
+            //       text: "",
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            // ]);
+
+            // Layout2
             bytes += generator.row([
               PosColumn(
                   width: 5,
-                  text: Helpers.clipStringAndAddEllipsis(
-                      "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
-                      35),
+                  text:
+                      "${item.promos.isEmpty || item.discAmount! <= 0 ? "" : "*"}${item.itemEntity.barcode}",
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
@@ -158,20 +308,9 @@ class ReceiptPrinter {
                     codeTable: 'CP1252',
                   )),
               PosColumn(
-                  width: 1,
-                  text: Helpers.alignRightByAddingSpace(
-                      Helpers.cleanDecimal(item.quantity, 3), 3),
-                  styles: PosStyles(
-                    align: PosAlign.left,
-                    height: printReceiptContent.fontSize,
-                    width: printReceiptContent.fontSize,
-                    bold: printReceiptContent.isBold,
-                    codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 3,
-                  text: Helpers.alignRightByAddingSpace(
-                      Helpers.parseMoney(item.itemEntity.price.round()), 10),
+                  width: 4,
+                  text:
+                      " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}",
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
@@ -191,8 +330,18 @@ class ReceiptPrinter {
                     codeTable: 'CP1252',
                   )),
             ]);
+            bytes += generator.text(
+                "${item.itemEntity.itemName.substring(0, 20)} <${salesEmployeeEntity?.empName ?? ""}>",
+                styles: PosStyles(
+                  align: PosAlign.left,
+                  height: printReceiptContent.fontSize,
+                  width: printReceiptContent.fontSize,
+                  bold: printReceiptContent.isBold,
+                  codeTable: 'CP1252',
+                ));
           }
         case PrintReceiptContentType.totalPrice:
+          bytes += generator.emptyLines(1);
           bytes += generator.row([
             PosColumn(
                 width: 4,
@@ -219,27 +368,29 @@ class ReceiptPrinter {
                   codeTable: 'CP1252',
                 )),
           ]);
+          bytes += generator.emptyLines(1);
         case PrintReceiptContentType.taxDetails:
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "Total Gross",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(currentPrintReceiptDetail!
-                        .receiptEntity.subtotal
-                        .round()),
-                    15),
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-          ]);
+          // bytes += generator.row([
+          //   PosColumn(
+          //       width: 8,
+          //       text: "Total Gross",
+          //       styles: const PosStyles(
+          //         align: PosAlign.left,
+          //         codeTable: 'CP1252',
+          //       )),
+          //   PosColumn(
+          //       width: 4,
+          //       text: Helpers.alignRightByAddingSpace(
+          //           Helpers.parseMoney(currentPrintReceiptDetail!
+          //               .receiptEntity.subtotal
+          //               .round()),
+          //           15),
+          //       styles: const PosStyles(
+          //         align: PosAlign.left,
+          //         codeTable: 'CP1252',
+          //       )),
+          // ]);
+
           bytes += generator.row([
             PosColumn(
                 width: 8,
@@ -251,42 +402,49 @@ class ReceiptPrinter {
             PosColumn(
                 width: 4,
                 text: Helpers.alignRightByAddingSpace(
-                    "(${Helpers.parseMoney(((currentPrintReceiptDetail!.receiptEntity.discAmount ?? 0) - (currentPrintReceiptDetail!.receiptEntity.discHeaderManual ?? 0)).round())})",
+                    Helpers.parseMoney(currentPrintReceiptDetail!
+                        .receiptEntity.receiptItems
+                        .map((e) =>
+                            (e.discAmount ?? 0) *
+                            ((100 + e.itemEntity.taxRate) / 100))
+                        .reduce((value, element) => value + element)
+                        .round()),
                     15),
                 styles: const PosStyles(
                   align: PosAlign.left,
                   codeTable: 'CP1252',
                 )),
           ]);
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "Subtotal",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  bold: true,
-                  codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(
-                        (currentPrintReceiptDetail!.receiptEntity.subtotal -
-                                (currentPrintReceiptDetail!
-                                        .receiptEntity.discAmount ??
-                                    0) +
-                                (currentPrintReceiptDetail!
-                                        .receiptEntity.discHeaderManual ??
-                                    0))
-                            .round()),
-                    15),
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  bold: true,
-                  codeTable: 'CP1252',
-                )),
-          ]);
-          bytes += generator.emptyLines(1);
+          // bytes += generator.row([
+          //   PosColumn(
+          //       width: 8,
+          //       text: "Subtotal",
+          //       styles: const PosStyles(
+          //         align: PosAlign.left,
+          //         bold: true,
+          //         codeTable: 'CP1252',
+          //       )),
+          //   PosColumn(
+          //       width: 4,
+          //       text: Helpers.alignRightByAddingSpace(
+          //           Helpers.parseMoney(
+          //               (currentPrintReceiptDetail!.receiptEntity.subtotal -
+          //                       (currentPrintReceiptDetail!
+          //                               .receiptEntity.discAmount ??
+          //                           0) +
+          //                       (currentPrintReceiptDetail!
+          //                               .receiptEntity.discHeaderManual ??
+          //                           0))
+          //                   .round()),
+          //           15),
+          //       styles: const PosStyles(
+          //         align: PosAlign.left,
+          //         bold: true,
+          //         codeTable: 'CP1252',
+          //       )),
+          // ]);
+
+          // bytes += generator.emptyLines(1);
           bytes += generator.row([
             PosColumn(
                 width: 8,
@@ -298,33 +456,39 @@ class ReceiptPrinter {
             PosColumn(
                 width: 4,
                 text: Helpers.alignRightByAddingSpace(
-                    "(${Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.discHeaderManual != null ? currentPrintReceiptDetail!.receiptEntity.discHeaderManual!.round() : 0)})",
-                    15),
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-          ]);
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "Tax Amount",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: Helpers.alignRightByAddingSpace(
                     Helpers.parseMoney(currentPrintReceiptDetail!
-                        .receiptEntity.taxAmount
-                        .round()),
+                                .receiptEntity.discHeaderManual !=
+                            null
+                        ? currentPrintReceiptDetail!
+                            .receiptEntity.discHeaderManual!
+                            .round()
+                        : 0),
                     15),
                 styles: const PosStyles(
                   align: PosAlign.left,
                   codeTable: 'CP1252',
                 )),
           ]);
+          // bytes += generator.row([
+          //   PosColumn(
+          //       width: 8,
+          //       text: "Tax Amount",
+          //       styles: const PosStyles(
+          //         align: PosAlign.left,
+          //         codeTable: 'CP1252',
+          //       )),
+          //   PosColumn(
+          //       width: 4,
+          //       text: Helpers.alignRightByAddingSpace(
+          //           Helpers.parseMoney(currentPrintReceiptDetail!
+          //               .receiptEntity.taxAmount
+          //               .round()),
+          //           15),
+          //       styles: const PosStyles(
+          //         align: PosAlign.left,
+          //         codeTable: 'CP1252',
+          //       )),
+          // ]);
           bytes += generator.row([
             PosColumn(
                 width: 8,
@@ -346,7 +510,7 @@ class ReceiptPrinter {
                 )),
           ]);
 
-          bytes += generator.emptyLines(1);
+        // bytes += generator.emptyLines(1);
         case PrintReceiptContentType.totalQty:
           bytes += generator.text(
               'Total Qty.: ${Helpers.cleanDecimal(currentPrintReceiptDetail!.receiptEntity.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element), 3)}',
@@ -390,26 +554,42 @@ class ReceiptPrinter {
                   )),
             ]);
           }
-          bytes += generator.row([
-            PosColumn(
-                width: 8,
-                text: "Vouchers",
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-            PosColumn(
-                width: 4,
-                text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(
-                        currentPrintReceiptDetail!.receiptEntity.totalVoucher ??
-                            0),
-                    15),
-                styles: const PosStyles(
-                  align: PosAlign.left,
-                  codeTable: 'CP1252',
-                )),
-          ]);
+          if (currentPrintReceiptDetail!.receiptEntity.vouchers.isNotEmpty) {
+            final Map<String, num> amountByTpmt3Ids = {};
+
+            for (final voucher
+                in currentPrintReceiptDetail!.receiptEntity.vouchers) {
+              if (amountByTpmt3Ids[voucher.tpmt3Id] == null) {
+                amountByTpmt3Ids[voucher.tpmt3Id!] = voucher.voucherAmount;
+              } else {
+                amountByTpmt3Ids[voucher.tpmt3Id!] =
+                    amountByTpmt3Ids[voucher.tpmt3Id!]! + voucher.voucherAmount;
+              }
+            }
+
+            for (final tpmt3Id in amountByTpmt3Ids.keys) {
+              final MopSelectionEntity? mopSelectionEntity =
+                  await GetIt.instance<MopSelectionRepository>()
+                      .getMopSelectionByTpmt3Id(tpmt3Id);
+              bytes += generator.row([
+                PosColumn(
+                    width: 8,
+                    text: mopSelectionEntity?.mopAlias ?? "Unknown Voucher",
+                    styles: const PosStyles(
+                      align: PosAlign.left,
+                      codeTable: 'CP1252',
+                    )),
+                PosColumn(
+                    width: 4,
+                    text: Helpers.alignRightByAddingSpace(
+                        Helpers.parseMoney(amountByTpmt3Ids[tpmt3Id]!), 15),
+                    styles: const PosStyles(
+                      align: PosAlign.left,
+                      codeTable: 'CP1252',
+                    )),
+              ]);
+            }
+          }
           bytes += generator.row([
             PosColumn(
                 width: 8,
@@ -579,7 +759,8 @@ class ReceiptPrinter {
 
     for (int i = 0; i < printReceiptContents.length; i++) {
       final List<PrintReceiptContent> row = printReceiptContents[i];
-      bytes.addAll(_convertPrintReceiptContentToBytes(row, generator, isDraft));
+      bytes.addAll(
+          await _convertPrintReceiptContentToBytes(row, generator, isDraft));
     }
 
     _printEscPos(bytes, generator);
@@ -934,7 +1115,86 @@ class ReceiptPrinter {
     _printEscPos(bytes, generator);
   }
 
-  /// print ticket
+  Future<void> printQrisPayment(
+      PrintQrisPaymentDetail printQrisPaymentDetail) async {
+    List<int> bytes = [];
+    final String? paperSize =
+        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(
+        paperSize == null
+            ? PaperSize.mm58
+            : paperSize == "80 mm"
+                ? PaperSize.mm80
+                : PaperSize.mm58,
+        profile);
+
+    bytes += generator.setGlobalCodeTable('CP1252');
+    bytes += generator.text('QRIS Payment',
+        styles: const PosStyles(
+          align: PosAlign.center,
+          height: PosTextSize.size2,
+          width: PosTextSize.size2,
+          bold: true,
+        ));
+    bytes += generator.emptyLines(1);
+    bytes += generator.hr();
+    bytes += generator.emptyLines(1);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Total Payment',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printQrisPaymentDetail.totalPayment}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Expired at',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printQrisPaymentDetail.expiredTime}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'NMID',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printQrisPaymentDetail.nmid}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: 'Terminal ID',
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+      PosColumn(
+          width: 8,
+          text: ":  ${printQrisPaymentDetail.terminalId}",
+          styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
+    ]);
+    bytes += generator.emptyLines(1);
+
+    // Handle QRIS image
+    img.Image decodedImage = img.copyResize(
+        img.decodeImage(printQrisPaymentDetail.qrImage)!,
+        width: 560,
+        interpolation: img.Interpolation.cubic);
+
+    bytes += generator.feed(1);
+    bytes += generator.imageRaster(decodedImage, align: PosAlign.left);
+    bytes += generator.feed(1);
+
+    _printEscPos(bytes, generator);
+  }
+
   void _printEscPos(List<int> bytes, Generator generator) async {
     bool connectedTCP = false;
 
@@ -1111,4 +1371,58 @@ enum PrintReceiptContentType {
 
   draftWatermarkTop,
   draftWatermarkBottom,
+}
+
+/// Draw the image [src] onto the image [dst].
+///
+/// In other words, drawImage will take an rectangular area from src of
+/// width [src_w] and height [src_h] at position ([src_x],[src_y]) and place it
+/// in a rectangular area of [dst] of width [dst_w] and height [dst_h] at
+/// position ([dst_x],[dst_y]).
+///
+/// If the source and destination coordinates and width and heights differ,
+/// appropriate stretching or shrinking of the image fragment will be performed.
+/// The coordinates refer to the upper left corner. This function can be used to
+/// copy regions within the same image (if [dst] is the same as [src])
+/// but if the regions overlap the results will be unpredictable.
+img.Image drawImage(img.Image dst, img.Image src,
+    {int? dstX,
+    int? dstY,
+    int? dstW,
+    int? dstH,
+    int? srcX,
+    int? srcY,
+    int? srcW,
+    int? srcH,
+    bool blend = true}) {
+  dstX ??= 0;
+  dstY ??= 0;
+  srcX ??= 0;
+  srcY ??= 0;
+  srcW ??= src.width;
+  srcH ??= src.height;
+  dstW ??= (dst.width < src.width) ? dstW = dst.width : src.width;
+  dstH ??= (dst.height < src.height) ? dst.height : src.height;
+
+  if (blend) {
+    for (var y = 0; y < dstH; ++y) {
+      for (var x = 0; x < dstW; ++x) {
+        final stepX = (x * (srcW / dstW)).toInt();
+        final stepY = (y * (srcH / dstH)).toInt();
+        final srcPixel = src.getPixel(srcX + stepX, srcY + stepY);
+        img.drawPixel(dst, dstX + x, dstY + y, srcPixel);
+      }
+    }
+  } else {
+    for (var y = 0; y < dstH; ++y) {
+      for (var x = 0; x < dstW; ++x) {
+        final stepX = (x * (srcW / dstW)).toInt();
+        final stepY = (y * (srcH / dstH)).toInt();
+        final srcPixel = src.getPixel(srcX + stepX, srcY + stepY);
+        dst.setPixel(dstX + x, dstY + y, srcPixel);
+      }
+    }
+  }
+
+  return dst;
 }

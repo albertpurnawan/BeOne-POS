@@ -362,7 +362,7 @@ class _AllShiftState extends State<AllShift> {
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                                 color: shift.approvalStatus == 0
-                                                    ? Color.fromARGB(
+                                                    ? const Color.fromARGB(
                                                         255, 47, 143, 8)
                                                     : null,
                                               ),

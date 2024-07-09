@@ -1,9 +1,7 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -131,11 +129,11 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                           alignment: Alignment.center,
                           child: Container(
                             // width: double.infinity,
-                            padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
+                            padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
 
                             decoration: BoxDecoration(
                               color: ProjectColors.primary,
-                              borderRadius: BorderRadius.circular(60),
+                              borderRadius: BorderRadius.circular(5),
                               boxShadow: const [
                                 BoxShadow(
                                   spreadRadius: 0.5,

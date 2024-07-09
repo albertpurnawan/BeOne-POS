@@ -60,6 +60,14 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    _textEditingControllerOpenPrice.dispose();
+    _focusNodeOpenPrice.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,
@@ -152,18 +160,14 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                     final double mopAmount = Helpers.revertMoneyToDecimalFormat(
                         _textEditingControllerOpenPrice.text);
                     if (mopAmount > widget.max) return;
-                    // showDialog(
-                    //         context: context,
-                    //         builder: (context) => const EDCDialog())
-                    //     .then((value) => context.pop(mopAmount));
                     context.pop(mopAmount);
                   },
                   decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
                       hintText: "Enter Amount",
-                      hintStyle:
-                          TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
-                      border: OutlineInputBorder(),
+                      hintStyle: const TextStyle(
+                          fontStyle: FontStyle.italic, fontSize: 16),
+                      border: const OutlineInputBorder(),
                       suffix: isErr
                           ? Text(
                               errMsg,
@@ -239,14 +243,9 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   overlayColor: MaterialStateColor.resolveWith(
                       (states) => Colors.white.withOpacity(.2))),
               onPressed: () {
-                // showDialog(
-                //         context: context,
-                //         builder: (context) => const EDCDialog())
-                //     .then((value) => context.pop(
-                //         Helpers.revertMoneyToDecimalFormat(
-                //             _textEditingControllerOpenPrice.text)));
-                context.pop(Helpers.revertMoneyToDecimalFormat(
-                    _textEditingControllerOpenPrice.text));
+                final double mopAmount = Helpers.revertMoneyToDecimalFormat(
+                    _textEditingControllerOpenPrice.text);
+                context.pop(mopAmount);
               },
               child: Center(
                 child: RichText(

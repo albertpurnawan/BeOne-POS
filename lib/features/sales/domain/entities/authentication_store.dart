@@ -9,15 +9,17 @@ class AuthStoreEntity {
   final String tostrdocid;
   final String tousrdocid;
   final int statusActive;
+  final int? dflt;
   final String form;
 
   AuthStoreEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.tostrdocid,
     required this.tousrdocid,
     required this.statusActive,
+    this.dflt,
     required this.form,
   });
 
@@ -28,6 +30,7 @@ class AuthStoreEntity {
     String? tostrdocid,
     String? tousrdocid,
     int? statusActive,
+    int? dflt,
     String? form,
   }) {
     return AuthStoreEntity(
@@ -37,6 +40,7 @@ class AuthStoreEntity {
       tostrdocid: tostrdocid ?? this.tostrdocid,
       tousrdocid: tousrdocid ?? this.tousrdocid,
       statusActive: statusActive ?? this.statusActive,
+      dflt: dflt ?? this.dflt,
       form: form ?? this.form,
     );
   }
@@ -49,6 +53,7 @@ class AuthStoreEntity {
       'tostrdocid': tostrdocid,
       'tousrdocid': tousrdocid,
       'statusActive': statusActive,
+      'dflt': dflt,
       'form': form,
     };
   }
@@ -63,6 +68,7 @@ class AuthStoreEntity {
       tostrdocid: map['tostrdocid'] as String,
       tousrdocid: map['tousrdocid'] as String,
       statusActive: map['statusActive'] as int,
+      dflt: map['dflt'] != null ? map['dflt'] as int : null,
       form: map['form'] as String,
     );
   }
@@ -74,7 +80,7 @@ class AuthStoreEntity {
 
   @override
   String toString() {
-    return 'AuthStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid, statusActive: $statusActive, form: $form)';
+    return 'AuthStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid, statusActive: $statusActive, dflt: $dflt, form: $form)';
   }
 
   @override
@@ -87,6 +93,7 @@ class AuthStoreEntity {
         other.tostrdocid == tostrdocid &&
         other.tousrdocid == tousrdocid &&
         other.statusActive == statusActive &&
+        other.dflt == dflt &&
         other.form == form;
   }
 
@@ -98,6 +105,7 @@ class AuthStoreEntity {
         tostrdocid.hashCode ^
         tousrdocid.hashCode ^
         statusActive.hashCode ^
+        dflt.hashCode ^
         form.hashCode;
   }
 }

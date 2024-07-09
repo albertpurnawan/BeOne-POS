@@ -64,7 +64,7 @@ class AuthStoreApi {
         log(resp.data['data'][0].toString());
 
         List<AuthStoreModel> data = (resp.data['data'] as List)
-            .map((e) => AuthStoreModel.fromMap(e))
+            .map((e) => AuthStoreModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
       }

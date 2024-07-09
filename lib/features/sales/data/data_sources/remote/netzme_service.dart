@@ -8,7 +8,6 @@ import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 class NetzmeApi {
   final Dio _dio;
   String externalId = '';
-  String channelId = '95221';
   String timestamp = '';
   String signature = '';
   String accessToken = '';
@@ -20,6 +19,7 @@ class NetzmeApi {
       return status != null && (status < 300 || status == 308);
     };
   }
+
   String getTimestamp() {
     DateTime now = DateTime.now();
     String formattedDateTime = now.toIso8601String().split('.').first;
@@ -50,7 +50,6 @@ class NetzmeApi {
   ) async {
     try {
       timestamp = getTimestamp();
-      dev.log("Timestamp - $timestamp");
 
       final header = {
         "X-TIMESTAMP": timestamp,
@@ -59,7 +58,7 @@ class NetzmeApi {
       };
 
       final response = await _dio.post(
-        "$url/api/v1/utilities/signature-auth",
+        "${url}api/v1/utilities/signature-auth",
         options: Options(headers: header),
       );
 
@@ -92,7 +91,7 @@ class NetzmeApi {
       };
 
       final response = await _dio.post(
-        "$url/api/v1/access-token/b2b",
+        "${url}api/v1/access-token/b2b",
         data: body,
         options: Options(headers: header),
       );
@@ -128,7 +127,7 @@ class NetzmeApi {
       };
 
       final response = await _dio.post(
-        "$url/api/v1/utilities/signature-service",
+        "${url}api/v1/utilities/signature-service",
         data: bodyDetail,
         options: Options(headers: header),
       );
@@ -149,6 +148,7 @@ class NetzmeApi {
     String clientSecret,
     String privateKey,
     String xsignature,
+    String channelId,
     Map<String, dynamic> bodyDetail,
   ) async {
     try {
@@ -168,7 +168,7 @@ class NetzmeApi {
       };
 
       final response = await _dio.post(
-        "$url/api/v1.0/invoice/create-transaction",
+        "${url}api/v1.0/invoice/create-transaction",
         data: bodyDetail,
         options: Options(headers: header),
       );
@@ -204,6 +204,7 @@ class NetzmeApi {
     String clientKey,
     String privateKey,
     String xsignature,
+    String channelId,
     Map<String, dynamic> bodyDetail,
   ) async {
     try {
@@ -219,7 +220,7 @@ class NetzmeApi {
       };
 
       final response = await _dio.post(
-        "$url/api-invoice/v1.0/transaction-history-detail",
+        "${url}api-invoice/v1.0/transaction-history-detail",
         data: bodyDetail,
         options: Options(headers: header),
       );

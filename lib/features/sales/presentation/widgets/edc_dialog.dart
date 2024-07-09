@@ -44,6 +44,7 @@ class _EDCDialogState extends State<EDCDialog> {
   final TextEditingController _cardNumber2Controller = TextEditingController();
   final TextEditingController _cardHolderController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _refNumberController = TextEditingController();
   bool isCredit = false;
   List<MopSelectionEntity> mopList = [];
   MopSelectionEntity? mopSelected;
@@ -52,6 +53,7 @@ class _EDCDialogState extends State<EDCDialog> {
   CampaignEntity? campaignSelected;
   String campaignName = "Select Campaign Here...";
   bool isErr = false;
+  bool savePressed = false;
   String errMsg = "Invalid amount";
 
   late final _focusNodeAmount = FocusNode(
@@ -94,6 +96,7 @@ class _EDCDialogState extends State<EDCDialog> {
     _cardNumber2Controller.dispose();
     _cardHolderController.dispose();
     _amountController.dispose();
+    _refNumberController.dispose();
     super.dispose();
   }
 
@@ -162,6 +165,11 @@ class _EDCDialogState extends State<EDCDialog> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (mopSelected == null && savePressed)
+                    const Text(
+                      "Please select the Mean of Payment",
+                      style: TextStyle(color: Colors.red),
+                    ),
                   const SizedBox(
                     height: 10,
                   ),
@@ -254,6 +262,11 @@ class _EDCDialogState extends State<EDCDialog> {
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                  if (cardSelected == null && savePressed)
+                                    const Text(
+                                      "Please select a card type",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   const Icon(Icons.arrow_right_outlined),
                                 ],
                               ),
@@ -511,7 +524,7 @@ class _EDCDialogState extends State<EDCDialog> {
                             height: 50,
                             child: TextFormField(
                               textAlign: TextAlign.left,
-                              controller: _cardHolderController,
+                              controller: _refNumberController,
                               style: const TextStyle(fontSize: 18),
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.all(10),
@@ -580,9 +593,6 @@ class _EDCDialogState extends State<EDCDialog> {
                                     : null,
                               ),
                               enabled: widget.isMultiMOPs,
-                              // initialValue: widget.isMultiMOPs
-                              //     ? null
-                              //     : widget.max.toString(),
                               onChanged: (value) {
                                 final double mopAmount =
                                     Helpers.revertMoneyToDecimalFormat(value);
@@ -662,9 +672,14 @@ class _EDCDialogState extends State<EDCDialog> {
                     overlayColor: MaterialStateColor.resolveWith(
                         (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
+                  setState(() {
+                    savePressed = true;
+                  });
                   final edcAmount = widget.isMultiMOPs
-                      ? Helpers.revertMoneyToDecimalFormatDouble(
-                          _amountController.text)
+                      ? (_amountController.text.isEmpty)
+                          ? widget.max
+                          : Helpers.revertMoneyToDecimalFormatDouble(
+                              _amountController.text)
                       : widget.max;
                   final edc = EDCSelectionEntity(
                     docId: const Uuid().v4(),
@@ -678,8 +693,12 @@ class _EDCDialogState extends State<EDCDialog> {
                   final mopEDC = mopSelected!.copyWith(
                     amount: edcAmount,
                     tpmt2Id: cardSelected!.docId,
-                    cardNo: cardSelected!.ccCode,
+                    cardNo: (_cardNumber1Controller.text.isEmpty ||
+                            _cardNumber2Controller.text.isEmpty)
+                        ? ""
+                        : "${_cardNumber1Controller.text}-xxxx-xxxx-${_cardNumber2Controller.text}",
                     cardHolder: _cardHolderController.text,
+                    rrn: _refNumberController.text,
                   );
                   widget.onEDCSelected(edc, mopEDC);
                   context.pop();

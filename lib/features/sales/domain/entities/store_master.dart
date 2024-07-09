@@ -69,8 +69,9 @@ class StoreMasterEntity {
   final String? netzmeUrl;
   final String? netzmeClientKey;
   final String? netzmeClientSecret;
-  final String? netzmePrivateKey;
+  final String? netzmeClientPrivateKey;
   final String? netzmeCustidMerchant;
+  final String? netzmeChannelId;
 
   StoreMasterEntity({
     required this.docId,
@@ -140,8 +141,9 @@ class StoreMasterEntity {
     this.netzmeUrl,
     this.netzmeClientKey,
     this.netzmeClientSecret,
-    this.netzmePrivateKey,
+    this.netzmeClientPrivateKey,
     this.netzmeCustidMerchant,
+    this.netzmeChannelId,
   });
 
   StoreMasterEntity copyWith({
@@ -212,8 +214,9 @@ class StoreMasterEntity {
     String? netzmeUrl,
     String? netzmeClientKey,
     String? netzmeClientSecret,
-    String? netzmePrivateKey,
+    String? netzmeClientPrivateKey,
     String? netzmeCustidMerchant,
+    String? netzmeChannelId,
   }) {
     return StoreMasterEntity(
       docId: docId ?? this.docId,
@@ -283,8 +286,10 @@ class StoreMasterEntity {
       netzmeUrl: netzmeUrl ?? this.netzmeUrl,
       netzmeClientKey: netzmeClientKey ?? this.netzmeClientKey,
       netzmeClientSecret: netzmeClientSecret ?? this.netzmeClientSecret,
-      netzmePrivateKey: netzmePrivateKey ?? this.netzmePrivateKey,
+      netzmeClientPrivateKey:
+          netzmeClientPrivateKey ?? this.netzmeClientPrivateKey,
       netzmeCustidMerchant: netzmeCustidMerchant ?? this.netzmeCustidMerchant,
+      netzmeChannelId: netzmeChannelId ?? this.netzmeChannelId,
     );
   }
 
@@ -357,8 +362,9 @@ class StoreMasterEntity {
       'netzmeUrl': netzmeUrl,
       'netzmeClientKey': netzmeClientKey,
       'netzmeClientSecret': netzmeClientSecret,
-      'netzmePrivateKey': netzmePrivateKey,
+      'netzmeClientPrivateKey': netzmeClientPrivateKey,
       'netzmeCustidMerchant': netzmeCustidMerchant,
+      'netzmeChannelId': netzmeChannelId,
     };
   }
 
@@ -448,11 +454,14 @@ class StoreMasterEntity {
       netzmeClientSecret: map['netzmeClientSecret'] != null
           ? map['netzmeClientSecret'] as String
           : null,
-      netzmePrivateKey: map['netzmePrivateKey'] != null
-          ? map['netzmePrivateKey'] as String
+      netzmeClientPrivateKey: map['netzmeClientPrivateKey'] != null
+          ? map['netzmeClientPrivateKey'] as String
           : null,
       netzmeCustidMerchant: map['netzmeCustidMerchant'] != null
           ? map['netzmeCustidMerchant'] as String
+          : null,
+      netzmeChannelId: map['netzmeChannelId'] != null
+          ? map['netzmeChannelId'] as String
           : null,
     );
   }
@@ -464,7 +473,7 @@ class StoreMasterEntity {
 
   @override
   String toString() {
-    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, form: $form, salesViewType: $salesViewType, otpChannel: $otpChannel, otpUrl: $otpUrl, netzmeUrl: $netzmeUrl, netzmeClientKey: $netzmeClientKey, netzmeClientSecret: $netzmeClientSecret, netzmePrivateKey: $netzmePrivateKey, netzmeCustidMerchant: $netzmeCustidMerchant)';
+    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, form: $form, salesViewType: $salesViewType, otpChannel: $otpChannel, otpUrl: $otpUrl, netzmeUrl: $netzmeUrl, netzmeClientKey: $netzmeClientKey, netzmeClientSecret: $netzmeClientSecret, netzmeClientPrivateKey: $netzmeClientPrivateKey, netzmeCustidMerchant: $netzmeCustidMerchant, netzmeChannelId: $netzmeChannelId)';
   }
 
   @override
@@ -538,8 +547,9 @@ class StoreMasterEntity {
         other.netzmeUrl == netzmeUrl &&
         other.netzmeClientKey == netzmeClientKey &&
         other.netzmeClientSecret == netzmeClientSecret &&
-        other.netzmePrivateKey == netzmePrivateKey &&
-        other.netzmeCustidMerchant == netzmeCustidMerchant;
+        other.netzmeClientPrivateKey == netzmeClientPrivateKey &&
+        other.netzmeCustidMerchant == netzmeCustidMerchant &&
+        other.netzmeChannelId == netzmeChannelId;
   }
 
   @override
@@ -611,7 +621,8 @@ class StoreMasterEntity {
         netzmeUrl.hashCode ^
         netzmeClientKey.hashCode ^
         netzmeClientSecret.hashCode ^
-        netzmePrivateKey.hashCode ^
+        netzmeClientPrivateKey.hashCode ^
+        netzmeChannelId.hashCode ^
         netzmeCustidMerchant.hashCode;
   }
 }
