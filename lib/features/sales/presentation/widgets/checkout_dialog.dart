@@ -763,7 +763,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(60),
+        borderRadius: BorderRadius.circular(5),
         boxShadow: const [
           BoxShadow(
             spreadRadius: 0.5,
@@ -850,7 +850,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       result.add(Container(
         padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(60),
+          borderRadius: BorderRadius.circular(5),
           boxShadow: const [
             BoxShadow(
               spreadRadius: 0.5,

@@ -136,7 +136,7 @@ class _SalesPageState extends State<SalesPage> {
               // F7 is Remove item
               event.physicalKey == PhysicalKeyboardKey.f8 ||
               event.physicalKey == PhysicalKeyboardKey.f9 ||
-              event.physicalKey == PhysicalKeyboardKey.f10 ||
+              // event.physicalKey == PhysicalKeyboardKey.f10 ||
               event.physicalKey == PhysicalKeyboardKey.f11 ||
               event.physicalKey == PhysicalKeyboardKey.f12) {
         if (isUpdatingReceiptItemQty) {
@@ -202,6 +202,8 @@ class _SalesPageState extends State<SalesPage> {
           });
         }
         return KeyEventResult.skipRemainingHandlers;
+      } else if (event.physicalKey == PhysicalKeyboardKey.f10) {
+        return KeyEventResult.handled;
       } else {
         return KeyEventResult.ignored;
       }
@@ -261,6 +263,10 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowLeft ||
           event.physicalKey == PhysicalKeyboardKey.arrowRight) {
         return KeyEventResult.skipRemainingHandlers;
+      } else if (event.physicalKey == PhysicalKeyboardKey.f10) {
+        Future.delayed(Durations.medium1,
+            () => _newReceiptItemCodeFocusNode.requestFocus());
+        return KeyEventResult.handled;
       } else {
         return KeyEventResult.ignored;
       }
@@ -1995,7 +2001,7 @@ class _SalesPageState extends State<SalesPage> {
           Expanded(
             flex: 3,
             child: Padding(
-              padding: const EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.only(right: 12),
               child: Column(
                 children: [
                   Expanded(
@@ -3730,6 +3736,9 @@ class _SalesPageState extends State<SalesPage> {
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         }
+      } else {
+        textFieldFocusNode.requestFocus();
+        setState(() {});
       }
     } else {
       textFieldFocusNode.requestFocus();

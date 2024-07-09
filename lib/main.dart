@@ -43,14 +43,17 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
+    // await hotKeyManager.unregister(
+    //     HotKey(key: LogicalKeyboardKey.f10, scope: HotKeyScope.system));
   }
-  WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
   await GetIt.instance.allReady();
   await syncWithBOS();

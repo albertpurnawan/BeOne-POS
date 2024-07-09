@@ -1,13 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pos_fe/core/resources/image_assets.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -166,11 +162,155 @@ class ReceiptPrinter {
               log("toinvtohemId employe $salesEmployeeEntity");
             }
 
+            // Layout1
+            // bytes += generator.row([
+            //   PosColumn(
+            //       width: 4,
+            //       text:
+            //           "${item.promos.isEmpty || item.discAmount! <= 0 ? "" : "*"}${item.itemEntity.itemCode}",
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   PosColumn(
+            //       width: 5,
+            //       // text: Helpers.clipStringAndAddEllipsis(
+            //       //     "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
+            //       //     35),
+            //       text: " ${item.itemEntity.itemName}".substring(0, 19),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   // PosColumn(
+            //   //     width: 1,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.cleanDecimal(item.quantity, 3), 3),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   // PosColumn(
+            //   //     width: 3,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.parseMoney(item.itemEntity.price.round()), 10),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   PosColumn(
+            //       width: 3,
+            //       text: Helpers.alignRightByAddingSpace(
+            //           Helpers.parseMoney(item.totalAmount.round()), 11),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            // ]);
+            // bytes += generator.row([
+            //   PosColumn(
+            //       width: 5,
+            //       text: Helpers.clipStringAndAddEllipsis(
+            //           ' ${salesEmployeeEntity?.empName ?? ""}', 15),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   // PosColumn(
+            //   //     width: 1,
+            //   //     // text: Helpers.clipStringAndAddEllipsis(
+            //   //     //     "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
+            //   //     //     35),
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         "${Helpers.cleanDecimal(item.quantity, 3)}x", 3),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   // PosColumn(
+            //   //     width: 1,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.cleanDecimal(item.quantity, 3), 3),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   // PosColumn(
+            //   //     width: 3,
+            //   //     text: Helpers.alignRightByAddingSpace(
+            //   //         Helpers.parseMoney(item.itemEntity.price.round()), 10),
+            //   //     styles: PosStyles(
+            //   //       align: PosAlign.left,
+            //   //       height: printReceiptContent.fontSize,
+            //   //       width: printReceiptContent.fontSize,
+            //   //       bold: printReceiptContent.isBold,
+            //   //       codeTable: 'CP1252',
+            //   //     )),
+            //   PosColumn(
+            //       width: 4,
+            //       text: Helpers.alignRightByAddingSpace(
+            //           "${Helpers.cleanDecimal(item.quantity, 3)}x @${Helpers.parseMoney(item.sellingPrice.round())}",
+            //           15),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            //   PosColumn(
+            //       width: 3,
+            //       text: "",
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: printReceiptContent.isBold,
+            //         codeTable: 'CP1252',
+            //       )),
+            // ]);
+
+            // Layout2
             bytes += generator.row([
+              PosColumn(
+                  width: 5,
+                  text:
+                      "${item.promos.isEmpty || item.discAmount! <= 0 ? "" : "*"}${item.itemEntity.barcode}",
+                  styles: PosStyles(
+                    align: PosAlign.left,
+                    height: printReceiptContent.fontSize,
+                    width: printReceiptContent.fontSize,
+                    bold: printReceiptContent.isBold,
+                    codeTable: 'CP1252',
+                  )),
               PosColumn(
                   width: 4,
                   text:
-                      "${item.promos.isEmpty || item.discAmount! <= 0 ? "" : "*"}${item.itemEntity.itemCode}",
+                      " ${Helpers.cleanDecimal(item.quantity, 3)}x@${Helpers.parseMoney(item.sellingPrice.round())}",
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
@@ -178,41 +318,6 @@ class ReceiptPrinter {
                     bold: printReceiptContent.isBold,
                     codeTable: 'CP1252',
                   )),
-              PosColumn(
-                  width: 5,
-                  // text: Helpers.clipStringAndAddEllipsis(
-                  //     "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
-                  //     35),
-                  text: " ${item.itemEntity.itemName}".substring(0, 19),
-                  styles: PosStyles(
-                    align: PosAlign.left,
-                    height: printReceiptContent.fontSize,
-                    width: printReceiptContent.fontSize,
-                    bold: printReceiptContent.isBold,
-                    codeTable: 'CP1252',
-                  )),
-              // PosColumn(
-              //     width: 1,
-              //     text: Helpers.alignRightByAddingSpace(
-              //         Helpers.cleanDecimal(item.quantity, 3), 3),
-              //     styles: PosStyles(
-              //       align: PosAlign.left,
-              //       height: printReceiptContent.fontSize,
-              //       width: printReceiptContent.fontSize,
-              //       bold: printReceiptContent.isBold,
-              //       codeTable: 'CP1252',
-              //     )),
-              // PosColumn(
-              //     width: 3,
-              //     text: Helpers.alignRightByAddingSpace(
-              //         Helpers.parseMoney(item.itemEntity.price.round()), 10),
-              //     styles: PosStyles(
-              //       align: PosAlign.left,
-              //       height: printReceiptContent.fontSize,
-              //       width: printReceiptContent.fontSize,
-              //       bold: printReceiptContent.isBold,
-              //       codeTable: 'CP1252',
-              //     )),
               PosColumn(
                   width: 3,
                   text: Helpers.alignRightByAddingSpace(
@@ -225,81 +330,18 @@ class ReceiptPrinter {
                     codeTable: 'CP1252',
                   )),
             ]);
-            bytes += generator.row([
-              PosColumn(
-                  width: 5,
-                  text: Helpers.clipStringAndAddEllipsis(
-                      ' ${salesEmployeeEntity?.empName ?? ""}', 15),
-                  styles: PosStyles(
-                    align: PosAlign.left,
-                    height: printReceiptContent.fontSize,
-                    width: printReceiptContent.fontSize,
-                    bold: printReceiptContent.isBold,
-                    codeTable: 'CP1252',
-                  )),
-              // PosColumn(
-              //     width: 1,
-              //     // text: Helpers.clipStringAndAddEllipsis(
-              //     //     "${item.promos.isEmpty ? "" : "*"}${item.itemEntity.itemName}",
-              //     //     35),
-              //     text: Helpers.alignRightByAddingSpace(
-              //         "${Helpers.cleanDecimal(item.quantity, 3)}x", 3),
-              //     styles: PosStyles(
-              //       align: PosAlign.left,
-              //       height: printReceiptContent.fontSize,
-              //       width: printReceiptContent.fontSize,
-              //       bold: printReceiptContent.isBold,
-              //       codeTable: 'CP1252',
-              //     )),
-              // PosColumn(
-              //     width: 1,
-              //     text: Helpers.alignRightByAddingSpace(
-              //         Helpers.cleanDecimal(item.quantity, 3), 3),
-              //     styles: PosStyles(
-              //       align: PosAlign.left,
-              //       height: printReceiptContent.fontSize,
-              //       width: printReceiptContent.fontSize,
-              //       bold: printReceiptContent.isBold,
-              //       codeTable: 'CP1252',
-              //     )),
-              // PosColumn(
-              //     width: 3,
-              //     text: Helpers.alignRightByAddingSpace(
-              //         Helpers.parseMoney(item.itemEntity.price.round()), 10),
-              //     styles: PosStyles(
-              //       align: PosAlign.left,
-              //       height: printReceiptContent.fontSize,
-              //       width: printReceiptContent.fontSize,
-              //       bold: printReceiptContent.isBold,
-              //       codeTable: 'CP1252',
-              //     )),
-              PosColumn(
-                  width: 4,
-                  text: Helpers.alignRightByAddingSpace(
-                      "${Helpers.cleanDecimal(item.quantity, 3)}x @${Helpers.parseMoney(item.sellingPrice.round())}",
-                      15),
-                  styles: PosStyles(
-                    align: PosAlign.left,
-                    height: printReceiptContent.fontSize,
-                    width: printReceiptContent.fontSize,
-                    bold: printReceiptContent.isBold,
-                    codeTable: 'CP1252',
-                  )),
-              PosColumn(
-                  width: 3,
-                  text: "",
-                  styles: PosStyles(
-                    align: PosAlign.left,
-                    height: printReceiptContent.fontSize,
-                    width: printReceiptContent.fontSize,
-                    bold: printReceiptContent.isBold,
-                    codeTable: 'CP1252',
-                  )),
-            ]);
+            bytes += generator.text(
+                "${item.itemEntity.itemName.substring(0, 20)} <${Helpers.clipStringAndAddEllipsis(salesEmployeeEntity?.empName ?? "", 19)}>",
+                styles: PosStyles(
+                  align: PosAlign.left,
+                  height: printReceiptContent.fontSize,
+                  width: printReceiptContent.fontSize,
+                  bold: printReceiptContent.isBold,
+                  codeTable: 'CP1252',
+                ));
           }
         case PrintReceiptContentType.totalPrice:
           bytes += generator.emptyLines(1);
-
           bytes += generator.row([
             PosColumn(
                 width: 4,
