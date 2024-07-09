@@ -310,7 +310,7 @@ class ReceiptPrinter {
               PosColumn(
                   width: 4,
                   text:
-                      " ${Helpers.cleanDecimal(item.quantity, 3)}x@${Helpers.parseMoney(item.sellingPrice.round())}",
+                      " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}",
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
