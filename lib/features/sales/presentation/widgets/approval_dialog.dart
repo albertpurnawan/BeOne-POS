@@ -72,8 +72,42 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   }
 
   Future<String> createOTP() async {
-    final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
-    return response['Requester'];
+    try {
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
+      return response['Requester'];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> handleOTP(BuildContext childContext) async {
+    try {
+      setState(() {
+        _isOTPClicked = true;
+        _isSendingOTP = true;
+      });
+
+      await createOTP().then((value) async {
+        setState(() {
+          _isOTPClicked = false;
+          _isSendingOTP = false;
+        });
+
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => OTPSubmissionDialog(
+            requester: value,
+          ),
+        );
+      });
+    } catch (e) {
+      setState(() {
+        _isOTPClicked = false;
+        _isSendingOTP = false;
+      });
+      SnackBarHelper.presentFailSnackBar(childContext, e.toString());
+    }
   }
 
   @override
@@ -99,25 +133,8 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 parentContext.pop();
               } else if (value.physicalKey == PhysicalKeyboardKey.f11) {
-                setState(() {
-                  _isOTPClicked = true;
-                  _isSendingOTP = true;
-                });
-
-                createOTP().then((value) {
-                  setState(() {
-                    _isOTPClicked = false;
-                    _isSendingOTP = false;
-                  });
-
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => OTPSubmissionDialog(
-                      requester: value,
-                    ),
-                  );
-                });
+                handleOTP(childContext);
+                return KeyEventResult.handled;
               }
 
               return KeyEventResult.ignored;
@@ -224,27 +241,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () async {
-                                          setState(() {
-                                            _isOTPClicked = true;
-                                            _isSendingOTP = true;
-                                          });
-
-                                          await createOTP();
-
-                                          setState(() {
-                                            _isOTPClicked = false;
-                                            _isSendingOTP = false;
-                                          });
-
-                                          // showDialog(
-                                          //   context: context,
-                                          //   barrierDismissible: false,
-                                          //   builder: (context) =>
-                                          //       OTPInputDialog(
-                                          //     discountValue:
-                                          //         widget.discountValue,
-                                          //   ),
-                                          // );
+                                          await handleOTP(childContext);
                                         },
                                     ),
                                     TextSpan(
