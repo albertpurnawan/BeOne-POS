@@ -58,24 +58,18 @@ class EDCSelectionEntity {
   factory EDCSelectionEntity.fromMap(Map<String, dynamic> map) {
     return EDCSelectionEntity(
       docId: map['docId'] as String,
-      creditCard:
-          CreditCardEntity.fromMap(map['creditCard'] as Map<String, dynamic>),
+      creditCard: CreditCardEntity.fromMap(map['creditCard'] as Map<String, dynamic>),
       tpmt1Id: map['tpmt1Id'] != null ? map['tpmt1Id'] as String : null,
-      cardNoPrefix:
-          map['cardNoPrefix'] != null ? map['cardNoPrefix'] as String : null,
-      cardNoSuffix:
-          map['cardNoSuffix'] != null ? map['cardNoSuffix'] as String : null,
-      campaign: map['campaign'] != null
-          ? CampaignEntity.fromMap(map['campaign'] as Map<String, dynamic>)
-          : null,
+      cardNoPrefix: map['cardNoPrefix'] != null ? map['cardNoPrefix'] as String : null,
+      cardNoSuffix: map['cardNoSuffix'] != null ? map['cardNoSuffix'] as String : null,
+      campaign: map['campaign'] != null ? CampaignEntity.fromMap(map['campaign'] as Map<String, dynamic>) : null,
       amount: map['amount'] != null ? map['amount'] as double : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory EDCSelectionEntity.fromJson(String source) =>
-      EDCSelectionEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory EDCSelectionEntity.fromJson(String source) => EDCSelectionEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {

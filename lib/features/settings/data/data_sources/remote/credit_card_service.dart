@@ -62,7 +62,7 @@ class CreditCardApi {
         log(resp.data['data'][0].toString());
 
         List<CreditCardModel> data = (resp.data['data'] as List)
-            .map((e) => CreditCardModel.fromMap(e))
+            .map((e) => CreditCardModel.fromMapRemote(e))
             .toList();
         allData.addAll(data);
       }

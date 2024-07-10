@@ -10,6 +10,7 @@ class CreditCardEntity {
   final int cardType;
   final int statusActive;
   final int activated;
+  final String? tpmt5Id;
   final String form;
 
   CreditCardEntity({
@@ -21,6 +22,7 @@ class CreditCardEntity {
     required this.cardType,
     required this.statusActive,
     required this.activated,
+    this.tpmt5Id,
     required this.form,
   });
 
@@ -33,6 +35,7 @@ class CreditCardEntity {
     int? cardType,
     int? statusActive,
     int? activated,
+    String? tpmt5Id,
     String? form,
   }) {
     return CreditCardEntity(
@@ -44,6 +47,7 @@ class CreditCardEntity {
       cardType: cardType ?? this.cardType,
       statusActive: statusActive ?? this.statusActive,
       activated: activated ?? this.activated,
+      tpmt5Id: tpmt5Id ?? this.tpmt5Id,
       form: form ?? this.form,
     );
   }
@@ -58,6 +62,7 @@ class CreditCardEntity {
       'cardType': cardType,
       'statusActive': statusActive,
       'activated': activated,
+      'tpmt5Id': tpmt5Id,
       'form': form,
     };
   }
@@ -74,6 +79,7 @@ class CreditCardEntity {
       cardType: map['cardType'] as int,
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
+      tpmt5Id: map['tpmt5Id'] != null ? map['tpmt5Id'] as String : null,
       form: map['form'] as String,
     );
   }
@@ -85,7 +91,7 @@ class CreditCardEntity {
 
   @override
   String toString() {
-    return 'CreditCardEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, ccCode: $ccCode, description: $description, cardType: $cardType, statusActive: $statusActive, activated: $activated, form: $form)';
+    return 'CreditCardEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, ccCode: $ccCode, description: $description, cardType: $cardType, statusActive: $statusActive, activated: $activated, tpmt5Id: $tpmt5Id, form: $form)';
   }
 
   @override
@@ -100,6 +106,7 @@ class CreditCardEntity {
         other.cardType == cardType &&
         other.statusActive == statusActive &&
         other.activated == activated &&
+        other.tpmt5Id == tpmt5Id &&
         other.form == form;
   }
 
@@ -113,6 +120,7 @@ class CreditCardEntity {
         cardType.hashCode ^
         statusActive.hashCode ^
         activated.hashCode ^
+        tpmt5Id.hashCode ^
         form.hashCode;
   }
 }

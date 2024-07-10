@@ -13,6 +13,7 @@ class CreditCardFields {
     cardType,
     statusActive,
     activated,
+    tpmt5Id,
     form,
   ];
 
@@ -24,6 +25,7 @@ class CreditCardFields {
   static const String cardType = "cardtype";
   static const String statusActive = "statusactive";
   static const String activated = "activated";
+  static const String tpmt5Id = "tpmt5Id";
   static const String form = "form";
 }
 
@@ -37,6 +39,7 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
     required super.cardType,
     required super.statusActive,
     required super.activated,
+    required super.tpmt5Id,
     required super.form,
   });
 
@@ -51,6 +54,7 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
       'cardtype': cardType,
       'statusactive': statusActive,
       'activated': activated,
+      'tpmt5Id': tpmt5Id,
       'form': form,
     };
   }
@@ -67,8 +71,18 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
       cardType: map['cardtype'] as int,
       statusActive: map['statusactive'] as int,
       activated: map['activated'] as int,
+      tpmt5Id: map['tpmt5Id'] != null ? map['tpmt5Id'] as String : null,
       form: map['form'] as String,
     );
+  }
+
+  factory CreditCardModel.fromMapRemote(Map<String, dynamic> map) {
+    return CreditCardModel.fromMap({
+      ...map,
+      "tpmt5Id": map['bankissuedocid'] != null
+          ? map['bankissuedocid'] as String
+          : null,
+    });
   }
 
   factory CreditCardModel.fromEntity(CreditCardEntity entity) {
@@ -81,6 +95,7 @@ class CreditCardModel extends CreditCardEntity implements BaseModel {
       cardType: entity.cardType,
       statusActive: entity.statusActive,
       activated: entity.activated,
+      tpmt5Id: entity.tpmt5Id,
       form: entity.form,
     );
   }

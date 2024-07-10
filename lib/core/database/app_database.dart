@@ -1360,6 +1360,7 @@ CREATE TABLE $tableMOP (
   ${MeansOfPaymentFields.credit} int NOT NULL,
   ${MeansOfPaymentFields.subType} int NOT NULL DEFAULT '0',
   ${MeansOfPaymentFields.validForEmp} int NOT NULL DEFAULT '0',
+  ${MeansOfPaymentFields.tpmt4Id} text DEFAULT NULL,
   ${MeansOfPaymentFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmt1_topmtId_fkey` FOREIGN KEY (`topmtId`) REFERENCES `topmt` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -1376,6 +1377,7 @@ CREATE TABLE $tableCC (
   ${CreditCardFields.cardType} int NOT NULL DEFAULT '0',
   ${CreditCardFields.statusActive} int NOT NULL DEFAULT '0',
   ${CreditCardFields.activated} int NOT NULL DEFAULT '0',
+  ${CreditCardFields.tpmt5Id} text DEFAULT NULL,
   ${CreditCardFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )

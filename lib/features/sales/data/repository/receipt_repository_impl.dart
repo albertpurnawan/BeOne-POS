@@ -34,8 +34,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   ReceiptRepositoryImpl(this._appDatabase, this._uuid);
 
   @override
-  Future<ReceiptModel?> createInvoiceHeaderAndDetail(
-      ReceiptEntity receiptEntity) async {
+  Future<ReceiptModel?> createInvoiceHeaderAndDetail(ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
 
@@ -48,8 +47,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     final startDate = DateTime(now.year, now.month, now.day, 00, 00, 00, 000);
     final endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
 
-    final invoices =
-        await _appDatabase.invoiceHeaderDao.readBetweenDate(startDate, endDate);
+    final invoices = await _appDatabase.invoiceHeaderDao.readBetweenDate(startDate, endDate);
     if (invoices != null) {
       countInv = invoices.length;
     } else {
@@ -57,11 +55,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     }
 
     await db.transaction((txn) async {
-      final POSParameterModel posParameterModel =
-          (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
+      final POSParameterModel posParameterModel = (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
 
-      final EmployeeModel employee =
-          (await _appDatabase.employeeDao.readByDocId(tohemIdPref!, txn))!;
+      final EmployeeModel employee = (await _appDatabase.employeeDao.readByDocId(tohemIdPref!, txn))!;
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -77,8 +73,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         remarks: receiptEntity.remarks,
         subTotal: receiptEntity.subtotal,
         discPrctg: receiptEntity.discPrctg ?? 0,
-        discAmount: (receiptEntity.discHeaderManual ?? 0) +
-            (receiptEntity.discHeaderPromo ?? 0),
+        discAmount: (receiptEntity.discHeaderManual ?? 0) + (receiptEntity.discHeaderPromo ?? 0),
         discountCard: 0,
         coupon: "",
         discountCoupun: 0,
@@ -93,8 +88,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docStatus: 0,
         sync: 0,
         syncCRM: 0,
-        toinvTohemId:
-            receiptEntity.toinvTohemId ?? employee.docId, // get di sini
+        toinvTohemId: receiptEntity.toinvTohemId ?? employee.docId, // get di sini
         refpos1: tcsr1IdPref, // get di sini
         refpos2: '', //
         tcsr1Id: tcsr1IdPref, // get di sini
@@ -105,11 +99,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
-      await _appDatabase.invoiceHeaderDao
-          .create(data: invoiceHeaderModel, txn: txn);
+      await _appDatabase.invoiceHeaderDao.create(data: invoiceHeaderModel, txn: txn);
 
-      final List<InvoiceDetailModel> invoiceDetailModels =
-          receiptEntity.receiptItems.asMap().entries.map((entry) {
+      final List<InvoiceDetailModel> invoiceDetailModels = receiptEntity.receiptItems.asMap().entries.map((entry) {
         final int index = entry.key;
         final ReceiptItemEntity e = entry.value;
         log("receiptItemEntity E - $e");
@@ -128,12 +120,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           discAmount: e.discAmount ?? 0,
           totalAmount: e.totalAmount,
           taxPrctg: e.itemEntity.taxRate,
-          promotionType: e.promos.isEmpty
-              ? ""
-              : e.promos.first.promoType.toString(), // kalau promo > 1?
-          promotionId: e.promos.isEmpty
-              ? ""
-              : e.promos.first.promoId.toString(), // kalau promo > 1?
+          promotionType: e.promos.isEmpty ? "" : e.promos.first.promoType.toString(), // kalau promo > 1?
+          promotionId: e.promos.isEmpty ? "" : e.promos.first.promoId.toString(), // kalau promo > 1?
           remarks: e.remarks,
           editTime: DateTime.now(), // ?
           cogs: 0,
@@ -153,13 +141,11 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
       log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
 
-      await _appDatabase.invoiceDetailDao
-          .bulkCreate(data: invoiceDetailModels, txn: txn);
+      await _appDatabase.invoiceDetailDao.bulkCreate(data: invoiceDetailModels, txn: txn);
 
       log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
       final List<PayMeansModel> payMeansModels = [];
-      for (final MopSelectionEntity mopSelectionEntity
-          in receiptEntity.mopSelections) {
+      for (final MopSelectionEntity mopSelectionEntity in receiptEntity.mopSelections) {
         payMeansModels.add(PayMeansModel(
           docId: _uuid.v4(),
           createDate: null,
@@ -168,7 +154,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           lineNum: 1,
           tpmt3Id: mopSelectionEntity.tpmt3Id,
           amount: mopSelectionEntity.amount ?? 0,
-          tpmt2Id: mopSelectionEntity.tpmt2Id,
+          tpmt2Id: mopSelectionEntity.creditCard!.docId,
           cardNo: mopSelectionEntity.cardNo,
           cardHolder: mopSelectionEntity.cardHolder,
           sisaVoucher: null,
@@ -204,8 +190,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         }).toList();
       }
 
-      final List<VouchersSelectionModel> vouchersModel =
-          vouchers.asMap().entries.map((entry) {
+      final List<VouchersSelectionModel> vouchersModel = vouchers.asMap().entries.map((entry) {
         final VouchersSelectionEntity e = entry.value;
         return VouchersSelectionModel(
           docId: e.docId,
@@ -270,54 +255,37 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     ReceiptModel? receiptModel;
 
     await db.transaction((txn) async {
-      final InvoiceHeaderModel? invoiceHeaderModel =
-          await _appDatabase.invoiceHeaderDao.readByDocId(docId, txn);
+      final InvoiceHeaderModel? invoiceHeaderModel = await _appDatabase.invoiceHeaderDao.readByDocId(docId, txn);
       log("INVOICE HEADER MODEL 2 - $invoiceHeaderModel");
 
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
       }
-      final CustomerModel? customerModel = invoiceHeaderModel.tocusId != null
-          ? await _appDatabase.customerDao
-              .readByDocId(invoiceHeaderModel.tocusId!, txn)
-          : null;
+      final CustomerModel? customerModel =
+          invoiceHeaderModel.tocusId != null ? await _appDatabase.customerDao.readByDocId(invoiceHeaderModel.tocusId!, txn) : null;
 
-      final EmployeeModel? employeeModel = invoiceHeaderModel.tohemId != null
-          ? await _appDatabase.employeeDao
-              .readByDocId(invoiceHeaderModel.tohemId!, txn)
-          : null;
+      final EmployeeModel? employeeModel =
+          invoiceHeaderModel.tohemId != null ? await _appDatabase.employeeDao.readByDocId(invoiceHeaderModel.tohemId!, txn) : null;
 
-      final List<MopSelectionModel> mopSelectionModels =
-          await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
-      final List<MopSelectionModel> mopSelectionModelsWithoutVoucher =
-          mopSelectionModels
-              .where((element) => element.payTypeCode != "6")
-              .toList();
+      final List<MopSelectionModel> mopSelectionModels = await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
+      final List<MopSelectionModel> mopSelectionModelsWithoutVoucher = mopSelectionModels.where((element) => element.payTypeCode != "6").toList();
 
-      final List<InvoiceDetailModel> invoiceDetailModels =
-          await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
+      final List<InvoiceDetailModel> invoiceDetailModels = await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
 
       List<ReceiptItemModel> receiptItemModels = [];
       for (final invoiceDetailModel in invoiceDetailModels) {
-        final ItemMasterModel? itemMasterModel = await _appDatabase
-            .itemMasterDao
-            .readByDocId(invoiceDetailModel.toitmId!, txn);
+        final ItemMasterModel? itemMasterModel = await _appDatabase.itemMasterDao.readByDocId(invoiceDetailModel.toitmId!, txn);
         if (itemMasterModel == null) throw "Item not found";
 
-        final ItemBarcodeModel? itemBarcodeModel = await _appDatabase
-            .itemBarcodeDao
-            .readByDocId(invoiceDetailModel.tbitmId!, txn);
+        final ItemBarcodeModel? itemBarcodeModel = await _appDatabase.itemBarcodeDao.readByDocId(invoiceDetailModel.tbitmId!, txn);
         if (itemBarcodeModel == null) throw "Barcode not found";
 
         receiptItemModels.add(ReceiptItemModel(
           quantity: invoiceDetailModel.quantity,
-          totalGross: ((invoiceDetailModel.totalAmount *
-                  100 /
-                  (100 + invoiceDetailModel.taxPrctg)) +
+          totalGross: ((invoiceDetailModel.totalAmount * 100 / (100 + invoiceDetailModel.taxPrctg)) +
               invoiceDetailModel.discAmount +
               (invoiceDetailModel.discHeaderAmount ?? 0)),
-          taxAmount: invoiceDetailModel.totalAmount *
-              (invoiceDetailModel.taxPrctg / 100),
+          taxAmount: invoiceDetailModel.totalAmount * (invoiceDetailModel.taxPrctg / 100),
           itemEntity: ItemModel(
             id: null,
             itemName: itemMasterModel.itemName,
@@ -331,16 +299,13 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             tovenId: invoiceDetailModel.tovenId,
             tovatId: invoiceDetailModel.tovatId!,
             taxRate: invoiceDetailModel.taxPrctg,
-            dpp: invoiceDetailModel.sellingPrice *
-                100 /
-                (100 + invoiceDetailModel.taxPrctg),
+            dpp: invoiceDetailModel.sellingPrice * 100 / (100 + invoiceDetailModel.taxPrctg),
             includeTax: itemMasterModel.includeTax,
             tocatId: itemMasterModel.tocatId,
           ),
           sellingPrice: invoiceDetailModel.sellingPrice,
           totalAmount: invoiceDetailModel.totalAmount,
-          totalSellBarcode:
-              invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity,
+          totalSellBarcode: invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity,
           promos: invoiceDetailModel.promotionId == ""
               ? []
               : [
@@ -370,9 +335,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       for (var mopSelectionModel in mopSelectionModels) {
         if (mopSelectionModel.payTypeCode == "6") {
           List<VouchersSelectionModel> vouchers =
-              await GetIt.instance<AppDatabase>()
-                  .vouchersSelectionDao
-                  .readBytinv2Id(mopSelectionModel.tinv2Id ?? "", txn: txn);
+              await GetIt.instance<AppDatabase>().vouchersSelectionDao.readBytinv2Id(mopSelectionModel.tinv2Id ?? "", txn: txn);
           voucherModels.addAll(vouchers);
         }
       }
@@ -431,13 +394,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     log("discHprctg - $discHprctg");
 
     for (final item in receiptEntity.receiptItems) {
-      item.discHeaderAmount =
-          discHprctg * (item.totalGross - (item.discAmount ?? 0));
-      item.subtotalAfterDiscHeader = item.totalGross -
-          (item.discAmount ?? 0) -
-          (item.discHeaderAmount ?? 0);
-      item.taxAmount =
-          item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
+      item.discHeaderAmount = discHprctg * (item.totalGross - (item.discAmount ?? 0));
+      item.subtotalAfterDiscHeader = item.totalGross - (item.discAmount ?? 0) - (item.discHeaderAmount ?? 0);
+      item.taxAmount = item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
       subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
       taxAfterDiscount += item.taxAmount;
       log("Item - $item");
