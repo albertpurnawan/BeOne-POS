@@ -165,9 +165,9 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
                       hintText: "Enter Amount",
-                      hintStyle:
-                          TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
-                      border: OutlineInputBorder(),
+                      hintStyle: const TextStyle(
+                          fontStyle: FontStyle.italic, fontSize: 16),
+                      border: const OutlineInputBorder(),
                       suffix: isErr
                           ? Text(
                               errMsg,

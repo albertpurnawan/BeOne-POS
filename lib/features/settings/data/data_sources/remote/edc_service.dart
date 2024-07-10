@@ -64,7 +64,7 @@ class EDCApi {
         List<EDCModel> data = (resp.data['data'] as List)
             .map((e) => EDCModel.fromMapRemote(e))
             .toList();
-        log("$data");
+        // log("$data");
         allData.addAll(data);
       }
 

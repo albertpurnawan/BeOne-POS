@@ -110,21 +110,25 @@ class _QRISDialogState extends State<QRISDialog> {
 
   Future<String> _checkQRISStatus() async {
     if (!mounted) return "";
-    final netzme = await GetIt.instance<AppDatabase>().netzmeDao.readAll();
-    final url = netzme[0].url;
-    final clientKey = netzme[0].clientKey;
-    final clientSecret = netzme[0].clientSecret;
-    final privateKey = netzme[0].privateKey;
+    final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    final tostr = await GetIt.instance<AppDatabase>()
+        .storeMasterDao
+        .readByDocId(topos[0].tostrId!, null);
+    final url = tostr!.netzmeUrl;
+    final clientKey = tostr.netzmeClientKey;
+    final clientSecret = tostr.netzmeClientSecret;
+    final privateKey = tostr.netzmeClientPrivateKey;
+    final channelId = tostr.netzmeChannelId;
     final bodyDetail = {
       "originalPartnerReferenceNo": widget.data.trxId,
       "additionalInfo": {"partnerReferenceNo": generateRandomString(10)}
     };
     final serviceSignature = await GetIt.instance<NetzmeApi>()
         .createSignatureService(
-            url,
-            clientKey,
-            clientSecret,
-            privateKey,
+            url!,
+            clientKey!,
+            clientSecret!,
+            privateKey!,
             widget.accessToken,
             "api-invoice/v1.0/transaction-history-detail",
             bodyDetail);
@@ -134,6 +138,7 @@ class _QRISDialogState extends State<QRISDialog> {
       clientKey,
       privateKey,
       serviceSignature,
+      channelId!,
       bodyDetail,
     );
     return paymentStatus;
@@ -351,7 +356,8 @@ class _QRISDialogState extends State<QRISDialog> {
                             TextSpan(
                               text:
                                   "  Rp ${Helpers.parseMoney(widget.data.totalAmount)}",
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700),
                             ),
                           ],
                           style: const TextStyle(

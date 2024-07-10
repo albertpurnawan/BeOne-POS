@@ -17,6 +17,7 @@ class MeansOfPaymentFields {
     credit,
     subType,
     validForEmp,
+    tpmt4Id,
     form,
   ];
 
@@ -32,6 +33,7 @@ class MeansOfPaymentFields {
   static const String credit = "credit";
   static const String subType = "subtype";
   static const String validForEmp = "validforemp";
+  static const String tpmt4Id = "tpmt4Id";
   static const String form = "form";
 }
 
@@ -49,6 +51,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
     required super.credit,
     required super.subType,
     required super.validForEmp,
+    required super.tpmt4Id,
     required super.form,
   });
 
@@ -67,6 +70,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
       'credit': credit,
       'subtype': subType,
       'validforemp': validForEmp,
+      'tpmt4Id': tpmt4Id,
       'form': form,
     };
   }
@@ -87,6 +91,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
       credit: map['credit'] as int,
       subType: map['subtype'] as int,
       validForEmp: map['validforemp'] as int,
+      tpmt4Id: map['tpmt4Id'] != null ? map['tpmt4Id'] as String : null,
       form: map['form'] as String,
     );
   }
@@ -96,6 +101,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
       ...map,
       "topmtId": map['topmtdocid'] != null ? map['topmtdocid'] as String : null,
       "bankcharge": map['bankcharge'].toDouble() as double,
+      "tpmt4Id": map['edcdocid'] != null ? map['edcdocid'] as String : null,
     });
   }
 
@@ -113,6 +119,7 @@ class MeansOfPaymentModel extends MeansOfPaymentEntity implements BaseModel {
       credit: entity.credit,
       subType: entity.subType,
       validForEmp: entity.validForEmp,
+      tpmt4Id: entity.tpmt4Id,
       form: entity.form,
     );
   }

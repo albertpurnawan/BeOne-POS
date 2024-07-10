@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+// import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -2576,7 +2576,7 @@ class _SalesPageState extends State<SalesPage> {
                   const SizedBox(
                     height: 12,
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Row(
@@ -2596,7 +2596,7 @@ class _SalesPageState extends State<SalesPage> {
                       ],
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   const SizedBox(height: 15),
                   _buttonGroup2()
                 ],

@@ -4,9 +4,6 @@ class EDCSelectionModel extends EDCSelectionEntity {
   EDCSelectionModel({
     required super.docId,
     required super.creditCard,
-    required super.cardNoPrefix,
-    required super.cardNoSuffix,
-    required super.campaign,
     required super.amount,
   });
 }

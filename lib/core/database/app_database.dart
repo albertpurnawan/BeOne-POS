@@ -60,7 +60,6 @@ import 'package:pos_fe/features/sales/data/data_sources/local/money_denomination
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_adjustment_detail_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_adjustment_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
-import 'package:pos_fe/features/sales/data/data_sources/local/netzme_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pay_means_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/payment_type_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pos_parameter_dao.dart';
@@ -154,7 +153,6 @@ import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_detail.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
-import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
@@ -327,7 +325,6 @@ class AppDatabase {
   late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
   late PromosDao promosDao;
   late AuthStoreDao authStoreDao;
-  late NetzmeDao netzmeDao;
   late BillOfMaterialDao billOfMaterialDao;
   late BillOfMaterialLineItemDao billOfMaterialLineItemDao;
   late LogErrorDao logErrorDao;
@@ -454,7 +451,6 @@ PRAGMA foreign_keys = ON;
     promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
     authStoreDao = AuthStoreDao(_database!);
-    netzmeDao = NetzmeDao(_database!);
     billOfMaterialDao = BillOfMaterialDao(_database!);
     billOfMaterialLineItemDao = BillOfMaterialLineItemDao(_database!);
     logErrorDao = LogErrorDao(_database!);
@@ -1364,6 +1360,7 @@ CREATE TABLE $tableMOP (
   ${MeansOfPaymentFields.credit} int NOT NULL,
   ${MeansOfPaymentFields.subType} int NOT NULL DEFAULT '0',
   ${MeansOfPaymentFields.validForEmp} int NOT NULL DEFAULT '0',
+  ${MeansOfPaymentFields.tpmt4Id} text DEFAULT NULL,
   ${MeansOfPaymentFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmt1_topmtId_fkey` FOREIGN KEY (`topmtId`) REFERENCES `topmt` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -1380,6 +1377,7 @@ CREATE TABLE $tableCC (
   ${CreditCardFields.cardType} int NOT NULL DEFAULT '0',
   ${CreditCardFields.statusActive} int NOT NULL DEFAULT '0',
   ${CreditCardFields.activated} int NOT NULL DEFAULT '0',
+  ${CreditCardFields.tpmt5Id} text DEFAULT NULL,
   ${CreditCardFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
@@ -1454,8 +1452,9 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.netzmeUrl} text DEFAULT NULL,
   ${StoreMasterFields.netzmeClientKey} text DEFAULT NULL,
   ${StoreMasterFields.netzmeClientSecret} text DEFAULT NULL,
-  ${StoreMasterFields.netzmePrivateKey} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeClientPrivateKey} text DEFAULT NULL,
   ${StoreMasterFields.netzmeCustidMerchant} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeChannelId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -1891,6 +1890,7 @@ CREATE TABLE $tablePayMeans (
   ${PayMeansFields.cardNo} varchar(20) DEFAULT NULL,
   ${PayMeansFields.cardHolder} varchar(20) DEFAULT NULL,
   ${PayMeansFields.sisaVoucher} double DEFAULT NULL,
+  ${PayMeansFields.rrn} varchar(250) DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv2_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `tinv2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -3344,19 +3344,8 @@ CREATE TABLE $tableAuthStore (
   ${AuthStoreFields.tostrdocid} text NOT NULL,
   ${AuthStoreFields.tousrdocid} text NOT NULL,
   ${AuthStoreFields.statusActive} int NOT NULL,
+  ${AuthStoreFields.dflt} int DEFAULT NULL,
   ${AuthStoreFields.form} varchar(1) NOT NULL,
-  $createdAtDefinition
-)
-""");
-
-        await txn.execute("""
-CREATE TABLE $tableNetzme (
-  $uuidDefinition,
-  ${NetzmeFields.url} text NOT NULL,
-  ${NetzmeFields.clientKey} text NOT NULL,
-  ${NetzmeFields.clientSecret} text NOT NULL,
-  ${NetzmeFields.privateKey} text NOT NULL,
-  ${NetzmeFields.custIdMerchant} text NOT NULL,
   $createdAtDefinition
 )
 """);
