@@ -25,22 +25,17 @@ class InvoiceApi {
       // SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
-      final invHead =
-          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
+      final invHead = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
       log(invHead.toString());
 
-      final invDet = await GetIt.instance<AppDatabase>()
-          .invoiceDetailDao
-          .readByToinvIdAddQtyBarcode(invHead[0].docId.toString());
+      final invDet =
+          await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvIdAddQtyBarcode(invHead[0].docId.toString());
       log(invDet.toString());
 
-      final payMean = await GetIt.instance<AppDatabase>()
-          .payMeansDao
-          .readByToinvShowTopmt(invHead[0].docId.toString());
+      final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead[0].docId.toString());
       log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
@@ -51,8 +46,7 @@ class InvoiceApi {
             case "1": // TUNAI
               if (entry['amount'] < 0) break;
               if (entry['amount'] == 0 && invHead[0].grandTotal != 0) break;
-              invoicePayments.add(
-                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
             case "2": // EDC
               invoicePayments.add({
@@ -64,9 +58,8 @@ class InvoiceApi {
               });
               break;
             case "6": // VOUCHERS
-              final vouchers = await GetIt.instance<AppDatabase>()
-                  .vouchersSelectionDao
-                  .readBytinv2Id(entry['docid'], txn: null);
+              final vouchers =
+                  await GetIt.instance<AppDatabase>().vouchersSelectionDao.readBytinv2Id(entry['docid'], txn: null);
               log("vouchers - $vouchers");
 
               Map<String, Map<String, dynamic>> groupedPayments = {};
@@ -86,8 +79,7 @@ class InvoiceApi {
                   groupedPayments[tpmt3Id]!['amount'] += voucher.voucherAmount;
 
                   bool typeExists = false;
-                  for (var voucherEntry
-                      in groupedPayments[tpmt3Id]!['invoice_voucher']) {
+                  for (var voucherEntry in groupedPayments[tpmt3Id]!['invoice_voucher']) {
                     if (voucherEntry['type'] == voucher.type) {
                       voucherEntry['serialno'].add(voucher.serialNo);
                       typeExists = true;
@@ -102,8 +94,7 @@ class InvoiceApi {
                   }
                 }
 
-                List<Map<String, dynamic>> groupedPaymentsList =
-                    groupedPayments.values.toList();
+                List<Map<String, dynamic>> groupedPaymentsList = groupedPayments.values.toList();
 
                 for (var groupedPayment in groupedPaymentsList) {
                   invoicePayments.add(groupedPayment);
@@ -116,14 +107,12 @@ class InvoiceApi {
               }
               if (totalAmount > invHead[0].grandTotal) {
                 double excessAmount = totalAmount - invHead[0].grandTotal;
-                invoicePayments[invoicePayments.length - 1]['sisavoucher'] =
-                    excessAmount;
+                invoicePayments[invoicePayments.length - 1]['sisavoucher'] = excessAmount;
               }
 
               break;
             default:
-              invoicePayments.add(
-                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
           }
         }
@@ -147,17 +136,12 @@ class InvoiceApi {
             .toIso8601String(),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
-        "subtotal": (invHead[0].subTotal -
-                invHead[0].discAmount +
-                (invHead[0].discHeaderManual ?? 0))
-            .round(),
+        "subtotal": (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0)).round(),
         "discprctg": invHead[0].subTotal == 0
             ? 0
             : 100 *
                 ((invHead[0].discHeaderManual ?? 0) /
-                    (invHead[0].subTotal -
-                        invHead[0].discAmount +
-                        (invHead[0].discHeaderManual ?? 0))),
+                    (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0))),
         "discamount": invHead[0].discHeaderManual,
         "discountcard": invHead[0].discountCard,
         "coupon": invHead[0].coupon,
@@ -182,18 +166,15 @@ class InvoiceApi {
             "sellingprice": item['sellingprice'].round(),
             "discprctg": item['discprctg'],
             "discamount": item['discamount'],
-            "totalamount": ((item['quantity'] *
-                        item['sellingprice'] *
-                        (100 / (100 + item['taxprctg']))) -
-                    item['discamount'])
-                .round(),
+            "totalamount":
+                ((item['quantity'] * item['sellingprice'] * (100 / (100 + item['taxprctg']))) - item['discamount'])
+                    .round(),
             "taxprctg": item['taxprctg'],
             "promotiontype": item['promotiontype'],
             "promotionid": item['promotionid'],
             "remarks": item['remarks'] ?? "",
-            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(
-                DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                    .parse(item['edittime'])),
+            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(item['edittime'])),
             "cogs": item['cogs'],
             "tovat_id": item['tovatId'],
             "promotiontingkat": item['promotiontingkat'] ?? "",
@@ -217,8 +198,7 @@ class InvoiceApi {
             "disc3pctbarcode": 0.0,
             "disc3amtbarcode": 0.0,
             "totaldiscbarcode": 0.0,
-            "qtyconv":
-                item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
+            "qtyconv": item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": item['tohemId'] ?? ""
@@ -292,21 +272,17 @@ class InvoiceApi {
     }
   }
 
-  Future<void> sendFailedInvoice(
-      InvoiceHeaderModel invHead, List<InvoiceDetailModel> invDet) async {
+  Future<void> sendFailedInvoice(InvoiceHeaderModel invHead, List<InvoiceDetailModel> invDet) async {
     try {
       log("SEND FAILED INVOICE SERVICE");
       token = prefs.getString('adminToken');
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
       log("$invHead");
       log("$invDet");
 
-      final payMean = await GetIt.instance<AppDatabase>()
-          .payMeansDao
-          .readByToinvShowTopmt(invHead.docId.toString());
+      final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead.docId.toString());
       log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
@@ -315,13 +291,11 @@ class InvoiceApi {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
-              invoicePayments.add(
-                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
             case "6": // VOUCHERS
-              final vouchers = await GetIt.instance<AppDatabase>()
-                  .vouchersSelectionDao
-                  .readBytinv2Id(entry['docid'], txn: null);
+              final vouchers =
+                  await GetIt.instance<AppDatabase>().vouchersSelectionDao.readBytinv2Id(entry['docid'], txn: null);
               log("vouchers - $vouchers");
 
               Map<String, Map<String, dynamic>> groupedPayments = {};
@@ -341,8 +315,7 @@ class InvoiceApi {
                   groupedPayments[tpmt3Id]!['amount'] += voucher.voucherAmount;
 
                   bool typeExists = false;
-                  for (var voucherEntry
-                      in groupedPayments[tpmt3Id]!['invoice_voucher']) {
+                  for (var voucherEntry in groupedPayments[tpmt3Id]!['invoice_voucher']) {
                     if (voucherEntry['type'] == voucher.type) {
                       voucherEntry['serialno'].add(voucher.serialNo);
                       typeExists = true;
@@ -357,8 +330,7 @@ class InvoiceApi {
                   }
                 }
 
-                List<Map<String, dynamic>> groupedPaymentsList =
-                    groupedPayments.values.toList();
+                List<Map<String, dynamic>> groupedPaymentsList = groupedPayments.values.toList();
 
                 for (var groupedPayment in groupedPaymentsList) {
                   invoicePayments.add(groupedPayment);
@@ -368,8 +340,7 @@ class InvoiceApi {
 
               break;
             default:
-              invoicePayments.add(
-                  {"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
               break;
           }
         }
@@ -391,15 +362,10 @@ class InvoiceApi {
             .toIso8601String(),
         "timezone": invHead.timezone,
         "remarks": invHead.remarks ?? "",
-        "subtotal": (invHead.subTotal -
-                invHead.discAmount +
-                (invHead.discHeaderManual ?? 0))
-            .round(),
+        "subtotal": (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0)).round(),
         "discprctg": 100 *
             ((invHead.discHeaderManual ?? 0) /
-                (invHead.subTotal -
-                    invHead.discAmount +
-                    (invHead.discHeaderManual ?? 0))),
+                (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0))),
         "discamount": invHead.discHeaderManual,
         "discountcard": invHead.discountCard,
         "coupon": invHead.coupon,
@@ -424,17 +390,13 @@ class InvoiceApi {
             "sellingprice": item.sellingPrice.round(),
             "discprctg": item.discPrctg,
             "discamount": item.discAmount,
-            "totalamount": ((item.quantity *
-                        item.sellingPrice *
-                        (100 / (100 + item.taxPrctg))) -
-                    item.discAmount)
-                .round(),
+            "totalamount":
+                ((item.quantity * item.sellingPrice * (100 / (100 + item.taxPrctg))) - item.discAmount).round(),
             "taxprctg": item.taxPrctg,
             "promotiontype": item.promotionType,
             "promotionid": item.promotionId,
             "remarks": item.remarks ?? "",
-            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                .format(item.editTime),
+            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(item.editTime),
             "cogs": item.cogs,
             "tovat_id": item.tovatId,
             "promotiontingkat": item.promotionTingkat ?? "",

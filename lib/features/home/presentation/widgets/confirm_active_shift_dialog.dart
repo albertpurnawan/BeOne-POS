@@ -14,8 +14,7 @@ class ConfirmActiveShiftDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ConfirmActiveShiftDialog> createState() =>
-      _ConfirmActiveShiftDialogState();
+  State<ConfirmActiveShiftDialog> createState() => _ConfirmActiveShiftDialogState();
 }
 
 class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
@@ -29,8 +28,7 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -39,8 +37,7 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Caution',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -90,12 +87,9 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
                   style: ButtonStyle(
                       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
-                          side:
-                              const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.white),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.black.withOpacity(.2))),
+                          side: const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                   onPressed: () {
                     context.pop(false);
                   },
@@ -111,12 +105,9 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () {
                 context.pop();
                 Navigator.push(

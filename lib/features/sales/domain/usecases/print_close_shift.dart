@@ -8,16 +8,15 @@ import 'package:pos_fe/features/sales/domain/repository/cash_register_repository
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 
-class PrintCloseShiftUsecase
-    implements UseCase<void, PrintCloseShiftUsecaseParams> {
+class PrintCloseShiftUsecase implements UseCase<void, PrintCloseShiftUsecaseParams> {
   // POS Parameter
   final ReceiptPrinter _receiptPrinter;
   final CashRegisterRepository _cashRegisterRepository;
   final StoreMasterRepository _storeMasterRepository;
   final UserRepository _userRepository;
 
-  PrintCloseShiftUsecase(this._receiptPrinter, this._cashRegisterRepository,
-      this._storeMasterRepository, this._userRepository);
+  PrintCloseShiftUsecase(
+      this._receiptPrinter, this._cashRegisterRepository, this._storeMasterRepository, this._userRepository);
 
   @override
   Future<void> call({PrintCloseShiftUsecaseParams? params}) async {
@@ -29,20 +28,17 @@ class PrintCloseShiftUsecase
       }
 
       final CashRegisterEntity? cashRegisterEntityRes =
-          await _cashRegisterRepository.getCashRegisterByDocId(
-              params.cashierBalanceTransactionEntity.tocsrId!);
+          await _cashRegisterRepository.getCashRegisterByDocId(params.cashierBalanceTransactionEntity.tocsrId!);
       if (cashRegisterEntityRes == null) throw "Cash Register not found";
       if (cashRegisterEntityRes.tostrId == null) {
         throw "Cash Register does not contain store information";
       }
 
       final StoreMasterEntity? storeMasterEntityRes =
-          await _storeMasterRepository
-              .getStoreMaster(cashRegisterEntityRes.tostrId!);
+          await _storeMasterRepository.getStoreMaster(cashRegisterEntityRes.tostrId!);
       if (storeMasterEntityRes == null) throw "Store Master not found";
 
-      final UserEntity? userEntityRes = await _userRepository
-          .getUser(params.cashierBalanceTransactionEntity.tousrId!);
+      final UserEntity? userEntityRes = await _userRepository.getUser(params.cashierBalanceTransactionEntity.tousrId!);
       if (userEntityRes == null) throw "User not found";
 
       await _receiptPrinter.printCloseShift(PrintCloseShiftDetail(

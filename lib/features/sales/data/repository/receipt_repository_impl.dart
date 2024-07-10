@@ -261,23 +261,30 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
       }
-      final CustomerModel? customerModel =
-          invoiceHeaderModel.tocusId != null ? await _appDatabase.customerDao.readByDocId(invoiceHeaderModel.tocusId!, txn) : null;
+      final CustomerModel? customerModel = invoiceHeaderModel.tocusId != null
+          ? await _appDatabase.customerDao.readByDocId(invoiceHeaderModel.tocusId!, txn)
+          : null;
 
-      final EmployeeModel? employeeModel =
-          invoiceHeaderModel.tohemId != null ? await _appDatabase.employeeDao.readByDocId(invoiceHeaderModel.tohemId!, txn) : null;
+      final EmployeeModel? employeeModel = invoiceHeaderModel.tohemId != null
+          ? await _appDatabase.employeeDao.readByDocId(invoiceHeaderModel.tohemId!, txn)
+          : null;
 
-      final List<MopSelectionModel> mopSelectionModels = await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
-      final List<MopSelectionModel> mopSelectionModelsWithoutVoucher = mopSelectionModels.where((element) => element.payTypeCode != "6").toList();
+      final List<MopSelectionModel> mopSelectionModels =
+          await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
+      final List<MopSelectionModel> mopSelectionModelsWithoutVoucher =
+          mopSelectionModels.where((element) => element.payTypeCode != "6").toList();
 
-      final List<InvoiceDetailModel> invoiceDetailModels = await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
+      final List<InvoiceDetailModel> invoiceDetailModels =
+          await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
 
       List<ReceiptItemModel> receiptItemModels = [];
       for (final invoiceDetailModel in invoiceDetailModels) {
-        final ItemMasterModel? itemMasterModel = await _appDatabase.itemMasterDao.readByDocId(invoiceDetailModel.toitmId!, txn);
+        final ItemMasterModel? itemMasterModel =
+            await _appDatabase.itemMasterDao.readByDocId(invoiceDetailModel.toitmId!, txn);
         if (itemMasterModel == null) throw "Item not found";
 
-        final ItemBarcodeModel? itemBarcodeModel = await _appDatabase.itemBarcodeDao.readByDocId(invoiceDetailModel.tbitmId!, txn);
+        final ItemBarcodeModel? itemBarcodeModel =
+            await _appDatabase.itemBarcodeDao.readByDocId(invoiceDetailModel.tbitmId!, txn);
         if (itemBarcodeModel == null) throw "Barcode not found";
 
         receiptItemModels.add(ReceiptItemModel(
@@ -334,8 +341,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
       for (var mopSelectionModel in mopSelectionModels) {
         if (mopSelectionModel.payTypeCode == "6") {
-          List<VouchersSelectionModel> vouchers =
-              await GetIt.instance<AppDatabase>().vouchersSelectionDao.readBytinv2Id(mopSelectionModel.tinv2Id ?? "", txn: txn);
+          List<VouchersSelectionModel> vouchers = await GetIt.instance<AppDatabase>()
+              .vouchersSelectionDao
+              .readBytinv2Id(mopSelectionModel.tinv2Id ?? "", txn: txn);
           voucherModels.addAll(vouchers);
         }
       }

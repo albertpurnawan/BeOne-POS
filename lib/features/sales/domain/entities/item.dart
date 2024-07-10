@@ -114,8 +114,7 @@ class ItemEntity {
 
   String toJson() => json.encode(toMap());
 
-  factory ItemEntity.fromJson(String source) =>
-      ItemEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ItemEntity.fromJson(String source) => ItemEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {

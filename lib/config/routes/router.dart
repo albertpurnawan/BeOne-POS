@@ -84,10 +84,7 @@ class AppRouter {
         path: "/shifts/close",
         pageBuilder: (context, state) {
           final Map<String, String> data = state.extra as Map<String, String>;
-          return MaterialPage(
-              child: CloseShiftScreen(
-                  shiftId: data["shiftId"] as String,
-                  username: data["username"]));
+          return MaterialPage(child: CloseShiftScreen(shiftId: data["shiftId"] as String, username: data["username"]));
         },
       ),
       GoRoute(

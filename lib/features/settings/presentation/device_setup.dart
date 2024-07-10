@@ -123,8 +123,7 @@ class _SettingsFormState extends State<SettingsForm> {
   Future<String> encryptPassword(String rawPassword) async {
     final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
     try {
-      final encryptedPassword =
-          await encryptPasswordUseCase.call(params: rawPassword);
+      final encryptedPassword = await encryptPasswordUseCase.call(params: rawPassword);
       return encryptedPassword;
     } catch (e, s) {
       debugPrintStack(stackTrace: s);
@@ -144,8 +143,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: gtentController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "TenantId is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "TenantId is required" : null,
               label: "TenantId",
               hint: "Tenant Id",
               prefixIcon: const Icon(Icons.person_2_sharp),
@@ -156,8 +154,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tostrController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "StoreId is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "StoreId is required" : null,
               label: "StoreId",
               hint: "Store Id",
               prefixIcon: const Icon(Icons.store),
@@ -168,8 +165,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tocsrController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "CashierId is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "CashierId is required" : null,
               label: "CashierId",
               hint: "Cashier Id",
               prefixIcon: const Icon(Icons.point_of_sale),
@@ -180,8 +176,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: urlController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "BaseUrl is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "BaseUrl is required" : null,
               label: "BaseUrl",
               hint: "Base Url",
               prefixIcon: const Icon(Icons.link_outlined),
@@ -192,9 +187,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: emailController,
-              validator: (val) => val == null || val.isEmpty
-                  ? "Manager Email is required"
-                  : null,
+              validator: (val) => val == null || val.isEmpty ? "Manager Email is required" : null,
               label: "Manager Email",
               hint: "Manager Email",
               prefixIcon: const Icon(Icons.email_outlined),
@@ -205,9 +198,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: passwordController,
-              validator: (val) => val == null || val.isEmpty
-                  ? "Manager Password is required"
-                  : null,
+              validator: (val) => val == null || val.isEmpty ? "Manager Password is required" : null,
               obscureText: true,
               label: "Manager Password",
               hint: "Manager Password",
@@ -219,8 +210,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: otpChannelController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "OTP Channel is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "OTP Channel is required" : null,
               label: "OTP Channel",
               hint: "OTP Channel",
               prefixIcon: const Icon(Icons.vpn_key),
@@ -234,13 +224,10 @@ class _SettingsFormState extends State<SettingsForm> {
               onTap: () async {
                 try {
                   await prefs.clear();
-                  await GetIt.instance<AppDatabase>()
-                      .posParameterDao
-                      .deleteTopos();
+                  await GetIt.instance<AppDatabase>().posParameterDao.deleteTopos();
 
                   // call the encryptpassword here?
-                  final hashedPassword =
-                      await encryptPassword(passwordController.text);
+                  final hashedPassword = await encryptPassword(passwordController.text);
 
                   // final hashedPass = md5
                   //     .convert(utf8.encode(passwordController.text))
@@ -261,16 +248,12 @@ class _SettingsFormState extends State<SettingsForm> {
                     lastSync: '2000-01-01 00:00:00',
                   );
 
-                  await GetIt.instance<AppDatabase>()
-                      .posParameterDao
-                      .create(data: topos);
+                  await GetIt.instance<AppDatabase>().posParameterDao.create(data: topos);
 
                   log("TOPOS CREATED");
 
-                  final token = await GetIt.instance<TokenApi>().getToken(
-                      urlController.text,
-                      emailController.text,
-                      passwordController.text);
+                  final token = await GetIt.instance<TokenApi>()
+                      .getToken(urlController.text, emailController.text, passwordController.text);
 
                   prefs.setString('adminToken', token.toString());
 

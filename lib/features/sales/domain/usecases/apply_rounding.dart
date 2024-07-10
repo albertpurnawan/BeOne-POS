@@ -10,10 +10,8 @@ class ApplyRoundingUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
   Future<ReceiptEntity> call({ReceiptEntity? params}) async {
     try {
       if (params == null) throw "ApplyRoundingUseCase requires params";
-      final double beforeRounding =
-          params.subtotal - (params.discAmount ?? 0) + params.taxAmount;
-      final double rounding =
-          beforeRounding % 50 > 0 ? 50 - (beforeRounding % 50) : 0;
+      final double beforeRounding = params.subtotal - (params.discAmount ?? 0) + params.taxAmount;
+      final double rounding = beforeRounding % 50 > 0 ? 50 - (beforeRounding % 50) : 0;
       final double grandTotal = beforeRounding + rounding;
 
       log("beforeRounding $beforeRounding");

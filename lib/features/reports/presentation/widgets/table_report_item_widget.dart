@@ -55,9 +55,8 @@ class _TableReportItemState extends State<TableReportItem> {
       return;
     }
 
-    final fetchedTinv1 = await GetIt.instance<AppDatabase>()
-        .invoiceDetailDao
-        .readByItemBetweenDate(widget.fromDate!, widget.toDate!);
+    final fetchedTinv1 =
+        await GetIt.instance<AppDatabase>().invoiceDetailDao.readByItemBetweenDate(widget.fromDate!, widget.toDate!);
     log("fetchedTinv1 - $fetchedTinv1");
     // final fetchedToinv = await GetIt.instance<AppDatabase>()
     //     .invoiceHeaderDao
@@ -67,12 +66,8 @@ class _TableReportItemState extends State<TableReportItem> {
     // Apply Search Query
     if (fetchedTinv1 != null) {
       final filteredTinv1 = fetchedTinv1.where((invoice) {
-        return invoice['itemcode']
-                .toLowerCase()
-                .contains(widget.searchQuery!.toLowerCase()) ||
-            invoice['itemname']
-                .toLowerCase()
-                .contains(widget.searchQuery!.toLowerCase());
+        return invoice['itemcode'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['itemname'].toLowerCase().contains(widget.searchQuery!.toLowerCase());
       }).toList();
       setState(() {
         fetched = filteredTinv1;
@@ -97,10 +92,8 @@ class _TableReportItemState extends State<TableReportItem> {
 
     if (fetched != null) {
       for (var item in fetched!) {
-        double itemTotalAmount =
-            item['totalamount'] * (100 / (100 + item['taxprctg'])) as double;
-        double itemTaxAmount =
-            item['taxamount'] * (100 / (100 + item['taxprctg'])) as double;
+        double itemTotalAmount = item['totalamount'] * (100 / (100 + item['taxprctg'])) as double;
+        double itemTaxAmount = item['taxamount'] * (100 / (100 + item['taxprctg'])) as double;
         double itemTotalDiscount = item['discamount'] as double;
         totalAmount += itemTotalAmount;
         taxAmount += itemTaxAmount;
@@ -127,8 +120,7 @@ class _TableReportItemState extends State<TableReportItem> {
                     children: [
                       Expanded(
                         child: Table(
-                          border: TableBorder.all(
-                              color: Colors.transparent, width: 1),
+                          border: TableBorder.all(color: Colors.transparent, width: 1),
                           columnWidths: const {
                             0: FixedColumnWidth(50),
                             1: FlexColumnWidth(80),
@@ -138,16 +130,13 @@ class _TableReportItemState extends State<TableReportItem> {
                           },
                           children: [
                             TableRow(
-                              decoration: const BoxDecoration(
-                                  color: ProjectColors.primary),
+                              decoration: const BoxDecoration(color: ProjectColors.primary),
                               children: tableHead.map((header) {
                                 return TableCell(
                                   child: Container(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           header,
@@ -171,8 +160,7 @@ class _TableReportItemState extends State<TableReportItem> {
                               final itemName = item['itemname'];
                               final quantity = item['totalquantity'];
                               final taxPercentage = item['taxprctg'];
-                              final itemAmount = item['totalamount'] *
-                                  (100 / (100 + taxPercentage));
+                              final itemAmount = item['totalamount'] * (100 / (100 + taxPercentage));
 
                               return TableRow(
                                 children: [
@@ -182,20 +170,16 @@ class _TableReportItemState extends State<TableReportItem> {
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: isLastRow
-                                              ? const BorderSide(
-                                                  color: ProjectColors.primary,
-                                                  width: 2.0)
+                                              ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                               : BorderSide.none,
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             (index + 1).toString(),
-                                            style:
-                                                const TextStyle(fontSize: 14),
+                                            style: const TextStyle(fontSize: 14),
                                           ),
                                         ],
                                       ),
@@ -207,20 +191,16 @@ class _TableReportItemState extends State<TableReportItem> {
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: isLastRow
-                                              ? const BorderSide(
-                                                  color: ProjectColors.primary,
-                                                  width: 2.0)
+                                              ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                               : BorderSide.none,
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             itemCode,
-                                            style:
-                                                const TextStyle(fontSize: 14),
+                                            style: const TextStyle(fontSize: 14),
                                           ),
                                         ],
                                       ),
@@ -232,9 +212,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: isLastRow
-                                              ? const BorderSide(
-                                                  color: ProjectColors.primary,
-                                                  width: 2.0)
+                                              ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                               : BorderSide.none,
                                         ),
                                       ),
@@ -254,20 +232,16 @@ class _TableReportItemState extends State<TableReportItem> {
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: isLastRow
-                                              ? const BorderSide(
-                                                  color: ProjectColors.primary,
-                                                  width: 2.0)
+                                              ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                               : BorderSide.none,
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             quantity.toString(),
-                                            style:
-                                                const TextStyle(fontSize: 14),
+                                            style: const TextStyle(fontSize: 14),
                                           ),
                                         ],
                                       ),
@@ -279,20 +253,16 @@ class _TableReportItemState extends State<TableReportItem> {
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: isLastRow
-                                              ? const BorderSide(
-                                                  color: ProjectColors.primary,
-                                                  width: 2.0)
+                                              ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                               : BorderSide.none,
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
                                           Text(
                                             "Rp ${Helpers.parseMoney(itemAmount.round())}.00",
-                                            style:
-                                                const TextStyle(fontSize: 14),
+                                            style: const TextStyle(fontSize: 14),
                                           ),
                                         ],
                                       ),

@@ -80,7 +80,8 @@ class ReceiptPrinter {
       case PrintReceiptContentType.time:
         return DateFormat('hh:mm aaa').format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
-        return DateFormat('dd/MM/yy H:m').format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
+        return DateFormat('dd/MM/yy H:m')
+            .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
       case PrintReceiptContentType.employeeCodeAndName:
@@ -118,7 +119,8 @@ class ReceiptPrinter {
     }
   }
 
-  Future<List<int>> _convertPrintReceiptContentToBytes(List<PrintReceiptContent> printReceiptContentsRow, Generator generator, bool isDraft) async {
+  Future<List<int>> _convertPrintReceiptContentToBytes(
+      List<PrintReceiptContent> printReceiptContentsRow, Generator generator, bool isDraft) async {
     List<int> bytes = [];
 
     if (printReceiptContentsRow.length == 1) {
@@ -134,7 +136,8 @@ class ReceiptPrinter {
             if (item.tohemId != null && item.tohemId != "") {
               salesEmployeeEntity = await GetIt.instance<EmployeeRepository>().getEmployee(item.tohemId!);
             } else if (currentPrintReceiptDetail!.receiptEntity.toinvTohemId != null) {
-              salesEmployeeEntity = await GetIt.instance<EmployeeRepository>().getEmployee(currentPrintReceiptDetail!.receiptEntity.toinvTohemId!);
+              salesEmployeeEntity = await GetIt.instance<EmployeeRepository>()
+                  .getEmployee(currentPrintReceiptDetail!.receiptEntity.toinvTohemId!);
             }
 
             // Layout1
@@ -283,7 +286,8 @@ class ReceiptPrinter {
               PosColumn(
                   width: 4,
                   text: Helpers.alignLeftByAddingSpace(
-                      " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}", 15),
+                      " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}",
+                      15),
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
@@ -330,7 +334,8 @@ class ReceiptPrinter {
                 )),
             PosColumn(
                 width: 8,
-                text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.grandTotal.round()), 15),
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.grandTotal.round()), 15),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -457,13 +462,15 @@ class ReceiptPrinter {
                 )),
             PosColumn(
                 width: 4,
-                text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.rounding.round()), 15),
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.rounding.round()), 15),
                 styles: const PosStyles(
                   align: PosAlign.left,
                 )),
           ]);
           bytes += generator.emptyLines(1);
-          bytes += generator.text("*** All Prices are Inclusive of Tax ***", styles: const PosStyles(align: PosAlign.center));
+          bytes += generator.text("*** All Prices are Inclusive of Tax ***",
+              styles: const PosStyles(align: PosAlign.center));
         // bytes += generator.emptyLines(1);
         case PrintReceiptContentType.totalQty:
           bytes += generator.text(
@@ -514,7 +521,8 @@ class ReceiptPrinter {
             }
 
             for (final tpmt3Id in amountByTpmt3Ids.keys) {
-              final MopSelectionEntity? mopSelectionEntity = await GetIt.instance<MopSelectionRepository>().getMopSelectionByTpmt3Id(tpmt3Id);
+              final MopSelectionEntity? mopSelectionEntity =
+                  await GetIt.instance<MopSelectionRepository>().getMopSelectionByTpmt3Id(tpmt3Id);
               bytes += generator.row([
                 PosColumn(
                     width: 8,
@@ -541,7 +549,8 @@ class ReceiptPrinter {
                 )),
             PosColumn(
                 width: 4,
-                text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.totalPayment ?? 0), 15),
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.totalPayment ?? 0), 15),
                 styles: const PosStyles(
                   align: PosAlign.left,
                   bold: true,
@@ -556,7 +565,8 @@ class ReceiptPrinter {
                 )),
             PosColumn(
                 width: 4,
-                text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.changed ?? 0), 15),
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.changed ?? 0), 15),
                 styles: const PosStyles(
                   align: PosAlign.left,
                 )),
@@ -584,7 +594,8 @@ class ReceiptPrinter {
             PosColumn(
                 width: 8,
                 text: Helpers.alignLeftByAddingSpace(
-                    ": [${currentPrintReceiptDetail!.cashRegisterEntity.idKassa}] ${currentPrintReceiptDetail!.cashRegisterEntity.description}", 31),
+                    ": [${currentPrintReceiptDetail!.cashRegisterEntity.idKassa}] ${currentPrintReceiptDetail!.cashRegisterEntity.description}",
+                    31),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
         case PrintReceiptContentType.employeeCodeAndName:
@@ -601,11 +612,16 @@ class ReceiptPrinter {
           ]);
         case PrintReceiptContentType.docNumAndDatetime:
           bytes += generator.row([
-            PosColumn(width: 7, text: currentPrintReceiptDetail?.receiptEntity.docNum ?? "", styles: const PosStyles(align: PosAlign.left)),
+            PosColumn(
+                width: 7,
+                text: currentPrintReceiptDetail?.receiptEntity.docNum ?? "",
+                styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
                 width: 5,
                 text: Helpers.alignRightByAddingSpace(
-                    DateFormat('dd/MM/yy H:m').format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!), 19),
+                    DateFormat('dd/MM/yy H:m')
+                        .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!),
+                    19),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
         case PrintReceiptContentType.customer:
@@ -613,14 +629,16 @@ class ReceiptPrinter {
             PosColumn(width: 4, text: "Customer No.", styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
                 width: 8,
-                text: Helpers.alignLeftByAddingSpace(": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custCode ?? "-"}", 31),
+                text: Helpers.alignLeftByAddingSpace(
+                    ": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custCode ?? "-"}", 31),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
           bytes += generator.row([
             PosColumn(width: 4, text: "Customer Name", styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
                 width: 8,
-                text: Helpers.alignLeftByAddingSpace(": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custName ?? "-"}", 31),
+                text: Helpers.alignLeftByAddingSpace(
+                    ": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custName ?? "-"}", 31),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
 
@@ -699,7 +717,8 @@ class ReceiptPrinter {
       final PrintReceiptContent printReceiptContent = PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.values.firstWhere(
             (printReceiptContentType) =>
-                printReceiptContentType.toString().toLowerCase().split(".").last == receiptContentEntity.content.toLowerCase(),
+                printReceiptContentType.toString().toLowerCase().split(".").last ==
+                receiptContentEntity.content.toLowerCase(),
             orElse: () => PrintReceiptContentType.none,
           ),
           row: receiptContentEntity.row,
@@ -777,7 +796,10 @@ class ReceiptPrinter {
       case PrinterType.usb:
         await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
-            model: UsbPrinterInput(name: bluetoothPrinter.deviceName, productId: bluetoothPrinter.productId, vendorId: bluetoothPrinter.vendorId));
+            model: UsbPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                productId: bluetoothPrinter.productId,
+                vendorId: bluetoothPrinter.vendorId));
         pendingTask = null;
         break;
       case PrinterType.bluetooth:
@@ -792,7 +814,8 @@ class ReceiptPrinter {
         if (Platform.isAndroid) pendingTask = bytes;
         break;
       case PrinterType.network:
-        connectedTCP = await printerManager.connect(type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+        connectedTCP = await printerManager.connect(
+            type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         if (!connectedTCP) log(' --- please review your connection ---');
         break;
       default:
@@ -832,11 +855,17 @@ class ReceiptPrinter {
     bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(width: 4, text: 'Store Name', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 8, text: ":  ${printOpenShiftDetail.storeMasterEntity.storeName}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 8,
+          text: ":  ${printOpenShiftDetail.storeMasterEntity.storeName}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 4, text: 'Cash Register', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 8, text: ":  ${printOpenShiftDetail.cashRegisterEntity.description}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 8,
+          text: ":  ${printOpenShiftDetail.cashRegisterEntity.description}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(
@@ -845,7 +874,10 @@ class ReceiptPrinter {
           styles: const PosStyles(
             align: PosAlign.left,
           )),
-      PosColumn(width: 8, text: ":  ${printOpenShiftDetail.userEntity.username}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 8,
+          text: ":  ${printOpenShiftDetail.userEntity.username}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 4, text: 'Opened At', styles: const PosStyles(align: PosAlign.left)),
@@ -889,15 +921,24 @@ class ReceiptPrinter {
     bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Store Name', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${printCloseShiftDetail.storeMasterEntity.storeName}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: ":  ${printCloseShiftDetail.storeMasterEntity.storeName}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Cash Register', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${printCloseShiftDetail.cashRegisterEntity.description}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: ":  ${printCloseShiftDetail.cashRegisterEntity.description}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Cashier', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${printCloseShiftDetail.userEntity.username}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: ":  ${printCloseShiftDetail.userEntity.username}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Opened at', styles: const PosStyles(align: PosAlign.left)),
@@ -915,7 +956,8 @@ class ReceiptPrinter {
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Approved by', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${printCloseShiftDetail.approverName}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7, text: ":  ${printCloseShiftDetail.approverName}", styles: const PosStyles(align: PosAlign.left)),
     ]);
 
     bytes += generator.emptyLines(1);
@@ -928,32 +970,48 @@ class ReceiptPrinter {
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Total Cash Sales', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalCashSales)}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalCashSales)}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Expected Cash', styles: const PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(
-          width: 7, text: ":  ${Helpers.parseMoney(printCloseShiftDetail.expectedCash)}", styles: const PosStyles(align: PosAlign.left, bold: true)),
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.expectedCash)}",
+          styles: const PosStyles(align: PosAlign.left, bold: true)),
     ]);
     bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Total Non Cash Sales', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalNonCashSales)}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalNonCashSales)}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Total Sales', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalSales)}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalSales)}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.emptyLines(1);
 
     bytes += generator.row([
       PosColumn(width: 5, text: 'Actual Cash', styles: const PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(
-          width: 7, text: ":  ${Helpers.parseMoney(printCloseShiftDetail.cashReceived)}", styles: const PosStyles(align: PosAlign.left, bold: true)),
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.cashReceived)}",
+          styles: const PosStyles(align: PosAlign.left, bold: true)),
     ]);
     bytes += generator.row([
       PosColumn(width: 5, text: 'Difference', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 7, text: ":  ${Helpers.parseMoney(printCloseShiftDetail.difference)}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.difference)}",
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
 
     _printEscPos(bytes, generator);
@@ -983,11 +1041,13 @@ class ReceiptPrinter {
     bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(width: 4, text: 'Total Payment', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 8, text: ":  ${printQrisPaymentDetail.totalPayment}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 8, text: ":  ${printQrisPaymentDetail.totalPayment}", styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 4, text: 'Expired at', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 8, text: ":  ${printQrisPaymentDetail.expiredTime}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 8, text: ":  ${printQrisPaymentDetail.expiredTime}", styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(width: 4, text: 'NMID', styles: const PosStyles(align: PosAlign.left)),
@@ -995,12 +1055,14 @@ class ReceiptPrinter {
     ]);
     bytes += generator.row([
       PosColumn(width: 4, text: 'Terminal ID', styles: const PosStyles(align: PosAlign.left)),
-      PosColumn(width: 8, text: ":  ${printQrisPaymentDetail.terminalId}", styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 8, text: ":  ${printQrisPaymentDetail.terminalId}", styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.emptyLines(1);
 
     // Handle QRIS image
-    img.Image decodedImage = img.copyResize(img.decodeImage(printQrisPaymentDetail.qrImage)!, width: 560, interpolation: img.Interpolation.cubic);
+    img.Image decodedImage = img.copyResize(img.decodeImage(printQrisPaymentDetail.qrImage)!,
+        width: 560, interpolation: img.Interpolation.cubic);
 
     bytes += generator.feed(1);
     bytes += generator.imageRaster(decodedImage, align: PosAlign.left);
@@ -1047,7 +1109,10 @@ class ReceiptPrinter {
         bytes += generator.cut();
         await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
-            model: UsbPrinterInput(name: bluetoothPrinter.deviceName, productId: bluetoothPrinter.productId, vendorId: bluetoothPrinter.vendorId));
+            model: UsbPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                productId: bluetoothPrinter.productId,
+                vendorId: bluetoothPrinter.vendorId));
         pendingTask = null;
         break;
       case PrinterType.bluetooth:
@@ -1065,7 +1130,8 @@ class ReceiptPrinter {
       case PrinterType.network:
         bytes += generator.feed(2);
         bytes += generator.cut();
-        connectedTCP = await printerManager.connect(type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+        connectedTCP = await printerManager.connect(
+            type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         if (!connectedTCP) log(' --- please review your connection ---');
         pendingTask = null;
         break;

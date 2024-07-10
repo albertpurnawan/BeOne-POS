@@ -18,8 +18,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
   @override
   void initState() {
     super.initState();
-    final String? prefPaperSize =
-        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final String? prefPaperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     if (prefPaperSize != null) {
       radioValue = prefPaperSize == "80 mm" ? PaperSize.mm80 : PaperSize.mm58;
     }
@@ -31,8 +30,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
     if (radioValue == null) {
       return;
     } else {
-      pref.setString(
-          "paperSize", radioValue == PaperSize.mm80 ? "80 mm" : "58 mm");
+      pref.setString("paperSize", radioValue == PaperSize.mm80 ? "80 mm" : "58 mm");
     }
   }
 
@@ -109,22 +107,15 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ButtonStyle(
-                      padding: const MaterialStatePropertyAll(
-                          EdgeInsets.symmetric(vertical: 10)),
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5))),
+                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 10)),
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                       backgroundColor: radioValue == null
-                          ? MaterialStateColor.resolveWith((states) =>
-                              const Color.fromARGB(255, 200, 200, 200))
-                          : MaterialStateColor.resolveWith(
-                              (states) => ProjectColors.primary),
+                          ? MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 200, 200, 200))
+                          : MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                       foregroundColor: radioValue == null
-                          ? MaterialStateColor.resolveWith((states) =>
-                              const Color.fromARGB(255, 111, 111, 111))
-                          : MaterialStateColor.resolveWith((states) =>
-                              const Color.fromARGB(255, 255, 255, 255)),
-                      overlayColor:
-                          MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                          ? MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 111, 111, 111))
+                          : MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 255, 255, 255)),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                   onPressed: radioValue == null
                       ? null
                       : () {

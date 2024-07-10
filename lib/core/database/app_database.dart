@@ -4,29 +4,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
-// import 'package:pos_fe/core/database/seeders_data/phir1.dart';
-// import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
-// import 'package:pos_fe/core/database/seeders_data/tbitm.dart';
-// import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocat.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocrg.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocsr.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocus.dart';
-// import 'package:pos_fe/core/database/seeders_data/toitm.dart';
-// import 'package:pos_fe/core/database/seeders_data/topln.dart';
-// import 'package:pos_fe/core/database/seeders_data/topmt.dart';
-// import 'package:pos_fe/core/database/seeders_data/topos.dart';
-// import 'package:pos_fe/core/database/seeders_data/tostr.dart';
-// import 'package:pos_fe/core/database/seeders_data/touom.dart';
-// import 'package:pos_fe/core/database/seeders_data/tousr.dart';
-// import 'package:pos_fe/core/database/seeders_data/tovat.dart';
-// import 'package:pos_fe/core/database/seeders_data/tphir.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpln1.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpln2.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpmt1.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpmt3.dart';
-// import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/auth_store_dao.dart';
@@ -316,8 +293,7 @@ class AppDatabase {
   late PromoDiskonGroupItemBuyConditionDao promoDiskonGroupItemBuyConditionDao;
   late PromoDiskonGroupItemAssignStoreDao promoDiskonGroupItemAssignStoreDao;
   late PromoDiskonGroupItemGetConditionDao promoDiskonGroupItemGetConditionDao;
-  late PromoDiskonGroupItemCustomerGroupDao
-      promoDiskonGroupItemCustomerGroupDao;
+  late PromoDiskonGroupItemCustomerGroupDao promoDiskonGroupItemCustomerGroupDao;
   late PromoBuyXGetYHeaderDao promoBuyXGetYHeaderDao;
   late PromoBuyXGetYBuyConditionDao promoBuyXGetYBuyConditionDao;
   late PromoBuyXGetYAssignStoreDao promoBuyXGetYAssignStoreDao;
@@ -346,8 +322,7 @@ class AppDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path,
-        version: 1, onCreate: _createDB, onConfigure: _onConfigure);
+    return await openDatabase(path, version: 1, onCreate: _createDB, onConfigure: _onConfigure);
   }
 
   Future<void> emptyDb() async {
@@ -420,10 +395,8 @@ PRAGMA foreign_keys = ON;
     vouchersSelectionDao = VouchersSelectionDao(_database!);
     promoHargaSpesialHeaderDao = PromoHargaSpesialHeaderDao(_database!);
     promoHargaSpesialBuyDao = PromoHargaSpesialBuyDao(_database!);
-    promoHargaSpesialAssignStoreDao =
-        PromoHargaSpesialAssignStoreDao(_database!);
-    promoHargaSpesialCustomerGroupDao =
-        PromoHargaSpesialCustomerGroupDao(_database!);
+    promoHargaSpesialAssignStoreDao = PromoHargaSpesialAssignStoreDao(_database!);
+    promoHargaSpesialCustomerGroupDao = PromoHargaSpesialCustomerGroupDao(_database!);
     promoMultiItemHeaderDao = PromoMultiItemHeaderDao(_database!);
     promoMultiItemBuyConditionDao = PromoMultiItemBuyConditionDao(_database!);
     promoMultiItemAssignStoreDao = PromoMultiItemAssignStoreDao(_database!);
@@ -433,17 +406,12 @@ PRAGMA foreign_keys = ON;
     promoDiskonItemBuyConditionDao = PromoDiskonItemBuyConditionDao(_database!);
     promoDiskonItemAssignStoreDao = PromoDiskonItemAssignStoreDao(_database!);
     promoDiskonItemGetConditionDao = PromoDiskonItemGetConditionDao(_database!);
-    promoDiskonItemCustomerGroupDao =
-        PromoDiskonItemCustomerGroupDao(_database!);
+    promoDiskonItemCustomerGroupDao = PromoDiskonItemCustomerGroupDao(_database!);
     promoDiskonGroupItemHeaderDao = PromoDiskonGroupItemHeaderDao(_database!);
-    promoDiskonGroupItemBuyConditionDao =
-        PromoDiskonGroupItemBuyConditionDao(_database!);
-    promoDiskonGroupItemAssignStoreDao =
-        PromoDiskonGroupItemAssignStoreDao(_database!);
-    promoDiskonGroupItemGetConditionDao =
-        PromoDiskonGroupItemGetConditionDao(_database!);
-    promoDiskonGroupItemCustomerGroupDao =
-        PromoDiskonGroupItemCustomerGroupDao(_database!);
+    promoDiskonGroupItemBuyConditionDao = PromoDiskonGroupItemBuyConditionDao(_database!);
+    promoDiskonGroupItemAssignStoreDao = PromoDiskonGroupItemAssignStoreDao(_database!);
+    promoDiskonGroupItemGetConditionDao = PromoDiskonGroupItemGetConditionDao(_database!);
+    promoDiskonGroupItemCustomerGroupDao = PromoDiskonGroupItemCustomerGroupDao(_database!);
     promoBuyXGetYHeaderDao = PromoBuyXGetYHeaderDao(_database!);
     promoBuyXGetYBuyConditionDao = PromoBuyXGetYBuyConditionDao(_database!);
     promoBuyXGetYAssignStoreDao = PromoBuyXGetYAssignStoreDao(_database!);
@@ -511,13 +479,11 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> refreshItemsTable() async {
-    final List<POSParameterModel> posParameter =
-        await posParameterDao.readAll();
+    final List<POSParameterModel> posParameter = await posParameterDao.readAll();
     if (posParameter.isEmpty) return;
     if (posParameter[0].tostrId == null) return;
 
-    final StoreMasterModel? storeMaster =
-        await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
+    final StoreMasterModel? storeMaster = await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
     if (storeMaster == null) return;
     if (storeMaster.tcurrId == null) return;
 
@@ -540,8 +506,7 @@ INNER JOIN (
   ) as t ON t.tovatId = s.tovatId
 """;
     } else {
-      final TaxMasterModel? taxMaster =
-          await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
+      final TaxMasterModel? taxMaster = await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
       storeTovatId = taxMaster!.docId;
       storeTaxRate = taxMaster.rate;
     }

@@ -256,42 +256,28 @@ class _FetchScreenState extends State<FetchScreen> {
         final fetchFunctions = [
           () async {
             try {
-              final tcurrDb =
-                  await GetIt.instance<AppDatabase>().currencyDao.readAll();
+              final tcurrDb = await GetIt.instance<AppDatabase>().currencyDao.readAll();
 
               if (tcurrDb.isNotEmpty) {
-                final tcurrDbMap = {
-                  for (var datum in tcurrDb) datum.docId: datum
-                };
-                tcurr =
-                    await GetIt.instance<CurrencyApi>().fetchData(lastSyncDate);
+                final tcurrDbMap = {for (var datum in tcurrDb) datum.docId: datum};
+                tcurr = await GetIt.instance<CurrencyApi>().fetchData(lastSyncDate);
                 for (final datumBos in tcurr) {
                   final datumDb = tcurrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .currencyDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().currencyDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .currencyDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().currencyDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tcurr = await GetIt.instance<CurrencyApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .currencyDao
-                    .bulkCreate(data: tcurr);
+                tcurr = await GetIt.instance<CurrencyApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().currencyDao.bulkCreate(data: tcurr);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -303,50 +289,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tcurr",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tocryDb =
-                  await GetIt.instance<AppDatabase>().countryDao.readAll();
+              final tocryDb = await GetIt.instance<AppDatabase>().countryDao.readAll();
 
               if (tocryDb.isNotEmpty) {
-                final tocryDbMap = {
-                  for (var datum in tocryDb) datum.docId: datum
-                };
+                final tocryDbMap = {for (var datum in tocryDb) datum.docId: datum};
 
-                tocry =
-                    await GetIt.instance<CountryApi>().fetchData(lastSyncDate);
+                tocry = await GetIt.instance<CountryApi>().fetchData(lastSyncDate);
                 for (final datumBos in tocry) {
                   final datumDb = tocryDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .countryDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().countryDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .countryDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().countryDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tocry = await GetIt.instance<CountryApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .countryDao
-                    .bulkCreate(data: tocry);
+                tocry = await GetIt.instance<CountryApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().countryDao.bulkCreate(data: tocry);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -358,50 +328,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tocry",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final toprvDb =
-                  await GetIt.instance<AppDatabase>().provinceDao.readAll();
+              final toprvDb = await GetIt.instance<AppDatabase>().provinceDao.readAll();
 
               if (toprvDb.isNotEmpty) {
-                final toprvDbMap = {
-                  for (var datum in toprvDb) datum.docId: datum
-                };
+                final toprvDbMap = {for (var datum in toprvDb) datum.docId: datum};
 
-                toprv =
-                    await GetIt.instance<ProvinceApi>().fetchData(lastSyncDate);
+                toprv = await GetIt.instance<ProvinceApi>().fetchData(lastSyncDate);
                 for (final datumBos in toprv) {
                   final datumDb = toprvDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .provinceDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().provinceDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .provinceDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().provinceDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                toprv = await GetIt.instance<ProvinceApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .provinceDao
-                    .bulkCreate(data: toprv);
+                toprv = await GetIt.instance<ProvinceApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(data: toprv);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -413,50 +367,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Toprv",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tozcdDb =
-                  await GetIt.instance<AppDatabase>().zipcodeDao.readAll();
+              final tozcdDb = await GetIt.instance<AppDatabase>().zipcodeDao.readAll();
 
               if (tozcdDb.isNotEmpty) {
-                final tozcdDbMap = {
-                  for (var datum in tozcdDb) datum.docId: datum
-                };
+                final tozcdDbMap = {for (var datum in tozcdDb) datum.docId: datum};
 
-                tozcd =
-                    await GetIt.instance<ZipcodeApi>().fetchData(lastSyncDate);
+                tozcd = await GetIt.instance<ZipcodeApi>().fetchData(lastSyncDate);
                 for (final datumBos in tozcd) {
                   final datumDb = tozcdDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .zipcodeDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().zipcodeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .zipcodeDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().zipcodeDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tozcd = await GetIt.instance<ZipcodeApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .zipcodeDao
-                    .bulkCreate(data: tozcd);
+                tozcd = await GetIt.instance<ZipcodeApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(data: tozcd);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -468,50 +406,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tozcd",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tohemDb =
-                  await GetIt.instance<AppDatabase>().employeeDao.readAll();
+              final tohemDb = await GetIt.instance<AppDatabase>().employeeDao.readAll();
 
               if (tohemDb.isNotEmpty) {
-                final tohemDbMap = {
-                  for (var datum in tohemDb) datum.docId: datum
-                };
+                final tohemDbMap = {for (var datum in tohemDb) datum.docId: datum};
 
-                tohem =
-                    await GetIt.instance<EmployeeApi>().fetchData(lastSyncDate);
+                tohem = await GetIt.instance<EmployeeApi>().fetchData(lastSyncDate);
                 for (final datumBos in tohem) {
                   final datumDb = tohemDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .employeeDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().employeeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .employeeDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().employeeDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tohem = await GetIt.instance<EmployeeApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .employeeDao
-                    .bulkCreate(data: tohem);
+                tohem = await GetIt.instance<EmployeeApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().employeeDao.bulkCreate(data: tohem);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -523,50 +445,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tohem",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tovatDb =
-                  await GetIt.instance<AppDatabase>().taxMasterDao.readAll();
+              final tovatDb = await GetIt.instance<AppDatabase>().taxMasterDao.readAll();
 
               if (tovatDb.isNotEmpty) {
-                final tovatDbMap = {
-                  for (var datum in tovatDb) datum.docId: datum
-                };
+                final tovatDbMap = {for (var datum in tovatDb) datum.docId: datum};
 
-                tovat = await GetIt.instance<TaxMasterApi>()
-                    .fetchData(lastSyncDate);
+                tovat = await GetIt.instance<TaxMasterApi>().fetchData(lastSyncDate);
                 for (final datumBos in tovat) {
                   final datumDb = tovatDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .taxMasterDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().taxMasterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .taxMasterDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().taxMasterDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tovat = await GetIt.instance<TaxMasterApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .taxMasterDao
-                    .bulkCreate(data: tovat);
+                tovat = await GetIt.instance<TaxMasterApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().taxMasterDao.bulkCreate(data: tovat);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -578,50 +484,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tovat",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final topmtDb =
-                  await GetIt.instance<AppDatabase>().paymentTypeDao.readAll();
+              final topmtDb = await GetIt.instance<AppDatabase>().paymentTypeDao.readAll();
 
               if (topmtDb.isNotEmpty) {
-                final topmtDbMap = {
-                  for (var datum in topmtDb) datum.docId: datum
-                };
+                final topmtDbMap = {for (var datum in topmtDb) datum.docId: datum};
 
-                topmt = await GetIt.instance<PaymentTypeApi>()
-                    .fetchData(lastSyncDate);
+                topmt = await GetIt.instance<PaymentTypeApi>().fetchData(lastSyncDate);
                 for (final datumBos in topmt) {
                   final datumDb = topmtDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .paymentTypeDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().paymentTypeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .paymentTypeDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().paymentTypeDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                topmt = await GetIt.instance<PaymentTypeApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .paymentTypeDao
-                    .bulkCreate(data: topmt);
+                topmt = await GetIt.instance<PaymentTypeApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().paymentTypeDao.bulkCreate(data: topmt);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -633,50 +523,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Topmt",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmt1Db = await GetIt.instance<AppDatabase>()
-                  .meansOfPaymentDao
-                  .readAll();
+              final tpmt1Db = await GetIt.instance<AppDatabase>().meansOfPaymentDao.readAll();
 
               if (tpmt1Db.isNotEmpty) {
-                final tpmt1DbMap = {
-                  for (var datum in tpmt1Db) datum.docId: datum
-                };
+                final tpmt1DbMap = {for (var datum in tpmt1Db) datum.docId: datum};
 
                 tpmt1 = await GetIt.instance<MOPApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmt1) {
                   final datumDb = tpmt1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .meansOfPaymentDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .meansOfPaymentDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().meansOfPaymentDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmt1 = await GetIt.instance<MOPApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .meansOfPaymentDao
-                    .bulkCreate(data: tpmt1);
+                tpmt1 = await GetIt.instance<MOPApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().meansOfPaymentDao.bulkCreate(data: tpmt1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -688,50 +564,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmt1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmt2Db =
-                  await GetIt.instance<AppDatabase>().creditCardDao.readAll();
+              final tpmt2Db = await GetIt.instance<AppDatabase>().creditCardDao.readAll();
 
               if (tpmt2Db.isNotEmpty) {
-                final tpmt2DbMap = {
-                  for (var datum in tpmt2Db) datum.docId: datum
-                };
+                final tpmt2DbMap = {for (var datum in tpmt2Db) datum.docId: datum};
 
-                tpmt2 = await GetIt.instance<CreditCardApi>()
-                    .fetchData(lastSyncDate);
+                tpmt2 = await GetIt.instance<CreditCardApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmt2) {
                   final datumDb = tpmt2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .creditCardDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().creditCardDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .creditCardDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().creditCardDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmt2 = await GetIt.instance<CreditCardApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .creditCardDao
-                    .bulkCreate(data: tpmt2);
+                tpmt2 = await GetIt.instance<CreditCardApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(data: tpmt2);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -743,50 +603,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmt2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final toplnDb =
-                  await GetIt.instance<AppDatabase>().pricelistDao.readAll();
+              final toplnDb = await GetIt.instance<AppDatabase>().pricelistDao.readAll();
 
               if (toplnDb.isNotEmpty) {
-                final toplnDbMap = {
-                  for (var datum in toplnDb) datum.docId: datum
-                };
+                final toplnDbMap = {for (var datum in toplnDb) datum.docId: datum};
 
-                topln = await GetIt.instance<PricelistApi>()
-                    .fetchData(lastSyncDate);
+                topln = await GetIt.instance<PricelistApi>().fetchData(lastSyncDate);
                 for (final datumBos in topln) {
                   final datumDb = toplnDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .pricelistDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().pricelistDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .pricelistDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().pricelistDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                topln = await GetIt.instance<PricelistApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .pricelistDao
-                    .bulkCreate(data: topln);
+                topln = await GetIt.instance<PricelistApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().pricelistDao.bulkCreate(data: topln);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -798,50 +642,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Topln",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tostrDb =
-                  await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
+              final tostrDb = await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
 
               if (tostrDb.isNotEmpty) {
-                final tostrDbMap = {
-                  for (var datum in tostrDb) datum.docId: datum
-                };
+                final tostrDbMap = {for (var datum in tostrDb) datum.docId: datum};
 
-                tostr = await GetIt.instance<StoreMasterApi>()
-                    .fetchData(lastSyncDate);
+                tostr = await GetIt.instance<StoreMasterApi>().fetchData(lastSyncDate);
                 for (final datumBos in tostr) {
                   final datumDb = tostrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .storeMasterDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().storeMasterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .storeMasterDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().storeMasterDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tostr = await GetIt.instance<StoreMasterApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .storeMasterDao
-                    .bulkCreate(data: tostr);
+                tostr = await GetIt.instance<StoreMasterApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().storeMasterDao.bulkCreate(data: tostr);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -853,50 +681,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tostr",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmt3Db =
-                  await GetIt.instance<AppDatabase>().mopByStoreDao.readAll();
+              final tpmt3Db = await GetIt.instance<AppDatabase>().mopByStoreDao.readAll();
 
               if (tpmt3Db.isNotEmpty) {
-                final tpmt3DbMap = {
-                  for (var datum in tpmt3Db) datum.docId: datum
-                };
+                final tpmt3DbMap = {for (var datum in tpmt3Db) datum.docId: datum};
 
-                tpmt3 = await GetIt.instance<MOPByStoreApi>()
-                    .fetchData(lastSyncDate);
+                tpmt3 = await GetIt.instance<MOPByStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmt3) {
                   final datumDb = tpmt3DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .mopByStoreDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().mopByStoreDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .mopByStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().mopByStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmt3 = await GetIt.instance<MOPByStoreApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .mopByStoreDao
-                    .bulkCreate(data: tpmt3);
+                tpmt3 = await GetIt.instance<MOPByStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().mopByStoreDao.bulkCreate(data: tpmt3);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -908,50 +720,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmt3",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tocsrDb =
-                  await GetIt.instance<AppDatabase>().cashRegisterDao.readAll();
+              final tocsrDb = await GetIt.instance<AppDatabase>().cashRegisterDao.readAll();
 
               if (tocsrDb.isNotEmpty) {
-                final tocsrDbMap = {
-                  for (var datum in tocsrDb) datum.docId: datum
-                };
+                final tocsrDbMap = {for (var datum in tocsrDb) datum.docId: datum};
 
-                tocsr = await GetIt.instance<CashRegisterApi>()
-                    .fetchData(lastSyncDate);
+                tocsr = await GetIt.instance<CashRegisterApi>().fetchData(lastSyncDate);
                 for (final datumBos in tocsr) {
                   final datumDb = tocsrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .cashRegisterDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().cashRegisterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .cashRegisterDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().cashRegisterDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tocsr = await GetIt.instance<CashRegisterApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .cashRegisterDao
-                    .bulkCreate(data: tocsr);
+                tocsr = await GetIt.instance<CashRegisterApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().cashRegisterDao.bulkCreate(data: tocsr);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -963,49 +759,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tocsr",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final touomDb =
-                  await GetIt.instance<AppDatabase>().uomDao.readAll();
+              final touomDb = await GetIt.instance<AppDatabase>().uomDao.readAll();
 
               if (touomDb.isNotEmpty) {
-                final touomDbMap = {
-                  for (var datum in touomDb) datum.docId: datum
-                };
+                final touomDbMap = {for (var datum in touomDb) datum.docId: datum};
 
                 touom = await GetIt.instance<UoMApi>().fetchData(lastSyncDate);
                 for (final datumBos in touom) {
                   final datumDb = touomDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .uomDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().uomDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .uomDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().uomDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                touom = await GetIt.instance<UoMApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .uomDao
-                    .bulkCreate(data: touom);
+                touom = await GetIt.instance<UoMApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: touom);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1017,50 +798,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tuom",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final torolDb =
-                  await GetIt.instance<AppDatabase>().userRoleDao.readAll();
+              final torolDb = await GetIt.instance<AppDatabase>().userRoleDao.readAll();
 
               if (torolDb.isNotEmpty) {
-                final torolDbMap = {
-                  for (var datum in torolDb) datum.docId: datum
-                };
+                final torolDbMap = {for (var datum in torolDb) datum.docId: datum};
 
-                torol =
-                    await GetIt.instance<UserRoleApi>().fetchData(lastSyncDate);
+                torol = await GetIt.instance<UserRoleApi>().fetchData(lastSyncDate);
                 for (final datumBos in torol) {
                   final datumDb = torolDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .userRoleDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().userRoleDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .userRoleDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().userRoleDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                torol = await GetIt.instance<UserRoleApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .userRoleDao
-                    .bulkCreate(data: torol);
+                torol = await GetIt.instance<UserRoleApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().userRoleDao.bulkCreate(data: torol);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1072,49 +837,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Torol",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tousrDb =
-                  await GetIt.instance<AppDatabase>().userDao.readAll();
+              final tousrDb = await GetIt.instance<AppDatabase>().userDao.readAll();
 
               if (tousrDb.isNotEmpty) {
-                final tousrDbMap = {
-                  for (var datum in tousrDb) datum.docId: datum
-                };
+                final tousrDbMap = {for (var datum in tousrDb) datum.docId: datum};
 
                 tousr = await GetIt.instance<UserApi>().fetchData(lastSyncDate);
                 for (final datumBos in tousr) {
                   final datumDb = tousrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .userDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().userDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .userDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().userDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tousr = await GetIt.instance<UserApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .userDao
-                    .bulkCreate(data: tousr);
+                tousr = await GetIt.instance<UserApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: tousr);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1126,51 +876,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tousr",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpln1Db = await GetIt.instance<AppDatabase>()
-                  .pricelistPeriodDao
-                  .readAll();
+              final tpln1Db = await GetIt.instance<AppDatabase>().pricelistPeriodDao.readAll();
 
               if (tpln1Db.isNotEmpty) {
-                final tpln1DbMap = {
-                  for (var datum in tpln1Db) datum.docId: datum
-                };
+                final tpln1DbMap = {for (var datum in tpln1Db) datum.docId: datum};
 
-                tpln1 = await GetIt.instance<PricelistPeriodApi>()
-                    .fetchData(lastSyncDate);
+                tpln1 = await GetIt.instance<PricelistPeriodApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpln1) {
                   final datumDb = tpln1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .pricelistPeriodDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .pricelistPeriodDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().pricelistPeriodDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpln1 = await GetIt.instance<PricelistPeriodApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .pricelistPeriodDao
-                    .bulkCreate(data: tpln1);
+                tpln1 = await GetIt.instance<PricelistPeriodApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().pricelistPeriodDao.bulkCreate(data: tpln1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1182,50 +917,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpln1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tocatDb =
-                  await GetIt.instance<AppDatabase>().itemCategoryDao.readAll();
+              final tocatDb = await GetIt.instance<AppDatabase>().itemCategoryDao.readAll();
 
               if (tocatDb.isNotEmpty) {
-                final tocatDbMap = {
-                  for (var datum in tocatDb) datum.docId: datum
-                };
+                final tocatDbMap = {for (var datum in tocatDb) datum.docId: datum};
 
-                tocat = await GetIt.instance<ItemCategoryApi>()
-                    .fetchData(lastSyncDate);
+                tocat = await GetIt.instance<ItemCategoryApi>().fetchData(lastSyncDate);
                 for (final datumBos in tocat) {
                   final datumDb = tocatDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .itemCategoryDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().itemCategoryDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .itemCategoryDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().itemCategoryDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tocat = await GetIt.instance<ItemCategoryApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .itemCategoryDao
-                    .bulkCreate(data: tocat);
+                tocat = await GetIt.instance<ItemCategoryApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().itemCategoryDao.bulkCreate(data: tocat);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1237,50 +956,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tocat",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final toitmDb =
-                  await GetIt.instance<AppDatabase>().itemMasterDao.readAll();
+              final toitmDb = await GetIt.instance<AppDatabase>().itemMasterDao.readAll();
 
               if (toitmDb.isNotEmpty) {
-                final toitmDbMap = {
-                  for (var datum in toitmDb) datum.docId: datum
-                };
+                final toitmDbMap = {for (var datum in toitmDb) datum.docId: datum};
 
-                toitm = await GetIt.instance<ItemMasterApi>()
-                    .fetchData(lastSyncDate);
+                toitm = await GetIt.instance<ItemMasterApi>().fetchData(lastSyncDate);
                 for (final datumBos in toitm) {
                   final datumDb = toitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .itemMasterDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().itemMasterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .itemMasterDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().itemMasterDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                toitm = await GetIt.instance<ItemMasterApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .itemMasterDao
-                    .bulkCreate(data: toitm);
+                toitm = await GetIt.instance<ItemMasterApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().itemMasterDao.bulkCreate(data: toitm);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1292,50 +995,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Toitm",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tsitmDb =
-                  await GetIt.instance<AppDatabase>().itemByStoreDao.readAll();
+              final tsitmDb = await GetIt.instance<AppDatabase>().itemByStoreDao.readAll();
 
               if (tsitmDb.isNotEmpty) {
-                final tsitmDbMap = {
-                  for (var datum in tsitmDb) datum.docId: datum
-                };
+                final tsitmDbMap = {for (var datum in tsitmDb) datum.docId: datum};
 
-                tsitm = await GetIt.instance<ItemByStoreApi>()
-                    .fetchData(lastSyncDate);
+                tsitm = await GetIt.instance<ItemByStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tsitm) {
                   final datumDb = tsitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .itemByStoreDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().itemByStoreDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .itemByStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().itemByStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tsitm = await GetIt.instance<ItemByStoreApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .itemByStoreDao
-                    .bulkCreate(data: tsitm);
+                tsitm = await GetIt.instance<ItemByStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().itemByStoreDao.bulkCreate(data: tsitm);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1347,50 +1034,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tsitm",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tbitmDb =
-                  await GetIt.instance<AppDatabase>().itemBarcodeDao.readAll();
+              final tbitmDb = await GetIt.instance<AppDatabase>().itemBarcodeDao.readAll();
 
               if (tbitmDb.isNotEmpty) {
-                final tbitmDbMap = {
-                  for (var datum in tbitmDb) datum.docId: datum
-                };
+                final tbitmDbMap = {for (var datum in tbitmDb) datum.docId: datum};
 
-                tbitm = await GetIt.instance<ItemBarcodeApi>()
-                    .fetchData(lastSyncDate);
+                tbitm = await GetIt.instance<ItemBarcodeApi>().fetchData(lastSyncDate);
                 for (final datumBos in tbitm) {
                   final datumDb = tbitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .itemBarcodeDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().itemBarcodeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .itemBarcodeDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().itemBarcodeDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tbitm = await GetIt.instance<ItemBarcodeApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .itemBarcodeDao
-                    .bulkCreate(data: tbitm);
+                tbitm = await GetIt.instance<ItemBarcodeApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().itemBarcodeDao.bulkCreate(data: tbitm);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1402,50 +1073,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tbitm",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tritmDb =
-                  await GetIt.instance<AppDatabase>().itemRemarkDao.readAll();
+              final tritmDb = await GetIt.instance<AppDatabase>().itemRemarkDao.readAll();
 
               if (tritmDb.isNotEmpty) {
-                final tritmDbMap = {
-                  for (var datum in tritmDb) datum.docId: datum
-                };
+                final tritmDbMap = {for (var datum in tritmDb) datum.docId: datum};
 
-                tritm = await GetIt.instance<ItemRemarksApi>()
-                    .fetchData(lastSyncDate);
+                tritm = await GetIt.instance<ItemRemarksApi>().fetchData(lastSyncDate);
                 for (final datumBos in tritm) {
                   final datumDb = tritmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .itemRemarkDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().itemRemarkDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .itemRemarkDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().itemRemarkDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tritm = await GetIt.instance<ItemRemarksApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .itemRemarkDao
-                    .bulkCreate(data: tritm);
+                tritm = await GetIt.instance<ItemRemarksApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().itemRemarkDao.bulkCreate(data: tritm);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1457,50 +1112,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tritm",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tovdgDb =
-                  await GetIt.instance<AppDatabase>().vendorGroupDao.readAll();
+              final tovdgDb = await GetIt.instance<AppDatabase>().vendorGroupDao.readAll();
 
               if (tovdgDb.isNotEmpty) {
-                final tovdgDbMap = {
-                  for (var datum in tovdgDb) datum.docId: datum
-                };
+                final tovdgDbMap = {for (var datum in tovdgDb) datum.docId: datum};
 
-                tovdg = await GetIt.instance<VendorGroupApi>()
-                    .fetchData(lastSyncDate);
+                tovdg = await GetIt.instance<VendorGroupApi>().fetchData(lastSyncDate);
                 for (final datumBos in tovdg) {
                   final datumDb = tovdgDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .vendorGroupDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().vendorGroupDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .vendorGroupDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().vendorGroupDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tovdg = await GetIt.instance<VendorGroupApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .vendorGroupDao
-                    .bulkCreate(data: tovdg);
+                tovdg = await GetIt.instance<VendorGroupApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().vendorGroupDao.bulkCreate(data: tovdg);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1512,50 +1151,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tovdg",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tovenDb =
-                  await GetIt.instance<AppDatabase>().vendorDao.readAll();
+              final tovenDb = await GetIt.instance<AppDatabase>().vendorDao.readAll();
 
               if (tovenDb.isNotEmpty) {
-                final tovenDbMap = {
-                  for (var datum in tovenDb) datum.docId: datum
-                };
+                final tovenDbMap = {for (var datum in tovenDb) datum.docId: datum};
 
-                toven =
-                    await GetIt.instance<VendorApi>().fetchData(lastSyncDate);
+                toven = await GetIt.instance<VendorApi>().fetchData(lastSyncDate);
                 for (final datumBos in toven) {
                   final datumDb = tovenDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .vendorDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().vendorDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .vendorDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().vendorDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                toven = await GetIt.instance<VendorApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .vendorDao
-                    .bulkCreate(data: toven);
+                toven = await GetIt.instance<VendorApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(data: toven);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1567,51 +1190,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Toven",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tvitmDb = await GetIt.instance<AppDatabase>()
-                  .preferredVendorDao
-                  .readAll();
+              final tvitmDb = await GetIt.instance<AppDatabase>().preferredVendorDao.readAll();
 
               if (tvitmDb.isNotEmpty) {
-                final tvitmDbMap = {
-                  for (var datum in tvitmDb) datum.docId: datum
-                };
+                final tvitmDbMap = {for (var datum in tvitmDb) datum.docId: datum};
 
-                tvitm = await GetIt.instance<PreferredVendorApi>()
-                    .fetchData(lastSyncDate);
+                tvitm = await GetIt.instance<PreferredVendorApi>().fetchData(lastSyncDate);
                 for (final datumBos in tvitm) {
                   final datumDb = tvitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .preferredVendorDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .preferredVendorDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().preferredVendorDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tvitm = await GetIt.instance<PreferredVendorApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .preferredVendorDao
-                    .bulkCreate(data: tvitm);
+                tvitm = await GetIt.instance<PreferredVendorApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().preferredVendorDao.bulkCreate(data: tvitm);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1623,51 +1231,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tvitm",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tocrgDb = await GetIt.instance<AppDatabase>()
-                  .customerGroupDao
-                  .readAll();
+              final tocrgDb = await GetIt.instance<AppDatabase>().customerGroupDao.readAll();
 
               if (tocrgDb.isNotEmpty) {
-                final tocrgDbMap = {
-                  for (var datum in tocrgDb) datum.docId: datum
-                };
+                final tocrgDbMap = {for (var datum in tocrgDb) datum.docId: datum};
 
-                tocrg = await GetIt.instance<CustomerGroupApi>()
-                    .fetchData(lastSyncDate);
+                tocrg = await GetIt.instance<CustomerGroupApi>().fetchData(lastSyncDate);
                 for (final datumBos in tocrg) {
                   final datumDb = tocrgDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .customerGroupDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().customerGroupDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .customerGroupDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().customerGroupDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tocrg = await GetIt.instance<CustomerGroupApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .customerGroupDao
-                    .bulkCreate(data: tocrg);
+                tocrg = await GetIt.instance<CustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().customerGroupDao.bulkCreate(data: tocrg);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1679,51 +1270,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tocrg",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tocusDb = await GetIt.instance<AppDatabase>()
-                  .customerCstDao
-                  .readAll(searchKeyword: '');
+              final tocusDb = await GetIt.instance<AppDatabase>().customerCstDao.readAll(searchKeyword: '');
 
               if (tocusDb.isNotEmpty) {
-                final tocusDbMap = {
-                  for (var datum in tocusDb) datum.docId: datum
-                };
+                final tocusDbMap = {for (var datum in tocusDb) datum.docId: datum};
 
-                tocus =
-                    await GetIt.instance<CustomerApi>().fetchData(lastSyncDate);
+                tocus = await GetIt.instance<CustomerApi>().fetchData(lastSyncDate);
                 for (final datumBos in tocus) {
                   final datumDb = tocusDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .customerCstDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().customerCstDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .customerCstDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().customerCstDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tocus = await GetIt.instance<CustomerApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .customerCstDao
-                    .bulkCreate(data: tocus);
+                tocus = await GetIt.instance<CustomerApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().customerCstDao.bulkCreate(data: tocus);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1735,50 +1309,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tocus",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpln2Db =
-                  await GetIt.instance<AppDatabase>().priceByItemDao.readAll();
+              final tpln2Db = await GetIt.instance<AppDatabase>().priceByItemDao.readAll();
 
               if (tpln2Db.isNotEmpty) {
-                final tpln2DbMap = {
-                  for (var datum in tpln2Db) datum.docId: datum
-                };
+                final tpln2DbMap = {for (var datum in tpln2Db) datum.docId: datum};
 
-                tpln2 = await GetIt.instance<PriceByItemApi>()
-                    .fetchData(lastSyncDate);
+                tpln2 = await GetIt.instance<PriceByItemApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpln2) {
                   final datumDb = tpln2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .priceByItemDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().priceByItemDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .priceByItemDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().priceByItemDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpln2 = await GetIt.instance<PriceByItemApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .priceByItemDao
-                    .bulkCreate(data: tpln2);
+                tpln2 = await GetIt.instance<PriceByItemApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().priceByItemDao.bulkCreate(data: tpln2);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1790,51 +1348,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpln2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpln3Db = await GetIt.instance<AppDatabase>()
-                  .assignPriceMemberPerStoreDao
-                  .readAll();
+              final tpln3Db = await GetIt.instance<AppDatabase>().assignPriceMemberPerStoreDao.readAll();
 
               if (tpln3Db.isNotEmpty) {
-                final tpln3DbMap = {
-                  for (var datum in tpln3Db) datum.docId: datum
-                };
+                final tpln3DbMap = {for (var datum in tpln3Db) datum.docId: datum};
 
-                tpln3 =
-                    await GetIt.instance<APMPSApi>().fetchData(lastSyncDate);
+                tpln3 = await GetIt.instance<APMPSApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpln3) {
                   final datumDb = tpln3DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .assignPriceMemberPerStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .assignPriceMemberPerStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().assignPriceMemberPerStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpln3 = await GetIt.instance<APMPSApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .assignPriceMemberPerStoreDao
-                    .bulkCreate(data: tpln3);
+                tpln3 = await GetIt.instance<APMPSApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().assignPriceMemberPerStoreDao.bulkCreate(data: tpln3);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1846,51 +1389,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpln3",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpln4Db = await GetIt.instance<AppDatabase>()
-                  .priceByItemBarcodeDao
-                  .readAll();
+              final tpln4Db = await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.readAll();
 
               if (tpln4Db.isNotEmpty) {
-                final tpln4DbMap = {
-                  for (var datum in tpln4Db) datum.docId: datum
-                };
+                final tpln4DbMap = {for (var datum in tpln4Db) datum.docId: datum};
 
-                tpln4 = await GetIt.instance<PriceByItemBarcodeApi>()
-                    .fetchData(lastSyncDate);
+                tpln4 = await GetIt.instance<PriceByItemBarcodeApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpln4) {
                   final datumDb = tpln4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .priceByItemBarcodeDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .priceByItemBarcodeDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpln4 = await GetIt.instance<PriceByItemBarcodeApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .priceByItemBarcodeDao
-                    .bulkCreate(data: tpln4);
+                tpln4 = await GetIt.instance<PriceByItemBarcodeApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.bulkCreate(data: tpln4);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1902,50 +1430,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpln4",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tastrDb =
-                  await GetIt.instance<AppDatabase>().authStoreDao.readAll();
+              final tastrDb = await GetIt.instance<AppDatabase>().authStoreDao.readAll();
 
               if (tastrDb.isNotEmpty) {
-                final tastrDbMap = {
-                  for (var datum in tastrDb) datum.docId: datum
-                };
+                final tastrDbMap = {for (var datum in tastrDb) datum.docId: datum};
 
-                tastr = await GetIt.instance<AuthStoreApi>()
-                    .fetchData(lastSyncDate);
+                tastr = await GetIt.instance<AuthStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tastr) {
                   final datumDb = tastrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .authStoreDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().authStoreDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .authStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().authStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tastr = await GetIt.instance<AuthStoreApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .authStoreDao
-                    .bulkCreate(data: tastr);
+                tastr = await GetIt.instance<AuthStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().authStoreDao.bulkCreate(data: tastr);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1957,51 +1469,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tastr",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final topsbDb = await GetIt.instance<AppDatabase>()
-                  .promoHargaSpesialHeaderDao
-                  .readAll();
+              final topsbDb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
 
               if (topsbDb.isNotEmpty) {
-                final topsbDbMap = {
-                  for (var datum in topsbDb) datum.docId: datum
-                };
+                final topsbDbMap = {for (var datum in topsbDb) datum.docId: datum};
 
-                topsb = await GetIt.instance<PromoHargaSpesialApi>()
-                    .fetchData(lastSyncDate);
+                topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData(lastSyncDate);
                 for (final datumBos in topsb) {
                   final datumDb = topsbDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoHargaSpesialHeaderDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                topsb = await GetIt.instance<PromoHargaSpesialApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoHargaSpesialHeaderDao
-                    .bulkCreate(data: topsb);
+                topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.bulkCreate(data: topsb);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2013,51 +1510,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Topsb",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpsb1Db = await GetIt.instance<AppDatabase>()
-                  .promoHargaSpesialBuyDao
-                  .readAll();
+              final tpsb1Db = await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readAll();
 
               if (tpsb1Db.isNotEmpty) {
-                final tpsb1DbMap = {
-                  for (var datum in tpsb1Db) datum.docId: datum
-                };
+                final tpsb1DbMap = {for (var datum in tpsb1Db) datum.docId: datum};
 
-                tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>()
-                    .fetchData(lastSyncDate);
+                tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpsb1) {
                   final datumDb = tpsb1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialBuyDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoHargaSpesialBuyDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoHargaSpesialBuyDao
-                    .bulkCreate(data: tpsb1);
+                tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.bulkCreate(data: tpsb1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2069,51 +1551,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpsb1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpsb2Db = await GetIt.instance<AppDatabase>()
-                  .promoHargaSpesialAssignStoreDao
-                  .readAll();
+              final tpsb2Db = await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readAll();
 
               if (tpsb2Db.isNotEmpty) {
-                final tpsb2DbMap = {
-                  for (var datum in tpsb2Db) datum.docId: datum
-                };
+                final tpsb2DbMap = {for (var datum in tpsb2Db) datum.docId: datum};
 
-                tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
-                    .fetchData(lastSyncDate);
+                tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpsb2) {
                   final datumDb = tpsb2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoHargaSpesialAssignStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoHargaSpesialAssignStoreDao
-                    .bulkCreate(data: tpsb2);
+                tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.bulkCreate(data: tpsb2);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2125,53 +1592,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpsb2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpsb4Db = await GetIt.instance<AppDatabase>()
-                  .promoHargaSpesialCustomerGroupDao
-                  .readAll();
+              final tpsb4Db = await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.readAll();
 
               if (tpsb4Db.isNotEmpty) {
-                final tpsb4DbMap = {
-                  for (var datum in tpsb4Db) datum.docId: datum
-                };
+                final tpsb4DbMap = {for (var datum in tpsb4Db) datum.docId: datum};
 
-                tpsb4 =
-                    await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
-                        .fetchData(lastSyncDate);
+                tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpsb4) {
                   final datumDb = tpsb4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoHargaSpesialCustomerGroupDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpsb4 =
-                    await GetIt.instance<PromoHargaSpesialCustomerGroupApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoHargaSpesialCustomerGroupDao
-                    .bulkCreate(data: tpsb4);
+                tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.bulkCreate(data: tpsb4);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2183,51 +1633,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpsb4",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final topmiDb = await GetIt.instance<AppDatabase>()
-                  .promoMultiItemHeaderDao
-                  .readAll();
+              final topmiDb = await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
 
               if (topmiDb.isNotEmpty) {
-                final topmiDbMap = {
-                  for (var datum in topmiDb) datum.docId: datum
-                };
+                final topmiDbMap = {for (var datum in topmiDb) datum.docId: datum};
 
-                topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>()
-                    .fetchData(lastSyncDate);
+                topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData(lastSyncDate);
                 for (final datumBos in topmi) {
                   final datumDb = topmiDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoMultiItemHeaderDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoMultiItemHeaderDao
-                    .bulkCreate(data: topmi);
+                topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.bulkCreate(data: topmi);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2239,53 +1674,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Topmi",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmi1Db = await GetIt.instance<AppDatabase>()
-                  .promoMultiItemBuyConditionDao
-                  .readAll();
+              final tpmi1Db = await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.readAll();
 
               if (tpmi1Db.isNotEmpty) {
-                final tpmi1DbMap = {
-                  for (var datum in tpmi1Db) datum.docId: datum
-                };
+                final tpmi1DbMap = {for (var datum in tpmi1Db) datum.docId: datum};
 
-                tpmi1 =
-                    await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
-                        .fetchData(lastSyncDate);
+                tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmi1) {
                   final datumDb = tpmi1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoMultiItemBuyConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmi1 =
-                    await GetIt.instance<PromoBonusMultiItemBuyConditionApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoMultiItemBuyConditionDao
-                    .bulkCreate(data: tpmi1);
+                tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.bulkCreate(data: tpmi1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2297,53 +1715,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmi1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmi2Db = await GetIt.instance<AppDatabase>()
-                  .promoMultiItemAssignStoreDao
-                  .readAll();
+              final tpmi2Db = await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.readAll();
 
               if (tpmi2Db.isNotEmpty) {
-                final tpmi2DbMap = {
-                  for (var datum in tpmi2Db) datum.docId: datum
-                };
+                final tpmi2DbMap = {for (var datum in tpmi2Db) datum.docId: datum};
 
-                tpmi2 =
-                    await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
-                        .fetchData(lastSyncDate);
+                tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmi2) {
                   final datumDb = tpmi2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoMultiItemAssignStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmi2 =
-                    await GetIt.instance<PromoBonusMultiItemAssignStoreApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoMultiItemAssignStoreDao
-                    .bulkCreate(data: tpmi2);
+                tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.bulkCreate(data: tpmi2);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2355,53 +1756,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmi2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmi4Db = await GetIt.instance<AppDatabase>()
-                  .promoMultiItemGetConditionDao
-                  .readAll();
+              final tpmi4Db = await GetIt.instance<AppDatabase>().promoMultiItemGetConditionDao.readAll();
 
               if (tpmi4Db.isNotEmpty) {
-                final tpmi4DbMap = {
-                  for (var datum in tpmi4Db) datum.docId: datum
-                };
+                final tpmi4DbMap = {for (var datum in tpmi4Db) datum.docId: datum};
 
-                tpmi4 =
-                    await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
-                        .fetchData(lastSyncDate);
+                tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmi4) {
                   final datumDb = tpmi4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoMultiItemGetConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoMultiItemGetConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmi4 =
-                    await GetIt.instance<PromoBonusMultiItemGetConditionApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoMultiItemGetConditionDao
-                    .bulkCreate(data: tpmi4);
+                tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoMultiItemGetConditionDao.bulkCreate(data: tpmi4);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2413,53 +1797,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmi4",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmi5Db = await GetIt.instance<AppDatabase>()
-                  .promoMultiItemCustomerGroupDao
-                  .readAll();
+              final tpmi5Db = await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.readAll();
 
               if (tpmi5Db.isNotEmpty) {
-                final tpmi5DbMap = {
-                  for (var datum in tpmi5Db) datum.docId: datum
-                };
+                final tpmi5DbMap = {for (var datum in tpmi5Db) datum.docId: datum};
 
-                tpmi5 =
-                    await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
-                        .fetchData(lastSyncDate);
+                tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmi5) {
                   final datumDb = tpmi5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoMultiItemCustomerGroupDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmi5 =
-                    await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoMultiItemCustomerGroupDao
-                    .bulkCreate(data: tpmi5);
+                tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.bulkCreate(data: tpmi5);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2471,51 +1838,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmi5",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final topdiDb = await GetIt.instance<AppDatabase>()
-                  .promoDiskonItemHeaderDao
-                  .readAll();
+              final topdiDb = await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.readAll();
 
               if (topdiDb.isNotEmpty) {
-                final topdiDbMap = {
-                  for (var datum in topdiDb) datum.docId: datum
-                };
+                final topdiDbMap = {for (var datum in topdiDb) datum.docId: datum};
 
-                topdi = await GetIt.instance<PromoDiskonItemHeaderApi>()
-                    .fetchData(lastSyncDate);
+                topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData(lastSyncDate);
                 for (final datumBos in topdi) {
                   final datumDb = topdiDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonItemHeaderDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                topdi = await GetIt.instance<PromoDiskonItemHeaderApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonItemHeaderDao
-                    .bulkCreate(data: topdi);
+                topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.bulkCreate(data: topdi);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2527,51 +1879,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Topdi",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdi1Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonItemBuyConditionDao
-                  .readAll();
+              final tpdi1Db = await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.readAll();
 
               if (tpdi1Db.isNotEmpty) {
-                final tpdi1DbMap = {
-                  for (var datum in tpdi1Db) datum.docId: datum
-                };
+                final tpdi1DbMap = {for (var datum in tpdi1Db) datum.docId: datum};
 
-                tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>()
-                    .fetchData(lastSyncDate);
+                tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdi1) {
                   final datumDb = tpdi1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonItemBuyConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonItemBuyConditionDao
-                    .bulkCreate(data: tpdi1);
+                tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.bulkCreate(data: tpdi1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2583,51 +1920,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdi1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdi2Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonItemAssignStoreDao
-                  .readAll();
+              final tpdi2Db = await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.readAll();
 
               if (tpdi2Db.isNotEmpty) {
-                final tpdi2DbMap = {
-                  for (var datum in tpdi2Db) datum.docId: datum
-                };
+                final tpdi2DbMap = {for (var datum in tpdi2Db) datum.docId: datum};
 
-                tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>()
-                    .fetchData(lastSyncDate);
+                tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdi2) {
                   final datumDb = tpdi2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonItemAssignStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonItemAssignStoreDao
-                    .bulkCreate(data: tpdi2);
+                tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.bulkCreate(data: tpdi2);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2639,51 +1961,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdi2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdi4Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonItemGetConditionDao
-                  .readAll();
+              final tpdi4Db = await GetIt.instance<AppDatabase>().promoDiskonItemGetConditionDao.readAll();
 
               if (tpdi4Db.isNotEmpty) {
-                final tpdi4DbMap = {
-                  for (var datum in tpdi4Db) datum.docId: datum
-                };
+                final tpdi4DbMap = {for (var datum in tpdi4Db) datum.docId: datum};
 
-                tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>()
-                    .fetchData(lastSyncDate);
+                tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdi4) {
                   final datumDb = tpdi4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonItemGetConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonItemGetConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonItemGetConditionDao
-                    .bulkCreate(data: tpdi4);
+                tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonItemGetConditionDao.bulkCreate(data: tpdi4);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2695,51 +2002,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdi4",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdi5Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonItemCustomerGroupDao
-                  .readAll();
+              final tpdi5Db = await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.readAll();
 
               if (tpdi5Db.isNotEmpty) {
-                final tpdi5DbMap = {
-                  for (var datum in tpdi5Db) datum.docId: datum
-                };
+                final tpdi5DbMap = {for (var datum in tpdi5Db) datum.docId: datum};
 
-                tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>()
-                    .fetchData(lastSyncDate);
+                tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdi5) {
                   final datumDb = tpdi5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonItemCustomerGroupDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonItemCustomerGroupDao
-                    .bulkCreate(data: tpdi5);
+                tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.bulkCreate(data: tpdi5);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2751,51 +2043,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdi5",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final topdgDb = await GetIt.instance<AppDatabase>()
-                  .promoDiskonGroupItemHeaderDao
-                  .readAll();
+              final topdgDb = await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.readAll();
 
               if (topdgDb.isNotEmpty) {
-                final topdgDbMap = {
-                  for (var datum in topdgDb) datum.docId: datum
-                };
+                final topdgDbMap = {for (var datum in topdgDb) datum.docId: datum};
 
-                topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
-                    .fetchData(lastSyncDate);
+                topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData(lastSyncDate);
                 for (final datumBos in topdg) {
                   final datumDb = topdgDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonGroupItemHeaderDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonGroupItemHeaderDao
-                    .bulkCreate(data: topdg);
+                topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.bulkCreate(data: topdg);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2807,53 +2084,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Topdg",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdg1Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonGroupItemBuyConditionDao
-                  .readAll();
+              final tpdg1Db = await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.readAll();
 
               if (tpdg1Db.isNotEmpty) {
-                final tpdg1DbMap = {
-                  for (var datum in tpdg1Db) datum.docId: datum
-                };
+                final tpdg1DbMap = {for (var datum in tpdg1Db) datum.docId: datum};
 
-                tpdg1 =
-                    await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>()
-                        .fetchData(lastSyncDate);
+                tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdg1) {
                   final datumDb = tpdg1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonGroupItemBuyConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdg1 =
-                    await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonGroupItemBuyConditionDao
-                    .bulkCreate(data: tpdg1);
+                tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.bulkCreate(data: tpdg1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2865,53 +2125,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdg1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdg2Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonGroupItemAssignStoreDao
-                  .readAll();
+              final tpdg2Db = await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.readAll();
 
               if (tpdg2Db.isNotEmpty) {
-                final tpdg2DbMap = {
-                  for (var datum in tpdg2Db) datum.docId: datum
-                };
+                final tpdg2DbMap = {for (var datum in tpdg2Db) datum.docId: datum};
 
-                tpdg2 =
-                    await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
-                        .fetchData(lastSyncDate);
+                tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdg2) {
                   final datumDb = tpdg2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonGroupItemAssignStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdg2 =
-                    await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonGroupItemAssignStoreDao
-                    .bulkCreate(data: tpdg2);
+                tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.bulkCreate(data: tpdg2);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2923,53 +2166,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdg2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdg4Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonGroupItemGetConditionDao
-                  .readAll();
+              final tpdg4Db = await GetIt.instance<AppDatabase>().promoDiskonGroupItemGetConditionDao.readAll();
 
               if (tpdg4Db.isNotEmpty) {
-                final tpdg4DbMap = {
-                  for (var datum in tpdg4Db) datum.docId: datum
-                };
+                final tpdg4DbMap = {for (var datum in tpdg4Db) datum.docId: datum};
 
-                tpdg4 =
-                    await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
-                        .fetchData(lastSyncDate);
+                tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdg4) {
                   final datumDb = tpdg4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonGroupItemGetConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonGroupItemGetConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdg4 =
-                    await GetIt.instance<PromoDiskonGroupItemGetConditionApi>()
-                        .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonGroupItemGetConditionDao
-                    .bulkCreate(data: tpdg4);
+                tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoDiskonGroupItemGetConditionDao.bulkCreate(data: tpdg4);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -2981,54 +2207,37 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdg4",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpdg5Db = await GetIt.instance<AppDatabase>()
-                  .promoDiskonGroupItemCustomerGroupDao
-                  .readAll();
+              final tpdg5Db = await GetIt.instance<AppDatabase>().promoDiskonGroupItemCustomerGroupDao.readAll();
 
               if (tpdg5Db.isNotEmpty) {
-                final tpdg5DbMap = {
-                  for (var datum in tpdg5Db) datum.docId: datum
-                };
+                final tpdg5DbMap = {for (var datum in tpdg5Db) datum.docId: datum};
 
-                tpdg5 =
-                    await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
-                        .fetchData(lastSyncDate);
+                tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpdg5) {
                   final datumDb = tpdg5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoDiskonGroupItemCustomerGroupDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoDiskonGroupItemCustomerGroupDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpdg5 =
-                    await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>()
-                        .fetchData("2000-01-01 00:00:00");
+                tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
 
-                await GetIt.instance<AppDatabase>()
-                    .promoDiskonGroupItemCustomerGroupDao
-                    .bulkCreate(data: tpdg5);
+                await GetIt.instance<AppDatabase>().promoDiskonGroupItemCustomerGroupDao.bulkCreate(data: tpdg5);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3040,51 +2249,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpdg5",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final toprbDb = await GetIt.instance<AppDatabase>()
-                  .promoBuyXGetYHeaderDao
-                  .readAll();
+              final toprbDb = await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
 
               if (toprbDb.isNotEmpty) {
-                final toprbDbMap = {
-                  for (var datum in toprbDb) datum.docId: datum
-                };
+                final toprbDbMap = {for (var datum in toprbDb) datum.docId: datum};
 
-                toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>()
-                    .fetchData(lastSyncDate);
+                toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData(lastSyncDate);
                 for (final datumBos in toprb) {
                   final datumDb = toprbDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoBuyXGetYHeaderDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoBuyXGetYHeaderDao
-                    .bulkCreate(data: toprb);
+                toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.bulkCreate(data: toprb);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3096,51 +2290,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Toprb",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tprb1Db = await GetIt.instance<AppDatabase>()
-                  .promoBuyXGetYBuyConditionDao
-                  .readAll();
+              final tprb1Db = await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.readAll();
 
               if (tprb1Db.isNotEmpty) {
-                final tprb1DbMap = {
-                  for (var datum in tprb1Db) datum.docId: datum
-                };
+                final tprb1DbMap = {for (var datum in tprb1Db) datum.docId: datum};
 
-                tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
-                    .fetchData(lastSyncDate);
+                tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tprb1) {
                   final datumDb = tprb1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoBuyXGetYBuyConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoBuyXGetYBuyConditionDao
-                    .bulkCreate(data: tprb1);
+                tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.bulkCreate(data: tprb1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3152,51 +2331,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tprb1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tprb2Db = await GetIt.instance<AppDatabase>()
-                  .promoBuyXGetYAssignStoreDao
-                  .readAll();
+              final tprb2Db = await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.readAll();
 
               if (tprb2Db.isNotEmpty) {
-                final tprb2DbMap = {
-                  for (var datum in tprb2Db) datum.docId: datum
-                };
+                final tprb2DbMap = {for (var datum in tprb2Db) datum.docId: datum};
 
-                tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>()
-                    .fetchData(lastSyncDate);
+                tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>().fetchData(lastSyncDate);
                 for (final datumBos in tprb2) {
                   final datumDb = tprb2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoBuyXGetYAssignStoreDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoBuyXGetYAssignStoreDao
-                    .bulkCreate(data: tprb2);
+                tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.bulkCreate(data: tprb2);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3208,51 +2372,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tprb2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tprb4Db = await GetIt.instance<AppDatabase>()
-                  .promoBuyXGetYGetConditionDao
-                  .readAll();
+              final tprb4Db = await GetIt.instance<AppDatabase>().promoBuyXGetYGetConditionDao.readAll();
 
               if (tprb4Db.isNotEmpty) {
-                final tprb4DbMap = {
-                  for (var datum in tprb4Db) datum.docId: datum
-                };
+                final tprb4DbMap = {for (var datum in tprb4Db) datum.docId: datum};
 
-                tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>()
-                    .fetchData(lastSyncDate);
+                tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>().fetchData(lastSyncDate);
                 for (final datumBos in tprb4) {
                   final datumDb = tprb4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoBuyXGetYGetConditionDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoBuyXGetYGetConditionDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoBuyXGetYGetConditionDao
-                    .bulkCreate(data: tprb4);
+                tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoBuyXGetYGetConditionDao.bulkCreate(data: tprb4);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3264,51 +2413,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tprb2",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tprb5Db = await GetIt.instance<AppDatabase>()
-                  .promoBuyXGetYCustomerGroupDao
-                  .readAll();
+              final tprb5Db = await GetIt.instance<AppDatabase>().promoBuyXGetYCustomerGroupDao.readAll();
 
               if (tprb5Db.isNotEmpty) {
-                final tprb5DbMap = {
-                  for (var datum in tprb5Db) datum.docId: datum
-                };
+                final tprb5DbMap = {for (var datum in tprb5Db) datum.docId: datum};
 
-                tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
-                    .fetchData(lastSyncDate);
+                tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>().fetchData(lastSyncDate);
                 for (final datumBos in tprb5) {
                   final datumDb = tprb5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .promoBuyXGetYCustomerGroupDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().promoBuyXGetYCustomerGroupDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .promoBuyXGetYCustomerGroupDao
-                    .bulkCreate(data: tprb5);
+                tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoBuyXGetYCustomerGroupDao.bulkCreate(data: tprb5);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3320,51 +2454,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tprb5",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final toittDb = await GetIt.instance<AppDatabase>()
-                  .billOfMaterialDao
-                  .readAll();
+              final toittDb = await GetIt.instance<AppDatabase>().billOfMaterialDao.readAll();
 
               if (toittDb.isNotEmpty) {
-                final toittDbMap = {
-                  for (var datum in toittDb) datum.docId: datum
-                };
+                final toittDbMap = {for (var datum in toittDb) datum.docId: datum};
 
-                toitt = await GetIt.instance<BillOfMaterialApi>()
-                    .fetchData(lastSyncDate);
+                toitt = await GetIt.instance<BillOfMaterialApi>().fetchData(lastSyncDate);
                 for (final datumBos in toitt) {
                   final datumDb = toittDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .billOfMaterialDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .billOfMaterialDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().billOfMaterialDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                toitt = await GetIt.instance<BillOfMaterialApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .billOfMaterialDao
-                    .bulkCreate(data: toitt);
+                toitt = await GetIt.instance<BillOfMaterialApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().billOfMaterialDao.bulkCreate(data: toitt);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3376,51 +2495,36 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Toitt",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final titt1Db = await GetIt.instance<AppDatabase>()
-                  .billOfMaterialLineItemDao
-                  .readAll();
+              final titt1Db = await GetIt.instance<AppDatabase>().billOfMaterialLineItemDao.readAll();
 
               if (titt1Db.isNotEmpty) {
-                final titt1DbMap = {
-                  for (var datum in titt1Db) datum.docId: datum
-                };
+                final titt1DbMap = {for (var datum in titt1Db) datum.docId: datum};
 
-                titt1 = await GetIt.instance<BillOfMaterialLineItemApi>()
-                    .fetchData(lastSyncDate);
+                titt1 = await GetIt.instance<BillOfMaterialLineItemApi>().fetchData(lastSyncDate);
                 for (final datumBos in titt1) {
                   final datumDb = titt1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .billOfMaterialLineItemDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .billOfMaterialLineItemDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().billOfMaterialLineItemDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                titt1 = await GetIt.instance<BillOfMaterialLineItemApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .billOfMaterialLineItemDao
-                    .bulkCreate(data: titt1);
+                titt1 = await GetIt.instance<BillOfMaterialLineItemApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().billOfMaterialLineItemDao.bulkCreate(data: titt1);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3432,49 +2536,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Titt1",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmt4Db =
-                  await GetIt.instance<AppDatabase>().edcDao.readAll();
+              final tpmt4Db = await GetIt.instance<AppDatabase>().edcDao.readAll();
 
               if (tpmt4Db.isNotEmpty) {
-                final tpmt4DbMap = {
-                  for (var datum in tpmt4Db) datum.docId: datum
-                };
+                final tpmt4DbMap = {for (var datum in tpmt4Db) datum.docId: datum};
 
                 tpmt4 = await GetIt.instance<EDCApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmt4) {
                   final datumDb = tpmt4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .edcDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().edcDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .edcDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().edcDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmt4 = await GetIt.instance<EDCApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .edcDao
-                    .bulkCreate(data: tpmt4);
+                tpmt4 = await GetIt.instance<EDCApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().edcDao.bulkCreate(data: tpmt4);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3486,50 +2575,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmt4",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmt5Db =
-                  await GetIt.instance<AppDatabase>().bankIssuerDao.readAll();
+              final tpmt5Db = await GetIt.instance<AppDatabase>().bankIssuerDao.readAll();
 
               if (tpmt5Db.isNotEmpty) {
-                final tpmt5DbMap = {
-                  for (var datum in tpmt5Db) datum.docId: datum
-                };
+                final tpmt5DbMap = {for (var datum in tpmt5Db) datum.docId: datum};
 
-                tpmt5 = await GetIt.instance<BankIssuerApi>()
-                    .fetchData(lastSyncDate);
+                tpmt5 = await GetIt.instance<BankIssuerApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmt5) {
                   final datumDb = tpmt5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .bankIssuerDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().bankIssuerDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .bankIssuerDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().bankIssuerDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmt5 = await GetIt.instance<BankIssuerApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .bankIssuerDao
-                    .bulkCreate(data: tpmt5);
+                tpmt5 = await GetIt.instance<BankIssuerApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().bankIssuerDao.bulkCreate(data: tpmt5);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3541,50 +2614,34 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmt5",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
           () async {
             try {
-              final tpmt6Db =
-                  await GetIt.instance<AppDatabase>().campaignDao.readAll();
+              final tpmt6Db = await GetIt.instance<AppDatabase>().campaignDao.readAll();
 
               if (tpmt6Db.isNotEmpty) {
-                final tpmt6DbMap = {
-                  for (var datum in tpmt6Db) datum.docId: datum
-                };
+                final tpmt6DbMap = {for (var datum in tpmt6Db) datum.docId: datum};
 
-                tpmt6 =
-                    await GetIt.instance<CampaignApi>().fetchData(lastSyncDate);
+                tpmt6 = await GetIt.instance<CampaignApi>().fetchData(lastSyncDate);
                 for (final datumBos in tpmt6) {
                   final datumDb = tpmt6DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" &&
-                        (datumBos.updateDate
-                                ?.isAfter(DateTime.parse(lastSyncDate)) ??
-                            false)) {
-                      await GetIt.instance<AppDatabase>()
-                          .campaignDao
-                          .update(docId: datumDb.docId, data: datumBos);
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>().campaignDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
-                    await GetIt.instance<AppDatabase>()
-                        .campaignDao
-                        .create(data: datumBos);
+                    await GetIt.instance<AppDatabase>().campaignDao.create(data: datumBos);
                   }
                 }
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
               } else {
-                tpmt6 = await GetIt.instance<CampaignApi>()
-                    .fetchData("2000-01-01 00:00:00");
-                await GetIt.instance<AppDatabase>()
-                    .campaignDao
-                    .bulkCreate(data: tpmt6);
+                tpmt6 = await GetIt.instance<CampaignApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().campaignDao.bulkCreate(data: tpmt6);
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -3596,17 +2653,13 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: Tpmt6",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
         ];
         // ------------------- END OF FETCHING FUNCTIONS-------------------
 
-        final store = await (GetIt.instance<AppDatabase>()
-            .storeMasterDao
-            .readByDocId(singleTopos.tostrId!, null));
+        final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
 
         final strName = store?.storeName;
 
@@ -3625,9 +2678,7 @@ class _FetchScreenState extends State<FetchScreen> {
           lastSync: nextSyncDate,
         );
 
-        await GetIt.instance<AppDatabase>()
-            .posParameterDao
-            .update(docId: toposId, data: toposData);
+        await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
 
         for (final fetchFunction in fetchFunctions) {
           try {
@@ -3638,15 +2689,12 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
-        final toposAfterSync =
-            await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+        final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
         final singleToposAfterSync = toposAfterSync[0];
 
         // UPDATE STORE NAME
         try {
-          final store = await (GetIt.instance<AppDatabase>()
-              .storeMasterDao
-              .readByDocId(singleTopos.tostrId!, null));
+          final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
 
           final toposData = POSParameterModel(
             docId: singleToposAfterSync.docId,
@@ -3663,9 +2711,7 @@ class _FetchScreenState extends State<FetchScreen> {
             lastSync: singleToposAfterSync.lastSync,
           );
 
-          await GetIt.instance<AppDatabase>()
-              .posParameterDao
-              .update(docId: toposId, data: toposData);
+          await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
         } catch (e) {
           handleError(e);
           rethrow;
@@ -3679,18 +2725,14 @@ class _FetchScreenState extends State<FetchScreen> {
 
         await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
-        topsb = await GetIt.instance<AppDatabase>()
-            .promoHargaSpesialHeaderDao
-            .readAll();
+        topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
         for (final header in topsb) {
           if (header.statusActive != 1) continue;
 
-          final tpsb2 = await GetIt.instance<AppDatabase>()
-              .promoHargaSpesialAssignStoreDao
-              .readByTopsbId(header.docId, null);
-          final tpsb4 = await GetIt.instance<AppDatabase>()
-              .promoHargaSpesialCustomerGroupDao
-              .readByTopsbId(header.docId, null);
+          final tpsb2 =
+              await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readByTopsbId(header.docId, null);
+          final tpsb4 =
+              await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.readByTopsbId(header.docId, null);
 
           final dayProperties = {
             1: tpsb2.day1,
@@ -3723,21 +2765,16 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
-        topmi = await GetIt.instance<AppDatabase>()
-            .promoMultiItemHeaderDao
-            .readAll();
+        topmi = await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
         for (final header in topmi) {
           if (header.statusActive != 1) continue;
 
-          final tpmi1 = await GetIt.instance<AppDatabase>()
-              .promoMultiItemBuyConditionDao
-              .readByTopmiId(header.docId, null);
-          final tpmi2 = await GetIt.instance<AppDatabase>()
-              .promoMultiItemAssignStoreDao
-              .readByTopmiId(header.docId, null);
-          final tpmi5 = await GetIt.instance<AppDatabase>()
-              .promoMultiItemCustomerGroupDao
-              .readByTopmiId(header.docId, null);
+          final tpmi1 =
+              await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.readByTopmiId(header.docId, null);
+          final tpmi2 =
+              await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.readByTopmiId(header.docId, null);
+          final tpmi5 =
+              await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.readByTopmiId(header.docId, null);
 
           final dayProperties = {
             1: tpmi2.day1,
@@ -3771,21 +2808,16 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
-        topdi = await GetIt.instance<AppDatabase>()
-            .promoDiskonItemHeaderDao
-            .readAll();
+        topdi = await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.readAll();
         for (final header in topdi) {
           if (header.statusActive != 1) continue;
 
-          final tpdi1 = await GetIt.instance<AppDatabase>()
-              .promoDiskonItemBuyConditionDao
-              .readByTopdiId(header.docId, null);
-          final tpdi2 = await GetIt.instance<AppDatabase>()
-              .promoDiskonItemAssignStoreDao
-              .readByTopdiId(header.docId, null);
-          final tpdi5 = await GetIt.instance<AppDatabase>()
-              .promoDiskonItemCustomerGroupDao
-              .readByTopdiId(header.docId, null);
+          final tpdi1 =
+              await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.readByTopdiId(header.docId, null);
+          final tpdi2 =
+              await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.readByTopdiId(header.docId, null);
+          final tpdi5 =
+              await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.readByTopdiId(header.docId, null);
 
           final dayProperties = {
             1: tpdi2.day1,
@@ -3819,19 +2851,15 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
-        topdg = await GetIt.instance<AppDatabase>()
-            .promoDiskonGroupItemHeaderDao
-            .readAll();
+        topdg = await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.readAll();
 
         for (final header in topdg) {
           if (header.statusActive != 1) continue;
 
-          final tpdg1 = await GetIt.instance<AppDatabase>()
-              .promoDiskonGroupItemBuyConditionDao
-              .readByTopdgId(header.docId, null);
-          final tpdg2 = await GetIt.instance<AppDatabase>()
-              .promoDiskonGroupItemAssignStoreDao
-              .readByTodgId(header.docId, null);
+          final tpdg1 =
+              await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.readByTopdgId(header.docId, null);
+          final tpdg2 =
+              await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.readByTodgId(header.docId, null);
           final tpdg5 = await GetIt.instance<AppDatabase>()
               .promoDiskonGroupItemCustomerGroupDao
               .readByTopdgId(header.docId, null);
@@ -3850,9 +2878,7 @@ class _FetchScreenState extends State<FetchScreen> {
             for (final buyCondition in tpdg1) {
               for (final customerGroup in tpdg5) {
                 final List<ItemMasterEntity> itemMastersByTocatId =
-                    await GetIt.instance<AppDatabase>()
-                        .itemMasterDao
-                        .readAllByTocatId(tocatId: buyCondition.tocatId!);
+                    await GetIt.instance<AppDatabase>().itemMasterDao.readAllByTocatId(tocatId: buyCondition.tocatId!);
 
                 for (final itemMaster in itemMastersByTocatId) {
                   promos.add(PromotionsModel(
@@ -3874,18 +2900,14 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
-        toprb = await GetIt.instance<AppDatabase>()
-            .promoBuyXGetYHeaderDao
-            .readAll();
+        toprb = await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
         for (final header in toprb) {
           if (header.statusActive != 1) continue;
 
-          final tprb1 = await GetIt.instance<AppDatabase>()
-              .promoBuyXGetYBuyConditionDao
-              .readByToprbId(header.docId, null);
-          final tprb2 = await GetIt.instance<AppDatabase>()
-              .promoBuyXGetYAssignStoreDao
-              .readByToprbId(header.docId, null);
+          final tprb1 =
+              await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.readByToprbId(header.docId, null);
+          final tprb2 =
+              await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.readByToprbId(header.docId, null);
 
           final dayProperties = {
             1: tprb2.day1,
@@ -3988,17 +3010,14 @@ class _FetchScreenState extends State<FetchScreen> {
         // END OF REFRESH TABLE ITEMS
 
         // Check Failed Invoices and Try to Send
-        final invoices =
-            await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
+        final invoices = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
         for (var invoice in invoices) {
           if (invoice.syncToBos!.isEmpty) {
             log("$invoice");
             try {
-              final invDetails = await GetIt.instance<AppDatabase>()
-                  .invoiceDetailDao
-                  .readByToinvId(invoice.docId!, null);
-              await GetIt.instance<InvoiceApi>()
-                  .sendFailedInvoice(invoice, invDetails);
+              final invDetails =
+                  await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvId(invoice.docId!, null);
+              await GetIt.instance<InvoiceApi>().sendFailedInvoice(invoice, invDetails);
             } catch (e) {
               final logErr = LogErrorModel(
                   docId: const Uuid().v4(),
@@ -4006,9 +3025,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   updateDate: DateTime.now(),
                   processInfo: "ManualSync: SendToinv",
                   description: e.toString());
-              await GetIt.instance<AppDatabase>()
-                  .logErrorDao
-                  .create(data: logErr);
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           }
         }
@@ -4022,8 +3039,7 @@ class _FetchScreenState extends State<FetchScreen> {
           log("VALIDATE INACTIVE MASTER DATA Error: $e");
           await GetIt.instance<LogoutUseCase>().call();
           await NavigationHelper.go("/");
-          SnackBarHelper.presentFailSnackBar(
-              NavigationHelper.context, e.toString());
+          SnackBarHelper.presentFailSnackBar(NavigationHelper.context, e.toString());
         }
         // END OF VALIDATE INACTIVE tostr, tohem, tocsr, tousr
       } catch (error, stack) {
@@ -4131,16 +3147,13 @@ class _FetchScreenState extends State<FetchScreen> {
                           });
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => const LogErrorScreen()),
+                            MaterialPageRoute(builder: (context) => const LogErrorScreen()),
                           ).then((value) => Future.delayed(
                               const Duration(milliseconds: 200),
-                              () => SystemChrome.setSystemUIOverlayStyle(
-                                  const SystemUiOverlayStyle(
-                                      statusBarColor: ProjectColors.primary,
-                                      statusBarBrightness: Brightness.light,
-                                      statusBarIconBrightness:
-                                          Brightness.light))));
+                              () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                  statusBarColor: ProjectColors.primary,
+                                  statusBarBrightness: Brightness.light,
+                                  statusBarIconBrightness: Brightness.light))));
                         },
                         style: ButtonStyle(
                           shape: MaterialStatePropertyAll(
@@ -4155,8 +3168,7 @@ class _FetchScreenState extends State<FetchScreen> {
                           backgroundColor: const MaterialStatePropertyAll(
                             Color.fromARGB(255, 234, 234, 234),
                           ),
-                          foregroundColor: const MaterialStatePropertyAll(
-                              ProjectColors.primary),
+                          foregroundColor: const MaterialStatePropertyAll(ProjectColors.primary),
                         ),
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
@@ -4183,10 +3195,8 @@ class _FetchScreenState extends State<FetchScreen> {
                             width: MediaQuery.of(context).size.width * 0.5,
                             child: LinearProgressIndicator(
                               value: syncProgress,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 184, 183, 183),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Colors.teal),
+                              backgroundColor: const Color.fromARGB(255, 184, 183, 183),
+                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
                             ),
                           ),
                         ),
@@ -4213,30 +3223,24 @@ class _FetchScreenState extends State<FetchScreen> {
                         onPressed: isManualSyncing
                             ? null
                             : () async {
-                                await GetIt.instance<AppDatabase>()
-                                    .resetDatabase();
+                                await GetIt.instance<AppDatabase>().resetDatabase();
                               },
                         style: ButtonStyle(
                           shape: MaterialStatePropertyAll(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(100),
                               side: BorderSide(
-                                color: isManualSyncing
-                                    ? const Color.fromARGB(255, 114, 114, 114)
-                                    : ProjectColors.primary,
+                                color:
+                                    isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
                                 width: 2,
                               ),
                             ),
                           ),
                           backgroundColor: MaterialStatePropertyAll(
-                            isManualSyncing
-                                ? Colors.grey
-                                : const Color.fromARGB(255, 234, 234, 234),
+                            isManualSyncing ? Colors.grey : const Color.fromARGB(255, 234, 234, 234),
                           ),
                           foregroundColor: MaterialStatePropertyAll(
-                              isManualSyncing
-                                  ? const Color.fromARGB(255, 114, 114, 114)
-                                  : ProjectColors.primary),
+                              isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary),
                         ),
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
@@ -4262,8 +3266,7 @@ class _FetchScreenState extends State<FetchScreen> {
                                   syncProgress = 0;
                                   isManualSyncing = true;
                                 });
-                                final prefs =
-                                    await SharedPreferences.getInstance();
+                                final prefs = await SharedPreferences.getInstance();
                                 prefs.setBool('isSyncing', false);
                                 await manualSync();
                                 setState(() {
@@ -4274,10 +3277,8 @@ class _FetchScreenState extends State<FetchScreen> {
                                 }
                               },
                         style: const ButtonStyle(
-                          backgroundColor:
-                              MaterialStatePropertyAll(ProjectColors.primary),
-                          foregroundColor:
-                              MaterialStatePropertyAll(Colors.white),
+                          backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
+                          foregroundColor: MaterialStatePropertyAll(Colors.white),
                         ),
                         child: isManualSyncing
                             ? const Padding(

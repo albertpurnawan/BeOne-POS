@@ -47,10 +47,7 @@ class _RecapShiftsState extends State<RecapShifts> {
             ),
             const Text(
               'Transactions List',
-              style: TextStyle(
-                  color: ProjectColors.swatch,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(color: ProjectColors.swatch, fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
             // insert
@@ -74,8 +71,7 @@ class _RecapShiftsState extends State<RecapShifts> {
               child: CustomButton(
                 child: const Text("Start Shift"),
                 onTap: () async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
+                  final SharedPreferences prefs = await SharedPreferences.getInstance();
                   final bool isOpen = prefs.getBool('isOpen') ?? false;
 
                   if (isOpen) {
@@ -85,13 +81,11 @@ class _RecapShiftsState extends State<RecapShifts> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
                           ),
                           content: const Text(
                             "Please end current shift first",
-                            style:
-                                TextStyle(color: Color.fromRGBO(128, 0, 0, 1)),
+                            style: TextStyle(color: Color.fromRGBO(128, 0, 0, 1)),
                           ),
                           actions: <Widget>[
                             TextButton(
@@ -111,8 +105,7 @@ class _RecapShiftsState extends State<RecapShifts> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
                           ),
                           content: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.7,
@@ -149,9 +142,7 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
   }
 
   Future<List<CashierBalanceTransactionModel>> fetchTransactions() async {
-    final tcsr1 = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readAll();
+    final tcsr1 = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
     return tcsr1;
   }
 
@@ -159,18 +150,15 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<CashierBalanceTransactionModel>>(
       future: _transactionsFuture,
-      builder: (BuildContext context,
-          AsyncSnapshot<List<CashierBalanceTransactionModel>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<List<CashierBalanceTransactionModel>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final Map<String, List<CashierBalanceTransactionModel>>
-              transactionsByDate = {};
+          final Map<String, List<CashierBalanceTransactionModel>> transactionsByDate = {};
           for (var transaction in snapshot.data!) {
-            final String dateFormatted =
-                Helpers.dateEEddMMMyyy(transaction.openDate);
+            final String dateFormatted = Helpers.dateEEddMMMyyy(transaction.openDate);
 
             if (!transactionsByDate.containsKey(dateFormatted)) {
               transactionsByDate[dateFormatted] = [];
@@ -187,8 +175,7 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
               itemCount: sortedDates.length,
               itemBuilder: (BuildContext context, int index) {
                 final String date = sortedDates[index];
-                final List<CashierBalanceTransactionModel> transactions =
-                    transactionsByDate[date]!;
+                final List<CashierBalanceTransactionModel> transactions = transactionsByDate[date]!;
                 return ExpansionTile(
                   title: Text(date),
                   children: transactions.map((transaction) {
@@ -206,8 +193,7 @@ class _RecapsShiftListState extends State<RecapsShiftList> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                CashierBalanceTransactionDetails(
+                            builder: (context) => CashierBalanceTransactionDetails(
                               transaction: transaction,
                             ),
                           ),

@@ -115,8 +115,7 @@ class _LoginFormState extends State<LoginForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: usernameController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "Username is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
               label: "Username / Email",
               hint: "Username / Email",
               prefixIcon: const Icon(Icons.person),
@@ -130,8 +129,7 @@ class _LoginFormState extends State<LoginForm> {
               label: "Password",
               hint: "Password",
               prefixIcon: const Icon(Icons.lock),
-              validator: (val) =>
-                  val == null || val.isEmpty ? "Password is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
               type: CustomInputType.password,
             ),
           ),
@@ -158,24 +156,21 @@ class _LoginFormState extends State<LoginForm> {
                   if (isOpen) {
                     if (context.mounted) context.goNamed(RouteConstants.home);
                   } else {
-                    final CashierBalanceTransactionModel? openedShift =
-                        await showDialog(
+                    final CashierBalanceTransactionModel? openedShift = await showDialog(
                       // return id/tcsr1
                       context: context,
                       barrierDismissible: false,
                       builder: (BuildContext context) {
                         return AlertDialog(
                           shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
+                            borderRadius: BorderRadius.all(Radius.circular(5.0)),
                           ),
                           contentPadding: const EdgeInsets.all(0),
                           titlePadding: const EdgeInsets.all(0),
                           title: Container(
                             decoration: const BoxDecoration(
                               color: ProjectColors.primary,
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(5.0)),
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                             ),
                             padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                             child: const Text(

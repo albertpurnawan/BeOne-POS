@@ -116,7 +116,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
       // Trigger approval when grand total is 0
       if (state.grandTotal == 0) {
-        final bool? isAuthorized = await showDialog<bool>(context: context, barrierDismissible: false, builder: (context) => const ApprovalDialog());
+        final bool? isAuthorized = await showDialog<bool>(
+            context: context, barrierDismissible: false, builder: (context) => const ApprovalDialog());
         if (isAuthorized != true) return;
       }
 
@@ -145,9 +146,15 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         final bodyDetail = {
           "custIdMerchant": tostr.netzmeCustidMerchant,
           "partnerReferenceNo": invoiceDocNum + topos[0].otpChannel! + generateRandomString(5),
-          "amount": {"value": Helpers.revertMoneyToString(qrisMop.first.amount!), "currency": "IDR"}, // value grandtotal idr
+          "amount": {
+            "value": Helpers.revertMoneyToString(qrisMop.first.amount!),
+            "currency": "IDR"
+          }, // value grandtotal idr
           "amountDetail": {
-            "basicAmount": {"value": Helpers.revertMoneyToString(qrisMop.first.amount!), "currency": "IDR"}, // total semua item
+            "basicAmount": {
+              "value": Helpers.revertMoneyToString(qrisMop.first.amount!),
+              "currency": "IDR"
+            }, // total semua item
             "shippingAmount": {"value": "0", "currency": "IDR"}
           },
           "PayMethod": "QRIS", // constant
@@ -164,8 +171,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
             "fullname": "Tester 213@" // diambil dari customer kalau member
           }
         };
-        final serviceSignature = await GetIt.instance<NetzmeApi>()
-            .createSignatureService(url, clientKey, clientSecret!, privateKey, accessToken, "api/v1.0/invoice/create-transaction", bodyDetail);
+        final serviceSignature = await GetIt.instance<NetzmeApi>().createSignatureService(
+            url, clientKey, clientSecret!, privateKey, accessToken, "api/v1.0/invoice/create-transaction", bodyDetail);
 
         final transactionQris = await GetIt.instance<NetzmeApi>().createTransactionQRIS(
           url,
@@ -505,7 +512,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                     // ),
                     TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                          shape:
+                              MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                           backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                       onPressed: () {
@@ -541,8 +549,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side: const BorderSide(color: ProjectColors.primary))),
                           backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                       onPressed: () async {
@@ -589,7 +598,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             ),
                       TextButton(
                         style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                            shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                             backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: isLoadingQRIS ? null : () async => await charge(),
@@ -679,10 +689,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     try {
       final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
       if (posParameterEntity == null) return;
-      final StoreMasterEntity? storeMasterEntity = await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
+      final StoreMasterEntity? storeMasterEntity =
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) return;
       if (storeMasterEntity.tcurrId == null) return;
-      final CurrencyEntity? currencyEntity = await GetIt.instance<AppDatabase>().currencyDao.readByDocId(storeMasterEntity.tcurrId!, null);
+      final CurrencyEntity? currencyEntity =
+          await GetIt.instance<AppDatabase>().currencyDao.readByDocId(storeMasterEntity.tcurrId!, null);
       if (currencyEntity == null) return;
 
       setState(() {
@@ -774,7 +786,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     }
 
     for (final tpmt3Id in amountByTpmt3Ids.keys) {
-      final MopSelectionEntity? mopSelectionEntity = await GetIt.instance<MopSelectionRepository>().getMopSelectionByTpmt3Id(tpmt3Id);
+      final MopSelectionEntity? mopSelectionEntity =
+          await GetIt.instance<MopSelectionRepository>().getMopSelectionByTpmt3Id(tpmt3Id);
       result.add(Container(
         padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
         decoration: BoxDecoration(
@@ -859,7 +872,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
     List<MopSelectionEntity> mops = [];
 
-    final List<MopSelectionEntity> temp = context.read<MopSelectionsCubit>().state.where((element) => element.payTypeCode == payTypeCode).toList();
+    final List<MopSelectionEntity> temp =
+        context.read<MopSelectionsCubit>().state.where((element) => element.payTypeCode == payTypeCode).toList();
     mops.addAll(temp);
 
     return mops;
@@ -887,7 +901,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       _vouchers.addAll(vouchers);
       _vouchersAmount += totalVoucherAmount;
     });
-    context.read<ReceiptCubit>().updateVouchersSelection(vouchersSelectionEntity: _vouchers, vouchersAmount: _vouchersAmount);
+    context
+        .read<ReceiptCubit>()
+        .updateVouchersSelection(vouchersSelectionEntity: _vouchers, vouchersAmount: _vouchersAmount);
     final receiptGrandTotal = context.read<ReceiptCubit>().state.grandTotal;
     final receiptTotalVouchers = context.read<ReceiptCubit>().state.totalVoucher;
     if (receiptTotalVouchers! >= receiptGrandTotal) {
@@ -1028,7 +1044,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                     Container(
                                       height: 35,
                                       alignment: Alignment.topCenter,
-                                      child: receipt.grandTotal - (receipt.totalVoucher ?? 0) - (receipt.totalNonVoucher ?? 0) > 0
+                                      child: receipt.grandTotal -
+                                                  (receipt.totalVoucher ?? 0) -
+                                                  (receipt.totalNonVoucher ?? 0) >
+                                              0
                                           ? Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -1052,7 +1071,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                 ),
                                               ],
                                             )
-                                          : receipt.grandTotal - (receipt.totalVoucher ?? 0) - (receipt.totalNonVoucher ?? 0) < 0
+                                          : receipt.grandTotal -
+                                                      (receipt.totalVoucher ?? 0) -
+                                                      (receipt.totalNonVoucher ?? 0) <
+                                                  0
                                               ? Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
@@ -1119,7 +1141,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                               children: (receipt.mopSelections.isNotEmpty
                                       ? receipt.mopSelections.map((e) => _selectedMopChip(e, 1)).toList()
                                       : <Widget>[const SizedBox.shrink()]) +
-                                  (selectedVoucherChips.isNotEmpty ? selectedVoucherChips : <Widget>[const SizedBox.shrink()]),
+                                  (selectedVoucherChips.isNotEmpty
+                                      ? selectedVoucherChips
+                                      : <Widget>[const SizedBox.shrink()]),
                             ),
                           ),
                         ],
@@ -1149,7 +1173,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                           paymentTypes.length,
                                           (int index) {
                                             final paymentType = paymentTypes[index];
-                                            final List<MopSelectionEntity> mopsByType = getMopByPayTypeCode(paymentType.payTypeCode);
+                                            final List<MopSelectionEntity> mopsByType =
+                                                getMopByPayTypeCode(paymentType.payTypeCode);
 
                                             if (mopsByType.isEmpty) {
                                               return const SizedBox.shrink();
@@ -1157,13 +1182,16 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
                                             // [START] UI for TUNAI MOP
                                             if (paymentType.payTypeCode[0] == "1") {
-                                              final MopSelectionEntity? cashMopSelection =
-                                                  receipt.mopSelections.where((element) => element.payTypeCode == "1").firstOrNull;
-                                              final double totalCash = cashMopSelection == null ? 0 : cashMopSelection.amount!;
-                                              final List<int> cashAmountSuggestions = generateCashAmountSuggestions((widget.isMultiMOPs
-                                                      ? receipt.grandTotal - (receipt.totalPayment ?? 0) + totalCash
-                                                      : receipt.grandTotal - (receipt.totalVoucher ?? 0))
-                                                  .round());
+                                              final MopSelectionEntity? cashMopSelection = receipt.mopSelections
+                                                  .where((element) => element.payTypeCode == "1")
+                                                  .firstOrNull;
+                                              final double totalCash =
+                                                  cashMopSelection == null ? 0 : cashMopSelection.amount!;
+                                              final List<int> cashAmountSuggestions = generateCashAmountSuggestions(
+                                                  (widget.isMultiMOPs
+                                                          ? receipt.grandTotal - (receipt.totalPayment ?? 0) + totalCash
+                                                          : receipt.grandTotal - (receipt.totalVoucher ?? 0))
+                                                      .round());
 
                                               return Column(
                                                 children: [
@@ -1192,12 +1220,16 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             onTapOutside: (event) => _focusNodeCashAmount.unfocus(),
                                                             controller: _textEditingControllerCashAmount,
                                                             onChanged: (value) {
-                                                              final double cashAmount = Helpers.revertMoneyToDecimalFormat(value);
+                                                              final double cashAmount =
+                                                                  Helpers.revertMoneyToDecimalFormat(value);
 
                                                               if (cashAmount <= 0) {
                                                                 setState(() {
                                                                   _values = (widget.isMultiMOPs
-                                                                      ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList()
+                                                                      ? _values
+                                                                          .where(
+                                                                              (e) => e.tpmt3Id != mopsByType[0].tpmt3Id)
+                                                                          .toList()
                                                                       : <MopSelectionEntity>[]);
                                                                 });
                                                                 updateReceiptMop();
@@ -1206,7 +1238,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
                                                               setState(() {
                                                                 _values = (widget.isMultiMOPs
-                                                                        ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList()
+                                                                        ? _values
+                                                                            .where((e) =>
+                                                                                e.tpmt3Id != mopsByType[0].tpmt3Id)
+                                                                            .toList()
                                                                         : <MopSelectionEntity>[]) +
                                                                     [mopsByType[0].copyWith(amount: cashAmount)];
                                                               });
@@ -1219,7 +1254,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             decoration: InputDecoration(
                                                                 contentPadding: const EdgeInsets.all(5),
                                                                 hintText: "Cash Amount",
-                                                                hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24, height: 1),
+                                                                hintStyle: const TextStyle(
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontSize: 24,
+                                                                    height: 1),
                                                                 border: const OutlineInputBorder(),
                                                                 prefixIcon: const Icon(
                                                                   Icons.payments_outlined,
@@ -1231,7 +1269,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         onTap: () {
                                                                           setState(() {
                                                                             _values = (widget.isMultiMOPs
-                                                                                ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList()
+                                                                                ? _values
+                                                                                    .where((e) =>
+                                                                                        e.tpmt3Id !=
+                                                                                        mopsByType[0].tpmt3Id)
+                                                                                    .toList()
                                                                                 : <MopSelectionEntity>[]);
                                                                           });
                                                                           _textEditingControllerCashAmount.text = "";
@@ -1257,9 +1299,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 return const SizedBox.shrink();
                                                               }
                                                               return ChoiceChip(
-                                                                side: const BorderSide(color: ProjectColors.primary, width: 1.5),
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors.primary, width: 1.5),
                                                                 padding: const EdgeInsets.all(20),
-                                                                label: Text(Helpers.parseMoney(cashAmountSuggestions[index])),
+                                                                label: Text(
+                                                                    Helpers.parseMoney(cashAmountSuggestions[index])),
                                                                 selected: _values
                                                                     .where((e) =>
                                                                         e.tpmt3Id == mopsByType[0].tpmt3Id &&
@@ -1269,20 +1313,30 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                   setState(() {
                                                                     if (selected) {
                                                                       _values = widget.isMultiMOPs
-                                                                          ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList() +
+                                                                          ? _values
+                                                                                  .where((e) =>
+                                                                                      e.tpmt3Id !=
+                                                                                      mopsByType[0].tpmt3Id)
+                                                                                  .toList() +
                                                                               [
-                                                                                mopsByType[0]
-                                                                                    .copyWith(amount: cashAmountSuggestions[index].toDouble())
+                                                                                mopsByType[0].copyWith(
+                                                                                    amount: cashAmountSuggestions[index]
+                                                                                        .toDouble())
                                                                               ]
                                                                           : <MopSelectionEntity>[] +
                                                                               [
-                                                                                mopsByType[0]
-                                                                                    .copyWith(amount: cashAmountSuggestions[index].toDouble())
+                                                                                mopsByType[0].copyWith(
+                                                                                    amount: cashAmountSuggestions[index]
+                                                                                        .toDouble())
                                                                               ];
                                                                       _textEditingControllerCashAmount.text =
-                                                                          Helpers.parseMoney(cashAmountSuggestions[index]);
+                                                                          Helpers.parseMoney(
+                                                                              cashAmountSuggestions[index]);
                                                                     } else {
-                                                                      _values = _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList();
+                                                                      _values = _values
+                                                                          .where(
+                                                                              (e) => e.tpmt3Id != mopsByType[0].tpmt3Id)
+                                                                          .toList();
                                                                       _textEditingControllerCashAmount.text = "";
                                                                     }
                                                                     updateReceiptMop();
@@ -1329,19 +1383,24 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                           children: List<Widget>.generate(
                                                             mopsByType.map((mop) => mop.edcDesc).toSet().length,
                                                             (int index) {
-                                                              final distinctEdcDesc = mopsByType.map((mop) => mop.edcDesc).toSet().toList();
-                                                              final mop = mopsByType.firstWhere((mop) => mop.edcDesc == distinctEdcDesc[index]);
+                                                              final distinctEdcDesc =
+                                                                  mopsByType.map((mop) => mop.edcDesc).toSet().toList();
+                                                              final mop = mopsByType.firstWhere(
+                                                                  (mop) => mop.edcDesc == distinctEdcDesc[index]);
 
                                                               return ChoiceChip(
-                                                                side: const BorderSide(color: ProjectColors.primary, width: 1.5),
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors.primary, width: 1.5),
                                                                 padding: const EdgeInsets.all(20),
                                                                 label: Text(mop.edcDesc ?? mop.mopAlias),
-                                                                selected: _values.map((e) => e.edcDesc).contains(mop.edcDesc),
+                                                                selected:
+                                                                    _values.map((e) => e.edcDesc).contains(mop.edcDesc),
                                                                 onSelected: (bool selected) async {
                                                                   if (selected) {
                                                                     double? mopAmount = 0;
                                                                     if (widget.isMultiMOPs) {
-                                                                      if ((receipt.totalPayment ?? 0) >= receipt.grandTotal) {
+                                                                      if ((receipt.totalPayment ?? 0) >=
+                                                                          receipt.grandTotal) {
                                                                         return;
                                                                       }
                                                                       mopAmount = await showDialog(
@@ -1350,19 +1409,24 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         builder: (context) => EDCDialog(
                                                                           onEDCSelected: (edc, mopEDC) {
                                                                             setState(() {
-                                                                              _values = _values.where((e) => e.tpmt3Id != mopEDC.tpmt3Id).toList();
+                                                                              _values = _values
+                                                                                  .where((e) =>
+                                                                                      e.tpmt3Id != mopEDC.tpmt3Id)
+                                                                                  .toList();
                                                                               _values.add(mopEDC);
                                                                               dev.log("values - $_values");
                                                                             });
                                                                           },
                                                                           mopSelectionEntity: mop,
-                                                                          max: receipt.grandTotal - (receipt.totalPayment ?? 0),
+                                                                          max: receipt.grandTotal -
+                                                                              (receipt.totalPayment ?? 0),
                                                                           isMultiMOPs: true,
                                                                         ),
                                                                       );
                                                                       updateReceiptMop();
                                                                     } else {
-                                                                      mopAmount = receipt.grandTotal - (receipt.totalVoucher ?? 0);
+                                                                      mopAmount = receipt.grandTotal -
+                                                                          (receipt.totalVoucher ?? 0);
                                                                       mopAmount = await showDialog(
                                                                         context: context,
                                                                         barrierDismissible: false,
@@ -1387,7 +1451,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     }
 
                                                                     _values = (widget.isMultiMOPs
-                                                                            ? _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList()
+                                                                            ? _values
+                                                                                .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                                .toList()
                                                                             : <MopSelectionEntity>[]) +
                                                                         [mop.copyWith(amount: mopAmount)];
 
@@ -1395,7 +1461,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                       _textEditingControllerCashAmount.text = "";
                                                                     }
                                                                   } else {
-                                                                    _values = _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList();
+                                                                    _values = _values
+                                                                        .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                        .toList();
                                                                   }
 
                                                                   setState(() {});
@@ -1445,14 +1513,17 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                           (int index) {
                                                             final mop = mopsByType[index];
                                                             return ChoiceChip(
-                                                              side: const BorderSide(color: ProjectColors.primary, width: 1.5),
+                                                              side: const BorderSide(
+                                                                  color: ProjectColors.primary, width: 1.5),
                                                               padding: const EdgeInsets.all(20),
                                                               label: Text(
                                                                 mop.mopAlias,
                                                               ),
                                                               // CONDITIONAL FOR SET SELECTED
                                                               selected: paymentType.payTypeCode == "6"
-                                                                  ? receipt.vouchers.map((e) => e.tpmt3Id).contains(mop.tpmt3Id)
+                                                                  ? receipt.vouchers
+                                                                      .map((e) => e.tpmt3Id)
+                                                                      .contains(mop.tpmt3Id)
                                                                   : _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
                                                               onSelected: (bool selected) async {
                                                                 // VOUCHERS DIALOG HERE
@@ -1464,24 +1535,32 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         backgroundColor: Colors.white,
                                                                         surfaceTintColor: Colors.transparent,
                                                                         shape: const RoundedRectangleBorder(
-                                                                            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                                                            borderRadius:
+                                                                                BorderRadius.all(Radius.circular(5.0))),
                                                                         title: Container(
                                                                           decoration: const BoxDecoration(
                                                                             color: ProjectColors.primary,
-                                                                            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                                                                            borderRadius: BorderRadius.vertical(
+                                                                                top: Radius.circular(5.0)),
                                                                           ),
-                                                                          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                                                                          padding:
+                                                                              const EdgeInsets.fromLTRB(25, 10, 25, 10),
                                                                           child: const Text(
                                                                             'Redeem Voucher',
                                                                             style: TextStyle(
-                                                                                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                                                                                fontSize: 22,
+                                                                                fontWeight: FontWeight.w500,
+                                                                                color: Colors.white),
                                                                           ),
                                                                         ),
-                                                                        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                                                        titlePadding:
+                                                                            const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                                                         contentPadding: const EdgeInsets.all(0),
                                                                         content: SizedBox(
-                                                                          height: MediaQuery.of(context).size.height * 0.5,
-                                                                          width: MediaQuery.of(context).size.width * 0.6,
+                                                                          height:
+                                                                              MediaQuery.of(context).size.height * 0.5,
+                                                                          width:
+                                                                              MediaQuery.of(context).size.width * 0.6,
                                                                           child: VoucherCheckout(
                                                                             onVouchersRedeemed: handleVouchersRedeemed,
                                                                             tpmt3Id: mop.tpmt3Id,
@@ -1502,7 +1581,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 if (selected) {
                                                                   double? mopAmount = 0;
                                                                   if (widget.isMultiMOPs) {
-                                                                    if ((receipt.totalPayment ?? 0) >= receipt.grandTotal) {
+                                                                    if ((receipt.totalPayment ?? 0) >=
+                                                                        receipt.grandTotal) {
                                                                       return;
                                                                     }
                                                                     mopAmount = await showDialog<double>(
@@ -1510,11 +1590,13 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                       barrierDismissible: false,
                                                                       builder: (context) => InputMopAmountDialog(
                                                                         mopSelectionEntity: mop,
-                                                                        max: receipt.grandTotal - (receipt.totalPayment ?? 0),
+                                                                        max: receipt.grandTotal -
+                                                                            (receipt.totalPayment ?? 0),
                                                                       ),
                                                                     );
                                                                   } else {
-                                                                    mopAmount = receipt.grandTotal - (receipt.totalVoucher ?? 0);
+                                                                    mopAmount = receipt.grandTotal -
+                                                                        (receipt.totalVoucher ?? 0);
                                                                   }
 
                                                                   if (mopAmount == null || mopAmount == 0) {
@@ -1522,7 +1604,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                   }
 
                                                                   _values = (widget.isMultiMOPs
-                                                                          ? _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList()
+                                                                          ? _values
+                                                                              .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                              .toList()
                                                                           : <MopSelectionEntity>[]) +
                                                                       [mop.copyWith(amount: mopAmount)];
 
@@ -1530,7 +1614,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     _textEditingControllerCashAmount.text = "";
                                                                   }
                                                                 } else {
-                                                                  _values = _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList();
+                                                                  _values = _values
+                                                                      .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                      .toList();
                                                                 }
 
                                                                 setState(() {});
@@ -1612,7 +1698,8 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
     }
 
     for (final tpmt3Id in amountByTpmt3Ids.keys) {
-      final MopSelectionEntity? mopSelectionEntity = await GetIt.instance<MopSelectionRepository>().getMopSelectionByTpmt3Id(tpmt3Id);
+      final MopSelectionEntity? mopSelectionEntity =
+          await GetIt.instance<MopSelectionRepository>().getMopSelectionByTpmt3Id(tpmt3Id);
       result.add(
         TableRow(
           children: [
@@ -1656,10 +1743,12 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
     try {
       final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
       if (posParameterEntity == null) return;
-      final StoreMasterEntity? storeMasterEntity = await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
+      final StoreMasterEntity? storeMasterEntity =
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) return;
       if (storeMasterEntity.tcurrId == null) return;
-      final CurrencyEntity? currencyEntity = await GetIt.instance<AppDatabase>().currencyDao.readByDocId(storeMasterEntity.tcurrId!, null);
+      final CurrencyEntity? currencyEntity =
+          await GetIt.instance<AppDatabase>().currencyDao.readByDocId(storeMasterEntity.tcurrId!, null);
       if (currencyEntity == null) return;
 
       setState(() {
@@ -1755,7 +1844,8 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
                         ),
                         Text(
                           context.read<ReceiptCubit>().state.transDateTime != null
-                              ? DateFormat("EEE, dd MMM yyyy hh:mm aaa").format(context.read<ReceiptCubit>().state.transDateTime!)
+                              ? DateFormat("EEE, dd MMM yyyy hh:mm aaa")
+                                  .format(context.read<ReceiptCubit>().state.transDateTime!)
                               : "",
                           style: const TextStyle(
                             fontSize: 16,

@@ -3,8 +3,7 @@ import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 
-class HandlePromoDiscItemByItemUseCase
-    implements UseCase<ReceiptEntity, HandlePromosUseCaseParams> {
+class HandlePromoDiscItemByItemUseCase implements UseCase<ReceiptEntity, HandlePromosUseCaseParams> {
   HandlePromoDiscItemByItemUseCase();
 
   @override

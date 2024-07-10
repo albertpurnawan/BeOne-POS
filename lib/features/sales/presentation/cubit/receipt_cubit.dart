@@ -124,8 +124,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Initialize some values
-      if (state.receiptItems.isEmpty &&
-          state.customerEntity?.custCode == "99") {
+      if (state.receiptItems.isEmpty && state.customerEntity?.custCode == "99") {
         await resetReceipt();
       }
 
@@ -136,16 +135,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Handle negative quantity
       final ReceiptItemEntity? currentReceiptItemEntity = state.receiptItems
-          .where((e) =>
-              e.itemEntity.barcode ==
-              (params.barcode ?? params.itemEntity!.barcode))
+          .where((e) => e.itemEntity.barcode == (params.barcode ?? params.itemEntity!.barcode))
           .firstOrNull;
       if (currentReceiptItemEntity != null) {
         if (currentReceiptItemEntity.quantity + params.quantity == 0) {
           await removeReceiptItem(currentReceiptItemEntity, params.context!);
           return;
-        } else if (params.quantity < 0 &&
-            currentReceiptItemEntity.quantity > 0) {
+        } else if (params.quantity < 0 && currentReceiptItemEntity.quantity > 0) {
           await removeReceiptItem(currentReceiptItemEntity, params.context!);
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
               barcode: params.barcode,
@@ -172,51 +168,41 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Get item entity and validate
       if (params.barcode != null) {
-        itemEntity =
-            await _getItemByBarcodeUseCase.call(params: params.barcode);
+        itemEntity = await _getItemByBarcodeUseCase.call(params: params.barcode);
       } else {
         itemEntity = params.itemEntity;
       }
       if (itemEntity == null) throw "Item not found";
 
       // Convert item entity to receipt item entity **qty conversion can be placed here**
-      receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(
-          itemEntity, params.quantity);
+      receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(itemEntity, params.quantity);
 
       // Handle open price
       if (receiptItemEntity.itemEntity.openPrice == 1) {
         final List<ReceiptItemEntity> existingItem = newReceipt.receiptItems
-            .where((element) =>
-                element.itemEntity.barcode ==
-                receiptItemEntity.itemEntity.barcode)
+            .where((element) => element.itemEntity.barcode == receiptItemEntity.itemEntity.barcode)
             .toList();
         final bool isItemExist = existingItem.isNotEmpty;
 
         if (isItemExist) {
           receiptItemEntity = ReceiptHelper.updateReceiptItemAggregateFields(
-              receiptItemEntity.copyWith(
-                  quantity: params.quantity,
-                  itemEntity: existingItem[0].itemEntity));
+              receiptItemEntity.copyWith(quantity: params.quantity, itemEntity: existingItem[0].itemEntity));
         } else {
           final double? newPrice = await showDialog<double>(
             context: params.context!,
             barrierDismissible: false,
-            builder: (context) => OpenPriceDialog(
-                receiptItemEntity: receiptItemEntity,
-                quantity: params.quantity),
+            builder: (context) => OpenPriceDialog(receiptItemEntity: receiptItemEntity, quantity: params.quantity),
           );
           params.onOpenPriceInputted();
           if (newPrice == null) throw "Price is required";
           receiptItemEntity = await _handleOpenPriceUseCase(
-              params: HandleOpenPriceUseCaseParams(
-                  receiptItemEntity: receiptItemEntity, newPrice: newPrice));
+              params: HandleOpenPriceUseCaseParams(receiptItemEntity: receiptItemEntity, newPrice: newPrice));
         }
       }
 
       // Handle promos
       dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
-      availablePromos = await _checkPromoUseCase(
-          params: receiptItemEntity.itemEntity.toitmId);
+      availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
       bool anyPromoApplied = false;
       if (availablePromos.isNotEmpty) {
         for (final availablePromo in availablePromos) {
@@ -239,16 +225,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Handle without promos
       if (!anyPromoApplied) {
         newReceipt = await _handleWithoutPromosUseCase.call(
-            params: HandlePromosUseCaseParams(
-                receiptItemEntity: receiptItemEntity,
-                receiptEntity: newReceipt));
+            params: HandlePromosUseCaseParams(receiptItemEntity: receiptItemEntity, receiptEntity: newReceipt));
       }
 
       // Recalculate receipt
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
 
-      dev.log(
-          "Result addUpdate ${newReceipt.copyWith(previousReceiptEntity: null)}");
+      dev.log("Result addUpdate ${newReceipt.copyWith(previousReceiptEntity: null)}");
 
       emit(newReceipt.copyWith(previousReceiptEntity: null));
     } catch (e, s) {
@@ -257,21 +240,17 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
   }
 
-  void updateMopSelection(
-      {required List<MopSelectionEntity> mopSelectionEntities}) {
+  void updateMopSelection({required List<MopSelectionEntity> mopSelectionEntities}) {
     final newState = state.copyWith(
         mopSelections: mopSelectionEntities,
         totalPayment: mopSelectionEntities.isEmpty
             ? state.totalVoucher?.toDouble() ?? 0
-            : (mopSelectionEntities.map((e) => e.amount).reduce(
-                        (value, element) => (value ?? 0) + (element ?? 0)) ??
+            : (mopSelectionEntities.map((e) => e.amount).reduce((value, element) => (value ?? 0) + (element ?? 0)) ??
                     0) +
                 (state.totalVoucher ?? 0),
         totalNonVoucher: mopSelectionEntities.isEmpty
             ? 0
-            : mopSelectionEntities
-                .map((e) => e.amount)
-                .reduce((value, element) => (value ?? 0) + (element ?? 0)),
+            : mopSelectionEntities.map((e) => e.amount).reduce((value, element) => (value ?? 0) + (element ?? 0)),
         previousReceiptEntity: state.previousReceiptEntity);
     emit(newState);
   }
@@ -290,8 +269,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  Future<void> updateTohemIdRemarksOnReceiptItem(
-      String tohemId, String remarks, int index) async {
+  Future<void> updateTohemIdRemarksOnReceiptItem(String tohemId, String remarks, int index) async {
     final newReceiptItem = state.receiptItems[index].copyWith(
       remarks: remarks,
       tohemId: tohemId,
@@ -305,8 +283,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  Future<void> updateTohemIdRemarksOnReceipt(
-      String tohemId, String remarks) async {
+  Future<void> updateTohemIdRemarksOnReceipt(String tohemId, String remarks) async {
     final newState = state.copyWith(
       remarks: remarks,
       toinvTohemId: tohemId,
@@ -315,10 +292,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  Future<void> updateCustomer(
-      CustomerEntity customerEntity, BuildContext context) async {
-    if (state.previousReceiptEntity != null &&
-        state.customerEntity?.docId != customerEntity.docId) {
+  Future<void> updateCustomer(CustomerEntity customerEntity, BuildContext context) async {
+    if (state.previousReceiptEntity != null && state.customerEntity?.docId != customerEntity.docId) {
       final bool? isProceed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
@@ -327,18 +302,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (isProceed == null) return;
       if (!isProceed) return;
 
-      return emit(state.previousReceiptEntity!
-          .copyWith(customerEntity: customerEntity));
+      return emit(state.previousReceiptEntity!.copyWith(customerEntity: customerEntity));
     }
-    emit(state.copyWith(
-        customerEntity: customerEntity,
-        previousReceiptEntity: state.previousReceiptEntity));
+    emit(state.copyWith(customerEntity: customerEntity, previousReceiptEntity: state.previousReceiptEntity));
   }
 
-  Future<void> updateEmployee(
-      EmployeeEntity employeeEntity, BuildContext context) async {
-    if (state.previousReceiptEntity != null &&
-        state.employeeEntity?.docId != employeeEntity.docId) {
+  Future<void> updateEmployee(EmployeeEntity employeeEntity, BuildContext context) async {
+    if (state.previousReceiptEntity != null && state.employeeEntity?.docId != employeeEntity.docId) {
       final bool? isProceed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
@@ -347,16 +317,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (isProceed == null) return;
       if (!isProceed) return;
 
-      return emit(state.previousReceiptEntity!
-          .copyWith(employeeEntity: employeeEntity));
+      return emit(state.previousReceiptEntity!.copyWith(employeeEntity: employeeEntity));
     }
-    emit(state.copyWith(
-        employeeEntity: employeeEntity,
-        previousReceiptEntity: state.previousReceiptEntity));
+    emit(state.copyWith(employeeEntity: employeeEntity, previousReceiptEntity: state.previousReceiptEntity));
   }
 
-  Future<void> removeReceiptItem(
-      ReceiptItemEntity receiptItemEntity, BuildContext context) async {
+  Future<void> removeReceiptItem(ReceiptItemEntity receiptItemEntity, BuildContext context) async {
     List<ReceiptItemEntity> newReceiptItems = [];
 
     if (state.previousReceiptEntity != null) {
@@ -371,10 +337,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
     final ReceiptEntity receiptEntity = state.previousReceiptEntity ?? state;
 
-    for (final currentReceiptItem
-        in receiptEntity.receiptItems.map((e) => e.copyWith())) {
-      if (receiptItemEntity.itemEntity.barcode !=
-          currentReceiptItem.itemEntity.barcode) {
+    for (final currentReceiptItem in receiptEntity.receiptItems.map((e) => e.copyWith())) {
+      if (receiptItemEntity.itemEntity.barcode != currentReceiptItem.itemEntity.barcode) {
         newReceiptItems.add(currentReceiptItem);
       }
     }
@@ -398,13 +362,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         totalNonVoucher: 0,
       );
     } else {
-      newState =
-          state.copyWith(changed: state.totalPayment! - state.grandTotal);
+      newState = state.copyWith(changed: state.totalPayment! - state.grandTotal);
     }
 
     dev.log("ON CHARGE - $newState");
-    final ReceiptEntity? createdReceipt =
-        await _saveReceiptUseCase.call(params: newState);
+    final ReceiptEntity? createdReceipt = await _saveReceiptUseCase.call(params: newState);
 
     if (createdReceipt != null) {
       if (state.toinvId != null) {
@@ -419,8 +381,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       dev.log("createdReceipt onCharge $createdReceipt");
       try {
         await _printReceiptUsecase.call(
-            params: PrintReceiptUseCaseParams(
-                receiptEntity: createdReceipt, isDraft: false));
+            params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, isDraft: false));
         await _openCashDrawerUseCase.call();
       } catch (e) {
         dev.log(e.toString());
@@ -434,22 +395,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     try {
       final DateTime now = DateTime.now();
       final EmployeeEntity? employeeEntity = await _getEmployeeUseCase.call();
-      final CustomerEntity? customerEntity = await GetIt.instance<AppDatabase>()
-          .customerDao
-          .readByCustCode("99", null);
+      final CustomerEntity? customerEntity = await GetIt.instance<AppDatabase>().customerDao.readByCustCode("99", null);
       final List<InvoiceHeaderEntity> invoiceHeaderEntities =
-          await GetIt.instance<AppDatabase>()
-              .invoiceHeaderDao
-              .readByShiftAndDatetime(now);
-      final POSParameterEntity? posParameterEntity =
-          await _getPosParameterUseCase.call();
+          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShiftAndDatetime(now);
+      final POSParameterEntity? posParameterEntity = await _getPosParameterUseCase.call();
       if (posParameterEntity == null) throw "POS Parameter not found";
       final StoreMasterEntity? storeMasterEntity =
           await _getStoreMasterUseCase.call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
       final CashRegisterEntity? cashRegisterEntity =
-          await _getCashRegisterUseCase.call(
-              params: posParameterEntity.tocsrId!);
+          await _getCashRegisterUseCase.call(params: posParameterEntity.tocsrId!);
       if (cashRegisterEntity == null) throw "Cash register not found";
 
       emit(ReceiptEntity(
@@ -473,17 +428,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   void queueReceipt() async {
     if (state.queuedInvoiceHeaderDocId != null) {
-      await GetIt.instance<AppDatabase>()
-          .queuedInvoiceHeaderDao
-          .deleteByDocId(state.queuedInvoiceHeaderDocId!, null);
+      await GetIt.instance<AppDatabase>().queuedInvoiceHeaderDao.deleteByDocId(state.queuedInvoiceHeaderDocId!, null);
     }
-    await _queueReceiptUseCase.call(
-        params: state.previousReceiptEntity ?? state);
+    await _queueReceiptUseCase.call(params: state.previousReceiptEntity ?? state);
     resetReceipt();
   }
 
-  void retrieveFromQueue(
-      ReceiptEntity receiptEntity, BuildContext context) async {
+  void retrieveFromQueue(ReceiptEntity receiptEntity, BuildContext context) async {
     await resetReceipt();
 
     for (final receiptItem in receiptEntity.receiptItems) {
@@ -494,8 +445,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           context: context,
           onOpenPriceInputted: () => receiptItem.itemEntity.price));
     }
-    emit(state
-      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId);
+    emit(state..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId);
   }
 
   Future<void> updateTotalAmountFromDiscount(double discValue) async {
@@ -509,14 +459,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         discAmount: discValue + (state.discHeaderPromo ?? 0),
       );
 
-      ReceiptEntity updatedReceipt =
-          await _recalculateTaxUseCase.call(params: newState);
+      ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
 
       dev.log("Result updateTotalAmountFromDiscount - $updatedReceipt");
 
       emit(updatedReceipt.copyWith(
-          previousReceiptEntity: state.previousReceiptEntity ??
-              state.copyWith(previousReceiptEntity: null)));
+          previousReceiptEntity: state.previousReceiptEntity ?? state.copyWith(previousReceiptEntity: null)));
     } catch (e) {
       dev.log("Error during tax recalculation: $e");
       rethrow;
@@ -554,8 +502,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // ini artinya barang dari buy x get ga discan ulang
       for (final receiptItem in state.copyWith().receiptItems) {
         List<PromotionsEntity?> availablePromos = [];
-        availablePromos =
-            await _checkPromoUseCase(params: receiptItem.itemEntity.toitmId);
+        availablePromos = await _checkPromoUseCase(params: receiptItem.itemEntity.toitmId);
 
         if (availablePromos.isNotEmpty) {
           for (final availablePromo in availablePromos) {
@@ -563,8 +510,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             switch (availablePromo.promoType) {
               case 103:
                 // Check applicability
-                final CheckBuyXGetYApplicabilityResult
-                    checkBuyXGetYApplicability =
+                final CheckBuyXGetYApplicabilityResult checkBuyXGetYApplicability =
                     await _checkBuyXGetYApplicabilityUseCase.call(
                         params: CheckBuyXGetYApplicabilityParams(
                   receiptEntity: newReceipt,
@@ -575,45 +521,33 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 if (!checkBuyXGetYApplicability.isApplicable) break;
 
                 // Show Pop Up
-                List<PromoBuyXGetYGetConditionAndItemEntity>
-                    selectedConditionAndItemYs = [];
-                for (int i = 0;
-                    i < checkBuyXGetYApplicability.availableApplyCount;
-                    i++) {
-                  final List<PromoBuyXGetYGetConditionAndItemEntity>
-                      selectedConditionAndItemYsPerDialog = (await showDialog<
-                              List<PromoBuyXGetYGetConditionAndItemEntity>>(
+                List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYs = [];
+                for (int i = 0; i < checkBuyXGetYApplicability.availableApplyCount; i++) {
+                  final List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYsPerDialog =
+                      (await showDialog<List<PromoBuyXGetYGetConditionAndItemEntity>>(
                             context: context,
                             barrierDismissible: false,
                             builder: (context) => PromoGetYDialog(
-                              conditionAndItemYs:
-                                  checkBuyXGetYApplicability.conditionAndItemYs,
+                              conditionAndItemYs: checkBuyXGetYApplicability.conditionAndItemYs,
                               toprb: checkBuyXGetYApplicability.toprb!,
                               loopTracker: LoopTracker(
-                                  currentLoop: i + 1,
-                                  totalLoop: checkBuyXGetYApplicability
-                                      .availableApplyCount),
+                                  currentLoop: i + 1, totalLoop: checkBuyXGetYApplicability.availableApplyCount),
                             ),
                           )) ??
                           [];
                   if (selectedConditionAndItemYsPerDialog.isEmpty) break;
 
-                  for (final selectedConditionAndItemYPerDialog
-                      in selectedConditionAndItemYsPerDialog) {
-                    final List<PromoBuyXGetYGetConditionAndItemEntity>
-                        existElements = selectedConditionAndItemYs
-                            .where((element) =>
-                                element.itemEntity.barcode ==
-                                selectedConditionAndItemYPerDialog
-                                    .itemEntity.barcode)
-                            .toList();
+                  for (final selectedConditionAndItemYPerDialog in selectedConditionAndItemYsPerDialog) {
+                    final List<PromoBuyXGetYGetConditionAndItemEntity> existElements = selectedConditionAndItemYs
+                        .where((element) =>
+                            element.itemEntity.barcode == selectedConditionAndItemYPerDialog.itemEntity.barcode)
+                        .toList();
                     final PromoBuyXGetYGetConditionAndItemEntity? existElement =
                         existElements.isEmpty ? null : existElements.first;
                     if (existElement != null) {
                       existElement.multiply += 1;
                     } else {
-                      selectedConditionAndItemYs.add(
-                          selectedConditionAndItemYPerDialog..multiply = 1);
+                      selectedConditionAndItemYs.add(selectedConditionAndItemYPerDialog..multiply = 1);
                     }
                   }
                 }
@@ -630,13 +564,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                         promo: availablePromo,
                         toprb: checkBuyXGetYApplicability.toprb,
                         receiptEntity: newReceipt,
-                        conditionAndItemXs:
-                            checkBuyXGetYApplicability.conditionAndItemXs,
-                        existingReceiptItemXs:
-                            checkBuyXGetYApplicability.existingReceiptItemXs,
+                        conditionAndItemXs: checkBuyXGetYApplicability.conditionAndItemXs,
+                        existingReceiptItemXs: checkBuyXGetYApplicability.existingReceiptItemXs,
                         conditionAndItemYs: selectedConditionAndItemYs));
-                newReceipt =
-                    await _recalculateReceiptUseCase.call(params: newReceipt);
+                newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
                 break;
               case 203:
                 dev.log("CASE 203");
@@ -662,18 +593,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       dev.log("Process after checkout $newReceipt");
 
-      if (discHeaderManual > 0 &&
-          (newReceipt.subtotal - (newReceipt.discAmount ?? 0)) >
-              discHeaderManual) {
+      if (discHeaderManual > 0 && (newReceipt.subtotal - (newReceipt.discAmount ?? 0)) > discHeaderManual) {
         newReceipt = await _recalculateTaxUseCase.call(
             params: newReceipt.copyWith(
                 discHeaderManual: discHeaderManual,
-                discAmount:
-                    discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
-                discPrctg: (100 *
-                        (discHeaderManual +
-                            (newReceipt.discHeaderPromo ?? 0))) /
-                    newReceipt.subtotal));
+                discAmount: discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
+                discPrctg: (100 * (discHeaderManual + (newReceipt.discHeaderPromo ?? 0))) / newReceipt.subtotal));
       }
 
       dev.log("Process reapply discount header $newReceipt");
@@ -682,8 +607,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       dev.log("To emit ${newReceipt.copyWith(
         previousReceiptEntity: state.copyWith(
-            receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
-            previousReceiptEntity: null),
+            receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
       )}");
 
       dev.log("previousreceipt before emit ${state.previousReceiptEntity}");
@@ -691,9 +615,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       emit(newReceipt.copyWith(
         previousReceiptEntity: state.previousReceiptEntity ??
             state.copyWith(
-                receiptItems:
-                    state.receiptItems.map((e) => e.copyWith()).toList(),
-                previousReceiptEntity: null),
+                receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
       ));
 
       dev.log("after emit $state");

@@ -29,12 +29,10 @@ class CloseShiftSuccessAlertDialog extends StatefulWidget {
   final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams;
 
   @override
-  State<CloseShiftSuccessAlertDialog> createState() =>
-      _CloseShiftSuccessAlertDialogState();
+  State<CloseShiftSuccessAlertDialog> createState() => _CloseShiftSuccessAlertDialogState();
 }
 
-class _CloseShiftSuccessAlertDialogState
-    extends State<CloseShiftSuccessAlertDialog> {
+class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDialog> {
   CashRegisterEntity? cashRegisterEntity;
   StoreMasterEntity? storeMasterEntity;
   UserEntity? userEntity;
@@ -42,16 +40,13 @@ class _CloseShiftSuccessAlertDialogState
   Future<void> populateData() async {
     try {
       final CashRegisterEntity? cashRegisterEntityRes =
-          await GetIt.instance<GetCashRegisterUseCase>()
-              .call(params: widget.closedShift.tocsrId!);
+          await GetIt.instance<GetCashRegisterUseCase>().call(params: widget.closedShift.tocsrId!);
       if (cashRegisterEntityRes == null) throw "Cash Register not found";
       log(cashRegisterEntityRes.toString());
       final StoreMasterEntity? storeMasterEntityRes =
-          await GetIt.instance<GetStoreMasterUseCase>()
-              .call(params: cashRegisterEntityRes.tostrId);
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: cashRegisterEntityRes.tostrId);
       if (storeMasterEntityRes == null) throw "Store Master not found";
-      final UserEntity? userEntityRes = await GetIt.instance<GetUserUseCase>()
-          .call(params: widget.closedShift.tousrId);
+      final UserEntity? userEntityRes = await GetIt.instance<GetUserUseCase>().call(params: widget.closedShift.tousrId);
       if (userEntityRes == null) throw "User not found";
 
       setState(() {
@@ -75,8 +70,7 @@ class _CloseShiftSuccessAlertDialogState
     return AlertDialog(
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -85,8 +79,7 @@ class _CloseShiftSuccessAlertDialogState
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Close Shift',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -150,8 +143,7 @@ class _CloseShiftSuccessAlertDialogState
                     height: 10,
                   ),
                   Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                       width: double.infinity,
                       child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,8 +337,7 @@ class _CloseShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(widget
-                                  .printCloseShiftUsecaseParams.totalCashSales),
+                              Helpers.parseMoney(widget.printCloseShiftUsecaseParams.totalCashSales),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -367,8 +358,7 @@ class _CloseShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(widget
-                                  .printCloseShiftUsecaseParams.expectedCash),
+                              Helpers.parseMoney(widget.printCloseShiftUsecaseParams.expectedCash),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -400,9 +390,7 @@ class _CloseShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(widget
-                                  .printCloseShiftUsecaseParams
-                                  .totalNonCashSales),
+                              Helpers.parseMoney(widget.printCloseShiftUsecaseParams.totalNonCashSales),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -423,8 +411,7 @@ class _CloseShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(widget
-                                  .printCloseShiftUsecaseParams.totalSales),
+                              Helpers.parseMoney(widget.printCloseShiftUsecaseParams.totalSales),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -456,8 +443,7 @@ class _CloseShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(widget
-                                  .printCloseShiftUsecaseParams.cashReceived),
+                              Helpers.parseMoney(widget.printCloseShiftUsecaseParams.cashReceived),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -472,13 +458,9 @@ class _CloseShiftSuccessAlertDialogState
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: widget.printCloseShiftUsecaseParams
-                                            .difference <
-                                        0
+                                color: widget.printCloseShiftUsecaseParams.difference < 0
                                     ? Colors.red
-                                    : widget.printCloseShiftUsecaseParams
-                                                .difference >
-                                            0
+                                    : widget.printCloseShiftUsecaseParams.difference > 0
                                         ? Colors.orange
                                         : Colors.green,
                               ),
@@ -487,18 +469,13 @@ class _CloseShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(widget
-                                  .printCloseShiftUsecaseParams.difference),
+                              Helpers.parseMoney(widget.printCloseShiftUsecaseParams.difference),
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
-                                color: widget.printCloseShiftUsecaseParams
-                                            .difference <
-                                        0
+                                color: widget.printCloseShiftUsecaseParams.difference < 0
                                     ? Colors.red
-                                    : widget.printCloseShiftUsecaseParams
-                                                .difference >
-                                            0
+                                    : widget.printCloseShiftUsecaseParams.difference > 0
                                         ? Colors.orange
                                         : Colors.green,
                               ),
@@ -531,8 +508,7 @@ class _CloseShiftSuccessAlertDialogState
                       backgroundColor: MaterialStateColor.resolveWith(
                         (states) => const Color.fromARGB(255, 56, 56, 56),
                       ),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.black.withOpacity(.2))),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                   onPressed: null,
                   child: const Center(
                       child: Text(
@@ -548,13 +524,11 @@ class _CloseShiftSuccessAlertDialogState
                   style: ButtonStyle(
                       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
-                          side:
-                              const BorderSide(color: ProjectColors.primary))),
+                          side: const BorderSide(color: ProjectColors.primary))),
                       backgroundColor: MaterialStateColor.resolveWith(
                         (states) => const Color.fromARGB(255, 234, 234, 234),
                       ),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.black.withOpacity(.2))),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                   onPressed: () {},
                   child: const Center(
                       child: Text(
@@ -569,12 +543,9 @@ class _CloseShiftSuccessAlertDialogState
             ),
             TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () => context.pop(true),
               child: const Center(
                   child: Text(

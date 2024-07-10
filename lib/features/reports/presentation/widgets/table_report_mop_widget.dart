@@ -52,12 +52,8 @@ class _TableReportMopState extends State<TableReportMop> {
     }
 
     final results = await Future.wait([
-      GetIt.instance<AppDatabase>()
-          .payMeansDao
-          .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!),
-      GetIt.instance<AppDatabase>()
-          .mopAdjustmentDetailDao
-          .readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!),
+      GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!),
+      GetIt.instance<AppDatabase>().mopAdjustmentDetailDao.readByTpmt3BetweenDate(widget.fromDate!, widget.toDate!),
     ]);
 
     final fetchedTmpt3 = results[0] as List<dynamic>;
@@ -71,8 +67,7 @@ class _TableReportMopState extends State<TableReportMop> {
 
       if (aggregatedData.containsKey(description)) {
         aggregatedData[description]!['amount'] += entry['amount'] as double;
-        aggregatedData[description]!['totalamount'] +=
-            entry['totalamount'] as double;
+        aggregatedData[description]!['totalamount'] += entry['totalamount'] as double;
       } else {
         aggregatedData[description] = {
           'tpmt3Id': entry['tpmt3Id'],
@@ -88,12 +83,8 @@ class _TableReportMopState extends State<TableReportMop> {
     // Apply Search Query
     if (aggregatedList.isNotEmpty) {
       final filteredList = aggregatedList.where((e) {
-        return e['mopcode']
-                .toLowerCase()
-                .contains(widget.searchQuery!.toLowerCase()) ||
-            e['description']
-                .toLowerCase()
-                .contains(widget.searchQuery!.toLowerCase());
+        return e['mopcode'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
+            e['description'].toLowerCase().contains(widget.searchQuery!.toLowerCase());
       }).toList();
       setState(() {
         fetched = filteredList;
@@ -133,8 +124,7 @@ class _TableReportMopState extends State<TableReportMop> {
                   ),
                   const SizedBox(height: 4),
                   Table(
-                    border:
-                        TableBorder.all(color: Colors.transparent, width: 1),
+                    border: TableBorder.all(color: Colors.transparent, width: 1),
                     columnWidths: const {
                       0: FixedColumnWidth(50),
                       1: FlexColumnWidth(80),
@@ -143,8 +133,7 @@ class _TableReportMopState extends State<TableReportMop> {
                     },
                     children: [
                       TableRow(
-                        decoration:
-                            const BoxDecoration(color: ProjectColors.primary),
+                        decoration: const BoxDecoration(color: ProjectColors.primary),
                         children: tableHead.map((header) {
                           return TableCell(
                             child: Container(
@@ -182,9 +171,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -205,9 +192,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -228,9 +213,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -251,9 +234,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -331,9 +312,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 children: [
                                   Text(
                                     'Total Data:',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                   ),
                                 ],
                               ),
@@ -347,9 +326,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 children: [
                                   Text(
                                     '${fetched!.length}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                   ),
                                 ],
                               ),

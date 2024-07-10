@@ -20,8 +20,7 @@ class OTPSubmissionDialog extends StatefulWidget {
 }
 
 class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
-  final _otpControllers = List<TextEditingController>.generate(
-      6, (index) => TextEditingController());
+  final _otpControllers = List<TextEditingController>.generate(6, (index) => TextEditingController());
   String _otpCode = '';
   late Timer _timer;
   int _remainingSeconds = 30;
@@ -59,10 +58,8 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
     _startTimer();
   }
 
-  Future<void> onSubmit(BuildContext parentContext, BuildContext childContext,
-      String otp, String requester) async {
-    final response =
-        await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
+  Future<void> onSubmit(BuildContext parentContext, BuildContext childContext, String otp, String requester) async {
+    final response = await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
 
     if (response == "200") {
       if (childContext.mounted) {
@@ -82,8 +79,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
       if (childContext.mounted) {
         parentContext.pop(true); // Close the input otp dialog
 
-        SnackBarHelper.presentSuccessSnackBar(
-            parentContext, "Approval Success");
+        SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success");
       }
     } else {
       const message = "Wrong Code, Please Check Again";
@@ -141,8 +137,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
               }
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
-                onSubmit(
-                    parentContext, childContext, _otpCode, widget.requester);
+                onSubmit(parentContext, childContext, _otpCode, widget.requester);
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 parentContext.pop();
@@ -172,21 +167,16 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: const Text(
                   'OTP Confirmation',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -194,8 +184,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
               content: SizedBox(
                 width: MediaQuery.of(childContext).size.width * 0.5,
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
@@ -213,10 +202,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                               child: TextField(
                                 focusNode: index == 0 ? _otpFocusNode : null,
                                 controller: _otpControllers[index],
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'[0-9]'))
-                                ],
+                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
                                 maxLength: 1,
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.center,
@@ -229,12 +215,10 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                   filled: true,
                                   fillColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ProjectColors.primary, width: 2),
+                                    borderSide: BorderSide(color: ProjectColors.primary, width: 2),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.green, width: 2),
+                                    borderSide: BorderSide(color: Colors.green, width: 2),
                                   ),
                                 ),
                                 onChanged: (value) async {
@@ -246,8 +230,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                     _updateOtpCode();
                                     // FocusScope.of(context).unfocus();
                                     log("OTP Code: $_otpCode");
-                                    await onSubmit(parentContext, childContext,
-                                        _otpCode, widget.requester);
+                                    await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                                   }
                                 },
                               ),
@@ -255,8 +238,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                           }),
                         ),
                         const SizedBox(height: 20),
-                        Text(
-                            "Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
+                        Text("Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
                         if (_isTimeUp && !_isSendingOTP) ...[
                           const SizedBox(height: 10),
                           RichText(
@@ -265,9 +247,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                 TextSpan(
                                   text: 'Resend OTP',
                                   style: TextStyle(
-                                    color: _isOTPClicked
-                                        ? Colors.grey
-                                        : ProjectColors.primary,
+                                    color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
                                   ),
@@ -295,9 +275,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                 TextSpan(
                                   text: " (F11)",
                                   style: TextStyle(
-                                      color: _isOTPClicked
-                                          ? Colors.grey
-                                          : ProjectColors.primary,
+                                      color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w300),
                                 ),
@@ -343,16 +321,12 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  side: const BorderSide(
-                                      color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.white),
-                          overlayColor: MaterialStateColor.resolveWith(
-                              (states) =>
-                                  ProjectColors.primary.withOpacity(.2))),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side: const BorderSide(color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                          overlayColor:
+                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
                         Navigator.of(childContext).pop();
                       },
@@ -379,20 +353,15 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                     Expanded(
                       child: TextButton(
                         style: ButtonStyle(
-                            shape:
-                                MaterialStatePropertyAll(RoundedRectangleBorder(
+                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(
-                                  color: ProjectColors.primary),
+                              side: const BorderSide(color: ProjectColors.primary),
                             )),
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => ProjectColors.primary),
-                            overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.white.withOpacity(.2))),
+                            backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
                           log("OTP Code: $_otpCode");
-                          await onSubmit(parentContext, childContext, _otpCode,
-                              widget.requester);
+                          await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                         },
                         child: Center(
                           child: RichText(

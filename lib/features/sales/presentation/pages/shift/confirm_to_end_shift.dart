@@ -35,14 +35,10 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
 
-    final UserModel? user = await GetIt.instance<AppDatabase>()
-        .userDao
-        .readByUsername(username, null);
+    final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>()
-          .authStoreDao
-          .readByTousrId(user.docId, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -63,8 +59,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
 
   Future<void> onSubmit(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
-    String passwordCorrect =
-        await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
 
@@ -82,9 +77,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
         log(e.toString());
       }
     } else {
-      final message = passwordCorrect == "Wrong Password"
-          ? "Invalid Password"
-          : "Unauthorized";
+      final message = passwordCorrect == "Wrong Password" ? "Invalid Password" : "Unauthorized";
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -140,8 +133,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -150,8 +142,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
           padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
           child: const Text(
             'End Shift Confirmation',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -172,18 +163,14 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                         controller: usernameController,
                         autofocus: true,
                         keyboardType: TextInputType.text,
-                        validator: (val) => val == null || val.isEmpty
-                            ? "Username is required"
-                            : null,
+                        validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                         textAlign: TextAlign.left,
-                        onFieldSubmitted: (value) async =>
-                            await onSubmit(context),
+                        onFieldSubmitted: (value) async => await onSubmit(context),
                         style: const TextStyle(fontSize: 20),
                         decoration: const InputDecoration(
                             contentPadding: EdgeInsets.all(10),
                             hintText: "Username",
-                            hintStyle: TextStyle(
-                                fontStyle: FontStyle.italic, fontSize: 20),
+                            hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(
                               Icons.person_4,
@@ -200,20 +187,16 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                           return TextFormField(
                             controller: passwordController,
                             obscureText: obscureText,
-                            onFieldSubmitted: (value) async =>
-                                await onSubmit(context),
+                            onFieldSubmitted: (value) async => await onSubmit(context),
                             autofocus: true,
                             keyboardType: TextInputType.text,
-                            validator: (val) => val == null || val.isEmpty
-                                ? "Password is required"
-                                : null,
+                            validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
                             textAlign: TextAlign.left,
                             style: const TextStyle(fontSize: 20),
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.all(10),
                               hintText: "Password",
-                              hintStyle: const TextStyle(
-                                  fontStyle: FontStyle.italic, fontSize: 20),
+                              hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
                               border: const OutlineInputBorder(),
                               prefixIcon: const Icon(
                                 Icons.lock,
@@ -221,14 +204,11 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  obscureText
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
+                                  obscureText ? Icons.visibility : Icons.visibility_off,
                                   size: 20,
                                 ),
                                 onPressed: () {
-                                  obscureTextNotifier.value =
-                                      !obscureTextNotifier.value;
+                                  obscureTextNotifier.value = !obscureTextNotifier.value;
                                 },
                               ),
                             ),
@@ -244,16 +224,12 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                           Expanded(
                               child: TextButton(
                             style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                        side: const BorderSide(
-                                            color: ProjectColors.primary))),
-                                backgroundColor: MaterialStateColor.resolveWith(
-                                    (states) => Colors.white),
-                                overlayColor: MaterialStateColor.resolveWith(
-                                    (states) =>
-                                        ProjectColors.primary.withOpacity(.2))),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(color: ProjectColors.primary))),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                                overlayColor:
+                                    MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -267,15 +243,11 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                           Expanded(
                               child: TextButton(
                             style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                        side: const BorderSide(
-                                            color: ProjectColors.primary))),
-                                backgroundColor: MaterialStateColor.resolveWith(
-                                    (states) => ProjectColors.primary),
-                                overlayColor: MaterialStateColor.resolveWith(
-                                    (states) => Colors.white.withOpacity(.2))),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(color: ProjectColors.primary))),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                             onPressed: () async => await onSubmit(context),
                             child: const Center(
                                 child: Text(

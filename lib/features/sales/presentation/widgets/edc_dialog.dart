@@ -694,7 +694,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                         ? Text(
                                             errMsg,
                                             style: const TextStyle(
-                                                fontSize: 14, fontStyle: FontStyle.normal, fontWeight: FontWeight.w700, color: ProjectColors.swatch),
+                                                fontSize: 14,
+                                                fontStyle: FontStyle.normal,
+                                                fontWeight: FontWeight.w700,
+                                                color: ProjectColors.swatch),
                                           )
                                         : null,
                                   ),
@@ -735,8 +738,8 @@ class _EDCDialogState extends State<EDCDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(
-                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
                     backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                     overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () {
@@ -826,8 +829,8 @@ class _EDCDialogState extends State<EDCDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(
-                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(5), side: const BorderSide(color: Colors.green))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: Colors.green))),
                     backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                     overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () {

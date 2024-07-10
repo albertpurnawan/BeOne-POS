@@ -54,26 +54,21 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   }
 
   Future<void> getMops(CashierBalanceTransactionModel? shift) async {
-    final start = shift!.openDate
-        .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
+    final start = shift!.openDate.subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
     DateTime end;
 
     if (shift.closedbyId!.isEmpty) {
       end = DateTime.now();
     } else {
-      end = shift.closeDate
-          .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
+      end = shift.closeDate.subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
     }
 
-    final allMops =
-        await GetIt.instance<AppDatabase>().meansOfPaymentDao.readAll();
+    final allMops = await GetIt.instance<AppDatabase>().meansOfPaymentDao.readAll();
     for (final mop in allMops) {
       mop2Options.add(mop.description);
     }
 
-    final mops = await GetIt.instance<AppDatabase>()
-        .payMeansDao
-        .readByTpmt3BetweenDate(start, end);
+    final mops = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
     if (mops != null) {
       for (final mop in mops) {
         final desc = mop['description'];
@@ -86,15 +81,10 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     setState(() {});
   }
 
-  Future<CashierBalanceTransactionModel?> getCashierBalanceTransaction(
-      String docNum) async {
-    final shift = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readByDocNum(docNum, null);
+  Future<CashierBalanceTransactionModel?> getCashierBalanceTransaction(String docNum) async {
+    final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocNum(docNum, null);
     if (shift.isEmpty) return null;
-    final UserModel? userEntity = await GetIt.instance<AppDatabase>()
-        .userDao
-        .readByDocId(shift[0]!.tousrId!, null);
+    final UserModel? userEntity = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift[0]!.tousrId!, null);
     if (userEntity == null) return null;
     setState(() {
       shiftSearched = shift[0];
@@ -107,12 +97,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   Future<void> generateTmpadDocNum() async {
     final List<MOPAdjustmentHeaderModel> tmpadEntities =
         await GetIt.instance<AppDatabase>().mopAdjustmentHeaderDao.readAll();
-    final List<POSParameterEntity?> posParameterEntity =
-        await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    final List<POSParameterEntity?> posParameterEntity = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
     final StoreMasterEntity? storeMasterEntity =
-        await GetIt.instance<AppDatabase>()
-            .storeMasterDao
-            .readByDocId(posParameterEntity[0]!.tostrId!, null);
+        await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(posParameterEntity[0]!.tostrId!, null);
     if (storeMasterEntity == null) throw "Store master not found";
     final generatedDocnum =
         "${storeMasterEntity.storeCode}-${DateFormat('yyMMddHHmmss').format(now)}-${ReceiptHelper.convertIntegerToThreeDigitString(tmpadEntities.length + 1)}-MOPA";
@@ -170,9 +157,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                   width: MediaQuery.of(context).size.width,
                   child: Form(
                     key: _formKey,
-                    autovalidateMode: _autoValidate
-                        ? AutovalidateMode.onUserInteraction
-                        : AutovalidateMode.disabled,
+                    autovalidateMode: _autoValidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
                     child: Column(
                       children: [
                         Row(
@@ -213,10 +198,8 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     SizedBox(
                                       height: 40,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(
                                             width: 100,
@@ -224,8 +207,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             child: Text(
                                               "Shift",
                                               style: TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -237,8 +219,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             child: Text(
                                               ":",
                                               style: TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -256,9 +237,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                                 });
                                               },
                                               onFieldSubmitted: (value) async {
-                                                final tcsr1Fetched =
-                                                    await getCashierBalanceTransaction(
-                                                        value);
+                                                final tcsr1Fetched = await getCashierBalanceTransaction(value);
                                                 if (tcsr1Fetched == null) {
                                                   showAlertDialog(context);
                                                 } else {
@@ -266,8 +245,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                                 }
                                               },
                                               style: const TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -279,10 +257,8 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     SizedBox(
                                       height: 40,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(
                                             width: 100,
@@ -290,8 +266,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             child: Text(
                                               "Date",
                                               style: TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -303,8 +278,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             child: Text(
                                               ":",
                                               style: TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -316,8 +290,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             child: Text(
                                               Helpers.formatDateNoSeconds(now),
                                               style: const TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -329,10 +302,8 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     SizedBox(
                                       height: 40,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(
                                             width: 100,
@@ -340,8 +311,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             child: Text(
                                               "Cashier",
                                               style: TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -353,8 +323,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             child: Text(
                                               ":",
                                               style: TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -364,12 +333,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             width: 300,
                                             height: 30,
                                             child: Text(
-                                              mopCashier == null
-                                                  ? '-'
-                                                  : mopCashier!,
+                                              mopCashier == null ? '-' : mopCashier!,
                                               style: const TextStyle(
-                                                color:
-                                                    ProjectColors.mediumBlack,
+                                                color: ProjectColors.mediumBlack,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -432,9 +398,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             selectedMOP1 = newValue!;
                                           });
                                         },
-                                        items: mop1Options
-                                            .map<DropdownMenuItem<String>>(
-                                                (String value) {
+                                        items: mop1Options.map<DropdownMenuItem<String>>((String value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
@@ -450,14 +414,11 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: TextFormField(
                                         controller: mopController,
-                                        inputFormatters: [
-                                          MoneyInputFormatter()
-                                        ],
+                                        inputFormatters: [MoneyInputFormatter()],
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.number,
                                         decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 0, horizontal: 8),
+                                          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                                           hintText: '0',
                                           hintStyle: TextStyle(
                                             color: ProjectColors.mediumBlack,
@@ -480,9 +441,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                           return null;
                                         },
                                         onChanged: (value) {
-                                          mop1 = Helpers
-                                              .revertMoneyToDecimalFormat(
-                                                  mopController.text);
+                                          mop1 = Helpers.revertMoneyToDecimalFormat(mopController.text);
                                           mop2 = mop1;
                                           // _formKey.currentState!.validate();
                                         },
@@ -528,9 +487,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                             selectedMOP2 = newValue!;
                                           });
                                         },
-                                        items: mop2Options
-                                            .map<DropdownMenuItem<String>>(
-                                                (String value) {
+                                        items: mop2Options.map<DropdownMenuItem<String>>((String value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
                                             child: Text(value),
@@ -546,14 +503,11 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: TextFormField(
                                         controller: mopController,
-                                        inputFormatters: [
-                                          MoneyInputFormatter()
-                                        ],
+                                        inputFormatters: [MoneyInputFormatter()],
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.number,
                                         decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 0, horizontal: 8),
+                                          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                                           hintText: '0',
                                           hintStyle: TextStyle(
                                             color: ProjectColors.mediumBlack,
@@ -576,9 +530,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                           return null;
                                         },
                                         onChanged: (value) {
-                                          mop2 = Helpers
-                                              .revertMoneyToDecimalFormat(
-                                                  mopController.text);
+                                          mop2 = Helpers.revertMoneyToDecimalFormat(mopController.text);
                                           mop1 = mop2;
                                           // _formKey.currentState!.validate();
                                         },
@@ -608,18 +560,12 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                             Expanded(
                                 child: TextButton(
                               style: ButtonStyle(
-                                  shape: MaterialStatePropertyAll(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          side: const BorderSide(
-                                              color: ProjectColors.primary))),
-                                  backgroundColor:
-                                      MaterialStateColor.resolveWith(
-                                          (states) => Colors.transparent),
+                                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      side: const BorderSide(color: ProjectColors.primary))),
+                                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
                                   overlayColor: MaterialStateColor.resolveWith(
-                                      (states) => ProjectColors.primary
-                                          .withOpacity(.2))),
+                                      (states) => ProjectColors.primary.withOpacity(.2))),
                               onPressed: () => Navigator.of(context).pop(),
                               child: const Center(
                                   child: Text(
@@ -631,26 +577,20 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                             Expanded(
                                 child: TextButton(
                               style: ButtonStyle(
-                                  shape: MaterialStatePropertyAll(
-                                      RoundedRectangleBorder(
+                                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(
-                                        color: ProjectColors.primary),
+                                    side: const BorderSide(color: ProjectColors.primary),
                                   )),
-                                  backgroundColor:
-                                      MaterialStateColor.resolveWith(
-                                          (states) => ProjectColors.primary),
-                                  overlayColor: MaterialStateColor.resolveWith(
-                                      (states) =>
-                                          Colors.white.withOpacity(.2))),
+                                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                  overlayColor:
+                                      MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                               onPressed: () async {
                                 setState(() {
                                   _autoValidate = true;
                                 });
                                 if (_formKey.currentState!.validate()) {
                                   final tmpadDocId = const Uuid().v4();
-                                  final MOPAdjustmentHeaderModel tmpad =
-                                      MOPAdjustmentHeaderModel(
+                                  final MOPAdjustmentHeaderModel tmpad = MOPAdjustmentHeaderModel(
                                     docId: tmpadDocId,
                                     createDate: DateTime.now(),
                                     updateDate: DateTime.now(),
@@ -661,75 +601,63 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     posted: 0,
                                     postDate: now,
                                     postTime: now,
-                                    remarks:
-                                        "$mopShift - ${remarksController.text}",
+                                    remarks: "$mopShift - ${remarksController.text}",
                                     tostrId: mopStore,
                                     sync: 0,
                                   );
 
-                                  final tpmt1From =
-                                      await GetIt.instance<AppDatabase>()
-                                          .meansOfPaymentDao
-                                          .readByDescription(
-                                              selectedMOP1!, null);
+                                  final tpmt1From = await GetIt.instance<AppDatabase>()
+                                      .meansOfPaymentDao
+                                      .readByDescription(selectedMOP1!, null);
                                   if (tpmt1From == null) {
                                     throw "MOP From not found";
                                   }
 
-                                  final tpmt1To =
-                                      await GetIt.instance<AppDatabase>()
-                                          .meansOfPaymentDao
-                                          .readByDescription(
-                                              selectedMOP2!, null);
+                                  final tpmt1To = await GetIt.instance<AppDatabase>()
+                                      .meansOfPaymentDao
+                                      .readByDescription(selectedMOP2!, null);
                                   if (tpmt1To == null) throw "MOP To not found";
 
-                                  final tpmt3From =
-                                      await GetIt.instance<AppDatabase>()
-                                          .mopByStoreDao
-                                          .readByTpmt1Id(tpmt1From.docId, null);
+                                  final tpmt3From = await GetIt.instance<AppDatabase>()
+                                      .mopByStoreDao
+                                      .readByTpmt1Id(tpmt1From.docId, null);
                                   if (tpmt3From == null) {
                                     throw "MOPByStore From not found";
                                   }
 
-                                  final tpmt3To =
-                                      await GetIt.instance<AppDatabase>()
-                                          .mopByStoreDao
-                                          .readByTpmt1Id(tpmt1To.docId, null);
+                                  final tpmt3To = await GetIt.instance<AppDatabase>()
+                                      .mopByStoreDao
+                                      .readByTpmt1Id(tpmt1To.docId, null);
                                   if (tpmt3To == null) {
                                     throw "MOPByStore To not found";
                                   }
 
-                                  final MOPAdjustmentDetailModel mpad1From =
-                                      MOPAdjustmentDetailModel(
-                                          docId: const Uuid().v4(),
-                                          createDate: DateTime.now(),
-                                          updateDate: DateTime.now(),
-                                          tmpadId: tmpadDocId,
-                                          tpmt1Id: tpmt1From.docId,
-                                          amount: -mop1!,
-                                          tpmt3Id: tpmt3From.docId);
+                                  final MOPAdjustmentDetailModel mpad1From = MOPAdjustmentDetailModel(
+                                      docId: const Uuid().v4(),
+                                      createDate: DateTime.now(),
+                                      updateDate: DateTime.now(),
+                                      tmpadId: tmpadDocId,
+                                      tpmt1Id: tpmt1From.docId,
+                                      amount: -mop1!,
+                                      tpmt3Id: tpmt3From.docId);
 
-                                  final MOPAdjustmentDetailModel mpad1To =
-                                      MOPAdjustmentDetailModel(
-                                          docId: const Uuid().v4(),
-                                          createDate: DateTime.now(),
-                                          updateDate: DateTime.now(),
-                                          tmpadId: tmpadDocId,
-                                          tpmt1Id: tpmt1To.docId,
-                                          amount: mop2!,
-                                          tpmt3Id: tpmt3To.docId);
+                                  final MOPAdjustmentDetailModel mpad1To = MOPAdjustmentDetailModel(
+                                      docId: const Uuid().v4(),
+                                      createDate: DateTime.now(),
+                                      updateDate: DateTime.now(),
+                                      tmpadId: tmpadDocId,
+                                      tpmt1Id: tpmt1To.docId,
+                                      amount: mop2!,
+                                      tpmt3Id: tpmt3To.docId);
 
-                                  await GetIt.instance<AppDatabase>()
-                                      .mopAdjustmentHeaderDao
-                                      .create(data: tmpad);
+                                  await GetIt.instance<AppDatabase>().mopAdjustmentHeaderDao.create(data: tmpad);
                                   await GetIt.instance<AppDatabase>()
                                       .mopAdjustmentDetailDao
                                       .bulkCreate(data: [mpad1From, mpad1To]);
                                   log("MOP Adjustment Created");
 
                                   await GetIt.instance<MOPAdjustmentService>()
-                                      .sendMOPAdjustment(
-                                          tmpad, [mpad1From, mpad1To]);
+                                      .sendMOPAdjustment(tmpad, [mpad1From, mpad1To]);
 
                                   if (context.mounted) {
                                     Navigator.pop(context);
@@ -739,8 +667,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                               child: const Center(
                                   child: Text(
                                 "Adjust",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 234, 234, 234)),
+                                style: TextStyle(color: Color.fromARGB(255, 234, 234, 234)),
                               )),
                             )),
                           ],

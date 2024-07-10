@@ -22,8 +22,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
   QueuedReceiptRepositoryImpl(this._appDatabase, this._uuid);
 
   @override
-  Future<ReceiptEntity?> createQueuedReceipt(
-      ReceiptEntity receiptEntity) async {
+  Future<ReceiptEntity?> createQueuedReceipt(ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
 
@@ -31,8 +30,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
     final tcsr1IdPref = prefs.getString('tcsr1Id');
 
     await db.transaction((txn) async {
-      final QueuedInvoiceHeaderModel queuedInvoiceHeaderModel =
-          QueuedInvoiceHeaderModel(
+      final QueuedInvoiceHeaderModel queuedInvoiceHeaderModel = QueuedInvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
         createDate: null, // null kah? ini kan bosr punya
         updateDate: null, // null kah? ini kan bosr punya
@@ -71,8 +69,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         paymentSuccess: '0', // get di sini
       );
 
-      await _appDatabase.queuedInvoiceHeaderDao
-          .create(data: queuedInvoiceHeaderModel, txn: txn);
+      await _appDatabase.queuedInvoiceHeaderDao.create(data: queuedInvoiceHeaderModel, txn: txn);
 
       final List<QueuedInvoiceDetailModel> invoiceDetailModels =
           receiptEntity.receiptItems.asMap().entries.map((entry) {
@@ -111,8 +108,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         );
       }).toList();
 
-      await _appDatabase.queuedInvoiceDetailDao
-          .bulkCreate(data: invoiceDetailModels, txn: txn);
+      await _appDatabase.queuedInvoiceDetailDao.bulkCreate(data: invoiceDetailModels, txn: txn);
     });
 
     return await getQueuedReceiptByDocId(generatedInvoiceHeaderDocId);
@@ -130,12 +126,10 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         throw "Invoice header not found";
       }
       final CustomerModel? customerModel = invoiceHeaderModel.tocusId != null
-          ? await _appDatabase.customerDao
-              .readByDocId(invoiceHeaderModel.tocusId!, txn)
+          ? await _appDatabase.customerDao.readByDocId(invoiceHeaderModel.tocusId!, txn)
           : null;
       final EmployeeModel? employeeModel = invoiceHeaderModel.tohemId != null
-          ? await _appDatabase.employeeDao
-              .readByDocId(invoiceHeaderModel.tohemId!, txn)
+          ? await _appDatabase.employeeDao.readByDocId(invoiceHeaderModel.tohemId!, txn)
           : null;
       // final List<PayMeansModel> payMeansModels =
       //     await _appDatabase.payMeansDao.readByToinvId(docId, txn);
@@ -148,17 +142,13 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
 
       List<ReceiptItemModel> receiptItemModels = [];
       for (final queuedInvoiceDetailModel in queuedInvoiceDetailModels) {
-        final ItemMasterModel? itemMasterModel = await _appDatabase
-            .itemMasterDao
-            .readByDocId(queuedInvoiceDetailModel.toitmId!, txn);
+        final ItemMasterModel? itemMasterModel =
+            await _appDatabase.itemMasterDao.readByDocId(queuedInvoiceDetailModel.toitmId!, txn);
         if (itemMasterModel == null) throw "Item not found";
         receiptItemModels.add(ReceiptItemModel(
           quantity: queuedInvoiceDetailModel.quantity,
-          totalGross: queuedInvoiceDetailModel.totalAmount *
-              100 /
-              (100 + queuedInvoiceDetailModel.taxPrctg),
-          taxAmount: queuedInvoiceDetailModel.totalAmount *
-              queuedInvoiceDetailModel.taxPrctg,
+          totalGross: queuedInvoiceDetailModel.totalAmount * 100 / (100 + queuedInvoiceDetailModel.taxPrctg),
+          taxAmount: queuedInvoiceDetailModel.totalAmount * queuedInvoiceDetailModel.taxPrctg,
           itemEntity: ItemModel(
             id: null,
             itemName: itemMasterModel.itemName,
@@ -172,16 +162,13 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             tovenId: queuedInvoiceDetailModel.tovenId,
             tovatId: queuedInvoiceDetailModel.tovatId!,
             taxRate: queuedInvoiceDetailModel.taxPrctg,
-            dpp: queuedInvoiceDetailModel.sellingPrice *
-                100 /
-                (100 + queuedInvoiceDetailModel.taxPrctg),
+            dpp: queuedInvoiceDetailModel.sellingPrice * 100 / (100 + queuedInvoiceDetailModel.taxPrctg),
             includeTax: itemMasterModel.includeTax,
             tocatId: itemMasterModel.tocatId,
           ),
           sellingPrice: queuedInvoiceDetailModel.sellingPrice,
           totalAmount: queuedInvoiceDetailModel.totalAmount,
-          totalSellBarcode: queuedInvoiceDetailModel.sellingPrice *
-              queuedInvoiceDetailModel.quantity,
+          totalSellBarcode: queuedInvoiceDetailModel.sellingPrice * queuedInvoiceDetailModel.quantity,
           promos: [],
         ));
       }
@@ -221,16 +208,12 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
       final List<QueuedInvoiceHeaderModel> queuedInvoiceHeaderModels =
           await _appDatabase.queuedInvoiceHeaderDao.readAll(txn: txn);
       for (final queuedInvoiceHeaderModel in queuedInvoiceHeaderModels) {
-        final CustomerModel? customerModel =
-            queuedInvoiceHeaderModel.tocusId != null
-                ? await _appDatabase.customerDao
-                    .readByDocId(queuedInvoiceHeaderModel.tocusId!, txn)
-                : null;
-        final EmployeeModel? employeeModel =
-            queuedInvoiceHeaderModel.tohemId != null
-                ? await _appDatabase.employeeDao
-                    .readByDocId(queuedInvoiceHeaderModel.tohemId!, txn)
-                : null;
+        final CustomerModel? customerModel = queuedInvoiceHeaderModel.tocusId != null
+            ? await _appDatabase.customerDao.readByDocId(queuedInvoiceHeaderModel.tocusId!, txn)
+            : null;
+        final EmployeeModel? employeeModel = queuedInvoiceHeaderModel.tohemId != null
+            ? await _appDatabase.employeeDao.readByDocId(queuedInvoiceHeaderModel.tohemId!, txn)
+            : null;
         // final List<PayMeansModel> payMeansModels =
         //     await _appDatabase.payMeansDao.readByToinvId(docId, txn);
         // final MopSelectionModel? mopSelectionModel = payMeansModels.isNotEmpty
@@ -238,33 +221,26 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         //         .readByDocIdIncludeRelations(payMeansModels[0].tpmt3Id!, txn)
         //     : null;
         final List<QueuedInvoiceDetailModel> queuedInvoiceDetailModels =
-            await _appDatabase.queuedInvoiceDetailDao
-                .readByToinvId(queuedInvoiceHeaderModel.docId!, txn);
+            await _appDatabase.queuedInvoiceDetailDao.readByToinvId(queuedInvoiceHeaderModel.docId!, txn);
 
         List<ReceiptItemModel> receiptItemModels = [];
         for (final queuedInvoiceDetailModel in queuedInvoiceDetailModels) {
-          final ItemMasterModel? itemMasterModel = await _appDatabase
-              .itemMasterDao
-              .readByDocId(queuedInvoiceDetailModel.toitmId!, txn);
+          final ItemMasterModel? itemMasterModel =
+              await _appDatabase.itemMasterDao.readByDocId(queuedInvoiceDetailModel.toitmId!, txn);
           if (itemMasterModel == null) throw "Item not found";
-          final ItemBarcodeModel? itemBarcodeModel = await _appDatabase
-              .itemBarcodeDao
-              .readByDocId(queuedInvoiceDetailModel.tbitmId!, txn);
+          final ItemBarcodeModel? itemBarcodeModel =
+              await _appDatabase.itemBarcodeDao.readByDocId(queuedInvoiceDetailModel.tbitmId!, txn);
           if (itemBarcodeModel == null) throw "Barcode not found";
 
           receiptItemModels.add(ReceiptItemModel(
             quantity: queuedInvoiceDetailModel.quantity,
-            totalGross: queuedInvoiceDetailModel.totalAmount *
-                100 /
-                (100 + queuedInvoiceDetailModel.taxPrctg),
-            taxAmount: queuedInvoiceDetailModel.totalAmount *
-                (queuedInvoiceDetailModel.taxPrctg / 100),
+            totalGross: queuedInvoiceDetailModel.totalAmount * 100 / (100 + queuedInvoiceDetailModel.taxPrctg),
+            taxAmount: queuedInvoiceDetailModel.totalAmount * (queuedInvoiceDetailModel.taxPrctg / 100),
             itemEntity: ItemModel(
               id: null,
               itemName: itemMasterModel.itemName,
               itemCode: itemMasterModel.itemCode,
-              barcode: itemBarcodeModel
-                  .barcode, // nanti dibutuhkan melanjutkan transaksi
+              barcode: itemBarcodeModel.barcode, // nanti dibutuhkan melanjutkan transaksi
               price: 0,
               toitmId: itemMasterModel.docId,
               tbitmId: queuedInvoiceDetailModel.tbitmId!,
@@ -273,16 +249,13 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
               tovenId: queuedInvoiceDetailModel.tovenId,
               tovatId: queuedInvoiceDetailModel.tovatId!,
               taxRate: queuedInvoiceDetailModel.taxPrctg,
-              dpp: queuedInvoiceDetailModel.sellingPrice *
-                  100 /
-                  (100 + queuedInvoiceDetailModel.taxPrctg),
+              dpp: queuedInvoiceDetailModel.sellingPrice * 100 / (100 + queuedInvoiceDetailModel.taxPrctg),
               includeTax: itemMasterModel.includeTax,
               tocatId: itemMasterModel.tocatId,
             ),
             sellingPrice: queuedInvoiceDetailModel.sellingPrice,
             totalAmount: queuedInvoiceDetailModel.totalAmount,
-            totalSellBarcode: queuedInvoiceDetailModel.sellingPrice *
-                queuedInvoiceDetailModel.quantity,
+            totalSellBarcode: queuedInvoiceDetailModel.sellingPrice * queuedInvoiceDetailModel.quantity,
             promos: [],
           ));
         }

@@ -9,18 +9,12 @@ import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 
-class HandlePromoTopdgUseCase
-    implements UseCase<ReceiptEntity, HandlePromosUseCaseParams> {
-  HandlePromoTopdgUseCase(
-      this._getPromoTopdgHeaderAndDetailUseCase,
-      this._checkPromoTopdgApplicabilityUseCase,
-      this._applyPromoTopdgUseCase,
-      this._recalculateReceiptUseCase);
+class HandlePromoTopdgUseCase implements UseCase<ReceiptEntity, HandlePromosUseCaseParams> {
+  HandlePromoTopdgUseCase(this._getPromoTopdgHeaderAndDetailUseCase, this._checkPromoTopdgApplicabilityUseCase,
+      this._applyPromoTopdgUseCase, this._recalculateReceiptUseCase);
 
-  final GetPromoTopdgHeaderAndDetailUseCase
-      _getPromoTopdgHeaderAndDetailUseCase;
-  final CheckPromoTopdgApplicabilityUseCase
-      _checkPromoTopdgApplicabilityUseCase;
+  final GetPromoTopdgHeaderAndDetailUseCase _getPromoTopdgHeaderAndDetailUseCase;
+  final CheckPromoTopdgApplicabilityUseCase _checkPromoTopdgApplicabilityUseCase;
   final ApplyPromoTopdgUseCase _applyPromoTopdgUseCase;
   final RecalculateReceiptUseCase _recalculateReceiptUseCase;
 
@@ -37,16 +31,14 @@ class HandlePromoTopdgUseCase
       // Check applicability
       final bool isApplicable = await _checkPromoTopdgApplicabilityUseCase.call(
           params: CheckPromoTopdgApplicabilityUseCaseParams(
-              topdgHeaderAndDetail: topdgHeaderAndDetail,
-              handlePromosUseCaseParams: params));
+              topdgHeaderAndDetail: topdgHeaderAndDetail, handlePromosUseCaseParams: params));
       log(isApplicable.toString());
       if (!isApplicable) return params.receiptEntity;
 
       // Apply promo (pctg and amount)
       ReceiptEntity newReceipt = await _applyPromoTopdgUseCase.call(
           params: ApplyPromoTopdgUseCaseParams(
-              topdgHeaderAndDetail: topdgHeaderAndDetail,
-              handlePromosUseCaseParams: params));
+              topdgHeaderAndDetail: topdgHeaderAndDetail, handlePromosUseCaseParams: params));
 
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
       return newReceipt;

@@ -8,10 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 abstract class Helpers {
-  static void showSnackbar(BuildContext context,
-          {required Widget content, SnackBarAction? action}) =>
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: content, action: action));
+  static void showSnackbar(BuildContext context, {required Widget content, SnackBarAction? action}) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: content, action: action));
 
   static String parseMoney(num nominal) {
     return NumberFormat("#,##0.##").format(nominal);
@@ -33,8 +31,7 @@ abstract class Helpers {
     return stringValue;
   }
 
-  static Future<T?> showDialog<T>(BuildContext context,
-      {EdgeInsetsGeometry? padding, required Widget child}) async {
+  static Future<T?> showDialog<T>(BuildContext context, {EdgeInsetsGeometry? padding, required Widget child}) async {
     if (kIsWeb) {
       return await showGeneralDialog<T>(
           barrierDismissible: true,
@@ -42,8 +39,7 @@ abstract class Helpers {
           context: context,
           transitionBuilder: (context, animation, secondaryAnimation, child) {
             return Transform.scale(
-              scale:
-                  Tween<double>(begin: 1.05, end: 1).animate(animation).value,
+              scale: Tween<double>(begin: 1.05, end: 1).animate(animation).value,
               child: Opacity(opacity: animation.value, child: child),
             );
           },
@@ -54,12 +50,8 @@ abstract class Helpers {
                 child: Container(
                   clipBehavior: Clip.hardEdge,
                   padding: padding,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10)),
-                  constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.75,
-                      maxWidth: 450),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75, maxWidth: 450),
                   child: Material(
                     color: Colors.transparent,
                     child: child,
@@ -78,14 +70,11 @@ abstract class Helpers {
           const radius = Radius.circular(5);
 
           return Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.only(topLeft: radius, topRight: radius)),
+                    color: Colors.white, borderRadius: BorderRadius.only(topLeft: radius, topRight: radius)),
                 padding: padding ?? const EdgeInsets.all(20),
                 child: child),
           );
@@ -121,39 +110,31 @@ abstract class Helpers {
           currentFocus.unfocus();
         }
       },
-      child:
-          Material(child: Scaffold(body: child, backgroundColor: Colors.white)),
+      child: Material(child: Scaffold(body: child, backgroundColor: Colors.white)),
     );
 
     if (kIsWeb) {
       return showDialog<T>(context, child: child);
     }
 
-    return Navigator.of(context)
-        .push<T>(CupertinoPageRoute(builder: (context) => screen));
+    return Navigator.of(context).push<T>(CupertinoPageRoute(builder: (context) => screen));
   }
 
   static void setStatusbarIconBrightness(Brightness brightness) {
-    SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarIconBrightness: brightness));
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarIconBrightness: brightness));
   }
 
-  static Future<BuildContext> showLoadingAnimationDialog(
-      BuildContext context) async {
+  static Future<BuildContext> showLoadingAnimationDialog(BuildContext context) async {
     BuildContext? dialogContext;
     final completer = Completer();
 
     showGeneralDialog(
         context: context,
         transitionBuilder: (context, animation, _, child) {
-          animation =
-              CurvedAnimation(parent: animation, curve: Curves.easeInOut);
-          final scaleAnimation =
-              Tween<double>(begin: 1.05, end: 1).animate(animation);
+          animation = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+          final scaleAnimation = Tween<double>(begin: 1.05, end: 1).animate(animation);
 
-          return Transform.scale(
-              scale: scaleAnimation.value,
-              child: Opacity(opacity: animation.value, child: child));
+          return Transform.scale(scale: scaleAnimation.value, child: Opacity(opacity: animation.value, child: child));
         },
         pageBuilder: (context, _, __) {
           dialogContext ??= context;
@@ -246,8 +227,7 @@ abstract class Helpers {
   static String dateYYYYmmDD(String dTime) {
     DateTime dateTime = DateTime.parse(dTime);
 
-    String formattedString =
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime.toLocal());
+    String formattedString = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime.toLocal());
     return formattedString;
   }
 
@@ -271,8 +251,7 @@ abstract class Helpers {
     }
   }
 
-  static SplitListResult<Type> splitList<Type>(
-      List<Type> list, bool Function(Type) matchFunction) {
+  static SplitListResult<Type> splitList<Type>(List<Type> list, bool Function(Type) matchFunction) {
     final List<Type> falseResult = [];
     final List<Type> trueResult = [];
 
@@ -296,8 +275,7 @@ abstract class Helpers {
     if (string.length > n) {
       return string;
     } else {
-      final String spaces =
-          List.generate(n - string.length, (index) => " ").join("");
+      final String spaces = List.generate(n - string.length, (index) => " ").join("");
       return spaces + string;
     }
   }
@@ -316,16 +294,12 @@ abstract class Helpers {
       final List<String> stringByLines = [];
 
       for (int i = 0; i < numOflines; i++) {
-        final String currentString = string.substring(
-            (i * n), i + 1 == numOflines ? null : ((i + 1) * n));
-        stringByLines.add(
-            "$currentString${List.generate(n - currentString.length, (index) => " ").join("")}");
+        final String currentString = string.substring((i * n), i + 1 == numOflines ? null : ((i + 1) * n));
+        stringByLines.add("$currentString${List.generate(n - currentString.length, (index) => " ").join("")}");
       }
-      print(stringByLines.join("") + "END");
       return stringByLines.join("");
     } else {
-      final String spaces =
-          List.generate(n - string.length, (index) => " ").join("");
+      final String spaces = List.generate(n - string.length, (index) => " ").join("");
       return string + spaces;
     }
   }

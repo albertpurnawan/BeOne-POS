@@ -34,9 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   CashierBalanceTransactionModel? activeShift;
 
   Future<void> fetchActiveShift() async {
-    activeShift = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readLastValue();
+    activeShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
   }
 
   @override
@@ -44,12 +42,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     fetchActiveShift();
     now = DateTime.now();
-    morningEpoch =
-        DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
-    afternoonEpoch =
-        DateTime(now.year, now.month, now.day, 11, 0, 0).millisecondsSinceEpoch;
-    eveningEpoch =
-        DateTime(now.year, now.month, now.day, 18, 0, 0).millisecondsSinceEpoch;
+    morningEpoch = DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
+    afternoonEpoch = DateTime(now.year, now.month, now.day, 11, 0, 0).millisecondsSinceEpoch;
+    eveningEpoch = DateTime(now.year, now.month, now.day, 18, 0, 0).millisecondsSinceEpoch;
     final nowEpoch = now.millisecondsSinceEpoch;
     if (nowEpoch < morningEpoch || nowEpoch >= eveningEpoch) {
       timeOfDay = "evening";
@@ -98,8 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: MediaQuery.of(context).size.height * 0.1,
                             ),
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
                               child: RichText(
                                   textAlign: TextAlign.left,
                                   text: TextSpan(
@@ -108,11 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         text: "Good $timeOfDay ",
                                       ),
                                       TextSpan(
-                                          text: GetIt.instance<
-                                                  SharedPreferences>()
-                                              .getString("username"),
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w700)),
+                                          text: GetIt.instance<SharedPreferences>().getString("username"),
+                                          style: const TextStyle(fontWeight: FontWeight.w700)),
                                       TextSpan(
                                         text: " $symbol",
                                       )
@@ -128,58 +119,40 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Text(
                                 "Have a great day!",
                                 textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 28),
+                                style: TextStyle(color: Colors.white, fontSize: 28),
                               ),
                             ),
                             const SizedBox(
                               height: 50,
                             ),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    elevation:
-                                        const MaterialStatePropertyAll(2),
-                                    padding: const MaterialStatePropertyAll(
-                                        EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Colors.white, width: 2),
+                                    elevation: const MaterialStatePropertyAll(2),
+                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
-                                    foregroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => const Color.fromARGB(
-                                                255, 255, 255, 255)),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                    foregroundColor: MaterialStateColor.resolveWith(
+                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () async {
                                   try {
-                                    await context
-                                        .read<ReceiptCubit>()
-                                        .resetReceipt();
+                                    await context.read<ReceiptCubit>().resetReceipt();
                                     context.pushNamed(RouteConstants.sales);
                                   } catch (e) {
-                                    ErrorHandler.presentErrorSnackBar(
-                                        context, e.toString());
+                                    ErrorHandler.presentErrorSnackBar(context, e.toString());
                                   }
                                 },
                                 child: const Text(
                                   "Sales",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),
@@ -187,39 +160,25 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(
-                                        EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Colors.white, width: 2),
+                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
-                                    foregroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => const Color.fromARGB(
-                                                255, 255, 255, 255)),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                    foregroundColor: MaterialStateColor.resolveWith(
+                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
-                                onPressed: () =>
-                                    context.pushNamed(RouteConstants.shifts),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                onPressed: () => context.pushNamed(RouteConstants.shifts),
                                 child: const Text(
                                   "Shifts",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),
@@ -227,40 +186,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(
-                                        EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Colors.white, width: 2),
+                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
-                                    foregroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => const Color.fromARGB(
-                                                255, 255, 255, 255)),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                    foregroundColor: MaterialStateColor.resolveWith(
+                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () {
                                   context.pushNamed(RouteConstants.reports);
                                 },
                                 child: const Text(
                                   "Reports",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),
@@ -268,41 +214,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(
-                                        EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Colors.white, width: 2),
+                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
-                                    foregroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => const Color.fromARGB(
-                                                255, 255, 255, 255)),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                    foregroundColor: MaterialStateColor.resolveWith(
+                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () {
-                                  context
-                                      .pushNamed(RouteConstants.mopAdjustment);
+                                  context.pushNamed(RouteConstants.mopAdjustment);
                                 },
                                 child: const Text(
                                   "MOP Adjustment",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),
@@ -310,44 +242,28 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(
-                                        EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Colors.white, width: 2),
+                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
-                                    foregroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => const Color.fromARGB(
-                                                255, 255, 255, 255)),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                    foregroundColor: MaterialStateColor.resolveWith(
+                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () {
-                                  context
-                                      .pushNamed(RouteConstants.settings)
-                                      .then((value) {
+                                  context.pushNamed(RouteConstants.settings).then((value) {
                                     if (!Platform.isWindows) {
                                       Future.delayed(Durations.short1, () {
-                                        SystemChrome.setSystemUIOverlayStyle(
-                                            const SystemUiOverlayStyle(
-                                                statusBarColor: Color.fromARGB(
-                                                    255, 134, 1, 1),
-                                                statusBarBrightness:
-                                                    Brightness.light,
-                                                statusBarIconBrightness:
-                                                    Brightness.light));
+                                        SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                            statusBarColor: Color.fromARGB(255, 134, 1, 1),
+                                            statusBarBrightness: Brightness.light,
+                                            statusBarIconBrightness: Brightness.light));
                                       });
                                     }
                                   });
@@ -355,10 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: const Text(
                                   "Settings",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),
@@ -366,30 +279,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 10,
                             ),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(
-                                        EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Colors.white, width: 2),
+                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.white, width: 2),
                                       borderRadius: BorderRadius.circular(5),
                                     )),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
-                                    foregroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => const Color.fromARGB(
-                                                255, 255, 255, 255)),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                    foregroundColor: MaterialStateColor.resolveWith(
+                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () async {
                                   log(activeShift.toString());
                                   if (activeShift != null) {
@@ -397,8 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       await showDialog<bool>(
                                         context: context,
                                         barrierDismissible: false,
-                                        builder: (context) =>
-                                            ConfirmActiveShiftDialog(
+                                        builder: (context) => ConfirmActiveShiftDialog(
                                           currentShiftDocId: activeShift!.docId,
                                         ),
                                       );
@@ -413,10 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: const Text(
                                   "Logout",
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),

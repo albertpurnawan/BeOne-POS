@@ -16,14 +16,11 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
 class CheckBuyXGetYApplicabilityUseCase
-    implements
-        UseCase<CheckBuyXGetYApplicabilityResult,
-            CheckBuyXGetYApplicabilityParams> {
+    implements UseCase<CheckBuyXGetYApplicabilityResult, CheckBuyXGetYApplicabilityParams> {
   CheckBuyXGetYApplicabilityUseCase();
 
   @override
-  Future<CheckBuyXGetYApplicabilityResult> call(
-      {CheckBuyXGetYApplicabilityParams? params}) async {
+  Future<CheckBuyXGetYApplicabilityResult> call({CheckBuyXGetYApplicabilityParams? params}) async {
     try {
       if (params == null) throw "HandlePromosUseCase requires params";
 
@@ -32,8 +29,7 @@ class CheckBuyXGetYApplicabilityUseCase
       PromoBuyXGetYHeaderEntity? toprb;
       List<PromoBuyXGetYBuyConditionEntity> tprb1 = [];
       List<PromoBuyXGetYGetConditionEntity> tprb4 = [];
-      final List<PromoBuyXGetYBuyConditionAndItemEntity> conditionAndItemXs =
-          [];
+      final List<PromoBuyXGetYBuyConditionAndItemEntity> conditionAndItemXs = [];
       List<PromoBuyXGetYGetConditionAndItemEntity> conditionAndItemYs = [];
       List<String> itemXBarcodes = [];
       List<ReceiptItemEntity> existingReceiptItemXs = [];
@@ -45,9 +41,7 @@ class CheckBuyXGetYApplicabilityUseCase
           try {
             // Get header and validate
             log("Get header and validate");
-            toprb = await GetIt.instance<AppDatabase>()
-                .promoBuyXGetYHeaderDao
-                .readByDocId(params.promo.promoId!, null);
+            toprb = await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readByDocId(params.promo.promoId!, null);
             if (toprb == null) return isApplicable = false;
             if (params.receiptEntity.grandTotal < toprb!.minPurchase) {
               isApplicable = false;
@@ -76,8 +70,7 @@ class CheckBuyXGetYApplicabilityUseCase
             log("${toprb!.endDate.hour}, ${toprb!.endDate.minute}, ${toprb!.endDate.second},");
             log("waktu $startPromo $endPromo");
 
-            if (now.millisecondsSinceEpoch <
-                    startPromo.millisecondsSinceEpoch ||
+            if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
                 now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
               return isApplicable = false;
             }
@@ -90,8 +83,8 @@ class CheckBuyXGetYApplicabilityUseCase
             // Check multiply
             log("Check multiply");
 
-            final existingPromo = params.receiptEntity.promos
-                .where((element) => element.promoId == params.promo.promoId);
+            final existingPromo =
+                params.receiptEntity.promos.where((element) => element.promoId == params.promo.promoId);
             if (existingPromo.isNotEmpty) return isApplicable = false;
 
             if (existingPromo.length > 1) return isApplicable = false;
@@ -99,9 +92,7 @@ class CheckBuyXGetYApplicabilityUseCase
               if (existingPromo.first.promotionDetails == null) {
                 return isApplicable = false;
               }
-              final int applyCount =
-                  (existingPromo.first.promotionDetails as PromoBuyXGetYDetails)
-                      .applyCount;
+              final int applyCount = (existingPromo.first.promotionDetails as PromoBuyXGetYDetails).applyCount;
               if (applyCount > toprb!.maxMultiply) {
                 return isApplicable = false;
               }
@@ -125,9 +116,7 @@ class CheckBuyXGetYApplicabilityUseCase
             if (tprb1.isEmpty) isApplicable = false;
 
             for (final e in tprb1) {
-              final ItemEntity? itemX = await GetIt.instance<AppDatabase>()
-                  .itemsDao
-                  .readByToitmId(e.toitmId!, null);
+              final ItemEntity? itemX = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(e.toitmId!, null);
               if (itemX != null) {
                 conditionAndItemXs.add(PromoBuyXGetYBuyConditionAndItemEntity(
                   promoBuyXGetYBuyConditionEntity: e,
@@ -152,9 +141,7 @@ class CheckBuyXGetYApplicabilityUseCase
 
             for (final e in tprb4) {
               if (e.quantity < 1) return isApplicable = false;
-              final ItemEntity? itemY = await GetIt.instance<AppDatabase>()
-                  .itemsDao
-                  .readByToitmId(e.toitmId!, null);
+              final ItemEntity? itemY = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(e.toitmId!, null);
               if (itemY != null) {
                 conditionAndItemYs.add(PromoBuyXGetYGetConditionAndItemEntity(
                   promoBuyXGetYGetConditionEntity: e,
@@ -173,28 +160,23 @@ class CheckBuyXGetYApplicabilityUseCase
             // Get existing item X from receipt and validate
             log("Get existing item X from receipt and validate");
 
-            itemXBarcodes =
-                conditionAndItemXs.map((e) => e.itemEntity.barcode).toList();
+            itemXBarcodes = conditionAndItemXs.map((e) => e.itemEntity.barcode).toList();
             existingReceiptItemXs = params.receiptEntity.receiptItems
                 .where((e1) =>
                     itemXBarcodes.contains(e1.itemEntity.barcode) &&
                     e1.quantity >=
                         conditionAndItemXs
-                            .firstWhere((e2) =>
-                                e2.itemEntity.barcode == e1.itemEntity.barcode)
+                            .firstWhere((e2) => e2.itemEntity.barcode == e1.itemEntity.barcode)
                             .promoBuyXGetYBuyConditionEntity
                             .quantity)
                 .toList();
-            if (toprb!.buyCondition == 1 &&
-                existingReceiptItemXs.length != itemXBarcodes.length) {
+            if (toprb!.buyCondition == 1 && existingReceiptItemXs.length != itemXBarcodes.length) {
               return isApplicable = false;
             }
 
             qtySumOfExistingReceiptItemXs = existingReceiptItemXs.isEmpty
                 ? 0
-                : existingReceiptItemXs
-                    .map((e) => e.quantity)
-                    .reduce((value, element) => value + element);
+                : existingReceiptItemXs.map((e) => e.quantity).reduce((value, element) => value + element);
             if (qtySumOfExistingReceiptItemXs < toprb!.minBuy) {
               isApplicable = false;
             }
@@ -212,12 +194,10 @@ class CheckBuyXGetYApplicabilityUseCase
             if (toprb!.buyCondition == 1) {
               bool isAvailable = true;
               while (isAvailable) {
-                for (final existingReceiptItemXCopy
-                    in existingReceiptItemXsCopy) {
+                for (final existingReceiptItemXCopy in existingReceiptItemXsCopy) {
                   final double conditionQty = conditionAndItemXs
-                      .firstWhere((element) =>
-                          element.itemEntity.barcode ==
-                          existingReceiptItemXCopy.itemEntity.barcode)
+                      .firstWhere(
+                          (element) => element.itemEntity.barcode == existingReceiptItemXCopy.itemEntity.barcode)
                       .promoBuyXGetYBuyConditionEntity
                       .quantity;
                   if (conditionQty > existingReceiptItemXCopy.quantity) {
@@ -231,15 +211,12 @@ class CheckBuyXGetYApplicabilityUseCase
               }
             } else {
               while (true) {
-                List<bool> availability = List<bool>.generate(
-                    existingReceiptItemXsCopy.length, (index) => true);
+                List<bool> availability = List<bool>.generate(existingReceiptItemXsCopy.length, (index) => true);
                 for (int i = 0; i < existingReceiptItemXsCopy.length; i++) {
-                  final ReceiptItemEntity existingReceiptItemXCopy =
-                      existingReceiptItemXsCopy[i];
+                  final ReceiptItemEntity existingReceiptItemXCopy = existingReceiptItemXsCopy[i];
                   double conditionQty = conditionAndItemXs
-                      .firstWhere((element) =>
-                          element.itemEntity.barcode ==
-                          existingReceiptItemXCopy.itemEntity.barcode)
+                      .firstWhere(
+                          (element) => element.itemEntity.barcode == existingReceiptItemXCopy.itemEntity.barcode)
                       .promoBuyXGetYBuyConditionEntity
                       .quantity;
                   if (conditionQty == 0) conditionQty = 1;
@@ -254,9 +231,8 @@ class CheckBuyXGetYApplicabilityUseCase
               }
             }
 
-            availableApplyCount = toprb!.maxMultiply < availableApplyCount
-                ? toprb!.maxMultiply.toInt()
-                : availableApplyCount;
+            availableApplyCount =
+                toprb!.maxMultiply < availableApplyCount ? toprb!.maxMultiply.toInt() : availableApplyCount;
             log("AVAILABLE APPLY COUNT $availableApplyCount");
           } catch (e) {
             rethrow;
@@ -347,25 +323,22 @@ class PromoBuyXGetYBuyConditionAndItemEntity {
     ItemEntity? itemEntity,
   }) {
     return PromoBuyXGetYBuyConditionAndItemEntity(
-      promoBuyXGetYBuyConditionEntity: promoBuyXGetYBuyConditionEntity ??
-          this.promoBuyXGetYBuyConditionEntity,
+      promoBuyXGetYBuyConditionEntity: promoBuyXGetYBuyConditionEntity ?? this.promoBuyXGetYBuyConditionEntity,
       itemEntity: itemEntity ?? this.itemEntity,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'promoBuyXGetYBuyConditionEntity':
-          promoBuyXGetYBuyConditionEntity.toMap(),
+      'promoBuyXGetYBuyConditionEntity': promoBuyXGetYBuyConditionEntity.toMap(),
       'itemEntity': itemEntity.toMap(),
     };
   }
 
-  factory PromoBuyXGetYBuyConditionAndItemEntity.fromMap(
-      Map<String, dynamic> map) {
+  factory PromoBuyXGetYBuyConditionAndItemEntity.fromMap(Map<String, dynamic> map) {
     return PromoBuyXGetYBuyConditionAndItemEntity(
-      promoBuyXGetYBuyConditionEntity: PromoBuyXGetYBuyConditionEntity.fromMap(
-          map['promoBuyXGetYBuyConditionEntity'] as Map<String, dynamic>),
+      promoBuyXGetYBuyConditionEntity:
+          PromoBuyXGetYBuyConditionEntity.fromMap(map['promoBuyXGetYBuyConditionEntity'] as Map<String, dynamic>),
       itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
     );
   }
@@ -373,8 +346,7 @@ class PromoBuyXGetYBuyConditionAndItemEntity {
   String toJson() => json.encode(toMap());
 
   factory PromoBuyXGetYBuyConditionAndItemEntity.fromJson(String source) =>
-      PromoBuyXGetYBuyConditionAndItemEntity.fromMap(
-          json.decode(source) as Map<String, dynamic>);
+      PromoBuyXGetYBuyConditionAndItemEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() =>
@@ -384,14 +356,11 @@ class PromoBuyXGetYBuyConditionAndItemEntity {
   bool operator ==(covariant PromoBuyXGetYBuyConditionAndItemEntity other) {
     if (identical(this, other)) return true;
 
-    return other.promoBuyXGetYBuyConditionEntity ==
-            promoBuyXGetYBuyConditionEntity &&
-        other.itemEntity == itemEntity;
+    return other.promoBuyXGetYBuyConditionEntity == promoBuyXGetYBuyConditionEntity && other.itemEntity == itemEntity;
   }
 
   @override
-  int get hashCode =>
-      promoBuyXGetYBuyConditionEntity.hashCode ^ itemEntity.hashCode;
+  int get hashCode => promoBuyXGetYBuyConditionEntity.hashCode ^ itemEntity.hashCode;
 }
 
 class PromoBuyXGetYGetConditionAndItemEntity {
@@ -411,8 +380,7 @@ class PromoBuyXGetYGetConditionAndItemEntity {
     int? multiply,
   }) {
     return PromoBuyXGetYGetConditionAndItemEntity(
-      promoBuyXGetYGetConditionEntity: promoBuyXGetYGetConditionEntity ??
-          this.promoBuyXGetYGetConditionEntity,
+      promoBuyXGetYGetConditionEntity: promoBuyXGetYGetConditionEntity ?? this.promoBuyXGetYGetConditionEntity,
       itemEntity: itemEntity ?? this.itemEntity,
       multiply: multiply ?? this.multiply,
     );
@@ -420,18 +388,16 @@ class PromoBuyXGetYGetConditionAndItemEntity {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'promoBuyXGetYGetConditionEntity':
-          promoBuyXGetYGetConditionEntity.toMap(),
+      'promoBuyXGetYGetConditionEntity': promoBuyXGetYGetConditionEntity.toMap(),
       'itemEntity': itemEntity.toMap(),
       'multiply': multiply,
     };
   }
 
-  factory PromoBuyXGetYGetConditionAndItemEntity.fromMap(
-      Map<String, dynamic> map) {
+  factory PromoBuyXGetYGetConditionAndItemEntity.fromMap(Map<String, dynamic> map) {
     return PromoBuyXGetYGetConditionAndItemEntity(
-      promoBuyXGetYGetConditionEntity: PromoBuyXGetYGetConditionEntity.fromMap(
-          map['promoBuyXGetYGetConditionEntity'] as Map<String, dynamic>),
+      promoBuyXGetYGetConditionEntity:
+          PromoBuyXGetYGetConditionEntity.fromMap(map['promoBuyXGetYGetConditionEntity'] as Map<String, dynamic>),
       itemEntity: ItemEntity.fromMap(map['itemEntity'] as Map<String, dynamic>),
       multiply: map['multiply'] as int,
     );
@@ -440,8 +406,7 @@ class PromoBuyXGetYGetConditionAndItemEntity {
   String toJson() => json.encode(toMap());
 
   factory PromoBuyXGetYGetConditionAndItemEntity.fromJson(String source) =>
-      PromoBuyXGetYGetConditionAndItemEntity.fromMap(
-          json.decode(source) as Map<String, dynamic>);
+      PromoBuyXGetYGetConditionAndItemEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() =>
@@ -451,15 +416,11 @@ class PromoBuyXGetYGetConditionAndItemEntity {
   bool operator ==(covariant PromoBuyXGetYGetConditionAndItemEntity other) {
     if (identical(this, other)) return true;
 
-    return other.promoBuyXGetYGetConditionEntity ==
-            promoBuyXGetYGetConditionEntity &&
+    return other.promoBuyXGetYGetConditionEntity == promoBuyXGetYGetConditionEntity &&
         other.itemEntity == itemEntity &&
         other.multiply == multiply;
   }
 
   @override
-  int get hashCode =>
-      promoBuyXGetYGetConditionEntity.hashCode ^
-      itemEntity.hashCode ^
-      multiply.hashCode;
+  int get hashCode => promoBuyXGetYGetConditionEntity.hashCode ^ itemEntity.hashCode ^ multiply.hashCode;
 }

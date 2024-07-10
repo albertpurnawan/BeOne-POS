@@ -86,7 +86,9 @@ class MyApp extends StatelessWidget {
     //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
 
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: Color.fromARGB(255, 169, 0, 0), statusBarBrightness: Brightness.light, statusBarIconBrightness: Brightness.light));
+        statusBarColor: Color.fromARGB(255, 169, 0, 0),
+        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light));
 
     return GestureDetector(
         onTap: () {
@@ -124,7 +126,8 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<ApplyRoundingUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
-            BlocProvider<MopSelectionsCubit>(create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
+            BlocProvider<MopSelectionsCubit>(
+                create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
             BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsUseCase>())),
             BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
             BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),

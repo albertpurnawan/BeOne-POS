@@ -8,13 +8,11 @@ import 'package:pos_fe/features/sales/domain/entities/promo_diskon_item_header.d
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 
 class GetPromoTopdiHeaderAndDetailUseCase
-    implements
-        UseCase<GetPromoTopdiHeaderAndDetailUseCaseResult, PromotionsEntity> {
+    implements UseCase<GetPromoTopdiHeaderAndDetailUseCaseResult, PromotionsEntity> {
   GetPromoTopdiHeaderAndDetailUseCase();
 
   @override
-  Future<GetPromoTopdiHeaderAndDetailUseCaseResult> call(
-      {PromotionsEntity? params}) async {
+  Future<GetPromoTopdiHeaderAndDetailUseCaseResult> call({PromotionsEntity? params}) async {
     try {
       if (params == null) {
         throw "HandlePromoDiscItemByItemUseCase requires params";
@@ -26,19 +24,14 @@ class GetPromoTopdiHeaderAndDetailUseCase
 
       const String incompleDataErrMsg = "Promotion details incomplete";
 
-      final topdi = await GetIt.instance<AppDatabase>()
-          .promoDiskonItemHeaderDao
-          .readByDocId(params.promoId!, null);
+      final topdi = await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.readByDocId(params.promoId!, null);
       if (topdi == null) throw incompleDataErrMsg;
 
-      final tpdi1 = await GetIt.instance<AppDatabase>()
-          .promoDiskonItemBuyConditionDao
-          .readByTopdiId(topdi.docId, null);
+      final tpdi1 = await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.readByTopdiId(topdi.docId, null);
       if (tpdi1.isEmpty) throw incompleDataErrMsg;
 
-      final tpdi5 = await GetIt.instance<AppDatabase>()
-          .promoDiskonItemCustomerGroupDao
-          .readByTopdiId(topdi.docId, null);
+      final tpdi5 =
+          await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.readByTopdiId(topdi.docId, null);
       if (tpdi5.isEmpty) throw incompleDataErrMsg;
 
       return GetPromoTopdiHeaderAndDetailUseCaseResult(

@@ -69,8 +69,7 @@ class ReceiptItemEntity {
       discAmount: discAmount ?? this.discAmount,
       discPrctg: discPrctg ?? this.discPrctg,
       discHeaderAmount: discHeaderAmount ?? this.discHeaderAmount,
-      subtotalAfterDiscHeader:
-          subtotalAfterDiscHeader ?? this.subtotalAfterDiscHeader,
+      subtotalAfterDiscHeader: subtotalAfterDiscHeader ?? this.subtotalAfterDiscHeader,
       tohemId: tohemId ?? this.tohemId,
       remarks: remarks ?? this.remarks,
       qtyBarcode: qtyBarcode ?? this.qtyBarcode,
@@ -111,15 +110,10 @@ class ReceiptItemEntity {
           (x) => PromotionsEntity.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      discAmount:
-          map['discAmount'] != null ? map['discAmount'] as double : null,
+      discAmount: map['discAmount'] != null ? map['discAmount'] as double : null,
       discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
-      discHeaderAmount: map['discHeaderAmount'] != null
-          ? map['discHeaderAmount'] as double
-          : null,
-      subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null
-          ? map['subtotalAfterDiscHeader'] as double
-          : null,
+      discHeaderAmount: map['discHeaderAmount'] != null ? map['discHeaderAmount'] as double : null,
+      subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null ? map['subtotalAfterDiscHeader'] as double : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       qtyBarcode: map['qtyBarcode'] != null ? map['qtyBarcode'] as int : null,

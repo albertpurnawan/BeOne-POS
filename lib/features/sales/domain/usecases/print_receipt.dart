@@ -23,8 +23,8 @@ class PrintReceiptUseCase implements UseCase<void, PrintReceiptUseCaseParams?> {
   final ReceiptContentRepository _receiptContentRepository;
   final ReceiptPrinter _receiptPrinter;
 
-  PrintReceiptUseCase(this._posParameterRepository, this._storeMasterRepository,
-      this._receiptContentRepository, this._receiptPrinter);
+  PrintReceiptUseCase(
+      this._posParameterRepository, this._storeMasterRepository, this._receiptContentRepository, this._receiptPrinter);
   // Store
   // Receipt kurang tovat, tohem, toven
 
@@ -40,23 +40,18 @@ class PrintReceiptUseCase implements UseCase<void, PrintReceiptUseCaseParams?> {
     try {
       if (params == null) throw "PrintReceiptUseCaseParams required";
 
-      final POSParameterEntity posParameterEntity =
-          await _posParameterRepository.getPosParameter();
-      if (posParameterEntity.tostrId == null ||
-          posParameterEntity.tocsrId == null) throw "Incomplete POS Parameter";
+      final POSParameterEntity posParameterEntity = await _posParameterRepository.getPosParameter();
+      if (posParameterEntity.tostrId == null || posParameterEntity.tocsrId == null) throw "Incomplete POS Parameter";
 
-      final StoreMasterEntity? storeMasterEntity = await _storeMasterRepository
-          .getStoreMaster(posParameterEntity.tostrId!);
+      final StoreMasterEntity? storeMasterEntity =
+          await _storeMasterRepository.getStoreMaster(posParameterEntity.tostrId!);
       if (storeMasterEntity == null) throw "Store not found";
 
       final CashRegisterEntity? cashRegisterEntity =
-          await GetIt.instance<AppDatabase>()
-              .cashRegisterDao
-              .readByDocId(posParameterEntity.tocsrId!, null);
+          await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(posParameterEntity.tocsrId!, null);
       if (cashRegisterEntity == null) throw "Cash Register not found";
 
-      final List<ReceiptContentEntity?> receiptContentEntities =
-          await _receiptContentRepository.getReceiptContents();
+      final List<ReceiptContentEntity?> receiptContentEntities = await _receiptContentRepository.getReceiptContents();
       final PrintReceiptDetail printReceiptDetail = PrintReceiptDetail(
         receiptEntity: params.receiptEntity,
         posParameterEntity: posParameterEntity,

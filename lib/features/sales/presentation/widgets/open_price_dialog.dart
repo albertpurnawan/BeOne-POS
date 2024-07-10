@@ -7,8 +7,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
 class OpenPriceDialog extends StatefulWidget {
-  const OpenPriceDialog(
-      {super.key, required this.receiptItemEntity, required this.quantity});
+  const OpenPriceDialog({super.key, required this.receiptItemEntity, required this.quantity});
 
   final ReceiptItemEntity receiptItemEntity;
   final double quantity;
@@ -27,8 +26,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.f12) {
-        context.pop(Helpers.revertMoneyToDecimalFormat(
-            _textEditingControllerOpenPrice.text));
+        context.pop(Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text));
         return KeyEventResult.handled;
       }
       return KeyEventResult.ignored;
@@ -38,8 +36,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
   @override
   initState() {
     super.initState();
-    _textEditingControllerOpenPrice.text =
-        Helpers.parseMoney(widget.receiptItemEntity.itemEntity.price.toInt());
+    _textEditingControllerOpenPrice.text = Helpers.parseMoney(widget.receiptItemEntity.itemEntity.price.toInt());
   }
 
   @override
@@ -47,8 +44,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -57,8 +53,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Open Price',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -76,8 +71,7 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 24),
             onEditingComplete: () {
-              context.pop(Helpers.revertMoneyToDecimalFormat(
-                  _textEditingControllerOpenPrice.text));
+              context.pop(Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text));
             },
             decoration: const InputDecoration(
                 contentPadding: EdgeInsets.all(10),
@@ -100,15 +94,11 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () {
-                context.pop(Helpers.revertMoneyToDecimalFormat(
-                    _textEditingControllerOpenPrice.text));
+                context.pop(Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text));
               },
               child: Center(
                 child: RichText(

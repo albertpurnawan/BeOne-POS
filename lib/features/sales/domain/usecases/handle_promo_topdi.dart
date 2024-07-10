@@ -9,18 +9,12 @@ import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new_receipt_items.dart';
 
-class HandlePromoTopdiUseCase
-    implements UseCase<ReceiptEntity, HandlePromosUseCaseParams> {
-  HandlePromoTopdiUseCase(
-      this._getPromoTopdiHeaderAndDetailUseCase,
-      this._checkPromoTopdiApplicabilityUseCase,
-      this._applyPromoTopdiUseCase,
-      this._recalculateReceiptUseCase);
+class HandlePromoTopdiUseCase implements UseCase<ReceiptEntity, HandlePromosUseCaseParams> {
+  HandlePromoTopdiUseCase(this._getPromoTopdiHeaderAndDetailUseCase, this._checkPromoTopdiApplicabilityUseCase,
+      this._applyPromoTopdiUseCase, this._recalculateReceiptUseCase);
 
-  final GetPromoTopdiHeaderAndDetailUseCase
-      _getPromoTopdiHeaderAndDetailUseCase;
-  final CheckPromoTopdiApplicabilityUseCase
-      _checkPromoTopdiApplicabilityUseCase;
+  final GetPromoTopdiHeaderAndDetailUseCase _getPromoTopdiHeaderAndDetailUseCase;
+  final CheckPromoTopdiApplicabilityUseCase _checkPromoTopdiApplicabilityUseCase;
   final ApplyPromoTopdiUseCase _applyPromoTopdiUseCase;
   final RecalculateReceiptUseCase _recalculateReceiptUseCase;
 
@@ -37,16 +31,14 @@ class HandlePromoTopdiUseCase
       // Check applicability
       final bool isApplicable = await _checkPromoTopdiApplicabilityUseCase.call(
           params: CheckPromoTopdiApplicabilityUseCaseParams(
-              topdiHeaderAndDetail: topdiHeaderAndDetail,
-              handlePromosUseCaseParams: params));
+              topdiHeaderAndDetail: topdiHeaderAndDetail, handlePromosUseCaseParams: params));
       log(isApplicable.toString());
       if (!isApplicable) return params.receiptEntity;
 
       // Apply promo (pctg and amount)
       ReceiptEntity newReceipt = await _applyPromoTopdiUseCase.call(
           params: ApplyPromoTopdiUseCaseParams(
-              topdiHeaderAndDetail: topdiHeaderAndDetail,
-              handlePromosUseCaseParams: params));
+              topdiHeaderAndDetail: topdiHeaderAndDetail, handlePromosUseCaseParams: params));
 
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
       return newReceipt;
