@@ -1,10 +1,11 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -32,8 +33,11 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SalesPage extends StatefulWidget {
-  const SalesPage({super.key});
-  final int uiVersion = 2;
+  const SalesPage({
+    Key? key,
+    this.uiVersion = 1,
+  }) : super(key: key);
+  final int uiVersion;
 
   @override
   State<SalesPage> createState() => _SalesPageState();
@@ -52,7 +56,7 @@ class _SalesPageState extends State<SalesPage> {
   bool isUpdatingReceiptItemQty = false;
   bool isEditingReceiptItemQty = false;
   bool isNewItemAdded = false;
-  int uiVersion = 1;
+  late int uiVersion;
 
   // States for handling current time
   late Timer _timer;
@@ -252,7 +256,7 @@ class _SalesPageState extends State<SalesPage> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       currentTime.value = DateFormat.Hms().format(DateTime.now());
     });
-    uiVersion = 2;
+    uiVersion = widget.uiVersion;
   }
 
   @override

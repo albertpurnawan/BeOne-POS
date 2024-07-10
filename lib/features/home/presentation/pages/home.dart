@@ -11,9 +11,14 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/home/presentation/widgets/confirm_active_shift_dialog.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,6 +40,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchActiveShift() async {
     activeShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+  }
+
+  Future<StoreMasterEntity?> getStoreMasterEntity() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+
+      final StoreMasterEntity? storeMasterEntity =
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
+      if (storeMasterEntity == null) throw "Failed to retrieve Store Master";
+
+      return storeMasterEntity;
+    } catch (e) {
+      SnackBarHelper.presentFailSnackBar(context, e.toString());
+      return null;
+    }
   }
 
   @override
@@ -143,8 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () async {
                                   try {
+                                    final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
+                                    await GetIt.instance<SharedPreferences>()
+                                        .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
                                     await context.read<ReceiptCubit>().resetReceipt();
-                                    context.pushNamed(RouteConstants.sales);
+                                    await context.pushNamed(RouteConstants.sales,
+                                        extra: storeMasterEntity?.salesViewType ?? 1);
                                   } catch (e) {
                                     ErrorHandler.presentErrorSnackBar(context, e.toString());
                                   }

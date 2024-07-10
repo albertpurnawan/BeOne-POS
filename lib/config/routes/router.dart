@@ -49,8 +49,10 @@ class AppRouter {
         name: RouteConstants.sales,
         path: "/sales",
         pageBuilder: (context, state) {
-          return const MaterialPage(
-            child: SalesPage(),
+          return MaterialPage(
+            child: SalesPage(
+              uiVersion: state.extra as int,
+            ),
           );
         },
       ),
@@ -102,13 +104,13 @@ class AppRouter {
         },
       ),
     ],
-    redirect: (BuildContext context, GoRouterState state) {
-      if (state.extra != null) {
-        return '/signin';
-      } else {
-        return null;
-      }
-    },
+    // redirect: (BuildContext context, GoRouterState state) {
+    //   if (state.extra != null) {
+    //     return '/signin';
+    //   } else {
+    //     return null;
+    //   }
+    // },
   );
 }
 

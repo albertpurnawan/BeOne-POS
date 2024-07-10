@@ -8,8 +8,8 @@ class GetStoreMasterUseCase implements UseCase<StoreMasterEntity?, String> {
   GetStoreMasterUseCase(this._storeMasterRepository);
 
   @override
-  Future<StoreMasterEntity?> call({String? params}) {
+  Future<StoreMasterEntity?> call({String? params}) async {
     if (params == null) return Future(() => null);
-    return _storeMasterRepository.getStoreMaster(params);
+    return await _storeMasterRepository.getStoreMaster(params);
   }
 }
