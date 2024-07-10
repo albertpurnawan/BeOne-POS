@@ -13,6 +13,7 @@ class PayMeantEntity {
   final String? cardNo;
   final String? cardHolder;
   final double? sisaVoucher;
+  final String? rrn;
 
   PayMeantEntity({
     required this.docId,
@@ -26,6 +27,7 @@ class PayMeantEntity {
     required this.cardNo,
     required this.cardHolder,
     required this.sisaVoucher,
+    required this.rrn,
   });
 
   PayMeantEntity copyWith({
@@ -40,6 +42,7 @@ class PayMeantEntity {
     String? cardNo,
     String? cardHolder,
     double? sisaVoucher,
+    String? rrn,
   }) {
     return PayMeantEntity(
       docId: docId ?? this.docId,
@@ -53,6 +56,7 @@ class PayMeantEntity {
       cardNo: cardNo ?? this.cardNo,
       cardHolder: cardHolder ?? this.cardHolder,
       sisaVoucher: sisaVoucher ?? this.sisaVoucher,
+      rrn: rrn ?? this.rrn,
     );
   }
 
@@ -69,6 +73,7 @@ class PayMeantEntity {
       'cardNo': cardNo,
       'cardHolder': cardHolder,
       'sisaVoucher': sisaVoucher,
+      'rrn': rrn,
     };
   }
 
@@ -91,6 +96,7 @@ class PayMeantEntity {
           map['cardHolder'] != null ? map['cardHolder'] as String : null,
       sisaVoucher:
           map['sisaVoucher'] != null ? map['sisaVoucher'] as double : null,
+      rrn: map['rrn'] != null ? map['rrn'] as String : null,
     );
   }
 
@@ -101,7 +107,7 @@ class PayMeantEntity {
 
   @override
   String toString() {
-    return 'PayMeantEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, lineNum: $lineNum, tpmt3Id: $tpmt3Id, amount: $amount, tpmt2Id: $tpmt2Id, cardNo: $cardNo, cardHolder: $cardHolder, sisaVoucher: $sisaVoucher)';
+    return 'PayMeantEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, lineNum: $lineNum, tpmt3Id: $tpmt3Id, amount: $amount, tpmt2Id: $tpmt2Id, cardNo: $cardNo, cardHolder: $cardHolder, sisaVoucher: $sisaVoucher, rrn: $rrn)';
   }
 
   @override
@@ -118,7 +124,8 @@ class PayMeantEntity {
         other.tpmt2Id == tpmt2Id &&
         other.cardNo == cardNo &&
         other.cardHolder == cardHolder &&
-        other.sisaVoucher == sisaVoucher;
+        other.sisaVoucher == sisaVoucher &&
+        other.rrn == rrn;
   }
 
   @override
@@ -133,6 +140,7 @@ class PayMeantEntity {
         tpmt2Id.hashCode ^
         cardNo.hashCode ^
         cardHolder.hashCode ^
-        sisaVoucher.hashCode;
+        sisaVoucher.hashCode ^
+        rrn.hashCode;
   }
 }

@@ -79,17 +79,14 @@ class _ActiveShiftState extends State<ActiveShift> {
   }
 
   Future<void> fetchActiveShift() async {
-    final shift = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readLastValue();
+    final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
     setState(() {
       activeShift = shift;
     });
   }
 
   Future<bool> checkQueuedInvoice() async {
-    final invoice =
-        await GetIt.instance<AppDatabase>().queuedInvoiceHeaderDao.readAll();
+    final invoice = await GetIt.instance<AppDatabase>().queuedInvoiceHeaderDao.readAll();
     if (invoice.isNotEmpty) {
       return true;
     } else {
@@ -116,10 +113,7 @@ class _ActiveShiftState extends State<ActiveShift> {
               children: [
                 const Text(
                   "NO ACTIVE SHIFT",
-                  style: TextStyle(
-                      color: ProjectColors.mediumBlack,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(color: ProjectColors.mediumBlack, fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 CustomButton(
                   color: const Color.fromARGB(255, 47, 143, 8),
@@ -140,8 +134,7 @@ class _ActiveShiftState extends State<ActiveShift> {
       );
     }
 
-    String formattedOpenDate =
-        Helpers.formatDateNoSeconds(activeShift!.openDate);
+    String formattedOpenDate = Helpers.formatDateNoSeconds(activeShift!.openDate);
     final cashier = prefs.getString('username');
 
     return Padding(
@@ -161,10 +154,7 @@ class _ActiveShiftState extends State<ActiveShift> {
                 children: [
                   Text(
                     formattedOpenDate,
-                    style: const TextStyle(
-                        color: ProjectColors.primary,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: ProjectColors.primary, fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),
                   Row(
@@ -179,14 +169,11 @@ class _ActiveShiftState extends State<ActiveShift> {
                           ? const Text(
                               "OPEN",
                               style: TextStyle(
-                                  fontSize: 20,
-                                  color: Color.fromARGB(255, 47, 143, 8),
-                                  fontWeight: FontWeight.w700),
+                                  fontSize: 20, color: Color.fromARGB(255, 47, 143, 8), fontWeight: FontWeight.w700),
                             )
                           : const Text(
                               "CLOSED",
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.w700),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                             ),
                       const SizedBox(width: 10),
                     ],
@@ -203,15 +190,13 @@ class _ActiveShiftState extends State<ActiveShift> {
                           await showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) =>
-                                const ConfirmQueuedInvoiceDialog(),
+                            builder: (context) => const ConfirmQueuedInvoiceDialog(),
                           );
                         } else {
                           await showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) =>
-                                ConfirmToEndShift(activeShift!),
+                            builder: (context) => ConfirmToEndShift(activeShift!),
                           );
                         }
                       },
@@ -220,10 +205,7 @@ class _ActiveShiftState extends State<ActiveShift> {
                       color: const Color.fromARGB(255, 47, 143, 8),
                       child: const Text("OPEN SHIFT"),
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const OpenShiftDialog()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const OpenShiftDialog()));
                       },
                     ),
             ],
@@ -253,12 +235,8 @@ class _AllShiftState extends State<AllShift> {
   }
 
   Future<void> fetchActiveShift() async {
-    final shifts = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readAll();
-    final shift = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readLastValue();
+    final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
+    final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
 
     setState(() {
       allShift = shifts;
@@ -280,8 +258,8 @@ class _AllShiftState extends State<AllShift> {
       }
     }
 
-    List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries =
-        groupedShifts.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
+    List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries = groupedShifts.entries.toList()
+      ..sort((a, b) => b.key.compareTo(a.key));
 
     for (var entry in sortedEntries) {
       entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));
@@ -328,42 +306,34 @@ class _AllShiftState extends State<AllShift> {
                                   children: [
                                     Expanded(
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           Expanded(
                                             flex: 4,
                                             child: Text(
                                               shift.docNum,
                                               textAlign: TextAlign.start,
-                                              style:
-                                                  const TextStyle(fontSize: 20),
+                                              style: const TextStyle(fontSize: 20),
                                             ),
                                           ),
                                           Expanded(
                                             flex: 2,
                                             child: Text(
-                                              NumberFormat.decimalPattern()
-                                                  .format(
-                                                      shift.cashValue.toInt()),
-                                              style:
-                                                  const TextStyle(fontSize: 18),
+                                              NumberFormat.decimalPattern().format(shift.cashValue.toInt()),
+                                              style: const TextStyle(fontSize: 18),
                                               textAlign: TextAlign.end,
                                             ),
                                           ),
                                           Expanded(
                                             flex: 1,
                                             child: Text(
-                                              shift.approvalStatus == 0
-                                                  ? 'OPEN'
-                                                  : 'CLOSED',
+                                              shift.approvalStatus == 0 ? 'OPEN' : 'CLOSED',
                                               textAlign: TextAlign.end,
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w700,
                                                 color: shift.approvalStatus == 0
-                                                    ? Color.fromARGB(
-                                                        255, 47, 143, 8)
+                                                    ? const Color.fromARGB(255, 47, 143, 8)
                                                     : null,
                                               ),
                                             ),
@@ -377,9 +347,7 @@ class _AllShiftState extends State<AllShift> {
                                               await showDialog(
                                                 context: context,
                                                 barrierDismissible: false,
-                                                builder: (context) =>
-                                                    ConfirmToEndShift(
-                                                        activeShift!),
+                                                builder: (context) => ConfirmToEndShift(activeShift!),
                                               );
                                             },
                                             child: const Icon(
@@ -392,8 +360,7 @@ class _AllShiftState extends State<AllShift> {
                                               await showDialog(
                                                 context: context,
                                                 barrierDismissible: false,
-                                                builder: (context) =>
-                                                    RecapShiftScreen(
+                                                builder: (context) => RecapShiftScreen(
                                                   shiftId: shift.docId,
                                                 ),
                                               );

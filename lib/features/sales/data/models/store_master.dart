@@ -72,8 +72,9 @@ class StoreMasterFields {
     netzmeUrl,
     netzmeClientKey,
     netzmeClientSecret,
-    netzmePrivateKey,
+    netzmeClientPrivateKey,
     netzmeCustidMerchant,
+    netzmeChannelId,
   ];
 
   static const String docId = 'docid';
@@ -143,8 +144,9 @@ class StoreMasterFields {
   static const netzmeUrl = 'netzmeurl';
   static const netzmeClientKey = 'netzmeclientkey';
   static const netzmeClientSecret = 'netzmeclientsecret';
-  static const netzmePrivateKey = 'netzmeprivatekey';
+  static const netzmeClientPrivateKey = 'netzmeclientprivatekey';
   static const netzmeCustidMerchant = 'netzmecustidmerchant';
+  static const netzmeChannelId = 'netzmechannelid';
 }
 
 class StoreMasterModel extends StoreMasterEntity implements BaseModel {
@@ -216,8 +218,9 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     required super.netzmeUrl,
     required super.netzmeClientKey,
     required super.netzmeClientSecret,
-    required super.netzmePrivateKey,
+    required super.netzmeClientPrivateKey,
     required super.netzmeCustidMerchant,
+    required super.netzmeChannelId,
   });
 
   @override
@@ -284,14 +287,15 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
       'form': form,
-      'salesViewType': salesViewType,
-      'otpChannel': otpChannel,
-      'otpUrl': otpUrl,
-      'netzmeUrl': netzmeUrl,
-      'netzmeClientKey': netzmeClientKey,
-      'netzmeClientSecret': netzmeClientSecret,
-      'netzmePrivateKey': netzmePrivateKey,
-      'netzmeCustidMerchant': netzmeCustidMerchant,
+      'salesviewtype': salesViewType,
+      'otpchannel': otpChannel,
+      'otpurl': otpUrl,
+      'netzmeurl': netzmeUrl,
+      'netzmeclientkey': netzmeClientKey,
+      'netzmeclientsecret': netzmeClientSecret,
+      'netzmeclientprivatekey': netzmeClientPrivateKey,
+      'netzmecustidmerchant': netzmeCustidMerchant,
+      'netzmechannelid': netzmeChannelId,
     };
   }
 
@@ -380,11 +384,14 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       netzmeClientSecret: map['netzmeclientsecret'] != null
           ? map['netzmeclientsecret'] as String
           : null,
-      netzmePrivateKey: map['netzmeprivatekey'] != null
-          ? map['netzmeprivatekey'] as String
+      netzmeClientPrivateKey: map['netzmeclientprivatekey'] != null
+          ? map['netzmeclientprivatekey'] as String
           : null,
       netzmeCustidMerchant: map['netzmecustidmerchant'] != null
           ? map['netzmecustidmerchant'] as String
+          : null,
+      netzmeChannelId: map['netzmechannelid'] != null
+          ? map['netzmechannelid'] as String
           : null,
     );
   }
@@ -485,8 +492,9 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       netzmeUrl: entity.netzmeUrl,
       netzmeClientKey: entity.netzmeClientKey,
       netzmeClientSecret: entity.netzmeClientSecret,
-      netzmePrivateKey: entity.netzmePrivateKey,
+      netzmeClientPrivateKey: entity.netzmeClientPrivateKey,
       netzmeCustidMerchant: entity.netzmeCustidMerchant,
+      netzmeChannelId: entity.netzmeChannelId,
     );
   }
 }

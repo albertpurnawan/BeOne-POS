@@ -8,32 +8,23 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 
-class HandlePromoBuyXGetYUseCase
-    implements UseCase<ReceiptEntity, HandlePromoBuyXGetYUseCaseParams> {
+class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBuyXGetYUseCaseParams> {
   HandlePromoBuyXGetYUseCase();
 
   @override
   Future<ReceiptEntity> call({HandlePromoBuyXGetYUseCaseParams? params}) async {
     try {
       if (params == null) throw "HandlePromoBuyXGetYUseCase requires params";
-      final List<String> itemXBarcodes = params.existingReceiptItemXs
-          .map((e) => e.itemEntity.barcode)
-          .toList();
-      final List<String> itemYBarcodes =
-          params.conditionAndItemYs.map((e) => e.itemEntity.barcode).toList();
-      final List<ReceiptItemEntity> otherReceiptItems = params
-          .receiptEntity.receiptItems
+      final List<String> itemXBarcodes = params.existingReceiptItemXs.map((e) => e.itemEntity.barcode).toList();
+      final List<String> itemYBarcodes = params.conditionAndItemYs.map((e) => e.itemEntity.barcode).toList();
+      final List<ReceiptItemEntity> otherReceiptItems = params.receiptEntity.receiptItems
           .where((element) =>
               !itemYBarcodes.contains(element.itemEntity.barcode) &&
               !itemXBarcodes.contains(element.itemEntity.barcode))
           .toList();
-      final List<ReceiptItemEntity> existingReceiptItemXs = [
-        ...params.existingReceiptItemXs
-      ];
-      final List<ReceiptItemEntity> existingReceiptItemYs = params
-          .receiptEntity.receiptItems
-          .where((e) => itemYBarcodes.contains(e.itemEntity.barcode))
-          .toList();
+      final List<ReceiptItemEntity> existingReceiptItemXs = [...params.existingReceiptItemXs];
+      final List<ReceiptItemEntity> existingReceiptItemYs =
+          params.receiptEntity.receiptItems.where((e) => itemYBarcodes.contains(e.itemEntity.barcode)).toList();
 
       // Handle X
       for (final existingReceiptItemX in existingReceiptItemXs) {
@@ -43,8 +34,7 @@ class HandlePromoBuyXGetYUseCase
             promoExist = true;
             return e
               ..promotionDetails = PromoBuyXGetYDetails(
-                applyCount:
-                    (e.promotionDetails as PromoBuyXGetYDetails).applyCount + 1,
+                applyCount: (e.promotionDetails as PromoBuyXGetYDetails).applyCount + 1,
                 quantity: 0,
                 sellingPrice: 0,
                 isY: false,
@@ -55,8 +45,7 @@ class HandlePromoBuyXGetYUseCase
 
         if (!promoExist) {
           existingReceiptItemX.promos.add(params.promo
-            ..promotionDetails = PromoBuyXGetYDetails(
-                applyCount: 1, quantity: 0, isY: false, sellingPrice: 0));
+            ..promotionDetails = PromoBuyXGetYDetails(applyCount: 1, quantity: 0, isY: false, sellingPrice: 0));
         }
       }
 
@@ -68,58 +57,49 @@ class HandlePromoBuyXGetYUseCase
             : conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice *
                 (100 / (100 + conditionAndItemY.itemEntity.taxRate));
 
-        final existingReceiptItemY = existingReceiptItemYs.where((e) =>
-            e.itemEntity.barcode == conditionAndItemY.itemEntity.barcode);
+        final existingReceiptItemY =
+            existingReceiptItemYs.where((e) => e.itemEntity.barcode == conditionAndItemY.itemEntity.barcode);
 
         if (existingReceiptItemY.isEmpty) {
-          final double discAmount =
-              (conditionAndItemY.itemEntity.dpp - sellingPrice) *
-                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
-                  conditionAndItemY.multiply;
+          final double discAmount = (conditionAndItemY.itemEntity.dpp - sellingPrice) *
+              conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
+              conditionAndItemY.multiply;
           receiptItemYs.add(
-            ReceiptHelper.updateReceiptItemAggregateFields(
-                ReceiptHelper.convertItemEntityToReceiptItemEntity(
-                    conditionAndItemY.itemEntity,
-                    conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
-                        conditionAndItemY.multiply)
-                  ..discAmount = discAmount
-                  ..discPrctg = 0
-                  ..promos = [
-                    params.promo.copyWith(
-                        promotionDetails: PromoBuyXGetYDetails(
-                            applyCount: 1,
-                            isY: true,
-                            sellingPrice: sellingPrice,
-                            quantity: conditionAndItemY
-                                    .promoBuyXGetYGetConditionEntity.quantity *
-                                conditionAndItemY.multiply),
-                        discAmount: discAmount)
-                  ]),
+            ReceiptHelper.updateReceiptItemAggregateFields(ReceiptHelper.convertItemEntityToReceiptItemEntity(
+                conditionAndItemY.itemEntity,
+                conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply)
+              ..discAmount = discAmount
+              ..discPrctg = 0
+              ..promos = [
+                params.promo.copyWith(
+                    promotionDetails: PromoBuyXGetYDetails(
+                        applyCount: 1,
+                        isY: true,
+                        sellingPrice: sellingPrice,
+                        quantity:
+                            conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply),
+                    discAmount: discAmount)
+              ]),
           );
         } else {
-          final double thisDiscAmount = existingReceiptItemY.first.discAmount ==
-                  null
+          final double thisDiscAmount = existingReceiptItemY.first.discAmount == null
               ? (existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
                   conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                   conditionAndItemY.multiply
               : ((existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
                   conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                   conditionAndItemY.multiply);
-          final double discAmount = existingReceiptItemY.first.discAmount ==
-                  null
+          final double discAmount = existingReceiptItemY.first.discAmount == null
               ? (existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
                   conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                   conditionAndItemY.multiply
               : existingReceiptItemY.first.discAmount! +
                   ((existingReceiptItemY.first.itemEntity.dpp - sellingPrice) *
-                      conditionAndItemY
-                          .promoBuyXGetYGetConditionEntity.quantity *
+                      conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
                       conditionAndItemY.multiply);
 
           List<PromotionsEntity> finalPromos = [];
-          if (existingReceiptItemY.first.promos
-              .where((element) => element.promoId == params.promo.promoId)
-              .isEmpty) {
+          if (existingReceiptItemY.first.promos.where((element) => element.promoId == params.promo.promoId).isEmpty) {
             finalPromos = [
               ...existingReceiptItemY.first.promos,
               params.promo.copyWith(
@@ -128,21 +108,18 @@ class HandlePromoBuyXGetYUseCase
                       applyCount: 1,
                       isY: true,
                       sellingPrice: sellingPrice,
-                      quantity: conditionAndItemY
-                              .promoBuyXGetYGetConditionEntity.quantity *
-                          conditionAndItemY.multiply))
+                      quantity:
+                          conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply))
             ];
           } else {
             finalPromos = existingReceiptItemY.first.promos.map((e) {
               if (e.promoId == params.promo.promoId) {
                 return e.copyWith(
                     discAmount: thisDiscAmount,
-                    promotionDetails:
-                        ((e.promotionDetails as PromoBuyXGetYDetails)
-                          ..applyCount += 1
-                          ..quantity += conditionAndItemY
-                                  .promoBuyXGetYGetConditionEntity.quantity *
-                              conditionAndItemY.multiply));
+                    promotionDetails: ((e.promotionDetails as PromoBuyXGetYDetails)
+                      ..applyCount += 1
+                      ..quantity +=
+                          conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply));
               }
 
               return e;
@@ -150,11 +127,9 @@ class HandlePromoBuyXGetYUseCase
           }
 
           receiptItemYs.add(
-            ReceiptHelper.updateReceiptItemAggregateFields(
-                existingReceiptItemY.first.copyWith(
+            ReceiptHelper.updateReceiptItemAggregateFields(existingReceiptItemY.first.copyWith(
               quantity: existingReceiptItemY.first.quantity +
-                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity *
-                      conditionAndItemY.multiply,
+                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply,
               discAmount: discAmount,
               promos: finalPromos,
             )),
@@ -163,20 +138,11 @@ class HandlePromoBuyXGetYUseCase
       }
 
       return params.receiptEntity.copyWith(
-        receiptItems: [
-          ...otherReceiptItems,
-          ...existingReceiptItemXs,
-          ...receiptItemYs
-        ],
-        promos: params.receiptEntity.promos
-                .map((e) => e.promoId)
-                .contains(params.promo.promoId)
+        receiptItems: [...otherReceiptItems, ...existingReceiptItemXs, ...receiptItemYs],
+        promos: params.receiptEntity.promos.map((e) => e.promoId).contains(params.promo.promoId)
             ? params.receiptEntity.promos.map((e) {
                 if (e.promoId == params.promo.promoId) {
-                  return e
-                    ..promotionDetails =
-                        ((e.promotionDetails as PromoBuyXGetYDetails)
-                          ..applyCount += 1);
+                  return e..promotionDetails = ((e.promotionDetails as PromoBuyXGetYDetails)..applyCount += 1);
                 }
 
                 return e;

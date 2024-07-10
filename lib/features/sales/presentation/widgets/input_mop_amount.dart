@@ -33,8 +33,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.f12) {
-        final double mopAmount = Helpers.revertMoneyToDecimalFormat(
-            _textEditingControllerOpenPrice.text);
+        final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
         if (mopAmount > widget.max) {
           setState(() {
             isErr = true;
@@ -72,8 +71,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -82,8 +80,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Input Amount',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -142,8 +139,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 18),
                   onChanged: (value) {
-                    final double mopAmount =
-                        Helpers.revertMoneyToDecimalFormat(value);
+                    final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
                     if (mopAmount > widget.max) {
                       setState(() {
                         isErr = true;
@@ -157,17 +153,15 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                     }
                   },
                   onEditingComplete: () {
-                    final double mopAmount = Helpers.revertMoneyToDecimalFormat(
-                        _textEditingControllerOpenPrice.text);
+                    final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
                     if (mopAmount > widget.max) return;
                     context.pop(mopAmount);
                   },
                   decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
                       hintText: "Enter Amount",
-                      hintStyle:
-                          TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
-                      border: OutlineInputBorder(),
+                      hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
+                      border: const OutlineInputBorder(),
                       suffix: isErr
                           ? Text(
                               errMsg,
@@ -198,12 +192,9 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                 child: TextButton(
               style: ButtonStyle(
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                      side: const BorderSide(color: ProjectColors.primary))),
-                  backgroundColor:
-                      MaterialStateColor.resolveWith((states) => Colors.white),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.black.withOpacity(.2))),
+                      borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
               onPressed: () {
                 setState(() {
                   Navigator.of(context).pop();
@@ -236,15 +227,11 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () {
-                final double mopAmount = Helpers.revertMoneyToDecimalFormat(
-                    _textEditingControllerOpenPrice.text);
+                final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
                 context.pop(mopAmount);
               },
               child: Center(

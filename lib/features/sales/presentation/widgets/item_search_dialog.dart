@@ -52,8 +52,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
             _textEditingController.text += event.character!;
             _searchInputFocusNode.requestFocus();
             return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-              _searchInputFocusNode.hasPrimaryFocus) {
+          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _searchInputFocusNode.hasPrimaryFocus) {
             _searchInputFocusNode.nextFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
@@ -77,8 +76,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -87,8 +85,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
           padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
           child: const Text(
             'Item Search',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -122,13 +119,10 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                       _searchInputFocusNode.requestFocus();
 
                       if (_scrollController.hasClients) {
-                        Future.delayed(const Duration(milliseconds: 300))
-                            .then((value) {
+                        Future.delayed(const Duration(milliseconds: 300)).then((value) {
                           SchedulerBinding.instance.addPostFrameCallback((_) {
-                            _scrollController.animateTo(
-                                _scrollController.position.minScrollExtent,
-                                duration: const Duration(milliseconds: 400),
-                                curve: Curves.fastOutSlowIn);
+                            _scrollController.animateTo(_scrollController.position.minScrollExtent,
+                                duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
                           });
                         });
                       }
@@ -164,8 +158,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                       if (state.isEmpty) {
                         return const EmptyList(
                           imagePath: "assets/images/empty-search.svg",
-                          sentence:
-                              "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                          sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
                         );
                       }
                       return Scrollbar(
@@ -187,12 +180,10 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                       hoverColor: ProjectColors.primary,
                                       // selected: index == radioValue,
                                       selectedTileColor: ProjectColors.primary,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
+                                      contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 15,
                                       ),
-                                      controlAffinity:
-                                          ListTileControlAffinity.trailing,
+                                      controlAffinity: ListTileControlAffinity.trailing,
                                       value: state[index],
                                       groupValue: radioValue,
                                       title: Text(itemEntity.itemName),
@@ -281,12 +272,9 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                   child: TextButton(
                 style: ButtonStyle(
                     shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.black.withOpacity(.2))),
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () {
                   setState(() {
                     Navigator.of(context).pop();
@@ -319,12 +307,9 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5))),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white.withOpacity(.2))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
                   if (radioValue == null) return;
                   context.pop(radioValue);

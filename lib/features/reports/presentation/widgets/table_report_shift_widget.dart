@@ -51,22 +51,15 @@ class _TableReportShiftState extends State<TableReportShift> {
       return;
     }
 
-    final fetchedInvoice = await GetIt.instance<AppDatabase>()
-        .invoiceHeaderDao
-        .readByUserBetweenDate(widget.fromDate!, widget.toDate!);
+    final fetchedInvoice =
+        await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByUserBetweenDate(widget.fromDate!, widget.toDate!);
 
     // Apply Search Query
     if (fetchedInvoice != null) {
       final filteredInvoice = fetchedInvoice.where((invoice) {
-        return invoice['docnum']
-                .toLowerCase()
-                .contains(widget.searchQuery!.toLowerCase()) ||
-            invoice['username']
-                .toLowerCase()
-                .contains(widget.searchQuery!.toLowerCase()) ||
-            invoice['transdate']
-                .toLowerCase()
-                .contains(widget.searchQuery!.toLowerCase());
+        return invoice['docnum'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['username'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['transdate'].toLowerCase().contains(widget.searchQuery!.toLowerCase());
       }).toList();
       setState(() {
         fetched = filteredInvoice;
@@ -85,9 +78,7 @@ class _TableReportShiftState extends State<TableReportShift> {
     double grandTotal = 0.0;
 
     if (fetched != null) {
-      grandTotal = fetched!
-          .map((shift) => shift['grandtotal'])
-          .fold(0.0, (previous, current) => previous + current);
+      grandTotal = fetched!.map((shift) => shift['grandtotal']).fold(0.0, (previous, current) => previous + current);
       // log("grandTotal - $grandTotal");
     }
 
@@ -106,8 +97,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                   ),
                   const SizedBox(height: 4),
                   Table(
-                    border:
-                        TableBorder.all(color: Colors.transparent, width: 1),
+                    border: TableBorder.all(color: Colors.transparent, width: 1),
                     columnWidths: const {
                       0: FixedColumnWidth(50),
                       1: FlexColumnWidth(80),
@@ -117,8 +107,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                     },
                     children: [
                       TableRow(
-                        decoration:
-                            const BoxDecoration(color: ProjectColors.primary),
+                        decoration: const BoxDecoration(color: ProjectColors.primary),
                         children: tableHead.map((header) {
                           return TableCell(
                             child: Container(
@@ -146,8 +135,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                         final isLastRow = index == fetched!.length - 1;
                         final shiftName = shift['docnum'];
                         final userName = shift['username'];
-                        final transDate =
-                            "${shift['transdate']} ${shift['transtime']}";
+                        final transDate = "${shift['transdate']} ${shift['transtime']}";
 
                         return TableRow(
                           children: [
@@ -157,9 +145,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -180,9 +166,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -203,9 +187,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -226,9 +208,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -249,9 +229,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: isLastRow
-                                        ? const BorderSide(
-                                            color: ProjectColors.primary,
-                                            width: 2.0)
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
                                         : BorderSide.none,
                                   ),
                                 ),

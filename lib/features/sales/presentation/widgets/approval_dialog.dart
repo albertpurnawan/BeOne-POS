@@ -37,14 +37,10 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
 
-    final UserModel? user = await GetIt.instance<AppDatabase>()
-        .userDao
-        .readByUsername(username, null);
+    final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>()
-          .authStoreDao
-          .readByTousrId(user.docId, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -63,17 +59,13 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     return check;
   }
 
-  Future<void> onSubmit(
-      BuildContext childContext, BuildContext parentContext) async {
+  Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
     if (!formKey.currentState!.validate()) return;
-    String passwordCorrect =
-        await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       parentContext.pop(true);
     } else {
-      final message = passwordCorrect == "Wrong Password"
-          ? "Invalid username or password"
-          : "Unauthorized";
+      final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
       if (Platform.isWindows) _usernameFocusNode.requestFocus();
     }
@@ -133,21 +125,16 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
                 child: const Text(
                   'Approval',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -169,19 +156,14 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               controller: usernameController,
                               autofocus: true,
                               keyboardType: TextInputType.text,
-                              onFieldSubmitted: (value) async =>
-                                  await onSubmit(childContext, parentContext),
-                              validator: (val) => val == null || val.isEmpty
-                                  ? "Username is required"
-                                  : null,
+                              onFieldSubmitted: (value) async => await onSubmit(childContext, parentContext),
+                              validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: const InputDecoration(
                                   contentPadding: EdgeInsets.all(10),
                                   hintText: "Username",
-                                  hintStyle: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 20),
+                                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(
                                     Icons.person_4,
@@ -200,16 +182,13 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               onFieldSubmitted: (value) async {
                                 await onSubmit(childContext, parentContext);
                               },
-                              validator: (val) => val == null || val.isEmpty
-                                  ? "Password is required"
-                                  : null,
+                              validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.all(10),
                                 hintText: "Password",
-                                hintStyle: const TextStyle(
-                                    fontStyle: FontStyle.italic, fontSize: 20),
+                                hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(
                                   Icons.lock,
@@ -217,9 +196,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
+                                    _obscureText ? Icons.visibility : Icons.visibility_off,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -241,9 +218,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                     TextSpan(
                                       text: 'Use OTP Instead',
                                       style: TextStyle(
-                                        color: _isOTPClicked
-                                            ? Colors.grey
-                                            : ProjectColors.lightBlack,
+                                        color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
                                       ),
@@ -275,9 +250,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                     TextSpan(
                                       text: " (F11)",
                                       style: TextStyle(
-                                          color: _isOTPClicked
-                                              ? Colors.grey
-                                              : ProjectColors.lightBlack,
+                                          color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w300),
                                     ),
@@ -301,19 +274,12 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            side: const BorderSide(
-                                                color: ProjectColors.primary))),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => Colors.white),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary
-                                                .withOpacity(.2))),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: const BorderSide(color: ProjectColors.primary))),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                                    overlayColor: MaterialStateColor.resolveWith(
+                                        (states) => ProjectColors.primary.withOpacity(.2))),
                                 onPressed: () {
                                   Navigator.of(childContext).pop();
                                 },
@@ -323,17 +289,14 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                       children: [
                                         TextSpan(
                                           text: "Cancel",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600),
+                                          style: TextStyle(fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (Esc)",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
-                                      style: TextStyle(
-                                          color: ProjectColors.primary),
+                                      style: TextStyle(color: ProjectColors.primary),
                                     ),
                                     overflow: TextOverflow.clip,
                                   ),
@@ -343,34 +306,24 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            side: const BorderSide(
-                                                color: ProjectColors.primary))),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: const BorderSide(color: ProjectColors.primary))),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
-                                onPressed: () async =>
-                                    await onSubmit(childContext, parentContext),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                onPressed: () async => await onSubmit(childContext, parentContext),
                                 child: Center(
                                   child: RichText(
                                     text: const TextSpan(
                                       children: [
                                         TextSpan(
                                           text: "Confirm",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600),
+                                          style: TextStyle(fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (Enter)",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
                                     ),

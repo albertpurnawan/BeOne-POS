@@ -17,13 +17,9 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
     double taxAfterDiscount = 0;
 
     for (final item in params.receiptItems.map((e) => e.copyWith())) {
-      item.discHeaderAmount =
-          discHprctg * (item.totalGross - (item.discAmount ?? 0));
-      item.subtotalAfterDiscHeader = item.totalGross -
-          (item.discAmount ?? 0) -
-          (item.discHeaderAmount ?? 0);
-      item.taxAmount =
-          item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
+      item.discHeaderAmount = discHprctg * (item.totalGross - (item.discAmount ?? 0));
+      item.subtotalAfterDiscHeader = item.totalGross - (item.discAmount ?? 0) - (item.discHeaderAmount ?? 0);
+      item.taxAmount = item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
       subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
       taxAfterDiscount += item.taxAmount;
     }

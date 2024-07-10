@@ -8,9 +8,7 @@ class WebViewStack extends StatefulWidget {
   final String xurl;
   final Function(bool) onPaymentSuccess;
 
-  const WebViewStack(
-      {Key? key, required this.xurl, required this.onPaymentSuccess})
-      : super(key: key);
+  const WebViewStack({Key? key, required this.xurl, required this.onPaymentSuccess}) : super(key: key);
 
   @override
   State<WebViewStack> createState() => _WebViewStackState();

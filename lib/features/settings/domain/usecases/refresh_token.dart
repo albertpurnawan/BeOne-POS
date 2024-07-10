@@ -16,11 +16,9 @@ class RefreshTokenUseCase implements UseCase<void, String> {
     final decryptPasswordUseCase = GetIt.instance<DecryptPasswordUseCase>();
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
 
-    final decryptPass =
-        await decryptPasswordUseCase.call(params: topos[0].passwordAdmin);
+    final decryptPass = await decryptPasswordUseCase.call(params: topos[0].passwordAdmin);
 
-    final token = await GetIt.instance<TokenApi>()
-        .getToken(topos[0].baseUrl!, topos[0].usernameAdmin!, decryptPass);
+    final token = await GetIt.instance<TokenApi>().getToken(topos[0].baseUrl!, topos[0].usernameAdmin!, decryptPass);
     prefs.setString('adminToken', token!);
   }
 }

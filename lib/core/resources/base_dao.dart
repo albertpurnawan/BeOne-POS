@@ -200,14 +200,11 @@ abstract class BaseDao<T extends BaseModel> {
     }
   }
 
-  Future<void> update(
-      {required String docId, required T data, Transaction? txn}) async {
+  Future<void> update({required String docId, required T data, Transaction? txn}) async {
     if (txn != null) {
-      await txn.update(tableName, data.toMap(),
-          where: "docId = ?", whereArgs: [docId]);
+      await txn.update(tableName, data.toMap(), where: "docId = ?", whereArgs: [docId]);
     } else {
-      await db.update(tableName, data.toMap(),
-          where: "docId = ?", whereArgs: [docId]);
+      await db.update(tableName, data.toMap(), where: "docId = ?", whereArgs: [docId]);
     }
   }
 

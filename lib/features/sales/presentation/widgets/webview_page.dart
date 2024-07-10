@@ -4,9 +4,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/webview_widgets.dart'
 class WebViewApp extends StatefulWidget {
   final String url;
   final ValueChanged<bool> onPaymentSuccess;
-  const WebViewApp(
-      {Key? key, required this.url, required this.onPaymentSuccess})
-      : super(key: key);
+  const WebViewApp({Key? key, required this.url, required this.onPaymentSuccess}) : super(key: key);
 
   @override
   State<WebViewApp> createState() => _WebViewAppState();

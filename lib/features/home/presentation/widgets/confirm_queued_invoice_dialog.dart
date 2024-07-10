@@ -11,12 +11,10 @@ class ConfirmQueuedInvoiceDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ConfirmQueuedInvoiceDialog> createState() =>
-      _ConfirmQueuedInvoiceDialogState();
+  State<ConfirmQueuedInvoiceDialog> createState() => _ConfirmQueuedInvoiceDialogState();
 }
 
-class _ConfirmQueuedInvoiceDialogState
-    extends State<ConfirmQueuedInvoiceDialog> {
+class _ConfirmQueuedInvoiceDialogState extends State<ConfirmQueuedInvoiceDialog> {
   @override
   initState() {
     super.initState();
@@ -27,8 +25,7 @@ class _ConfirmQueuedInvoiceDialogState
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -37,8 +34,7 @@ class _ConfirmQueuedInvoiceDialogState
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Caution',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -63,8 +59,7 @@ class _ConfirmQueuedInvoiceDialogState
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                   TextSpan(
-                    text:
-                        "\n\nClear all queued transactions before ending your shift.",
+                    text: "\n\nClear all queued transactions before ending your shift.",
                   )
                 ],
                 style: TextStyle(
@@ -89,12 +84,9 @@ class _ConfirmQueuedInvoiceDialogState
                   style: ButtonStyle(
                       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
-                          side:
-                              const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.white),
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.black.withOpacity(.2))),
+                          side: const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                   onPressed: () {
                     context.pop();
                   },
@@ -110,12 +102,9 @@ class _ConfirmQueuedInvoiceDialogState
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () {
                 context.pop();
                 context.pop();
@@ -125,10 +114,7 @@ class _ConfirmQueuedInvoiceDialogState
                     builder: (context) => const SalesPage(),
                   ),
                 );
-                showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => const QueueListDialog());
+                showDialog(context: context, barrierDismissible: false, builder: (context) => const QueueListDialog());
               },
               child: const Center(
                   child: Text(

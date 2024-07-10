@@ -1,8 +1,7 @@
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
-class RecalculateReceiptUseCase
-    implements UseCase<ReceiptEntity, ReceiptEntity> {
+class RecalculateReceiptUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
   RecalculateReceiptUseCase();
 
   @override
@@ -18,14 +17,12 @@ class RecalculateReceiptUseCase
 
       params.receiptItems.forEach((element) {
         subtotal += element.totalGross;
-        discAmount +=
-            (element.discAmount ?? 0) + (element.discHeaderAmount ?? 0);
+        discAmount += (element.discAmount ?? 0) + (element.discHeaderAmount ?? 0);
         discHeaderPromo += element.discAmount ?? 0;
         taxAmount += element.taxAmount;
 
         // update
-        element.discPrctg =
-            ((element.discAmount ?? 0) / element.totalGross) * 100;
+        element.discPrctg = ((element.discAmount ?? 0) / element.totalGross) * 100;
       });
 
       grandTotal = subtotal - discAmount + taxAmount;

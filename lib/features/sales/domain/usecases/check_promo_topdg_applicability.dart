@@ -15,8 +15,7 @@ import 'package:pos_fe/features/sales/domain/repository/customer_group_repositor
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 
-class CheckPromoTopdgApplicabilityUseCase
-    implements UseCase<bool, CheckPromoTopdgApplicabilityUseCaseParams> {
+class CheckPromoTopdgApplicabilityUseCase implements UseCase<bool, CheckPromoTopdgApplicabilityUseCaseParams> {
   CheckPromoTopdgApplicabilityUseCase(this._customerGroupRepository);
 
   final CustomerGroupRepository _customerGroupRepository;
@@ -28,26 +27,19 @@ class CheckPromoTopdgApplicabilityUseCase
         throw "CheckPromoTopdgApplicabilityUseCase requires params";
       }
       // Check applicability (general validation and branching)
-      final PromoDiskonGroupItemHeaderEntity topdg =
-          params.topdgHeaderAndDetail.topdg;
-      final List<PromoDiskonGroupItemBuyConditionEntity> tpdg1 =
-          params.topdgHeaderAndDetail.tpdg1;
-      final List<PromoDiskonGroupItemCustomerGroupEntity> tpdg5 =
-          params.topdgHeaderAndDetail.tpdg5;
+      final PromoDiskonGroupItemHeaderEntity topdg = params.topdgHeaderAndDetail.topdg;
+      final List<PromoDiskonGroupItemBuyConditionEntity> tpdg1 = params.topdgHeaderAndDetail.tpdg1;
+      final List<PromoDiskonGroupItemCustomerGroupEntity> tpdg5 = params.topdgHeaderAndDetail.tpdg5;
 
-      final ReceiptEntity receiptEntity =
-          params.handlePromosUseCaseParams.receiptEntity;
-      final ReceiptItemEntity receiptItemEntity =
-          params.handlePromosUseCaseParams.receiptItemEntity;
+      final ReceiptEntity receiptEntity = params.handlePromosUseCaseParams.receiptEntity;
+      final ReceiptItemEntity receiptItemEntity = params.handlePromosUseCaseParams.receiptItemEntity;
 
       bool isApplicable = true;
 
       final List<Function> generalValidations = [
         () async {
           if (receiptEntity.promos
-              .where((element) =>
-                  element.promoId ==
-                  params.handlePromosUseCaseParams.promo!.promoId)
+              .where((element) => element.promoId == params.handlePromosUseCaseParams.promo!.promoId)
               .isNotEmpty) {
             return isApplicable = false;
           }
@@ -77,10 +69,7 @@ class CheckPromoTopdgApplicabilityUseCase
             return isApplicable = false;
           }
 
-          if (topdg.promoValue > 0 &&
-              (topdg.discount1 > 0 ||
-                  topdg.discount2 > 0 ||
-                  topdg.discount3 > 0)) {
+          if (topdg.promoValue > 0 && (topdg.discount1 > 0 || topdg.discount2 > 0 || topdg.discount3 > 0)) {
             return isApplicable = false;
           }
         },
@@ -90,23 +79,18 @@ class CheckPromoTopdgApplicabilityUseCase
           if (receiptEntity.customerEntity!.tocrgId == null) {
             return isApplicable = false;
           }
-          if (!tpdg5
-              .map((e) => e.tocrgId)
-              .contains(receiptEntity.customerEntity!.tocrgId!)) {
+          if (!tpdg5.map((e) => e.tocrgId).contains(receiptEntity.customerEntity!.tocrgId!)) {
             return isApplicable = false;
           }
 
           final CustomerGroupEntity? customerGroup =
-              await _customerGroupRepository
-                  .getCustomerGroup(receiptEntity.customerEntity!.tocrgId!);
+              await _customerGroupRepository.getCustomerGroup(receiptEntity.customerEntity!.tocrgId!);
           if (customerGroup == null) return isApplicable = false;
         },
         () async {
           // Check category
           final ItemMasterEntity? itemMasterEntity =
-              await GetIt.instance<AppDatabase>()
-                  .itemMasterDao
-                  .readByDocId(receiptItemEntity.itemEntity.toitmId, null);
+              await GetIt.instance<AppDatabase>().itemMasterDao.readByDocId(receiptItemEntity.itemEntity.toitmId, null);
           log(itemMasterEntity.toString());
           log(tpdg1.map((e) => e.tocatId).toString());
           if (itemMasterEntity == null) return isApplicable = false;
@@ -127,24 +111,20 @@ class CheckPromoTopdgApplicabilityUseCase
           Set<String> uniqueTocatId = {};
           double totalPriceOfSelectedGroup = 0;
           for (final receiptItem in receiptEntity.receiptItems) {
-            if (tpdg1
-                .map((e) => e.tocatId)
-                .contains(receiptItem.itemEntity.tocatId)) {
+            if (tpdg1.map((e) => e.tocatId).contains(receiptItem.itemEntity.tocatId)) {
               uniqueTocatId.add(receiptItem.itemEntity.tocatId!);
               totalPriceOfSelectedGroup += receiptItem.totalAmount;
             }
           }
 
-          if (topdg.buyCondition == 1 &&
-              (uniqueTocatId.length < tpdg1.length)) {
+          if (topdg.buyCondition == 1 && (uniqueTocatId.length < tpdg1.length)) {
             return isApplicable = false;
           }
           if (topdg.buyCondition == 0 && uniqueTocatId.isEmpty) {
             return isApplicable = false;
           }
 
-          if (totalPriceOfSelectedGroup < topdg.totalPriceFrom! ||
-              totalPriceOfSelectedGroup > topdg.totalPriceTo!) {
+          if (totalPriceOfSelectedGroup < topdg.totalPriceFrom! || totalPriceOfSelectedGroup > topdg.totalPriceTo!) {
             return isApplicable = false;
           }
         }
@@ -161,24 +141,20 @@ class CheckPromoTopdgApplicabilityUseCase
           Set<String> uniqueTocatId = {};
           double totalQtyOfSelectedGroup = 0;
           for (final receiptItem in receiptEntity.receiptItems) {
-            if (tpdg1
-                .map((e) => e.tocatId)
-                .contains(receiptItem.itemEntity.tocatId)) {
+            if (tpdg1.map((e) => e.tocatId).contains(receiptItem.itemEntity.tocatId)) {
               totalQtyOfSelectedGroup += receiptItem.quantity;
               uniqueTocatId.add(receiptItem.itemEntity.tocatId!);
             }
           }
 
-          if (topdg.buyCondition == 1 &&
-              (uniqueTocatId.length < tpdg1.length)) {
+          if (topdg.buyCondition == 1 && (uniqueTocatId.length < tpdg1.length)) {
             return isApplicable = false;
           }
           if (topdg.buyCondition == 0 && uniqueTocatId.isEmpty) {
             return isApplicable = false;
           }
 
-          if (totalQtyOfSelectedGroup < topdg.totalQtyFrom! ||
-              totalQtyOfSelectedGroup > topdg.totalQtyTo!) {
+          if (totalQtyOfSelectedGroup < topdg.totalQtyFrom! || totalQtyOfSelectedGroup > topdg.totalQtyTo!) {
             return isApplicable = false;
           }
         },
@@ -207,6 +183,5 @@ class CheckPromoTopdgApplicabilityUseCaseParams {
   final HandlePromosUseCaseParams handlePromosUseCaseParams;
 
   CheckPromoTopdgApplicabilityUseCaseParams(
-      {required this.topdgHeaderAndDetail,
-      required this.handlePromosUseCaseParams});
+      {required this.topdgHeaderAndDetail, required this.handlePromosUseCaseParams});
 }

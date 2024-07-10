@@ -16,6 +16,7 @@ class PayMeansFields {
     cardNo,
     cardHolder,
     sisaVoucher,
+    rrn,
   ];
 
   static const String docId = "docid";
@@ -29,6 +30,7 @@ class PayMeansFields {
   static const String cardNo = "cardno";
   static const String cardHolder = "cardholder";
   static const String sisaVoucher = "sisavoucher";
+  static const String rrn = "rrn";
 }
 
 class PayMeansModel extends PayMeantEntity implements BaseModel {
@@ -44,6 +46,7 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
     required super.cardNo,
     required super.cardHolder,
     required super.sisaVoucher,
+    required super.rrn,
   });
 
   @override
@@ -60,6 +63,7 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
       'cardno': cardNo,
       'cardholder': cardHolder,
       'sisavoucher': sisaVoucher,
+      'rrn': rrn,
     };
   }
 
@@ -82,6 +86,7 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
           map['cardholder'] != null ? map['cardholder'] as String : null,
       sisaVoucher:
           map['sisavoucher'] != null ? map['sisavoucher'] as double : null,
+      rrn: map['rrn'] != null ? map['rrn'] as String : null,
     );
   }
 
@@ -117,6 +122,7 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
       cardNo: entity.cardNo,
       cardHolder: entity.cardHolder,
       sisaVoucher: entity.sisaVoucher,
+      rrn: entity.rrn,
     );
   }
 }

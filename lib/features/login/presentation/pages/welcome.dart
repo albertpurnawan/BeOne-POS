@@ -143,16 +143,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const FetchScreen()),
+                          MaterialPageRoute(builder: (context) => const FetchScreen()),
                         ).then((value) => Future.delayed(
                             const Duration(milliseconds: 200),
-                            () => SystemChrome.setSystemUIOverlayStyle(
-                                const SystemUiOverlayStyle(
-                                    statusBarColor: ProjectColors.primary,
-                                    statusBarBrightness: Brightness.light,
-                                    statusBarIconBrightness:
-                                        Brightness.light))));
+                            () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                statusBarColor: ProjectColors.primary,
+                                statusBarBrightness: Brightness.light,
+                                statusBarIconBrightness: Brightness.light))));
                       },
                     ),
                   ),
@@ -167,8 +164,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const DeviceSetupScreen(),
+                                  builder: (context) => const DeviceSetupScreen(),
                                 ),
                               );
                               if (result == true) {

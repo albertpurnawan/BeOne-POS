@@ -9,7 +9,6 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
-import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/token_service.dart';
 import 'package:pos_fe/features/settings/domain/usecases/encrypt.dart';
@@ -124,8 +123,7 @@ class _SettingsFormState extends State<SettingsForm> {
   Future<String> encryptPassword(String rawPassword) async {
     final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
     try {
-      final encryptedPassword =
-          await encryptPasswordUseCase.call(params: rawPassword);
+      final encryptedPassword = await encryptPasswordUseCase.call(params: rawPassword);
       return encryptedPassword;
     } catch (e, s) {
       debugPrintStack(stackTrace: s);
@@ -145,8 +143,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: gtentController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "TenantId is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "TenantId is required" : null,
               label: "TenantId",
               hint: "Tenant Id",
               prefixIcon: const Icon(Icons.person_2_sharp),
@@ -157,8 +154,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tostrController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "StoreId is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "StoreId is required" : null,
               label: "StoreId",
               hint: "Store Id",
               prefixIcon: const Icon(Icons.store),
@@ -169,8 +165,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: tocsrController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "CashierId is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "CashierId is required" : null,
               label: "CashierId",
               hint: "Cashier Id",
               prefixIcon: const Icon(Icons.point_of_sale),
@@ -181,8 +176,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: urlController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "BaseUrl is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "BaseUrl is required" : null,
               label: "BaseUrl",
               hint: "Base Url",
               prefixIcon: const Icon(Icons.link_outlined),
@@ -193,9 +187,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: emailController,
-              validator: (val) => val == null || val.isEmpty
-                  ? "Manager Email is required"
-                  : null,
+              validator: (val) => val == null || val.isEmpty ? "Manager Email is required" : null,
               label: "Manager Email",
               hint: "Manager Email",
               prefixIcon: const Icon(Icons.email_outlined),
@@ -206,9 +198,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: passwordController,
-              validator: (val) => val == null || val.isEmpty
-                  ? "Manager Password is required"
-                  : null,
+              validator: (val) => val == null || val.isEmpty ? "Manager Password is required" : null,
               obscureText: true,
               label: "Manager Password",
               hint: "Manager Password",
@@ -220,8 +210,7 @@ class _SettingsFormState extends State<SettingsForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: otpChannelController,
-              validator: (val) =>
-                  val == null || val.isEmpty ? "OTP Channel is required" : null,
+              validator: (val) => val == null || val.isEmpty ? "OTP Channel is required" : null,
               label: "OTP Channel",
               hint: "OTP Channel",
               prefixIcon: const Icon(Icons.vpn_key),
@@ -235,13 +224,10 @@ class _SettingsFormState extends State<SettingsForm> {
               onTap: () async {
                 try {
                   await prefs.clear();
-                  await GetIt.instance<AppDatabase>()
-                      .posParameterDao
-                      .deleteTopos();
+                  await GetIt.instance<AppDatabase>().posParameterDao.deleteTopos();
 
                   // call the encryptpassword here?
-                  final hashedPassword =
-                      await encryptPassword(passwordController.text);
+                  final hashedPassword = await encryptPassword(passwordController.text);
 
                   // final hashedPass = md5
                   //     .convert(utf8.encode(passwordController.text))
@@ -262,40 +248,14 @@ class _SettingsFormState extends State<SettingsForm> {
                     lastSync: '2000-01-01 00:00:00',
                   );
 
-                  await GetIt.instance<AppDatabase>()
-                      .posParameterDao
-                      .create(data: topos);
+                  await GetIt.instance<AppDatabase>().posParameterDao.create(data: topos);
 
                   log("TOPOS CREATED");
 
-                  final token = await GetIt.instance<TokenApi>().getToken(
-                      urlController.text,
-                      emailController.text,
-                      passwordController.text);
+                  final token = await GetIt.instance<TokenApi>()
+                      .getToken(urlController.text, emailController.text, passwordController.text);
 
                   prefs.setString('adminToken', token.toString());
-
-                  final tntzm = [
-                    NetzmeModel(
-                        docId: const Uuid().v4(),
-                        url: "https://tokoapisnap-stg.netzme.com",
-                        clientKey: "pt_bak",
-                        clientSecret: "61272364208846ee9366dc204f81fce6",
-                        privateKey:
-                            "MIIBOgIBAAJBAMjxtB9QVz9KLCe5DAqJoLlz7e9ZhS5EE5YhC0E1F7+a14GLpm7mqcSN0alAmOK5DQZW4JufhzFmDpwB3a4+vskCAwEAAQJAfDYkcILaG64+0yMo1U6zwk9uEdkVYT8FmHS+n0Uxc+cqgs9UGb8uFoZmswGhs5HpfxpgEOckucwqi4SrgqXWMQIhAM4DOyj8SVCbvieRjOruhLjuh6S9wQmingB7A9+b58bVAiEA+bOjL0CothyHnfNgaY2IBT9TIO0FefTE1IfcukbH+iUCIHeyTOdNXlOlieB3owbFOvwwK0O+tLAieecRkniTnyFZAiA5uQsqKzpVDvdSziYlgHBHNkJTRDeV3714nAeskBw+eQIhAKkIuZjqXadPACYDNUXrfm5GGWZ2BKUjujJIZXjaRLnA",
-                        custIdMerchant: "M_b7uJH43W")
-                  ];
-                  final netz =
-                      await GetIt.instance<AppDatabase>().netzmeDao.readAll();
-                  if (netz.isEmpty) {
-                    await GetIt.instance<AppDatabase>()
-                        .netzmeDao
-                        .bulkCreate(data: tntzm);
-                  } else {
-                    await GetIt.instance<AppDatabase>()
-                        .netzmeDao
-                        .update(docId: netz[0].docId, data: netz[0]);
-                  }
 
                   Navigator.pop(context, true);
                 } catch (e, s) {

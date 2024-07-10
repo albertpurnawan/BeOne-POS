@@ -18,8 +18,7 @@ class InputDiscountManual extends StatefulWidget {
 }
 
 class _InputDiscountManualState extends State<InputDiscountManual> {
-  final TextEditingController _textEditorDiscountController =
-      TextEditingController();
+  final TextEditingController _textEditorDiscountController = TextEditingController();
   final FocusNode _discountFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
@@ -38,21 +37,17 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
         if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
         if (value.physicalKey == PhysicalKeyboardKey.enter) {
-          double input = Helpers.revertMoneyToDecimalFormat(
-              _textEditorDiscountController.text);
+          double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
           final ReceiptEntity state = context.read<ReceiptCubit>().state;
-          if ((input > state.subtotal - (state.discAmount ?? 0)) ||
-              input <= 0) {
+          if ((input > state.subtotal - (state.discAmount ?? 0)) || input <= 0) {
             context.pop();
-            ErrorHandler.presentErrorSnackBar(
-                context, "Invalid discount amount");
+            ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
             return KeyEventResult.handled;
           }
           showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (context) =>
-                  AuthInputDiscountDialog(discountValue: input));
+              builder: (context) => AuthInputDiscountDialog(discountValue: input));
           return KeyEventResult.handled;
         } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
           context.pop();
@@ -64,8 +59,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -74,8 +68,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Header Discount',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -92,8 +85,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                 final ReceiptEntity state = context.read<ReceiptCubit>().state;
                 if (input > state.subtotal - (state.discAmount ?? 0)) {
                   context.pop();
-                  return ErrorHandler.presentErrorSnackBar(
-                      context, "Invalid discount amount");
+                  return ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
                 }
                 // context
                 //     .read<ReceiptCubit>()
@@ -105,8 +97,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                 await showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (context) =>
-                            AuthInputDiscountDialog(discountValue: input))
+                        builder: (context) => AuthInputDiscountDialog(discountValue: input))
                     .then((value) => _discountFocusNode.requestFocus());
               },
               autofocus: true,
@@ -126,8 +117,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
               decoration: const InputDecoration(
                   contentPadding: EdgeInsets.all(10),
                   hintText: "Enter Discount",
-                  hintStyle:
-                      TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(
                     Icons.discount_outlined,
@@ -146,12 +136,9 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                   child: TextButton(
                 style: ButtonStyle(
                     shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => ProjectColors.primary.withOpacity(.2))),
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -182,25 +169,19 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                       borderRadius: BorderRadius.circular(5),
                       side: const BorderSide(color: ProjectColors.primary),
                     )),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white.withOpacity(.2))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
-                  double input = Helpers.revertMoneyToDecimalFormat(
-                      _textEditorDiscountController.text);
-                  final ReceiptEntity state =
-                      context.read<ReceiptCubit>().state;
+                  double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
+                  final ReceiptEntity state = context.read<ReceiptCubit>().state;
                   if (input > state.subtotal - (state.discAmount ?? 0)) {
                     context.pop();
-                    return ErrorHandler.presentErrorSnackBar(
-                        context, "Invalid discount amount");
+                    return ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
                   }
                   showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder: (context) =>
-                          AuthInputDiscountDialog(discountValue: input));
+                      builder: (context) => AuthInputDiscountDialog(discountValue: input));
                 },
                 child: Center(
                   child: RichText(

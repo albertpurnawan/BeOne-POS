@@ -11,6 +11,7 @@ class AuthStoreFields {
     tostrdocid,
     tousrdocid,
     statusActive,
+    dflt,
     form,
   ];
   static const String docId = "docid";
@@ -19,6 +20,7 @@ class AuthStoreFields {
   static const String tostrdocid = "tostrdocid";
   static const String tousrdocid = "tousrdocid";
   static const String statusActive = "statusactive";
+  static const String dflt = "dflt";
   static const String form = "form";
 }
 
@@ -30,6 +32,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
     required super.tostrdocid,
     required super.tousrdocid,
     required super.statusActive,
+    required super.dflt,
     required super.form,
   });
 
@@ -42,6 +45,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       'tostrdocid': tostrdocid,
       'tousrdocid': tousrdocid,
       'statusactive': statusActive,
+      'dflt': dflt,
       'form': form,
     };
   }
@@ -56,8 +60,16 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       tostrdocid: map['tostrdocid'] as String,
       tousrdocid: map['tousrdocid'] as String,
       statusActive: map['statusactive'] as int,
+      dflt: map['dflt'] != null ? map['dflt'] as int : null,
       form: map['form'] as String,
     );
+  }
+
+  factory AuthStoreModel.fromMapRemote(Map<String, dynamic> map) {
+    return AuthStoreModel.fromMap({
+      ...map,
+      "dflt": map['default'] != null ? map['default'] as int : null,
+    });
   }
 
   factory AuthStoreModel.fromEntity(AuthStoreEntity entity) {
@@ -68,6 +80,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       tostrdocid: entity.tostrdocid,
       tousrdocid: entity.tousrdocid,
       statusActive: entity.statusActive,
+      dflt: entity.dflt,
       form: entity.form,
     );
   }

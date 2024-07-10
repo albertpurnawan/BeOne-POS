@@ -7,8 +7,7 @@ import 'package:pos_fe/features/settings/domain/usecases/sync_data.dart';
 
 Future<void> syncWithBOS() async {
   final cron = Cron();
-  String cronSyntax =
-      "${Constant.minute} ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}";
+  String cronSyntax = "${Constant.minute} ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}";
 
   try {
     cron.schedule(Schedule.parse(cronSyntax), () async {

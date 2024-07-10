@@ -8,8 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CashierBalanceTransactionDetails extends StatelessWidget {
   final CashierBalanceTransactionModel transaction;
 
-  const CashierBalanceTransactionDetails({Key? key, required this.transaction})
-      : super(key: key);
+  const CashierBalanceTransactionDetails({Key? key, required this.transaction}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +69,7 @@ class CashierBalanceTransactionDetails extends StatelessWidget {
             const SizedBox(height: 8),
             _buildRow(
               leftText: "Difference",
-              rightText: (transaction.closeValue -
-                      transaction.closeValue +
-                      transaction.calcValue)
-                  .toString(),
+              rightText: (transaction.closeValue - transaction.closeValue + transaction.calcValue).toString(),
             ),
             const SizedBox(height: 8),
             _buildRow(
@@ -92,8 +88,7 @@ class CashierBalanceTransactionDetails extends StatelessWidget {
               child: CustomButton(
                   child: const Text("End Shift"),
                   onTap: () async {
-                    final SharedPreferences prefs =
-                        GetIt.instance<SharedPreferences>();
+                    final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
                     final bool isOpen = prefs.getBool('isOpen') ?? false;
 
                     if (isOpen) {
@@ -103,8 +98,7 @@ class CashierBalanceTransactionDetails extends StatelessWidget {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
                             ),
                             content: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.7,
@@ -120,8 +114,7 @@ class CashierBalanceTransactionDetails extends StatelessWidget {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
                             ),
                             content: const Text(
                               "Please start a new shift first",

@@ -17,16 +17,14 @@ class CustomerInfoTooltip extends StatelessWidget {
       key: key,
       onTap: () {
         final box = key.currentContext!.findRenderObject() as RenderBox;
-        final overlay =
-            Overlay.of(context).context.findRenderObject() as RenderBox;
+        final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
 
         showMenu(
           context: context,
           position: RelativeRect.fromRect(
             Rect.fromPoints(
               box.localToGlobal(Offset.zero, ancestor: overlay),
-              box.localToGlobal(box.size.bottomRight(Offset.zero),
-                  ancestor: overlay),
+              box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay),
             ),
             Offset.zero & overlay.size,
           ),

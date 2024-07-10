@@ -15,13 +15,14 @@ class MeansOfPaymentEntity {
   final int credit;
   final int subType;
   final int validForEmp;
+  final String? tpmt4Id;
   final String form;
 
   MeansOfPaymentEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.topmtId,
+    this.updateDate,
+    this.topmtId,
     required this.mopCode,
     required this.description,
     required this.mopAlias,
@@ -30,6 +31,7 @@ class MeansOfPaymentEntity {
     required this.credit,
     required this.subType,
     required this.validForEmp,
+    this.tpmt4Id,
     required this.form,
   });
 
@@ -46,6 +48,7 @@ class MeansOfPaymentEntity {
     int? credit,
     int? subType,
     int? validForEmp,
+    String? tpmt4Id,
     String? form,
   }) {
     return MeansOfPaymentEntity(
@@ -61,6 +64,7 @@ class MeansOfPaymentEntity {
       credit: credit ?? this.credit,
       subType: subType ?? this.subType,
       validForEmp: validForEmp ?? this.validForEmp,
+      tpmt4Id: tpmt4Id ?? this.tpmt4Id,
       form: form ?? this.form,
     );
   }
@@ -79,6 +83,7 @@ class MeansOfPaymentEntity {
       'credit': credit,
       'subType': subType,
       'validForEmp': validForEmp,
+      'tpmt4Id': tpmt4Id,
       'form': form,
     };
   }
@@ -99,6 +104,7 @@ class MeansOfPaymentEntity {
       credit: map['credit'] as int,
       subType: map['subType'] as int,
       validForEmp: map['validForEmp'] as int,
+      tpmt4Id: map['tpmt4Id'] != null ? map['tpmt4Id'] as String : null,
       form: map['form'] as String,
     );
   }
@@ -110,7 +116,7 @@ class MeansOfPaymentEntity {
 
   @override
   String toString() {
-    return 'MeansOfPaymentEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmtId: $topmtId, mopCode: $mopCode, description: $description, mopAlias: $mopAlias, bankCharge: $bankCharge, consolidation: $consolidation, credit: $credit, subType: $subType, validForEmp: $validForEmp, form: $form)';
+    return 'MeansOfPaymentEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, topmtId: $topmtId, mopCode: $mopCode, description: $description, mopAlias: $mopAlias, bankCharge: $bankCharge, consolidation: $consolidation, credit: $credit, subType: $subType, validForEmp: $validForEmp, tpmt4Id: $tpmt4Id, form: $form)';
   }
 
   @override
@@ -129,6 +135,7 @@ class MeansOfPaymentEntity {
         other.credit == credit &&
         other.subType == subType &&
         other.validForEmp == validForEmp &&
+        other.tpmt4Id == tpmt4Id &&
         other.form == form;
   }
 
@@ -146,6 +153,7 @@ class MeansOfPaymentEntity {
         credit.hashCode ^
         subType.hashCode ^
         validForEmp.hashCode ^
+        tpmt4Id.hashCode ^
         form.hashCode;
   }
 }

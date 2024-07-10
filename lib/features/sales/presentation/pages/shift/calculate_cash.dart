@@ -80,28 +80,17 @@ class _CalculateCashState extends State<CalculateCash> {
 
   @override
   Widget build(BuildContext context) {
-    String total100k = calculateTotal100k(
-        controller100k.text.isEmpty ? '0' : controller100k.text);
-    String total50k = calculateTotal50k(
-        controller50k.text.isEmpty ? '0' : controller50k.text);
-    String total20k = calculateTotal20k(
-        controller20k.text.isEmpty ? '0' : controller20k.text);
-    String total10k = calculateTotal10k(
-        controller10k.text.isEmpty ? '0' : controller10k.text);
-    String total5k =
-        calculateTotal5k(controller5k.text.isEmpty ? '0' : controller5k.text);
-    String total2k =
-        calculateTotal2k(controller2k.text.isEmpty ? '0' : controller2k.text);
-    String total1k =
-        calculateTotal1k(controller1k.text.isEmpty ? '0' : controller1k.text);
-    String total500 = calculateTotal500(
-        controller500.text.isEmpty ? '0' : controller500.text);
-    String total200 = calculateTotal200(
-        controller200.text.isEmpty ? '0' : controller200.text);
-    String total100 = calculateTotal100(
-        controller100.text.isEmpty ? '0' : controller100.text);
-    String total50 =
-        calculateTotal50(controller50.text.isEmpty ? '0' : controller50.text);
+    String total100k = calculateTotal100k(controller100k.text.isEmpty ? '0' : controller100k.text);
+    String total50k = calculateTotal50k(controller50k.text.isEmpty ? '0' : controller50k.text);
+    String total20k = calculateTotal20k(controller20k.text.isEmpty ? '0' : controller20k.text);
+    String total10k = calculateTotal10k(controller10k.text.isEmpty ? '0' : controller10k.text);
+    String total5k = calculateTotal5k(controller5k.text.isEmpty ? '0' : controller5k.text);
+    String total2k = calculateTotal2k(controller2k.text.isEmpty ? '0' : controller2k.text);
+    String total1k = calculateTotal1k(controller1k.text.isEmpty ? '0' : controller1k.text);
+    String total500 = calculateTotal500(controller500.text.isEmpty ? '0' : controller500.text);
+    String total200 = calculateTotal200(controller200.text.isEmpty ? '0' : controller200.text);
+    String total100 = calculateTotal100(controller100.text.isEmpty ? '0' : controller100.text);
+    String total50 = calculateTotal50(controller50.text.isEmpty ? '0' : controller50.text);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

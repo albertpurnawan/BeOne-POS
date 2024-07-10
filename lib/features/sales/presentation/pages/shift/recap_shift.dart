@@ -95,18 +95,14 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchShift() async {
-    final shift = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readByDocId(shiftId, null);
+    final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shiftId, null);
     setState(() {
       tcsr1 = shift;
     });
   }
 
   Future<void> fetchInvoices() async {
-    final transaction = await GetIt.instance<AppDatabase>()
-        .invoiceHeaderDao
-        .readByShift(shiftId);
+    final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
     setState(() {
       transactions = transaction;
     });
@@ -125,15 +121,13 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     }
 
     String formattedOpenDate = Helpers.formatDateNoSeconds(tcsr1!.openDate);
-    String formattedOpenValue =
-        NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
+    String formattedOpenValue = NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
     NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
     NumberFormat.decimalPattern().format(tcsr1!.calcValue.toInt());
     double cashFlow = 0.0;
     NumberFormat.decimalPattern().format(cashFlow.toInt());
     double expectedCash = tcsr1!.openValue + tcsr1!.cashValue + cashFlow;
-    String formattedExpectedCash =
-        NumberFormat.decimalPattern().format(expectedCash.toInt());
+    String formattedExpectedCash = NumberFormat.decimalPattern().format(expectedCash.toInt());
 
     final cashier = prefs.getString('username');
 

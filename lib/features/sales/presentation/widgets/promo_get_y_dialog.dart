@@ -78,8 +78,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -91,17 +90,11 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
             children: [
               const Text(
                 'Promo Buy X Get Y',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
               Text(
                 '${widget.loopTracker.currentLoop}/${widget.loopTracker.totalLoop}',
-                style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
             ],
           ),
@@ -138,8 +131,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                           ),
                           Text(
                             "Get Items (${isAndYCondition ? "AND" : "OR"})",
-                            style: const TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.w700),
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
@@ -160,20 +152,15 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                               children: [
                                 const Text(
                                   "Remaining Get Qty.",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white),
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
                                 ),
                                 const SizedBox(
                                   width: 10,
                                 ),
                                 Text(
                                   Helpers.cleanDecimal(remainingQty, 5),
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white),
+                                  style:
+                                      const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
                                 ),
                               ],
                             ),
@@ -190,8 +177,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                   )
                 ],
                 ...widget.conditionAndItemYs.asMap().entries.map((entry) {
-                  final PromoBuyXGetYGetConditionAndItemEntity
-                      conditionAndItemY = entry.value;
+                  final PromoBuyXGetYGetConditionAndItemEntity conditionAndItemY = entry.value;
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -205,21 +191,15 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                             ? (checked) {}
                             : (checked) {
                                 if (checked!) {
-                                  selectedItemYs = [
-                                    ...selectedItemYs,
-                                    conditionAndItemY
-                                  ];
+                                  selectedItemYs = [...selectedItemYs, conditionAndItemY];
 
-                                  remainingQty -= conditionAndItemY
-                                      .promoBuyXGetYGetConditionEntity.quantity;
+                                  remainingQty -= conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity;
                                 } else {
                                   selectedItemYs = selectedItemYs
                                       .where((element) =>
-                                          element.itemEntity.barcode !=
-                                          conditionAndItemY.itemEntity.barcode)
+                                          element.itemEntity.barcode != conditionAndItemY.itemEntity.barcode)
                                       .toList();
-                                  remainingQty += conditionAndItemY
-                                      .promoBuyXGetYGetConditionEntity.quantity;
+                                  remainingQty += conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity;
                                 }
                                 setState(() {});
                               },
@@ -239,11 +219,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                                 width: 10,
                               ),
                               Text(
-                                Helpers.cleanDecimal(
-                                    conditionAndItemY
-                                        .promoBuyXGetYGetConditionEntity
-                                        .quantity,
-                                    5),
+                                Helpers.cleanDecimal(conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity, 5),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -294,12 +270,9 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                     style: ButtonStyle(
                         shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(
-                                color: ProjectColors.primary))),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.white),
-                        overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.black.withOpacity(.2))),
+                            side: const BorderSide(color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                     onPressed: () {
                       context.pop(<PromoBuyXGetYGetConditionAndItemEntity>[]);
                     },
@@ -329,15 +302,10 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                   flex: 2,
                   child: TextButton(
                     style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) =>
-                                selectedItemYs.isNotEmpty && remainingQty >= 0
-                                    ? ProjectColors.primary
-                                    : Colors.grey),
-                        overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2))),
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) =>
+                            selectedItemYs.isNotEmpty && remainingQty >= 0 ? ProjectColors.primary : Colors.grey),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: selectedItemYs.isNotEmpty && remainingQty >= 0
                         ? () {
                             context.pop(selectedItemYs);

@@ -17,8 +17,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
   EmployeeEntity? radioValue;
   EmployeeEntity? selectedEmployee;
   final FocusNode _employeeInputFocusNode = FocusNode();
-  late final TextEditingController _employeeTextController =
-      TextEditingController();
+  late final TextEditingController _employeeTextController = TextEditingController();
 
   @override
   void dispose() {
@@ -44,8 +43,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
             _employeeTextController.text += event.character!;
             _employeeInputFocusNode.requestFocus();
             return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-              _employeeInputFocusNode.hasPrimaryFocus) {
+          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _employeeInputFocusNode.hasPrimaryFocus) {
             _employeeInputFocusNode.nextFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
@@ -66,8 +64,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -76,8 +73,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
           child: const Text(
             'Select Employee',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -102,9 +98,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
                       onSubmitted: (value) {
-                        context
-                            .read<EmployeesCubit>()
-                            .getEmployees(searchKeyword: value);
+                        context.read<EmployeesCubit>().getEmployees(searchKeyword: value);
                         _employeeInputFocusNode.requestFocus();
                       },
                       autofocus: true,
@@ -132,16 +126,14 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                           return const Expanded(
                               child: EmptyList(
                             imagePath: "assets/images/empty-search.svg",
-                            sentence:
-                                "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                            sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
                           ));
                         }
                         return ListView.builder(
                             padding: const EdgeInsets.all(0),
                             itemCount: state.length,
                             itemBuilder: ((context, index) {
-                              final EmployeeEntity employeeEntity =
-                                  state[index];
+                              final EmployeeEntity employeeEntity = state[index];
 
                               return RadioListTile<EmployeeEntity>(
                                   activeColor: ProjectColors.primary,
@@ -151,8 +143,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 15,
                                   ),
-                                  controlAffinity:
-                                      ListTileControlAffinity.trailing,
+                                  controlAffinity: ListTileControlAffinity.trailing,
                                   value: state[index],
                                   groupValue: radioValue,
                                   title: Text(employeeEntity.empName),
@@ -178,12 +169,9 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                   child: TextButton(
                 style: ButtonStyle(
                     shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.black.withOpacity(.2))),
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () {
                   setState(() {
                     Navigator.of(context).pop();
@@ -215,12 +203,9 @@ class _SelectEmployeeState extends State<SelectEmployee> {
               Expanded(
                 child: TextButton(
                     style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => ProjectColors.primary),
-                        overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2))),
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
                       selectedEmployee = radioValue;
                       Navigator.of(context).pop(selectedEmployee);

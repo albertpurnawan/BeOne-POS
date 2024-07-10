@@ -8,16 +8,15 @@ import 'package:pos_fe/features/sales/domain/repository/cash_register_repository
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 
-class PrintOpenShiftUsecase
-    implements UseCase<void, CashierBalanceTransactionEntity?> {
+class PrintOpenShiftUsecase implements UseCase<void, CashierBalanceTransactionEntity?> {
   // POS Parameter
   final ReceiptPrinter _receiptPrinter;
   final CashRegisterRepository _cashRegisterRepository;
   final StoreMasterRepository _storeMasterRepository;
   final UserRepository _userRepository;
 
-  PrintOpenShiftUsecase(this._receiptPrinter, this._cashRegisterRepository,
-      this._storeMasterRepository, this._userRepository);
+  PrintOpenShiftUsecase(
+      this._receiptPrinter, this._cashRegisterRepository, this._storeMasterRepository, this._userRepository);
 
   @override
   Future<void> call({CashierBalanceTransactionEntity? params}) async {
@@ -34,12 +33,10 @@ class PrintOpenShiftUsecase
       }
 
       final StoreMasterEntity? storeMasterEntityRes =
-          await _storeMasterRepository
-              .getStoreMaster(cashRegisterEntityRes.tostrId!);
+          await _storeMasterRepository.getStoreMaster(cashRegisterEntityRes.tostrId!);
       if (storeMasterEntityRes == null) throw "Store Master not found";
 
-      final UserEntity? userEntityRes =
-          await _userRepository.getUser(params.tousrId!);
+      final UserEntity? userEntityRes = await _userRepository.getUser(params.tousrId!);
       if (userEntityRes == null) throw "User not found";
 
       await _receiptPrinter.printOpenShift(PrintOpenShiftDetail(

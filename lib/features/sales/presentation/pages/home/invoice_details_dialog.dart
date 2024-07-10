@@ -43,9 +43,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   }
 
   void getEmployee(String tohemId) async {
-    final result = await GetIt.instance<AppDatabase>()
-        .employeeDao
-        .readByDocId(tohemId, null);
+    final result = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(tohemId, null);
     if (result != null) {
       setState(() {
         salesSelected = result.empName;
@@ -69,19 +67,16 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
         }
 
         if (event.physicalKey == PhysicalKeyboardKey.f12) {
-          context.read<ReceiptCubit>().updateTohemIdRemarksOnReceipt(
-              tohemIdSelected ?? "", _noteController.text);
+          context.read<ReceiptCubit>().updateTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _noteController.text);
           _noteFocusNode.unfocus();
           FocusManager.instance.primaryFocus?.unfocus();
 
           Navigator.of(context).pop();
           return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.escape &&
-            !_noteFocusNode.hasPrimaryFocus) {
+        } else if (event.physicalKey == PhysicalKeyboardKey.escape && !_noteFocusNode.hasPrimaryFocus) {
           Navigator.of(context).pop();
           return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-            !_noteFocusNode.hasPrimaryFocus) {
+        } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && !_noteFocusNode.hasPrimaryFocus) {
           _noteFocusNode.nextFocus();
           return KeyEventResult.handled;
         }
@@ -90,8 +85,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -100,8 +94,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Header Attributes',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -145,8 +138,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.receipt_outlined,
-                                    color: Colors.white),
+                                const Icon(Icons.receipt_outlined, color: Colors.white),
                                 const SizedBox(
                                   width: 10,
                                 ),
@@ -172,8 +164,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                           InkWell(
                             onTap: () => showDialog<EmployeeEntity>(
                               context: context,
-                              builder: (BuildContext context) =>
-                                  const SelectEmployee(),
+                              builder: (BuildContext context) => const SelectEmployee(),
                             ).then((selectedEmployee) {
                               if (selectedEmployee != null) {
                                 setState(() {
@@ -187,16 +178,14 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                               children: [
                                 const SizedBox(height: 10),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Row(
                                       children: [
                                         SizedBox(width: 5),
                                         Icon(
                                           Icons.handshake_outlined,
-                                          color:
-                                              Color.fromARGB(255, 66, 66, 66),
+                                          color: Color.fromARGB(255, 66, 66, 66),
                                         ),
                                         SizedBox(width: 30),
                                         Text(
@@ -212,8 +201,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
-                                            color:
-                                                Color.fromARGB(255, 66, 66, 66),
+                                            color: Color.fromARGB(255, 66, 66, 66),
                                           ),
                                         ),
                                         const SizedBox(
@@ -221,8 +209,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                         ),
                                         const Icon(
                                           Icons.navigate_next,
-                                          color:
-                                              Color.fromARGB(255, 66, 66, 66),
+                                          color: Color.fromARGB(255, 66, 66, 66),
                                         ),
                                         const SizedBox(
                                           width: 5,
@@ -259,8 +246,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                             padding: const EdgeInsets.fromLTRB(54, 10, 5, 10),
                             child: Container(
                               // height: MediaQuery.of(context).size.height * 0.2,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5)),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
                               child: TextField(
                                 maxLines: 3,
                                 maxLength: 300,
@@ -284,19 +270,12 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            side: const BorderSide(
-                                                color: ProjectColors.primary))),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => Colors.white),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary
-                                                .withOpacity(.2))),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: const BorderSide(color: ProjectColors.primary))),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                                    overlayColor: MaterialStateColor.resolveWith(
+                                        (states) => ProjectColors.primary.withOpacity(.2))),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -306,17 +285,14 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                       children: [
                                         TextSpan(
                                           text: "Cancel",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600),
+                                          style: TextStyle(fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (Esc)",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
-                                      style: TextStyle(
-                                          color: ProjectColors.primary),
+                                      style: TextStyle(color: ProjectColors.primary),
                                     ),
                                     overflow: TextOverflow.clip,
                                   ),
@@ -326,25 +302,17 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5),
-                                      side: const BorderSide(
-                                          color: ProjectColors.primary),
+                                      side: const BorderSide(color: ProjectColors.primary),
                                     )),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () {
                                   context
                                       .read<ReceiptCubit>()
-                                      .updateTohemIdRemarksOnReceipt(
-                                          tohemIdSelected ?? "",
-                                          _noteController.text);
+                                      .updateTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _noteController.text);
                                   Navigator.of(context).pop();
                                 },
                                 child: Center(
@@ -353,13 +321,11 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                       children: [
                                         TextSpan(
                                           text: "Save",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600),
+                                          style: TextStyle(fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (F12)",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
                                     ),

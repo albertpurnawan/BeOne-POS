@@ -46,19 +46,17 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
 
   Future<void> populateData() async {
     try {
-      final posParametersRes =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      final posParametersRes = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       if (posParametersRes.isEmpty) throw "POS Parameter not found";
 
-      final cashRegisterRes = await GetIt.instance<GetCashRegisterUseCase>()
-          .call(params: posParametersRes[0].tocsrId ?? "");
+      final cashRegisterRes =
+          await GetIt.instance<GetCashRegisterUseCase>().call(params: posParametersRes[0].tocsrId ?? "");
       if (cashRegisterRes == null) throw "Cash Register not found";
 
       final tousrId = prefs.getString("tousrId");
       if (tousrId == null) throw "User ID not found";
 
-      final userRes =
-          await GetIt.instance<GetUserUseCase>().call(params: tousrId);
+      final userRes = await GetIt.instance<GetUserUseCase>().call(params: tousrId);
       if (userRes == null) throw "User not found";
 
       setState(() {
@@ -126,14 +124,10 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
   ReceiptPrinter? receiptPrinter;
 
   late Timer _timer;
-  ValueNotifier<String> formattedDate =
-      ValueNotifier<String>(Helpers.formatDate(DateTime.now()));
+  ValueNotifier<String> formattedDate = ValueNotifier<String>(Helpers.formatDate(DateTime.now()));
 
-  void _insertCashierBalanceTransaction(
-      CashierBalanceTransactionModel value) async {
-    await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .create(data: value);
+  void _insertCashierBalanceTransaction(CashierBalanceTransactionModel value) async {
+    await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.create(data: value);
   }
 
   @override
@@ -314,8 +308,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                   decoration: const BoxDecoration(
                     color: Color.fromARGB(255, 238, 238, 238),
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    border: Border.fromBorderSide(
-                        BorderSide(color: ProjectColors.primary)),
+                    border: Border.fromBorderSide(BorderSide(color: ProjectColors.primary)),
                   ),
                   child: Column(
                     children: [
@@ -340,34 +333,23 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             final prefs = GetIt.instance<SharedPreferences>();
                             await prefs.setBool('isOpen', true);
 
-                            final inputText =
-                                openValueController.text.replaceAll(',', '');
-                            final double inputValue =
-                                double.tryParse(inputText) ?? 0.0;
+                            final inputText = openValueController.text.replaceAll(',', '');
+                            final double inputValue = double.tryParse(inputText) ?? 0.0;
 
-                            final store = await GetIt.instance<AppDatabase>()
-                                .storeMasterDao
-                                .readAll();
+                            final store = await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
                             final storeCode = store[0].storeCode;
                             final date = DateTime.now();
 
-                            String formattedDate =
-                                DateFormat('yyMMddHHmmss').format(date);
+                            String formattedDate = DateFormat('yyMMddHHmmss').format(date);
                             final countShift =
-                                await GetIt.instance<AppDatabase>()
-                                    .cashierBalanceTransactionDao
-                                    .readByDate(date);
+                                await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
 
-                            final number = ((countShift!.length) + 1)
-                                .toString()
-                                .padLeft(3, '0');
-                            final docnum =
-                                '$storeCode-$formattedDate-$number-S';
+                            final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
+                            final docnum = '$storeCode-$formattedDate-$number-S';
 
                             final shiftId = const Uuid().v4();
 
-                            final CashierBalanceTransactionModel shift =
-                                CashierBalanceTransactionModel(
+                            final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
                               docId: shiftId,
                               createDate: DateTime.now(),
                               updateDate: DateTime.now(),
@@ -395,11 +377,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
 
                             await prefs.setString('tcsr1Id', shift.docId);
 
-                            final printOpenShiftUsecase =
-                                GetIt.instance<PrintOpenShiftUsecase>();
+                            final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
                             await printOpenShiftUsecase.call(params: shift);
-                            await GetIt.instance<OpenCashDrawerUseCase>()
-                                .call();
+                            await GetIt.instance<OpenCashDrawerUseCase>().call();
 
                             context.pop(shift);
                             // if (!context.mounted) return;
@@ -422,8 +402,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                           inputFormatters: [MoneyInputFormatter()],
                           keyboardType: TextInputType.number,
                           hint: "Enter Amount of Opening Balance",
-                          prefixIcon:
-                              const Icon(Icons.monetization_on_outlined),
+                          prefixIcon: const Icon(Icons.monetization_on_outlined),
                         ),
                       ),
                       const SizedBox(height: 30),
@@ -458,26 +437,20 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                           padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
                           child: TextButton(
                             style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                        side: const BorderSide(
-                                            color: ProjectColors.primary))),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                    side: const BorderSide(color: ProjectColors.primary))),
                                 backgroundColor: MaterialStateColor.resolveWith(
-                                  (states) =>
-                                      const Color.fromARGB(255, 234, 234, 234),
+                                  (states) => const Color.fromARGB(255, 234, 234, 234),
                                 ),
-                                overlayColor: MaterialStateColor.resolveWith(
-                                    (states) => Colors.black.withOpacity(.2))),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                             onPressed: () {
                               context.pop(null);
                             },
                             child: const Center(
                                 child: Text(
                               "Cancel",
-                              style: TextStyle(
-                                  color: ProjectColors.primary,
-                                  fontWeight: FontWeight.w700),
+                              style: TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700),
                             )),
                           )),
                     ),
@@ -498,34 +471,23 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             final prefs = GetIt.instance<SharedPreferences>();
                             await prefs.setBool('isOpen', true);
 
-                            final inputText =
-                                openValueController.text.replaceAll(',', '');
-                            final double inputValue =
-                                double.tryParse(inputText) ?? 0.0;
+                            final inputText = openValueController.text.replaceAll(',', '');
+                            final double inputValue = double.tryParse(inputText) ?? 0.0;
 
-                            final store = await GetIt.instance<AppDatabase>()
-                                .storeMasterDao
-                                .readAll();
+                            final store = await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
                             final storeCode = store[0].storeCode;
                             final date = DateTime.now();
 
-                            String formattedDate =
-                                DateFormat('yyMMddHHmmss').format(date);
+                            String formattedDate = DateFormat('yyMMddHHmmss').format(date);
                             final countShift =
-                                await GetIt.instance<AppDatabase>()
-                                    .cashierBalanceTransactionDao
-                                    .readByDate(date);
+                                await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
 
-                            final number = ((countShift!.length) + 1)
-                                .toString()
-                                .padLeft(3, '0');
-                            final docnum =
-                                '$storeCode-$formattedDate-$number-S';
+                            final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
+                            final docnum = '$storeCode-$formattedDate-$number-S';
 
                             final shiftId = const Uuid().v4();
 
-                            final CashierBalanceTransactionModel shift =
-                                CashierBalanceTransactionModel(
+                            final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
                               docId: shiftId,
                               createDate: DateTime.now(),
                               updateDate: DateTime.now(),
@@ -553,11 +515,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
 
                             await prefs.setString('tcsr1Id', shift.docId);
 
-                            final printOpenShiftUsecase =
-                                GetIt.instance<PrintOpenShiftUsecase>();
+                            final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
                             await printOpenShiftUsecase.call(params: shift);
-                            await GetIt.instance<OpenCashDrawerUseCase>()
-                                .call();
+                            await GetIt.instance<OpenCashDrawerUseCase>().call();
 
                             context.pop(shift);
                             // if (!context.mounted) return;

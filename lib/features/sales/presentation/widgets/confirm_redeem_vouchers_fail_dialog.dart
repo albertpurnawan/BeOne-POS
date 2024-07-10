@@ -8,12 +8,10 @@ class ConfirmRedeemVouchersFailDialog extends StatefulWidget {
   const ConfirmRedeemVouchersFailDialog({super.key, this.message});
 
   @override
-  State<ConfirmRedeemVouchersFailDialog> createState() =>
-      _ConfirmRedeemVouchersFailDialogState();
+  State<ConfirmRedeemVouchersFailDialog> createState() => _ConfirmRedeemVouchersFailDialogState();
 }
 
-class _ConfirmRedeemVouchersFailDialogState
-    extends State<ConfirmRedeemVouchersFailDialog> {
+class _ConfirmRedeemVouchersFailDialogState extends State<ConfirmRedeemVouchersFailDialog> {
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   @override
@@ -47,8 +45,7 @@ class _ConfirmRedeemVouchersFailDialogState
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -57,8 +54,7 @@ class _ConfirmRedeemVouchersFailDialogState
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Notification',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -84,8 +80,7 @@ class _ConfirmRedeemVouchersFailDialogState
                             style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                           const TextSpan(
-                            text:
-                                "\n\nPlease reinput the vouchers and try again",
+                            text: "\n\nPlease reinput the vouchers and try again",
                           )
                         ],
                         style: const TextStyle(
@@ -100,8 +95,7 @@ class _ConfirmRedeemVouchersFailDialogState
                             style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                           TextSpan(
-                            text:
-                                "\n\nPlease reinput the vouchers and try again",
+                            text: "\n\nPlease reinput the vouchers and try again",
                           )
                         ],
                         style: TextStyle(
@@ -123,12 +117,9 @@ class _ConfirmRedeemVouchersFailDialogState
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5))),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white.withOpacity(.2))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
                   context.pop(true);
                 },

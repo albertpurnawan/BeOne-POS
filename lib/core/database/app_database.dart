@@ -4,29 +4,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
-// import 'package:pos_fe/core/database/seeders_data/phir1.dart';
-// import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
-// import 'package:pos_fe/core/database/seeders_data/tbitm.dart';
-// import 'package:pos_fe/core/database/seeders_data/tcurr.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocat.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocrg.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocsr.dart';
-// import 'package:pos_fe/core/database/seeders_data/tocus.dart';
-// import 'package:pos_fe/core/database/seeders_data/toitm.dart';
-// import 'package:pos_fe/core/database/seeders_data/topln.dart';
-// import 'package:pos_fe/core/database/seeders_data/topmt.dart';
-// import 'package:pos_fe/core/database/seeders_data/topos.dart';
-// import 'package:pos_fe/core/database/seeders_data/tostr.dart';
-// import 'package:pos_fe/core/database/seeders_data/touom.dart';
-// import 'package:pos_fe/core/database/seeders_data/tousr.dart';
-// import 'package:pos_fe/core/database/seeders_data/tovat.dart';
-// import 'package:pos_fe/core/database/seeders_data/tphir.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpln1.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpln2.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpln4.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpmt1.dart';
-// import 'package:pos_fe/core/database/seeders_data/tpmt3.dart';
-// import 'package:pos_fe/core/database/seeders_data/tsitm.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/auth_store_dao.dart';
@@ -60,7 +37,6 @@ import 'package:pos_fe/features/sales/data/data_sources/local/money_denomination
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_adjustment_detail_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_adjustment_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/mop_by_store_dao.dart';
-import 'package:pos_fe/features/sales/data/data_sources/local/netzme_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pay_means_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/payment_type_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/pos_parameter_dao.dart';
@@ -154,7 +130,6 @@ import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_detail.dart';
 import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/mop_by_store.dart';
-import 'package:pos_fe/features/sales/data/models/netzme_data.dart';
 import 'package:pos_fe/features/sales/data/models/pay_means.dart';
 import 'package:pos_fe/features/sales/data/models/payment_term.dart';
 import 'package:pos_fe/features/sales/data/models/payment_type.dart';
@@ -318,8 +293,7 @@ class AppDatabase {
   late PromoDiskonGroupItemBuyConditionDao promoDiskonGroupItemBuyConditionDao;
   late PromoDiskonGroupItemAssignStoreDao promoDiskonGroupItemAssignStoreDao;
   late PromoDiskonGroupItemGetConditionDao promoDiskonGroupItemGetConditionDao;
-  late PromoDiskonGroupItemCustomerGroupDao
-      promoDiskonGroupItemCustomerGroupDao;
+  late PromoDiskonGroupItemCustomerGroupDao promoDiskonGroupItemCustomerGroupDao;
   late PromoBuyXGetYHeaderDao promoBuyXGetYHeaderDao;
   late PromoBuyXGetYBuyConditionDao promoBuyXGetYBuyConditionDao;
   late PromoBuyXGetYAssignStoreDao promoBuyXGetYAssignStoreDao;
@@ -327,7 +301,6 @@ class AppDatabase {
   late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
   late PromosDao promosDao;
   late AuthStoreDao authStoreDao;
-  late NetzmeDao netzmeDao;
   late BillOfMaterialDao billOfMaterialDao;
   late BillOfMaterialLineItemDao billOfMaterialLineItemDao;
   late LogErrorDao logErrorDao;
@@ -349,8 +322,7 @@ class AppDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path,
-        version: 1, onCreate: _createDB, onConfigure: _onConfigure);
+    return await openDatabase(path, version: 1, onCreate: _createDB, onConfigure: _onConfigure);
   }
 
   Future<void> emptyDb() async {
@@ -423,10 +395,8 @@ PRAGMA foreign_keys = ON;
     vouchersSelectionDao = VouchersSelectionDao(_database!);
     promoHargaSpesialHeaderDao = PromoHargaSpesialHeaderDao(_database!);
     promoHargaSpesialBuyDao = PromoHargaSpesialBuyDao(_database!);
-    promoHargaSpesialAssignStoreDao =
-        PromoHargaSpesialAssignStoreDao(_database!);
-    promoHargaSpesialCustomerGroupDao =
-        PromoHargaSpesialCustomerGroupDao(_database!);
+    promoHargaSpesialAssignStoreDao = PromoHargaSpesialAssignStoreDao(_database!);
+    promoHargaSpesialCustomerGroupDao = PromoHargaSpesialCustomerGroupDao(_database!);
     promoMultiItemHeaderDao = PromoMultiItemHeaderDao(_database!);
     promoMultiItemBuyConditionDao = PromoMultiItemBuyConditionDao(_database!);
     promoMultiItemAssignStoreDao = PromoMultiItemAssignStoreDao(_database!);
@@ -436,17 +406,12 @@ PRAGMA foreign_keys = ON;
     promoDiskonItemBuyConditionDao = PromoDiskonItemBuyConditionDao(_database!);
     promoDiskonItemAssignStoreDao = PromoDiskonItemAssignStoreDao(_database!);
     promoDiskonItemGetConditionDao = PromoDiskonItemGetConditionDao(_database!);
-    promoDiskonItemCustomerGroupDao =
-        PromoDiskonItemCustomerGroupDao(_database!);
+    promoDiskonItemCustomerGroupDao = PromoDiskonItemCustomerGroupDao(_database!);
     promoDiskonGroupItemHeaderDao = PromoDiskonGroupItemHeaderDao(_database!);
-    promoDiskonGroupItemBuyConditionDao =
-        PromoDiskonGroupItemBuyConditionDao(_database!);
-    promoDiskonGroupItemAssignStoreDao =
-        PromoDiskonGroupItemAssignStoreDao(_database!);
-    promoDiskonGroupItemGetConditionDao =
-        PromoDiskonGroupItemGetConditionDao(_database!);
-    promoDiskonGroupItemCustomerGroupDao =
-        PromoDiskonGroupItemCustomerGroupDao(_database!);
+    promoDiskonGroupItemBuyConditionDao = PromoDiskonGroupItemBuyConditionDao(_database!);
+    promoDiskonGroupItemAssignStoreDao = PromoDiskonGroupItemAssignStoreDao(_database!);
+    promoDiskonGroupItemGetConditionDao = PromoDiskonGroupItemGetConditionDao(_database!);
+    promoDiskonGroupItemCustomerGroupDao = PromoDiskonGroupItemCustomerGroupDao(_database!);
     promoBuyXGetYHeaderDao = PromoBuyXGetYHeaderDao(_database!);
     promoBuyXGetYBuyConditionDao = PromoBuyXGetYBuyConditionDao(_database!);
     promoBuyXGetYAssignStoreDao = PromoBuyXGetYAssignStoreDao(_database!);
@@ -454,7 +419,6 @@ PRAGMA foreign_keys = ON;
     promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
     authStoreDao = AuthStoreDao(_database!);
-    netzmeDao = NetzmeDao(_database!);
     billOfMaterialDao = BillOfMaterialDao(_database!);
     billOfMaterialLineItemDao = BillOfMaterialLineItemDao(_database!);
     logErrorDao = LogErrorDao(_database!);
@@ -515,13 +479,11 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> refreshItemsTable() async {
-    final List<POSParameterModel> posParameter =
-        await posParameterDao.readAll();
+    final List<POSParameterModel> posParameter = await posParameterDao.readAll();
     if (posParameter.isEmpty) return;
     if (posParameter[0].tostrId == null) return;
 
-    final StoreMasterModel? storeMaster =
-        await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
+    final StoreMasterModel? storeMaster = await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
     if (storeMaster == null) return;
     if (storeMaster.tcurrId == null) return;
 
@@ -544,8 +506,7 @@ INNER JOIN (
   ) as t ON t.tovatId = s.tovatId
 """;
     } else {
-      final TaxMasterModel? taxMaster =
-          await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
+      final TaxMasterModel? taxMaster = await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
       storeTovatId = taxMaster!.docId;
       storeTaxRate = taxMaster.rate;
     }
@@ -1364,6 +1325,7 @@ CREATE TABLE $tableMOP (
   ${MeansOfPaymentFields.credit} int NOT NULL,
   ${MeansOfPaymentFields.subType} int NOT NULL DEFAULT '0',
   ${MeansOfPaymentFields.validForEmp} int NOT NULL DEFAULT '0',
+  ${MeansOfPaymentFields.tpmt4Id} text DEFAULT NULL,
   ${MeansOfPaymentFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tpmt1_topmtId_fkey` FOREIGN KEY (`topmtId`) REFERENCES `topmt` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -1380,6 +1342,7 @@ CREATE TABLE $tableCC (
   ${CreditCardFields.cardType} int NOT NULL DEFAULT '0',
   ${CreditCardFields.statusActive} int NOT NULL DEFAULT '0',
   ${CreditCardFields.activated} int NOT NULL DEFAULT '0',
+  ${CreditCardFields.tpmt5Id} text DEFAULT NULL,
   ${CreditCardFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
@@ -1454,8 +1417,9 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.netzmeUrl} text DEFAULT NULL,
   ${StoreMasterFields.netzmeClientKey} text DEFAULT NULL,
   ${StoreMasterFields.netzmeClientSecret} text DEFAULT NULL,
-  ${StoreMasterFields.netzmePrivateKey} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeClientPrivateKey} text DEFAULT NULL,
   ${StoreMasterFields.netzmeCustidMerchant} text DEFAULT NULL,
+  ${StoreMasterFields.netzmeChannelId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -1891,6 +1855,7 @@ CREATE TABLE $tablePayMeans (
   ${PayMeansFields.cardNo} varchar(20) DEFAULT NULL,
   ${PayMeansFields.cardHolder} varchar(20) DEFAULT NULL,
   ${PayMeansFields.sisaVoucher} double DEFAULT NULL,
+  ${PayMeansFields.rrn} varchar(250) DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv2_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `tinv2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -3344,19 +3309,8 @@ CREATE TABLE $tableAuthStore (
   ${AuthStoreFields.tostrdocid} text NOT NULL,
   ${AuthStoreFields.tousrdocid} text NOT NULL,
   ${AuthStoreFields.statusActive} int NOT NULL,
+  ${AuthStoreFields.dflt} int DEFAULT NULL,
   ${AuthStoreFields.form} varchar(1) NOT NULL,
-  $createdAtDefinition
-)
-""");
-
-        await txn.execute("""
-CREATE TABLE $tableNetzme (
-  $uuidDefinition,
-  ${NetzmeFields.url} text NOT NULL,
-  ${NetzmeFields.clientKey} text NOT NULL,
-  ${NetzmeFields.clientSecret} text NOT NULL,
-  ${NetzmeFields.privateKey} text NOT NULL,
-  ${NetzmeFields.custIdMerchant} text NOT NULL,
   $createdAtDefinition
 )
 """);
