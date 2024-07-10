@@ -33,7 +33,8 @@ class MopSelectionModel extends MopSelectionEntity {
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
       tpmt4Id: map['tpmt4Id'] != null ? map['tpmt4Id'] as String : null,
       edcDesc: map['edcdesc'] != null ? map['edcdesc'] as String : null,
-      creditCard: map['creditcard'] != null ? CreditCardEntity.fromMap(map['creditcard'] as Map<String, dynamic>) : null,
+      creditCard:
+          map['creditcard'] != null ? CreditCardEntity.fromMap(map['creditcard'] as Map<String, dynamic>) : null,
       cardNo: map['cardno'] != null ? map['cardno'] as String : null,
       cardHolder: map['cardholder'] != null ? map['cardholder'] as String : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,
