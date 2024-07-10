@@ -309,6 +309,26 @@ abstract class Helpers {
       return "${string.substring(0, n)}...";
     }
   }
+
+  static alignLeftByAddingSpace(String string, int n) {
+    if (string.length > n) {
+      final int numOflines = (string.length / n).floor() + 1;
+      final List<String> stringByLines = [];
+
+      for (int i = 0; i < numOflines; i++) {
+        final String currentString = string.substring(
+            (i * n), i + 1 == numOflines ? null : ((i + 1) * n));
+        stringByLines.add(
+            "$currentString${List.generate(n - currentString.length, (index) => " ").join("")}");
+      }
+      print(stringByLines.join("") + "END");
+      return stringByLines.join("");
+    } else {
+      final String spaces =
+          List.generate(n - string.length, (index) => " ").join("");
+      return string + spaces;
+    }
+  }
 }
 
 class SplitListResult<T> {

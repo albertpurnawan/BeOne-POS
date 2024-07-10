@@ -86,9 +86,7 @@ class MyApp extends StatelessWidget {
     //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
 
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: Color.fromARGB(255, 169, 0, 0),
-        statusBarBrightness: Brightness.light,
-        statusBarIconBrightness: Brightness.light));
+        statusBarColor: Color.fromARGB(255, 169, 0, 0), statusBarBrightness: Brightness.light, statusBarIconBrightness: Brightness.light));
 
     return GestureDetector(
         onTap: () {
@@ -125,24 +123,12 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<GetCashRegisterUseCase>(),
                       GetIt.instance<ApplyRoundingUseCase>(),
                     )),
-            BlocProvider<CustomersCubit>(
-                create: (context) =>
-                    CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
-            BlocProvider<MopSelectionsCubit>(
-                create: (context) => MopSelectionsCubit(
-                    GetIt.instance<GetMopSelectionsUseCase>())),
-            BlocProvider<ItemsCubit>(
-                create: (context) =>
-                    ItemsCubit(GetIt.instance<GetItemsUseCase>())),
-            BlocProvider<EmployeesCubit>(
-                create: (context) =>
-                    EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
-            BlocProvider<CreditCardCubit>(
-                create: (context) =>
-                    CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
-            BlocProvider<CampaignCubit>(
-                create: (context) =>
-                    CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
+            BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
+            BlocProvider<MopSelectionsCubit>(create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
+            BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsUseCase>())),
+            BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
+            BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
+            BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {
@@ -168,8 +154,7 @@ class MyApp extends StatelessWidget {
                   title: 'TestPOS',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
-                    colorScheme:
-                        ColorScheme.fromSeed(seedColor: ProjectColors.primary),
+                    colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
                     fontFamily: 'Roboto',
                     useMaterial3: true,
                   ),
