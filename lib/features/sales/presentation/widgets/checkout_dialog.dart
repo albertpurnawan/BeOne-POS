@@ -1088,7 +1088,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                       width: 7,
                                                     ),
                                                     Text(
-                                                      "Change  $currencyName${Helpers.parseMoney((receipt.totalPayment ?? 0) - receipt.grandTotal)}",
+                                                      "Change  $currencyName${Helpers.parseMoney(voucherIsExceedPurchase ? 0 : (receipt.totalPayment ?? 0) - receipt.grandTotal)}",
                                                       style: const TextStyle(
                                                           // color: Color.fromARGB(255, 253, 185, 148),
                                                           color: ProjectColors.green,
@@ -1314,6 +1314,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         e.amount == cashAmountSuggestions[index])
                                                                     .isNotEmpty,
                                                                 onSelected: (bool selected) {
+                                                                  if (voucherIsExceedPurchase) return;
                                                                   setState(() {
                                                                     if (selected) {
                                                                       _values = widget.isMultiMOPs
@@ -1400,6 +1401,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 selected:
                                                                     _values.map((e) => e.edcDesc).contains(mop.edcDesc),
                                                                 onSelected: (bool selected) async {
+                                                                  if (voucherIsExceedPurchase) return;
+
                                                                   double? mopAmount = 0;
                                                                   if (selected) {
                                                                     if (widget.isMultiMOPs) {
@@ -1606,6 +1609,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                   });
                                                                   return;
                                                                 }
+
+                                                                if (voucherIsExceedPurchase) return;
 
                                                                 if (selected) {
                                                                   double? mopAmount = 0;
