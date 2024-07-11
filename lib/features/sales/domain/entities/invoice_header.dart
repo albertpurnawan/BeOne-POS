@@ -39,6 +39,7 @@ class InvoiceHeaderEntity {
   final double? discHeaderPromo;
   final String? syncToBos;
   final String? paymentSuccess;
+  final String? salesTohemId;
 
   InvoiceHeaderEntity({
     required this.docId,
@@ -77,6 +78,7 @@ class InvoiceHeaderEntity {
     required this.discHeaderPromo,
     required this.syncToBos,
     required this.paymentSuccess,
+    this.salesTohemId,
   });
 
   InvoiceHeaderEntity copyWith({
@@ -116,6 +118,7 @@ class InvoiceHeaderEntity {
     double? discHeaderPromo,
     String? syncToBos,
     String? paymentSuccess,
+    String? salesTohemId,
   }) {
     return InvoiceHeaderEntity(
       docId: docId ?? this.docId,
@@ -154,6 +157,7 @@ class InvoiceHeaderEntity {
       discHeaderPromo: discHeaderPromo ?? this.discHeaderPromo,
       syncToBos: syncToBos ?? this.syncToBos,
       paymentSuccess: paymentSuccess ?? this.paymentSuccess,
+      salesTohemId: salesTohemId ?? this.salesTohemId,
     );
   }
 
@@ -195,26 +199,22 @@ class InvoiceHeaderEntity {
       'discHeaderPromo': discHeaderPromo,
       'syncToBos': syncToBos,
       'paymentSuccess': paymentSuccess,
+      'salesTohemId': salesTohemId,
     };
   }
 
   factory InvoiceHeaderEntity.fromMap(Map<String, dynamic> map) {
     return InvoiceHeaderEntity(
       docId: map['docId'] != null ? map['docId'] as String : null,
-      createDate: map['createDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
-          : null,
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      createDate: map['createDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int) : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       docnum: map['docnum'] as String,
       orderNo: map['orderNo'] as int,
       tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-      transDateTime: map['transDateTime'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int)
-          : null,
+      transDateTime:
+          map['transDateTime'] != null ? DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int) : null,
       timezone: map['timezone'] as String,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       subTotal: map['subTotal'] as double,
@@ -234,21 +234,15 @@ class InvoiceHeaderEntity {
       docStatus: map['docStatus'] as int,
       sync: map['sync'] as int,
       syncCRM: map['syncCRM'] as int,
-      toinvTohemId:
-          map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      toinvTohemId: map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
       refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
-      discHeaderManual: map['discHeaderManual'] != null
-          ? map['discHeaderManual'] as double
-          : null,
-      discHeaderPromo: map['discHeaderPromo'] != null
-          ? map['discHeaderPromo'] as double
-          : null,
+      discHeaderManual: map['discHeaderManual'] != null ? map['discHeaderManual'] as double : null,
+      discHeaderPromo: map['discHeaderPromo'] != null ? map['discHeaderPromo'] as double : null,
       syncToBos: map['syncToBos'] != null ? map['syncToBos'] as String : null,
-      paymentSuccess: map['paymentSuccess'] != null
-          ? map['paymentSuccess'] as String
-          : null,
+      paymentSuccess: map['paymentSuccess'] != null ? map['paymentSuccess'] as String : null,
+      salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
     );
   }
 
@@ -259,7 +253,7 @@ class InvoiceHeaderEntity {
 
   @override
   String toString() {
-    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDateTime: $transDateTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, refpos1: $refpos1, refpos2: $refpos2, tcsr1Id: $tcsr1Id, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, syncToBos: $syncToBos, paymentSuccess: $paymentSuccess)';
+    return 'InvoiceHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docnum: $docnum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDateTime: $transDateTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, toinvTohemId: $toinvTohemId, refpos1: $refpos1, refpos2: $refpos2, tcsr1Id: $tcsr1Id, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, syncToBos: $syncToBos, paymentSuccess: $paymentSuccess, salesTohemId: $salesTohemId)';
   }
 
   @override
@@ -301,7 +295,8 @@ class InvoiceHeaderEntity {
         other.discHeaderManual == discHeaderManual &&
         other.discHeaderPromo == discHeaderPromo &&
         other.syncToBos == syncToBos &&
-        other.paymentSuccess == paymentSuccess;
+        other.paymentSuccess == paymentSuccess &&
+        other.salesTohemId == salesTohemId;
   }
 
   @override
@@ -341,6 +336,7 @@ class InvoiceHeaderEntity {
         discHeaderManual.hashCode ^
         discHeaderPromo.hashCode ^
         syncToBos.hashCode ^
-        paymentSuccess.hashCode;
+        paymentSuccess.hashCode ^
+        salesTohemId.hashCode;
   }
 }

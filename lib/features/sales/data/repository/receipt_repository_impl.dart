@@ -37,10 +37,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   Future<ReceiptModel?> createInvoiceHeaderAndDetail(ReceiptEntity receiptEntity) async {
     final String generatedInvoiceHeaderDocId = _uuid.v4();
     final Database db = await _appDatabase.getDB();
+    ReceiptModel? result;
 
     final prefs = GetIt.instance<SharedPreferences>();
     final tcsr1IdPref = prefs.getString('tcsr1Id');
-    final tohemIdPref = prefs.getString('tohemId');
 
     int countInv;
     final now = DateTime.now();
@@ -54,10 +54,14 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       countInv = 0;
     }
 
+    if (receiptEntity.employeeEntity == null) throw "Cashier information not provided";
+    if (receiptEntity.customerEntity == null) throw "Customer information not provided";
+
     await db.transaction((txn) async {
       final POSParameterModel posParameterModel = (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
-
-      final EmployeeModel employee = (await _appDatabase.employeeDao.readByDocId(tohemIdPref!, txn))!;
+      String? tohemId =
+          receiptEntity.customerEntity?.tohemId ?? (await _appDatabase.employeeDao.readByEmpCode("99", txn))?.docId;
+      if (tohemId == null) throw "Default employee not found";
 
       final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
         docId: generatedInvoiceHeaderDocId, // dao
@@ -67,7 +71,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docnum: receiptEntity.docNum, // generate
         orderNo: countInv + 1, // generate
         tocusId: receiptEntity.customerEntity?.docId,
-        tohemId: employee.docId, // get di sini atau dari awal aja
+        tohemId: tohemId, // get di sini atau dari awal aja
         transDateTime: null, // dao
         timezone: Helpers.getTimezone(DateTime.now()),
         remarks: receiptEntity.remarks,
@@ -88,7 +92,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         docStatus: 0,
         sync: 0,
         syncCRM: 0,
-        toinvTohemId: receiptEntity.toinvTohemId ?? employee.docId, // get di sini
+        toinvTohemId: receiptEntity.employeeEntity!.docId, // get di sini
         refpos1: tcsr1IdPref, // get di sini
         refpos2: '', //
         tcsr1Id: tcsr1IdPref, // get di sini
@@ -96,6 +100,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
         syncToBos: '', // get di sini
         paymentSuccess: '1', // get di sini
+        salesTohemId: receiptEntity.salesTohemId ?? receiptEntity.employeeEntity!.docId,
       );
       log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
@@ -154,7 +159,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           lineNum: 1,
           tpmt3Id: mopSelectionEntity.tpmt3Id,
           amount: mopSelectionEntity.amount ?? 0,
-          tpmt2Id: mopSelectionEntity.creditCard!.docId,
+          tpmt2Id: mopSelectionEntity.creditCard?.docId,
           cardNo: mopSelectionEntity.cardNo,
           cardHolder: mopSelectionEntity.cardHolder,
           sisaVoucher: null,
@@ -219,11 +224,11 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       });
     });
 
-    return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId);
+    return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId, null);
   }
 
   @override
-  Future<ReceiptModel?> getReceiptByInvoiceHeaderDocId(String docId) async {
+  Future<ReceiptModel?> getReceiptByInvoiceHeaderDocId(String docId, Transaction? txn) async {
     /**
      * 1. Ambil invoice header 
      *  - docnum
@@ -254,37 +259,38 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     final Database db = await _appDatabase.getDB();
     ReceiptModel? receiptModel;
 
-    await db.transaction((txn) async {
-      final InvoiceHeaderModel? invoiceHeaderModel = await _appDatabase.invoiceHeaderDao.readByDocId(docId, txn);
+    await db.transaction((finaltxn) async {
+      // final Transaction finaltxn = txn ?? txn1;
+      final InvoiceHeaderModel? invoiceHeaderModel = await _appDatabase.invoiceHeaderDao.readByDocId(docId, finaltxn);
       log("INVOICE HEADER MODEL 2 - $invoiceHeaderModel");
 
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
       }
       final CustomerModel? customerModel = invoiceHeaderModel.tocusId != null
-          ? await _appDatabase.customerDao.readByDocId(invoiceHeaderModel.tocusId!, txn)
+          ? await _appDatabase.customerDao.readByDocId(invoiceHeaderModel.tocusId!, finaltxn)
           : null;
 
       final EmployeeModel? employeeModel = invoiceHeaderModel.tohemId != null
-          ? await _appDatabase.employeeDao.readByDocId(invoiceHeaderModel.tohemId!, txn)
+          ? await _appDatabase.employeeDao.readByDocId(invoiceHeaderModel.toinvTohemId!, finaltxn)
           : null;
 
       final List<MopSelectionModel> mopSelectionModels =
-          await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
+          await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, finaltxn);
       final List<MopSelectionModel> mopSelectionModelsWithoutVoucher =
           mopSelectionModels.where((element) => element.payTypeCode != "6").toList();
 
       final List<InvoiceDetailModel> invoiceDetailModels =
-          await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);
+          await _appDatabase.invoiceDetailDao.readByToinvId(docId, finaltxn);
 
       List<ReceiptItemModel> receiptItemModels = [];
       for (final invoiceDetailModel in invoiceDetailModels) {
         final ItemMasterModel? itemMasterModel =
-            await _appDatabase.itemMasterDao.readByDocId(invoiceDetailModel.toitmId!, txn);
+            await _appDatabase.itemMasterDao.readByDocId(invoiceDetailModel.toitmId!, finaltxn);
         if (itemMasterModel == null) throw "Item not found";
 
         final ItemBarcodeModel? itemBarcodeModel =
-            await _appDatabase.itemBarcodeDao.readByDocId(invoiceDetailModel.tbitmId!, txn);
+            await _appDatabase.itemBarcodeDao.readByDocId(invoiceDetailModel.tbitmId!, finaltxn);
         if (itemBarcodeModel == null) throw "Barcode not found";
 
         receiptItemModels.add(ReceiptItemModel(
@@ -309,6 +315,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             dpp: invoiceDetailModel.sellingPrice * 100 / (100 + invoiceDetailModel.taxPrctg),
             includeTax: itemMasterModel.includeTax,
             tocatId: itemMasterModel.tocatId,
+            shortName: itemMasterModel.shortName,
           ),
           sellingPrice: invoiceDetailModel.sellingPrice,
           totalAmount: invoiceDetailModel.totalAmount,
@@ -343,7 +350,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         if (mopSelectionModel.payTypeCode == "6") {
           List<VouchersSelectionModel> vouchers = await GetIt.instance<AppDatabase>()
               .vouchersSelectionDao
-              .readBytinv2Id(mopSelectionModel.tinv2Id ?? "", txn: txn);
+              .readBytinv2Id(mopSelectionModel.tinv2Id ?? "", txn: finaltxn);
           voucherModels.addAll(vouchers);
         }
       }
@@ -376,6 +383,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         discAmount: invoiceHeaderModel.discAmount,
         rounding: invoiceHeaderModel.rounding,
         toinvTohemId: invoiceHeaderModel.toinvTohemId,
+        salesTohemId: invoiceHeaderModel.salesTohemId,
       );
     });
     log("Receipt 2 - $receiptModel");

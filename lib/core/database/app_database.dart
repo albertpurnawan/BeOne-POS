@@ -512,7 +512,7 @@ INNER JOIN (
     }
 
     final String mainQuery = """
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId)
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname)
 SELECT 
   i.itemname, 
   i.itemcode, 
@@ -527,7 +527,8 @@ SELECT
   ${taxByItem ? "t.tovatId as tovatId" : storeTovatId},
   ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
   ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"},
-  i.tocatId
+  i.tocatId,
+  i.shortname
 FROM 
   (
     SELECT 
@@ -593,7 +594,8 @@ FROM
       touomId, 
       openprice,
       includetax,
-      tocatId
+      tocatId,
+      shortname
     FROM 
       toitm
     WHERE
@@ -1473,6 +1475,7 @@ ${ItemFields.tovatId} STRING NOT NULL,
 ${ItemFields.taxRate} DOUBLE NOT NULL,
 ${ItemFields.dpp} DOUBLE NOT NULL,
 ${ItemFields.tocatId} TEXT,
+${ItemFields.shortName} STRING,
 CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -1789,6 +1792,7 @@ CREATE TABLE $tableInvoiceHeader (
   ${InvoiceHeaderFields.discHeaderPromo} double DEFAULT NULL,
   ${InvoiceHeaderFields.syncToBos} text DEFAULT NULL,
   ${InvoiceHeaderFields.paymentSuccess} text DEFAULT NULL,
+  ${InvoiceHeaderFields.salesTohemId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `toinv_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

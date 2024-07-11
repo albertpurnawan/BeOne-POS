@@ -172,7 +172,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "${queuedReceipt.receiptItems.take(4).map((e) => e.itemEntity.itemName).join("   |   ")}${queuedReceipt.receiptItems.length > 4 ? "    |   ..." : ""}",
+                                                  "${queuedReceipt.receiptItems.take(4).map((e) => e.itemEntity.shortName ?? e.itemEntity.itemName).join("   |   ")}${queuedReceipt.receiptItems.length > 4 ? "    |   ..." : ""}",
                                                   style: const TextStyle(fontSize: 18),
                                                 ),
                                                 const SizedBox(

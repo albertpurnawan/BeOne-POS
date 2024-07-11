@@ -43,6 +43,7 @@ class InvoiceHeaderFields {
     discHeaderPromo,
     syncToBos,
     paymentSuccess,
+    salesTohemId,
   ];
 
   static const String docId = "docid";
@@ -82,6 +83,7 @@ class InvoiceHeaderFields {
   static const String discHeaderPromo = "discheaderpromo";
   static const String syncToBos = "synctobos";
   static const String paymentSuccess = "paymentsuccess";
+  static const String salesTohemId = "salesTohemId";
 }
 
 class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
@@ -122,6 +124,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
     required super.discHeaderPromo,
     required super.syncToBos,
     required super.paymentSuccess,
+    required super.salesTohemId,
   });
 
   @override
@@ -162,6 +165,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       'discheaderpromo': discHeaderPromo,
       'synctobos': syncToBos,
       'paymentsuccess': paymentSuccess,
+      'salesTohemId': salesTohemId,
     };
     if (transDateTime == null) {
       return map;
@@ -177,12 +181,8 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
   factory InvoiceHeaderModel.fromMap(Map<String, dynamic> map) {
     return InvoiceHeaderModel(
       docId: map['docid'] as String,
-      createDate: map['createdate'] != null
-          ? DateTime.parse(map['createdate'] as String).toLocal()
-          : null,
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      createDate: map['createdate'] != null ? DateTime.parse(map['createdate'] as String).toLocal() : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       docnum: map['docnum'] as String,
       orderNo: map['orderno'] as int,
@@ -210,21 +210,15 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       docStatus: map['docstatus'] as int,
       sync: map['sync'] as int,
       syncCRM: map['synccrm'] as int,
-      toinvTohemId:
-          map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      toinvTohemId: map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
       refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
-      discHeaderManual: map['discheadermanual'] != null
-          ? map['discheadermanual'] as double
-          : null,
-      discHeaderPromo: map['discheaderpromo'] != null
-          ? map['discheaderpromo'] as double
-          : null,
+      discHeaderManual: map['discheadermanual'] != null ? map['discheadermanual'] as double : null,
+      discHeaderPromo: map['discheaderpromo'] != null ? map['discheaderpromo'] as double : null,
       syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
-      paymentSuccess: map['paymentsuccess'] != null
-          ? map['paymentsuccess'] as String
-          : null,
+      paymentSuccess: map['paymentsuccess'] != null ? map['paymentsuccess'] as String : null,
+      salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
     );
   }
 
@@ -299,6 +293,7 @@ class InvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
       discHeaderPromo: entity.discHeaderPromo,
       syncToBos: entity.syncToBos,
       paymentSuccess: entity.paymentSuccess,
+      salesTohemId: entity.salesTohemId,
     );
   }
 }

@@ -11,8 +11,7 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
         );
 
   @override
-  Future<InvoiceDetailModel?> readByDocId(
-      String docId, Transaction? txn) async {
+  Future<InvoiceDetailModel?> readByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -29,13 +28,10 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => InvoiceDetailModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => InvoiceDetailModel.fromMap(itemData)).toList();
   }
 
-  Future<List<InvoiceDetailModel>> readByToinvId(
-      String toinvId, Transaction? txn) async {
+  Future<List<InvoiceDetailModel>> readByToinvId(String toinvId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(
       tableName,
@@ -43,18 +39,15 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
       whereArgs: [toinvId],
     );
 
-    return result
-        .map((itemData) => InvoiceDetailModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => InvoiceDetailModel.fromMap(itemData)).toList();
   }
 
-  Future<List<dynamic>?> readByItemBetweenDate(
-      DateTime start, DateTime end) async {
+  Future<List<dynamic>?> readByItemBetweenDate(DateTime start, DateTime end) async {
     final startDate = start.toUtc().toIso8601String();
     final endDate = end.toUtc().toIso8601String();
 
     final result = await db.rawQuery('''
-    SELECT x0.toitmId, x1.itemname, x1.itemcode, x0.taxprctg, x0.discamount,
+    SELECT x0.toitmId, x1.itemname, x1.itemcode, x0.taxprctg, x0.discamount, x1.shortname,
       SUM(x0.quantity) AS totalquantity, SUM(x0.totalamount) AS totalamount, (SUM(x0.totalamount) * x0.taxprctg / 100) AS taxamount
       FROM tinv1 AS x0
       INNER JOIN toitm AS x1 ON x0.toitmId = x1.docid

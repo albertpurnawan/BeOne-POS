@@ -304,7 +304,8 @@ class ReceiptPrinter {
                     bold: true,
                   )),
             ]);
-            bytes += generator.text(Helpers.alignLeftByAddingSpace(item.itemEntity.itemName, 48),
+            bytes += generator.text(
+                Helpers.alignLeftByAddingSpace(item.itemEntity.shortName ?? item.itemEntity.itemName, 48),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,

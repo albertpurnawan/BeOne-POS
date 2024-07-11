@@ -156,6 +156,7 @@ class InvoiceApi {
         "totalpayment": invHead[0].totalPayment.round(),
         "tocsr_id": invHead[0].tocsrId,
         "toinv_tohem_id": invHead[0].toinvTohemId,
+        "sales_tohem_id": invHead[0].salesTohemId,
         "refpos1": invHead[0].refpos1,
         "invoice_item": invDet.map((item) {
           return {
@@ -259,6 +260,7 @@ class InvoiceApi {
           discHeaderPromo: invHead[0].discHeaderPromo,
           syncToBos: response.data['docid'],
           paymentSuccess: invHead[0].paymentSuccess,
+          salesTohemId: invHead[0].salesTohemId,
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
@@ -380,6 +382,7 @@ class InvoiceApi {
         "totalpayment": invHead.totalPayment.round(),
         "tocsr_id": invHead.tocsrId,
         "toinv_tohem_id": invHead.toinvTohemId,
+        "sales_tohem_id": invHead.salesTohemId,
         "refpos1": invHead.refpos1,
         "invoice_item": invDet.map((item) {
           return {
@@ -480,6 +483,7 @@ class InvoiceApi {
           discHeaderPromo: invHead.discHeaderPromo,
           syncToBos: response.data['docid'],
           paymentSuccess: invHead.paymentSuccess,
+          salesTohemId: invHead.salesTohemId,
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
