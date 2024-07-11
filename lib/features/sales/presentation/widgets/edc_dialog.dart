@@ -822,7 +822,7 @@ class _EDCDialogState extends State<EDCDialog> {
                         mopsSelected.add(mopEDC);
 
                         setState(() {
-                          currentAmount = currentAmount! - edcAmount!;
+                          currentAmount = currentAmount! - edcAmount;
                           mopSelected = null;
                           cardSelected = null;
                           cardName = "Select Card Here...";
