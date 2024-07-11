@@ -1,8 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
-
 class MopSelectionEntity {
   final String tpmt3Id;
   final String tpmt1Id;
@@ -15,7 +13,8 @@ class MopSelectionEntity {
   final String? tinv2Id;
   final String? tpmt4Id;
   final String? edcDesc;
-  final CreditCardEntity? creditCard;
+  final String? tpmt2Id;
+  final String? cardName;
   final String? cardNo;
   final String? cardHolder;
   final String? rrn;
@@ -32,7 +31,8 @@ class MopSelectionEntity {
     this.tinv2Id,
     this.tpmt4Id,
     this.edcDesc,
-    this.creditCard,
+    this.tpmt2Id,
+    this.cardName,
     this.cardNo,
     this.cardHolder,
     this.rrn,
@@ -50,7 +50,8 @@ class MopSelectionEntity {
     String? tinv2Id,
     String? tpmt4Id,
     String? edcDesc,
-    CreditCardEntity? creditCard,
+    String? tpmt2Id,
+    String? cardName,
     String? cardNo,
     String? cardHolder,
     String? rrn,
@@ -67,7 +68,8 @@ class MopSelectionEntity {
       tinv2Id: tinv2Id ?? this.tinv2Id,
       tpmt4Id: tpmt4Id ?? this.tpmt4Id,
       edcDesc: edcDesc ?? this.edcDesc,
-      creditCard: creditCard ?? this.creditCard,
+      tpmt2Id: tpmt2Id ?? this.tpmt2Id,
+      cardName: cardName ?? this.cardName,
       cardNo: cardNo ?? this.cardNo,
       cardHolder: cardHolder ?? this.cardHolder,
       rrn: rrn ?? this.rrn,
@@ -87,7 +89,8 @@ class MopSelectionEntity {
       'tinv2Id': tinv2Id,
       'tpmt4Id': tpmt4Id,
       'edcDesc': edcDesc,
-      'creditCard': creditCard?.toMap(),
+      'tpmt2Id': tpmt2Id,
+      'cardName': cardName,
       'cardNo': cardNo,
       'cardHolder': cardHolder,
       'rrn': rrn,
@@ -107,7 +110,8 @@ class MopSelectionEntity {
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
       tpmt4Id: map['tpmt4Id'] != null ? map['tpmt4Id'] as String : null,
       edcDesc: map['edcDesc'] != null ? map['edcDesc'] as String : null,
-      creditCard: map['creditCard'] != null ? CreditCardEntity.fromMap(map['creditCard'] as Map<String, dynamic>) : null,
+      tpmt2Id: map['tpmt2Id'] != null ? map['tpmt2Id'] as String : null,
+      cardName: map['cardName'] != null ? map['cardName'] as String : null,
       cardNo: map['cardNo'] != null ? map['cardNo'] as String : null,
       cardHolder: map['cardHolder'] != null ? map['cardHolder'] as String : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,
@@ -116,11 +120,12 @@ class MopSelectionEntity {
 
   String toJson() => json.encode(toMap());
 
-  factory MopSelectionEntity.fromJson(String source) => MopSelectionEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory MopSelectionEntity.fromJson(String source) =>
+      MopSelectionEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType, tinv2Id: $tinv2Id, tpmt4Id: $tpmt4Id, edcDesc: $edcDesc, creditCard: $creditCard, cardNo: $cardNo, cardHolder: $cardHolder, rrn: $rrn)';
+    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType, tinv2Id: $tinv2Id, tpmt4Id: $tpmt4Id, edcDesc: $edcDesc, tpmt2Id: $tpmt2Id, cardName: $cardName, cardNo: $cardNo, cardHolder: $cardHolder, rrn: $rrn)';
   }
 
   @override
@@ -138,7 +143,8 @@ class MopSelectionEntity {
         other.tinv2Id == tinv2Id &&
         other.tpmt4Id == tpmt4Id &&
         other.edcDesc == edcDesc &&
-        other.creditCard == creditCard &&
+        other.tpmt2Id == tpmt2Id &&
+        other.cardName == cardName &&
         other.cardNo == cardNo &&
         other.cardHolder == cardHolder &&
         other.rrn == rrn;
@@ -157,7 +163,8 @@ class MopSelectionEntity {
         tinv2Id.hashCode ^
         tpmt4Id.hashCode ^
         edcDesc.hashCode ^
-        creditCard.hashCode ^
+        tpmt2Id.hashCode ^
+        cardName.hashCode ^
         cardNo.hashCode ^
         cardHolder.hashCode ^
         rrn.hashCode;

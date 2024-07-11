@@ -146,6 +146,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
       final List<PayMeansModel> payMeansModels = [];
       for (final MopSelectionEntity mopSelectionEntity in receiptEntity.mopSelections) {
+        log("mopSelectionEntityIMPL - $mopSelectionEntity");
         payMeansModels.add(PayMeansModel(
           docId: _uuid.v4(),
           createDate: null,
@@ -154,7 +155,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           lineNum: 1,
           tpmt3Id: mopSelectionEntity.tpmt3Id,
           amount: mopSelectionEntity.amount ?? 0,
-          tpmt2Id: mopSelectionEntity.creditCard!.docId,
+          tpmt2Id: mopSelectionEntity.tpmt2Id,
           cardNo: mopSelectionEntity.cardNo,
           cardHolder: mopSelectionEntity.cardHolder,
           sisaVoucher: null,
@@ -163,6 +164,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       }
 
       await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
+      log("payMeansModels - $payMeansModels");
 
       List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
       log("vouchers - $vouchers");
@@ -271,8 +273,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
       final List<MopSelectionModel> mopSelectionModels =
           await _appDatabase.payMeansDao.readMopSelectionsByToinvId(docId, txn);
+      log("mopSelectionModels - $mopSelectionModels");
       final List<MopSelectionModel> mopSelectionModelsWithoutVoucher =
           mopSelectionModels.where((element) => element.payTypeCode != "6").toList();
+      log("mopSelectionModelsWithoutVoucher - $mopSelectionModelsWithoutVoucher");
 
       final List<InvoiceDetailModel> invoiceDetailModels =
           await _appDatabase.invoiceDetailDao.readByToinvId(docId, txn);

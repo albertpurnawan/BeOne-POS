@@ -142,7 +142,7 @@ class _EDCDialogState extends State<EDCDialog> {
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: const Text(
                   'Select MOP',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -166,7 +166,7 @@ class _EDCDialogState extends State<EDCDialog> {
                               child: Text(
                                 "Card Processed",
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -240,7 +240,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                     flex: 1,
                                     child: Text(
                                       index.toString(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 16,
                                       ),
                                       textAlign: TextAlign.center,
@@ -250,7 +250,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                     flex: 3,
                                     child: Text(
                                       mop.mopAlias,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 16,
                                       ),
                                       textAlign: TextAlign.center,
@@ -259,8 +259,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                   Expanded(
                                     flex: 5,
                                     child: Text(
-                                      mop.creditCard!.description,
-                                      style: TextStyle(
+                                      mop.cardName!,
+                                      style: const TextStyle(
                                         fontSize: 16,
                                       ),
                                       textAlign: TextAlign.center,
@@ -270,7 +270,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                     flex: 3,
                                     child: Text(
                                       mop.amount.toString(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 16,
                                       ),
                                       textAlign: TextAlign.center,
@@ -296,7 +296,7 @@ class _EDCDialogState extends State<EDCDialog> {
                             const Text(
                               "Means Of Payment",
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -348,7 +348,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           Text(
                                             "Card Type",
                                             style: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -424,7 +424,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           Text(
                                             "Card Number",
                                             style: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -444,7 +444,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                               style: const TextStyle(fontSize: 18),
                                               keyboardType: TextInputType.number,
                                               decoration: const InputDecoration(
-                                                contentPadding: EdgeInsets.all(10),
+                                                contentPadding: EdgeInsets.all(8),
                                                 hintText: "____",
                                                 hintStyle: TextStyle(
                                                   fontStyle: FontStyle.italic,
@@ -478,7 +478,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                               style: const TextStyle(fontSize: 18),
                                               keyboardType: TextInputType.number,
                                               decoration: const InputDecoration(
-                                                contentPadding: EdgeInsets.all(10),
+                                                contentPadding: EdgeInsets.all(8),
                                                 hintText: "____",
                                                 hintStyle: TextStyle(
                                                   fontStyle: FontStyle.italic,
@@ -518,7 +518,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           Text(
                                             "Card Holder",
                                             style: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -533,7 +533,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                         controller: _cardHolderController,
                                         style: const TextStyle(fontSize: 18),
                                         decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.all(10),
+                                          contentPadding: EdgeInsets.all(8),
                                           hintText: "Card Holder",
                                           hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
                                           border: OutlineInputBorder(),
@@ -563,7 +563,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           Text(
                                             "Campaign",
                                             style: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -634,7 +634,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           Text(
                                             "Reference Number",
                                             style: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -649,7 +649,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                         controller: _refNumberController,
                                         style: const TextStyle(fontSize: 18),
                                         decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.all(10),
+                                          contentPadding: EdgeInsets.all(8),
                                           hintText: "Reference Number",
                                           hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
                                           border: OutlineInputBorder(),
@@ -679,7 +679,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           Text(
                                             "Amount",
                                             style: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -705,7 +705,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                               ? Text(
                                                   errMsg,
                                                   style: const TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 18,
                                                       fontStyle: FontStyle.normal,
                                                       fontWeight: FontWeight.w700,
                                                       color: ProjectColors.swatch),
@@ -803,9 +803,16 @@ class _EDCDialogState extends State<EDCDialog> {
                                 ? currentAmount
                                 : Helpers.revertMoneyToDecimalFormatDouble(_amountController.text)
                             : currentAmount;
+
+                        if (edcAmount! > currentAmount! || edcAmount == 0) {
+                          SnackBarHelper.presentFailSnackBar(
+                              childContext, "Please Input Correct Amount (Max Amount: ${currentAmount!.toInt()})");
+                          return;
+                        }
                         final mopEDC = mopSelected!.copyWith(
                           amount: edcAmount,
-                          creditCard: cardSelected,
+                          tpmt2Id: cardSelected!.docId,
+                          cardName: cardSelected!.description,
                           cardNo: (_cardNumber1Controller.text.isEmpty || _cardNumber2Controller.text.isEmpty)
                               ? ""
                               : "${_cardNumber1Controller.text}-xxxx-xxxx-${_cardNumber2Controller.text}",

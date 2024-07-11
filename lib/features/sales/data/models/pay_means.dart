@@ -70,22 +70,16 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
   factory PayMeansModel.fromMap(Map<String, dynamic> map) {
     return PayMeansModel(
       docId: map['docid'] as String,
-      createDate: map['updatedate'] != null
-          ? DateTime.parse(map['createdate'] as String).toLocal()
-          : null,
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      createDate: map['updatedate'] != null ? DateTime.parse(map['createdate'] as String).toLocal() : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
       lineNum: map['linenum'] as int,
       tpmt3Id: map['tpmt3Id'] != null ? map['tpmt3Id'] as String : null,
       amount: map['amount'] as double,
       tpmt2Id: map['tpmt2Id'] != null ? map['tpmt2Id'] as String : null,
       cardNo: map['cardno'] != null ? map['cardno'] as String : null,
-      cardHolder:
-          map['cardholder'] != null ? map['cardholder'] as String : null,
-      sisaVoucher:
-          map['sisavoucher'] != null ? map['sisavoucher'] as double : null,
+      cardHolder: map['cardholder'] != null ? map['cardholder'] as String : null,
+      sisaVoucher: map['sisavoucher'] != null ? map['sisavoucher'] as double : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,
     );
   }
@@ -93,19 +87,11 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
   factory PayMeansModel.fromMapRemote(Map<String, dynamic> map) {
     return PayMeansModel.fromMap({
       ...map,
-      "toinvId": map['toinv_id']?['docid'] != null
-          ? map['toinv_id']['docid'] as String
-          : null,
-      "tpmt3Id": map['tpmt3_id']?['docid'] != null
-          ? map['tpmt3_id']['docid'] as String
-          : null,
-      "tpmt2Id": map['tpmt2_id']?['docid'] != null
-          ? map['tpmt2_id']['docid'] as String
-          : null,
+      "toinvId": map['toinv_id']?['docid'] != null ? map['toinv_id']['docid'] as String : null,
+      "tpmt3Id": map['tpmt3_id']?['docid'] != null ? map['tpmt3_id']['docid'] as String : null,
+      "tpmt2Id": map['tpmt2_id']?['docid'] != null ? map['tpmt2_id']['docid'] as String : null,
       "amount": map['amount'].toDouble() as double,
-      "sisavoucher": map['sisavoucher'] != null
-          ? map['sisavoucher'].toDouble() as double
-          : null,
+      "sisavoucher": map['sisavoucher'] != null ? map['sisavoucher'].toDouble() as double : null,
     });
   }
 

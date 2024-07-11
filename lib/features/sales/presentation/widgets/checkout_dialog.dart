@@ -726,7 +726,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            (mop.creditCard != null) ? "${mop.mopAlias} - ${mop.creditCard!.description}" : mop.mopAlias,
+            (mop.tpmt2Id != null) ? "${mop.mopAlias} - ${mop.cardName}" : mop.mopAlias,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -1973,11 +1973,12 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
                       ]),
                       ...List.generate(context.read<ReceiptCubit>().state.mopSelections.length, (index) {
                         final MopSelectionEntity mop = context.read<ReceiptCubit>().state.mopSelections[index];
+                        dev.log("MOP??? - $mop");
 
                         return TableRow(
                           children: [
                             Text(
-                              mop.mopAlias,
+                              (mop.tpmt2Id != null) ? mop.cardName! : mop.mopAlias,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
