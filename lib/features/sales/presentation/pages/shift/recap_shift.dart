@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +9,8 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
+import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/recap_money_denom_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RecapShiftScreen extends StatefulWidget {
@@ -28,7 +31,7 @@ class _RecapShiftScreenState extends State<RecapShiftScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
-        title: const Text('Close Shift'),
+        title: const Text('Recap Shift'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -70,6 +73,7 @@ class CloseShiftForm extends StatefulWidget {
 class _CloseShiftFormState extends State<CloseShiftForm> {
   late final String shiftId = widget.shiftId;
   CashierBalanceTransactionModel? tcsr1;
+  MoneyDenominationModel? tcsr2;
   late List<InvoiceHeaderModel?> transactions = [];
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCash = '0';
@@ -120,6 +124,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    log("tcsr1 - $tcsr1");
+
     String formattedOpenDate = Helpers.formatDateNoSeconds(tcsr1!.openDate);
     String formattedOpenValue = NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
     NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
@@ -130,6 +136,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     String formattedExpectedCash = NumberFormat.decimalPattern().format(expectedCash.toInt());
 
     final cashier = prefs.getString('username');
+
+    totalCash = NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
+    totalNonCash = NumberFormat.decimalPattern().format((tcsr1!.closeValue - tcsr1!.cashValue).toInt());
+    totalSales = NumberFormat.decimalPattern().format(tcsr1!.closeValue.toInt());
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -355,7 +365,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         const SizedBox(
           height: 10,
         ),
-        CalculateCash(setTotal: updateTotalCash),
+        RecapMoneyDialog(tcsr1Id: shiftId),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(
