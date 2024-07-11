@@ -17,17 +17,17 @@ class PayMeantEntity {
 
   PayMeantEntity({
     required this.docId,
-    required this.createDate,
-    required this.updateDate,
-    required this.toinvId,
+    this.createDate,
+    this.updateDate,
+    this.toinvId,
     required this.lineNum,
-    required this.tpmt3Id,
+    this.tpmt3Id,
     required this.amount,
-    required this.tpmt2Id,
-    required this.cardNo,
-    required this.cardHolder,
-    required this.sisaVoucher,
-    required this.rrn,
+    this.tpmt2Id,
+    this.cardNo,
+    this.cardHolder,
+    this.sisaVoucher,
+    this.rrn,
   });
 
   PayMeantEntity copyWith({
@@ -80,30 +80,23 @@ class PayMeantEntity {
   factory PayMeantEntity.fromMap(Map<String, dynamic> map) {
     return PayMeantEntity(
       docId: map['docId'] as String,
-      createDate: map['createDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
-          : null,
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      createDate: map['createDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int) : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
       lineNum: map['lineNum'] as int,
       tpmt3Id: map['tpmt3Id'] != null ? map['tpmt3Id'] as String : null,
       amount: map['amount'] as double,
       tpmt2Id: map['tpmt2Id'] != null ? map['tpmt2Id'] as String : null,
       cardNo: map['cardNo'] != null ? map['cardNo'] as String : null,
-      cardHolder:
-          map['cardHolder'] != null ? map['cardHolder'] as String : null,
-      sisaVoucher:
-          map['sisaVoucher'] != null ? map['sisaVoucher'] as double : null,
+      cardHolder: map['cardHolder'] != null ? map['cardHolder'] as String : null,
+      sisaVoucher: map['sisaVoucher'] != null ? map['sisaVoucher'] as double : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory PayMeantEntity.fromJson(String source) =>
-      PayMeantEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory PayMeantEntity.fromJson(String source) => PayMeantEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {

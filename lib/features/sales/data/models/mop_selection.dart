@@ -1,4 +1,3 @@
-import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 
 class MopSelectionModel extends MopSelectionEntity {
@@ -14,7 +13,8 @@ class MopSelectionModel extends MopSelectionEntity {
     required super.tinv2Id,
     required super.tpmt4Id,
     required super.edcDesc,
-    required super.creditCard,
+    required super.tpmt2Id,
+    required super.cardName,
     required super.cardNo,
     required super.cardHolder,
     required super.rrn,
@@ -33,7 +33,8 @@ class MopSelectionModel extends MopSelectionEntity {
       tinv2Id: map['tinv2Id'] != null ? map['tinv2Id'] as String : null,
       tpmt4Id: map['tpmt4Id'] != null ? map['tpmt4Id'] as String : null,
       edcDesc: map['edcdesc'] != null ? map['edcdesc'] as String : null,
-      creditCard: map['creditcard'] != null ? CreditCardEntity.fromMap(map['creditcard'] as Map<String, dynamic>) : null,
+      tpmt2Id: map['tpmt2Id'] != null ? map['tpmt2Id'] as String : null,
+      cardName: map['cardname'] != null ? map['cardname'] as String : null,
       cardNo: map['cardno'] != null ? map['cardno'] as String : null,
       cardHolder: map['cardholder'] != null ? map['cardholder'] as String : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,

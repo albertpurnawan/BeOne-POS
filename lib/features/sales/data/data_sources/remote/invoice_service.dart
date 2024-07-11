@@ -46,16 +46,31 @@ class InvoiceApi {
             case "1": // TUNAI
               if (entry['amount'] < 0) break;
               if (entry['amount'] == 0 && invHead[0].grandTotal != 0) break;
-              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
-              break;
-            case "2": // EDC
               invoicePayments.add({
                 "tpmt3_id": entry['tpmt3Id'],
                 "amount": entry['amount'],
-                "tpmt2_id": entry['tpmt2Id'],
-                "cardno": entry['cardno'],
-                "cardholder": entry['cardholder'],
+                "rrn": entry['rrn'] ?? "",
               });
+              break;
+            case "2": // EDC
+              if (entry['tpmt2Id'] == null) {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              } else {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "tpmt2_id": entry['tpmt2Id'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              }
               break;
             case "6": // VOUCHERS
               final vouchers =
@@ -72,7 +87,8 @@ class InvoiceApi {
                       "tpmt3_id": tpmt3Id,
                       "amount": 0.0,
                       "sisavoucher": 0,
-                      "invoice_voucher": []
+                      "invoice_voucher": [],
+                      "rrn": entry['rrn'] ?? "",
                     };
                   }
 
@@ -112,7 +128,11 @@ class InvoiceApi {
 
               break;
             default:
-              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              invoicePayments.add({
+                "tpmt3_id": entry['tpmt3Id'],
+                "amount": entry['amount'],
+                "rrn": entry['rrn'] ?? "",
+              });
               break;
           }
         }

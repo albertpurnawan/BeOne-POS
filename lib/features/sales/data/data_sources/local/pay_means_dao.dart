@@ -33,8 +33,7 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
     return result.map((itemData) => PayMeansModel.fromMap(itemData)).toList();
   }
 
-  Future<List<PayMeansModel>> readByToinvId(
-      String toinvId, Transaction? txn) async {
+  Future<List<PayMeansModel>> readByToinvId(String toinvId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(
       tableName,
@@ -45,24 +44,18 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
     return result.map((itemData) => PayMeansModel.fromMap(itemData)).toList();
   }
 
-  Future<List<PayMeansModel>?> readBetweenDate(
-      DateTime start, DateTime end) async {
+  Future<List<PayMeansModel>?> readBetweenDate(DateTime start, DateTime end) async {
     final result = await db.query(
       tableName,
       where: 'createdat BETWEEN ? AND ?',
-      whereArgs: [
-        start.toUtc().toIso8601String(),
-        end.toUtc().toIso8601String()
-      ],
+      whereArgs: [start.toUtc().toIso8601String(), end.toUtc().toIso8601String()],
     );
-    final transactions =
-        result.map((map) => PayMeansModel.fromMap(map)).toList();
+    final transactions = result.map((map) => PayMeansModel.fromMap(map)).toList();
 
     return transactions;
   }
 
-  Future<List<dynamic>?> readByTpmt3BetweenDate(
-      DateTime start, DateTime end) async {
+  Future<List<dynamic>?> readByTpmt3BetweenDate(DateTime start, DateTime end) async {
     final startDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(start);
     final endDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(end);
 
@@ -92,20 +85,19 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
     return result;
   }
 
-  Future<List<MopSelectionModel>> readMopSelectionsByToinvId(
-      String toinvId, txn) async {
+  Future<List<MopSelectionModel>> readMopSelectionsByToinvId(String toinvId, txn) async {
     final DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.rawQuery('''
-      SELECT x0.docid as tinv2Id, x0.*, x1.docid as tpmt3Id, x3.paytypecode, x3.paytypecode, x3.description, x2.docid as tpmt1Id, x2.mopalias, x2.bankcharge, x2.topmtId, x2.subtype
+      SELECT x0.docid as tinv2Id, x0.*, x1.docid as tpmt3Id, x3.paytypecode, x3.paytypecode, x3.description, x2.docid as tpmt1Id, x2.mopalias, x2.bankcharge, x2.topmtId, x2.subtype, x5.description as cardname, x4.description as edcdesc, x4.docid as tpmt4Id
       FROM tinv2 as x0 
       INNER JOIN tpmt3 as x1 ON x0.tpmt3Id = x1.docid
       INNER JOIN tpmt1 as x2 ON x1.tpmt1Id = x2.docid
       INNER JOIN topmt as x3 ON x2.topmtId = x3.docid
+      INNER JOIN tpmt4 as x4 ON x2.tpmt4Id = x4.docid
+      LEFT JOIN tpmt2 as x5 ON x0.tpmt2Id = x5.docid
       WHERE x0.toinvId = ?
     ''', [toinvId]);
 
-    return result
-        .map((itemData) => MopSelectionModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => MopSelectionModel.fromMap(itemData)).toList();
   }
 }
