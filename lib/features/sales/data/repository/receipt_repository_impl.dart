@@ -158,7 +158,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           toinvId: generatedInvoiceHeaderDocId,
           lineNum: 1,
           tpmt3Id: mopSelectionEntity.tpmt3Id,
-          amount: mopSelectionEntity.amount ?? 0,
+          amount: mopSelectionEntity.payTypeCode == "1"
+              ? (mopSelectionEntity.amount ?? 0) - (receiptEntity.changed ?? 0)
+              : mopSelectionEntity.amount ?? 0,
           tpmt2Id: mopSelectionEntity.creditCard?.docId,
           cardNo: mopSelectionEntity.cardNo,
           cardHolder: mopSelectionEntity.cardHolder,
