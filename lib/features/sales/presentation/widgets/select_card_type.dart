@@ -123,11 +123,10 @@ class _SelectCardTypeState extends State<SelectCardType> {
                     child: BlocBuilder<CreditCardCubit, List<CreditCardEntity>>(
                       builder: (context, state) {
                         if (state.isEmpty) {
-                          return const Expanded(
-                              child: EmptyList(
+                          return const EmptyList(
                             imagePath: "assets/images/empty-search.svg",
                             sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
-                          ));
+                          );
                         }
                         return ListView.builder(
                             padding: const EdgeInsets.all(0),

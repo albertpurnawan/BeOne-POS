@@ -94,7 +94,7 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
       INNER JOIN tpmt1 as x2 ON x1.tpmt1Id = x2.docid
       INNER JOIN topmt as x3 ON x2.topmtId = x3.docid
       INNER JOIN tpmt4 as x4 ON x2.tpmt4Id = x4.docid
-      INNER JOIN tpmt2 as x5 ON x0.tpmt2Id = x5.docid
+      LEFT JOIN tpmt2 as x5 ON x0.tpmt2Id = x5.docid
       WHERE x0.toinvId = ?
     ''', [toinvId]);
 

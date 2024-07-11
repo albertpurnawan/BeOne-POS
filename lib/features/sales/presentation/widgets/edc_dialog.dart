@@ -259,7 +259,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                   Expanded(
                                     flex: 5,
                                     child: Text(
-                                      mop.cardName!,
+                                      mop.cardName ?? "Select Card Here...",
                                       style: const TextStyle(
                                         fontSize: 16,
                                       ),
@@ -391,11 +391,11 @@ class _EDCDialogState extends State<EDCDialog> {
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            if (cardSelected == null && savePressed)
-                                              const Text(
-                                                "Please select a card type",
-                                                style: TextStyle(color: Colors.red),
-                                              ),
+                                            // if (cardSelected == null && savePressed)
+                                            //   const Text(
+                                            //     "Please select a card type",
+                                            //     style: TextStyle(color: Colors.red),
+                                            //   ),
                                             const Icon(Icons.arrow_right_outlined),
                                           ],
                                         ),
@@ -793,10 +793,11 @@ class _EDCDialogState extends State<EDCDialog> {
                           SnackBarHelper.presentFailSnackBar(childContext, "Please select a means of payment");
                           return;
                         }
-                        if (cardSelected == null) {
-                          SnackBarHelper.presentFailSnackBar(childContext, "Please select a card type");
-                          return;
-                        }
+
+                        // if (cardSelected == null) {
+                        //   SnackBarHelper.presentFailSnackBar(childContext, "Please select a card type");
+                        //   return;
+                        // }
 
                         final edcAmount = widget.isMultiMOPs
                             ? (_amountController.text.isEmpty)
@@ -811,8 +812,8 @@ class _EDCDialogState extends State<EDCDialog> {
                         }
                         final mopEDC = mopSelected!.copyWith(
                           amount: edcAmount,
-                          tpmt2Id: cardSelected!.docId,
-                          cardName: cardSelected!.description,
+                          tpmt2Id: cardSelected?.docId,
+                          cardName: cardSelected?.description,
                           cardNo: (_cardNumber1Controller.text.isEmpty || _cardNumber2Controller.text.isEmpty)
                               ? ""
                               : "${_cardNumber1Controller.text}-xxxx-xxxx-${_cardNumber2Controller.text}",

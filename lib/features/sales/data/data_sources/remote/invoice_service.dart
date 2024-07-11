@@ -53,14 +53,24 @@ class InvoiceApi {
               });
               break;
             case "2": // EDC
-              invoicePayments.add({
-                "tpmt3_id": entry['tpmt3Id'],
-                "amount": entry['amount'],
-                "tpmt2_id": entry['tpmt2Id'],
-                "cardno": entry['cardno'],
-                "cardholder": entry['cardholder'],
-                "rrn": entry['rrn'] ?? "",
-              });
+              if (entry['tpmt2Id'] == null) {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              } else {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "tpmt2_id": entry['tpmt2Id'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              }
               break;
             case "6": // VOUCHERS
               final vouchers =
