@@ -20,8 +20,28 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
   List<MoneyDenominationModel?>? tcsr2;
   final int maxLength = 10;
   final prefs = GetIt.instance<SharedPreferences>();
-  int? qty100k, qty50k, qty20k, qty10k, qty5k, qty2k, qty1k, qty500, qty200, qty100, qty50;
-  int? total100k, total50k, total20k, total10k, total5k, total2k, total1k, total500, total200, total100, total50;
+  int qty100k = 0;
+  int qty50k = 0;
+  int qty20k = 0;
+  int qty10k = 0;
+  int qty5k = 0;
+  int qty2k = 0;
+  int qty1k = 0;
+  int qty500 = 0;
+  int qty200 = 0;
+  int qty100 = 0;
+  int qty50 = 0;
+  int total100k = 0;
+  int total50k = 0;
+  int total20k = 0;
+  int total10k = 0;
+  int total5k = 0;
+  int total2k = 0;
+  int total1k = 0;
+  int total500 = 0;
+  int total200 = 0;
+  int total100 = 0;
+  int total50 = 0;
 
   @override
   void initState() {
@@ -52,17 +72,17 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
         qty200 = getDenominationCount(200);
         qty100 = getDenominationCount(100);
         qty50 = getDenominationCount(50);
-        total100k = qty100k! * 100000;
-        total50k = qty50k! * 50000;
-        total20k = qty20k! * 20000;
-        total10k = qty10k! * 10000;
-        total5k = qty5k! * 5000;
-        total2k = qty2k! * 2000;
-        total1k = qty1k! * 1000;
-        total500 = qty500! * 500;
-        total200 = qty200! * 200;
-        total100 = qty100! * 100;
-        total50 = qty50! * 50;
+        total100k = qty100k * 100000;
+        total50k = qty50k * 50000;
+        total20k = qty20k * 20000;
+        total10k = qty10k * 10000;
+        total5k = qty5k * 5000;
+        total2k = qty2k * 2000;
+        total1k = qty1k * 1000;
+        total500 = qty500 * 500;
+        total200 = qty200 * 200;
+        total100 = qty100 * 100;
+        total50 = qty50 * 50;
       });
     } catch (e) {
       rethrow;
@@ -81,7 +101,7 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
         tcsr1Id: '',
       ),
     );
-    return denomination!.count!;
+    return denomination?.count ?? 0;
   }
 
   @override
