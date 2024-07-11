@@ -203,7 +203,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                                 }
                                 setState(() {});
                               },
-                        title: Text(conditionAndItemY.itemEntity.itemName),
+                        title: Text(conditionAndItemY.itemEntity.shortName ?? conditionAndItemY.itemEntity.itemName),
                         subtitle: SizedBox(
                           height: 25,
                           child: Row(

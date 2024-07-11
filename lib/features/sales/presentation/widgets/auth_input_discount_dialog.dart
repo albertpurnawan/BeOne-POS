@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -80,8 +81,43 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   }
 
   Future<String> createOTP() async {
-    final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
-    return response['Requester'];
+    try {
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
+      return response['Requester'];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> handleOTP(BuildContext childContext) async {
+    try {
+      setState(() {
+        _isOTPClicked = true;
+        _isSendingOTP = true;
+      });
+
+      await createOTP().then((value) async {
+        setState(() {
+          _isOTPClicked = false;
+          _isSendingOTP = false;
+        });
+
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => OTPInputDialog(
+            discountValue: widget.discountValue,
+            requester: value,
+          ),
+        );
+      });
+    } catch (e) {
+      setState(() {
+        _isOTPClicked = false;
+        _isSendingOTP = false;
+      });
+      SnackBarHelper.presentFailSnackBar(childContext, e.toString());
+    }
   }
 
   @override
@@ -107,26 +143,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 parentContext.pop();
               } else if (value.physicalKey == PhysicalKeyboardKey.f11) {
-                setState(() {
-                  _isOTPClicked = true;
-                  _isSendingOTP = true;
-                });
+                handleOTP(childContext);
 
-                createOTP().then((value) {
-                  setState(() {
-                    _isOTPClicked = false;
-                    _isSendingOTP = false;
-                  });
-
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => OTPInputDialog(
-                      discountValue: widget.discountValue,
-                      requester: value,
-                    ),
-                  );
-                });
+                return KeyEventResult.handled;
               }
 
               return KeyEventResult.ignored;
@@ -233,26 +252,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () async {
-                                          setState(() {
-                                            _isOTPClicked = true;
-                                            _isSendingOTP = true;
-                                          });
-
-                                          final requester = await createOTP();
-
-                                          setState(() {
-                                            _isOTPClicked = false;
-                                            _isSendingOTP = false;
-                                          });
-
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (context) => OTPInputDialog(
-                                              discountValue: widget.discountValue,
-                                              requester: requester,
-                                            ),
-                                          );
+                                          await handleOTP(childContext);
                                         },
                                     ),
                                     TextSpan(

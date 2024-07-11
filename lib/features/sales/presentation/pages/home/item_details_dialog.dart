@@ -145,7 +145,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                   width: 10,
                                 ),
                                 Text(
-                                  (stateItem.itemEntity.itemName),
+                                  (stateItem.itemEntity.shortName ?? stateItem.itemEntity.itemName),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,

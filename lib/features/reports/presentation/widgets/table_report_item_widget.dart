@@ -67,7 +67,10 @@ class _TableReportItemState extends State<TableReportItem> {
     if (fetchedTinv1 != null) {
       final filteredTinv1 = fetchedTinv1.where((invoice) {
         return invoice['itemcode'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
-            invoice['itemname'].toLowerCase().contains(widget.searchQuery!.toLowerCase());
+                invoice['itemname'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
+                invoice['shortname'] != null
+            ? invoice['shortname'].toLowerCase().contains(widget.searchQuery!.toLowerCase())
+            : false;
       }).toList();
       setState(() {
         fetched = filteredTinv1;

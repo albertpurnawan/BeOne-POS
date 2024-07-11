@@ -1,16 +1,15 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemsDao extends BaseDao<ItemModel> {
-  ItemsDao(Database db)
-      : super(db: db, tableName: tableItems, modelFields: ItemFields.values);
+  ItemsDao(Database db) : super(db: db, tableName: tableItems, modelFields: ItemFields.values);
 
   Future<ItemModel?> readItemByBarcode(String barcode) async {
-    final maps = await db.query(tableItems,
-        columns: ItemFields.values,
-        where: '${ItemFields.barcode} = ?',
-        whereArgs: [barcode]);
+    final maps = await db
+        .query(tableItems, columns: ItemFields.values, where: '${ItemFields.barcode} = ?', whereArgs: [barcode]);
 
     if (maps.isNotEmpty) {
       return ItemModel.fromMap(maps.first);
@@ -48,16 +47,16 @@ class ItemsDao extends BaseDao<ItemModel> {
   }
 
   @override
-  Future<List<ItemModel>> readAll(
-      {String? searchKeyword, Transaction? txn}) async {
+  Future<List<ItemModel>> readAll({String? searchKeyword, Transaction? txn}) async {
     final result = await db.query(
       tableName,
       where:
-          "${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ?",
-      whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%"],
+          "${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ? OR ${ItemFields.shortName} LIKE ?",
+      whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%"],
       orderBy: "itemname",
       limit: 300,
     );
+    log(result[0].toString());
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 

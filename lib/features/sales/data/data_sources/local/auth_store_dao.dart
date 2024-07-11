@@ -3,11 +3,7 @@ import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AuthStoreDao extends BaseDao<AuthStoreModel> {
-  AuthStoreDao(Database db)
-      : super(
-            db: db,
-            tableName: tableAuthStore,
-            modelFields: AuthStoreFields.values);
+  AuthStoreDao(Database db) : super(db: db, tableName: tableAuthStore, modelFields: AuthStoreFields.values);
 
   @override
   Future<AuthStoreModel?> readByDocId(String docId, Transaction? txn) async {
@@ -30,8 +26,7 @@ class AuthStoreDao extends BaseDao<AuthStoreModel> {
     return result.map((itemData) => AuthStoreModel.fromMap(itemData)).toList();
   }
 
-  Future<AuthStoreModel?> readByTousrId(
-      String tousrdocid, Transaction? txn) async {
+  Future<AuthStoreModel?> readByTousrId(String tousrdocid, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -48,8 +43,9 @@ class AuthStoreDao extends BaseDao<AuthStoreModel> {
     SELECT x0.*, x1.username, x1.email FROM tastr AS x0 
       INNER JOIN tousr AS x1 
       ON x0.tousrdocid = x1.docid
-      WHERE x0.statusactive = 1
+      WHERE x0.statusactive = 1 AND x0.dflt = 1
     ''');
+
     return res;
   }
 }

@@ -45,6 +45,7 @@ class ReceiptEntity {
   double rounding;
   String? remarks;
   String? toinvTohemId;
+  String? salesTohemId;
 
   ReceiptEntity({
     required this.docNum,
@@ -75,6 +76,7 @@ class ReceiptEntity {
     this.rounding = 0,
     this.remarks,
     this.toinvTohemId,
+    this.salesTohemId,
   });
 
   ReceiptEntity copyWith({
@@ -106,6 +108,7 @@ class ReceiptEntity {
     double? rounding,
     String? remarks,
     String? toinvTohemId,
+    String? salesTohemId,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -136,6 +139,7 @@ class ReceiptEntity {
       rounding: rounding ?? this.rounding,
       remarks: remarks ?? this.remarks,
       toinvTohemId: toinvTohemId ?? this.toinvTohemId,
+      salesTohemId: salesTohemId ?? this.salesTohemId,
     );
   }
 
@@ -166,6 +170,7 @@ class ReceiptEntity {
       'discHeaderPromo': discHeaderPromo,
       'remarks': remarks,
       'toinvTohemId': toinvTohemId,
+      'salesTohemId': salesTohemId,
     };
   }
 
@@ -213,6 +218,7 @@ class ReceiptEntity {
       discHeaderPromo: map['discHeaderPromo'] != null ? map['discHeaderPromo'] as double : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       toinvTohemId: map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
     );
   }
 
@@ -222,7 +228,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelections, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId,
+    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelections, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId, salesTohemId: $salesTohemId,
     
     previousReceiptEntity: $previousReceiptEntity)""";
   }
@@ -255,7 +261,8 @@ class ReceiptEntity {
         other.discHeaderManual == discHeaderManual &&
         other.discHeaderPromo == discHeaderPromo &&
         other.remarks == remarks &&
-        other.toinvTohemId == toinvTohemId;
+        other.toinvTohemId == toinvTohemId &&
+        other.salesTohemId == salesTohemId;
     // other.previousReceiptEntity == previousReceiptEntity; kalau tidak ada perubahan apa2 previous gak ke emit
   }
 
@@ -285,7 +292,8 @@ class ReceiptEntity {
         discHeaderManual.hashCode ^
         discHeaderPromo.hashCode ^
         remarks.hashCode ^
-        toinvTohemId.hashCode;
+        toinvTohemId.hashCode ^
+        salesTohemId.hashCode;
     // previousReceiptEntity.hashCode;
   }
 }

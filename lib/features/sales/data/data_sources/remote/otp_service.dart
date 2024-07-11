@@ -17,17 +17,16 @@ class OTPServiceAPi {
   Future<Map<String, dynamic>> createSendOTP() async {
     try {
       log("CREATE & SEND OTP");
-      final otpDao =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      final otpDao = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       otpChannel = otpDao[0].otpChannel;
       String url = "http://110.239.68.248:7070/api/otp/send-mailer";
-      final spv =
-          await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
+      final spv = await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
+      if (spv == null) throw "Approver not found";
+      if (spv!.isEmpty) throw "Approver not found";
 
       final options = Options(headers: {"Content-Type": "application/json"});
       final formatter = DateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'');
-      final formattedExpired = formatter
-          .format(DateTime.now().toUtc().add(const Duration(hours: 1)));
+      final formattedExpired = formatter.format(DateTime.now().toUtc().add(const Duration(hours: 1)));
       final formattedDateTime = formatter.format(DateTime.now().toUtc());
 
       final dataToSend = {

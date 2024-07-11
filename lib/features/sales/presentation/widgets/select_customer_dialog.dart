@@ -132,11 +132,10 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                     child: BlocBuilder<CustomersCubit, List<CustomerEntity>>(
                       builder: (context, state) {
                         if (state.isEmpty) {
-                          return const Expanded(
-                              child: EmptyList(
+                          return const EmptyList(
                             imagePath: "assets/images/empty-search.svg",
                             sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
-                          ));
+                          );
                         }
                         return ListView.builder(
                             padding: const EdgeInsets.all(0),

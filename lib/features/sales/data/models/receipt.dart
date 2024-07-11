@@ -28,6 +28,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.discAmount,
     super.rounding,
     super.toinvTohemId,
+    super.salesTohemId,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -56,6 +57,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       queuedInvoiceHeaderDocId: entity.queuedInvoiceHeaderDocId,
       discAmount: entity.discAmount,
       rounding: entity.rounding,
+      toinvTohemId: entity.toinvTohemId,
+      salesTohemId: entity.salesTohemId,
     );
   }
 }

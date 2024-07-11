@@ -67,7 +67,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
         }
 
         if (event.physicalKey == PhysicalKeyboardKey.f12) {
-          context.read<ReceiptCubit>().updateTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _noteController.text);
+          context.read<ReceiptCubit>().updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _noteController.text);
           _noteFocusNode.unfocus();
           FocusManager.instance.primaryFocus?.unfocus();
 
@@ -312,7 +312,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                 onPressed: () {
                                   context
                                       .read<ReceiptCubit>()
-                                      .updateTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _noteController.text);
+                                      .updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _noteController.text);
                                   Navigator.of(context).pop();
                                 },
                                 child: Center(

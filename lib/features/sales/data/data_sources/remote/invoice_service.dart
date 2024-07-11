@@ -46,16 +46,31 @@ class InvoiceApi {
             case "1": // TUNAI
               if (entry['amount'] < 0) break;
               if (entry['amount'] == 0 && invHead[0].grandTotal != 0) break;
-              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
-              break;
-            case "2": // EDC
               invoicePayments.add({
                 "tpmt3_id": entry['tpmt3Id'],
                 "amount": entry['amount'],
-                "tpmt2_id": entry['tpmt2Id'],
-                "cardno": entry['cardno'],
-                "cardholder": entry['cardholder'],
+                "rrn": entry['rrn'] ?? "",
               });
+              break;
+            case "2": // EDC
+              if (entry['tpmt2Id'] == null) {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              } else {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "tpmt2_id": entry['tpmt2Id'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              }
               break;
             case "6": // VOUCHERS
               final vouchers =
@@ -72,7 +87,8 @@ class InvoiceApi {
                       "tpmt3_id": tpmt3Id,
                       "amount": 0.0,
                       "sisavoucher": 0,
-                      "invoice_voucher": []
+                      "invoice_voucher": [],
+                      "rrn": entry['rrn'] ?? "",
                     };
                   }
 
@@ -112,7 +128,11 @@ class InvoiceApi {
 
               break;
             default:
-              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              invoicePayments.add({
+                "tpmt3_id": entry['tpmt3Id'],
+                "amount": entry['amount'],
+                "rrn": entry['rrn'] ?? "",
+              });
               break;
           }
         }
@@ -156,6 +176,7 @@ class InvoiceApi {
         "totalpayment": invHead[0].totalPayment.round(),
         "tocsr_id": invHead[0].tocsrId,
         "toinv_tohem_id": invHead[0].toinvTohemId,
+        "sales_tohem_id": invHead[0].salesTohemId,
         "refpos1": invHead[0].refpos1,
         "invoice_item": invDet.map((item) {
           return {
@@ -259,6 +280,7 @@ class InvoiceApi {
           discHeaderPromo: invHead[0].discHeaderPromo,
           syncToBos: response.data['docid'],
           paymentSuccess: invHead[0].paymentSuccess,
+          salesTohemId: invHead[0].salesTohemId,
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(
@@ -380,6 +402,7 @@ class InvoiceApi {
         "totalpayment": invHead.totalPayment.round(),
         "tocsr_id": invHead.tocsrId,
         "toinv_tohem_id": invHead.toinvTohemId,
+        "sales_tohem_id": invHead.salesTohemId,
         "refpos1": invHead.refpos1,
         "invoice_item": invDet.map((item) {
           return {
@@ -480,6 +503,7 @@ class InvoiceApi {
           discHeaderPromo: invHead.discHeaderPromo,
           syncToBos: response.data['docid'],
           paymentSuccess: invHead.paymentSuccess,
+          salesTohemId: invHead.salesTohemId,
         );
 
         await GetIt.instance<AppDatabase>().invoiceHeaderDao.update(

@@ -170,7 +170,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
             SizedBox(
                 width: 150,
                 child: Text(
-                  itemY.itemEntity.itemName,
+                  itemY.itemEntity.shortName ?? itemY.itemEntity.itemName,
                   style: const TextStyle(fontSize: 14),
                 )),
             const SizedBox(
