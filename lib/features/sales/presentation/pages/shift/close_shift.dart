@@ -528,30 +528,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        // Row(
-        //   crossAxisAlignment: CrossAxisAlignment.start,
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: [
-        //     const Expanded(
-        //       child: Text(
-        //         "Total Vouchers",
-        //         style: TextStyle(
-        //           fontSize: 16,
-        //         ),
-        //         textAlign: TextAlign.start,
-        //       ),
-        //     ),
-        //     Expanded(
-        //       child: Text(
-        //         "($totalVouchers) $totalVouchersUsed",
-        //         style: const TextStyle(
-        //           fontSize: 16,
-        //         ),
-        //         textAlign: TextAlign.end,
-        //       ),
-        //     ),
-        //   ],
-        // ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
