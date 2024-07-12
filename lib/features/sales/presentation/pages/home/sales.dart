@@ -2320,9 +2320,6 @@ class _SalesPageState extends State<SalesPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 12,
-                  ),
                   const Spacer(),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -2341,8 +2338,18 @@ class _SalesPageState extends State<SalesPage> {
                       ],
                     ),
                   ),
+                  (state.discHeaderManual ?? 0) > 0
+                      ? Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            "*${Helpers.parseMoney(state.discHeaderManual ?? 0)} header discount applied",
+                            style: const TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                   const Spacer(),
-                  const SizedBox(height: 15),
+                  // const SizedBox(height: 15),
                   _buttonGroup2()
                 ],
               )),
