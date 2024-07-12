@@ -61,14 +61,14 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
 
     final result = await db.rawQuery('''
       SELECT x0.tpmt3Id, x0.amount, SUM(x0.amount) AS totalamount,
-      x2.mopcode, x2.description
+      x2.mopcode, x2.description, x1.docid, x3.docid, x3.description AS topmtDesc
       FROM $tableName AS x0
       INNER JOIN tpmt3 AS x1 ON x0.tpmt3Id = x1.docid
       INNER JOIN tpmt1 AS x2 ON x1.tpmt1Id = x2.docid
+      INNER JOIN topmt AS x3 ON x2.topmtId = x3.docid
       WHERE x0.createdat BETWEEN ? AND ?
       GROUP BY x0.tpmt3Id
     ''', [startDate, endDate]);
-
     return result;
   }
 

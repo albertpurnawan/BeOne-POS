@@ -95,8 +95,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   CashierBalanceTransactionModel? activeShift;
   late List<InvoiceHeaderModel?> transactions = [];
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-  String totalCash = '0';
+  String totalCashAmount = '0';
   String totalNonCash = '0';
+  String totalVouchers = '0';
+  String totalVouchersUsed = '0';
   String totalSales = '0';
   String expectedCash = "0";
   String calculatedTotalCash = '0';
@@ -208,6 +210,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   Future<void> updateActiveShift() async {
     if (activeShift != null && transactions.isNotEmpty) {
       double nonCash = 0.0;
+      double totalVoucher = 0.0;
+      double totalVoucherUsed = 0.0;
+      double cashAmount = 0.0;
       double salesAmount = 0.0;
       final DateTime now = DateTime.now();
       final start = activeShift!.openDate.subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
@@ -220,12 +225,18 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         59,
         999,
       );
-      log("$start - $end");
+
       final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
-      log("$fetched");
+
       for (final mop in fetched!) {
-        if ((mop['description'] != 'TUNAI')) {
-          nonCash += mop['totalamount'];
+        if ((mop['topmtDesc'] != 'TUNAI')) {
+          if ((mop['topmtDesc'] == 'VOUCHER')) {
+            totalVoucher += mop['totalamount'];
+          } else {
+            nonCash += mop['totalamount'];
+          }
+        } else {
+          cashAmount += mop['totalamount'];
         }
       }
 
@@ -248,7 +259,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             timezone: activeShift!.timezone,
             openValue: activeShift!.openValue,
             calcValue: activeShift!.calcValue,
-            cashValue: salesAmount - nonCash,
+            cashValue: cashAmount,
             closeValue: activeShift!.closeValue,
             openedbyId: activeShift!.openedbyId,
             closedbyId: activeShift!.closedbyId,
@@ -261,13 +272,18 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           // await GetIt.instance<AppDatabase>()
           //     .cashierBalanceTransactionDao
           //     .update(docId: shiftId, data: data);
+          setState(() {
+            totalVoucherUsed = salesAmount - cashAmount - nonCash;
+          });
 
           setState(() {
             activeShift = data;
             totalNonCash = NumberFormat.decimalPattern().format(nonCash);
+            totalVouchers = NumberFormat.decimalPattern().format(totalVoucher);
+            totalVouchersUsed = NumberFormat.decimalPattern().format(totalVoucherUsed);
             totalSales = NumberFormat.decimalPattern().format(salesAmount);
-            totalCash = NumberFormat.decimalPattern().format(salesAmount - nonCash);
-            expectedCash = NumberFormat.decimalPattern().format(data.openValue + (salesAmount - nonCash));
+            totalCashAmount = NumberFormat.decimalPattern().format(cashAmount);
+            expectedCash = NumberFormat.decimalPattern().format(data.openValue + (cashAmount));
             difference = Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
                 Helpers.revertMoneyToDecimalFormat(expectedCash));
           });
@@ -448,7 +464,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                totalCash,
+                totalCashAmount,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -504,6 +520,30 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             Expanded(
               child: Text(
                 totalNonCash,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Total Vouchers",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                "($totalVouchers) $totalVouchersUsed",
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -738,7 +778,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                   }
                   final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams = PrintCloseShiftUsecaseParams(
                       cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
-                      totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCash),
+                      totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
                       expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
                       totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
                       totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
