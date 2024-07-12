@@ -274,13 +274,14 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           //     .update(docId: shiftId, data: data);
           setState(() {
             totalVoucherUsed = salesAmount - cashAmount - nonCash;
+            nonCash += totalVoucherUsed;
           });
 
           setState(() {
             activeShift = data;
             totalNonCash = NumberFormat.decimalPattern().format(nonCash);
-            totalVouchers = NumberFormat.decimalPattern().format(totalVoucher);
-            totalVouchersUsed = NumberFormat.decimalPattern().format(totalVoucherUsed);
+            // totalVouchers = NumberFormat.decimalPattern().format(totalVoucher);
+            // totalVouchersUsed = NumberFormat.decimalPattern().format(totalVoucherUsed);
             totalSales = NumberFormat.decimalPattern().format(salesAmount);
             totalCashAmount = NumberFormat.decimalPattern().format(cashAmount);
             expectedCash = NumberFormat.decimalPattern().format(data.openValue + (cashAmount));
@@ -520,30 +521,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             Expanded(
               child: Text(
                 totalNonCash,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-                textAlign: TextAlign.end,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Expanded(
-              child: Text(
-                "Total Vouchers",
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-                textAlign: TextAlign.start,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                "($totalVouchers) $totalVouchersUsed",
                 style: const TextStyle(
                   fontSize: 16,
                 ),
