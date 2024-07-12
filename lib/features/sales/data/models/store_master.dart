@@ -75,6 +75,7 @@ class StoreMasterFields {
     netzmeClientPrivateKey,
     netzmeCustidMerchant,
     netzmeChannelId,
+    // defaultTocusId,
   ];
 
   static const String docId = 'docid';
@@ -138,15 +139,16 @@ class StoreMasterFields {
   static const String mtxline03 = 'mtxline03';
   static const String mtxline04 = 'mtxline04';
   static const String form = 'form';
-  static const salesViewType = 'salesviewtype';
-  static const otpChannel = 'otpchannel';
-  static const otpUrl = 'otpurl';
-  static const netzmeUrl = 'netzmeurl';
-  static const netzmeClientKey = 'netzmeclientkey';
-  static const netzmeClientSecret = 'netzmeclientsecret';
-  static const netzmeClientPrivateKey = 'netzmeclientprivatekey';
-  static const netzmeCustidMerchant = 'netzmecustidmerchant';
-  static const netzmeChannelId = 'netzmechannelid';
+  static const String salesViewType = 'salesviewtype';
+  static const String otpChannel = 'otpchannel';
+  static const String otpUrl = 'otpurl';
+  static const String netzmeUrl = 'netzmeurl';
+  static const String netzmeClientKey = 'netzmeclientkey';
+  static const String netzmeClientSecret = 'netzmeclientsecret';
+  static const String netzmeClientPrivateKey = 'netzmeclientprivatekey';
+  static const String netzmeCustidMerchant = 'netzmecustidmerchant';
+  static const String netzmeChannelId = 'netzmechannelid';
+  // static const String defaultTocusId = 'defaulttocusid';
 }
 
 class StoreMasterModel extends StoreMasterEntity implements BaseModel {
@@ -221,6 +223,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     required super.netzmeClientPrivateKey,
     required super.netzmeCustidMerchant,
     required super.netzmeChannelId,
+    // required super.defaultTocusId,
   });
 
   @override
@@ -296,6 +299,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'netzmeclientprivatekey': netzmeClientPrivateKey,
       'netzmecustidmerchant': netzmeCustidMerchant,
       'netzmechannelid': netzmeChannelId,
+      // 'defaulttocusid': defaultTocusId,
     };
   }
 
@@ -303,9 +307,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     return StoreMasterModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       storeCode: map['storecode'] as String,
       storeName: map['storename'] as String,
       email: map['email'] as String,
@@ -338,29 +340,21 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       footer03: map['footer03'] != null ? map['footer03'] as String : null,
       footer04: map['footer04'] != null ? map['footer04'] as String : null,
       footer05: map['footer05'] != null ? map['footer05'] as String : null,
-      sellingTax:
-          map['sellingtax'] != null ? map['sellingtax'] as double : null,
-      openingBalance: map['openingbalance'] != null
-          ? map['openingbalance'] as double
-          : null,
-      autoRounding:
-          map['autorounding'] != null ? map['autorounding'] as int : null,
-      roundingValue:
-          map['roundingvalue'] != null ? map['roundingvalue'] as double : null,
+      sellingTax: map['sellingtax'] != null ? map['sellingtax'] as double : null,
+      openingBalance: map['openingbalance'] != null ? map['openingbalance'] as double : null,
+      autoRounding: map['autorounding'] != null ? map['autorounding'] as int : null,
+      roundingValue: map['roundingvalue'] != null ? map['roundingvalue'] as double : null,
       totalMinus: map['totalminus'] != null ? map['totalminus'] as int : null,
       totalZero: map['totalzero'] != null ? map['totalzero'] as int : null,
       holdStruck: map['holdstruck'] != null ? map['holdstruck'] as int : null,
       holdClose: map['holdclose'] != null ? map['holdclose'] as int : null,
-      autoPrintStruk:
-          map['autoprintstruk'] != null ? map['autoprintstruk'] as int : null,
+      autoPrintStruk: map['autoprintstruk'] != null ? map['autoprintstruk'] as int : null,
       barcode1: map['barcode1'] != null ? map['barcode1'] as String : null,
       barcode2: map['barcode2'] != null ? map['barcode2'] as int : null,
       barcode3: map['barcode3'] != null ? map['barcode3'] as int : null,
       barcode4: map['barcode4'] != null ? map['barcode4'] as int : null,
-      connectBack:
-          map['connectback'] != null ? map['connectback'] as int : null,
-      maxUserKassa:
-          map['maxuserkassa'] != null ? map['maxuserkassa'] as int : null,
+      connectBack: map['connectback'] != null ? map['connectback'] as int : null,
+      maxUserKassa: map['maxuserkassa'] != null ? map['maxuserkassa'] as int : null,
       stockLevel: map['stocklevel'] as double,
       minConst: map['minconst'] as double,
       maxConst: map['maxconst'] as double,
@@ -372,27 +366,16 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
       form: map['form'] as String,
-      salesViewType:
-          map['salesviewtype'] != null ? map['salesviewtype'] as int : null,
-      otpChannel:
-          map['otpchannel'] != null ? map['otpchannel'] as String : null,
+      salesViewType: map['salesviewtype'] != null ? map['salesviewtype'] as int : null,
+      otpChannel: map['otpchannel'] != null ? map['otpchannel'] as String : null,
       otpUrl: map['otpurl'] != null ? map['otpurl'] as String : null,
       netzmeUrl: map['netzmeurl'] != null ? map['netzmeurl'] as String : null,
-      netzmeClientKey: map['netzmeclientkey'] != null
-          ? map['netzmeclientkey'] as String
-          : null,
-      netzmeClientSecret: map['netzmeclientsecret'] != null
-          ? map['netzmeclientsecret'] as String
-          : null,
-      netzmeClientPrivateKey: map['netzmeclientprivatekey'] != null
-          ? map['netzmeclientprivatekey'] as String
-          : null,
-      netzmeCustidMerchant: map['netzmecustidmerchant'] != null
-          ? map['netzmecustidmerchant'] as String
-          : null,
-      netzmeChannelId: map['netzmechannelid'] != null
-          ? map['netzmechannelid'] as String
-          : null,
+      netzmeClientKey: map['netzmeclientkey'] != null ? map['netzmeclientkey'] as String : null,
+      netzmeClientSecret: map['netzmeclientsecret'] != null ? map['netzmeclientsecret'] as String : null,
+      netzmeClientPrivateKey: map['netzmeclientprivatekey'] != null ? map['netzmeclientprivatekey'] as String : null,
+      netzmeCustidMerchant: map['netzmecustidmerchant'] != null ? map['netzmecustidmerchant'] as String : null,
+      netzmeChannelId: map['netzmechannelid'] != null ? map['netzmechannelid'] as String : null,
+      // defaultTocusId: map['defaulttocusId'] as String,
     );
   }
 
@@ -407,15 +390,9 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "tcurrId": map['tcurrdocid'] != null ? map['tcurrdocid'] as String : null,
       "toplnId": map['toplndocid'] != null ? map['toplndocid'] as String : null,
       "tovatId": map['tovatdocid'] != null ? map['tovatdocid'] as String : null,
-      "sellingtax": map['sellingtax'] != null
-          ? map['sellingtax'].toDouble() as double
-          : null,
-      "openingbalance": map['openingbalance'] != null
-          ? map['openingbalance'].toDouble() as double
-          : null,
-      "roundingvalue": map['roundingvalue'] != null
-          ? map['roundingvalue'].toDouble() as double
-          : null,
+      "sellingtax": map['sellingtax'] != null ? map['sellingtax'].toDouble() as double : null,
+      "openingbalance": map['openingbalance'] != null ? map['openingbalance'].toDouble() as double : null,
+      "roundingvalue": map['roundingvalue'] != null ? map['roundingvalue'].toDouble() as double : null,
       "stocklevel": map['stocklevel'].toDouble() as double,
       "minconst": map['minconst'].toDouble() as double,
       "maxconst": map['maxconst'].toDouble() as double,
@@ -495,6 +472,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       netzmeClientPrivateKey: entity.netzmeClientPrivateKey,
       netzmeCustidMerchant: entity.netzmeCustidMerchant,
       netzmeChannelId: entity.netzmeChannelId,
+      // defaultTocusId: entity.defaultTocusId,
     );
   }
 }

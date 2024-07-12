@@ -32,20 +32,24 @@ class CreditMemoHeaderEntity {
   final int sync;
   final int syncCRM;
   final String? torinTohemId;
+  final String? refpos1;
+  final String? refpos2;
+  final String? voidTohemId;
+  final String? channel;
 
   CreditMemoHeaderEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.tostrId,
+    this.updateDate,
+    this.tostrId,
     required this.docNum,
     required this.orderNo,
-    required this.tocusId,
-    required this.tohemId,
+    this.tocusId,
+    this.tohemId,
     required this.transDate,
     required this.transTime,
     required this.timezone,
-    required this.remarks,
+    this.remarks,
     required this.subTotal,
     required this.discPrctg,
     required this.discAmount,
@@ -59,11 +63,15 @@ class CreditMemoHeaderEntity {
     required this.grandTotal,
     required this.changed,
     required this.totalPayment,
-    required this.tocsrId,
+    this.tocsrId,
     required this.docStatus,
     required this.sync,
     required this.syncCRM,
-    required this.torinTohemId,
+    this.torinTohemId,
+    this.refpos1,
+    this.refpos2,
+    this.voidTohemId,
+    this.channel,
   });
 
   CreditMemoHeaderEntity copyWith({
@@ -97,6 +105,10 @@ class CreditMemoHeaderEntity {
     int? sync,
     int? syncCRM,
     String? torinTohemId,
+    String? refpos1,
+    String? refpos2,
+    String? voidTohemId,
+    String? channel,
   }) {
     return CreditMemoHeaderEntity(
       docId: docId ?? this.docId,
@@ -129,6 +141,10 @@ class CreditMemoHeaderEntity {
       sync: sync ?? this.sync,
       syncCRM: syncCRM ?? this.syncCRM,
       torinTohemId: torinTohemId ?? this.torinTohemId,
+      refpos1: refpos1 ?? this.refpos1,
+      refpos2: refpos2 ?? this.refpos2,
+      voidTohemId: voidTohemId ?? this.voidTohemId,
+      channel: channel ?? this.channel,
     );
   }
 
@@ -164,6 +180,10 @@ class CreditMemoHeaderEntity {
       'sync': sync,
       'syncCRM': syncCRM,
       'torinTohemId': torinTohemId,
+      'refpos1': refpos1,
+      'refpos2': refpos2,
+      'voidTohemId': voidTohemId,
+      'channel': channel,
     };
   }
 
@@ -171,9 +191,7 @@ class CreditMemoHeaderEntity {
     return CreditMemoHeaderEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       docNum: map['docNum'] as String,
       orderNo: map['orderNo'] as int,
@@ -200,20 +218,22 @@ class CreditMemoHeaderEntity {
       docStatus: map['docStatus'] as int,
       sync: map['sync'] as int,
       syncCRM: map['syncCRM'] as int,
-      torinTohemId:
-          map['torinTohemId'] != null ? map['torinTohemId'] as String : null,
+      torinTohemId: map['torinTohemId'] != null ? map['torinTohemId'] as String : null,
+      refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      voidTohemId: map['voidTohemId'] != null ? map['voidTohemId'] as String : null,
+      channel: map['channel'] != null ? map['channel'] as String : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory CreditMemoHeaderEntity.fromJson(String source) =>
-      CreditMemoHeaderEntity.fromMap(
-          json.decode(source) as Map<String, dynamic>);
+      CreditMemoHeaderEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'CreditMemoHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docNum: $docNum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDate: $transDate, transTime: $transTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, torinTohemId: $torinTohemId)';
+    return 'CreditMemoHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrId: $tostrId, docNum: $docNum, orderNo: $orderNo, tocusId: $tocusId, tohemId: $tohemId, transDate: $transDate, transTime: $transTime, timezone: $timezone, remarks: $remarks, subTotal: $subTotal, discPrctg: $discPrctg, discAmount: $discAmount, discountCard: $discountCard, coupon: $coupon, discountCoupun: $discountCoupun, taxPrctg: $taxPrctg, taxAmount: $taxAmount, addCost: $addCost, rounding: $rounding, grandTotal: $grandTotal, changed: $changed, totalPayment: $totalPayment, tocsrId: $tocsrId, docStatus: $docStatus, sync: $sync, syncCRM: $syncCRM, torinTohemId: $torinTohemId, refpos1: $refpos1, refpos2: $refpos2, voidTohemId: $voidTohemId, channel: $channel)';
   }
 
   @override
@@ -249,7 +269,11 @@ class CreditMemoHeaderEntity {
         other.docStatus == docStatus &&
         other.sync == sync &&
         other.syncCRM == syncCRM &&
-        other.torinTohemId == torinTohemId;
+        other.torinTohemId == torinTohemId &&
+        other.refpos1 == refpos1 &&
+        other.refpos2 == refpos2 &&
+        other.voidTohemId == voidTohemId &&
+        other.channel == channel;
   }
 
   @override
@@ -283,6 +307,10 @@ class CreditMemoHeaderEntity {
         docStatus.hashCode ^
         sync.hashCode ^
         syncCRM.hashCode ^
-        torinTohemId.hashCode;
+        torinTohemId.hashCode ^
+        refpos1.hashCode ^
+        refpos2.hashCode ^
+        voidTohemId.hashCode ^
+        channel.hashCode;
   }
 }

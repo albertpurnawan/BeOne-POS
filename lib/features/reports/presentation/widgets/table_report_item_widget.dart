@@ -66,11 +66,10 @@ class _TableReportItemState extends State<TableReportItem> {
     // Apply Search Query
     if (fetchedTinv1 != null) {
       final filteredTinv1 = fetchedTinv1.where((invoice) {
+        final shortname = invoice['shortname'] ?? '';
         return invoice['itemcode'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
-                invoice['itemname'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
-                invoice['shortname'] != null
-            ? invoice['shortname'].toLowerCase().contains(widget.searchQuery!.toLowerCase())
-            : false;
+            invoice['itemname'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
+            shortname.toLowerCase().contains(widget.searchQuery!.toLowerCase());
       }).toList();
       setState(() {
         fetched = filteredTinv1;

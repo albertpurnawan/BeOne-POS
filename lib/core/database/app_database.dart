@@ -84,6 +84,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/vendor_daro.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/vendor_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/zipcode_dao.dart';
+import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/assign_price_member_per_store.dart';
 import 'package:pos_fe/features/sales/data/models/authentication_store.dart';
 import 'package:pos_fe/features/sales/data/models/authorization.dart';
@@ -113,6 +114,7 @@ import 'package:pos_fe/features/sales/data/models/gender.dart';
 import 'package:pos_fe/features/sales/data/models/holiday.dart';
 import 'package:pos_fe/features/sales/data/models/holiday_detail.dart';
 import 'package:pos_fe/features/sales/data/models/house_bank_account.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_applied_promo.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_payment_other_voucher.dart';
@@ -1927,6 +1929,10 @@ CREATE TABLE $tableCreditMemoHeader (
   ${CreditMemoHeaderFields.sync} int NOT NULL DEFAULT '0',
   ${CreditMemoHeaderFields.syncCRM} int NOT NULL DEFAULT '0',
   ${CreditMemoHeaderFields.torinTohemId} text DEFAULT NULL,
+  ${CreditMemoHeaderFields.refpos1} varchar(191) DEFAULT NULL,
+  ${CreditMemoHeaderFields.refpos2} varchar(191) DEFAULT NULL,
+  ${CreditMemoHeaderFields.voidTohemId} text DEFAULT NULL,
+  ${CreditMemoHeaderFields.channel} varchar(191) DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `torin_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `torin_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3327,6 +3333,38 @@ CREATE TABLE $tableLogError (
   ${LogErrorFields.processInfo} text NOT NULL,
   ${LogErrorFields.description} text NOT NULL,
   $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableInvoiceAppliedPromo (
+  $uuidDefinition,
+  ${InvoiceAppliedPromoFields.createDate} datetime NOT NULL,
+  ${InvoiceAppliedPromoFields.updateDate} datetime DEFAULT NULL,
+  ${InvoiceAppliedPromoFields.toinvDocId} text DEFAULT NULL,
+  ${InvoiceAppliedPromoFields.tinv1DocId} text DEFAULT NULL,
+  ${InvoiceAppliedPromoFields.promotionType} varchar(30) NOT NULL,
+  ${InvoiceAppliedPromoFields.promotionDocId} text DEFAULT NULL,
+  ${InvoiceAppliedPromoFields.amount} double NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tinv5_toinvId_fkey` FOREIGN KEY (`toinvdocid`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv5_tinv1Id_fkey` FOREIGN KEY (`tinv1docid`) REFERENCES `tinv1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv5_toprmId_fkey` FOREIGN KEY (`promotiondocid`) REFERENCES `toprm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableApprovalInvoice (
+  $uuidDefinition,
+  ${ApprovalInvoiceFields.createDate} datetime NOT NULL,
+  ${ApprovalInvoiceFields.updateDate} datetime DEFAULT NULL,
+  ${ApprovalInvoiceFields.toinvId} text NOT NULL,
+  ${ApprovalInvoiceFields.tousrId} text NOT NULL,
+  ${ApprovalInvoiceFields.remarks} text NOT NULL,
+  ${ApprovalInvoiceFields.category} varchar(200) NOT NULL,
+  $createdAtDefinition,
+  CONSTRAINT `tinv6_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tinv6_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
       });

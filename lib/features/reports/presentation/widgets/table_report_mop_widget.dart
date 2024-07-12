@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -57,6 +59,7 @@ class _TableReportMopState extends State<TableReportMop> {
     ]);
 
     final fetchedTmpt3 = results[0] as List<dynamic>;
+    log("fetchedTpmt3 - $fetchedTmpt3");
     final fetchedMpad1 = results[1] as List<dynamic>;
     final fetchedNew = [...fetchedTmpt3, ...fetchedMpad1];
 

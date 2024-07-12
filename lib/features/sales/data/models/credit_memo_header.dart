@@ -35,6 +35,10 @@ class CreditMemoHeaderFields {
     sync,
     syncCRM,
     torinTohemId,
+    refpos1,
+    refpos2,
+    voidTohemId,
+    channel,
   ];
 
   static const String docId = "docid";
@@ -67,10 +71,13 @@ class CreditMemoHeaderFields {
   static const String sync = "sync";
   static const String syncCRM = "synccrm";
   static const String torinTohemId = "torinTohemId";
+  static const String refpos1 = "refpos1";
+  static const String refpos2 = "refpos2";
+  static const String voidTohemId = "voidTohemId";
+  static const String channel = "channel";
 }
 
-class CreditMemoHeaderModel extends CreditMemoHeaderEntity
-    implements BaseModel {
+class CreditMemoHeaderModel extends CreditMemoHeaderEntity implements BaseModel {
   CreditMemoHeaderModel({
     required super.docId,
     required super.createDate,
@@ -102,6 +109,10 @@ class CreditMemoHeaderModel extends CreditMemoHeaderEntity
     required super.sync,
     required super.syncCRM,
     required super.torinTohemId,
+    required super.refpos1,
+    required super.refpos2,
+    required super.voidTohemId,
+    required super.channel,
   });
 
   @override
@@ -137,6 +148,10 @@ class CreditMemoHeaderModel extends CreditMemoHeaderEntity
       'sync': sync,
       'synccrm': syncCRM,
       'torinTohemId': torinTohemId,
+      'refpos1': refpos1,
+      'refpos2': refpos2,
+      'voidTohemId': voidTohemId,
+      'channel': channel,
     };
   }
 
@@ -144,9 +159,7 @@ class CreditMemoHeaderModel extends CreditMemoHeaderEntity
     return CreditMemoHeaderModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       docNum: map['docnum'] as String,
       orderNo: map['orderno'] as int,
@@ -173,26 +186,21 @@ class CreditMemoHeaderModel extends CreditMemoHeaderEntity
       docStatus: map['docstatus'] as int,
       sync: map['sync'] as int,
       syncCRM: map['synccrm'] as int,
-      torinTohemId:
-          map['torinTohemId'] != null ? map['torinTohemId'] as String : null,
+      torinTohemId: map['torinTohemId'] != null ? map['torinTohemId'] as String : null,
+      refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      voidTohemId: map['voidTohemId'] != null ? map['voidTohemId'] as String : null,
+      channel: map['channel'] != null ? map['channel'] as String : null,
     );
   }
 
   factory CreditMemoHeaderModel.fromMapRemote(Map<String, dynamic> map) {
     return CreditMemoHeaderModel.fromMap({
       ...map,
-      "tocusId": map['tocus_id']?['docid'] != null
-          ? map['tocus_id']['docid'] as String
-          : null,
-      "tohemId": map['tohem_id']?['docid'] != null
-          ? map['tohem_id']['docid'] as String
-          : null,
-      "tocsrId": map['tocsr_id']?['docid'] != null
-          ? map['tocsr_id']['docid'] as String
-          : null,
-      "torinTohemId": map['tohem_id']?['docid'] != null
-          ? map['tohem_id']['docid'] as String
-          : null,
+      "tocusId": map['tocus_id']?['docid'] != null ? map['tocus_id']['docid'] as String : null,
+      "tohemId": map['tohem_id']?['docid'] != null ? map['tohem_id']['docid'] as String : null,
+      "tocsrId": map['tocsr_id']?['docid'] != null ? map['tocsr_id']['docid'] as String : null,
+      "torinTohemId": map['tohem_id']?['docid'] != null ? map['tohem_id']['docid'] as String : null,
       "subtotal": map['subtotal'].toDouble() as double,
       "discprctg": map['discprctg'].toDouble() as double,
       "discamount": map['discamount'].toDouble() as double,
@@ -240,6 +248,10 @@ class CreditMemoHeaderModel extends CreditMemoHeaderEntity
       sync: entity.sync,
       syncCRM: entity.syncCRM,
       torinTohemId: entity.torinTohemId,
+      refpos1: entity.refpos1,
+      refpos2: entity.refpos2,
+      voidTohemId: entity.voidTohemId,
+      channel: entity.channel,
     );
   }
 }
