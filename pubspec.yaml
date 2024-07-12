@@ -102,6 +102,8 @@ flutter:
     - assets/images/3d-success.png
     - assets/images/3d-fail.png
     - assets/ic_launcher.png
+    - assets/images/logo-topgolf.png
+    - assets/images/logo-topgolf.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

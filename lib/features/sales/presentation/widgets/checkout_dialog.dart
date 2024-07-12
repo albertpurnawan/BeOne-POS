@@ -1957,7 +1957,7 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
                           ),
                           Text(
                             textAlign: TextAlign.right,
-                            Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt()),
+                            Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.round()),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -1993,7 +1993,9 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(mop.amount!),
+                              Helpers.parseMoney(mop.payTypeCode == "1"
+                                  ? mop.amount! + (context.read<ReceiptCubit>().state.changed ?? 0)
+                                  : mop.amount!),
                               textAlign: TextAlign.right,
                               style: const TextStyle(
                                 fontSize: 16,
