@@ -255,6 +255,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             approvalStatus: activeShift!.approvalStatus,
             refpos: activeShift!.docId,
             syncToBos: activeShift!.syncToBos,
+            closedApproveById: activeShift!.closedApproveById,
           );
 
           // await GetIt.instance<AppDatabase>()
@@ -659,6 +660,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 try {
                   if (activeShift == null) throw "Current shift not found";
                   final userId = await GetIt.instance<AppDatabase>().userDao.readByUsername(widget.username!, null);
+                  if (userId == null) throw "Approver not found in local DB";
+                  final String? currentUserId = prefs.getString("tousrId");
+                  if (currentUserId == null) throw "Unauthenticated";
                   final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
                     docId: activeShift!.docId,
                     createDate: activeShift!.createDate,
@@ -678,10 +682,11 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     cashValue: activeShift!.cashValue,
                     closeValue: Helpers.revertMoneyToDecimalFormat(totalSales),
                     openedbyId: activeShift!.openedbyId,
-                    closedbyId: userId!.docId,
+                    closedbyId: currentUserId,
                     approvalStatus: 1,
                     refpos: activeShift!.docId,
                     syncToBos: activeShift!.syncToBos,
+                    closedApproveById: userId.docId,
                   );
 
                   List<MoneyDenominationModel> createDenominationList(Map<String, dynamic> denomination) {

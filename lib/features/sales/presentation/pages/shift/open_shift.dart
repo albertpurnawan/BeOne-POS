@@ -372,6 +372,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                               approvalStatus: 0,
                               refpos: shiftId,
                               syncToBos: 0,
+                              closedApproveById: null,
                             );
                             _insertCashierBalanceTransaction(shift);
 
@@ -510,6 +511,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                               approvalStatus: 0,
                               refpos: shiftId,
                               syncToBos: 0,
+                              closedApproveById: null,
                             );
                             _insertCashierBalanceTransaction(shift);
 

@@ -25,6 +25,7 @@ class CashierBalanceTransactionEntity {
   final int approvalStatus;
   final String? refpos;
   final int? syncToBos;
+  final String? closedApproveById;
 
   CashierBalanceTransactionEntity({
     required this.docId,
@@ -49,6 +50,7 @@ class CashierBalanceTransactionEntity {
     required this.approvalStatus,
     this.refpos,
     this.syncToBos,
+    this.closedApproveById,
   });
 
   CashierBalanceTransactionEntity copyWith({
@@ -74,6 +76,7 @@ class CashierBalanceTransactionEntity {
     int? approvalStatus,
     String? refpos,
     int? syncToBos,
+    String? closedApproveById,
   }) {
     return CashierBalanceTransactionEntity(
       docId: docId ?? this.docId,
@@ -98,6 +101,7 @@ class CashierBalanceTransactionEntity {
       approvalStatus: approvalStatus ?? this.approvalStatus,
       refpos: refpos ?? this.refpos,
       syncToBos: syncToBos ?? this.syncToBos,
+      closedApproveById: closedApproveById ?? this.closedApproveById,
     );
   }
 
@@ -125,6 +129,7 @@ class CashierBalanceTransactionEntity {
       'approvalStatus': approvalStatus,
       'refpos': refpos,
       'syncToBos': syncToBos,
+      'closedApproveById': closedApproveById,
     };
   }
 
@@ -132,9 +137,7 @@ class CashierBalanceTransactionEntity {
     return CashierBalanceTransactionEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
       tousrId: map['tousrId'] != null ? map['tousrId'] as String : null,
       docNum: map['docNum'] as String,
@@ -149,25 +152,23 @@ class CashierBalanceTransactionEntity {
       calcValue: map['calcValue'] as double,
       cashValue: map['cashValue'] as double,
       closeValue: map['closeValue'] as double,
-      openedbyId:
-          map['openedbyId'] != null ? map['openedbyId'] as String : null,
-      closedbyId:
-          map['closedbyId'] != null ? map['closedbyId'] as String : null,
+      openedbyId: map['openedbyId'] != null ? map['openedbyId'] as String : null,
+      closedbyId: map['closedbyId'] != null ? map['closedbyId'] as String : null,
       approvalStatus: map['approvalStatus'] as int,
       refpos: map['refpos'] != null ? map['refpos'] as String : null,
       syncToBos: map['syncToBos'] != null ? map['syncToBos'] as int : null,
+      closedApproveById: map['closedApproveById'] != null ? map['closedApproveById'] as String : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory CashierBalanceTransactionEntity.fromJson(String source) =>
-      CashierBalanceTransactionEntity.fromMap(
-          json.decode(source) as Map<String, dynamic>);
+      CashierBalanceTransactionEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'CashierBalanceTransactionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tocsrId: $tocsrId, tousrId: $tousrId, docNum: $docNum, openDate: $openDate, openTime: $openTime, calcDate: $calcDate, calcTime: $calcTime, closeDate: $closeDate, closeTime: $closeTime, timezone: $timezone, openValue: $openValue, calcValue: $calcValue, cashValue: $cashValue, closeValue: $closeValue, openedbyId: $openedbyId, closedbyId: $closedbyId, approvalStatus: $approvalStatus, refpos: $refpos, syncToBos: $syncToBos)';
+    return 'CashierBalanceTransactionEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tocsrId: $tocsrId, tousrId: $tousrId, docNum: $docNum, openDate: $openDate, openTime: $openTime, calcDate: $calcDate, calcTime: $calcTime, closeDate: $closeDate, closeTime: $closeTime, timezone: $timezone, openValue: $openValue, calcValue: $calcValue, cashValue: $cashValue, closeValue: $closeValue, openedbyId: $openedbyId, closedbyId: $closedbyId, approvalStatus: $approvalStatus, refpos: $refpos, syncToBos: $syncToBos, closedApproveById: $closedApproveById)';
   }
 
   @override
@@ -195,7 +196,8 @@ class CashierBalanceTransactionEntity {
         other.closedbyId == closedbyId &&
         other.approvalStatus == approvalStatus &&
         other.refpos == refpos &&
-        other.syncToBos == syncToBos;
+        other.syncToBos == syncToBos &&
+        other.closedApproveById == closedApproveById;
   }
 
   @override
@@ -221,6 +223,7 @@ class CashierBalanceTransactionEntity {
         closedbyId.hashCode ^
         approvalStatus.hashCode ^
         refpos.hashCode ^
-        syncToBos.hashCode;
+        syncToBos.hashCode ^
+        closedApproveById.hashCode;
   }
 }
