@@ -7,6 +7,7 @@ class CampaignEntity {
   final DateTime? updateDate;
   final String campaignCode;
   final String description;
+  // final int statusActive;
   final String form;
 
   CampaignEntity({
@@ -15,6 +16,7 @@ class CampaignEntity {
     this.updateDate,
     required this.campaignCode,
     required this.description,
+    // required this.statusActive,
     required this.form,
   });
 
@@ -24,6 +26,7 @@ class CampaignEntity {
     DateTime? updateDate,
     String? campaignCode,
     String? description,
+    // int? statusActive,
     String? form,
   }) {
     return CampaignEntity(
@@ -32,6 +35,7 @@ class CampaignEntity {
       updateDate: updateDate ?? this.updateDate,
       campaignCode: campaignCode ?? this.campaignCode,
       description: description ?? this.description,
+      // statusActive: statusActive ?? this.statusActive,
       form: form ?? this.form,
     );
   }
@@ -43,6 +47,7 @@ class CampaignEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'campaignCode': campaignCode,
       'description': description,
+      // 'statusActive': statusActive,
       'form': form,
     };
   }
@@ -51,19 +56,17 @@ class CampaignEntity {
     return CampaignEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       campaignCode: map['campaignCode'] as String,
       description: map['description'] as String,
+      // statusActive: map['statusActive'] as int,
       form: map['form'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory CampaignEntity.fromJson(String source) =>
-      CampaignEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory CampaignEntity.fromJson(String source) => CampaignEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -79,6 +82,7 @@ class CampaignEntity {
         other.updateDate == updateDate &&
         other.campaignCode == campaignCode &&
         other.description == description &&
+        // other.statusActive == statusActive &&
         other.form == form;
   }
 
@@ -89,6 +93,7 @@ class CampaignEntity {
         updateDate.hashCode ^
         campaignCode.hashCode ^
         description.hashCode ^
+        // statusActive.hashCode ^
         form.hashCode;
   }
 }

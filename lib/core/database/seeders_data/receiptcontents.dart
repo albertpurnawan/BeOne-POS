@@ -1,11 +1,11 @@
 const receiptcontents = [
-  // {
-  //   "row": 1,
-  //   "content": "logo",
-  //   "fontsize": 2,
-  //   "isbold": 1,
-  //   "alignment": 1,
-  // },
+  {
+    "row": 0,
+    "content": "logo",
+    "fontsize": 2,
+    "isbold": 1,
+    "alignment": 1,
+  },
   {
     "row": 1,
     "content": "storeName",

@@ -10,6 +10,7 @@ class CampaignFields {
     updateDate,
     campaignCode,
     description,
+    // statusActive,
     form,
   ];
 
@@ -18,6 +19,7 @@ class CampaignFields {
   static const String updateDate = 'updatedate';
   static const String campaignCode = 'campaigncode';
   static const String description = 'description';
+  // static const String statusActive = 'statusactive';
   static const String form = 'form';
 }
 
@@ -28,6 +30,7 @@ class CampaignModel extends CampaignEntity implements BaseModel {
     required super.updateDate,
     required super.campaignCode,
     required super.description,
+    // required super.statusActive,
     required super.form,
   });
 
@@ -39,6 +42,7 @@ class CampaignModel extends CampaignEntity implements BaseModel {
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'campaigncode': campaignCode,
       'description': description,
+      // 'statusactive': statusActive,
       'form': form,
     };
   }
@@ -47,11 +51,10 @@ class CampaignModel extends CampaignEntity implements BaseModel {
     return CampaignModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       campaignCode: map['campaigncode'] as String,
       description: map['description'] as String,
+      // statusActive: map['statusactive'] != null ? map['statusactive'] as int : null,
       form: map['form'] as String,
     );
   }
@@ -70,6 +73,7 @@ class CampaignModel extends CampaignEntity implements BaseModel {
       updateDate: entity.updateDate,
       campaignCode: entity.campaignCode,
       description: entity.description,
+      // statusActive: entity.statusActive,
       form: entity.form,
     );
   }

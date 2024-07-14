@@ -27,6 +27,7 @@ class CashierBalanceTransactionFields {
     approvalStatus,
     refpos,
     syncToBos,
+    closedApproveById,
   ];
 
   static const String docId = "docid";
@@ -51,10 +52,10 @@ class CashierBalanceTransactionFields {
   static const String approvalStatus = "approvalstatus";
   static const String refpos = "refpos";
   static const String syncToBos = "synctobos";
+  static const String closedApproveById = "closedaprovebyId";
 }
 
-class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
-    implements BaseModel {
+class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity implements BaseModel {
   CashierBalanceTransactionModel({
     required super.docId,
     required super.createDate,
@@ -78,6 +79,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
     required super.approvalStatus,
     required super.refpos,
     required super.syncToBos,
+    required super.closedApproveById,
   });
 
   @override
@@ -105,6 +107,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       'approvalstatus': approvalStatus,
       'refpos': refpos,
       'synctobos': syncToBos,
+      'closedaprovebyId': closedApproveById,
     };
   }
 
@@ -112,9 +115,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
     return CashierBalanceTransactionModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
       tousrId: map['tousrId'] != null ? map['tousrId'] as String : null,
       docNum: map['docnum'] as String,
@@ -129,26 +130,20 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       calcValue: map['calcvalue'] as double,
       cashValue: map['cashvalue'] as double,
       closeValue: map['closevalue'] as double,
-      openedbyId:
-          map['openedbyId'] != null ? map['openedbyId'] as String : null,
-      closedbyId:
-          map['closedbyId'] != null ? map['closedbyId'] as String : null,
+      openedbyId: map['openedbyId'] != null ? map['openedbyId'] as String : null,
+      closedbyId: map['closedbyId'] != null ? map['closedbyId'] as String : null,
       approvalStatus: map['approvalstatus'] as int,
       refpos: map['refpos'] != null ? map['refpos'] as String : null,
       syncToBos: map['synctobos'] != null ? map['synctobos'] as int : null,
+      closedApproveById: map['closedaprovebyId'] != null ? map['closedaprovebyId'] as String : null,
     );
   }
 
-  factory CashierBalanceTransactionModel.fromMapRemote(
-      Map<String, dynamic> map) {
+  factory CashierBalanceTransactionModel.fromMapRemote(Map<String, dynamic> map) {
     return CashierBalanceTransactionModel.fromMap({
       ...map,
-      "tocsrId": map['tocsr_id']?['docid'] != null
-          ? map['tocsr_id']['docid'] as String
-          : null,
-      "tousrId": map['tousr_id']?['docid'] != null
-          ? map['tousr_id']['docid'] as String
-          : null,
+      "tocsrId": map['tocsr_id']?['docid'] != null ? map['tocsr_id']['docid'] as String : null,
+      "tousrId": map['tousr_id']?['docid'] != null ? map['tousr_id']['docid'] as String : null,
       "openvalue": map['openvalue'].toDouble() as double,
       "calcvalue": map['calcvalue'].toDouble() as double,
       "cashvalue": map['cashvalue'].toDouble() as double,
@@ -156,8 +151,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
     });
   }
 
-  factory CashierBalanceTransactionModel.fromEntity(
-      CashierBalanceTransactionEntity entity) {
+  factory CashierBalanceTransactionModel.fromEntity(CashierBalanceTransactionEntity entity) {
     return CashierBalanceTransactionModel(
       docId: entity.docId,
       createDate: entity.createDate,
@@ -181,6 +175,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity
       approvalStatus: entity.approvalStatus,
       refpos: entity.refpos,
       syncToBos: entity.syncToBos,
+      closedApproveById: entity.closedApproveById,
     );
   }
 }

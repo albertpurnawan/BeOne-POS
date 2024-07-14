@@ -35,23 +35,18 @@ class _RecapShiftScreenState extends State<RecapShiftScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 10),
-                  CloseShiftForm(
-                    shiftId: shiftId,
-                  ),
-                ],
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              CloseShiftForm(
+                shiftId: shiftId,
               ),
-            ),
+            ],
           ),
         ),
       ),

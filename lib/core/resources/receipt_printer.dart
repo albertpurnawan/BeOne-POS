@@ -2,6 +2,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -80,7 +81,9 @@ class ReceiptPrinter {
       case PrintReceiptContentType.time:
         return DateFormat('hh:mm aaa').format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
-        return DateFormat('dd/MM/yy H:m')
+        log(DateFormat('dd/MM/yy HH:mm')
+            .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!));
+        return DateFormat('dd/MM/yy HH:mm')
             .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
@@ -313,7 +316,7 @@ class ReceiptPrinter {
                   bold: printReceiptContent.isBold,
                 ));
             if (salesEmployeeEntity?.empName == null) continue;
-            bytes += generator.text(Helpers.alignLeftByAddingSpace(">${salesEmployeeEntity!.empName}", 48),
+            bytes += generator.text(Helpers.alignLeftByAddingSpace(">> ${salesEmployeeEntity!.empName}", 48),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -337,6 +340,45 @@ class ReceiptPrinter {
                 width: 8,
                 text: Helpers.alignRightByAddingSpace(
                     Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.grandTotal.round()), 15),
+                styles: PosStyles(
+                  align: PosAlign.left,
+                  height: printReceiptContent.fontSize,
+                  width: printReceiptContent.fontSize,
+                  bold: printReceiptContent.isBold,
+                )),
+          ]);
+          bytes += generator.emptyLines(1);
+          // bytes += generator.text(
+          //     Helpers.alignLeftByAddingSpace(
+          //         'Total Qty.: ${Helpers.cleanDecimal(currentPrintReceiptDetail!.receiptEntity.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element), 3)}',
+          //         48),
+          //     styles: const PosStyles(
+          //       align: PosAlign.left,
+          //       height: PosTextSize.size1,
+          //       width: PosTextSize.size1,
+          //       bold: true,
+          //     ));
+
+          bytes += generator.row([
+            PosColumn(
+                width: 6,
+                text: "Total Qty.",
+                styles: PosStyles(
+                  align: PosAlign.left,
+                  height: printReceiptContent.fontSize,
+                  width: printReceiptContent.fontSize,
+                  bold: printReceiptContent.isBold,
+                )),
+            PosColumn(
+                width: 6,
+                text: Helpers.alignRightByAddingSpace(
+                    Helpers.cleanDecimal(
+                        currentPrintReceiptDetail!.receiptEntity.receiptItems
+                            .map((e) => e.quantity)
+                            .reduce((value, element) => value + element),
+                        3),
+                    11),
+                // text: "sssssssssssssssS",
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -470,8 +512,7 @@ class ReceiptPrinter {
                 )),
           ]);
           bytes += generator.emptyLines(1);
-          bytes += generator.text("*** All Prices are Inclusive of Tax ***",
-              styles: const PosStyles(align: PosAlign.center));
+          bytes += generator.text("*** Thank You ***", styles: const PosStyles(align: PosAlign.center));
         // bytes += generator.emptyLines(1);
         case PrintReceiptContentType.totalQty:
           bytes += generator.text(
@@ -498,13 +539,17 @@ class ReceiptPrinter {
             bytes += generator.row([
               PosColumn(
                   width: 8,
-                  text: mopSelection.mopAlias,
+                  text: (mopSelection.tpmt2Id != null) ? mopSelection.cardName! : mopSelection.mopAlias,
                   styles: const PosStyles(
                     align: PosAlign.left,
                   )),
               PosColumn(
                   width: 4,
-                  text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(mopSelection.amount ?? 0), 15),
+                  text: Helpers.alignRightByAddingSpace(
+                      Helpers.parseMoney(mopSelection.payTypeCode == "1"
+                          ? (mopSelection.amount ?? 0) + (currentPrintReceiptDetail!.receiptEntity.changed ?? 0)
+                          : mopSelection.amount ?? 0),
+                      15),
                   styles: const PosStyles(
                     align: PosAlign.left,
                   )),
@@ -575,7 +620,7 @@ class ReceiptPrinter {
         case PrintReceiptContentType.draftWatermarkTop:
           if (isDraft == false) break;
           bytes += generator.hr();
-          bytes += generator.text("DRAFT BILL",
+          bytes += generator.text("PENDING ORDER",
               styles: const PosStyles(
                 align: PosAlign.center,
                 bold: true,
@@ -583,7 +628,7 @@ class ReceiptPrinter {
           bytes += generator.hr();
         case PrintReceiptContentType.draftWatermarkBottom:
           if (isDraft == false) break;
-          bytes += generator.text("DRAFT BILL",
+          bytes += generator.text("PENDING ORDER",
               styles: const PosStyles(
                 align: PosAlign.center,
                 bold: true,
@@ -620,7 +665,7 @@ class ReceiptPrinter {
             PosColumn(
                 width: 5,
                 text: Helpers.alignRightByAddingSpace(
-                    DateFormat('dd/MM/yy H:m')
+                    DateFormat('dd/MM/yy HH:mm')
                         .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!),
                     19),
                 styles: const PosStyles(align: PosAlign.left)),
@@ -642,8 +687,13 @@ class ReceiptPrinter {
                     ": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custName ?? "-"}", 31),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
-
         case PrintReceiptContentType.logo:
+          final ByteData data = await rootBundle.load('assets/images/logo-topgolf.jpg');
+          final Uint8List imageBytes = data.buffer.asUint8List();
+          // decode the bytes into an image
+          final decodedImage = img.decodeImage(imageBytes)!;
+          bytes += generator.imageRaster(img.copyResize(decodedImage, width: 200), align: PosAlign.center);
+          bytes += generator.emptyLines(1);
         default:
           final String text = _convertPrintReceiptContentToText(printReceiptContent, isDraft);
           if (text == "") break;

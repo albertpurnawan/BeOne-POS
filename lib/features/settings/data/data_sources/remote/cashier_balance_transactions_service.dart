@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
@@ -22,13 +23,10 @@ class CashierBalanceTransactionApi {
     try {
       log("SEND TRANSACTIONS");
       token = prefs.getString('adminToken');
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
-      final tcsr2 = await GetIt.instance<AppDatabase>()
-          .moneyDenominationDao
-          .readByTcsr1Id(tcsr1.docId, null);
+      final tcsr2 = await GetIt.instance<AppDatabase>().moneyDenominationDao.readByTcsr1Id(tcsr1.docId, null);
       List<Map<String, dynamic>?> tcsr2List = tcsr2.map((data) {
         if (data != null) {
           return {"lembaran": data.nominal.toString(), "qty": data.count};
@@ -53,15 +51,15 @@ class CashierBalanceTransactionApi {
         "openby_id": tcsr1.openedbyId,
         "closeby_id": tcsr1.closedbyId,
         "refpos": tcsr1.refpos,
-        "detail_cash_register": tcsr2List
+        "detail_cash_register": tcsr2List,
+        "closedaproveby_id": tcsr1.closedApproveById,
       };
-      log("dataToSend - $dataToSend");
-      final response =
-          await _dio.post("$url/tenant-cashier-balance-transaction",
-              data: dataToSend,
-              options: Options(headers: {
-                'Authorization': 'Bearer $token',
-              }));
+      log("dataToSend - ${jsonEncode(dataToSend)}");
+      final response = await _dio.post("$url/tenant-cashier-balance-transaction",
+          data: dataToSend,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
 
       log("${response.data['description']}");
     } catch (e) {
