@@ -263,7 +263,7 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                               width: 5,
                             ),
                             Text(
-                              Helpers.formatDate((widget.closedShift.openDate)),
+                              Helpers.formatDate((widget.closedShift.closeDate)),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,

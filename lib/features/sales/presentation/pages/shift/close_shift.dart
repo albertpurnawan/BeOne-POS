@@ -741,13 +741,16 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                       });
 
                   if (isProceed != true) return;
+                  try {
+                    await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
+                  } catch (e) {}
 
                   await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
 
                   await prefs.setBool('isOpen', false);
                   await prefs.setString('tcsr1Id', "");
                   await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
-                  await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
+
                   final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
                       await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);
                   if (cashierBalanceTransactionEntity == null) {
