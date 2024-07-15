@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +49,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
 
   Future<void> resendOTP() async {
     await GetIt.instance<OTPServiceAPi>().createSendOTP();
-    log("OTP RESENT");
     setState(() {
       _isOTPSent = true;
     });
@@ -83,7 +81,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
       }
     } else {
       const message = "Wrong Code, Please Check Again";
-      log(response);
       if (childContext.mounted) {
         SnackBarHelper.presentErrorSnackBar(childContext, message);
       }
@@ -229,7 +226,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                   } else if (value.isNotEmpty && index == 5) {
                                     _updateOtpCode();
                                     // FocusScope.of(context).unfocus();
-                                    log("OTP Code: $_otpCode");
                                     await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                                   }
                                 },
@@ -360,7 +356,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                             backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
-                          log("OTP Code: $_otpCode");
                           await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                         },
                         child: Center(

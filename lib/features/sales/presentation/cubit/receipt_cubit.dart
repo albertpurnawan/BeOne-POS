@@ -365,7 +365,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       newState = state.copyWith(changed: state.totalPayment! - state.grandTotal);
     }
 
-    dev.log("ON CHARGE - $newState");
+    // dev.log("ON CHARGE - $newState");
     final ReceiptEntity? createdReceipt = await _saveReceiptUseCase.call(params: newState);
 
     if (createdReceipt != null) {
@@ -378,7 +378,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             .deleteByDocId(newState.queuedInvoiceHeaderDocId!, null);
       }
       emit(createdReceipt);
-      dev.log("createdReceipt onCharge $createdReceipt");
+      // dev.log("createdReceipt onCharge $createdReceipt");
       try {
         await _printReceiptUsecase.call(
             params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, isDraft: false));
@@ -461,7 +461,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
 
-      dev.log("Result updateTotalAmountFromDiscount - $updatedReceipt");
+      // dev.log("Result updateTotalAmountFromDiscount - $updatedReceipt");
 
       emit(updatedReceipt.copyWith(
           previousReceiptEntity: state.previousReceiptEntity ?? state.copyWith(previousReceiptEntity: null)));
@@ -486,7 +486,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       )..mopSelections = [];
       List<String> skippedPromoIds = [];
 
-      dev.log("First entry $newReceipt");
+      // dev.log("First entry $newReceipt");
 
       final double discHeaderManual = state.discHeaderManual ?? 0;
       if (discHeaderManual > 0) {
@@ -497,7 +497,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         ));
       }
 
-      dev.log("Process before checkout $newReceipt");
+      // dev.log("Process before checkout $newReceipt");
 
       // ini artinya barang dari buy x get ga discan ulang
       for (final receiptItem in state.copyWith().receiptItems) {
@@ -570,7 +570,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
                 break;
               case 203:
-                dev.log("CASE 203");
+                // dev.log("CASE 203");
                 newReceipt = await _handlePromoTopdiUseCase.call(
                     params: HandlePromosUseCaseParams(
                   receiptItemEntity: receiptItem,
@@ -591,7 +591,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         }
       }
 
-      dev.log("Process after checkout $newReceipt");
+      // dev.log("Process after checkout $newReceipt");
 
       if (discHeaderManual > 0 && (newReceipt.subtotal - (newReceipt.discAmount ?? 0)) > discHeaderManual) {
         newReceipt = await _recalculateTaxUseCase.call(
@@ -601,16 +601,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 discPrctg: (100 * (discHeaderManual + (newReceipt.discHeaderPromo ?? 0))) / newReceipt.subtotal));
       }
 
-      dev.log("Process reapply discount header $newReceipt");
+      // dev.log("Process reapply discount header $newReceipt");
 
       newReceipt = await _applyRoundingUseCase.call(params: newReceipt);
 
-      dev.log("To emit ${newReceipt.copyWith(
-        previousReceiptEntity: state.copyWith(
-            receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
-      )}");
+      // dev.log("To emit ${newReceipt.copyWith(
+      //   previousReceiptEntity: state.copyWith(
+      //       receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
+      // )}");
 
-      dev.log("previousreceipt before emit ${state.previousReceiptEntity}");
+      // dev.log("previousreceipt before emit ${state.previousReceiptEntity}");
 
       emit(newReceipt.copyWith(
         previousReceiptEntity: state.previousReceiptEntity ??

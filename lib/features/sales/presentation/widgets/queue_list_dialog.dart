@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -65,8 +63,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
       focusNode: _keyboardListenerFocusNode,
       onKeyEvent: (node, event) {
         if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
-        log("event queue list");
-        log(event.physicalKey.toString());
+        // log("event queue list");
         if (event.physicalKey == PhysicalKeyboardKey.arrowDown && currentIndex < queuedReceipts.length - 1) {
           scrollToReceiptItemByIndex(currentIndex + 1);
           currentIndex += 1;

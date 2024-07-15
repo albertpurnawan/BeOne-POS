@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -1082,7 +1081,7 @@ class _SalesPageState extends State<SalesPage> {
                                     : () {
                                         final ReceiptItemEntity receiptItemTarget =
                                             context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                        log("receiptTarget - $receiptItemTarget");
+                                        // log("receiptTarget - $receiptItemTarget");
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) =>
@@ -1430,7 +1429,7 @@ class _SalesPageState extends State<SalesPage> {
                                     : () {
                                         final ReceiptItemEntity receiptItemTarget =
                                             context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                        log("receiptTarget - $receiptItemTarget");
+                                        // log("receiptTarget - $receiptItemTarget");
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) =>
@@ -1695,7 +1694,7 @@ class _SalesPageState extends State<SalesPage> {
                                 : () {
                                     final ReceiptItemEntity receiptItemTarget =
                                         context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                    log("receiptTarget - $receiptItemTarget");
+                                    // log("receiptTarget - $receiptItemTarget");
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) =>
@@ -2801,7 +2800,7 @@ class _SalesPageState extends State<SalesPage> {
         child: TapRegion(
           groupId: isUpdatingReceiptItemQty ? 1 : null,
           onTapOutside: (event) {
-            log("ontapoutside");
+            // log("ontapoutside");
             if (ModalRoute.of(context)?.isCurrent != true) return;
 
             if (isUpdatingReceiptItemQty) {
@@ -2826,7 +2825,6 @@ class _SalesPageState extends State<SalesPage> {
                 _newReceiptItemCodeFocusNode.requestFocus();
               });
             } else {
-              log("focusrequested");
               setState(() {
                 // indexIsSelect = [-1, 0];
                 // _textEditingControllerNewReceiptItemQuantity.text = "1";
@@ -3091,17 +3089,17 @@ class _SalesPageState extends State<SalesPage> {
           onPressed: () {
             setState(() {
               if (!isEditingNewReceiptItemCode && !isEditingNewReceiptItemQty && !isUpdatingReceiptItemQty) {
-                log("numpadnumbutton 1");
+                // log("numpadnumbutton 1");
 
                 _textEditingControllerNewReceiptItemCode.text = buttonNumber;
                 Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemCode) {
-                log("numpadnumbutton 2");
+                // log("numpadnumbutton 2");
 
                 _textEditingControllerNewReceiptItemCode.text += buttonNumber;
                 Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
-                log("numpadnumbutton 3");
+                // log("numpadnumbutton 3");
 
                 _textEditingControllerNewReceiptItemQuantity.text += buttonNumber;
                 Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemQuantityFocusNode.requestFocus());
@@ -3139,7 +3137,7 @@ class _SalesPageState extends State<SalesPage> {
     bool isNumOnly,
     BuildContext context,
   ) async {
-    log("Handle physical keyboard ${event.physicalKey}");
+    // log("Handle physical keyboard ${event.physicalKey}");
     if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
       if (event.character != null &&
@@ -3312,7 +3310,7 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
         if (indexIsSelect[1] != 0) {
           final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-          log("receiptTarget - $receiptItemTarget");
+          // log("receiptTarget - $receiptItemTarget");
           await showDialog(
             context: context,
             builder: (BuildContext context) => ItemDetailsDialog(indexSelected: indexIsSelect[0]),

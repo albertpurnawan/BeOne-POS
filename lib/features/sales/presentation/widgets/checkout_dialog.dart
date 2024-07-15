@@ -199,7 +199,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         });
       }
     } catch (e, s) {
-      dev.log(e.toString());
       debugPrintStack(stackTrace: s);
     }
   }
@@ -907,8 +906,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     final receiptGrandTotal = context.read<ReceiptCubit>().state.grandTotal;
     final receiptTotalVouchers = context.read<ReceiptCubit>().state.totalVoucher;
     if (receiptTotalVouchers! >= receiptGrandTotal) {
-      dev.log("receiptTotal - $receiptGrandTotal");
-      dev.log("receiptTotalVouchers - $receiptTotalVouchers");
+      // dev.log("receiptTotal - $receiptGrandTotal");
+      // dev.log("receiptTotalVouchers - $receiptTotalVouchers");
       setState(() {
         voucherIsExceedPurchase = true;
       });
@@ -937,7 +936,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       });
       updateReceiptMop();
     } catch (e) {
-      dev.log(e.toString());
+      // dev.log(e.toString());
       context.pop();
       SnackBarHelper.presentFailSnackBar(context, e.toString());
     }
@@ -1417,8 +1416,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           onEDCSelected: (mopEDC) {
                                                                             setState(() {
                                                                               _values = _values.toList() + [mopEDC];
-                                                                              dev.log("mopEDC Multi - $mopEDC");
-                                                                              dev.log("values - $_values");
+                                                                              // dev.log("mopEDC Multi - $mopEDC");
+                                                                              // dev.log("values - $_values");
                                                                             });
                                                                           },
                                                                           mopSelectionEntity: mop,
@@ -1428,7 +1427,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         ),
                                                                       );
                                                                     } else {
-                                                                      dev.log("values1 - $_values");
+                                                                      // dev.log("values1 - $_values");
                                                                       mopAmount = await showDialog<double>(
                                                                         context: context,
                                                                         barrierDismissible: false,
@@ -1438,8 +1437,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               _values = [mopEDC];
                                                                               // _values = _values.toList() + [mopEDC];
                                                                             });
-                                                                            dev.log("values2 - $_values");
-                                                                            dev.log("mopEDC not Multi - $mopEDC");
+                                                                            // dev.log("values2 - $_values");
+                                                                            // dev.log("mopEDC not Multi - $mopEDC");
                                                                           },
                                                                           mopSelectionEntity: mop,
                                                                           max: receipt.grandTotal -
@@ -1454,7 +1453,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     }
                                                                   } else {
                                                                     if (widget.isMultiMOPs) {
-                                                                      dev.log("HERE");
                                                                       if ((receipt.totalPayment ?? 0) >=
                                                                           receipt.grandTotal) {
                                                                         return;
@@ -1466,8 +1464,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           onEDCSelected: (mopEDC) {
                                                                             setState(() {
                                                                               _values = _values.toList() + [mopEDC];
-                                                                              dev.log("mopEDC Multi - $mopEDC");
-                                                                              dev.log("values - $_values");
+                                                                              // dev.log("mopEDC Multi - $mopEDC");
+                                                                              // dev.log("values - $_values");
                                                                             });
                                                                           },
                                                                           mopSelectionEntity: mop,
@@ -1486,8 +1484,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               _values = [mopEDC];
                                                                               // _values = _values.toList() + [mopEDC];
                                                                             });
-                                                                            dev.log("values2 - $_values");
-                                                                            dev.log("mopEDC not Multi - $mopEDC");
+                                                                            // dev.log("values2 - $_values");
+                                                                            // dev.log("mopEDC not Multi - $mopEDC");
                                                                           },
                                                                           mopSelectionEntity: mop,
                                                                           max: receipt.grandTotal -
@@ -1978,7 +1976,6 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
                       ]),
                       ...List.generate(context.read<ReceiptCubit>().state.mopSelections.length, (index) {
                         final MopSelectionEntity mop = context.read<ReceiptCubit>().state.mopSelections[index];
-                        dev.log("MOP??? - $mop");
 
                         return TableRow(
                           children: [

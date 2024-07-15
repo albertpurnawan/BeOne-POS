@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -58,7 +56,6 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
   Future<void> getMoneyDenominations(String shiftId) async {
     try {
       final moneys = await GetIt.instance<AppDatabase>().moneyDenominationDao.readByTcsr1Id(shiftId, null);
-      log("moneys - $moneys");
       setState(() {
         tcsr2 = moneys;
         qty100k = getDenominationCount(100000);
