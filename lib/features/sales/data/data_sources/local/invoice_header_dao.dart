@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/resources/base_dao.dart';
@@ -16,8 +14,7 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
         );
 
   @override
-  Future<InvoiceHeaderModel?> readByDocId(
-      String docId, Transaction? txn) async {
+  Future<InvoiceHeaderModel?> readByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -34,14 +31,11 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => InvoiceHeaderModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => InvoiceHeaderModel.fromMap(itemData)).toList();
   }
 
   @override
-  Future<InvoiceHeaderModel?> create(
-      {required InvoiceHeaderModel data, Transaction? txn}) async {
+  Future<InvoiceHeaderModel?> create({required InvoiceHeaderModel data, Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.insert(tableName, data.toMap());
     final List<Map<String, Object?>> createdData =
@@ -78,17 +72,14 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
       return [];
     }
 
-    final List<InvoiceHeaderModel> invoices =
-        res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
+    final List<InvoiceHeaderModel> invoices = res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
 
     return invoices;
   }
 
-  Future<List<InvoiceHeaderModel>> readByShiftAndDatetime(
-      DateTime datetime) async {
-    final stringDatetime =
-        DateFormat("yyyy-MM-dd HH:mm:ss").format(datetime.toUtc());
-    log(stringDatetime);
+  Future<List<InvoiceHeaderModel>> readByShiftAndDatetime(DateTime datetime) async {
+    final stringDatetime = DateFormat("yyyy-MM-dd HH:mm:ss").format(datetime.toUtc());
+    // log(stringDatetime);
     final prefs = GetIt.instance<SharedPreferences>();
     final tcsr1Id = prefs.getString('tcsr1Id');
     final res = await db.query(
@@ -101,14 +92,12 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
       return [];
     }
 
-    final List<InvoiceHeaderModel> invoices =
-        res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
+    final List<InvoiceHeaderModel> invoices = res.map((e) => InvoiceHeaderModel.fromMap(e)).toList();
 
     return invoices;
   }
 
-  Future<List<InvoiceHeaderModel>?> readBetweenDate(
-      DateTime start, DateTime end) async {
+  Future<List<InvoiceHeaderModel>?> readBetweenDate(DateTime start, DateTime end) async {
     final startDate = start.toUtc().toIso8601String();
     final endDate = end.toUtc().toIso8601String();
 
@@ -121,14 +110,12 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
       ],
     );
 
-    final transactions =
-        result.map((map) => InvoiceHeaderModel.fromMap(map)).toList();
+    final transactions = result.map((map) => InvoiceHeaderModel.fromMap(map)).toList();
 
     return transactions;
   }
 
-  Future<List<dynamic>?> readByItemBetweenDate(
-      DateTime start, DateTime end) async {
+  Future<List<dynamic>?> readByItemBetweenDate(DateTime start, DateTime end) async {
     final startDate = start.toUtc().toIso8601String();
     final endDate = end.toUtc().toIso8601String();
 
@@ -143,8 +130,7 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     return result;
   }
 
-  Future<List<dynamic>?> readByUserBetweenDate(
-      DateTime start, DateTime end) async {
+  Future<List<dynamic>?> readByUserBetweenDate(DateTime start, DateTime end) async {
     final startDate = start.toUtc().toIso8601String();
     final endDate = end.toUtc().toIso8601String();
 
@@ -159,8 +145,7 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     return result;
   }
 
-  Future<InvoiceHeaderModel?> readByDocNum(
-      String docNum, Transaction? txn) async {
+  Future<InvoiceHeaderModel?> readByDocNum(String docNum, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,

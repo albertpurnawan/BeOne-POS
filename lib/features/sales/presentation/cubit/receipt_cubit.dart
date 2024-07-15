@@ -160,7 +160,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           barrierDismissible: false,
           builder: (context) => const ConfirmResetPromoDialog(),
         );
-        dev.log("isProceed $isProceed");
+        // dev.log("isProceed $isProceed");
         if (isProceed == null) return;
         if (!isProceed) return;
       }
@@ -201,14 +201,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Handle promos
-      dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
+      // dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
       availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
       bool anyPromoApplied = false;
       if (availablePromos.isNotEmpty) {
         for (final availablePromo in availablePromos) {
           switch (availablePromo!.promoType) {
             case 202:
-              dev.log("CASE 202");
+              // dev.log("CASE 202");
               newReceipt = await _handlePromoSpecialPriceUseCase.call(
                   params: HandlePromosUseCaseParams(
                 receiptItemEntity: receiptItemEntity,
@@ -231,7 +231,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Recalculate receipt
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
 
-      dev.log("Result addUpdate ${newReceipt.copyWith(previousReceiptEntity: null)}");
+      // dev.log("Result addUpdate ${newReceipt.copyWith(previousReceiptEntity: null)}");
 
       emit(newReceipt.copyWith(previousReceiptEntity: null));
     } catch (e, s) {
@@ -348,7 +348,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       receiptItems: newReceiptItems,
     ));
 
-    dev.log("Remove Item $newState");
+    // dev.log("Remove Item $newState");
 
     emit(newState);
   }

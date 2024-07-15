@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:sqflite/sqflite.dart';
@@ -56,7 +54,7 @@ class ItemsDao extends BaseDao<ItemModel> {
       orderBy: "itemname",
       limit: 300,
     );
-    log(result[0].toString());
+    // log(result[0].toString());
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 

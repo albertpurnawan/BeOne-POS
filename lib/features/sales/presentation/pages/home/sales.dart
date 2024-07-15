@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -101,7 +100,6 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && indexIsSelect[0] < state.receiptItems.length) {
         if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
         setState(() {
-          log("arrow down new receipt item quantity");
           indexIsSelect = [indexIsSelect[0] + 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
           // Helpers.cleanDecimal(e.quantity, 3);
@@ -216,7 +214,6 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && indexIsSelect[0] < state.receiptItems.length) {
         if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
         setState(() {
-          log("arrow down new receipt item code");
           indexIsSelect = [indexIsSelect[0] + 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
           // Helpers.cleanDecimal(e.quantity, 3);
@@ -274,8 +271,6 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   Widget build(BuildContext context) {
-    log("build sales");
-
     isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
     isEditingReceiptItemQty = isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
 

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -114,7 +112,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                     textInputAction: TextInputAction.search,
                     controller: _textEditingController,
                     onSubmitted: (value) {
-                      log("value - $value");
+                      // log("value - $value");
                       context.read<ItemsCubit>().getItems(searchKeyword: value);
                       _searchInputFocusNode.requestFocus();
 

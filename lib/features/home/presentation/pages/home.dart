@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -319,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     overlayColor:
                                         MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () async {
-                                  log(activeShift.toString());
+                                  // log(activeShift.toString());
                                   if (activeShift != null) {
                                     if (activeShift!.approvalStatus == 0) {
                                       await showDialog<bool>(

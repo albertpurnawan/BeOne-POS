@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -12,21 +10,19 @@ class POSParameterRepositoryImpl implements POSParameterRepository {
 
   @override
   Future<void> createPosParameter(POSParameterEntity posParameterEntity) async {
-    await appDatabase.posParameterDao
-        .create(data: POSParameterModel.fromEntity(posParameterEntity));
+    await appDatabase.posParameterDao.create(data: POSParameterModel.fromEntity(posParameterEntity));
   }
 
   @override
   Future<POSParameterEntity> getPosParameter() async {
-    log("GET POS PARAMETER");
-    log((await appDatabase.posParameterDao.readAll()).toString());
+    // log("GET POS PARAMETER");
+    // log((await appDatabase.posParameterDao.readAll()).toString());
     return (await appDatabase.posParameterDao.readAll()).first;
   }
 
   @override
   Future<void> updatePosParemeter(POSParameterEntity posParameterEntity) async {
-    await appDatabase.posParameterDao.update(
-        docId: posParameterEntity.docId,
-        data: POSParameterModel.fromEntity(posParameterEntity));
+    await appDatabase.posParameterDao
+        .update(docId: posParameterEntity.docId, data: POSParameterModel.fromEntity(posParameterEntity));
   }
 }

@@ -91,8 +91,8 @@ class CheckPromoTopdgApplicabilityUseCase implements UseCase<bool, CheckPromoTop
           // Check category
           final ItemMasterEntity? itemMasterEntity =
               await GetIt.instance<AppDatabase>().itemMasterDao.readByDocId(receiptItemEntity.itemEntity.toitmId, null);
-          log(itemMasterEntity.toString());
-          log(tpdg1.map((e) => e.tocatId).toString());
+          // log(itemMasterEntity.toString());
+          // log(tpdg1.map((e) => e.tocatId).toString());
           if (itemMasterEntity == null) return isApplicable = false;
           if (!tpdg1.map((e) => e.tocatId).contains(itemMasterEntity.tocatId)) {
             return isApplicable = false;
@@ -165,7 +165,7 @@ class CheckPromoTopdgApplicabilityUseCase implements UseCase<bool, CheckPromoTop
           ? generalValidations + gabunganHargaJualValidations
           : generalValidations + gabunganJumlahValidations) {
         log(counter.toString());
-        log("--- validation ---");
+        // log("--- validation ---");
         counter += 1;
         if (!isApplicable) break;
         await validation();

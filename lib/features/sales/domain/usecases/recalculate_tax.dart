@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
@@ -8,7 +6,7 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
 
   @override
   Future<ReceiptEntity> call({ReceiptEntity? params}) async {
-    log("Recalculate Tax Promo_Impl");
+    // log("Recalculate Tax Promo_Impl");
     double? discHeaderManual = params!.discHeaderManual ?? 0.0;
     double? discHeaderPromo = params.discHeaderPromo ?? 0.0;
     double subtotal = params.subtotal;

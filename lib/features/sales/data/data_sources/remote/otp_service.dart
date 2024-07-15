@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -16,13 +13,13 @@ class OTPServiceAPi {
 
   Future<Map<String, dynamic>> createSendOTP() async {
     try {
-      log("CREATE & SEND OTP");
+      // log("CREATE & SEND OTP");
       final otpDao = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       otpChannel = otpDao[0].otpChannel;
       String url = "http://110.239.68.248:7070/api/otp/send-mailer";
       final spv = await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
       if (spv == null) throw "Approver not found";
-      if (spv!.isEmpty) throw "Approver not found";
+      if (spv.isEmpty) throw "Approver not found";
 
       final options = Options(headers: {"Content-Type": "application/json"});
       final formatter = DateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'');
@@ -32,12 +29,12 @@ class OTPServiceAPi {
       final dataToSend = {
         "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
         "channelId": otpChannel, // uuid smtp
-        "Destination": spv![0]['email'],
+        "Destination": spv[0]['email'],
         "Expired": formattedExpired,
         "RequestTimestamp": formattedDateTime,
         "isUsed": false
       };
-      log("Data2Send: ${jsonEncode(dataToSend)}");
+      // log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         url,
@@ -45,7 +42,7 @@ class OTPServiceAPi {
         options: options,
       );
       // log("response otp $response");
-      log("OTP SENT");
+      // log("OTP SENT");
       return response.data;
     } catch (e) {
       handleError(e);
@@ -55,7 +52,7 @@ class OTPServiceAPi {
 
   Future<String> validateOTP(String otp, String requester) async {
     try {
-      log("VALIDATE OTP");
+      // log("VALIDATE OTP");
       String url = "http://110.239.68.248:7070/api/otp/submit";
       final options = Options(headers: {"Content-Type": "application/json"});
 

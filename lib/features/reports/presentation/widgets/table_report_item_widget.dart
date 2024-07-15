@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -57,11 +55,7 @@ class _TableReportItemState extends State<TableReportItem> {
 
     final fetchedTinv1 =
         await GetIt.instance<AppDatabase>().invoiceDetailDao.readByItemBetweenDate(widget.fromDate!, widget.toDate!);
-    log("fetchedTinv1 - $fetchedTinv1");
-    // final fetchedToinv = await GetIt.instance<AppDatabase>()
-    //     .invoiceHeaderDao
-    //     .readBetweenDate(widget.fromDate!, widget.toDate!);
-    // log("fetchedToinv - $fetchedToinv");
+    // log("fetchedTinv1 - $fetchedTinv1");
 
     // Apply Search Query
     if (fetchedTinv1 != null) {
