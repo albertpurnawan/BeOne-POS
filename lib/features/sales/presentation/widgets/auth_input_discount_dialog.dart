@@ -11,7 +11,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';

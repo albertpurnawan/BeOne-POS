@@ -292,7 +292,6 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
 
             final double totalAmount = totalGross + taxAmountNewItem;
 
-            // Create ReceiptItemEntity and add it to newReceiptItems
             newReceiptItems.add(ReceiptItemEntity(
               quantity: quantity,
               totalGross: totalGross,
@@ -319,7 +318,6 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                 itemEntity.includeTax == 1 ? (priceQty) - totalGross : priceQty * (itemEntity.taxRate / 100);
             final double totalAmount = totalGross + taxAmountNewItem;
 
-            // Create ReceiptItemEntity and add it to newReceiptItems
             newReceiptItems.add(ReceiptItemEntity(
               quantity: quantity,
               totalGross: totalGross,
@@ -344,7 +342,6 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
               itemEntity.includeTax == 1 ? (priceQty) - totalGross : priceQty * (itemEntity.taxRate / 100);
           final double totalAmount = totalGross + taxAmountNewItem;
 
-          // Create ReceiptItemEntity and add it to newReceiptItems
           newReceiptItems.add(ReceiptItemEntity(
             quantity: quantity,
             totalGross: totalGross,

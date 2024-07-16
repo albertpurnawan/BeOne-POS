@@ -241,7 +241,7 @@ class _FetchScreenState extends State<FetchScreen> {
     final prefs = GetIt.instance<SharedPreferences>();
 
     bool? checkSync = prefs.getBool('isSyncing');
-    log("Synching data... - $checkSync");
+    log("Synching data...");
     if (checkSync == null || checkSync == false) {
       try {
         prefs.setBool('isSyncing', true);

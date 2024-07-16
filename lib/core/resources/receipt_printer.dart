@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
+import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
@@ -17,7 +18,6 @@ import 'package:pos_fe/features/settings/domain/entities/receipt_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
-import 'package:image/image.dart' as img;
 
 class ReceiptPrinter {
   BluetoothPrinter? selectedPrinter;

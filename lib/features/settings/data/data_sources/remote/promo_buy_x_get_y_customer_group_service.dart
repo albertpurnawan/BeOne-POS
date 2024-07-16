@@ -17,8 +17,7 @@ class PromoBuyXGetYCustomerGroupApi {
 
   PromoBuyXGetYCustomerGroupApi(this._dio);
 
-  Future<List<PromoBuyXGetYCustomerGroupModel>> fetchData(
-      String lastSync) async {
+  Future<List<PromoBuyXGetYCustomerGroupModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPRB5";
       Map<String, dynamic> exeData = {};
@@ -26,8 +25,7 @@ class PromoBuyXGetYCustomerGroupApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
@@ -56,7 +54,7 @@ class PromoBuyXGetYCustomerGroupApi {
           options: Options(headers: {
             'Authorization': 'Bearer $token',
           }));
-      log(resp.toString());
+
       if (resp.data['data'].isNotEmpty) {
         log("--- PROMO BUY X GET Y - CUSTOMER GROUP ---");
         log(resp.data['data'][0].toString());
@@ -65,9 +63,8 @@ class PromoBuyXGetYCustomerGroupApi {
         //   print('$key: ${value.runtimeType} - $value');
         // });
 
-        List<PromoBuyXGetYCustomerGroupModel> data = (resp.data['data'] as List)
-            .map((e) => PromoBuyXGetYCustomerGroupModel.fromMapRemote(e))
-            .toList();
+        List<PromoBuyXGetYCustomerGroupModel> data =
+            (resp.data['data'] as List).map((e) => PromoBuyXGetYCustomerGroupModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

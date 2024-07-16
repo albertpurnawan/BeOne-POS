@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -1081,7 +1082,7 @@ class _SalesPageState extends State<SalesPage> {
                                     : () {
                                         final ReceiptItemEntity receiptItemTarget =
                                             context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                        // log("receiptTarget - $receiptItemTarget");
+                                        log("receiptTarget - $receiptItemTarget");
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) =>
@@ -1429,7 +1430,7 @@ class _SalesPageState extends State<SalesPage> {
                                     : () {
                                         final ReceiptItemEntity receiptItemTarget =
                                             context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                        // log("receiptTarget - $receiptItemTarget");
+                                        log("receiptTarget - $receiptItemTarget");
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) =>
@@ -1694,7 +1695,7 @@ class _SalesPageState extends State<SalesPage> {
                                 : () {
                                     final ReceiptItemEntity receiptItemTarget =
                                         context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                    // log("receiptTarget - $receiptItemTarget");
+                                    log("receiptTarget - $receiptItemTarget");
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) =>
@@ -3310,7 +3311,7 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
         if (indexIsSelect[1] != 0) {
           final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-          // log("receiptTarget - $receiptItemTarget");
+          log("receiptTarget - $receiptItemTarget");
           await showDialog(
             context: context,
             builder: (BuildContext context) => ItemDetailsDialog(indexSelected: indexIsSelect[0]),

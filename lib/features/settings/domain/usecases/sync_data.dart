@@ -203,7 +203,7 @@ Future<void> syncData() async {
   final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
 
   bool? checkSync = prefs.getBool('isSyncing');
-  log("Synching data... - $checkSync");
+  log("Synching data...");
   if (checkSync == null || checkSync == false) {
     try {
       prefs.setBool('isSyncing', true);

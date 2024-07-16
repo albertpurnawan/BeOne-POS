@@ -19,7 +19,6 @@ class InvoiceApi {
   Future<void> sendInvoice() async {
     try {
       // log("SEND INVOICE SERVICE");
-      // SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
