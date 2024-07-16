@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -59,7 +57,7 @@ class _TableReportMopState extends State<TableReportMop> {
     ]);
 
     final fetchedTmpt3 = results[0] as List<dynamic>;
-    log("fetchedTpmt3 - $fetchedTmpt3");
+    // log("fetchedTpmt3 - $fetchedTmpt3");
     final fetchedMpad1 = results[1] as List<dynamic>;
     final fetchedNew = [...fetchedTmpt3, ...fetchedMpad1];
 
@@ -245,7 +243,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(amount)},00",
+                                      "Rp ${Helpers.parseMoney(amount)}",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -287,7 +285,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Rp ${Helpers.parseMoney(totalAmount)},00',
+                                    'Rp ${Helpers.parseMoney(totalAmount)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,

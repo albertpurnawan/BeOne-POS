@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -150,8 +148,8 @@ class _LoginFormState extends State<LoginForm> {
                         tohemId: null,
                         torolId: null));
 
-                log("$loginSuccess loginsuccess");
-                log("$isOpen isOpen");
+                // log("$loginSuccess loginsuccess");
+                // log("$isOpen isOpen");
                 if (loginSuccess != null && loginSuccess) {
                   if (isOpen) {
                     if (context.mounted) context.goNamed(RouteConstants.home);

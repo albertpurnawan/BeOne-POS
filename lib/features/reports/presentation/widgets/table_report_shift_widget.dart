@@ -237,7 +237,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(shift['grandtotal'])},00",
+                                      "Rp ${Helpers.parseMoney(shift['grandtotal'])}",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -282,7 +282,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Rp ${Helpers.parseMoney(grandTotal)},00',
+                                    'Rp ${Helpers.parseMoney(grandTotal)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,

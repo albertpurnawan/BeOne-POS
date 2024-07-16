@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -601,7 +599,6 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
   @override
   void initState() {
     super.initState();
-    log("init promotion");
     FocusManager.instance.primaryFocus?.unfocus();
 
     _keyboardListenerFocusNode.requestFocus();
@@ -627,14 +624,11 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
       autofocus: true,
       focusNode: _keyboardListenerFocusNode,
       onKeyEvent: (node, event) {
-        log("masuk applied $event");
         if (event.runtimeType == KeyUpEvent) {
           return KeyEventResult.handled;
         }
 
         if (event.physicalKey == PhysicalKeyboardKey.f12) {
-          log("masuk applied f12");
-
           context.pop(true);
           return KeyEventResult.handled;
         }

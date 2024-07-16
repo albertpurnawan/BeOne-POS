@@ -266,7 +266,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     await db.transaction((finaltxn) async {
       // final Transaction finaltxn = txn ?? txn1;
       final InvoiceHeaderModel? invoiceHeaderModel = await _appDatabase.invoiceHeaderDao.readByDocId(docId, finaltxn);
-      log("INVOICE HEADER MODEL 2 - $invoiceHeaderModel");
+      log("TOINV getReceipt - $invoiceHeaderModel");
 
       if (invoiceHeaderModel == null) {
         throw "Invoice header not found";
@@ -391,7 +391,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         salesTohemId: invoiceHeaderModel.salesTohemId,
       );
     });
-    log("Receipt 2 - $receiptModel");
+    log("Receipt getReceipt - $receiptModel");
     return receiptModel;
   }
 
@@ -410,9 +410,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     double subtotalAfterDiscount = 0;
     double taxAfterDiscount = 0;
 
-    log("RE - $receiptEntity");
-    log("RE - Subtotal - ${receiptEntity.subtotal}");
-    log("discHprctg - $discHprctg");
+    // log("RE - $receiptEntity");
+    // log("RE - Subtotal - ${receiptEntity.subtotal}");
+    // log("discHprctg - $discHprctg");
 
     for (final item in receiptEntity.receiptItems) {
       item.discHeaderAmount = discHprctg * (item.totalGross - (item.discAmount ?? 0));
@@ -420,12 +420,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       item.taxAmount = item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
       subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
       taxAfterDiscount += item.taxAmount;
-      log("Item - $item");
+      // log("Item - $item");
     }
     // receiptEntity.subtotal = subtotalAfterDiscount;
     receiptEntity.taxAmount = taxAfterDiscount;
     receiptEntity.grandTotal = subtotalAfterDiscount + taxAfterDiscount;
-    log("REDM - ${receiptEntity.subtotal}");
+    // log("REDM - ${receiptEntity.subtotal}");
 
     // receiptEntity = receiptEntity.copyWith(totalTax: totalTax);
     return receiptEntity;

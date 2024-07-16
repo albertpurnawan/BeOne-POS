@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
@@ -63,11 +61,11 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
           if (now.millisecondsSinceEpoch >= startPromo.millisecondsSinceEpoch &&
               now.millisecondsSinceEpoch <= endPromo.millisecondsSinceEpoch) {
             // check promo already applied
-            log("promo - $promoAlreadyApplied");
+            // log("promo - $promoAlreadyApplied");
             if (!promoAlreadyApplied) {
               // check promo buy condition: quantity
               if (currentReceiptItem.quantity >= tpsb1.qty) {
-                log("Item Fulfilled Conditions");
+                // log("Item Fulfilled Conditions");
 
                 if (topsb!.promoAlias == 1) {
                   for (final el in tpsb1s) {
@@ -121,7 +119,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                 subtotal += currentReceiptItem.totalGross;
                 taxAmount += currentReceiptItem.taxAmount;
               } else {
-                log("Promo Not Apllied, Conditions Not Met");
+                // log("Promo Not Apllied, Conditions Not Met");
                 final double priceQty = currentReceiptItem.itemEntity.price * currentReceiptItem.quantity;
                 currentReceiptItem.totalSellBarcode = priceQty;
                 currentReceiptItem.totalGross = currentReceiptItem.itemEntity.includeTax == 1
@@ -138,7 +136,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                 taxAmount += currentReceiptItem.taxAmount;
               }
             } else {
-              log("Promo Apllied");
+              // log("Promo Apllied");
               if (topsb!.promoAlias == 1) {
                 for (final el in tpsb1s) {
                   if (currentReceiptItem.quantity >= el.qty) {
@@ -191,7 +189,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
               taxAmount += currentReceiptItem.taxAmount;
             }
           } else {
-            log("Time Not Fulfilled");
+            // log("Time Not Fulfilled");
 
             final double priceQty = currentReceiptItem.itemEntity.price * currentReceiptItem.quantity;
             currentReceiptItem.totalSellBarcode = priceQty;
@@ -228,7 +226,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
 
       // Handle item not exist
       if (isNewReceiptItem) {
-        log("NEW ITEM");
+        // log("NEW ITEM");
         ItemEntity? itemWithPromo = itemEntity.copyWith();
 
         final topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByDocId(promo.promoId!, null);
@@ -260,7 +258,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
               dpp: itemEntity.dpp,
             );
             // Calculate totals
-            log("New Receipt With Promo");
+            // log("New Receipt With Promo");
             if (topsb!.promoAlias == 1) {
               for (final el in tpsb1s) {
                 if (quantity >= el.qty) {
@@ -294,7 +292,6 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
 
             final double totalAmount = totalGross + taxAmountNewItem;
 
-            // Create ReceiptItemEntity and add it to newReceiptItems
             newReceiptItems.add(ReceiptItemEntity(
               quantity: quantity,
               totalGross: totalGross,
@@ -312,7 +309,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
             taxAmount += taxAmountNewItem;
           } else {
             // Calculate totals
-            log("New Receipt With Promo Not Applied");
+            // log("New Receipt With Promo Not Applied");
             final double priceQty = itemEntity.price * quantity;
             final double totalSellBarcode = priceQty;
             final double totalGross =
@@ -321,7 +318,6 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                 itemEntity.includeTax == 1 ? (priceQty) - totalGross : priceQty * (itemEntity.taxRate / 100);
             final double totalAmount = totalGross + taxAmountNewItem;
 
-            // Create ReceiptItemEntity and add it to newReceiptItems
             newReceiptItems.add(ReceiptItemEntity(
               quantity: quantity,
               totalGross: totalGross,
@@ -346,7 +342,6 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
               itemEntity.includeTax == 1 ? (priceQty) - totalGross : priceQty * (itemEntity.taxRate / 100);
           final double totalAmount = totalGross + taxAmountNewItem;
 
-          // Create ReceiptItemEntity and add it to newReceiptItems
           newReceiptItems.add(ReceiptItemEntity(
             quantity: quantity,
             totalGross: totalGross,
@@ -364,9 +359,9 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
         }
       }
 
-      log("result handle promo special price ${params.receiptEntity.copyWith(
-        receiptItems: newReceiptItems,
-      )}");
+      // log("result handle promo special price ${params.receiptEntity.copyWith(
+      //   receiptItems: newReceiptItems,
+      // )}");
       return params.receiptEntity.copyWith(
         receiptItems: newReceiptItems,
       );

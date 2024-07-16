@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,10 +127,10 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
       final voucher = await GetIt.instance<VouchersSelectionApi>().checkVoucher(serialNumber);
       checkVoucher = voucher..tpmt3Id = widget.tpmt3Id;
       bool checkSerialNo = vouchers.any((v) => v.serialNo == voucher.serialNo);
-      log("vouchertype ${widget.voucherType} checkVoucher ${checkVoucher.type}");
+      // log("vouchertype ${widget.voucherType} checkVoucher ${checkVoucher.type}");
       if (checkVoucher.type != widget.voucherType) throw "Invalid voucher type";
 
-      log("${receiptCubit.state.grandTotal} ${voucher.minPurchase}");
+      // log("${receiptCubit.state.grandTotal} ${voucher.minPurchase}");
 
       if (receiptCubit.state.grandTotal >= voucher.minPurchase) {
         if (!checkSerialNo) {
@@ -260,8 +258,8 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     return Focus(
       // autofocus: true,
       onKeyEvent: (node, value) {
-        log(value.physicalKey.toString());
-        log(_voucherFocusNode.hasPrimaryFocus.toString());
+        // log(value.physicalKey.toString());
+        // log(_voucherFocusNode.hasPrimaryFocus.toString());
         if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
         if (value.physicalKey == PhysicalKeyboardKey.f12) {

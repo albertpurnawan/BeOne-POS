@@ -4,11 +4,7 @@ import 'package:sqflite/sqflite.dart';
 
 class CampaignDao extends BaseDao<CampaignModel> {
   String statusActive = "AND statusactive = 1";
-  CampaignDao(Database db)
-      : super(
-            db: db,
-            tableName: tableCampaign,
-            modelFields: CampaignFields.values);
+  CampaignDao(Database db) : super(db: db, tableName: tableCampaign, modelFields: CampaignFields.values);
 
   @override
   Future<CampaignModel?> readByDocId(String docId, Transaction? txn) async {
@@ -31,11 +27,9 @@ class CampaignDao extends BaseDao<CampaignModel> {
     return result.map((itemData) => CampaignModel.fromMap(itemData)).toList();
   }
 
-  Future<List<CampaignModel>> readAllWithSearch(
-      {String? searchKeyword, Transaction? txn}) async {
+  Future<List<CampaignModel>> readAllWithSearch({String? searchKeyword, Transaction? txn}) async {
     final result = await db.query(tableName,
-        where:
-            "(${CampaignFields.description} LIKE ? OR ${CampaignFields.campaignCode} LIKE ?)",
+        where: "(${CampaignFields.description} LIKE ? OR ${CampaignFields.campaignCode} LIKE ?)",
         whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
 
     return result.map((itemData) => CampaignModel.fromMap(itemData)).toList();

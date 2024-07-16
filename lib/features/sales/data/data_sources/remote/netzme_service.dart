@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -27,15 +26,13 @@ class NetzmeApi {
     int hours = now.timeZoneOffset.inHours.abs();
     int minutes = now.timeZoneOffset.inMinutes.abs() % 60;
 
-    String formattedOffset =
-        "$timezoneOffset${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
+    String formattedOffset = "$timezoneOffset${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
     timestamp = formattedDateTime + formattedOffset;
     return timestamp;
   }
 
   String generateRandomString(int length) {
-    const characters =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     Random random = Random();
     return String.fromCharCodes(Iterable.generate(
       length,
@@ -64,7 +61,7 @@ class NetzmeApi {
 
       signature = response.data['signature'];
 
-      dev.log("Signature Created");
+      // dev.log("Signature Created");
       return signature;
     } catch (err) {
       handleError(err);
@@ -97,7 +94,7 @@ class NetzmeApi {
       );
 
       accessToken = response.data['accessToken'];
-      dev.log("AccessToken Done");
+      // dev.log("AccessToken Done");
       return accessToken;
     } catch (err) {
       handleError(err);
@@ -134,7 +131,7 @@ class NetzmeApi {
 
       serviceSignature = response.data['signature'];
 
-      dev.log("ServiceSignature Done");
+      // dev.log("ServiceSignature Done");
       return serviceSignature;
     } catch (err) {
       handleError(err);
@@ -191,7 +188,7 @@ class NetzmeApi {
         expiredTs: response.data['additionalInfo']['expiredTs'],
       );
 
-      dev.log("CreateTransaction Done");
+      // dev.log("CreateTransaction Done");
       return responseDetails;
     } catch (err) {
       handleError(err);
@@ -225,7 +222,7 @@ class NetzmeApi {
         options: Options(headers: header),
       );
 
-      dev.log("CheckQRISStatus Done");
+      // dev.log("CheckQRISStatus Done");
       return response.data['additionalInfo']['invoiceStatus'];
     } catch (e) {
       handleError(e);

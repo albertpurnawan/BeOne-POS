@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cron/cron.dart';
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
@@ -12,7 +10,7 @@ Future<void> syncWithBOS() async {
   try {
     cron.schedule(Schedule.parse(cronSyntax), () async {
       await syncData();
-      log("Sync Via CRON Success");
+      // log("Sync Via CRON Success");
     });
   } catch (err) {
     handleError(err);

@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -21,22 +18,21 @@ class InvoiceApi {
 
   Future<void> sendInvoice() async {
     try {
-      log("SEND INVOICE SERVICE");
-      // SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      // log("SEND INVOICE SERVICE");
       token = prefs.getString('adminToken');
 
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
       final invHead = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
-      log(invHead.toString());
+      // log("invHead - $invHead");
 
       final invDet =
           await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvIdAddQtyBarcode(invHead[0].docId.toString());
-      log(invDet.toString());
+      // log("invDeta - $invDet");
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead[0].docId.toString());
-      log("paymean - $payMean");
+      // log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
 
@@ -75,7 +71,7 @@ class InvoiceApi {
             case "6": // VOUCHERS
               final vouchers =
                   await GetIt.instance<AppDatabase>().vouchersSelectionDao.readBytinv2Id(entry['docid'], txn: null);
-              log("vouchers - $vouchers");
+              // log("vouchers - $vouchers");
 
               Map<String, Map<String, dynamic>> groupedPayments = {};
 
@@ -114,7 +110,7 @@ class InvoiceApi {
 
                 for (var groupedPayment in groupedPaymentsList) {
                   invoicePayments.add(groupedPayment);
-                  log("invoicePayment - $invoicePayments");
+                  // log("invoicePayment - $invoicePayments");
                 }
               }
               double totalAmount = 0.0;
@@ -228,7 +224,7 @@ class InvoiceApi {
         "invoice_payment": invoicePayments
       };
 
-      log("Data2Send: ${jsonEncode(dataToSend)}");
+      // log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         "$url/tenant-invoice/",
@@ -239,10 +235,10 @@ class InvoiceApi {
           },
         ),
       );
-      log("response - $response");
+      // log("response - $response");
 
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
-        log("Success Post");
+        // log("Success Post");
         final invHeaderSuccess = InvoiceHeaderModel(
           docId: invHead[0].docId,
           createDate: invHead[0].createDate,
@@ -296,16 +292,16 @@ class InvoiceApi {
 
   Future<void> sendFailedInvoice(InvoiceHeaderModel invHead, List<InvoiceDetailModel> invDet) async {
     try {
-      log("SEND FAILED INVOICE SERVICE");
+      // log("SEND FAILED INVOICE SERVICE");
       token = prefs.getString('adminToken');
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
-      log("$invHead");
-      log("$invDet");
+      // log("$invHead");
+      // log("$invDet");
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead.docId.toString());
-      log("paymean - $payMean");
+      // log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
 
@@ -313,12 +309,38 @@ class InvoiceApi {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
-              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              if (entry['amount'] < 0) break;
+              if (entry['amount'] == 0 && invHead.grandTotal != 0) break;
+              invoicePayments.add({
+                "tpmt3_id": entry['tpmt3Id'],
+                "amount": entry['amount'],
+                "rrn": entry['rrn'] ?? "",
+              });
+              break;
+            case "2": // EDC
+              if (entry['tpmt2Id'] == null) {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              } else {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "tpmt2_id": entry['tpmt2Id'],
+                  "cardno": entry['cardno'],
+                  "cardholder": entry['cardholder'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              }
               break;
             case "6": // VOUCHERS
               final vouchers =
                   await GetIt.instance<AppDatabase>().vouchersSelectionDao.readBytinv2Id(entry['docid'], txn: null);
-              log("vouchers - $vouchers");
+              // log("vouchers - $vouchers");
 
               Map<String, Map<String, dynamic>> groupedPayments = {};
 
@@ -330,7 +352,8 @@ class InvoiceApi {
                       "tpmt3_id": tpmt3Id,
                       "amount": 0.0,
                       "sisavoucher": 0,
-                      "invoice_voucher": []
+                      "invoice_voucher": [],
+                      "rrn": entry['rrn'] ?? "",
                     };
                   }
 
@@ -356,13 +379,25 @@ class InvoiceApi {
 
                 for (var groupedPayment in groupedPaymentsList) {
                   invoicePayments.add(groupedPayment);
-                  log("invoicePayment - $invoicePayments");
+                  // log("invoicePayment - $invoicePayments");
                 }
+              }
+              double totalAmount = 0.0;
+              for (var payment in invoicePayments) {
+                totalAmount += payment['amount'];
+              }
+              if (totalAmount > invHead.grandTotal) {
+                double excessAmount = totalAmount - invHead.grandTotal;
+                invoicePayments[invoicePayments.length - 1]['sisavoucher'] = excessAmount;
               }
 
               break;
             default:
-              invoicePayments.add({"tpmt3_id": entry['tpmt3Id'], "amount": entry['amount']});
+              invoicePayments.add({
+                "tpmt3_id": entry['tpmt3Id'],
+                "amount": entry['amount'],
+                "rrn": entry['rrn'] ?? "",
+              });
               break;
           }
         }
@@ -385,9 +420,11 @@ class InvoiceApi {
         "timezone": invHead.timezone,
         "remarks": invHead.remarks ?? "",
         "subtotal": (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0)).round(),
-        "discprctg": 100 *
-            ((invHead.discHeaderManual ?? 0) /
-                (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0))),
+        "discprctg": invHead.subTotal == 0
+            ? 0
+            : 100 *
+                ((invHead.discHeaderManual ?? 0) /
+                    (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0))),
         "discamount": invHead.discHeaderManual,
         "discountcard": invHead.discountCard,
         "coupon": invHead.coupon,
@@ -445,13 +482,14 @@ class InvoiceApi {
             "totaldiscbarcode": 0.0,
             "qtyconv": 0.0,
             "discprctgmember": 0.0,
-            "discamountmember": 0.0
+            "discamountmember": 0.0,
+            "tohem_id": item.tohemId ?? ""
           };
         }).toList(),
         "invoice_payment": invoicePayments
       };
 
-      log("Data2Send: ${jsonEncode(dataToSend)}");
+      // log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         "$url/tenant-invoice/",
@@ -462,10 +500,10 @@ class InvoiceApi {
           },
         ),
       );
-      log("response - $response");
+      // log("response - $response");
 
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
-        log("Success Post");
+        // log("Success Post");
         final invHeaderSuccess = InvoiceHeaderModel(
           docId: invHead.docId,
           createDate: invHead.createDate,

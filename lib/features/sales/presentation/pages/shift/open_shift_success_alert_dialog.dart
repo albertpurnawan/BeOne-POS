@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -34,7 +32,7 @@ class _OpenShiftSuccessAlertDialogState extends State<OpenShiftSuccessAlertDialo
       final CashRegisterEntity? cashRegisterEntityRes =
           await GetIt.instance<GetCashRegisterUseCase>().call(params: widget.openedShift!.tocsrId!);
       if (cashRegisterEntityRes == null) throw "Cash Register not found";
-      log(cashRegisterEntityRes.toString());
+      // log(cashRegisterEntityRes.toString());
       final StoreMasterEntity? storeMasterEntityRes =
           await GetIt.instance<GetStoreMasterUseCase>().call(params: cashRegisterEntityRes.tostrId);
       if (storeMasterEntityRes == null) throw "Store Master not found";
