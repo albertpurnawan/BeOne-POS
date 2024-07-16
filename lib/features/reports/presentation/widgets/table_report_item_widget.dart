@@ -22,9 +22,10 @@ class TableReportItem extends StatefulWidget {
 }
 
 class _TableReportItemState extends State<TableReportItem> {
-  final tableHead = ["No", "Item", "Description", "Quantity", "Amount"];
+  final tableHead = ["No", "Item", "Description", "Quantity", "Selling Price", "Amount"];
   List<dynamic>? fetched;
   List<InvoiceHeaderModel>? fetchedInvHeader;
+  double? discountManual;
   bool isLoading = true;
 
   @override
@@ -65,15 +66,30 @@ class _TableReportItemState extends State<TableReportItem> {
             invoice['itemname'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
             shortname.toLowerCase().contains(widget.searchQuery!.toLowerCase());
       }).toList();
+      List<double> discHeader = filteredTinv1.map((item) => item['discHeader'] as double).toList();
+      List<double> taxPercentages = filteredTinv1.map((item) => item['taxprctg'] as double).toList();
+
+      List<double> multipliedValues = [];
+      for (var i = 0; i < discHeader.length; i++) {
+        multipliedValues.add(discHeader[i] + (discHeader[i] * (taxPercentages[i] / 100)));
+      }
+
       setState(() {
         fetched = filteredTinv1;
-        // fetchedInvHeader = fetchedToinv;
+        discountManual = multipliedValues.reduce((a, b) => a + b);
         isLoading = false;
       });
     } else {
+      List<double> discHeader = fetchedTinv1!.map((item) => item['discHeader'] as double).toList();
+      List<double> taxPercentages = fetchedTinv1.map((item) => item['taxprctg'] as double).toList();
+
+      List<double> multipliedValues = [];
+      for (var i = 0; i < discHeader.length; i++) {
+        multipliedValues.add(discHeader[i] + (discHeader[i] * (taxPercentages[i] / 100)));
+      }
       setState(() {
         fetched = fetchedTinv1;
-        // fetchedInvHeader = fetchedToinv;
+        discountManual = multipliedValues.reduce((a, b) => a + b);
         isLoading = false;
       });
     }
@@ -95,7 +111,8 @@ class _TableReportItemState extends State<TableReportItem> {
         taxAmount += itemTaxAmount;
         totalDiscount += itemTotalDiscount;
       }
-      grandTotal = totalAmount + taxAmount;
+      grandTotal = totalAmount + taxAmount - discountManual!;
+      totalDiscount += discountManual!;
     }
 
     return isLoading
@@ -118,11 +135,12 @@ class _TableReportItemState extends State<TableReportItem> {
                         child: Table(
                           border: TableBorder.all(color: Colors.transparent, width: 1),
                           columnWidths: const {
-                            0: FixedColumnWidth(50),
-                            1: FlexColumnWidth(80),
-                            2: FlexColumnWidth(170),
-                            3: FlexColumnWidth(50),
+                            0: FlexColumnWidth(10),
+                            1: FlexColumnWidth(50),
+                            2: FlexColumnWidth(100),
+                            3: FlexColumnWidth(30),
                             4: FlexColumnWidth(50),
+                            5: FlexColumnWidth(50),
                           },
                           children: [
                             TableRow(
@@ -155,6 +173,7 @@ class _TableReportItemState extends State<TableReportItem> {
                               final itemCode = item['itemcode'];
                               final itemName = item['itemname'];
                               final quantity = item['totalquantity'];
+                              final sellingPrice = item['sellingprice'];
                               final taxPercentage = item['taxprctg'];
                               final itemAmount = item['totalamount'] * (100 / (100 + taxPercentage));
 
@@ -257,7 +276,28 @@ class _TableReportItemState extends State<TableReportItem> {
                                         mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
                                           Text(
-                                            "Rp ${Helpers.parseMoney(itemAmount.round())}.00",
+                                            "Rp ${Helpers.parseMoney(sellingPrice)}",
+                                            style: const TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: isLastRow
+                                              ? const BorderSide(color: ProjectColors.primary, width: 2.0)
+                                              : BorderSide.none,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "Rp ${Helpers.parseMoney(itemAmount.round())}",
                                             style: const TextStyle(fontSize: 14),
                                           ),
                                         ],
@@ -270,15 +310,10 @@ class _TableReportItemState extends State<TableReportItem> {
                             // Total Amount Row
                             TableRow(
                               children: [
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
                                 TableCell(
                                   child: Container(
                                     padding: const EdgeInsets.all(8.0),
@@ -303,7 +338,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(totalAmount.round())}.00',
+                                          'Rp ${Helpers.parseMoney(totalAmount.round())}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 14,
@@ -318,15 +353,10 @@ class _TableReportItemState extends State<TableReportItem> {
                             // Total Tax
                             TableRow(
                               children: [
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
                                 TableCell(
                                   child: Container(
                                     padding: const EdgeInsets.all(8.0),
@@ -351,7 +381,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(taxAmount.round())}.00',
+                                          'Rp ${Helpers.parseMoney(taxAmount.round())}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 14,
@@ -366,15 +396,10 @@ class _TableReportItemState extends State<TableReportItem> {
                             // Total Discount
                             TableRow(
                               children: [
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
                                 TableCell(
                                   child: Container(
                                     padding: const EdgeInsets.all(8.0),
@@ -399,7 +424,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(totalDiscount)}.00',
+                                          'Rp ${Helpers.parseMoney(totalDiscount)}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 14,
@@ -414,15 +439,10 @@ class _TableReportItemState extends State<TableReportItem> {
                             // Grand Total
                             TableRow(
                               children: [
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
                                 TableCell(
                                   child: Container(
                                     padding: const EdgeInsets.all(8.0),
@@ -447,7 +467,7 @@ class _TableReportItemState extends State<TableReportItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Rp ${Helpers.parseMoney(grandTotal)}.00',
+                                          'Rp ${Helpers.parseMoney(grandTotal)}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
@@ -462,15 +482,10 @@ class _TableReportItemState extends State<TableReportItem> {
                             // Total Data Row
                             TableRow(
                               children: [
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
-                                TableCell(
-                                  child: Container(),
-                                ),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
+                                TableCell(child: Container()),
                                 TableCell(
                                   child: Container(
                                     padding: const EdgeInsets.all(8.0),

@@ -81,7 +81,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   Future<String> createOTP() async {
     try {
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(widget.discountValue);
       return response['Requester'];
     } catch (e) {
       rethrow;

@@ -247,7 +247,6 @@ class _AllShiftState extends State<AllShift> {
   @override
   Widget build(BuildContext context) {
     Map<String, List<CashierBalanceTransactionModel>> groupedShifts = {};
-
     if (allShift != null) {
       for (var shift in allShift!) {
         final formattedDate = Helpers.dateEEddMMMyyy(shift.openDate);
@@ -259,12 +258,8 @@ class _AllShiftState extends State<AllShift> {
       }
     }
 
-    DateTime parseDate(String date) {
-      return DateFormat('EEEE, dd MMM yyyy').parse(date);
-    }
-
     List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries = groupedShifts.entries.toList()
-      ..sort((a, b) => parseDate(b.key).compareTo(parseDate(a.key)));
+      ..sort((a, b) => b.key.compareTo(a.key));
 
     for (var entry in sortedEntries) {
       entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));
@@ -307,79 +302,73 @@ class _AllShiftState extends State<AllShift> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            flex: 4,
-                                            child: Text(
-                                              shift.docNum,
-                                              textAlign: TextAlign.start,
-                                              style: const TextStyle(fontSize: 20),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Text(
-                                              NumberFormat.decimalPattern().format(shift.cashValue.toInt()),
-                                              style: const TextStyle(fontSize: 18),
-                                              textAlign: TextAlign.end,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 1,
-                                            child: Text(
-                                              shift.approvalStatus == 0 ? 'OPEN' : 'CLOSED',
-                                              textAlign: TextAlign.end,
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w700,
-                                                color: shift.approvalStatus == 0
-                                                    ? const Color.fromARGB(255, 47, 143, 8)
-                                                    : null,
+                                InkWell(
+                                  onTap: () async {
+                                    if (shift.closedbyId!.isEmpty) {
+                                      await showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => ConfirmToEndShift(activeShift!),
+                                      );
+                                    } else {
+                                      await showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => RecapShiftScreen(
+                                          shiftId: shift.docId,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                shift.docNum,
+                                                textAlign: TextAlign.start,
+                                                style: const TextStyle(fontSize: 20),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    shift.closedbyId!.isEmpty
-                                        ? GestureDetector(
-                                            onTap: () async {
-                                              await showDialog(
-                                                context: context,
-                                                barrierDismissible: false,
-                                                builder: (context) => ConfirmToEndShift(activeShift!),
-                                              );
-                                            },
-                                            child: const Icon(
-                                              Icons.arrow_right_outlined,
-                                              size: 40,
+                                            Expanded(
+                                              flex: 2,
+                                              child: Text(
+                                                NumberFormat.decimalPattern().format(shift.cashValue.toInt()),
+                                                style: const TextStyle(fontSize: 18),
+                                                textAlign: TextAlign.end,
+                                              ),
                                             ),
-                                          )
-                                        : GestureDetector(
-                                            onTap: () async {
-                                              await showDialog(
-                                                context: context,
-                                                barrierDismissible: false,
-                                                builder: (context) => RecapShiftScreen(
-                                                  shiftId: shift.docId,
+                                            Expanded(
+                                              flex: 1,
+                                              child: Text(
+                                                shift.approvalStatus == 0 ? 'OPEN' : 'CLOSED',
+                                                textAlign: TextAlign.end,
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: shift.approvalStatus == 0
+                                                      ? const Color.fromARGB(255, 47, 143, 8)
+                                                      : null,
                                                 ),
-                                              );
-                                            },
-                                            child: const Icon(
-                                              Icons.arrow_right_outlined,
-                                              size: 40,
+                                              ),
                                             ),
-                                          ),
-                                  ],
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_right_outlined,
+                                        size: 40,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 const Divider(
                                   color: Colors.grey,
-                                )
+                                ),
                               ],
                             ),
                           ),

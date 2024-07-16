@@ -52,7 +52,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
   }
 
   Future<void> resendOTP() async {
-    await GetIt.instance<OTPServiceAPi>().createSendOTP();
+    await GetIt.instance<OTPServiceAPi>().createSendOTP(widget.discountValue);
     setState(() {
       _isOTPSent = true;
     });

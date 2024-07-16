@@ -243,7 +243,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "Rp ${Helpers.parseMoney(amount)},00",
+                                      "Rp ${Helpers.parseMoney(amount)}",
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -285,7 +285,7 @@ class _TableReportMopState extends State<TableReportMop> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Rp ${Helpers.parseMoney(totalAmount)},00',
+                                    'Rp ${Helpers.parseMoney(totalAmount)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,

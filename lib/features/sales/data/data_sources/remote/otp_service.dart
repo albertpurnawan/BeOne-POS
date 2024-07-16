@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 
 class OTPServiceAPi {
   final Dio _dio;
@@ -14,9 +15,9 @@ class OTPServiceAPi {
 
   OTPServiceAPi(this._dio);
 
-  Future<Map<String, dynamic>> createSendOTP() async {
+  Future<Map<String, dynamic>> createSendOTP(double? amount) async {
     try {
-      log("CREATE & SEND OTP");
+      log("CREATE & SEND OTP - $amount");
       final otpDao = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       otpChannel = otpDao[0].otpChannel;
       String url = "http://110.239.68.248:7070/api/otp/send-mailer";
@@ -36,19 +37,38 @@ class OTPServiceAPi {
       final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
       final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
 
-      final dataToSend = {
-        "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
-        "channelId": otpChannel, // uuid smtp
-        "Destination": spv[0]['email'],
-        "Expired": formattedExpired,
-        "RequestTimestamp": formattedDateTime,
-        "isUsed": false,
-        "additionalInfo": {
-          "StoreName": store!.storeName,
-          "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
-          "CashierName": cashierName!.username,
-        }
-      };
+      Map<String, dynamic> dataToSend = {};
+      if (amount != null) {
+        final discount = Helpers.parseMoney(amount);
+        dataToSend = {
+          "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
+          "channelId": otpChannel, // uuid smtp
+          "Destination": spv[0]['email'],
+          "Expired": formattedExpired,
+          "RequestTimestamp": formattedDateTime,
+          "isUsed": false,
+          "additionalInfo": {
+            "StoreName": store!.storeName,
+            "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
+            "CashierName": cashierName!.username,
+            "DiscountAmount": discount,
+          }
+        };
+      } else {
+        dataToSend = {
+          "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
+          "channelId": otpChannel, // uuid smtp
+          "Destination": spv[0]['email'],
+          "Expired": formattedExpired,
+          "RequestTimestamp": formattedDateTime,
+          "isUsed": false,
+          "additionalInfo": {
+            "StoreName": store!.storeName,
+            "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
+            "CashierName": cashierName!.username
+          }
+        };
+      }
       log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
