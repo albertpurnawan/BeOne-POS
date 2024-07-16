@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late int eveningEpoch;
   late String timeOfDay;
   late String symbol;
+  bool reportPressed = false;
   CashierBalanceTransactionModel? activeShift;
 
   Future<void> fetchActiveShift() async {
@@ -59,6 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    setState(() {
+      reportPressed = false;
+    });
     super.initState();
     fetchActiveShift();
     now = DateTime.now();
@@ -212,27 +216,34 @@ class _HomeScreenState extends State<HomeScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      borderRadius: BorderRadius.circular(5),
-                                    )),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor.resolveWith(
-                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () {
-                                  context.pushNamed(RouteConstants.reports);
-                                },
-                                child: const Text(
-                                  "Reports",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                ),
-                              ),
+                              child: reportPressed
+                                  ? null
+                                  : ElevatedButton(
+                                      style: ButtonStyle(
+                                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                            side: const BorderSide(color: Colors.white, width: 2),
+                                            borderRadius: BorderRadius.circular(5),
+                                          )),
+                                          backgroundColor:
+                                              MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                          foregroundColor: MaterialStateColor.resolveWith(
+                                              (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                          overlayColor:
+                                              MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                      onPressed: () {
+                                        // context.pushNamed(RouteConstants.reports);
+                                        setState(() {
+                                          reportPressed = true;
+                                        });
+                                      },
+                                      child: const Text(
+                                        "Reports",
+                                        textAlign: TextAlign.center,
+                                        style:
+                                            TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
                             ),
                             const SizedBox(
                               height: 10,
