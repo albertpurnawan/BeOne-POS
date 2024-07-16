@@ -21,7 +21,6 @@ class CashierBalanceTransactionApi {
 
   Future<void> sendTransactions(CashierBalanceTransactionModel tcsr1) async {
     try {
-      log("SEND TRANSACTIONS");
       token = prefs.getString('adminToken');
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;

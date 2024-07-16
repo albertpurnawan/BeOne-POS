@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -118,8 +116,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     if (tcsr1 == null) {
       return const Center(child: CircularProgressIndicator());
     }
-
-    log("tcsr1 - $tcsr1");
 
     String formattedOpenDate = Helpers.formatDateNoSeconds(tcsr1!.openDate);
     String formattedOpenValue = NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());

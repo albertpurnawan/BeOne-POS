@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -101,7 +100,6 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && indexIsSelect[0] < state.receiptItems.length) {
         if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
         setState(() {
-          log("arrow down new receipt item quantity");
           indexIsSelect = [indexIsSelect[0] + 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
           // Helpers.cleanDecimal(e.quantity, 3);
@@ -216,7 +214,6 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && indexIsSelect[0] < state.receiptItems.length) {
         if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
         setState(() {
-          log("arrow down new receipt item code");
           indexIsSelect = [indexIsSelect[0] + 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
           // Helpers.cleanDecimal(e.quantity, 3);
@@ -274,8 +271,6 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   Widget build(BuildContext context) {
-    log("build sales");
-
     isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
     isEditingReceiptItemQty = isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
 
@@ -2813,7 +2808,7 @@ class _SalesPageState extends State<SalesPage> {
         child: TapRegion(
           groupId: isUpdatingReceiptItemQty ? 1 : null,
           onTapOutside: (event) {
-            log("ontapoutside");
+            // log("ontapoutside");
             if (ModalRoute.of(context)?.isCurrent != true) return;
 
             if (isUpdatingReceiptItemQty) {
@@ -2838,7 +2833,6 @@ class _SalesPageState extends State<SalesPage> {
                 _newReceiptItemCodeFocusNode.requestFocus();
               });
             } else {
-              log("focusrequested");
               setState(() {
                 // indexIsSelect = [-1, 0];
                 // _textEditingControllerNewReceiptItemQuantity.text = "1";
@@ -3103,17 +3097,17 @@ class _SalesPageState extends State<SalesPage> {
           onPressed: () {
             setState(() {
               if (!isEditingNewReceiptItemCode && !isEditingNewReceiptItemQty && !isUpdatingReceiptItemQty) {
-                log("numpadnumbutton 1");
+                // log("numpadnumbutton 1");
 
                 _textEditingControllerNewReceiptItemCode.text = buttonNumber;
                 Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemCode) {
-                log("numpadnumbutton 2");
+                // log("numpadnumbutton 2");
 
                 _textEditingControllerNewReceiptItemCode.text += buttonNumber;
                 Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
-                log("numpadnumbutton 3");
+                // log("numpadnumbutton 3");
 
                 _textEditingControllerNewReceiptItemQuantity.text += buttonNumber;
                 Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemQuantityFocusNode.requestFocus());
@@ -3151,7 +3145,7 @@ class _SalesPageState extends State<SalesPage> {
     bool isNumOnly,
     BuildContext context,
   ) async {
-    log("Handle physical keyboard ${event.physicalKey}");
+    // log("Handle physical keyboard ${event.physicalKey}");
     if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
       if (event.character != null &&

@@ -17,8 +17,7 @@ class APMPSApi {
 
   APMPSApi(this._dio);
 
-  Future<List<AssignPriceMemberPerStoreModel>> fetchData(
-      String lastSync) async {
+  Future<List<AssignPriceMemberPerStoreModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPLN3";
       Map<String, dynamic> exeData = {};
@@ -26,8 +25,7 @@ class APMPSApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
       storeId = pos[0].tostrId;
       url = pos[0].baseUrl;
@@ -65,9 +63,8 @@ class APMPSApi {
         log("--- APMPS ---");
         log(resp.data['data'][0].toString());
 
-        List<AssignPriceMemberPerStoreModel> data = (resp.data['data'] as List)
-            .map((e) => AssignPriceMemberPerStoreModel.fromMapRemote(e))
-            .toList();
+        List<AssignPriceMemberPerStoreModel> data =
+            (resp.data['data'] as List).map((e) => AssignPriceMemberPerStoreModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 
@@ -91,8 +88,7 @@ class APMPSApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      AssignPriceMemberPerStoreModel datum =
-          AssignPriceMemberPerStoreModel.fromMap(response.data);
+      AssignPriceMemberPerStoreModel datum = AssignPriceMemberPerStoreModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

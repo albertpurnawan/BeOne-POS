@@ -17,7 +17,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApprovalDialog extends StatefulWidget {
   final Future<void> Function()? onSuccess;
-  const ApprovalDialog({Key? key, this.onSuccess}) : super(key: key);
+  final double? discount;
+  const ApprovalDialog({Key? key, this.onSuccess, this.discount}) : super(key: key);
 
   @override
   State<ApprovalDialog> createState() => _ApprovalDialogState();
@@ -73,7 +74,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
 
   Future<String> createOTP() async {
     try {
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP();
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(widget.discount);
       return response['Requester'];
     } catch (e) {
       rethrow;

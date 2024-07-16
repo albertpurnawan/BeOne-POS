@@ -214,7 +214,6 @@ abstract class BaseDao<T extends BaseModel> {
       await deleteAll();
       await bulkCreate(data: data, txn: txn);
     } catch (err, stack) {
-      log(err.toString());
       debugPrintStack(stackTrace: stack);
       rethrow;
     }

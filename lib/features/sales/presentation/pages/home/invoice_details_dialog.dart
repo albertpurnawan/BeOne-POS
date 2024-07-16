@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -171,7 +169,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                   salesSelected = selectedEmployee.empName;
                                   tohemIdSelected = selectedEmployee.docId;
                                 });
-                                log("selectedEmployee - $selectedEmployee");
+                                // log("selectedEmployee - $selectedEmployee");
                               }
                             }),
                             child: Column(

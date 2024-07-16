@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -22,15 +20,9 @@ class VouchersSelectionApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
       tostrId = pos[0].tostrId;
-
-      log("token $token");
-      log("url $url");
-      log("tostrId $tostrId");
-      log("serialno $serialno");
 
       final response = await _dio.get(
         "$url/tenant-check-register-voucher",
@@ -45,7 +37,7 @@ class VouchersSelectionApi {
         ),
       );
 
-      log(response.toString());
+      // log(response.toString());
       if (response.data == null) throw "Voucher not found";
       voucher = VouchersSelectionModel(
         docId: response.data['docid'],
@@ -76,8 +68,7 @@ class VouchersSelectionApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
       tostrId = pos[0].tostrId;
 

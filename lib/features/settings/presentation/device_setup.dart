@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -249,8 +247,6 @@ class _SettingsFormState extends State<SettingsForm> {
                   );
 
                   await GetIt.instance<AppDatabase>().posParameterDao.create(data: topos);
-
-                  log("TOPOS CREATED");
 
                   final token = await GetIt.instance<TokenApi>()
                       .getToken(urlController.text, emailController.text, passwordController.text);

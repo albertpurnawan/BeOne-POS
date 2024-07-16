@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer' as dev;
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -65,7 +64,6 @@ class _QRISDialogState extends State<QRISDialog> {
       String status = '';
       await Future.delayed(const Duration(seconds: 3), () async {
         status = await _checkQRISStatus();
-        dev.log("status - $status");
       });
 
       if (status == 'paid') {
@@ -144,7 +142,6 @@ class _QRISDialogState extends State<QRISDialog> {
       String status = '';
       await Future.delayed(const Duration(seconds: 3), () async {
         status = await _checkQRISStatus();
-        dev.log("status - $status");
       });
 
       if (status == 'paid') {

@@ -1,11 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -42,7 +39,7 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
       final CashRegisterEntity? cashRegisterEntityRes =
           await GetIt.instance<GetCashRegisterUseCase>().call(params: widget.closedShift.tocsrId!);
       if (cashRegisterEntityRes == null) throw "Cash Register not found";
-      log(cashRegisterEntityRes.toString());
+      // log(cashRegisterEntityRes.toString());
       final StoreMasterEntity? storeMasterEntityRes =
           await GetIt.instance<GetStoreMasterUseCase>().call(params: cashRegisterEntityRes.tostrId);
       if (storeMasterEntityRes == null) throw "Store Master not found";
@@ -496,51 +493,51 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
       actions: <Widget>[
         Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        // side: const BorderSide(color: ProjectColors.primary),
-                      )),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => const Color.fromARGB(255, 56, 56, 56),
-                      ),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                  onPressed: null,
-                  child: const Center(
-                      child: Text(
-                    "Reopen Cash Drawer",
-                    style: TextStyle(color: Colors.white),
-                  )),
-                )),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => const Color.fromARGB(255, 234, 234, 234),
-                      ),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                  onPressed: () {},
-                  child: const Center(
-                      child: Text(
-                    "Reprint",
-                    style: TextStyle(color: ProjectColors.primary),
-                  )),
-                )),
-              ],
-            ),
-            const SizedBox(
-              height: 5,
-            ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //         child: TextButton(
+            //       style: ButtonStyle(
+            //           shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(5),
+            //             // side: const BorderSide(color: ProjectColors.primary),
+            //           )),
+            //           backgroundColor: MaterialStateColor.resolveWith(
+            //             (states) => const Color.fromARGB(255, 56, 56, 56),
+            //           ),
+            //           overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+            //       onPressed: null,
+            //       child: const Center(
+            //           child: Text(
+            //         "Reopen Cash Drawer",
+            //         style: TextStyle(color: Colors.white),
+            //       )),
+            //     )),
+            //     const SizedBox(
+            //       width: 10,
+            //     ),
+            //     Expanded(
+            //         child: TextButton(
+            //       style: ButtonStyle(
+            //           shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+            //               borderRadius: BorderRadius.circular(5),
+            //               side: const BorderSide(color: ProjectColors.primary))),
+            //           backgroundColor: MaterialStateColor.resolveWith(
+            //             (states) => const Color.fromARGB(255, 234, 234, 234),
+            //           ),
+            //           overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+            //       onPressed: () {},
+            //       child: const Center(
+            //           child: Text(
+            //         "Reprint",
+            //         style: TextStyle(color: ProjectColors.primary),
+            //       )),
+            //     )),
+            //   ],
+            // ),
+            // const SizedBox(
+            //   height: 5,
+            // ),
             TextButton(
               style: ButtonStyle(
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),

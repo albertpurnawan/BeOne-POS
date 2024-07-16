@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +11,9 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart'
 
 class OTPSubmissionDialog extends StatefulWidget {
   final String requester;
+  final double? amount;
 
-  const OTPSubmissionDialog({super.key, required this.requester});
+  const OTPSubmissionDialog({super.key, required this.requester, this.amount});
 
   @override
   State<OTPSubmissionDialog> createState() => _OTPSubmissionDialogState();
@@ -49,8 +49,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
   }
 
   Future<void> resendOTP() async {
-    await GetIt.instance<OTPServiceAPi>().createSendOTP();
-    log("OTP RESENT");
+    await GetIt.instance<OTPServiceAPi>().createSendOTP(widget.amount);
     setState(() {
       _isOTPSent = true;
     });
@@ -83,7 +82,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
       }
     } else {
       const message = "Wrong Code, Please Check Again";
-      log(response);
       if (childContext.mounted) {
         SnackBarHelper.presentErrorSnackBar(childContext, message);
       }
@@ -184,133 +182,134 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
               content: SizedBox(
                 width: MediaQuery.of(childContext).size.width * 0.5,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   child: IntrinsicHeight(
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Insert OTP Code You Received',
-                          style: TextStyle(fontSize: 22, color: Colors.black),
-                        ),
-                        const SizedBox(height: 25),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(6, (index) {
-                            return Container(
-                              width: 60,
-                              margin: const EdgeInsets.symmetric(horizontal: 5),
-                              child: TextField(
-                                focusNode: index == 0 ? _otpFocusNode : null,
-                                controller: _otpControllers[index],
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
-                                maxLength: 1,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                                decoration: const InputDecoration(
-                                  counterText: '',
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: ProjectColors.primary, width: 2),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green, width: 2),
-                                  ),
-                                ),
-                                onChanged: (value) async {
-                                  if (value.isEmpty && index > 0) {
-                                    FocusScope.of(childContext).previousFocus();
-                                  } else if (value.isNotEmpty && index < 5) {
-                                    FocusScope.of(childContext).nextFocus();
-                                  } else if (value.isNotEmpty && index == 5) {
-                                    _updateOtpCode();
-                                    // FocusScope.of(context).unfocus();
-                                    log("OTP Code: $_otpCode");
-                                    await onSubmit(parentContext, childContext, _otpCode, widget.requester);
-                                  }
-                                },
-                              ),
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 20),
-                        Text("Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
-                        if (_isTimeUp && !_isSendingOTP) ...[
-                          const SizedBox(height: 10),
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'Resend OTP',
-                                  style: TextStyle(
-                                    color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () async {
-                                      setState(() {
-                                        _isOTPClicked = true;
-                                        _isSendingOTP = true;
-                                        _isOTPSent = false;
-                                        _otpFocusNode.requestFocus();
-
-                                        for (int i = 0; i < 6; i++) {
-                                          _otpControllers[i].text = "";
-                                        }
-                                      });
-
-                                      await resendOTP();
-                                      setState(() {
-                                        _isOTPClicked = false;
-                                        _isSendingOTP = false;
-                                        _isTimeUp = false;
-                                      });
-                                    },
-                                ),
-                                TextSpan(
-                                  text: " (F11)",
-                                  style: TextStyle(
-                                      color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w300),
-                                ),
-                              ],
-                            ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Insert OTP Code You Received',
+                            style: TextStyle(fontSize: 22, color: Colors.black),
                           ),
-                        ],
-                        if (_isTimeUp && _isSendingOTP) ...[
                           const SizedBox(height: 15),
-                          (_isOTPSent)
-                              ? const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "OTP SENT",
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(6, (index) {
+                              return Container(
+                                width: 60,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                child: TextField(
+                                  focusNode: index == 0 ? _otpFocusNode : null,
+                                  controller: _otpControllers[index],
+                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
+                                  maxLength: 1,
+                                  keyboardType: TextInputType.number,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                  decoration: const InputDecoration(
+                                    counterText: '',
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: ProjectColors.primary, width: 2),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.green, width: 2),
+                                    ),
+                                  ),
+                                  onChanged: (value) async {
+                                    if (value.isEmpty && index > 0) {
+                                      FocusScope.of(childContext).previousFocus();
+                                    } else if (value.isNotEmpty && index < 5) {
+                                      FocusScope.of(childContext).nextFocus();
+                                    } else if (value.isNotEmpty && index == 5) {
+                                      _updateOtpCode();
+                                      // FocusScope.of(context).unfocus();
+                                      await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                                    }
+                                  },
+                                ),
+                              );
+                            }),
+                          ),
+                          const SizedBox(height: 20),
+                          Text("Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
+                          if (_isTimeUp && !_isSendingOTP) ...[
+                            const SizedBox(height: 10),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Resend OTP',
+                                    style: TextStyle(
+                                      color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () async {
+                                        setState(() {
+                                          _isOTPClicked = true;
+                                          _isSendingOTP = true;
+                                          _isOTPSent = false;
+                                          _otpFocusNode.requestFocus();
+
+                                          for (int i = 0; i < 6; i++) {
+                                            _otpControllers[i].text = "";
+                                          }
+                                        });
+
+                                        await resendOTP();
+                                        setState(() {
+                                          _isOTPClicked = false;
+                                          _isSendingOTP = false;
+                                          _isTimeUp = false;
+                                        });
+                                      },
+                                  ),
+                                  TextSpan(
+                                    text: " (F11)",
+                                    style: TextStyle(
+                                        color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w300),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          if (_isTimeUp && _isSendingOTP) ...[
+                            const SizedBox(height: 15),
+                            (_isOTPSent)
+                                ? const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "OTP SENT",
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: ProjectColors.green,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Icon(
+                                        Icons.check_circle_outline,
+                                        size: 24,
                                         color: ProjectColors.green,
                                       ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Icon(
-                                      Icons.check_circle_outline,
-                                      size: 24,
-                                      color: ProjectColors.green,
-                                    ),
-                                  ],
-                                )
-                              : const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
+                                    ],
+                                  )
+                                : const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -360,7 +359,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                             backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
-                          log("OTP Code: $_otpCode");
                           await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                         },
                         child: Center(

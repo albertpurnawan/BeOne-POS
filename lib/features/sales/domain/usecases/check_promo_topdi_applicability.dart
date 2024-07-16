@@ -61,9 +61,9 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
             topdi.endTime.second,
           );
 
-          log("${topdi.startDate} ${topdi.endDate}");
-          log("${topdi.endDate.hour}, ${topdi.endDate.minute}, ${topdi.endDate.second},");
-          log("waktu $startPromo $endPromo");
+          // log("${topdi.startDate} ${topdi.endDate}");
+          // log("${topdi.endDate.hour}, ${topdi.endDate.minute}, ${topdi.endDate.second},");
+          // log("waktu $startPromo $endPromo");
 
           if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
               now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
@@ -98,7 +98,7 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
             return isApplicable = false;
           }
 
-          log("Unique toitmId ${!tpdi1.every((element) => element.priceFrom != null && element.priceTo != null)}");
+          // log("Unique toitmId ${!tpdi1.every((element) => element.priceFrom != null && element.priceTo != null)}");
 
           Set<String> uniqueToitmId = {};
           for (final receiptItem in receiptEntity.receiptItems) {
@@ -112,7 +112,7 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
             }
           }
 
-          log("Unique toitmId $uniqueToitmId");
+          // log("Unique toitmId $uniqueToitmId");
 
           if (topdi.buyCondition == 1 && (uniqueToitmId.length < tpdi1.length)) {
             return isApplicable = false;
@@ -230,7 +230,7 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
       int counter = 0;
       for (final validation in finalValidations) {
         log(counter.toString());
-        log("--- validation ---");
+        // log("--- validation ---");
         counter += 1;
         if (!isApplicable) break;
         await validation();

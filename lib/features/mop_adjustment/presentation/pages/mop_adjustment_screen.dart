@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -77,7 +75,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     } else {
       mop1Options = [];
     }
-    log("$mop1Options");
+    // log("$mop1Options");
     setState(() {});
   }
 
@@ -654,7 +652,6 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                   await GetIt.instance<AppDatabase>()
                                       .mopAdjustmentDetailDao
                                       .bulkCreate(data: [mpad1From, mpad1To]);
-                                  log("MOP Adjustment Created");
 
                                   await GetIt.instance<MOPAdjustmentService>()
                                       .sendMOPAdjustment(tmpad, [mpad1From, mpad1To]);

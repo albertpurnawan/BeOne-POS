@@ -39,9 +39,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
   Future<void> selectDate(BuildContext context, bool isFromDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isFromDate
-          ? selectedFromDate ?? DateTime.now()
-          : selectedToDate ?? DateTime.now(),
+      initialDate: isFromDate ? selectedFromDate ?? DateTime.now() : selectedToDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
@@ -121,10 +119,8 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     height: 30,
                                     child: Text(
                                       selectedFromDate == null
-                                          ? Helpers.dateToString(
-                                              DateTime.now().toLocal())
-                                          : '${selectedFromDate!.toLocal()}'
-                                              .split(' ')[0],
+                                          ? Helpers.dateToString(DateTime.now().toLocal())
+                                          : '${selectedFromDate!.toLocal()}'.split(' ')[0],
                                       style: const TextStyle(
                                         color: ProjectColors.mediumBlack,
                                         fontSize: 18,
@@ -169,10 +165,8 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                     height: 30,
                                     child: Text(
                                       selectedToDate == null
-                                          ? Helpers.dateToString(
-                                              DateTime.now().toLocal())
-                                          : '${selectedToDate!.toLocal()}'
-                                              .split(' ')[0],
+                                          ? Helpers.dateToString(DateTime.now().toLocal())
+                                          : '${selectedToDate!.toLocal()}'.split(' ')[0],
                                       style: const TextStyle(
                                         color: ProjectColors.mediumBlack,
                                         fontSize: 18,
@@ -240,9 +234,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                         searchedQuery = "";
                                       });
                                     },
-                                    items: filterOptions
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
+                                    items: filterOptions.map<DropdownMenuItem<String>>((String value) {
                                       return DropdownMenuItem<String>(
                                         value: value,
                                         child: Text(value),
@@ -261,8 +253,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                   child: TextField(
                                     controller: searchController,
                                     decoration: const InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 0, horizontal: 8),
+                                      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                                       border: OutlineInputBorder(),
                                       hintText: 'Search...',
                                       hintStyle: TextStyle(
