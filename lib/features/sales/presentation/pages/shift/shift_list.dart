@@ -258,8 +258,12 @@ class _AllShiftState extends State<AllShift> {
       }
     }
 
+    DateTime parseDate(String date) {
+      return DateFormat('EEEE, dd MMM yyyy').parse(date);
+    }
+
     List<MapEntry<String, List<CashierBalanceTransactionModel>>> sortedEntries = groupedShifts.entries.toList()
-      ..sort((a, b) => b.key.compareTo(a.key));
+      ..sort((a, b) => parseDate(b.key).compareTo(parseDate(a.key)));
 
     for (var entry in sortedEntries) {
       entry.value.sort((a, b) => b.openDate.compareTo(a.openDate));

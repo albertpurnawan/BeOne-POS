@@ -764,10 +764,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                 text: "Back",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
-                              TextSpan(
-                                text: "  (Esc)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
+                              // TextSpan(
+                              //   text: "  (Esc)",
+                              //   style: TextStyle(fontWeight: FontWeight.w300),
+                              // ),
                             ],
                             style: TextStyle(color: ProjectColors.primary),
                           ),
@@ -851,10 +851,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                 text: "Add Card",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
-                              TextSpan(
-                                text: "  (F12)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
+                              // TextSpan(
+                              //   text: "  (F12)",
+                              //   style: TextStyle(fontWeight: FontWeight.w300),
+                              // ),
                             ],
                           ),
                           overflow: TextOverflow.clip,

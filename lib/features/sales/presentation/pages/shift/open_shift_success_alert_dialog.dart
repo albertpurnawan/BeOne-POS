@@ -313,51 +313,51 @@ class _OpenShiftSuccessAlertDialogState extends State<OpenShiftSuccessAlertDialo
       actions: <Widget>[
         Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        // side: const BorderSide(color: ProjectColors.primary),
-                      )),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => const Color.fromARGB(255, 56, 56, 56),
-                      ),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                  onPressed: null,
-                  child: const Center(
-                      child: Text(
-                    "Reopen Cash Drawer",
-                    style: TextStyle(color: Colors.white),
-                  )),
-                )),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => const Color.fromARGB(255, 234, 234, 234),
-                      ),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                  onPressed: () {},
-                  child: const Center(
-                      child: Text(
-                    "Reprint",
-                    style: TextStyle(color: ProjectColors.primary),
-                  )),
-                )),
-              ],
-            ),
-            const SizedBox(
-              height: 5,
-            ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //         child: TextButton(
+            //       style: ButtonStyle(
+            //           shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(5),
+            //             // side: const BorderSide(color: ProjectColors.primary),
+            //           )),
+            //           backgroundColor: MaterialStateColor.resolveWith(
+            //             (states) => const Color.fromARGB(255, 56, 56, 56),
+            //           ),
+            //           overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+            //       onPressed: null,
+            //       child: const Center(
+            //           child: Text(
+            //         "Reopen Cash Drawer",
+            //         style: TextStyle(color: Colors.white),
+            //       )),
+            //     )),
+            //     const SizedBox(
+            //       width: 10,
+            //     ),
+            //     Expanded(
+            //         child: TextButton(
+            //       style: ButtonStyle(
+            //           shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+            //               borderRadius: BorderRadius.circular(5),
+            //               side: const BorderSide(color: ProjectColors.primary))),
+            //           backgroundColor: MaterialStateColor.resolveWith(
+            //             (states) => const Color.fromARGB(255, 234, 234, 234),
+            //           ),
+            //           overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+            //       onPressed: () {},
+            //       child: const Center(
+            //           child: Text(
+            //         "Reprint",
+            //         style: TextStyle(color: ProjectColors.primary),
+            //       )),
+            //     )),
+            //   ],
+            // ),
+            // const SizedBox(
+            //   height: 5,
+            // ),
             TextButton(
               style: ButtonStyle(
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
