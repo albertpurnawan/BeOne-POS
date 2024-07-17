@@ -54,6 +54,7 @@ class _EDCDialogState extends State<EDCDialog> {
   bool savePressed = false;
   double? currentAmount;
   String errMsg = "Invalid amount";
+  String edcMachine = "";
 
   late final _focusNodeAmount = FocusNode(
     onKeyEvent: (node, event) {
@@ -86,6 +87,7 @@ class _EDCDialogState extends State<EDCDialog> {
   void initState() {
     fetchMOP();
     currentAmount = widget.max;
+    edcMachine = widget.mopSelectionEntity.edcDesc!;
     super.initState();
   }
 
@@ -140,9 +142,9 @@ class _EDCDialogState extends State<EDCDialog> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                child: const Text(
-                  'Select MOP',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                child: Text(
+                  edcMachine,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),

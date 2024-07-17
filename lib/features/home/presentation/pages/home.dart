@@ -217,7 +217,69 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
                               child: reportPressed
-                                  ? null
+                                  ? Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            style: ButtonStyle(
+                                                padding:
+                                                    const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                                  side: const BorderSide(color: Colors.white, width: 2),
+                                                  borderRadius: BorderRadius.circular(5),
+                                                )),
+                                                backgroundColor:
+                                                    MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                                foregroundColor: MaterialStateColor.resolveWith(
+                                                    (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                                overlayColor: MaterialStateColor.resolveWith(
+                                                    (states) => Colors.white.withOpacity(.2))),
+                                            onPressed: () {
+                                              context.pushNamed(RouteConstants.reports);
+                                              setState(() {
+                                                reportPressed = false;
+                                              });
+                                            },
+                                            child: const Text(
+                                              "Show Reports",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            style: ButtonStyle(
+                                                padding:
+                                                    const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                                  side: const BorderSide(color: Colors.white, width: 2),
+                                                  borderRadius: BorderRadius.circular(5),
+                                                )),
+                                                backgroundColor:
+                                                    MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                                foregroundColor: MaterialStateColor.resolveWith(
+                                                    (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                                overlayColor: MaterialStateColor.resolveWith(
+                                                    (states) => Colors.white.withOpacity(.2))),
+                                            onPressed: () {
+                                              context.pushNamed(RouteConstants.checkStocks);
+                                              setState(() {
+                                                reportPressed = false;
+                                              });
+                                            },
+                                            child: const Text(
+                                              "Check Stock",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
                                   : ElevatedButton(
                                       style: ButtonStyle(
                                           padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
