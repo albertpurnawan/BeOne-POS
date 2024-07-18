@@ -22,24 +22,13 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   final _focusNode = FocusNode();
   List<dynamic>? itemsFound;
   Map<String, dynamic>? selectedItem;
-  List<CheckStockEntity> stocksFetched = [
-    CheckStockEntity(
-      itemCode: "1234567890",
-      itemName: " Test Item Name",
-      storeCode: "Store-123",
-      storeName: "Store123",
-      qtyOnHand: 2,
-      ordered: 4,
-      commited: 1,
-      available: 5,
-    ),
-  ];
+  List<CheckStockEntity>? stocksFetched;
   bool showTable = false;
 
   @override
   void initState() {
     super.initState();
-    _focusNode.requestFocus(); // Request focus on widget initialization
+    _focusNode.requestFocus();
   }
 
   @override
@@ -54,10 +43,11 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   }
 
   void _handleItemSelected(Map<String, dynamic> item) async {
-    log("item - $item");
-    // final stocks = await _checkStock(item['itemcode'], item['itemname']);
-    // log("stocks - $stocks");
+    // log("item - $item");
+    final stocks = await _checkStock(item['itemcode'], item['itemname']);
+    log("stocks - $stocks");
     setState(() {
+      stocksFetched = stocks;
       _itemInputController.text = "";
       itemsFound = null;
       selectedItem = item;
@@ -340,8 +330,9 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(Icons.inventory_2_outlined, color: Colors.black, size: 18.0),
+                            const SizedBox(width: 10),
                             Text(
-                              " SKU: ${(selectedItem != null) ? selectedItem!['itemcode'] : ""}",
+                              "${(selectedItem != null) ? selectedItem!['itemcode'] : ""}",
                               style: const TextStyle(
                                   color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
                             ),
@@ -364,8 +355,9 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                               "assets/images/barcode.svg",
                               height: 20,
                             ),
+                            const SizedBox(width: 10),
                             Text(
-                              " Barcode: ${(selectedItem != null) ? selectedItem!['barcode'] : ""}",
+                              "${(selectedItem != null) ? selectedItem!['barcode'] : ""}",
                               style: const TextStyle(
                                   color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
                             ),
@@ -385,8 +377,9 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(Icons.monetization_on_outlined, color: Colors.black, size: 18.0),
+                            const SizedBox(width: 10),
                             Text(
-                              " Price: ${(selectedItem != null) ? priceFormatted : ""}",
+                              "${(selectedItem != null) ? priceFormatted : ""}",
                               style: const TextStyle(
                                   color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
                             ),
@@ -409,6 +402,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                 spreadRadius: 0.5,
                 blurRadius: 5,
                 color: Color.fromRGBO(0, 0, 0, 0.222),
+                offset: Offset(2, 5),
               ),
             ],
           ),
@@ -473,7 +467,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                     child: const Center(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Text("Commited",
+                        child: Text("Committed",
                             style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -495,11 +489,14 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                   ),
                 ],
               ),
-              for (final stock in stocksFetched)
-                TableRow(
+              ...stocksFetched!.asMap().entries.map((entry) {
+                final stock = entry.value;
+                final index = entry.key;
+                final isLast = index == stocksFetched!.length - 1;
+                return TableRow(
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 239, 238, 238),
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
+                    borderRadius: isLast ? const BorderRadius.vertical(bottom: Radius.circular(8)) : BorderRadius.zero,
                   ),
                   children: [
                     Padding(
@@ -543,10 +540,19 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       )),
                     ),
                   ],
-                ),
+                );
+              }).toList(),
             ],
           ),
         ),
+        const SizedBox(height: 20),
+        if (stocksFetched!.isEmpty)
+          Center(
+              child: const Text(
+            "No Data Available",
+            style: TextStyle(
+                color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700, fontStyle: FontStyle.italic),
+          )),
       ],
     );
   }

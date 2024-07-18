@@ -44,7 +44,6 @@ class CheckStockModel extends CheckStockEntity implements BaseModel {
     return CheckStockModel.fromMap({
       ...map,
       "qtyonhand": map['QtyOnHand'] != null ? map['QtyOnHand'] as int : null,
-      "available": map['Available'] != null ? map['Available'] as int : null,
     });
   }
 

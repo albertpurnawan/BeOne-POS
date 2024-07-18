@@ -43,7 +43,6 @@ class CheckStockApi {
           };
         }
       }
-      log("exeData - $exeData");
 
       final resp = await _dio.post("$url/tenant-custom-query/execute",
           data: exeData,
