@@ -20,6 +20,8 @@ class EDCDialog extends StatefulWidget {
     Key? key,
     required this.mopSelectionEntity,
     required this.onEDCSelected,
+    required this.onEDCRemoved,
+    required this.values,
     this.max = double.infinity,
     required this.isMultiMOPs,
   }) : super(key: key);
@@ -27,7 +29,11 @@ class EDCDialog extends StatefulWidget {
   final Function(
     MopSelectionEntity,
   ) onEDCSelected;
+  final Function(
+    MopSelectionEntity,
+  ) onEDCRemoved;
   final MopSelectionEntity mopSelectionEntity;
+  final List<MopSelectionEntity> values;
   final double max;
   final bool isMultiMOPs;
 
@@ -87,6 +93,7 @@ class _EDCDialogState extends State<EDCDialog> {
   void initState() {
     fetchMOP();
     currentAmount = widget.max;
+    mopsSelected.addAll(widget.values);
     edcMachine = widget.mopSelectionEntity.edcDesc!;
     super.initState();
   }
@@ -109,6 +116,8 @@ class _EDCDialogState extends State<EDCDialog> {
       mopList.addAll(tpmt1List);
     });
   }
+
+  Future<void> removeMOP() async {}
 
   @override
   Widget build(BuildContext parentContext) {
@@ -175,119 +184,80 @@ class _EDCDialogState extends State<EDCDialog> {
                             ),
                           ],
                         ),
-                        const Divider(
-                          color: Colors.black,
-                          height: 1,
+                        const SizedBox(
+                          height: 10,
                         ),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                "No",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 5,
+                          children: mopsSelected.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            MopSelectionEntity mop = entry.value;
+                            return Container(
+                              padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    spreadRadius: 0.5,
+                                    blurRadius: 5,
+                                    color: Color.fromRGBO(0, 0, 0, 0.222),
+                                  ),
+                                ],
+                                color: const Color.fromARGB(255, 11, 57, 84),
                               ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Text(
-                                "MOP",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 5,
-                              child: Text(
-                                "Card Type",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Text(
-                                "Amount",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ...mopsSelected.asMap().entries.map((entry) {
-                          int index = entry.key + 1;
-                          MopSelectionEntity mop = entry.value;
-                          return Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      index.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  Text(
+                                    "${mop.mopAlias} - ",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                      mop.mopAlias,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  Text(
+                                    (mop.cardName != null) ? "${mop.cardName}" : "",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      mop.cardName ?? "Select Card Here...",
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  const SizedBox(
+                                    width: 15,
+                                  ),
+                                  Text(
+                                    Helpers.parseMoney(mop.amount!),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                      mop.amount.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        mopsSelected.removeAt(index);
+                                        currentAmount = currentAmount! + mop.amount!;
+                                      });
+                                      widget.onEDCRemoved(mop);
+                                    },
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: Colors.grey,
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          );
-                        }).toList(),
-                        const Divider(
-                          color: Colors.black,
-                          height: 1,
+                            );
+                          }).toList(),
                         ),
-
                         const SizedBox(
                           height: 20,
                         ),
@@ -823,6 +793,7 @@ class _EDCDialogState extends State<EDCDialog> {
                           rrn: _refNumberController.text,
                         );
                         mopsSelected.add(mopEDC);
+                        FocusScope.of(context).unfocus();
 
                         setState(() {
                           currentAmount = currentAmount! - edcAmount;

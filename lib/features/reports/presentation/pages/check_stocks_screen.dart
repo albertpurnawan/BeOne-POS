@@ -19,7 +19,7 @@ class CheckStockScreen extends StatefulWidget {
 
 class _CheckStockScreenState extends State<CheckStockScreen> {
   final TextEditingController _itemInputController = TextEditingController();
-
+  final _focusNode = FocusNode();
   List<dynamic>? itemsFound;
   Map<String, dynamic>? selectedItem;
   List<CheckStockEntity> stocksFetched = [
@@ -34,8 +34,13 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
       available: 5,
     ),
   ];
-
   bool showTable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.requestFocus(); // Request focus on widget initialization
+  }
 
   @override
   void dispose() {
@@ -58,7 +63,6 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
       selectedItem = item;
       showTable = true;
     });
-    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   Future<List<CheckStockModel>> _checkStock(String itemCode, String itemName) async {
@@ -121,7 +125,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.66,
+          width: MediaQuery.of(context).size.width * 0.65,
           height: 80,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,6 +142,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      focusNode: _focusNode,
                       textAlign: TextAlign.center,
                       controller: _itemInputController,
                       style: const TextStyle(fontSize: 18),
@@ -156,11 +161,13 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       ),
                       onEditingComplete: () async {
                         final itemsSearched = await _searchItem(_itemInputController.text);
-                        FocusManager.instance.primaryFocus?.unfocus();
                         setState(() {
                           itemsFound = itemsSearched;
                           showTable = false;
                         });
+                      },
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
                       },
                     ),
                   ),
@@ -181,7 +188,6 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       ),
                       onPressed: () async {
                         final itemsSearched = await _searchItem(_itemInputController.text);
-                        FocusManager.instance.primaryFocus?.unfocus();
                         setState(() {
                           itemsFound = itemsSearched;
                           showTable = false;
@@ -217,6 +223,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
             child: ListTile(
               onTap: () {
                 onItemSelected(item);
+                // _focusNode.requestFocus();
               },
               textColor: Colors.black,
               title: Text(

@@ -1385,12 +1385,15 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                           spacing: 8,
                                                           runSpacing: 8,
                                                           children: List<Widget>.generate(
-                                                            mopsByType.map((mop) => mop.edcDesc).toSet().length,
+                                                            mopsByType.map((mop) => mop.tpmt4Id).toSet().length,
                                                             (int index) {
-                                                              final distinctEdcDesc =
-                                                                  mopsByType.map((mop) => mop.edcDesc).toSet().toList();
+                                                              final distinctEdc =
+                                                                  mopsByType.map((mop) => mop.tpmt4Id).toSet().toList();
                                                               final mop = mopsByType.firstWhere(
-                                                                  (mop) => mop.edcDesc == distinctEdcDesc[index]);
+                                                                  (mop) => mop.tpmt4Id == distinctEdc[index]);
+                                                              List<MopSelectionEntity> filteredMops = _values
+                                                                  .where((edc) => edc.tpmt4Id == mop.tpmt4Id)
+                                                                  .toList();
 
                                                               return ChoiceChip(
                                                                 side: const BorderSide(
@@ -1398,7 +1401,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 padding: const EdgeInsets.all(20),
                                                                 label: Text(mop.edcDesc ?? mop.mopAlias),
                                                                 selected:
-                                                                    _values.map((e) => e.edcDesc).contains(mop.edcDesc),
+                                                                    _values.map((e) => e.tpmt4Id).contains(mop.tpmt4Id),
                                                                 onSelected: (bool selected) async {
                                                                   if (voucherIsExceedPurchase) return;
 
@@ -1420,7 +1423,33 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               // dev.log("values - $_values");
                                                                             });
                                                                           },
+                                                                          onEDCRemoved: (mopEDC) {
+                                                                            setState(() {
+                                                                              _values.removeWhere((item) =>
+                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
+                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
+                                                                                  item.mopAlias == mopEDC.mopAlias &&
+                                                                                  item.bankCharge ==
+                                                                                      mopEDC.bankCharge &&
+                                                                                  item.payTypeCode ==
+                                                                                      mopEDC.payTypeCode &&
+                                                                                  item.description ==
+                                                                                      mopEDC.description &&
+                                                                                  item.amount == mopEDC.amount &&
+                                                                                  item.subType == mopEDC.subType &&
+                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
+                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
+                                                                                  item.edcDesc == mopEDC.edcDesc &&
+                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
+                                                                                  item.cardName == mopEDC.cardName &&
+                                                                                  item.cardNo == mopEDC.cardNo &&
+                                                                                  item.cardHolder ==
+                                                                                      mopEDC.cardHolder &&
+                                                                                  item.rrn == mopEDC.rrn);
+                                                                            });
+                                                                          },
                                                                           mopSelectionEntity: mop,
+                                                                          values: filteredMops,
                                                                           max: receipt.grandTotal -
                                                                               (receipt.totalPayment ?? 0),
                                                                           isMultiMOPs: true,
@@ -1440,7 +1469,33 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                             // dev.log("values2 - $_values");
                                                                             // dev.log("mopEDC not Multi - $mopEDC");
                                                                           },
+                                                                          onEDCRemoved: (mopEDC) {
+                                                                            setState(() {
+                                                                              _values.removeWhere((item) =>
+                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
+                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
+                                                                                  item.mopAlias == mopEDC.mopAlias &&
+                                                                                  item.bankCharge ==
+                                                                                      mopEDC.bankCharge &&
+                                                                                  item.payTypeCode ==
+                                                                                      mopEDC.payTypeCode &&
+                                                                                  item.description ==
+                                                                                      mopEDC.description &&
+                                                                                  item.amount == mopEDC.amount &&
+                                                                                  item.subType == mopEDC.subType &&
+                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
+                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
+                                                                                  item.edcDesc == mopEDC.edcDesc &&
+                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
+                                                                                  item.cardName == mopEDC.cardName &&
+                                                                                  item.cardNo == mopEDC.cardNo &&
+                                                                                  item.cardHolder ==
+                                                                                      mopEDC.cardHolder &&
+                                                                                  item.rrn == mopEDC.rrn);
+                                                                            });
+                                                                          },
                                                                           mopSelectionEntity: mop,
+                                                                          values: filteredMops,
                                                                           max: receipt.grandTotal -
                                                                               (receipt.totalVoucher ?? 0),
                                                                           isMultiMOPs: false,
@@ -1457,6 +1512,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           receipt.grandTotal) {
                                                                         return;
                                                                       }
+                                                                      // dev.log("filteredMops - $filteredMops");
                                                                       mopAmount = await showDialog<double>(
                                                                         context: context,
                                                                         barrierDismissible: false,
@@ -1468,7 +1524,33 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               // dev.log("values - $_values");
                                                                             });
                                                                           },
+                                                                          onEDCRemoved: (mopEDC) {
+                                                                            setState(() {
+                                                                              _values.removeWhere((item) =>
+                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
+                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
+                                                                                  item.mopAlias == mopEDC.mopAlias &&
+                                                                                  item.bankCharge ==
+                                                                                      mopEDC.bankCharge &&
+                                                                                  item.payTypeCode ==
+                                                                                      mopEDC.payTypeCode &&
+                                                                                  item.description ==
+                                                                                      mopEDC.description &&
+                                                                                  item.amount == mopEDC.amount &&
+                                                                                  item.subType == mopEDC.subType &&
+                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
+                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
+                                                                                  item.edcDesc == mopEDC.edcDesc &&
+                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
+                                                                                  item.cardName == mopEDC.cardName &&
+                                                                                  item.cardNo == mopEDC.cardNo &&
+                                                                                  item.cardHolder ==
+                                                                                      mopEDC.cardHolder &&
+                                                                                  item.rrn == mopEDC.rrn);
+                                                                            });
+                                                                          },
                                                                           mopSelectionEntity: mop,
+                                                                          values: filteredMops,
                                                                           max: receipt.grandTotal -
                                                                               (receipt.totalPayment ?? 0),
                                                                           isMultiMOPs: true,
@@ -1487,7 +1569,33 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                             // dev.log("values2 - $_values");
                                                                             // dev.log("mopEDC not Multi - $mopEDC");
                                                                           },
+                                                                          onEDCRemoved: (mopEDC) {
+                                                                            setState(() {
+                                                                              _values.removeWhere((item) =>
+                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
+                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
+                                                                                  item.mopAlias == mopEDC.mopAlias &&
+                                                                                  item.bankCharge ==
+                                                                                      mopEDC.bankCharge &&
+                                                                                  item.payTypeCode ==
+                                                                                      mopEDC.payTypeCode &&
+                                                                                  item.description ==
+                                                                                      mopEDC.description &&
+                                                                                  item.amount == mopEDC.amount &&
+                                                                                  item.subType == mopEDC.subType &&
+                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
+                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
+                                                                                  item.edcDesc == mopEDC.edcDesc &&
+                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
+                                                                                  item.cardName == mopEDC.cardName &&
+                                                                                  item.cardNo == mopEDC.cardNo &&
+                                                                                  item.cardHolder ==
+                                                                                      mopEDC.cardHolder &&
+                                                                                  item.rrn == mopEDC.rrn);
+                                                                            });
+                                                                          },
                                                                           mopSelectionEntity: mop,
+                                                                          values: filteredMops,
                                                                           max: receipt.grandTotal -
                                                                               (receipt.totalVoucher ?? 0),
                                                                           isMultiMOPs: false,
