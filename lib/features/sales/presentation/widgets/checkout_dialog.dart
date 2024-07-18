@@ -1425,27 +1425,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           },
                                                                           onEDCRemoved: (mopEDC) {
                                                                             setState(() {
-                                                                              _values.removeWhere((item) =>
-                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
-                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
-                                                                                  item.mopAlias == mopEDC.mopAlias &&
-                                                                                  item.bankCharge ==
-                                                                                      mopEDC.bankCharge &&
-                                                                                  item.payTypeCode ==
-                                                                                      mopEDC.payTypeCode &&
-                                                                                  item.description ==
-                                                                                      mopEDC.description &&
-                                                                                  item.amount == mopEDC.amount &&
-                                                                                  item.subType == mopEDC.subType &&
-                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
-                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
-                                                                                  item.edcDesc == mopEDC.edcDesc &&
-                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
-                                                                                  item.cardName == mopEDC.cardName &&
-                                                                                  item.cardNo == mopEDC.cardNo &&
-                                                                                  item.cardHolder ==
-                                                                                      mopEDC.cardHolder &&
-                                                                                  item.rrn == mopEDC.rrn);
+                                                                              _values.removeWhere(
+                                                                                  (item) => item == mopEDC);
                                                                             });
                                                                           },
                                                                           mopSelectionEntity: mop,
@@ -1471,27 +1452,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           },
                                                                           onEDCRemoved: (mopEDC) {
                                                                             setState(() {
-                                                                              _values.removeWhere((item) =>
-                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
-                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
-                                                                                  item.mopAlias == mopEDC.mopAlias &&
-                                                                                  item.bankCharge ==
-                                                                                      mopEDC.bankCharge &&
-                                                                                  item.payTypeCode ==
-                                                                                      mopEDC.payTypeCode &&
-                                                                                  item.description ==
-                                                                                      mopEDC.description &&
-                                                                                  item.amount == mopEDC.amount &&
-                                                                                  item.subType == mopEDC.subType &&
-                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
-                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
-                                                                                  item.edcDesc == mopEDC.edcDesc &&
-                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
-                                                                                  item.cardName == mopEDC.cardName &&
-                                                                                  item.cardNo == mopEDC.cardNo &&
-                                                                                  item.cardHolder ==
-                                                                                      mopEDC.cardHolder &&
-                                                                                  item.rrn == mopEDC.rrn);
+                                                                              _values.removeWhere(
+                                                                                  (item) => item == mopEDC);
                                                                             });
                                                                           },
                                                                           mopSelectionEntity: mop,
@@ -1526,27 +1488,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           },
                                                                           onEDCRemoved: (mopEDC) {
                                                                             setState(() {
-                                                                              _values.removeWhere((item) =>
-                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
-                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
-                                                                                  item.mopAlias == mopEDC.mopAlias &&
-                                                                                  item.bankCharge ==
-                                                                                      mopEDC.bankCharge &&
-                                                                                  item.payTypeCode ==
-                                                                                      mopEDC.payTypeCode &&
-                                                                                  item.description ==
-                                                                                      mopEDC.description &&
-                                                                                  item.amount == mopEDC.amount &&
-                                                                                  item.subType == mopEDC.subType &&
-                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
-                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
-                                                                                  item.edcDesc == mopEDC.edcDesc &&
-                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
-                                                                                  item.cardName == mopEDC.cardName &&
-                                                                                  item.cardNo == mopEDC.cardNo &&
-                                                                                  item.cardHolder ==
-                                                                                      mopEDC.cardHolder &&
-                                                                                  item.rrn == mopEDC.rrn);
+                                                                              _values.removeWhere(
+                                                                                  (item) => item == mopEDC);
                                                                             });
                                                                           },
                                                                           mopSelectionEntity: mop,
@@ -1571,27 +1514,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           },
                                                                           onEDCRemoved: (mopEDC) {
                                                                             setState(() {
-                                                                              _values.removeWhere((item) =>
-                                                                                  item.tpmt3Id == mopEDC.tpmt3Id &&
-                                                                                  item.tpmt1Id == mopEDC.tpmt1Id &&
-                                                                                  item.mopAlias == mopEDC.mopAlias &&
-                                                                                  item.bankCharge ==
-                                                                                      mopEDC.bankCharge &&
-                                                                                  item.payTypeCode ==
-                                                                                      mopEDC.payTypeCode &&
-                                                                                  item.description ==
-                                                                                      mopEDC.description &&
-                                                                                  item.amount == mopEDC.amount &&
-                                                                                  item.subType == mopEDC.subType &&
-                                                                                  item.tinv2Id == mopEDC.tinv2Id &&
-                                                                                  item.tpmt4Id == mopEDC.tpmt4Id &&
-                                                                                  item.edcDesc == mopEDC.edcDesc &&
-                                                                                  item.tpmt2Id == mopEDC.tpmt2Id &&
-                                                                                  item.cardName == mopEDC.cardName &&
-                                                                                  item.cardNo == mopEDC.cardNo &&
-                                                                                  item.cardHolder ==
-                                                                                      mopEDC.cardHolder &&
-                                                                                  item.rrn == mopEDC.rrn);
+                                                                              _values.removeWhere(
+                                                                                  (item) => item == mopEDC);
                                                                             });
                                                                           },
                                                                           mopSelectionEntity: mop,
