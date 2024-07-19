@@ -2,8 +2,7 @@ import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:sqflite/sqflite.dart';
 
-class CashierBalanceTransactionDao
-    extends BaseDao<CashierBalanceTransactionModel> {
+class CashierBalanceTransactionDao extends BaseDao<CashierBalanceTransactionModel> {
   CashierBalanceTransactionDao(Database db)
       : super(
           db: db,
@@ -12,8 +11,7 @@ class CashierBalanceTransactionDao
         );
 
   @override
-  Future<CashierBalanceTransactionModel?> readByDocId(
-      String docId, Transaction? txn) async {
+  Future<CashierBalanceTransactionModel?> readByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -22,20 +20,15 @@ class CashierBalanceTransactionDao
       whereArgs: [docId],
     );
 
-    return res.isNotEmpty
-        ? CashierBalanceTransactionModel.fromMap(res[0])
-        : null;
+    return res.isNotEmpty ? CashierBalanceTransactionModel.fromMap(res[0]) : null;
   }
 
   @override
-  Future<List<CashierBalanceTransactionModel>> readAll(
-      {Transaction? txn}) async {
+  Future<List<CashierBalanceTransactionModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => CashierBalanceTransactionModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => CashierBalanceTransactionModel.fromMap(itemData)).toList();
   }
 
   Future<double> insertValue(double value) async {
@@ -51,15 +44,11 @@ class CashierBalanceTransactionDao
       limit: 1,
     );
 
-    return result.isNotEmpty
-        ? CashierBalanceTransactionModel.fromMap(result[0])
-        : null;
+    return result.isNotEmpty ? CashierBalanceTransactionModel.fromMap(result[0]) : null;
   }
 
-  Future<List<CashierBalanceTransactionModel>?> readByDate(
-      DateTime date) async {
-    final startOfDay =
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  Future<List<CashierBalanceTransactionModel>?> readByDate(DateTime date) async {
+    final startOfDay = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     final endOfDay =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} 23:59:59';
 
@@ -69,15 +58,12 @@ class CashierBalanceTransactionDao
       whereArgs: [startOfDay, endOfDay],
     );
 
-    final transactions = result
-        .map((map) => CashierBalanceTransactionModel.fromMap(map))
-        .toList();
+    final transactions = result.map((map) => CashierBalanceTransactionModel.fromMap(map)).toList();
 
     return transactions;
   }
 
-  Future<List<CashierBalanceTransactionModel>?> readBetweenDate(
-      DateTime start, DateTime end) async {
+  Future<List<CashierBalanceTransactionModel>?> readBetweenDate(DateTime start, DateTime end) async {
     final startDate = start.toUtc().toIso8601String();
     final endDate = end.toUtc().toIso8601String();
 
@@ -87,15 +73,12 @@ class CashierBalanceTransactionDao
       whereArgs: [startDate, endDate],
     );
 
-    final transactions = result
-        .map((map) => CashierBalanceTransactionModel.fromMap(map))
-        .toList();
+    final transactions = result.map((map) => CashierBalanceTransactionModel.fromMap(map)).toList();
 
     return transactions;
   }
 
-  Future<List<CashierBalanceTransactionModel?>> readByDocNum(
-      String docNum, Transaction? txn) async {
+  Future<List<CashierBalanceTransactionModel>?> readByDocNum(String docNum, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -106,9 +89,7 @@ class CashierBalanceTransactionDao
 
     List<CashierBalanceTransactionModel> transactions = [];
     if (res.isNotEmpty) {
-      transactions = res
-          .map((map) => CashierBalanceTransactionModel.fromMap(map))
-          .toList();
+      transactions = res.map((map) => CashierBalanceTransactionModel.fromMap(map)).toList();
     }
     return transactions;
   }
