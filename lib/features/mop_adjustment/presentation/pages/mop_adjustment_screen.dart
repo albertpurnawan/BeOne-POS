@@ -765,10 +765,11 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                   inputFormatters: [MoneyInputFormatter()],
                                   style: const TextStyle(fontSize: 18),
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(10),
+                                    contentPadding: const EdgeInsets.all(10),
                                     hintText: "",
-                                    hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+                                    hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                                    border:
+                                        const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
                                     prefix: selectedMOP1 != null ? Text("Max Amount: $maxAmount") : null,
                                     suffix: isErr
                                         ? Text(
