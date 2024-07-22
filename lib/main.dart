@@ -18,7 +18,9 @@ import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_item_with_and_condition.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_items_by_pricelist.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
@@ -124,11 +126,12 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<GetStoreMasterUseCase>(),
                       GetIt.instance<GetCashRegisterUseCase>(),
                       GetIt.instance<ApplyRoundingUseCase>(),
+                      GetIt.instance<GetItemWithAndConditionUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(
                 create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
-            BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsUseCase>())),
+            BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
             BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
             BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
             BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),

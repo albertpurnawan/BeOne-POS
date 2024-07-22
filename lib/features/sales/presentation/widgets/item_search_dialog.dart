@@ -6,9 +6,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class ItemSearchDialog extends StatefulWidget {
   const ItemSearchDialog({super.key});
@@ -113,16 +115,22 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                     controller: _textEditingController,
                     onSubmitted: (value) {
                       // log("value - $value");
-                      context.read<ItemsCubit>().getItems(searchKeyword: value);
-                      _searchInputFocusNode.requestFocus();
+                      try {
+                        if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
+                        context.read<ItemsCubit>().getItems(
+                            searchKeyword: value, customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
+                        _searchInputFocusNode.requestFocus();
 
-                      if (_scrollController.hasClients) {
-                        Future.delayed(const Duration(milliseconds: 300)).then((value) {
-                          SchedulerBinding.instance.addPostFrameCallback((_) {
-                            _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
+                        if (_scrollController.hasClients) {
+                          Future.delayed(const Duration(milliseconds: 300)).then((value) {
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              _scrollController.animateTo(_scrollController.position.minScrollExtent,
+                                  duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
+                            });
                           });
-                        });
+                        }
+                      } catch (e) {
+                        SnackBarHelper.presentErrorSnackBar(context, e.toString());
                       }
                     },
                     autofocus: true,

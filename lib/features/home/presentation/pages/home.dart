@@ -164,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onPressed: () async {
                                   try {
                                     final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
+                                    await GetIt.instance<AppDatabase>().refreshItemsTable();
                                     await GetIt.instance<SharedPreferences>()
                                         .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
                                     await context.read<ReceiptCubit>().resetReceipt();

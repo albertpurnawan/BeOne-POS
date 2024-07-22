@@ -10,6 +10,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
@@ -29,6 +30,7 @@ import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_d
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_item_with_and_condition.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
@@ -73,6 +75,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetStoreMasterUseCase _getStoreMasterUseCase;
   final GetCashRegisterUseCase _getCashRegisterUseCase;
   final ApplyRoundingUseCase _applyRoundingUseCase;
+  final GetItemWithAndConditionUseCase _getItemWithAndConditionUseCase;
 
   ReceiptCubit(
     this._getItemByBarcodeUseCase,
@@ -97,6 +100,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._getStoreMasterUseCase,
     this._getCashRegisterUseCase,
     this._applyRoundingUseCase,
+    this._getItemWithAndConditionUseCase,
   ) : super(ReceiptEntity(
             docNum: "-",
             receiptItems: [],
@@ -129,7 +133,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Declare variables
-      final ItemEntity? itemEntity;
+      ItemEntity? itemEntity;
       ReceiptItemEntity receiptItemEntity;
       final List<PromotionsEntity?> availablePromos;
 
@@ -167,11 +171,29 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ReceiptEntity newReceipt = state.previousReceiptEntity ?? state;
 
       // Get item entity and validate
-      if (params.barcode != null) {
-        itemEntity = await _getItemByBarcodeUseCase.call(params: params.barcode);
-      } else {
-        itemEntity = params.itemEntity;
+
+      // if (params.barcode != null) {
+      // itemEntity = await _getItemByBarcodeUseCase.call(params: params.barcode);
+      if (state.customerEntity?.toplnId != null) {
+        itemEntity = await _getItemWithAndConditionUseCase.call(params: {
+          ItemFields.barcode: params.barcode ?? params.itemEntity?.barcode,
+          ItemFields.toplnId: state.customerEntity!.toplnId
+        });
       }
+      if (itemEntity == null) {
+        final POSParameterEntity? posParameterEntity = await _getPosParameterUseCase.call();
+        if (posParameterEntity?.tostrId == null) "Invalid POS Parameter: Store Master ID not found";
+        final StoreMasterEntity? storeMasterEntity =
+            await _getStoreMasterUseCase.call(params: posParameterEntity!.tostrId);
+        if (storeMasterEntity?.toplnId == null) "Invalid Store Master: Pricelist ID not found";
+        itemEntity = await _getItemWithAndConditionUseCase.call(params: {
+          ItemFields.barcode: params.barcode ?? params.itemEntity?.barcode,
+          ItemFields.toplnId: storeMasterEntity!.toplnId
+        });
+      }
+      // } else {
+      //   itemEntity = params.itemEntity;
+      // }
       if (itemEntity == null) throw "Item not found";
 
       // Convert item entity to receipt item entity **qty conversion can be placed here**
@@ -293,6 +315,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   Future<void> updateCustomer(CustomerEntity customerEntity, BuildContext context) async {
+    if (state.customerEntity?.docId == customerEntity.docId) return;
+
     if (state.previousReceiptEntity != null && state.customerEntity?.docId != customerEntity.docId) {
       final bool? isProceed = await showDialog<bool>(
         context: context,
@@ -302,7 +326,42 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (isProceed == null) return;
       if (!isProceed) return;
 
-      return emit(state.previousReceiptEntity!.copyWith(customerEntity: customerEntity));
+      final List<ReceiptItemEntity> receiptItems =
+          state.previousReceiptEntity!.receiptItems.map((e) => e.copyWith()).toList();
+      await resetReceipt();
+      emit(state.copyWith(customerEntity: customerEntity));
+      for (final receiptItem in receiptItems) {
+        await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+          barcode: receiptItem.itemEntity.barcode,
+          itemEntity: null,
+          quantity: receiptItem.quantity,
+          context: context,
+          onOpenPriceInputted: () => receiptItem.itemEntity.price,
+        ));
+      }
+      return emit(state.copyWith(customerEntity: customerEntity));
+    }
+
+    // final bool? isProceed = await showDialog<bool>(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder: (context) => const ConfirmResetPromoDialog(),
+    // );
+    // if (isProceed == null) return;
+    // if (!isProceed) return;
+
+    final List<ReceiptItemEntity> receiptItems = state.receiptItems.map((e) => e.copyWith()).toList();
+    await resetReceipt();
+    emit(state.copyWith(customerEntity: customerEntity));
+
+    for (final receiptItem in receiptItems) {
+      await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+        barcode: receiptItem.itemEntity.barcode,
+        itemEntity: null,
+        quantity: receiptItem.quantity,
+        context: context,
+        onOpenPriceInputted: () => receiptItem.itemEntity.price,
+      ));
     }
     emit(state.copyWith(customerEntity: customerEntity, previousReceiptEntity: state.previousReceiptEntity));
   }
