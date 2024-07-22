@@ -226,6 +226,7 @@ class AllShift extends StatefulWidget {
 class _AllShiftState extends State<AllShift> {
   List<CashierBalanceTransactionModel>? allShift;
   CashierBalanceTransactionModel? activeShift;
+  double? activeAmount;
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
 
   @override
@@ -237,11 +238,38 @@ class _AllShiftState extends State<AllShift> {
   Future<void> fetchActiveShift() async {
     final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
     final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+    await updateActiveShift(shift!.openDate);
 
     setState(() {
       allShift = shifts;
       activeShift = shift;
     });
+  }
+
+  Future<void> updateActiveShift(DateTime start) async {
+    final DateTime now = DateTime.now();
+    final offset = start.subtract(start.timeZoneOffset);
+
+    final end = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(offset, end);
+    if (fetched != null) {
+      double totalAmount = 0.0;
+      for (var item in fetched) {
+        totalAmount += item['totalamount'] as double;
+      }
+      setState(() {
+        activeAmount = totalAmount;
+      });
+    }
   }
 
   @override
@@ -341,7 +369,9 @@ class _AllShiftState extends State<AllShift> {
                                             Expanded(
                                               flex: 2,
                                               child: Text(
-                                                NumberFormat.decimalPattern().format(shift.cashValue.toInt()),
+                                                shift.approvalStatus == 0
+                                                    ? NumberFormat.decimalPattern().format(activeAmount!.toInt())
+                                                    : NumberFormat.decimalPattern().format(shift.closeValue.toInt()),
                                                 style: const TextStyle(fontSize: 18),
                                                 textAlign: TextAlign.end,
                                               ),
