@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(
-                              height: 50,
+                              height: 30,
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -240,7 +240,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 5),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                              width: MediaQuery.of(context).size.width * 0.36,
+                              child: Row(
+                                children: [
                                   Expanded(
                                     child: ElevatedButton(
                                       style: ButtonStyle(

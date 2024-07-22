@@ -24,6 +24,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   Map<String, dynamic>? selectedItem;
   List<CheckStockEntity>? stocksFetched;
   bool showTable = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -200,96 +201,107 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   }
 
   Widget _searchResult({required Function(Map<String, dynamic>) onItemSelected}) {
-    return ListView.builder(
-      itemCount: itemsFound!.length,
-      itemBuilder: (context, index) {
-        final item = itemsFound![index];
-        return SizedBox(
-          width: MediaQuery.of(context).size.width * 0.65,
-          child: Card(
-            color: ProjectColors.background,
-            shadowColor: ProjectColors.background,
-            surfaceTintColor: Colors.transparent,
-            child: ListTile(
-              onTap: () {
-                onItemSelected(item);
-                // _focusNode.requestFocus();
-              },
-              textColor: Colors.black,
-              title: Text(
-                item['itemname'] ?? 'Item Name',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+    return (isLoading)
+        ? _loadingIndicator()
+        : ListView.builder(
+            itemCount: itemsFound!.length,
+            itemBuilder: (context, index) {
+              final item = itemsFound![index];
+              return SizedBox(
+                width: MediaQuery.of(context).size.width * 0.65,
+                child: Card(
+                  color: ProjectColors.background,
+                  shadowColor: ProjectColors.background,
+                  surfaceTintColor: Colors.transparent,
+                  child: ListTile(
+                    onTap: () {
+                      setState(() => isLoading = true);
+                      onItemSelected(item);
+                    },
+                    textColor: Colors.black,
+                    title: Text(
+                      item['itemname'] ?? 'Item Name',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    subtitle: SizedBox(
+                      height: 25,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            "assets/images/inventory.svg",
+                            height: 18,
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            item['itemcode'],
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          SvgPicture.asset(
+                            "assets/images/barcode.svg",
+                            height: 20,
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            item['barcode'],
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          const Icon(
+                            Icons.sell_outlined,
+                            size: 20,
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            "Rp ${Helpers.parseMoney(item['price'].toInt())}",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              subtitle: SizedBox(
-                height: 25,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      "assets/images/inventory.svg",
-                      height: 18,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      item['itemcode'],
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    SvgPicture.asset(
-                      "assets/images/barcode.svg",
-                      height: 20,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      item['barcode'],
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    const Icon(
-                      Icons.sell_outlined,
-                      size: 20,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      "Rp ${Helpers.parseMoney(item['price'].toInt())}",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+              );
+            },
+          );
   }
+
+  Widget _loadingIndicator() => const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 100),
+          Center(child: CircularProgressIndicator()),
+        ],
+      );
 
   Widget _stocksTable() {
     final price = selectedItem!['price'].toInt();
     final priceFormatted = Helpers.parseMoney(price);
+    setState(() => isLoading = false);
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.65,
       child: Column(
