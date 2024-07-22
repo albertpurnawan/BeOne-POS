@@ -8,6 +8,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
@@ -652,7 +653,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                       ),
                       validator: (value) {
                         if (value == null) {
-                          return 'Please select Means of Payment From';
+                          return null;
                         }
                         return null;
                       },
@@ -706,7 +707,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                       ),
                       validator: (value) {
                         if (value == null) {
-                          return 'Please select Means of Payment From';
+                          return null;
                         }
                         return null;
                       },
@@ -796,7 +797,11 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     }
                                   },
                                   onEditingComplete: () {
-                                    amountChanged = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+                                    if (isErr) {
+                                      SnackBarHelper.presentErrorSnackBar(context, "Please Input Correct Amount");
+                                    } else {
+                                      amountChanged = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+                                    }
                                   },
                                 );
                               },
@@ -885,73 +890,79 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
               )),
               backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
               overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-          onPressed: () async {
-            setState(() {
-              _autoValidate = true;
-            });
-            if (_formKey.currentState!.validate()) {
-              final tmpadDocId = const Uuid().v4();
-              final MOPAdjustmentHeaderModel tmpad = MOPAdjustmentHeaderModel(
-                docId: tmpadDocId,
-                createDate: DateTime.now(),
-                updateDate: DateTime.now(),
-                docNum: mopDocNum!,
-                docDate: now,
-                docTime: now,
-                timezone: Helpers.getTimezone(now),
-                posted: 0,
-                postDate: now,
-                postTime: now,
-                remarks: "$mopShift - ${_remarksController.text}",
-                tostrId: mopStore,
-                sync: 0,
-              );
+          onPressed: (isErr)
+              ? () async {
+                  SnackBarHelper.presentErrorSnackBar(context, "Amount exceeds the max Amount");
+                }
+              : () async {
+                  setState(() {
+                    _autoValidate = true;
+                  });
+                  if (_formKey.currentState!.validate()) {
+                    final tmpadDocId = const Uuid().v4();
+                    final MOPAdjustmentHeaderModel tmpad = MOPAdjustmentHeaderModel(
+                      docId: tmpadDocId,
+                      createDate: DateTime.now(),
+                      updateDate: DateTime.now(),
+                      docNum: mopDocNum!,
+                      docDate: now,
+                      docTime: now,
+                      timezone: Helpers.getTimezone(now),
+                      posted: 0,
+                      postDate: now,
+                      postTime: now,
+                      remarks: "$mopShift - ${_remarksController.text}",
+                      tostrId: mopStore,
+                      sync: 0,
+                    );
 
-              final tpmt1From =
-                  await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByDescription(selectedMOP1!, null);
-              if (tpmt1From == null) {
-                throw "MOP From not found";
-              }
+                    final tpmt1From =
+                        await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByDescription(selectedMOP1!, null);
+                    if (tpmt1From == null) {
+                      throw "MOP From not found";
+                    }
 
-              final tpmt1To =
-                  await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByDescription(selectedMOP2!, null);
-              if (tpmt1To == null) throw "MOP To not found";
+                    final tpmt1To =
+                        await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByDescription(selectedMOP2!, null);
+                    if (tpmt1To == null) throw "MOP To not found";
 
-              final tpmt3From = await GetIt.instance<AppDatabase>().mopByStoreDao.readByTpmt1Id(tpmt1From.docId, null);
-              if (tpmt3From == null) {
-                throw "MOPByStore From not found";
-              }
+                    final tpmt3From =
+                        await GetIt.instance<AppDatabase>().mopByStoreDao.readByTpmt1Id(tpmt1From.docId, null);
+                    if (tpmt3From == null) {
+                      throw "MOPByStore From not found";
+                    }
 
-              final tpmt3To = await GetIt.instance<AppDatabase>().mopByStoreDao.readByTpmt1Id(tpmt1To.docId, null);
-              if (tpmt3To == null) {
-                throw "MOPByStore To not found";
-              }
-              final MOPAdjustmentDetailModel mpad1From = MOPAdjustmentDetailModel(
-                  docId: const Uuid().v4(),
-                  createDate: DateTime.now(),
-                  updateDate: DateTime.now(),
-                  tmpadId: tmpadDocId,
-                  tpmt1Id: tpmt1From.docId,
-                  amount: -amountChanged!,
-                  tpmt3Id: tpmt3From.docId);
+                    final tpmt3To =
+                        await GetIt.instance<AppDatabase>().mopByStoreDao.readByTpmt1Id(tpmt1To.docId, null);
+                    if (tpmt3To == null) {
+                      throw "MOPByStore To not found";
+                    }
+                    final MOPAdjustmentDetailModel mpad1From = MOPAdjustmentDetailModel(
+                        docId: const Uuid().v4(),
+                        createDate: DateTime.now(),
+                        updateDate: DateTime.now(),
+                        tmpadId: tmpadDocId,
+                        tpmt1Id: tpmt1From.docId,
+                        amount: -amountChanged!,
+                        tpmt3Id: tpmt3From.docId);
 
-              final MOPAdjustmentDetailModel mpad1To = MOPAdjustmentDetailModel(
-                  docId: const Uuid().v4(),
-                  createDate: DateTime.now(),
-                  updateDate: DateTime.now(),
-                  tmpadId: tmpadDocId,
-                  tpmt1Id: tpmt1To.docId,
-                  amount: amountChanged!,
-                  tpmt3Id: tpmt3To.docId);
+                    final MOPAdjustmentDetailModel mpad1To = MOPAdjustmentDetailModel(
+                        docId: const Uuid().v4(),
+                        createDate: DateTime.now(),
+                        updateDate: DateTime.now(),
+                        tmpadId: tmpadDocId,
+                        tpmt1Id: tpmt1To.docId,
+                        amount: amountChanged!,
+                        tpmt3Id: tpmt3To.docId);
 
-              await GetIt.instance<AppDatabase>().mopAdjustmentHeaderDao.create(data: tmpad);
-              await GetIt.instance<AppDatabase>().mopAdjustmentDetailDao.bulkCreate(data: [mpad1From, mpad1To]);
+                    await GetIt.instance<AppDatabase>().mopAdjustmentHeaderDao.create(data: tmpad);
+                    await GetIt.instance<AppDatabase>().mopAdjustmentDetailDao.bulkCreate(data: [mpad1From, mpad1To]);
 
-              await GetIt.instance<MOPAdjustmentService>().sendMOPAdjustment(tmpad, [mpad1From, mpad1To]);
+                    await GetIt.instance<MOPAdjustmentService>().sendMOPAdjustment(tmpad, [mpad1From, mpad1To]);
 
-              Navigator.pop(context);
-            }
-          },
+                    Navigator.pop(context);
+                  }
+                },
           child: const Center(
               child: Text(
             "Adjust",
