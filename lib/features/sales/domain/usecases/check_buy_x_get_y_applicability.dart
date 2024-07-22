@@ -16,8 +16,6 @@ import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
-import 'package:pos_fe/features/sales/domain/repository/pos_paramater_repository.dart';
-import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 
@@ -128,10 +126,17 @@ class CheckBuyXGetYApplicabilityUseCase
             if (storeMasterEntity == null) throw "Store master not found";
 
             for (final e in tprb1) {
-              final ItemEntity? itemX = await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
-                ItemFields.toitmId: e.toitmId!,
-                ItemFields.toplnId: params.receiptEntity.customerEntity?.toplnId ?? storeMasterEntity.toplnId
-              }, null);
+              ItemEntity? itemX;
+              if (params.receiptEntity.customerEntity?.toplnId != null) {
+                itemX = await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
+                  ItemFields.toitmId: e.toitmId!,
+                  ItemFields.toplnId: params.receiptEntity.customerEntity!.toplnId,
+                }, null);
+              }
+
+              itemX ??= await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition(
+                  {ItemFields.toitmId: e.toitmId!, ItemFields.toplnId: storeMasterEntity.toplnId}, null);
+
               if (itemX != null) {
                 conditionAndItemXs.add(PromoBuyXGetYBuyConditionAndItemEntity(
                   promoBuyXGetYBuyConditionEntity: e,
@@ -162,10 +167,20 @@ class CheckBuyXGetYApplicabilityUseCase
 
             for (final e in tprb4) {
               if (e.quantity < 1) return isApplicable = false;
-              final ItemEntity? itemY = await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
+              ItemEntity? itemY;
+
+              if (params.receiptEntity.customerEntity?.toplnId != null) {
+                itemY = await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
+                  ItemFields.toitmId: e.toitmId!,
+                  ItemFields.toplnId: params.receiptEntity.customerEntity?.toplnId,
+                }, null);
+              }
+
+              itemY ??= await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
                 ItemFields.toitmId: e.toitmId!,
-                ItemFields.toplnId: params.receiptEntity.customerEntity?.toplnId ?? storeMasterEntity.toplnId
+                ItemFields.toplnId: storeMasterEntity.toplnId,
               }, null);
+
               if (itemY != null) {
                 conditionAndItemYs.add(PromoBuyXGetYGetConditionAndItemEntity(
                   promoBuyXGetYGetConditionEntity: e,
