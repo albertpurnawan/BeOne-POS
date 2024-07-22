@@ -9,4 +9,5 @@ class RouteConstants {
   static String closeShift = "closeShift";
   static String reports = "reports";
   static String mopAdjustment = "mopAdjustment";
+  static String checkStocks = "checkStocks";
 }

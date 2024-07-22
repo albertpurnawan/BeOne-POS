@@ -20,6 +20,8 @@ class EDCDialog extends StatefulWidget {
     Key? key,
     required this.mopSelectionEntity,
     required this.onEDCSelected,
+    required this.onEDCRemoved,
+    required this.values,
     this.max = double.infinity,
     required this.isMultiMOPs,
   }) : super(key: key);
@@ -27,7 +29,11 @@ class EDCDialog extends StatefulWidget {
   final Function(
     MopSelectionEntity,
   ) onEDCSelected;
+  final Function(
+    MopSelectionEntity,
+  ) onEDCRemoved;
   final MopSelectionEntity mopSelectionEntity;
+  final List<MopSelectionEntity> values;
   final double max;
   final bool isMultiMOPs;
 
@@ -54,6 +60,7 @@ class _EDCDialogState extends State<EDCDialog> {
   bool savePressed = false;
   double? currentAmount;
   String errMsg = "Invalid amount";
+  String edcMachine = "";
 
   late final _focusNodeAmount = FocusNode(
     onKeyEvent: (node, event) {
@@ -86,6 +93,8 @@ class _EDCDialogState extends State<EDCDialog> {
   void initState() {
     fetchMOP();
     currentAmount = widget.max;
+    mopsSelected.addAll(widget.values);
+    edcMachine = widget.mopSelectionEntity.edcDesc!;
     super.initState();
   }
 
@@ -107,6 +116,8 @@ class _EDCDialogState extends State<EDCDialog> {
       mopList.addAll(tpmt1List);
     });
   }
+
+  Future<void> removeMOP() async {}
 
   @override
   Widget build(BuildContext parentContext) {
@@ -140,9 +151,9 @@ class _EDCDialogState extends State<EDCDialog> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                child: const Text(
-                  'Select MOP',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                child: Text(
+                  edcMachine,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -152,7 +163,7 @@ class _EDCDialogState extends State<EDCDialog> {
                 height: MediaQuery.of(parentContext).size.height * 0.9,
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,121 +184,82 @@ class _EDCDialogState extends State<EDCDialog> {
                             ),
                           ],
                         ),
-                        const Divider(
-                          color: Colors.black,
-                          height: 1,
+                        const SizedBox(
+                          height: 5,
                         ),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                "No",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 5,
+                          children: mopsSelected.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            MopSelectionEntity mop = entry.value;
+                            return Container(
+                              padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    spreadRadius: 0.5,
+                                    blurRadius: 5,
+                                    color: Color.fromRGBO(0, 0, 0, 0.222),
+                                  ),
+                                ],
+                                color: const Color.fromARGB(255, 11, 57, 84),
                               ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Text(
-                                "MOP",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 5,
-                              child: Text(
-                                "Card Type",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Text(
-                                "Amount",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ...mopsSelected.asMap().entries.map((entry) {
-                          int index = entry.key + 1;
-                          MopSelectionEntity mop = entry.value;
-                          return Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      index.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  Text(
+                                    "${mop.mopAlias}",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                      mop.mopAlias,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  Text(
+                                    (mop.cardName != null) ? " - ${mop.cardName}" : "",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Text(
-                                      mop.cardName ?? "Select Card Here...",
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  const SizedBox(
+                                    width: 15,
+                                  ),
+                                  Text(
+                                    Helpers.parseMoney(mop.amount!),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                      mop.amount.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        mopsSelected.removeAt(index);
+                                        currentAmount = currentAmount! + mop.amount!;
+                                      });
+                                      widget.onEDCRemoved(mop);
+                                    },
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: Colors.grey,
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          );
-                        }).toList(),
-                        const Divider(
-                          color: Colors.black,
-                          height: 1,
+                            );
+                          }).toList(),
                         ),
-
                         const SizedBox(
-                          height: 20,
+                          height: 15,
                         ),
                         // -- CARD LIST END
                         Column(
@@ -306,17 +278,17 @@ class _EDCDialogState extends State<EDCDialog> {
                                 style: TextStyle(color: Colors.red),
                               ),
                             const SizedBox(
-                              height: 10,
+                              height: 5,
                             ),
                             Column(
                               children: [
                                 Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
+                                  spacing: 5,
+                                  runSpacing: 5,
                                   children: mopList
                                       .map((MopSelectionEntity mop) => ChoiceChip(
-                                            side: const BorderSide(color: ProjectColors.primary, width: 1.5),
-                                            padding: const EdgeInsets.all(15),
+                                            side: const BorderSide(color: ProjectColors.primary, width: 1),
+                                            padding: const EdgeInsets.all(12),
                                             label: Text(mop.mopAlias),
                                             selected: mopSelected == mop,
                                             onSelected: (bool selected) {
@@ -328,37 +300,31 @@ class _EDCDialogState extends State<EDCDialog> {
                                       .toList(),
                                 ),
                                 const SizedBox(
-                                  height: 25,
+                                  height: 15,
                                 ),
                               ],
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.2,
-                                      height: 50,
-                                      child: const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Card Type",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ],
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Card Type",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.4,
-                                      height: 50,
-                                      child: OutlinedButton(
+                                      const SizedBox(height: 5),
+                                      OutlinedButton(
                                         onPressed: () => showDialog<CreditCardEntity>(
                                           context: parentContext,
                                           builder: (BuildContext parentContext) => const SelectCardType(),
@@ -376,7 +342,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           ),
                                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                             RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10.0),
+                                              borderRadius: BorderRadius.circular(5.0),
                                             ),
                                           ),
                                         ),
@@ -391,76 +357,53 @@ class _EDCDialogState extends State<EDCDialog> {
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            // if (cardSelected == null && savePressed)
-                                            //   const Text(
-                                            //     "Please select a card type",
-                                            //     style: TextStyle(color: Colors.red),
-                                            //   ),
                                             const Icon(Icons.arrow_right_outlined),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.2,
-                                      height: 50,
-                                      child: const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Card Number",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ],
+                                    ],
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Card Number",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.4,
-                                      height: 50,
-                                      child: Row(
+                                      const SizedBox(height: 5),
+                                      Row(
                                         children: [
-                                          SizedBox(
-                                            width: MediaQuery.of(parentContext).size.width * 0.1,
-                                            child: TextFormField(
-                                              textAlign: TextAlign.center,
-                                              controller: _cardNumber1Controller,
-                                              style: const TextStyle(fontSize: 18),
-                                              keyboardType: TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                contentPadding: EdgeInsets.all(8),
-                                                hintText: "____",
-                                                hintStyle: TextStyle(
-                                                  fontStyle: FontStyle.italic,
-                                                  fontSize: 18,
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              child: TextFormField(
+                                                controller: _cardNumber1Controller,
+                                                textAlign: TextAlign.center,
+                                                keyboardType: TextInputType.number,
+                                                style: const TextStyle(fontSize: 18),
+                                                decoration: const InputDecoration(
+                                                  contentPadding: EdgeInsets.all(2),
+                                                  hintText: "____",
+                                                  hintStyle: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 18,
+                                                  ),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
                                                 ),
-                                                border: OutlineInputBorder(),
+                                                inputFormatters: [
+                                                  LengthLimitingTextInputFormatter(4),
+                                                  FilteringTextInputFormatter.digitsOnly,
+                                                ],
                                               ),
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(4),
-                                                FilteringTextInputFormatter.digitsOnly,
-                                              ],
                                             ),
                                           ),
-                                          SizedBox(
-                                            width: MediaQuery.of(parentContext).size.width * 0.2,
-                                            child: const Center(
+                                          const Expanded(
+                                            child: Center(
                                               child: Text(
                                                 " - xxxx - xxxx - ",
                                                 style: TextStyle(
@@ -470,110 +413,93 @@ class _EDCDialogState extends State<EDCDialog> {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(
-                                            width: MediaQuery.of(parentContext).size.width * 0.1,
-                                            child: TextFormField(
-                                              textAlign: TextAlign.center,
-                                              controller: _cardNumber2Controller,
-                                              style: const TextStyle(fontSize: 18),
-                                              keyboardType: TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                contentPadding: EdgeInsets.all(8),
-                                                hintText: "____",
-                                                hintStyle: TextStyle(
-                                                  fontStyle: FontStyle.italic,
-                                                  fontSize: 18,
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              child: TextFormField(
+                                                controller: _cardNumber2Controller,
+                                                textAlign: TextAlign.center,
+                                                keyboardType: TextInputType.number,
+                                                style: const TextStyle(fontSize: 18),
+                                                decoration: const InputDecoration(
+                                                  contentPadding: EdgeInsets.all(2),
+                                                  hintText: "____",
+                                                  hintStyle: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 18,
+                                                  ),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
                                                 ),
-                                                border: OutlineInputBorder(),
+                                                inputFormatters: [
+                                                  LengthLimitingTextInputFormatter(4),
+                                                  FilteringTextInputFormatter.digitsOnly,
+                                                ],
                                               ),
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(4),
-                                                FilteringTextInputFormatter.digitsOnly,
-                                              ],
                                             ),
                                           ),
                                         ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.2,
-                                      height: 50,
-                                      child: const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Card Holder",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.4,
-                                      height: 50,
-                                      child: TextFormField(
-                                        textAlign: TextAlign.left,
-                                        controller: _cardHolderController,
-                                        style: const TextStyle(fontSize: 18),
-                                        decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.all(8),
-                                          hintText: "Card Holder",
-                                          hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                                          border: OutlineInputBorder(),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Card Holder",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.2,
-                                      height: 50,
-                                      child: const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                      const SizedBox(height: 5),
+                                      Row(
                                         children: [
-                                          Text(
-                                            "Campaign",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              child: TextFormField(
+                                                controller: _cardHolderController,
+                                                textAlign: TextAlign.left,
+                                                style: const TextStyle(fontSize: 18),
+                                                decoration: const InputDecoration(
+                                                  contentPadding: EdgeInsets.all(10),
+                                                  hintText: "Card Holder",
+                                                  hintStyle: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 18,
+                                                  ),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.4,
-                                      height: 50,
-                                      child: OutlinedButton(
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Campaign",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      OutlinedButton(
                                         onPressed: () => showDialog<CampaignEntity>(
                                           context: parentContext,
                                           builder: (BuildContext parentContext) => const SelectCampaign(),
@@ -591,7 +517,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                           ),
                                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                             RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10.0),
+                                              borderRadius: BorderRadius.circular(5),
                                             ),
                                           ),
                                         ),
@@ -610,133 +536,113 @@ class _EDCDialogState extends State<EDCDialog> {
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.2,
-                                      height: 50,
-                                      child: const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                    ],
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Reference Number",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Row(
                                         children: [
-                                          Text(
-                                            "Reference Number",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              child: TextFormField(
+                                                controller: _refNumberController,
+                                                textAlign: TextAlign.left,
+                                                style: const TextStyle(fontSize: 18),
+                                                decoration: const InputDecoration(
+                                                  contentPadding: EdgeInsets.all(10),
+                                                  hintText: "Reference Number",
+                                                  hintStyle: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 18,
+                                                  ),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.4,
-                                      height: 50,
-                                      child: TextFormField(
-                                        textAlign: TextAlign.left,
-                                        controller: _refNumberController,
-                                        style: const TextStyle(fontSize: 18),
-                                        decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.all(8),
-                                          hintText: "Reference Number",
-                                          hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                                          border: OutlineInputBorder(),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Amount",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.2,
-                                      height: 50,
-                                      child: const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                      const SizedBox(height: 5),
+                                      Row(
                                         children: [
-                                          Text(
-                                            "Amount",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              child: TextFormField(
+                                                focusNode: _focusNodeAmount,
+                                                controller: _amountController,
+                                                textAlign: TextAlign.left,
+                                                keyboardType: TextInputType.number,
+                                                inputFormatters: [MoneyInputFormatter()],
+                                                style: const TextStyle(fontSize: 18),
+                                                decoration: InputDecoration(
+                                                  contentPadding: const EdgeInsets.all(10),
+                                                  hintText: "$currentAmount",
+                                                  hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                                                  border: const OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                  suffix: isErr
+                                                      ? Text(
+                                                          errMsg,
+                                                          style: const TextStyle(
+                                                              fontSize: 18,
+                                                              fontStyle: FontStyle.normal,
+                                                              fontWeight: FontWeight.w700,
+                                                              color: ProjectColors.swatch),
+                                                        )
+                                                      : null,
+                                                ),
+                                                enabled: widget.isMultiMOPs,
+                                                onChanged: (value) {
+                                                  final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
+                                                  if (mopAmount > widget.max) {
+                                                    setState(() {
+                                                      isErr = true;
+                                                      errMsg = "Invalid amount";
+                                                    });
+                                                  } else if (isErr) {
+                                                    setState(() {
+                                                      isErr = false;
+                                                    });
+                                                  }
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: MediaQuery.of(parentContext).size.width * 0.4,
-                                      height: 50,
-                                      child: TextFormField(
-                                        focusNode: _focusNodeAmount,
-                                        controller: _amountController,
-                                        textAlign: TextAlign.left,
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [MoneyInputFormatter()],
-                                        style: const TextStyle(fontSize: 18),
-                                        decoration: InputDecoration(
-                                          contentPadding: const EdgeInsets.all(10),
-                                          hintText: "$currentAmount",
-                                          hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                                          border: const OutlineInputBorder(),
-                                          suffix: isErr
-                                              ? Text(
-                                                  errMsg,
-                                                  style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontStyle: FontStyle.normal,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: ProjectColors.swatch),
-                                                )
-                                              : null,
-                                        ),
-                                        enabled: widget.isMultiMOPs,
-                                        onChanged: (value) {
-                                          final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
-                                          if (mopAmount > widget.max) {
-                                            setState(() {
-                                              isErr = true;
-                                              errMsg = "Invalid amount";
-                                            });
-                                          } else if (isErr) {
-                                            setState(() {
-                                              isErr = false;
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -821,6 +727,7 @@ class _EDCDialogState extends State<EDCDialog> {
                           rrn: _refNumberController.text,
                         );
                         mopsSelected.add(mopEDC);
+                        FocusScope.of(context).unfocus();
 
                         setState(() {
                           currentAmount = currentAmount! - edcAmount;

@@ -5,6 +5,7 @@ import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
 import 'package:pos_fe/features/mop_adjustment/presentation/pages/mop_adjustment_screen.dart';
+import 'package:pos_fe/features/reports/presentation/pages/check_stocks_screen.dart';
 import 'package:pos_fe/features/reports/presentation/pages/filtered_report_screen.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
@@ -101,6 +102,13 @@ class AppRouter {
         path: "/mopAdjustment",
         pageBuilder: (context, state) {
           return const MaterialPage(child: MOPAdjustmentScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteConstants.checkStocks,
+        path: "/checkStocks",
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: CheckStockScreen());
         },
       ),
     ],

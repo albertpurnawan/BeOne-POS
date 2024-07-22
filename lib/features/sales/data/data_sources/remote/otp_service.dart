@@ -51,7 +51,7 @@ class OTPServiceAPi {
             "StoreName": store!.storeName,
             "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
             "CashierName": cashierName!.username,
-            "DiscountAmount": discount,
+            "DiscountAmmount": discount,
           }
         };
       } else {

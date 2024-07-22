@@ -32,8 +32,7 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
     return result.map((itemData) => MOPByStoreModel.fromMap(itemData)).toList();
   }
 
-  Future<List<MopSelectionModel>> readAllIncludeRelations(
-      {String? payTypeCode}) async {
+  Future<List<MopSelectionModel>> readAllIncludeRelations({String? payTypeCode}) async {
     final result = await db.rawQuery("""
       SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description, p1.subtype,
       CASE WHEN p.paytypecode = 2 THEN p4.tpmt4Id ELSE NULL END as tpmt4Id, 
@@ -52,13 +51,10 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
         ) as p4 ON p1.mopalias LIKE p4.edcDesc || '%';
     """);
 
-    return result
-        .map((itemData) => MopSelectionModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => MopSelectionModel.fromMap(itemData)).toList();
   }
 
-  Future<MopSelectionModel?> readByDocIdIncludeRelations(
-      String docId, Transaction? txn) async {
+  Future<MopSelectionModel?> readByDocIdIncludeRelations(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.rawQuery("""
 SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description, p1.subtype FROM tpmt3 as p3
@@ -74,8 +70,7 @@ WHERE p3.docid = '$docId';
     return result.isNotEmpty ? MopSelectionModel.fromMap(result[0]) : null;
   }
 
-  Future<MOPByStoreModel?> readByTpmt1Id(
-      String tpmt1Id, Transaction? txn) async {
+  Future<MOPByStoreModel?> readByTpmt1Id(String tpmt1Id, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,

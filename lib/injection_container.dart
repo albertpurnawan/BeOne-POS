@@ -8,6 +8,7 @@ import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
+import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
@@ -268,6 +269,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<MOPAdjustmentService>(() => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
   sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()), dependsOn: [SharedPreferences]);
+  sl.registerSingleton<CheckStockApi>(CheckStockApi(sl()));
   /**
    * =================================
    * END OF APIs
