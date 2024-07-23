@@ -224,12 +224,7 @@ class _SettingsFormState extends State<SettingsForm> {
                   await prefs.clear();
                   await GetIt.instance<AppDatabase>().posParameterDao.deleteTopos();
 
-                  // call the encryptpassword here?
                   final hashedPassword = await encryptPassword(passwordController.text);
-
-                  // final hashedPass = md5
-                  //     .convert(utf8.encode(passwordController.text))
-                  //     .toString();
 
                   final topos = POSParameterModel(
                     docId: const Uuid().v4(),

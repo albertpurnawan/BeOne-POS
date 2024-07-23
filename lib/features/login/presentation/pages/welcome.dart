@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -89,7 +91,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         : setState(() {
             haveTopos = false;
           });
-    // log("TOPOS CHECKED - $haveTopos");
+    log("TOPOS CHECKED - $haveTopos");
   }
 
   Widget welcomingButtons(BuildContext context) {

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/usecases/restore_database_usecase.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -3123,6 +3124,12 @@ class _FetchScreenState extends State<FetchScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text('Sync Data'),
+        leading: BackButton(
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        ),
       ),
       body: Column(
         children: [
@@ -3185,6 +3192,44 @@ class _FetchScreenState extends State<FetchScreen> {
                     const SizedBox(
                       width: 10,
                     ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.1,
+                      child: ElevatedButton(
+                        onPressed: isManualSyncing
+                            ? null
+                            : () async {
+                                await RestoreDatabaseUseCase().call(params: RestoreDatabaseParams(context: context));
+                              },
+                        style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(100),
+                              side: BorderSide(
+                                color:
+                                    isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          backgroundColor: MaterialStatePropertyAll(
+                            isManualSyncing ? Colors.grey : const Color.fromARGB(255, 234, 234, 234),
+                          ),
+                          foregroundColor: MaterialStatePropertyAll(
+                              isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Restore',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     Stack(
                       alignment: Alignment.center,
                       children: [
