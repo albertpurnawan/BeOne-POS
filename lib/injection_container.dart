@@ -8,6 +8,7 @@ import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
+import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
@@ -63,7 +64,9 @@ import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item_by_barcode.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_item_with_and_condition.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_items_by_pricelist.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart' as sales_get_pos_parameter_use_case;
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and_detail.dart';
@@ -266,6 +269,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<MOPAdjustmentService>(() => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
   sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()), dependsOn: [SharedPreferences]);
+  sl.registerSingleton<CheckStockApi>(CheckStockApi(sl()));
   /**
    * =================================
    * END OF APIs
@@ -321,8 +325,12 @@ Future<void> initializeDependencies() async {
    * =================================
    */
   sl.registerSingletonWithDependencies<GetItemsUseCase>(() => GetItemsUseCase(sl()), dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetItemsByPricelistUseCase>(() => GetItemsByPricelistUseCase(sl(), sl(), sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetItemUseCase>(() => GetItemUseCase(sl()), dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetItemByBarcodeUseCase>(() => GetItemByBarcodeUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetItemWithAndConditionUseCase>(() => GetItemWithAndConditionUseCase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetCustomersUseCase>(() => GetCustomersUseCase(sl()), dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetMopSelectionsUseCase>(() => GetMopSelectionsUseCase(sl()),

@@ -192,7 +192,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
               content: SizedBox(
                 width: MediaQuery.of(childContext).size.width * 0.5,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
@@ -200,7 +200,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                           'Insert OTP Code You Received',
                           style: TextStyle(fontSize: 22, color: Colors.black),
                         ),
-                        const SizedBox(height: 25),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(6, (index) {

@@ -514,7 +514,7 @@ INNER JOIN (
     }
 
     final String mainQuery = """
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname)
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname, toplnId)
 SELECT 
   i.itemname, 
   i.itemcode, 
@@ -530,7 +530,8 @@ SELECT
   ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
   ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"},
   i.tocatId,
-  i.shortname
+  i.shortname,
+  p.toplnId
 FROM 
   (
     SELECT 
@@ -538,10 +539,7 @@ FROM
       pp.tpln1Id, 
       pr.tpln2Id, 
       pr.toitmId, 
-      DATETIME(pp.tpln1createdate) AS tpln1createdate, 
-      MAX(
-        DATETIME(pp.tpln1createdate)
-      ) AS latestPrice 
+      DATETIME(pp.tpln1createdate) AS tpln1createdate
     FROM 
       topln AS pl 
       INNER JOIN (
@@ -565,11 +563,18 @@ FROM
           tpln2
       ) AS pr ON pr.tpln1Id = pp.tpln1Id 
     WHERE 
+      ((toplnId = '${storeMaster.toplnId}'
+      	  AND
+      	  DATETIME(tpln1createdate) = (SELECT MAX(DATETIME(createdate)) FROM tpln1 WHERE DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
+	          AND
+	          statusactive = 1
+	          AND
+	          toplnId = '${storeMaster.toplnId}')
+      	OR (pl.type = '2'))
+      AND
       pl.tcurrId = '${storeMaster.tcurrId}'
       AND 
-      statusactive = 1
-    GROUP BY 
-      pr.toitmId
+      pl.statusactive = 1)
   ) as p 
   INNER JOIN (
     SELECT 
@@ -1478,6 +1483,7 @@ ${ItemFields.taxRate} DOUBLE NOT NULL,
 ${ItemFields.dpp} DOUBLE NOT NULL,
 ${ItemFields.tocatId} TEXT,
 ${ItemFields.shortName} STRING,
+${ItemFields.toplnId} STRING,
 CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

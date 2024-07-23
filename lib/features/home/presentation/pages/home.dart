@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(
-                              height: 50,
+                              height: 30,
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -164,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onPressed: () async {
                                   try {
                                     final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
+                                    await GetIt.instance<AppDatabase>().refreshItemsTable();
                                     await GetIt.instance<SharedPreferences>()
                                         .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
                                     await context.read<ReceiptCubit>().resetReceipt();
@@ -212,26 +213,70 @@ class _HomeScreenState extends State<HomeScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               width: MediaQuery.of(context).size.width * 0.36,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      borderRadius: BorderRadius.circular(5),
-                                    )),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor.resolveWith(
-                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () {
-                                  context.pushNamed(RouteConstants.reports);
-                                },
-                                child: const Text(
-                                  "Reports",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                            side: const BorderSide(color: Colors.white, width: 2),
+                                            borderRadius: BorderRadius.circular(5),
+                                          )),
+                                          backgroundColor:
+                                              MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                          foregroundColor: MaterialStateColor.resolveWith(
+                                              (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                          overlayColor:
+                                              MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                      onPressed: () {
+                                        context.pushNamed(RouteConstants.reports);
+                                      },
+                                      child: const Text(
+                                        "Reports",
+                                        textAlign: TextAlign.center,
+                                        style:
+                                            TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                              width: MediaQuery.of(context).size.width * 0.36,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                            side: const BorderSide(color: Colors.white, width: 2),
+                                            borderRadius: BorderRadius.circular(5),
+                                          )),
+                                          backgroundColor:
+                                              MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                          foregroundColor: MaterialStateColor.resolveWith(
+                                              (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                          overlayColor:
+                                              MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                      onPressed: () {
+                                        context.pushNamed(RouteConstants.checkStocks);
+                                      },
+                                      child: const Text(
+                                        "Stock",
+                                        textAlign: TextAlign.center,
+                                        style:
+                                            TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(

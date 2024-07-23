@@ -58,6 +58,20 @@ class ItemsDao extends BaseDao<ItemModel> {
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 
+  Future<List<ItemModel>> readAllByPricelist(
+      {String? searchKeyword, Transaction? txn, required String pricelistId}) async {
+    final result = await db.query(
+      tableName,
+      where:
+          "(${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ? OR ${ItemFields.shortName} LIKE ?) AND ${ItemFields.toplnId} = ?",
+      whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", pricelistId],
+      orderBy: "itemname",
+      limit: 300,
+    );
+    // log(result[0].toString());
+    return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
+  }
+
   @override
   Future<ItemModel?> readByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
@@ -81,5 +95,21 @@ class ItemsDao extends BaseDao<ItemModel> {
     );
 
     return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
+  }
+
+  Future<ItemModel?> readItemWithAndCondition(Map<String, dynamic> conditions, Transaction? txn) async {
+    try {
+      DatabaseExecutor dbExecutor = txn ?? db;
+      final res = await dbExecutor.query(
+        tableName,
+        columns: modelFields,
+        where: conditions.keys.isEmpty ? null : conditions.keys.map((e) => "$e = ?").join(" AND "),
+        whereArgs: conditions.values.isEmpty ? null : conditions.values.toList(),
+      );
+
+      return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

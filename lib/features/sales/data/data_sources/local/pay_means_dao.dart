@@ -69,6 +69,7 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
       WHERE x0.createdat BETWEEN ? AND ?
       GROUP BY x0.tpmt3Id
     ''', [startDate, endDate]);
+
     return result;
   }
 

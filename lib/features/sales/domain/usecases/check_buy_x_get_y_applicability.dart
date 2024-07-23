@@ -6,13 +6,18 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/promotion_detail.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_buy_x_get_y_buy_condition.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_buy_x_get_y_get_condition.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_buy_x_get_y_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 
 class CheckBuyXGetYApplicabilityUseCase
     implements UseCase<CheckBuyXGetYApplicabilityResult, CheckBuyXGetYApplicabilityParams> {
@@ -114,8 +119,24 @@ class CheckBuyXGetYApplicabilityUseCase
                 .readByToprbId(params.promo.promoId!, null);
             if (tprb1.isEmpty) isApplicable = false;
 
+            final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+            if (posParameterEntity?.tostrId == null) throw "Invalid POS Parameter";
+            final StoreMasterEntity? storeMasterEntity =
+                await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity!.tostrId!);
+            if (storeMasterEntity == null) throw "Store master not found";
+
             for (final e in tprb1) {
-              final ItemEntity? itemX = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(e.toitmId!, null);
+              ItemEntity? itemX;
+              if (params.receiptEntity.customerEntity?.toplnId != null) {
+                itemX = await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
+                  ItemFields.toitmId: e.toitmId!,
+                  ItemFields.toplnId: params.receiptEntity.customerEntity!.toplnId,
+                }, null);
+              }
+
+              itemX ??= await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition(
+                  {ItemFields.toitmId: e.toitmId!, ItemFields.toplnId: storeMasterEntity.toplnId}, null);
+
               if (itemX != null) {
                 conditionAndItemXs.add(PromoBuyXGetYBuyConditionAndItemEntity(
                   promoBuyXGetYBuyConditionEntity: e,
@@ -138,9 +159,28 @@ class CheckBuyXGetYApplicabilityUseCase
                 .readByToprbId(params.promo.promoId!, null);
             if (tprb4.isEmpty) isApplicable = false;
 
+            final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+            if (posParameterEntity?.tostrId == null) throw "Invalid POS Parameter";
+            final StoreMasterEntity? storeMasterEntity =
+                await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity!.tostrId!);
+            if (storeMasterEntity == null) throw "Store master not found";
+
             for (final e in tprb4) {
               if (e.quantity < 1) return isApplicable = false;
-              final ItemEntity? itemY = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(e.toitmId!, null);
+              ItemEntity? itemY;
+
+              if (params.receiptEntity.customerEntity?.toplnId != null) {
+                itemY = await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
+                  ItemFields.toitmId: e.toitmId!,
+                  ItemFields.toplnId: params.receiptEntity.customerEntity?.toplnId,
+                }, null);
+              }
+
+              itemY ??= await GetIt.instance<AppDatabase>().itemsDao.readItemWithAndCondition({
+                ItemFields.toitmId: e.toitmId!,
+                ItemFields.toplnId: storeMasterEntity.toplnId,
+              }, null);
+
               if (itemY != null) {
                 conditionAndItemYs.add(PromoBuyXGetYGetConditionAndItemEntity(
                   promoBuyXGetYGetConditionEntity: e,

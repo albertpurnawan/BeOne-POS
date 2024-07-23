@@ -48,12 +48,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
             _customerInputFocusNode.nextFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
-            _customerInputFocusNode.unfocus();
-            FocusManager.instance.primaryFocus?.unfocus();
-
-            selectedCustomer = radioValue;
-            context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
-            Navigator.of(context).pop();
+            selectCustomer();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
             Navigator.of(context).pop();
@@ -247,5 +242,14 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
         actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       ),
     );
+  }
+
+  Future<void> selectCustomer() async {
+    _customerInputFocusNode.unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    selectedCustomer = radioValue;
+    await context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
+    Navigator.of(context).pop();
   }
 }
