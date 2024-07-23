@@ -21,6 +21,7 @@ class ItemFields {
     dpp,
     tocatId,
     shortName,
+    toplnId,
   ];
 
   static const String id = "_id";
@@ -39,6 +40,7 @@ class ItemFields {
   static const String dpp = "dpp";
   static const String tocatId = "tocatId";
   static const String shortName = "shortname";
+  static const String toplnId = "toplnId";
 }
 
 class ItemModel extends ItemEntity implements BaseModel {
@@ -59,6 +61,7 @@ class ItemModel extends ItemEntity implements BaseModel {
     required super.includeTax,
     required super.tocatId,
     required super.shortName,
+    required super.toplnId,
   });
 
   @override
@@ -80,6 +83,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       'dpp': dpp,
       'tocatId': tocatId,
       'shortname': shortName,
+      'toplnId': toplnId,
     };
   }
 
@@ -101,6 +105,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       dpp: map['dpp'] as double,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       shortName: map['shortname'] != null ? map['shortname'] as String : null,
+      toplnId: map['toplnId'],
     );
   }
 
@@ -122,6 +127,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       dpp: entity.dpp,
       tocatId: entity.tocatId,
       shortName: entity.shortName,
+      toplnId: entity.toplnId,
     );
   }
 }

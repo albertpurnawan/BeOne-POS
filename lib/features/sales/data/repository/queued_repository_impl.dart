@@ -114,7 +114,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
     return await getQueuedReceiptByDocId(generatedInvoiceHeaderDocId);
   }
 
-  @override
+  @override // UNIMPLEMENTED FOR NOW
   Future<ReceiptEntity?> getQueuedReceiptByDocId(String docId) async {
     final Database db = await _appDatabase.getDB();
     ReceiptModel? receiptModel;
@@ -150,23 +150,23 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           totalGross: queuedInvoiceDetailModel.totalAmount * 100 / (100 + queuedInvoiceDetailModel.taxPrctg),
           taxAmount: queuedInvoiceDetailModel.totalAmount * queuedInvoiceDetailModel.taxPrctg,
           itemEntity: ItemModel(
-            id: null,
-            itemName: itemMasterModel.itemName,
-            itemCode: itemMasterModel.itemCode,
-            barcode: "", // nanti dibutuhkan melanjutkan transaksi
-            price: 0,
-            toitmId: queuedInvoiceDetailModel.toitmId!,
-            tbitmId: queuedInvoiceDetailModel.tbitmId!,
-            tpln2Id: "",
-            openPrice: itemMasterModel.openPrice,
-            tovenId: queuedInvoiceDetailModel.tovenId,
-            tovatId: queuedInvoiceDetailModel.tovatId!,
-            taxRate: queuedInvoiceDetailModel.taxPrctg,
-            dpp: queuedInvoiceDetailModel.sellingPrice * 100 / (100 + queuedInvoiceDetailModel.taxPrctg),
-            includeTax: itemMasterModel.includeTax,
-            tocatId: itemMasterModel.tocatId,
-            shortName: itemMasterModel.shortName,
-          ),
+              id: null,
+              itemName: itemMasterModel.itemName,
+              itemCode: itemMasterModel.itemCode,
+              barcode: "N/A", // <UNIMPLEMENTED>
+              price: 0,
+              toitmId: queuedInvoiceDetailModel.toitmId!,
+              tbitmId: queuedInvoiceDetailModel.tbitmId!,
+              tpln2Id: "N/A",
+              openPrice: itemMasterModel.openPrice,
+              tovenId: queuedInvoiceDetailModel.tovenId,
+              tovatId: queuedInvoiceDetailModel.tovatId!,
+              taxRate: queuedInvoiceDetailModel.taxPrctg,
+              dpp: queuedInvoiceDetailModel.sellingPrice * 100 / (100 + queuedInvoiceDetailModel.taxPrctg),
+              includeTax: itemMasterModel.includeTax,
+              tocatId: itemMasterModel.tocatId,
+              shortName: itemMasterModel.shortName,
+              toplnId: "N/A"),
           sellingPrice: queuedInvoiceDetailModel.sellingPrice,
           totalAmount: queuedInvoiceDetailModel.totalAmount,
           totalSellBarcode: queuedInvoiceDetailModel.sellingPrice * queuedInvoiceDetailModel.quantity,
@@ -241,11 +241,11 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
               id: null,
               itemName: itemMasterModel.itemName,
               itemCode: itemMasterModel.itemCode,
-              barcode: itemBarcodeModel.barcode, // nanti dibutuhkan melanjutkan transaksi
+              barcode: itemBarcodeModel.barcode,
               price: 0,
               toitmId: itemMasterModel.docId,
               tbitmId: queuedInvoiceDetailModel.tbitmId!,
-              tpln2Id: "",
+              tpln2Id: "N/A",
               openPrice: itemMasterModel.openPrice,
               tovenId: queuedInvoiceDetailModel.tovenId,
               tovatId: queuedInvoiceDetailModel.tovatId!,
@@ -254,6 +254,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
               includeTax: itemMasterModel.includeTax,
               tocatId: itemMasterModel.tocatId,
               shortName: itemMasterModel.shortName,
+              toplnId: "N/A",
             ),
             sellingPrice: queuedInvoiceDetailModel.sellingPrice,
             totalAmount: queuedInvoiceDetailModel.totalAmount,
