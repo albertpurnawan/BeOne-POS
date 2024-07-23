@@ -231,6 +231,11 @@ abstract class Helpers {
     return formattedString;
   }
 
+  static String formatDTToString(DateTime dTime) {
+    String formattedString = DateFormat('ddMMyyyyHHmmss').format(dTime.toLocal());
+    return formattedString;
+  }
+
   static String formatDateNoSeconds(DateTime dTime) {
     final DateFormat formatter = DateFormat('EEEE, dd MMM yyyy HH:mm');
     return formatter.format(dTime).toString();

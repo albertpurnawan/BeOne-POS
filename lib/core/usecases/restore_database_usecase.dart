@@ -5,11 +5,8 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/permission_handler.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -52,41 +49,49 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, _databaseName);
 
-      final backupDir = await getExternalStorageDirectory();
-      final backupPath = join(backupDir!.path, "backup.db");
+      const backupDir = "/storage/emulated/0";
+      final backupFolder = Directory('$backupDir/RubyPOS');
 
-      final dbFile = File(path);
-      await dbFile.copy(backupPath);
+      final backupFiles = backupFolder.listSync().where((file) => file.path.endsWith('.zip')).toList()
+        ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
 
-      final zipPath = join(backupDir.path, "backup.zip");
-
-      final zipFile = File(zipPath);
-      if (await zipFile.exists()) {
-        final bytes = zipFile.readAsBytesSync();
-        final archive = ZipDecoder().decodeBytes(bytes);
-        for (final file in archive) {
-          final filename = file.name;
-          final data = file.content as List<int>;
-          File(join(backupDir.path, filename))
-            ..createSync(recursive: true)
-            ..writeAsBytesSync(data);
+      if (backupFiles.isEmpty) {
+        if (context.mounted) {
+          log("No backup files found in $backupFolder");
+          SnackBarHelper.presentErrorSnackBar(context, "No backup files found.");
         }
-
-        final restoredPath = join(backupDir.path, "backup.db");
-        final restoredFile = File(restoredPath);
-        await restoredFile.copy(path);
-
-        log("Database restored from $zipPath");
-        database = null;
-        await GetIt.instance<AppDatabase>().getDB();
-      } else {
-        log("Backup file does not exist at $zipPath");
+        return;
       }
 
-      if (context.mounted) {
-        Navigator.pop(context);
-        log("Database backed up to $zipPath");
-        SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
+      final mostRecentBackup = backupFiles.first;
+      log("Restoring from backup file: ${mostRecentBackup.path}");
+
+      final bytes = File(mostRecentBackup.path).readAsBytesSync();
+      final archive = ZipDecoder().decodeBytes(bytes);
+
+      for (final file in archive) {
+        final filename = file.name;
+        final data = file.content as List<int>;
+        File(join(backupFolder.path, filename))
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(data);
+      }
+
+      final restoredPath = join(backupFolder.path, "backup.db");
+      final restoredFile = File(restoredPath);
+
+      if (await restoredFile.exists()) {
+        await restoredFile.copy(path);
+        if (context.mounted) {
+          Navigator.pop(context);
+          log("Database restored from $restoredPath");
+          SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
+        }
+      } else {
+        if (context.mounted) {
+          log("Restored file does not exist at $restoredPath");
+          SnackBarHelper.presentErrorSnackBar(context, "Restored file does not exist at $restoredPath.");
+        }
       }
     } catch (e) {
       log("Error restoring database: $e");
