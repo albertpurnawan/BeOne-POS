@@ -140,7 +140,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
                       child: const Text("Sync Data"),
-                      onTap: () {
+                      onTap: () async {
+                        await checkTopos();
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const FetchScreen()),

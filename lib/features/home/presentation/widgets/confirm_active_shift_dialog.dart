@@ -1,16 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 
 class ConfirmActiveShiftDialog extends StatefulWidget {
   final String currentShiftDocId;
+  final bool checkShifts;
 
   const ConfirmActiveShiftDialog({
     Key? key,
     required this.currentShiftDocId,
+    required this.checkShifts,
   }) : super(key: key);
 
   @override
@@ -55,17 +56,21 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
           SizedBox(
             width: 400,
             child: RichText(
-              text: const TextSpan(
+              text: TextSpan(
                 children: [
                   TextSpan(
-                    text: "Current shift has not been closed.",
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    text: (widget.checkShifts)
+                        ? "There's more than one shifts than open."
+                        : "Current shift has not been closed.",
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   TextSpan(
-                    text: "\n\nPlease proceed to close current shift",
+                    text: (widget.checkShifts)
+                        ? "\n\nPlease proceed to close the previous shifts before doing transaction"
+                        : "\n\nPlease proceed to close current shift",
                   )
                 ],
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.black,
                   fontSize: 16,
                 ),

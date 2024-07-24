@@ -59,13 +59,10 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
   }
 
   Future<List<InvoiceHeaderModel>> readByShift(String tcsr1Id) async {
-    final prefs = GetIt.instance<SharedPreferences>();
-    final tcsr1Id = prefs.getString('tcsr1Id');
-
     final res = await db.query(
       tableName,
-      where: 'tcsr1Id LIKE ?',
-      whereArgs: ['$tcsr1Id%'],
+      where: 'tcsr1Id = ?',
+      whereArgs: [tcsr1Id],
     );
 
     if (res.isEmpty) {
