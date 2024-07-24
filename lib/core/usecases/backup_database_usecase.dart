@@ -73,7 +73,7 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
         await dbFile.copy(backupPath);
 
         // Zip the database file
-        final zipPath = join(backupFolder.path, "backup_${timestamp}.zip");
+        final zipPath = join(backupFolder.path, "backup_$timestamp.zip");
 
         final encoder = ZipEncoder();
         final archiveFile = ArchiveFile('backup.db', dbFile.lengthSync(), dbFile.readAsBytesSync());

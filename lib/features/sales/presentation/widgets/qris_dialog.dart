@@ -166,7 +166,9 @@ class _QRISDialogState extends State<QRISDialog> {
           isCheckingStatus = false;
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> _printQris() async {
