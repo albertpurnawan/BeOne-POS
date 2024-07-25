@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -196,6 +197,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       });
     }
   }
+
+  Future<void> backupDatabase() async {}
 
   Future<void> fetchInvoices() async {
     final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
@@ -775,6 +778,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                           Helpers.revertMoneyToDecimalFormat(expectedCash),
                       approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
                   await GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams);
+
                   if (!checkLastShift) {
                     if (!context.mounted) return;
                     context.goNamed(RouteConstants.shifts);
@@ -783,10 +787,12 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     await prefs.setString('tcsr1Id', "");
                     await GetIt.instance<LogoutUseCase>().call();
                     if (!context.mounted) return;
+                    await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
+                    if (!context.mounted) return;
                     context.goNamed(RouteConstants.welcome);
                   }
 
-                  await Future.delayed(Durations.medium1);
+                  await Future.delayed(Durations.extralong4);
                   await showDialog(
                       context: NavigationHelper.context!,
                       builder: (context) => CloseShiftSuccessAlertDialog(
@@ -794,6 +800,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                             printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
                           ));
                 } catch (e) {
+                  if (!context.mounted) return;
                   SnackBarHelper.presentFailSnackBar(context, e.toString());
                 }
               }),

@@ -80,24 +80,6 @@ class _LoginFormState extends State<LoginForm> {
     passwordController.dispose();
   }
 
-  // Future<void> refreshToken() async {
-  //   final username = usernameController.text;
-  //   final password = passwordController.text;
-  //   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-  //   SharedPreferences.getInstance();
-
-  //   final url = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-
-  //   final user = await GetIt.instance<AppDatabase>()
-  //       .userDao
-  //       .readByUsername(username, null);
-
-  //   final token = await GetIt.instance<TokenApi>()
-  //       .getToken(url[0].baseUrl!, user!.email, password);
-  //   log("$token");
-  //   prefs.setString('adminToken', token.toString());
-  // }
-
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();

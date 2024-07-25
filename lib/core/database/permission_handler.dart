@@ -7,11 +7,9 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 
 class PermissionHandler {
   static Future<void> requestStoragePermissions(BuildContext context) async {
-    // Request permission
     final manageStatus = await Permission.manageExternalStorage.status;
     log("Permission request status: ${manageStatus.toString()}");
 
-    // Check permission status
     if (manageStatus.isGranted) {
       log("Permission Granted");
     } else {

@@ -26,8 +26,7 @@ class AuthStoreApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
@@ -61,11 +60,9 @@ class AuthStoreApi {
 
       if (resp.data['data'].isNotEmpty) {
         log("--- Auth Store ---");
-        log(resp.data['data'][0].toString());
+        log(resp.data['data'].toString());
 
-        List<AuthStoreModel> data = (resp.data['data'] as List)
-            .map((e) => AuthStoreModel.fromMapRemote(e))
-            .toList();
+        List<AuthStoreModel> data = (resp.data['data'] as List).map((e) => AuthStoreModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

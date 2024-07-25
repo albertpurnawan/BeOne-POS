@@ -24,7 +24,9 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
 
   @override
   Future<void> call({RestoreDatabaseParams? params}) async {
-    final context = params!.context;
+    if (params == null) return;
+
+    final context = params.context;
     Database? database;
 
     try {

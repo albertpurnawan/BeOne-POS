@@ -26,9 +26,9 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
     final context = params!.context;
     try {
       final permissionStatus = await Permission.manageExternalStorage.status;
-      final storagenStatus = await Permission.storage.status;
+      final storageStatus = await Permission.storage.status;
 
-      if (!permissionStatus.isGranted && !storagenStatus.isGranted) {
+      if (!permissionStatus.isGranted && !storageStatus.isGranted) {
         if (context.mounted) await PermissionHandler.requestStoragePermissions(context);
         final updatedStatus = await Permission.manageExternalStorage.status;
         if (!updatedStatus.isGranted) {
@@ -37,7 +37,9 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
         }
       } else {
         log("Permission granted");
+
         if (context.mounted) {
+          log("Showing progress dialog");
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -83,15 +85,20 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
         final zipFile = File(zipPath);
         await zipFile.writeAsBytes(bytes!);
 
+        log("Database backed up to $zipPath");
+
         if (context.mounted) {
-          Navigator.pop(context);
-          log("Database backed up to $zipPath");
           SnackBarHelper.presentSuccessSnackBar(context, "Database backed up at ${backupFolder.path}");
         }
       }
     } catch (e) {
       log("Error backing up database: $e");
       rethrow;
+    } finally {
+      if (context.mounted) {
+        log("Closing progress dialog");
+        Navigator.of(context, rootNavigator: true).pop();
+      }
     }
   }
 }

@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/database/permission_handler.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
@@ -68,6 +71,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     checkTopos();
+    checkPermission();
     super.initState();
     prefs.reload().then((value) {
       setState(() {
@@ -93,6 +97,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           });
     log("TOPOS CHECKED - $haveTopos");
   }
+
+  Future<void> checkPermission() async {
+    try {
+      final permissionStatus = await Permission.manageExternalStorage.status;
+      if (!permissionStatus.isGranted) {
+        await PermissionHandler.requestStoragePermissions(context);
+      }
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, "Error on check permission");
+    }
+  }
+
+  // Future<void> checkPrefs() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final keys = prefs.getKeys();
+
+  //   final prefsMap = <String, dynamic>{};
+  //   for (String key in keys) {
+  //     prefsMap[key] = prefs.get(key);
+  //   }
+
+  //   log("prefsMap - $prefsMap");
+  // }
 
   Widget welcomingButtons(BuildContext context) {
     return Container(
@@ -165,7 +192,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const DeviceSetupScreen(),
+                                  builder: (context) => DeviceSetupScreen(
+                                    toposExist: haveTopos,
+                                  ),
                                 ),
                               );
                               if (result == true) {
@@ -185,6 +214,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ),
                   ),
                   const SizedBox(height: 10),
+                  // Container(
+                  //   constraints: const BoxConstraints(maxWidth: 400),
+                  //   child: CustomButton(
+                  //     child: const Text("Check Prefs"),
+                  //     onTap: () async {
+                  //       await checkPrefs();
+                  //     },
+                  //   ),
+                  // ),
                   // Container(
                   //   constraints: const BoxConstraints(maxWidth: 400),
                   //   child: CustomButton(
