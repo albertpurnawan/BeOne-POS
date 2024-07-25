@@ -310,7 +310,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       remarks: remarks,
       salesTohemId: tohemId,
     );
-
+    dev.log("newState - $newState");
     emit(newState);
   }
 

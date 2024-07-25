@@ -29,7 +29,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     super.initState();
     stateInvoice = context.read<ReceiptCubit>().state;
     _noteController.text = stateInvoice.remarks ?? "";
-    tohemIdSelected = stateInvoice.toinvTohemId;
+    tohemIdSelected = stateInvoice.salesTohemId;
     getEmployee(tohemIdSelected ?? "");
   }
 
@@ -166,7 +166,6 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                   salesSelected = selectedEmployee.empName;
                                   tohemIdSelected = selectedEmployee.docId;
                                 });
-                                // log("selectedEmployee - $selectedEmployee");
                               }
                             }),
                             child: Column(
