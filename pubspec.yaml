@@ -61,6 +61,8 @@ dependencies:
   sentry_flutter: ^8.3.0
   encrypt: ^5.0.1
   hotkey_manager: ^0.2.3
+  permission_handler: ^11.3.1
+  archive: ^3.6.1
 
 dev_dependencies:
   flutter_test:
@@ -104,6 +106,7 @@ flutter:
     - assets/ic_launcher.png
     - assets/images/logo-topgolf.png
     - assets/images/logo-topgolf.jpg
+    - assets/images/found.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

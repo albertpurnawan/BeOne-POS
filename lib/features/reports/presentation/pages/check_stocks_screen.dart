@@ -392,7 +392,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                               const Icon(Icons.monetization_on_outlined, color: Colors.black, size: 18.0),
                               const SizedBox(width: 10),
                               Text(
-                                "${(selectedItem != null) ? priceFormatted : ""}",
+                                (selectedItem != null) ? priceFormatted : "",
                                 style: const TextStyle(
                                     color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
                               ),
@@ -519,8 +519,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           child: Center(
                               child: Text(
                             stock.storeCode,
-                            style:
-                                TextStyle(color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                           )),
                         ),
                         Padding(
@@ -528,8 +528,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           child: Center(
                               child: Text(
                             stock.qtyOnHand.toString(),
-                            style:
-                                TextStyle(color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                           )),
                         ),
                         Padding(
@@ -537,8 +537,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           child: Center(
                               child: Text(
                             stock.ordered.toString(),
-                            style:
-                                TextStyle(color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                           )),
                         ),
                         Padding(
@@ -546,8 +546,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           child: Center(
                               child: Text(
                             stock.commited.toString(),
-                            style:
-                                TextStyle(color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                           )),
                         ),
                         Padding(
@@ -555,8 +555,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           child: Center(
                               child: Text(
                             stock.available.toString(),
-                            style:
-                                TextStyle(color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                           )),
                         ),
                       ],
@@ -568,8 +568,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
           ),
           const SizedBox(height: 20),
           if (stocksFetched!.isEmpty)
-            Center(
-                child: const Text(
+            const Center(
+                child: Text(
               "No Data Available",
               style: TextStyle(
                   color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700, fontStyle: FontStyle.italic),

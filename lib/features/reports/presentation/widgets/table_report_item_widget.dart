@@ -76,7 +76,7 @@ class _TableReportItemState extends State<TableReportItem> {
 
       setState(() {
         fetched = filteredTinv1;
-        discountManual = multipliedValues.reduce((a, b) => a + b);
+        if (multipliedValues.isNotEmpty) discountManual = multipliedValues.reduce((a, b) => a + b);
         isLoading = false;
       });
     } else {
@@ -111,8 +111,8 @@ class _TableReportItemState extends State<TableReportItem> {
         taxAmount += itemTaxAmount;
         totalDiscount += itemTotalDiscount;
       }
-      grandTotal = totalAmount + taxAmount - discountManual!;
-      totalDiscount += discountManual!;
+      grandTotal = totalAmount + taxAmount - (discountManual ?? 0);
+      totalDiscount += discountManual ?? 0;
     }
 
     return isLoading

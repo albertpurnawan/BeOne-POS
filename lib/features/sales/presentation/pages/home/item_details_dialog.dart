@@ -158,9 +158,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                       Column(
                         children: [
                           const SizedBox(height: 30),
-                          const Divider(
-                            height: 0,
-                          ),
+                          const Divider(height: 0),
                           InkWell(
                             onTap: () => showDialog<EmployeeEntity>(
                               context: context,
@@ -257,9 +255,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          const Divider(
-                            height: 0,
-                          ),
+                          const Divider(height: 0),
                           const SizedBox(height: 20),
                           Row(
                             children: [

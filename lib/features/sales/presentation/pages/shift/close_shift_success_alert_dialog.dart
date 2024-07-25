@@ -543,7 +543,9 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-              onPressed: () => context.pop(true),
+              onPressed: () async {
+                context.pop(true);
+              },
               child: const Center(
                   child: Text(
                 "Done",

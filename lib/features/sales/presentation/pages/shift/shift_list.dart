@@ -71,6 +71,7 @@ class ActiveShift extends StatefulWidget {
 class _ActiveShiftState extends State<ActiveShift> {
   CashierBalanceTransactionModel? activeShift;
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -82,6 +83,7 @@ class _ActiveShiftState extends State<ActiveShift> {
     final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
     setState(() {
       activeShift = shift;
+      isLoading = false;
     });
   }
 
@@ -97,122 +99,127 @@ class _ActiveShiftState extends State<ActiveShift> {
   @override
   Widget build(BuildContext context) {
     final bool hasActiveShift = activeShift != null;
+    String? formattedOpenDate =
+        activeShift?.openDate != null ? Helpers.formatDateNoSeconds(activeShift!.openDate) : 'N/A';
 
-    if (!hasActiveShift) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 100.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: null,
-            borderRadius: BorderRadius.circular(5.0),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  "NO ACTIVE SHIFT",
-                  style: TextStyle(color: ProjectColors.mediumBlack, fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                CustomButton(
-                  color: const Color.fromARGB(255, 47, 143, 8),
-                  child: const Text("OPEN SHIFT"),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OpenShiftDialog(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    String formattedOpenDate = Helpers.formatDateNoSeconds(activeShift!.openDate);
     final cashier = prefs.getString('username');
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 75.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: null,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    formattedOpenDate,
-                    style: const TextStyle(color: ProjectColors.primary, fontSize: 24, fontWeight: FontWeight.bold),
+    return isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : !hasActiveShift
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: null,
+                    borderRadius: BorderRadius.circular(5.0),
                   ),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        cashier!,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                      const SizedBox(width: 50),
-                      activeShift!.approvalStatus == 0
-                          ? const Text(
-                              "OPEN",
-                              style: TextStyle(
-                                  fontSize: 20, color: Color.fromARGB(255, 47, 143, 8), fontWeight: FontWeight.w700),
-                            )
-                          : const Text(
-                              "CLOSED",
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                            ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ],
-              ),
-              activeShift!.approvalStatus == 0
-                  ? CustomButton(
-                      color: ProjectColors.primary,
-                      child: const Text("CLOSE SHIFT"),
-                      onTap: () async {
-                        final checkInv = await checkQueuedInvoice();
-                        if (checkInv == true) {
-                          await showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const ConfirmQueuedInvoiceDialog(),
-                          );
-                        } else {
-                          await showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => ConfirmToEndShift(activeShift!),
-                          );
-                        }
-                      },
-                    )
-                  : CustomButton(
-                      color: const Color.fromARGB(255, 47, 143, 8),
-                      child: const Text("OPEN SHIFT"),
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const OpenShiftDialog()));
-                      },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Text(
+                          "NO ACTIVE SHIFT",
+                          style: TextStyle(color: ProjectColors.mediumBlack, fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        CustomButton(
+                          color: const Color.fromARGB(255, 47, 143, 8),
+                          child: const Text("OPEN SHIFT"),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const OpenShiftDialog(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-            ],
-          ),
-        ),
-      ),
-    );
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 75.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: null,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              formattedOpenDate,
+                              style: const TextStyle(
+                                  color: ProjectColors.primary, fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 5),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  cashier!,
+                                  style: const TextStyle(fontSize: 20),
+                                ),
+                                const SizedBox(width: 50),
+                                activeShift!.approvalStatus == 0
+                                    ? const Text(
+                                        "OPEN",
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            color: Color.fromARGB(255, 47, 143, 8),
+                                            fontWeight: FontWeight.w700),
+                                      )
+                                    : const Text(
+                                        "CLOSED",
+                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                                      ),
+                                const SizedBox(width: 10),
+                              ],
+                            ),
+                          ],
+                        ),
+                        activeShift!.approvalStatus == 0
+                            ? CustomButton(
+                                color: ProjectColors.primary,
+                                child: const Text("CLOSE SHIFT"),
+                                onTap: () async {
+                                  final checkInv = await checkQueuedInvoice();
+                                  if (checkInv == true) {
+                                    await showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => const ConfirmQueuedInvoiceDialog(),
+                                    );
+                                  } else {
+                                    await showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => ConfirmToEndShift(activeShift!),
+                                    );
+                                  }
+                                },
+                              )
+                            : CustomButton(
+                                color: const Color.fromARGB(255, 47, 143, 8),
+                                child: const Text("OPEN SHIFT"),
+                                onTap: () {
+                                  Navigator.push(
+                                      context, MaterialPageRoute(builder: (context) => const OpenShiftDialog()));
+                                },
+                              ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
   }
 }
 
@@ -226,7 +233,9 @@ class AllShift extends StatefulWidget {
 class _AllShiftState extends State<AllShift> {
   List<CashierBalanceTransactionModel>? allShift;
   CashierBalanceTransactionModel? activeShift;
+  double? activeAmount;
   late SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  // bool isLoading = true;
 
   @override
   void initState() {
@@ -237,11 +246,39 @@ class _AllShiftState extends State<AllShift> {
   Future<void> fetchActiveShift() async {
     final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
     final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+    await updateActiveShift(shift!.openDate);
 
     setState(() {
       allShift = shifts;
       activeShift = shift;
+      // isLoading = false;
     });
+  }
+
+  Future<void> updateActiveShift(DateTime start) async {
+    final DateTime now = DateTime.now();
+    final offset = start.subtract(start.timeZoneOffset);
+
+    final end = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(offset, end);
+    if (fetched != null) {
+      double totalAmount = 0.0;
+      for (var item in fetched) {
+        totalAmount += item['totalamount'] as double;
+      }
+      setState(() {
+        activeAmount = totalAmount;
+      });
+    }
   }
 
   @override
@@ -312,7 +349,7 @@ class _AllShiftState extends State<AllShift> {
                                       await showDialog(
                                         context: context,
                                         barrierDismissible: false,
-                                        builder: (context) => ConfirmToEndShift(activeShift!),
+                                        builder: (context) => ConfirmToEndShift(shift),
                                       );
                                     } else {
                                       await showDialog(
@@ -341,7 +378,11 @@ class _AllShiftState extends State<AllShift> {
                                             Expanded(
                                               flex: 2,
                                               child: Text(
-                                                NumberFormat.decimalPattern().format(shift.cashValue.toInt()),
+                                                shift.approvalStatus == 0
+                                                    ? shift.docId == activeShift!.docId
+                                                        ? NumberFormat.decimalPattern().format(activeAmount!.toInt())
+                                                        : NumberFormat.decimalPattern().format(shift.closeValue.toInt())
+                                                    : NumberFormat.decimalPattern().format(shift.closeValue.toInt()),
                                                 style: const TextStyle(fontSize: 18),
                                                 textAlign: TextAlign.end,
                                               ),

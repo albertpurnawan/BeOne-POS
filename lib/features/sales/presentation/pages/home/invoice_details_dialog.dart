@@ -20,15 +20,16 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _noteController = TextEditingController();
   final FocusNode _noteFocusNode = FocusNode();
+  late final ReceiptEntity stateInvoice;
   String? salesSelected;
   String? tohemIdSelected;
 
   @override
   void initState() {
     super.initState();
-    final ReceiptEntity stateInvoice = context.read<ReceiptCubit>().state;
+    stateInvoice = context.read<ReceiptCubit>().state;
     _noteController.text = stateInvoice.remarks ?? "";
-    tohemIdSelected = stateInvoice.toinvTohemId;
+    tohemIdSelected = stateInvoice.salesTohemId;
     getEmployee(tohemIdSelected ?? "");
   }
 
@@ -119,9 +120,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                         child: Container(
                           alignment: Alignment.center,
                           child: Container(
-                            // width: double.infinity,
                             padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-
                             decoration: BoxDecoration(
                               color: ProjectColors.primary,
                               borderRadius: BorderRadius.circular(5),
@@ -156,9 +155,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                       Column(
                         children: [
                           const SizedBox(height: 30),
-                          const Divider(
-                            height: 0,
-                          ),
+                          const Divider(height: 0),
                           InkWell(
                             onTap: () => showDialog<EmployeeEntity>(
                               context: context,
@@ -169,7 +166,6 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                   salesSelected = selectedEmployee.empName;
                                   tohemIdSelected = selectedEmployee.docId;
                                 });
-                                // log("selectedEmployee - $selectedEmployee");
                               }
                             }),
                             child: Column(
@@ -220,9 +216,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                               ],
                             ),
                           ),
-                          const Divider(
-                            height: 0,
-                          ),
+                          const Divider(height: 0),
                           const SizedBox(height: 10),
                           const Row(
                             children: [
@@ -243,7 +237,6 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                           Padding(
                             padding: const EdgeInsets.fromLTRB(54, 10, 5, 10),
                             child: Container(
-                              // height: MediaQuery.of(context).size.height * 0.2,
                               decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
                               child: TextField(
                                 maxLines: 3,
@@ -259,9 +252,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          const Divider(
-                            height: 0,
-                          ),
+                          const Divider(height: 0),
                           const SizedBox(height: 20),
                           Row(
                             children: [

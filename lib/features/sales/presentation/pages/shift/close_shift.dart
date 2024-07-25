@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -103,6 +104,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String expectedCash = "0";
   String calculatedTotalCash = '0';
   String difference = "0";
+  bool checkLastShift = false;
   Map<String, dynamic>? denomination;
   UserEntity? closeShiftApproverUser;
   EmployeeEntity? closeShiftApproverEmployee;
@@ -126,6 +128,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     await updateActiveShift();
     await fetchOpenShiftApprover();
     await fetchCloseShiftApprover();
+    await checkLastShiftId();
   }
 
   Future<void> fetchCloseShiftApprover() async {
@@ -185,8 +188,21 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     });
   }
 
+  Future<void> checkLastShiftId() async {
+    final lastShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+    log("lastShift - $lastShift");
+    if (lastShift!.docId == activeShift!.docId) {
+      setState(() {
+        checkLastShift = true;
+      });
+    }
+  }
+
+  Future<void> backupDatabase() async {}
+
   Future<void> fetchInvoices() async {
-    final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(activeShift!.docId);
+    final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
+    log("transaction - $transaction");
     setState(() {
       transactions = transaction;
     });
@@ -227,7 +243,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       );
 
       final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
-
+      log("fetched - $fetched");
       for (final mop in fetched!) {
         if ((mop['topmtDesc'] != 'TUNAI')) {
           if ((mop['topmtDesc'] == 'VOUCHER')) {
@@ -743,11 +759,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                   if (isProceed != true) return;
 
                   await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
-
                   await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
-
-                  await prefs.setBool('isOpen', false);
-                  await prefs.setString('tcsr1Id', "");
                   await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
 
                   final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
@@ -766,10 +778,21 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                           Helpers.revertMoneyToDecimalFormat(expectedCash),
                       approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
                   await GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams);
-                  await GetIt.instance<LogoutUseCase>().call();
-                  if (!context.mounted) return;
-                  context.goNamed(RouteConstants.welcome);
-                  await Future.delayed(Durations.medium1);
+
+                  if (!checkLastShift) {
+                    if (!context.mounted) return;
+                    context.goNamed(RouteConstants.shifts);
+                  } else {
+                    await prefs.setBool('isOpen', false);
+                    await prefs.setString('tcsr1Id', "");
+                    await GetIt.instance<LogoutUseCase>().call();
+                    if (!context.mounted) return;
+                    await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
+                    if (!context.mounted) return;
+                    context.goNamed(RouteConstants.welcome);
+                  }
+
+                  await Future.delayed(Durations.extralong4);
                   await showDialog(
                       context: NavigationHelper.context!,
                       builder: (context) => CloseShiftSuccessAlertDialog(
@@ -777,6 +800,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                             printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
                           ));
                 } catch (e) {
+                  if (!context.mounted) return;
                   SnackBarHelper.presentFailSnackBar(context, e.toString());
                 }
               }),

@@ -3123,6 +3123,12 @@ class _FetchScreenState extends State<FetchScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text('Sync Data'),
+        leading: BackButton(
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        ),
       ),
       body: Column(
         children: [
@@ -3182,9 +3188,7 @@ class _FetchScreenState extends State<FetchScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     Stack(
                       alignment: Alignment.center,
                       children: [

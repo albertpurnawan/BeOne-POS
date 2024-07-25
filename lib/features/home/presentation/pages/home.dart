@@ -36,9 +36,19 @@ class _HomeScreenState extends State<HomeScreen> {
   late String timeOfDay;
   late String symbol;
   CashierBalanceTransactionModel? activeShift;
+  bool openShifts = false;
 
   Future<void> fetchActiveShift() async {
     activeShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+  }
+
+  Future<void> checkOpenShifts() async {
+    final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
+    final count = shifts.where((shift) => shift.approvalStatus == 0).length;
+
+    setState(() {
+      openShifts = count > 1;
+    });
   }
 
   Future<StoreMasterEntity?> getStoreMasterEntity() async {
@@ -61,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     fetchActiveShift();
+    checkOpenShifts();
     now = DateTime.now();
     morningEpoch = DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
     afternoonEpoch = DateTime(now.year, now.month, now.day, 11, 0, 0).millisecondsSinceEpoch;
@@ -162,6 +173,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     overlayColor:
                                         MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () async {
+                                  if (openShifts) {
+                                    await showDialog<bool>(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => ConfirmActiveShiftDialog(
+                                        currentShiftDocId: activeShift!.docId,
+                                        checkShifts: openShifts,
+                                      ),
+                                    );
+
+                                    return;
+                                  }
                                   try {
                                     final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
                                     await GetIt.instance<AppDatabase>().refreshItemsTable();
@@ -363,7 +386,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     overlayColor:
                                         MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                                 onPressed: () async {
-                                  // log(activeShift.toString());
                                   if (activeShift != null) {
                                     if (activeShift!.approvalStatus == 0) {
                                       await showDialog<bool>(
@@ -371,6 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         barrierDismissible: false,
                                         builder: (context) => ConfirmActiveShiftDialog(
                                           currentShiftDocId: activeShift!.docId,
+                                          checkShifts: openShifts,
                                         ),
                                       );
 

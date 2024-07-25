@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,16 +61,50 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+        ),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: const Text(
-            'Header Discount',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  // Handle Header Discount tap
+                  log('Header Discount tapped');
+                },
+                child: const Text(
+                  'Header Discount',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     // Show Promo Code dialog
+              //     showDialog(
+              //       context: context,
+              //       builder: (context) => const InputPromoCodeDialog(),
+              //     );
+              //   },
+              //   child: const Text(
+              //     'Promo Code',
+              //     style: TextStyle(
+              //       fontSize: 22,
+              //       fontWeight: FontWeight.w500,
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              // ),
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -126,9 +162,6 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
             ),
           ),
         ),
-
-        // contentPadding: const EdgeInsets.symmetric(
-        //     horizontal: 20, vertical: 5),
         actions: <Widget>[
           Row(
             children: [
