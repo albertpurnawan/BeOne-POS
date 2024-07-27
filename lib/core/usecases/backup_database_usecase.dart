@@ -5,7 +5,6 @@ import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/permission_handler.dart';
@@ -57,9 +56,9 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
       final path = p.join(dbPath, _databaseName);
 
       Directory backupFolder;
-      if (Platform.isWindows || Platform.isIOS) {
-        final backupDir = await getApplicationDocumentsDirectory();
-        backupFolder = Directory(p.join(backupDir.path, 'RubyPOS'));
+      if (Platform.isWindows) {
+        const backupDir = 'D:/RubyPOS';
+        backupFolder = Directory(backupDir);
         log("backupDir - $backupDir");
         log("backupFolder - $backupFolder");
       } else if (Platform.isAndroid) {

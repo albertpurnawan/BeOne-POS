@@ -35,200 +35,204 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
   @override
   Future<ReceiptModel?> createInvoiceHeaderAndDetail(ReceiptEntity receiptEntity) async {
-    final String generatedInvoiceHeaderDocId = _uuid.v4();
-    final Database db = await _appDatabase.getDB();
-    ReceiptModel? result;
+    try {
+      final String generatedInvoiceHeaderDocId = _uuid.v4();
+      final Database db = await _appDatabase.getDB();
+      ReceiptModel? result;
 
-    final prefs = GetIt.instance<SharedPreferences>();
-    final tcsr1IdPref = prefs.getString('tcsr1Id');
+      final prefs = GetIt.instance<SharedPreferences>();
+      final tcsr1IdPref = prefs.getString('tcsr1Id');
 
-    int countInv;
-    final now = DateTime.now();
-    final startDate = DateTime(now.year, now.month, now.day, 00, 00, 00, 000);
-    final endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+      int countInv;
+      final now = DateTime.now();
+      final startDate = DateTime(now.year, now.month, now.day, 00, 00, 00, 000);
+      final endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
 
-    final invoices = await _appDatabase.invoiceHeaderDao.readBetweenDate(startDate, endDate);
-    if (invoices != null) {
-      countInv = invoices.length;
-    } else {
-      countInv = 0;
-    }
-
-    if (receiptEntity.employeeEntity == null) throw "Cashier information not provided";
-    if (receiptEntity.customerEntity == null) throw "Customer information not provided";
-
-    await db.transaction((txn) async {
-      final POSParameterModel posParameterModel = (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
-      String? tohemId =
-          receiptEntity.customerEntity?.tohemId ?? (await _appDatabase.employeeDao.readByEmpCode("99", txn))?.docId;
-      if (tohemId == null) throw "Default employee not found";
-
-      final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
-        docId: generatedInvoiceHeaderDocId, // dao
-        createDate: null, // null kah? ini kan bosr punya
-        updateDate: null, // null kah? ini kan bosr punya
-        tostrId: posParameterModel.tostrId, // get di sini
-        docnum: receiptEntity.docNum, // generate
-        orderNo: countInv + 1, // generate
-        tocusId: receiptEntity.customerEntity?.docId,
-        tohemId: tohemId, // get di sini atau dari awal aja
-        transDateTime: null, // dao
-        timezone: Helpers.getTimezone(DateTime.now()),
-        remarks: receiptEntity.remarks,
-        subTotal: receiptEntity.subtotal,
-        discPrctg: receiptEntity.discPrctg ?? 0,
-        discAmount: (receiptEntity.discHeaderManual ?? 0) + (receiptEntity.discHeaderPromo ?? 0),
-        discountCard: 0,
-        coupon: "",
-        discountCoupun: 0,
-        taxPrctg: 0,
-        taxAmount: receiptEntity.taxAmount,
-        addCost: 0,
-        rounding: receiptEntity.rounding,
-        grandTotal: receiptEntity.grandTotal,
-        changed: receiptEntity.changed ?? 0,
-        totalPayment: receiptEntity.totalPayment!,
-        tocsrId: posParameterModel.tocsrId, // get di sini
-        docStatus: 0,
-        sync: 0,
-        syncCRM: 0,
-        toinvTohemId: receiptEntity.employeeEntity!.docId, // get di sini
-        refpos1: tcsr1IdPref, // get di sini
-        refpos2: '', //
-        tcsr1Id: tcsr1IdPref, // get di sini
-        discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
-        discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
-        syncToBos: '', // get di sini
-        paymentSuccess: '1', // get di sini
-        salesTohemId: receiptEntity.salesTohemId ?? receiptEntity.employeeEntity!.docId,
-      );
-      log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
-
-      await _appDatabase.invoiceHeaderDao.create(data: invoiceHeaderModel, txn: txn);
-
-      final List<InvoiceDetailModel> invoiceDetailModels = receiptEntity.receiptItems.asMap().entries.map((entry) {
-        final int index = entry.key;
-        final ReceiptItemEntity e = entry.value;
-        log("receiptItemEntity E - $e");
-        return InvoiceDetailModel(
-          docId: _uuid.v4(), // dao
-          createDate: null, // null
-          updateDate: null, // null
-          toinvId: generatedInvoiceHeaderDocId, // get lagi yg created?
-          lineNum: index + 1, // pakai index
-          docNum: receiptEntity.docNum, // generate
-          idNumber: (index + 1) * 10,
-          toitmId: e.itemEntity.toitmId,
-          quantity: e.quantity,
-          sellingPrice: e.sellingPrice,
-          discPrctg: e.discPrctg ?? 0,
-          discAmount: e.discAmount ?? 0,
-          totalAmount: e.totalAmount,
-          taxPrctg: e.itemEntity.taxRate,
-          promotionType: e.promos.isEmpty ? "" : e.promos.first.promoType.toString(), // kalau promo > 1?
-          promotionId: e.promos.isEmpty ? "" : e.promos.first.promoId.toString(), // kalau promo > 1?
-          remarks: e.remarks,
-          editTime: DateTime.now(), // ?
-          cogs: 0,
-          tovatId: e.itemEntity.tovatId, // get disini/dari sales page
-          promotionTingkat: null,
-          promoVoucherNo: null,
-          baseDocId: null,
-          baseLineDocId: null,
-          includeTax: e.itemEntity.includeTax, // ??
-          tovenId: e.itemEntity.tovenId, // belum ada
-          tbitmId: e.itemEntity.tbitmId,
-          discHeaderAmount: e.discHeaderAmount, //get disini
-          subtotalAfterDiscHeader: e.subtotalAfterDiscHeader, //get disini
-          tohemId: e.tohemId ?? "",
-        );
-      }).toList();
-
-      log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
-
-      await _appDatabase.invoiceDetailDao.bulkCreate(data: invoiceDetailModels, txn: txn);
-
-      log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
-      final List<PayMeansModel> payMeansModels = [];
-      for (final MopSelectionEntity mopSelectionEntity in receiptEntity.mopSelections) {
-        log("mopSelectionEntityIMPL - $mopSelectionEntity");
-        payMeansModels.add(PayMeansModel(
-          docId: _uuid.v4(),
-          createDate: null,
-          updateDate: null,
-          toinvId: generatedInvoiceHeaderDocId,
-          lineNum: 1,
-          tpmt3Id: mopSelectionEntity.tpmt3Id,
-          amount: mopSelectionEntity.payTypeCode == "1"
-              ? (mopSelectionEntity.amount ?? 0) - (receiptEntity.changed ?? 0)
-              : mopSelectionEntity.amount ?? 0,
-          tpmt2Id: mopSelectionEntity.tpmt2Id,
-          cardNo: mopSelectionEntity.cardNo,
-          cardHolder: mopSelectionEntity.cardHolder,
-          sisaVoucher: null,
-          rrn: mopSelectionEntity.rrn,
-        ));
+      final invoices = await _appDatabase.invoiceHeaderDao.readBetweenDate(startDate, endDate);
+      if (invoices != null) {
+        countInv = invoices.length;
+      } else {
+        countInv = 0;
       }
 
-      await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
-      log("payMeansModels - $payMeansModels");
+      if (receiptEntity.employeeEntity == null) throw "Cashier information not provided";
+      if (receiptEntity.customerEntity == null) throw "Customer information not provided";
 
-      List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
-      log("vouchers - $vouchers");
+      await db.transaction((txn) async {
+        final POSParameterModel posParameterModel = (await _appDatabase.posParameterDao.readAll(txn: txn)).first;
+        String? tohemId =
+            receiptEntity.customerEntity?.tohemId ?? (await _appDatabase.employeeDao.readByEmpCode("99", txn))?.docId;
+        if (tohemId == null) throw "Default employee not found";
 
-      for (final voucherSelection in vouchers) {
-        final PayMeansModel paymeansModel = PayMeansModel(
-          docId: _uuid.v4(),
-          createDate: null,
-          updateDate: null,
-          toinvId: generatedInvoiceHeaderDocId,
-          lineNum: 1,
-          tpmt3Id: voucherSelection.tpmt3Id,
-          amount: double.parse(voucherSelection.voucherAmount.toString()),
-          tpmt2Id: null,
-          cardNo: null,
-          cardHolder: null,
-          sisaVoucher: 0,
-          rrn: null,
+        final InvoiceHeaderModel invoiceHeaderModel = InvoiceHeaderModel(
+          docId: generatedInvoiceHeaderDocId, // dao
+          createDate: null, // null kah? ini kan bosr punya
+          updateDate: null, // null kah? ini kan bosr punya
+          tostrId: posParameterModel.tostrId, // get di sini
+          docnum: receiptEntity.docNum, // generate
+          orderNo: countInv + 1, // generate
+          tocusId: receiptEntity.customerEntity?.docId,
+          tohemId: tohemId, // get di sini atau dari awal aja
+          transDateTime: null, // dao
+          timezone: Helpers.getTimezone(DateTime.now()),
+          remarks: receiptEntity.remarks,
+          subTotal: receiptEntity.subtotal,
+          discPrctg: receiptEntity.discPrctg ?? 0,
+          discAmount: (receiptEntity.discHeaderManual ?? 0) + (receiptEntity.discHeaderPromo ?? 0),
+          discountCard: 0,
+          coupon: "",
+          discountCoupun: 0,
+          taxPrctg: 0,
+          taxAmount: receiptEntity.taxAmount,
+          addCost: 0,
+          rounding: receiptEntity.rounding,
+          grandTotal: receiptEntity.grandTotal,
+          changed: receiptEntity.changed ?? 0,
+          totalPayment: receiptEntity.totalPayment!,
+          tocsrId: posParameterModel.tocsrId, // get di sini
+          docStatus: 0,
+          sync: 0,
+          syncCRM: 0,
+          toinvTohemId: receiptEntity.employeeEntity!.docId, // get di sini
+          refpos1: tcsr1IdPref, // get di sini
+          refpos2: '', //
+          tcsr1Id: tcsr1IdPref, // get di sini
+          discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
+          discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
+          syncToBos: '', // get di sini
+          paymentSuccess: '1', // get di sini
+          salesTohemId: receiptEntity.salesTohemId ?? receiptEntity.employeeEntity!.docId,
         );
+        log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
-        await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
-        vouchers = vouchers.map((voucher) {
-          voucher.tinv2Id = paymeansModel.docId;
-          return voucher;
+        await _appDatabase.invoiceHeaderDao.create(data: invoiceHeaderModel, txn: txn);
+
+        final List<InvoiceDetailModel> invoiceDetailModels = receiptEntity.receiptItems.asMap().entries.map((entry) {
+          final int index = entry.key;
+          final ReceiptItemEntity e = entry.value;
+          log("receiptItemEntity E - $e");
+          return InvoiceDetailModel(
+            docId: _uuid.v4(), // dao
+            createDate: null, // null
+            updateDate: null, // null
+            toinvId: generatedInvoiceHeaderDocId, // get lagi yg created?
+            lineNum: index + 1, // pakai index
+            docNum: receiptEntity.docNum, // generate
+            idNumber: (index + 1) * 10,
+            toitmId: e.itemEntity.toitmId,
+            quantity: e.quantity,
+            sellingPrice: e.sellingPrice,
+            discPrctg: e.discPrctg ?? 0,
+            discAmount: e.discAmount ?? 0,
+            totalAmount: e.totalAmount,
+            taxPrctg: e.itemEntity.taxRate,
+            promotionType: e.promos.isEmpty ? "" : e.promos.first.promoType.toString(), // kalau promo > 1?
+            promotionId: e.promos.isEmpty ? "" : e.promos.first.promoId.toString(), // kalau promo > 1?
+            remarks: e.remarks,
+            editTime: DateTime.now(), // ?
+            cogs: 0,
+            tovatId: e.itemEntity.tovatId, // get disini/dari sales page
+            promotionTingkat: null,
+            promoVoucherNo: null,
+            baseDocId: null,
+            baseLineDocId: null,
+            includeTax: e.itemEntity.includeTax, // ??
+            tovenId: e.itemEntity.tovenId, // belum ada
+            tbitmId: e.itemEntity.tbitmId,
+            discHeaderAmount: e.discHeaderAmount, //get disini
+            subtotalAfterDiscHeader: e.subtotalAfterDiscHeader, //get disini
+            tohemId: e.tohemId ?? "",
+          );
         }).toList();
-      }
 
-      final List<VouchersSelectionModel> vouchersModel = vouchers.asMap().entries.map((entry) {
-        final VouchersSelectionEntity e = entry.value;
-        return VouchersSelectionModel(
-          docId: e.docId,
-          tpmt3Id: e.tpmt3Id,
-          tovcrId: e.tovcrId,
-          voucherAlias: e.voucherAlias,
-          voucherAmount: e.voucherAmount,
-          validFrom: e.validFrom,
-          validTo: e.validTo,
-          serialNo: e.serialNo,
-          voucherStatus: e.voucherStatus,
-          statusActive: e.statusActive,
-          minPurchase: e.minPurchase,
-          redeemDate: e.redeemDate,
-          tinv2Id: e.tinv2Id,
-          type: e.type,
-        );
-      }).toList();
+        log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
 
-      await Future.forEach(vouchersModel, (voucher) async {
-        await _appDatabase.vouchersSelectionDao.update(
-          docId: voucher.docId,
-          data: voucher,
-          txn: txn,
-        );
+        await _appDatabase.invoiceDetailDao.bulkCreate(data: invoiceDetailModels, txn: txn);
+
+        log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
+        final List<PayMeansModel> payMeansModels = [];
+        for (final MopSelectionEntity mopSelectionEntity in receiptEntity.mopSelections) {
+          log("mopSelectionEntityIMPL - $mopSelectionEntity");
+          payMeansModels.add(PayMeansModel(
+            docId: _uuid.v4(),
+            createDate: null,
+            updateDate: null,
+            toinvId: generatedInvoiceHeaderDocId,
+            lineNum: 1,
+            tpmt3Id: mopSelectionEntity.tpmt3Id,
+            amount: mopSelectionEntity.payTypeCode == "1"
+                ? (mopSelectionEntity.amount ?? 0) - (receiptEntity.changed ?? 0)
+                : mopSelectionEntity.amount ?? 0,
+            tpmt2Id: mopSelectionEntity.tpmt2Id,
+            cardNo: mopSelectionEntity.cardNo,
+            cardHolder: mopSelectionEntity.cardHolder,
+            sisaVoucher: null,
+            rrn: mopSelectionEntity.rrn,
+          ));
+        }
+
+        await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
+        log("payMeansModels - $payMeansModels");
+
+        List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
+        log("vouchers - $vouchers");
+
+        for (final voucherSelection in vouchers) {
+          final PayMeansModel paymeansModel = PayMeansModel(
+            docId: _uuid.v4(),
+            createDate: null,
+            updateDate: null,
+            toinvId: generatedInvoiceHeaderDocId,
+            lineNum: 1,
+            tpmt3Id: voucherSelection.tpmt3Id,
+            amount: double.parse(voucherSelection.voucherAmount.toString()),
+            tpmt2Id: null,
+            cardNo: null,
+            cardHolder: null,
+            sisaVoucher: 0,
+            rrn: null,
+          );
+
+          await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
+          vouchers = vouchers.map((voucher) {
+            voucher.tinv2Id = paymeansModel.docId;
+            return voucher;
+          }).toList();
+        }
+
+        final List<VouchersSelectionModel> vouchersModel = vouchers.asMap().entries.map((entry) {
+          final VouchersSelectionEntity e = entry.value;
+          return VouchersSelectionModel(
+            docId: e.docId,
+            tpmt3Id: e.tpmt3Id,
+            tovcrId: e.tovcrId,
+            voucherAlias: e.voucherAlias,
+            voucherAmount: e.voucherAmount,
+            validFrom: e.validFrom,
+            validTo: e.validTo,
+            serialNo: e.serialNo,
+            voucherStatus: e.voucherStatus,
+            statusActive: e.statusActive,
+            minPurchase: e.minPurchase,
+            redeemDate: e.redeemDate,
+            tinv2Id: e.tinv2Id,
+            type: e.type,
+          );
+        }).toList();
+
+        await Future.forEach(vouchersModel, (voucher) async {
+          await _appDatabase.vouchersSelectionDao.update(
+            docId: voucher.docId,
+            data: voucher,
+            txn: txn,
+          );
+        });
       });
-    });
 
-    return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId, null);
+      return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId, null);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override

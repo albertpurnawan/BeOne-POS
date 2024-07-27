@@ -69,7 +69,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       log("Restoring from backup file: ${mostRecentBackup.path}");
 
       final bytes = File(mostRecentBackup.path).readAsBytesSync();
-      final archive = ZipDecoder().decodeBytes(bytes);
+      final archive = ZipDecoder().decodeBytes(bytes, password: "BeOne\$\$123");
 
       for (final file in archive) {
         final filename = file.name;
