@@ -413,40 +413,44 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   Future<void> charge() async {
-    ReceiptEntity? newState;
-    if (state.totalVoucher! >= state.grandTotal && state.grandTotal != 0) {
-      newState = state.copyWith(
-        mopSelections: [],
-        changed: 0,
-        totalNonVoucher: 0,
-      );
-    } else {
-      newState = state.copyWith(changed: state.totalPayment! - state.grandTotal);
-    }
-
-    // dev.log("ON CHARGE - $newState");
-    final ReceiptEntity? createdReceipt = await _saveReceiptUseCase.call(params: newState);
-
-    if (createdReceipt != null) {
-      if (state.toinvId != null) {
-        await _deleteQueuedReceiptUseCase.call(params: state.toinvId);
-      }
-      if (newState.queuedInvoiceHeaderDocId != null) {
-        await GetIt.instance<AppDatabase>()
-            .queuedInvoiceHeaderDao
-            .deleteByDocId(newState.queuedInvoiceHeaderDocId!, null);
-      }
-      emit(createdReceipt);
-      // dev.log("createdReceipt onCharge $createdReceipt");
-      try {
-        await _printReceiptUsecase.call(
-            params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, isDraft: false));
-        await _openCashDrawerUseCase.call();
-      } catch (e) {
-        dev.log(e.toString());
+    try {
+      ReceiptEntity? newState;
+      if (state.totalVoucher! >= state.grandTotal && state.grandTotal != 0) {
+        newState = state.copyWith(
+          mopSelections: [],
+          changed: 0,
+          totalNonVoucher: 0,
+        );
+      } else {
+        newState = state.copyWith(changed: state.totalPayment! - state.grandTotal);
       }
 
-      await GetIt.instance<InvoiceApi>().sendInvoice();
+      // dev.log("ON CHARGE - $newState");
+      final ReceiptEntity? createdReceipt = await _saveReceiptUseCase.call(params: newState);
+
+      if (createdReceipt != null) {
+        if (state.toinvId != null) {
+          await _deleteQueuedReceiptUseCase.call(params: state.toinvId);
+        }
+        if (newState.queuedInvoiceHeaderDocId != null) {
+          await GetIt.instance<AppDatabase>()
+              .queuedInvoiceHeaderDao
+              .deleteByDocId(newState.queuedInvoiceHeaderDocId!, null);
+        }
+        emit(createdReceipt);
+        // dev.log("createdReceipt onCharge $createdReceipt");
+        try {
+          await _printReceiptUsecase.call(
+              params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, isDraft: false));
+          await _openCashDrawerUseCase.call();
+        } catch (e) {
+          dev.log(e.toString());
+        }
+
+        await GetIt.instance<InvoiceApi>().sendInvoice();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -224,7 +227,7 @@ class InvoiceApi {
         "invoice_payment": invoicePayments
       };
 
-      // log("Data2Send: ${jsonEncode(dataToSend)}");
+      log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         "$url/tenant-invoice/",

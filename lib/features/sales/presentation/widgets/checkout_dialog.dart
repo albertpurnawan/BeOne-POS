@@ -14,6 +14,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/core/widgets/progress_indicator.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -57,6 +58,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharged = false;
   bool isPaymentSufficient = true;
   bool isLoadingQRIS = false;
+  bool isCharging = false;
   bool isMultiMOPs = false;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
@@ -103,6 +105,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
   Future<void> charge() async {
     try {
+      setState(() {
+        isCharging = true;
+      });
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
 
       // Validate total payment must be greater than grand total
@@ -191,15 +196,19 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
         showQRISDialog(context, transactionQris, accessToken);
       } else {
-        context.read<ReceiptCubit>().charge();
-        Future.delayed(const Duration(milliseconds: 600), () {
+        await context.read<ReceiptCubit>().charge();
+        await Future.delayed(const Duration(milliseconds: 200), () {
           setState(() {
             isCharged = true;
           });
         });
       }
-    } catch (e, s) {
-      debugPrintStack(stackTrace: s);
+      setState(() {
+        isCharging = false;
+      });
+    } catch (e) {
+      SnackBarHelper.presentFailSnackBar(context, e.toString());
+      return;
     }
   }
 
@@ -448,9 +457,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         contentPadding: const EdgeInsets.all(0),
         content: isCharged
             ? const _CheckoutSuccessDialogContent()
-            : CheckoutDialogContent(
-                isMultiMOPs: isMultiMOPs,
-              ),
+            : isCharging
+                ? SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: progressDialog,
+                  )
+                : CheckoutDialogContent(
+                    isMultiMOPs: isMultiMOPs,
+                  ),
         actions: isCharged
             ? [
                 Column(
@@ -553,18 +567,20 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                               side: const BorderSide(color: ProjectColors.primary))),
                           backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                      onPressed: () async {
-                        if (context.read<ReceiptCubit>().state.vouchers.isNotEmpty) {
-                          final bool? isProceed = await showDialog<bool>(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const ConfirmResetVouchersDialog(),
-                          );
-                          if (isProceed == null) return;
-                          if (!isProceed) return;
-                        }
-                        context.pop(false);
-                      },
+                      onPressed: isCharging
+                          ? null
+                          : () async {
+                              if (context.read<ReceiptCubit>().state.vouchers.isNotEmpty) {
+                                final bool? isProceed = await showDialog<bool>(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const ConfirmResetVouchersDialog(),
+                                );
+                                if (isProceed == null) return;
+                                if (!isProceed) return;
+                              }
+                              context.pop(false);
+                            },
                       child: Center(
                         child: RichText(
                           text: const TextSpan(
