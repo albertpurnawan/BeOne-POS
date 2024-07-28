@@ -155,13 +155,13 @@ class InvoiceApi {
             .toIso8601String(),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
-        "subtotal": (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0)).round(),
+        "subtotal": (invHead[0].subTotal - (invHead[0].discHeaderPromo ?? 0)).round(),
         "discprctg": invHead[0].subTotal == 0
             ? 0
             : 100 *
-                ((invHead[0].discHeaderManual ?? 0) /
-                    (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0))),
-        "discamount": invHead[0].discHeaderManual,
+                ((invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0)) /
+                    (invHead[0].subTotal - (invHead[0].discHeaderPromo ?? 0))),
+        "discamount": invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0),
         "discountcard": invHead[0].discountCard,
         "coupon": invHead[0].coupon,
         "discountcoupon": invHead[0].discountCoupun,
@@ -189,6 +189,7 @@ class InvoiceApi {
             "totalamount":
                 ((item['quantity'] * item['sellingprice'] * (100 / (100 + item['taxprctg']))) - item['discamount'])
                     .round(),
+            // item['totalamount'].round(),
             "taxprctg": item['taxprctg'],
             "promotiontype": item['promotiontype'],
             "promotionid": item['promotionid'],
@@ -221,10 +222,13 @@ class InvoiceApi {
             "qtyconv": item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item['tohemId'] ?? ""
+            "tohem_id": item['tohemId'] ?? "",
+            "promotion": [],
           };
         }).toList(),
-        "invoice_payment": invoicePayments
+        "invoice_payment": invoicePayments,
+        "promotion": [],
+        "approval": [],
       };
 
       log("Data2Send: ${jsonEncode(dataToSend)}");
@@ -428,7 +432,7 @@ class InvoiceApi {
             : 100 *
                 ((invHead.discHeaderManual ?? 0) /
                     (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0))),
-        "discamount": invHead.discHeaderManual,
+        "discamount": invHead.discAmount - (invHead.discHeaderPromo ?? 0),
         "discountcard": invHead.discountCard,
         "coupon": invHead.coupon,
         "discountcoupon": invHead.discountCoupun,

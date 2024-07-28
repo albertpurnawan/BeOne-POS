@@ -78,7 +78,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           remarks: receiptEntity.remarks,
           subTotal: receiptEntity.subtotal,
           discPrctg: receiptEntity.discPrctg ?? 0,
-          discAmount: (receiptEntity.discHeaderManual ?? 0) + (receiptEntity.discHeaderPromo ?? 0),
+          discAmount: receiptEntity.discAmount ?? 0,
           discountCard: 0,
           coupon: "",
           discountCoupun: 0,

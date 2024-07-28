@@ -2124,8 +2124,7 @@ class _SalesPageState extends State<SalesPage> {
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(
-                                    (state.subtotal - (state.discAmount ?? 0) + (state.discHeaderManual ?? 0)).round()),
+                                Helpers.parseMoney((state.subtotal - (state.discAmount ?? 0)).round()),
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],

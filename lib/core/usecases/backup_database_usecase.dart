@@ -57,7 +57,7 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
 
       Directory backupFolder;
       if (Platform.isWindows) {
-        const backupDir = 'D:/RubyPOS';
+        const backupDir = 'C:\\RubyPOS';
         backupFolder = Directory(backupDir);
         log("backupDir - $backupDir");
         log("backupFolder - $backupFolder");

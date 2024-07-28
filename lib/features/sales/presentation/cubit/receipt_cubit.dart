@@ -446,8 +446,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         } catch (e) {
           dev.log(e.toString());
         }
-
-        await GetIt.instance<InvoiceApi>().sendInvoice();
+        try {
+          await GetIt.instance<InvoiceApi>().sendInvoice();
+        } catch (e) {
+          return;
+        }
       }
     } catch (e) {
       rethrow;
@@ -513,17 +516,27 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> updateTotalAmountFromDiscount(double discValue) async {
     try {
-      if (discValue > state.subtotal + (state.discAmount ?? 0)) {
+      if (discValue > state.grandTotal + (state.discHeaderManual ?? 0)) {
         throw "Discount amount invalid";
       }
 
-      final ReceiptEntity newState = state.copyWith(
+      ReceiptEntity preparedReceipt = state;
+
+      if ((state.discHeaderManual ?? 0) > 0) {
+        preparedReceipt = await _recalculateReceiptUseCase.call(
+            params: state.copyWith(
+          discHeaderManual: 0,
+          discAmount: (state.discHeaderPromo ?? 0),
+        ));
+      }
+
+      final ReceiptEntity newState = preparedReceipt.copyWith(
         discHeaderManual: discValue,
-        discAmount: discValue + (state.discHeaderPromo ?? 0),
+        // discAmount: discValue + (state.discHeaderPromo ?? 0),
       );
 
       ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
-
+      updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
       // dev.log("Result updateTotalAmountFromDiscount - $updatedReceipt");
 
       emit(updatedReceipt.copyWith(
@@ -654,17 +667,18 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         }
       }
 
-      // dev.log("Process after checkout $newReceipt");
+      dev.log("Process after checkout $newReceipt");
 
-      if (discHeaderManual > 0 && (newReceipt.subtotal - (newReceipt.discAmount ?? 0)) > discHeaderManual) {
+      if (discHeaderManual > 0 && newReceipt.grandTotal > discHeaderManual) {
         newReceipt = await _recalculateTaxUseCase.call(
             params: newReceipt.copyWith(
-                discHeaderManual: discHeaderManual,
-                discAmount: discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
-                discPrctg: (100 * (discHeaderManual + (newReceipt.discHeaderPromo ?? 0))) / newReceipt.subtotal));
+          discHeaderManual: discHeaderManual,
+          // discAmount: discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
+          // discPrctg: (100 * (discHeaderManual + (newReceipt.discHeaderPromo ?? 0))) / newReceipt.subtotal,
+        ));
       }
 
-      // dev.log("Process reapply discount header $newReceipt");
+      dev.log("Process reapply discount header $newReceipt");
 
       newReceipt = await _applyRoundingUseCase.call(params: newReceipt);
 

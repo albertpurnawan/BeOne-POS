@@ -33,6 +33,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
@@ -281,6 +282,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && node.hasPrimaryFocus) {
           node.nextFocus();
           return KeyEventResult.handled;
+        } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
+          showDialog(context: context, barrierDismissible: false, builder: (context) => const InputDiscountManual());
         } else if (event.physicalKey == PhysicalKeyboardKey.f8 && !isCharged) {
           showAppliedPromotions();
           return KeyEventResult.handled;
@@ -333,6 +336,56 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                               ),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                             ),
+                            onPressed: () async => await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => const InputDiscountManual()),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.cut,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(
+                                  width: 6,
+                                ),
+                                RichText(
+                                  text: const TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: "Header\nDisc.",
+                                        style: TextStyle(fontWeight: FontWeight.w600),
+                                      ),
+                                      TextSpan(
+                                        text: " (F7)",
+                                        style: TextStyle(fontWeight: FontWeight.w300),
+                                      ),
+                                    ],
+                                    style: TextStyle(height: 1, fontSize: 12),
+                                  ),
+                                  overflow: TextOverflow.clip,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          OutlinedButton(
+                            focusNode: FocusNode(skipTraversal: true),
+                            style: OutlinedButton.styleFrom(
+                              elevation: 5,
+                              shadowColor: Colors.black87,
+                              backgroundColor: ProjectColors.primary,
+                              padding: const EdgeInsets.all(10),
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            ),
                             onPressed: () async => await showAppliedPromotions(),
                             child: Row(
                               children: [
@@ -348,7 +401,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   text: const TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: "Applied Promotions",
+                                        text: "Applied\nPromos",
                                         style: TextStyle(fontWeight: FontWeight.w600),
                                       ),
                                       TextSpan(
@@ -356,7 +409,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                         style: TextStyle(fontWeight: FontWeight.w300),
                                       ),
                                     ],
-                                    style: TextStyle(height: 1),
+                                    style: TextStyle(height: 1, fontSize: 12),
                                   ),
                                   overflow: TextOverflow.clip,
                                 ),
@@ -396,7 +449,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                         text: const TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: "Print Draft Bill",
+                                              text: "Print\nDraft",
                                               style: TextStyle(fontWeight: FontWeight.w600),
                                             ),
                                             TextSpan(
@@ -404,7 +457,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                               style: TextStyle(fontWeight: FontWeight.w300),
                                             ),
                                           ],
-                                          style: TextStyle(height: 1),
+                                          style: TextStyle(height: 1, fontSize: 12),
                                         ),
                                         overflow: TextOverflow.clip,
                                       ),
@@ -441,7 +494,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                       style: TextStyle(fontWeight: FontWeight.w300),
                                     ),
                                   ],
-                                  style: const TextStyle(height: 1),
+                                  style: const TextStyle(height: 1, fontSize: 12),
                                 ),
                                 overflow: TextOverflow.clip,
                               ),
@@ -1014,7 +1067,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       height: 5,
                                     ),
                                     Text(
-                                      "$currencyName${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.toInt())}",
+                                      "$currencyName${Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal.round())}",
                                       style: const TextStyle(
                                         fontSize: 30,
                                         fontWeight: FontWeight.w700,

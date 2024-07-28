@@ -41,7 +41,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
         if (value.physicalKey == PhysicalKeyboardKey.enter) {
           double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
           final ReceiptEntity state = context.read<ReceiptCubit>().state;
-          if ((input > state.subtotal - (state.discAmount ?? 0)) || input <= 0) {
+          if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input <= 0) {
             context.pop();
             ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
             return KeyEventResult.handled;
@@ -207,7 +207,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                 onPressed: () {
                   double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
                   final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                  if (input > state.subtotal - (state.discAmount ?? 0)) {
+                  if (input > state.grandTotal - (state.discHeaderManual ?? 0)) {
                     context.pop();
                     return ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
                   }
