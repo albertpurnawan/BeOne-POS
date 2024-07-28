@@ -7,6 +7,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
+import 'package:pos_fe/features/sales/data/models/invoice_applied_promo.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
@@ -112,12 +113,12 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           final ReceiptItemEntity e = entry.value;
           log("receiptItemEntity E - $e");
           return InvoiceDetailModel(
-            docId: _uuid.v4(), // dao
-            createDate: null, // null
-            updateDate: null, // null
-            toinvId: generatedInvoiceHeaderDocId, // get lagi yg created?
-            lineNum: index + 1, // pakai index
-            docNum: receiptEntity.docNum, // generate
+            docId: _uuid.v4(), // save the created uuid somewhere ?
+            createDate: null,
+            updateDate: null,
+            toinvId: generatedInvoiceHeaderDocId,
+            lineNum: index + 1,
+            docNum: receiptEntity.docNum,
             idNumber: (index + 1) * 10,
             toitmId: e.itemEntity.toitmId,
             quantity: e.quantity,
@@ -126,30 +127,29 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             discAmount: e.discAmount ?? 0,
             totalAmount: e.totalAmount,
             taxPrctg: e.itemEntity.taxRate,
-            promotionType: e.promos.isEmpty ? "" : e.promos.first.promoType.toString(), // kalau promo > 1?
-            promotionId: e.promos.isEmpty ? "" : e.promos.first.promoId.toString(), // kalau promo > 1?
+            promotionType: e.promos.isEmpty ? "" : e.promos.first.promoType.toString(),
+            promotionId: e.promos.isEmpty ? "" : e.promos.first.promoId.toString(),
             remarks: e.remarks,
-            editTime: DateTime.now(), // ?
+            editTime: DateTime.now(),
             cogs: 0,
-            tovatId: e.itemEntity.tovatId, // get disini/dari sales page
+            tovatId: e.itemEntity.tovatId,
             promotionTingkat: null,
             promoVoucherNo: null,
             baseDocId: null,
             baseLineDocId: null,
-            includeTax: e.itemEntity.includeTax, // ??
-            tovenId: e.itemEntity.tovenId, // belum ada
+            includeTax: e.itemEntity.includeTax,
+            tovenId: e.itemEntity.tovenId,
             tbitmId: e.itemEntity.tbitmId,
-            discHeaderAmount: e.discHeaderAmount, //get disini
-            subtotalAfterDiscHeader: e.subtotalAfterDiscHeader, //get disini
+            discHeaderAmount: e.discHeaderAmount,
+            subtotalAfterDiscHeader: e.subtotalAfterDiscHeader,
             tohemId: e.tohemId ?? "",
           );
         }).toList();
 
         log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
-
         await _appDatabase.invoiceDetailDao.bulkCreate(data: invoiceDetailModels, txn: txn);
 
-        log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
+        // log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
         final List<PayMeansModel> payMeansModels = [];
         for (final MopSelectionEntity mopSelectionEntity in receiptEntity.mopSelections) {
           log("mopSelectionEntityIMPL - $mopSelectionEntity");
@@ -172,10 +172,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         }
 
         await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
-        log("payMeansModels - $payMeansModels");
+        // log("payMeansModels - $payMeansModels");
 
         List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
-        log("vouchers - $vouchers");
+        // log("vouchers - $vouchers");
 
         for (final voucherSelection in vouchers) {
           final PayMeansModel paymeansModel = PayMeansModel(
@@ -227,10 +227,37 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             txn: txn,
           );
         });
+
+        final Map<int, String> indexToDocIdMap = {
+          for (var e in invoiceDetailModels.asMap().entries) e.key: e.value.docId
+        };
+        log("indexToDocIdMap - $indexToDocIdMap");
+        final List<InvoiceAppliedPromoModel> invoiceAppliedPromoModels =
+            receiptEntity.receiptItems.asMap().entries.expand((entry) {
+          final int index = entry.key;
+          final ReceiptItemEntity receiptItem = entry.value;
+          final String invoiceDetailDocId = indexToDocIdMap[index]!;
+          return receiptItem.promos.map((promo) {
+            return InvoiceAppliedPromoModel(
+              docId: _uuid.v4(),
+              createDate: promo.date,
+              updateDate: null,
+              toinvDocId: generatedInvoiceHeaderDocId,
+              tinv1DocId: invoiceDetailDocId,
+              promotionType: promo.promoType.toString(),
+              promotionDocId: promo.docId,
+              amount: promo.discAmount ?? 0.0,
+            );
+          });
+        }).toList();
+
+        log("invoiceAppliedPromoModels 1 - $invoiceAppliedPromoModels");
+        await _appDatabase.invoiceAppliedPromoDao.bulkCreate(data: invoiceAppliedPromoModels, txn: txn);
       });
 
       return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId, null);
     } catch (e) {
+      log("e - $e");
       rethrow;
     }
   }

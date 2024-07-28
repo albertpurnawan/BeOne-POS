@@ -127,8 +127,7 @@ class InvoiceDetailEntity {
       tovenId: tovenId ?? this.tovenId,
       tbitmId: tbitmId ?? this.tbitmId,
       discHeaderAmount: discHeaderAmount ?? this.discHeaderAmount,
-      subtotalAfterDiscHeader:
-          subtotalAfterDiscHeader ?? this.subtotalAfterDiscHeader,
+      subtotalAfterDiscHeader: subtotalAfterDiscHeader ?? this.subtotalAfterDiscHeader,
       tohemId: tohemId ?? this.tohemId,
     );
   }
@@ -171,12 +170,8 @@ class InvoiceDetailEntity {
   factory InvoiceDetailEntity.fromMap(Map<String, dynamic> map) {
     return InvoiceDetailEntity(
       docId: map['docId'] as String,
-      createDate: map['createDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
-          : null,
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      createDate: map['createDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int) : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
       lineNum: map['lineNum'] as int,
       docNum: map['docNum'] as String,
@@ -194,24 +189,15 @@ class InvoiceDetailEntity {
       editTime: DateTime.fromMillisecondsSinceEpoch(map['editTime'] as int),
       cogs: map['cogs'] as double,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      promotionTingkat: map['promotionTingkat'] != null
-          ? map['promotionTingkat'] as String
-          : null,
-      promoVoucherNo: map['promoVoucherNo'] != null
-          ? map['promoVoucherNo'] as String
-          : null,
+      promotionTingkat: map['promotionTingkat'] != null ? map['promotionTingkat'] as String : null,
+      promoVoucherNo: map['promoVoucherNo'] != null ? map['promoVoucherNo'] as String : null,
       baseDocId: map['baseDocId'] != null ? map['baseDocId'] as String : null,
-      baseLineDocId:
-          map['baseLineDocId'] != null ? map['baseLineDocId'] as String : null,
+      baseLineDocId: map['baseLineDocId'] != null ? map['baseLineDocId'] as String : null,
       includeTax: map['includeTax'] as int,
       tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
-      discHeaderAmount: map['discHeaderAmount'] != null
-          ? map['discHeaderAmount'] as double
-          : null,
-      subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null
-          ? map['subtotalAfterDiscHeader'] as double
-          : null,
+      discHeaderAmount: map['discHeaderAmount'] != null ? map['discHeaderAmount'] as double : null,
+      subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null ? map['subtotalAfterDiscHeader'] as double : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
     );
   }
