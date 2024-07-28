@@ -263,447 +263,465 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return FocusScope(
-      // skipTraversal: true,
-      onKeyEvent: (node, event) {
-        if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+    return Builder(builder: (childContext) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: FocusScope(
+          // skipTraversal: true,
+          onKeyEvent: (node, event) {
+            if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
-        if (event.physicalKey == PhysicalKeyboardKey.f12 && !isCharged) {
-          charge();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.f12 && isCharged) {
-          isCharged = false;
-          Navigator.of(context).pop();
-          context.read<ReceiptCubit>().resetReceipt();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.escape && !isCharged) {
-          context.pop();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && node.hasPrimaryFocus) {
-          node.nextFocus();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
-          showDialog(context: context, barrierDismissible: false, builder: (context) => const InputDiscountManual());
-        } else if (event.physicalKey == PhysicalKeyboardKey.f8 && !isCharged) {
-          showAppliedPromotions();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.f9 && !isCharged) {
-          printDraftBill();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.f10 && !isCharged) {
-          toggleMultiMOPs();
-          return KeyEventResult.handled;
-        }
+            if (event.physicalKey == PhysicalKeyboardKey.f12 && !isCharged) {
+              charge();
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f12 && isCharged) {
+              isCharged = false;
+              Navigator.of(context).pop();
+              context.read<ReceiptCubit>().resetReceipt();
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.escape && !isCharged) {
+              context.pop();
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && node.hasPrimaryFocus) {
+              node.nextFocus();
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged) {
+              showDialog(context: context, barrierDismissible: false, builder: (context) => const InputDiscountManual())
+                  .then((value) {
+                if (value != null) {
+                  SnackBarHelper.presentSuccessSnackBar(
+                      childContext, "Header discount applied: ${Helpers.parseMoney(value)}");
+                }
+              });
+            } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
+              showAppliedPromotions();
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f8 && !isCharged) {
+              printDraftBill();
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f9 && !isCharged) {
+              toggleMultiMOPs();
+              return KeyEventResult.handled;
+            }
 
-        return KeyEventResult.ignored;
-      },
-      node: _focusScopeNode,
-      autofocus: true,
-      child: AlertDialog(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-        title: ExcludeFocusTraversal(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: ProjectColors.primary,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-            ),
-            padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Checkout',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            return KeyEventResult.ignored;
+          },
+          node: _focusScopeNode,
+          autofocus: true,
+          child: AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            title: ExcludeFocusTraversal(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: ProjectColors.primary,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                isCharged
-                    ? const SizedBox.shrink()
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          OutlinedButton(
-                            focusNode: FocusNode(skipTraversal: true),
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(10),
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(
-                                color: Colors.white,
-                                width: 1.5,
-                              ),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            ),
-                            onPressed: () async => await showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => const InputDiscountManual()),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.cut,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 6,
-                                ),
-                                RichText(
-                                  text: const TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Header\nDisc.",
-                                        style: TextStyle(fontWeight: FontWeight.w600),
-                                      ),
-                                      TextSpan(
-                                        text: " (F7)",
-                                        style: TextStyle(fontWeight: FontWeight.w300),
-                                      ),
-                                    ],
-                                    style: TextStyle(height: 1, fontSize: 12),
-                                  ),
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          OutlinedButton(
-                            focusNode: FocusNode(skipTraversal: true),
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(10),
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(
-                                color: Colors.white,
-                                width: 1.5,
-                              ),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            ),
-                            onPressed: () async => await showAppliedPromotions(),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.discount_outlined,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 6,
-                                ),
-                                RichText(
-                                  text: const TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Applied\nPromos",
-                                        style: TextStyle(fontWeight: FontWeight.w600),
-                                      ),
-                                      TextSpan(
-                                        text: " (F8)",
-                                        style: TextStyle(fontWeight: FontWeight.w300),
-                                      ),
-                                    ],
-                                    style: TextStyle(height: 1, fontSize: 12),
-                                  ),
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(10),
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(
-                                color: Colors.white,
-                                width: 1.5,
-                              ),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            ),
-                            onPressed: () async => await printDraftBill(),
-                            child: isPrinting
-                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator.adaptive())
-                                : Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.print_outlined,
-                                        size: 18,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(
-                                        width: 6,
-                                      ),
-                                      RichText(
-                                        text: const TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: "Print\nDraft",
-                                              style: TextStyle(fontWeight: FontWeight.w600),
-                                            ),
-                                            TextSpan(
-                                              text: " (F9)",
-                                              style: TextStyle(fontWeight: FontWeight.w300),
-                                            ),
-                                          ],
-                                          style: TextStyle(height: 1, fontSize: 12),
-                                        ),
-                                        overflow: TextOverflow.clip,
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                          const SizedBox(
-                            width: 30,
-                          ),
-                          Row(
+                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Checkout',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    isCharged
+                        ? const SizedBox.shrink()
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Switch(
-                                  thumbIcon: MaterialStatePropertyAll(Icon(
-                                    isMultiMOPs ? Icons.check : Icons.close,
-                                    color: isMultiMOPs ? ProjectColors.green : ProjectColors.lightBlack,
-                                  )),
-                                  trackOutlineWidth: const MaterialStatePropertyAll(0),
-                                  value: isMultiMOPs,
-                                  onChanged: (value) => setState(() {
-                                        isMultiMOPs = value;
-                                      })),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              RichText(
-                                text: TextSpan(
+                              OutlinedButton(
+                                focusNode: FocusNode(skipTraversal: true),
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  backgroundColor: ProjectColors.primary,
+                                  padding: const EdgeInsets.all(10),
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                ),
+                                onPressed: () async {
+                                  final double? appliedHeaderDisc = await showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => const InputDiscountManual());
+
+                                  if (appliedHeaderDisc != null) {
+                                    SnackBarHelper.presentSuccessSnackBar(childContext,
+                                        "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                  }
+                                },
+                                child: Row(
                                   children: [
-                                    TextSpan(
-                                      text: isMultiMOPs ? "Multi MOPs ON" : "Multi MOPs OFF",
-                                      style: const TextStyle(fontWeight: FontWeight.w600),
+                                    const Icon(
+                                      Icons.cut,
+                                      size: 18,
+                                      color: Colors.white,
                                     ),
-                                    const TextSpan(
-                                      text: " (F10)",
-                                      style: TextStyle(fontWeight: FontWeight.w300),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Header\nDisc.",
+                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F6)",
+                                            style: TextStyle(fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1, fontSize: 12),
+                                      ),
+                                      overflow: TextOverflow.clip,
                                     ),
                                   ],
-                                  style: const TextStyle(height: 1, fontSize: 12),
                                 ),
-                                overflow: TextOverflow.clip,
                               ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              OutlinedButton(
+                                focusNode: FocusNode(skipTraversal: true),
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  backgroundColor: ProjectColors.primary,
+                                  padding: const EdgeInsets.all(10),
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                ),
+                                onPressed: () async => await showAppliedPromotions(),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.discount_outlined,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Applied\nPromos",
+                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F7)",
+                                            style: TextStyle(fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1, fontSize: 12),
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  backgroundColor: ProjectColors.primary,
+                                  padding: const EdgeInsets.all(10),
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                ),
+                                onPressed: () async => await printDraftBill(),
+                                child: isPrinting
+                                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator.adaptive())
+                                    : Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.print_outlined,
+                                            size: 18,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(
+                                            width: 6,
+                                          ),
+                                          RichText(
+                                            text: const TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: "Print\nDraft",
+                                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                                ),
+                                                TextSpan(
+                                                  text: " (F8)",
+                                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                                ),
+                                              ],
+                                              style: TextStyle(height: 1, fontSize: 12),
+                                            ),
+                                            overflow: TextOverflow.clip,
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                              const SizedBox(
+                                width: 30,
+                              ),
+                              Row(
+                                children: [
+                                  Switch(
+                                      thumbIcon: MaterialStatePropertyAll(Icon(
+                                        isMultiMOPs ? Icons.check : Icons.close,
+                                        color: isMultiMOPs ? ProjectColors.green : ProjectColors.lightBlack,
+                                      )),
+                                      trackOutlineWidth: const MaterialStatePropertyAll(0),
+                                      value: isMultiMOPs,
+                                      onChanged: (value) => setState(() {
+                                            isMultiMOPs = value;
+                                          })),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: isMultiMOPs ? "Multi MOPs ON" : "Multi MOPs OFF",
+                                          style: const TextStyle(fontWeight: FontWeight.w600),
+                                        ),
+                                        const TextSpan(
+                                          text: " (F9)",
+                                          style: TextStyle(fontWeight: FontWeight.w300),
+                                        ),
+                                      ],
+                                      style: const TextStyle(height: 1, fontSize: 12),
+                                    ),
+                                    overflow: TextOverflow.clip,
+                                  ),
+                                ],
+                              )
                             ],
                           )
-                        ],
-                      )
-              ],
-            ),
-          ),
-        ),
-        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        contentPadding: const EdgeInsets.all(0),
-        content: isCharged
-            ? const _CheckoutSuccessDialogContent()
-            : isCharging
-                ? SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    child: progressDialog,
-                  )
-                : CheckoutDialogContent(
-                    isMultiMOPs: isMultiMOPs,
-                  ),
-        actions: isCharged
-            ? [
-                Column(
-                  children: [
-                    // Row(
-                    //   children: [
-                    //     Expanded(
-                    //         child: TextButton(
-                    //       style: ButtonStyle(
-                    //           shape: MaterialStatePropertyAll(
-                    //               RoundedRectangleBorder(
-                    //                   borderRadius: BorderRadius.circular(5),
-                    //                   side: const BorderSide(
-                    //                       color: ProjectColors.primary))),
-                    //           backgroundColor: MaterialStateColor.resolveWith(
-                    //               (states) => Colors.white),
-                    //           overlayColor: MaterialStateColor.resolveWith(
-                    //               (states) => Colors.black.withOpacity(.2))),
-                    //       onPressed: () {
-                    //         // Navigator.of(context).pop();
-                    //       },
-                    //       child: const Center(
-                    //           child: Text(
-                    //         "Send Receipt",
-                    //         style: TextStyle(color: ProjectColors.primary),
-                    //       )),
-                    //     )),
-                    //     const SizedBox(
-                    //       width: 10,
-                    //     ),
-                    //     Expanded(
-                    //         child: TextButton(
-                    //       style: ButtonStyle(
-                    //           shape: MaterialStatePropertyAll(
-                    //               RoundedRectangleBorder(
-                    //                   borderRadius: BorderRadius.circular(5),
-                    //                   side: const BorderSide(
-                    //                       color: ProjectColors.primary))),
-                    //           backgroundColor: MaterialStateColor.resolveWith(
-                    //               (states) => Colors.white),
-                    //           overlayColor: MaterialStateColor.resolveWith(
-                    //               (states) => Colors.black.withOpacity(.2))),
-                    //       onPressed: () {
-                    //         GetIt.instance<PrintReceiptUseCase>()
-                    //             .call(params: context.read<ReceiptCubit>().state);
-                    //         // Navigator.of(context).pop();
-                    //       },
-                    //       child: const Center(
-                    //           child: Text(
-                    //         "Print Receipt",
-                    //         style: TextStyle(color: ProjectColors.primary),
-                    //       )),
-                    //     )),
-                    //   ],
-                    // ),
-                    // const SizedBox(
-                    //   height: 10,
-                    // ),
-                    TextButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: () {
-                        isCharged = false;
-                        Navigator.of(context).pop();
-                        context.read<ReceiptCubit>().resetReceipt();
-                      },
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Done",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              TextSpan(
-                                text: "  (F12)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
-                          ),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ]
-            : <Widget>[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                        child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                      onPressed: isCharging
-                          ? null
-                          : () async {
-                              if (context.read<ReceiptCubit>().state.vouchers.isNotEmpty) {
-                                final bool? isProceed = await showDialog<bool>(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) => const ConfirmResetVouchersDialog(),
-                                );
-                                if (isProceed == null) return;
-                                if (!isProceed) return;
-                              }
-                              context.pop(false);
-                            },
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Cancel",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              TextSpan(
-                                text: "  (Esc)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
-                            style: TextStyle(color: ProjectColors.primary),
-                          ),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    )),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                        child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      isPaymentSufficient
-                          ? const SizedBox.shrink()
-                          : const Text(
-                              "Insufficient total payment",
-                              style: TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700),
-                            ),
-                      TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                            backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                        onPressed: isLoadingQRIS ? null : () async => await charge(),
-                        child: Center(
-                          child: isLoadingQRIS
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator.adaptive(
-                                      // backgroundColor: Colors.white,
-                                      ),
-                                )
-                              : RichText(
-                                  text: const TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Charge",
-                                        style: TextStyle(fontWeight: FontWeight.w600),
-                                      ),
-                                      TextSpan(
-                                        text: "  (F12)",
-                                        style: TextStyle(fontWeight: FontWeight.w300),
-                                      ),
-                                    ],
-                                  ),
-                                  overflow: TextOverflow.clip,
-                                ),
-                        ),
-                      )
-                    ])),
                   ],
                 ),
-              ],
-        actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      ),
-    );
+              ),
+            ),
+            titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            contentPadding: const EdgeInsets.all(0),
+            content: isCharged
+                ? const _CheckoutSuccessDialogContent()
+                : isCharging
+                    ? SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        child: progressDialog,
+                      )
+                    : CheckoutDialogContent(
+                        isMultiMOPs: isMultiMOPs,
+                      ),
+            actions: isCharged
+                ? [
+                    Column(
+                      children: [
+                        // Row(
+                        //   children: [
+                        //     Expanded(
+                        //         child: TextButton(
+                        //       style: ButtonStyle(
+                        //           shape: MaterialStatePropertyAll(
+                        //               RoundedRectangleBorder(
+                        //                   borderRadius: BorderRadius.circular(5),
+                        //                   side: const BorderSide(
+                        //                       color: ProjectColors.primary))),
+                        //           backgroundColor: MaterialStateColor.resolveWith(
+                        //               (states) => Colors.white),
+                        //           overlayColor: MaterialStateColor.resolveWith(
+                        //               (states) => Colors.black.withOpacity(.2))),
+                        //       onPressed: () {
+                        //         // Navigator.of(context).pop();
+                        //       },
+                        //       child: const Center(
+                        //           child: Text(
+                        //         "Send Receipt",
+                        //         style: TextStyle(color: ProjectColors.primary),
+                        //       )),
+                        //     )),
+                        //     const SizedBox(
+                        //       width: 10,
+                        //     ),
+                        //     Expanded(
+                        //         child: TextButton(
+                        //       style: ButtonStyle(
+                        //           shape: MaterialStatePropertyAll(
+                        //               RoundedRectangleBorder(
+                        //                   borderRadius: BorderRadius.circular(5),
+                        //                   side: const BorderSide(
+                        //                       color: ProjectColors.primary))),
+                        //           backgroundColor: MaterialStateColor.resolveWith(
+                        //               (states) => Colors.white),
+                        //           overlayColor: MaterialStateColor.resolveWith(
+                        //               (states) => Colors.black.withOpacity(.2))),
+                        //       onPressed: () {
+                        //         GetIt.instance<PrintReceiptUseCase>()
+                        //             .call(params: context.read<ReceiptCubit>().state);
+                        //         // Navigator.of(context).pop();
+                        //       },
+                        //       child: const Center(
+                        //           child: Text(
+                        //         "Print Receipt",
+                        //         style: TextStyle(color: ProjectColors.primary),
+                        //       )),
+                        //     )),
+                        //   ],
+                        // ),
+                        // const SizedBox(
+                        //   height: 10,
+                        // ),
+                        TextButton(
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                              overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                          onPressed: () {
+                            isCharged = false;
+                            Navigator.of(context).pop();
+                            context.read<ReceiptCubit>().resetReceipt();
+                          },
+                          child: Center(
+                            child: RichText(
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Done",
+                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  TextSpan(
+                                    text: "  (F12)",
+                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                  ),
+                                ],
+                              ),
+                              overflow: TextOverflow.clip,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ]
+                : <Widget>[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                            child: TextButton(
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(color: ProjectColors.primary))),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                              overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                          onPressed: isCharging
+                              ? null
+                              : () async {
+                                  if (context.read<ReceiptCubit>().state.vouchers.isNotEmpty) {
+                                    final bool? isProceed = await showDialog<bool>(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => const ConfirmResetVouchersDialog(),
+                                    );
+                                    if (isProceed == null) return;
+                                    if (!isProceed) return;
+                                  }
+                                  context.pop(false);
+                                },
+                          child: Center(
+                            child: RichText(
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Cancel",
+                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  TextSpan(
+                                    text: "  (Esc)",
+                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                  ),
+                                ],
+                                style: TextStyle(color: ProjectColors.primary),
+                              ),
+                              overflow: TextOverflow.clip,
+                            ),
+                          ),
+                        )),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                            child: Column(mainAxisSize: MainAxisSize.min, children: [
+                          isPaymentSufficient
+                              ? const SizedBox.shrink()
+                              : const Text(
+                                  "Insufficient total payment",
+                                  style: TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700),
+                                ),
+                          TextButton(
+                            style: ButtonStyle(
+                                shape: MaterialStatePropertyAll(
+                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            onPressed: isLoadingQRIS ? null : () async => await charge(),
+                            child: Center(
+                              child: isLoadingQRIS
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator.adaptive(
+                                          // backgroundColor: Colors.white,
+                                          ),
+                                    )
+                                  : RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Charge",
+                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: "  (F12)",
+                                            style: TextStyle(fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                            ),
+                          )
+                        ])),
+                      ],
+                    ),
+                  ],
+            actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -1074,9 +1092,19 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    const SizedBox(
-                                      height: 35,
-                                    ),
+                                    (receipt.discHeaderManual ?? 0) > 0
+                                        ? Container(
+                                            height: 35,
+                                            alignment: Alignment.topCenter,
+                                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                            child: Text(
+                                              "*${Helpers.parseMoney(receipt.discHeaderManual ?? 0)} header discount applied",
+                                              style: const TextStyle(fontStyle: FontStyle.italic),
+                                            ),
+                                          )
+                                        : const SizedBox(
+                                            height: 35,
+                                          ),
                                   ],
                                 ),
                               ),

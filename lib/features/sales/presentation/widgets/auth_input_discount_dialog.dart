@@ -68,10 +68,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     if (passwordCorrect == "Success") {
       childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
       Navigator.of(childContext).pop(); // Close the dialog
-      Navigator.of(childContext).pop(); // Close the select method if needed
-      // Navigator.of(childContext).pop(); // Close the input discount if needed
-      SnackBarHelper.presentSuccessSnackBar(
-          parentContext, "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
+      Navigator.of(childContext).pop(widget.discountValue); // Close the select method if needed
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
