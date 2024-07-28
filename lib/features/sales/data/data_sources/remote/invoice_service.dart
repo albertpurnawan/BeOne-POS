@@ -139,17 +139,16 @@ class InvoiceApi {
       List<dynamic> promotionsHeader = [];
       List<dynamic> promotionsDetail = [];
       for (final tinv1 in invDet) {
-        log("tinv1 - $tinv1");
-        // if (tinv1['promotiontype'] != "") {
         final appliedPromos = await GetIt.instance<AppDatabase>()
             .invoiceAppliedPromoDao
             .readByToinvIdAndTinv1Id(tinv1['toinvId'], tinv1['docid'], null);
-        log("appliedPromos - $appliedPromos");
-        promotionsDetail.addAll(appliedPromos);
-        // }
-      }
 
-      log("HEREEEEEEEE");
+        List<Map<String, dynamic>> promoMaps = appliedPromos.map((promo) => promo.toMap()).toList();
+
+        promotionsDetail.addAll(promoMaps);
+      }
+      log("promotionDetail - $promotionsDetail");
+
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
         "docnum": invHead[0].docnum,
@@ -261,7 +260,7 @@ class InvoiceApi {
           },
         ),
       );
-      // log("response - $response");
+      log("response - $response");
 
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         // log("Success Post");
