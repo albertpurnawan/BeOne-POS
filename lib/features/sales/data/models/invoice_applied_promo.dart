@@ -53,12 +53,12 @@ class InvoiceAppliedPromoModel extends InvoiceAppliedPromoEntity implements Base
 
   factory InvoiceAppliedPromoModel.fromMap(Map<String, dynamic> map) {
     return InvoiceAppliedPromoModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       toinvDocId: map['toinvdocid'] != null ? map['toinvdocid'] as String : null,
       tinv1DocId: map['tinv1docid'] != null ? map['tinv1docid'] as String : null,
-      promotionType: map['promotionyype'] as String,
+      promotionType: map['promotiontype'] as String,
       promotionDocId: map['promotiondocid'] != null ? map['promotiondocid'] as String : null,
       amount: map['amount'] as double,
     );

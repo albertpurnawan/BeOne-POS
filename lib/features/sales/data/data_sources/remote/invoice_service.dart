@@ -21,24 +21,23 @@ class InvoiceApi {
 
   Future<void> sendInvoice() async {
     try {
-      // log("SEND INVOICE SERVICE");
+      log("SEND INVOICE SERVICE");
       token = prefs.getString('adminToken');
 
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
       final invHead = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
-      // log("invHead - $invHead");
+      log("invHead - $invHead");
 
       final invDet =
           await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvIdAddQtyBarcode(invHead[0].docId.toString());
-      // log("invDeta - $invDet");
+      log("invDet - $invDet");
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead[0].docId.toString());
-      // log("paymean - $payMean");
+      log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
-
       if (payMean != null) {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
@@ -137,6 +136,20 @@ class InvoiceApi {
         }
       }
 
+      List<dynamic> promotionsHeader = [];
+      List<dynamic> promotionsDetail = [];
+      for (final tinv1 in invDet) {
+        log("tinv1 - $tinv1");
+        // if (tinv1['promotiontype'] != "") {
+        final appliedPromos = await GetIt.instance<AppDatabase>()
+            .invoiceAppliedPromoDao
+            .readByToinvIdAndTinv1Id(tinv1['toinvId'], tinv1['docid'], null);
+        log("appliedPromos - $appliedPromos");
+        promotionsDetail.addAll(appliedPromos);
+        // }
+      }
+
+      log("HEREEEEEEEE");
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
         "docnum": invHead[0].docnum,
@@ -223,12 +236,18 @@ class InvoiceApi {
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": item['tohemId'] ?? "",
-            "promotion": [],
+            "promotion": promotionsDetail
           };
         }).toList(),
         "invoice_payment": invoicePayments,
-        "promotion": [],
-        "approval": [],
+        "promotion": promotionsHeader,
+        "approval": [
+          {
+            "tousr_id": "e59c938c-520a-4eff-a713-689ef180bd9b",
+            "remarks": "test remarks",
+            "category": "test",
+          }
+        ]
       };
 
       log("Data2Send: ${jsonEncode(dataToSend)}");

@@ -22,6 +22,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart'
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/edc_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/employee_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/invoice_applied_promo_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/invoice_detail_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/invoice_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/item_barcode_dao.dart';
@@ -266,6 +267,7 @@ class AppDatabase {
   late UserRoleDao userRoleDao;
   late InvoiceHeaderDao invoiceHeaderDao;
   late InvoiceDetailDao invoiceDetailDao;
+  late InvoiceAppliedPromoDao invoiceAppliedPromoDao;
   late POSParameterDao posParameterDao;
   late UserDao userDao;
   late PayMeansDao payMeansDao;
@@ -384,6 +386,7 @@ PRAGMA foreign_keys = ON;
     mopByStoreDao = MOPByStoreDao(_database!);
     invoiceHeaderDao = InvoiceHeaderDao(_database!);
     invoiceDetailDao = InvoiceDetailDao(_database!);
+    invoiceAppliedPromoDao = InvoiceAppliedPromoDao(_database!);
     userDao = UserDao(_database!);
     posParameterDao = POSParameterDao(_database!);
     payMeansDao = PayMeansDao(_database!);
