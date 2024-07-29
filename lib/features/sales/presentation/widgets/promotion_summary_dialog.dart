@@ -687,6 +687,31 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                     const SizedBox(
                       width: 200,
                       child: Text(
+                        "Header Discount",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                      width: 150,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        "(${Helpers.parseMoney(widget.receiptEntity.discHeaderManual ?? 0)})",
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 200,
+                      child: Text(
                         "Promotions & Tax Adjustment",
                         style: TextStyle(fontSize: 14),
                       ),
@@ -698,9 +723,14 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       width: 150,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        widget.receiptEntity.grandTotal - previousGrandTotal >= 0
-                            ? Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal)
-                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal)})",
+                        widget.receiptEntity.grandTotal -
+                                    previousGrandTotal +
+                                    (widget.receiptEntity.discHeaderManual ?? 0) >=
+                                0
+                            ? Helpers.parseMoney(widget.receiptEntity.grandTotal -
+                                previousGrandTotal +
+                                (widget.receiptEntity.discHeaderManual ?? 0))
+                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal + (widget.receiptEntity.discHeaderManual ?? 0))})",
                         style: const TextStyle(fontSize: 14),
                       ),
                     )
@@ -774,10 +804,10 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                           text: "Done",
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        // TextSpan(
-                        //   text: "  (F12)",
-                        //   style: TextStyle(fontWeight: FontWeight.w300),
-                        // ),
+                        TextSpan(
+                          text: "  (F12)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
                       ],
                     ),
                     overflow: TextOverflow.clip,

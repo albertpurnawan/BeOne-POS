@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -18,24 +21,23 @@ class InvoiceApi {
 
   Future<void> sendInvoice() async {
     try {
-      // log("SEND INVOICE SERVICE");
+      log("SEND INVOICE SERVICE");
       token = prefs.getString('adminToken');
 
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
       final invHead = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
-      // log("invHead - $invHead");
+      log("invHead - $invHead");
 
       final invDet =
           await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvIdAddQtyBarcode(invHead[0].docId.toString());
-      // log("invDeta - $invDet");
+      log("invDet - $invDet");
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead[0].docId.toString());
-      // log("paymean - $payMean");
+      log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
-
       if (payMean != null) {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
@@ -134,6 +136,19 @@ class InvoiceApi {
         }
       }
 
+      List<dynamic> promotionsHeader = [];
+      List<dynamic> promotionsDetail = [];
+      for (final tinv1 in invDet) {
+        final appliedPromos = await GetIt.instance<AppDatabase>()
+            .invoiceAppliedPromoDao
+            .readByToinvIdAndTinv1Id(tinv1['toinvId'], tinv1['docid'], null);
+
+        List<Map<String, dynamic>> promoMaps = appliedPromos.map((promo) => promo.toMap()).toList();
+
+        promotionsDetail.addAll(promoMaps);
+      }
+      log("promotionDetail - $promotionsDetail");
+
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
         "docnum": invHead[0].docnum,
@@ -152,13 +167,13 @@ class InvoiceApi {
             .toIso8601String(),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
-        "subtotal": (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0)).round(),
+        "subtotal": (invHead[0].subTotal - (invHead[0].discHeaderPromo ?? 0)).round(),
         "discprctg": invHead[0].subTotal == 0
             ? 0
             : 100 *
-                ((invHead[0].discHeaderManual ?? 0) /
-                    (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0))),
-        "discamount": invHead[0].discHeaderManual,
+                ((invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0)) /
+                    (invHead[0].subTotal - (invHead[0].discHeaderPromo ?? 0))),
+        "discamount": invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0),
         "discountcard": invHead[0].discountCard,
         "coupon": invHead[0].coupon,
         "discountcoupon": invHead[0].discountCoupun,
@@ -186,6 +201,7 @@ class InvoiceApi {
             "totalamount":
                 ((item['quantity'] * item['sellingprice'] * (100 / (100 + item['taxprctg']))) - item['discamount'])
                     .round(),
+            // item['totalamount'].round(),
             "taxprctg": item['taxprctg'],
             "promotiontype": item['promotiontype'],
             "promotionid": item['promotionid'],
@@ -218,13 +234,22 @@ class InvoiceApi {
             "qtyconv": item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item['tohemId'] ?? ""
+            "tohem_id": item['tohemId'] ?? "",
+            "promotion": promotionsDetail
           };
         }).toList(),
-        "invoice_payment": invoicePayments
+        "invoice_payment": invoicePayments,
+        "promotion": promotionsHeader,
+        "approval": [
+          {
+            "tousr_id": "e59c938c-520a-4eff-a713-689ef180bd9b",
+            "remarks": "test remarks",
+            "category": "test",
+          }
+        ]
       };
 
-      // log("Data2Send: ${jsonEncode(dataToSend)}");
+      log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         "$url/tenant-invoice/",
@@ -235,7 +260,7 @@ class InvoiceApi {
           },
         ),
       );
-      // log("response - $response");
+      log("response - $response");
 
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         // log("Success Post");
@@ -425,7 +450,7 @@ class InvoiceApi {
             : 100 *
                 ((invHead.discHeaderManual ?? 0) /
                     (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0))),
-        "discamount": invHead.discHeaderManual,
+        "discamount": invHead.discAmount - (invHead.discHeaderPromo ?? 0),
         "discountcard": invHead.discountCard,
         "coupon": invHead.coupon,
         "discountcoupon": invHead.discountCoupun,

@@ -143,12 +143,8 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
   factory InvoiceDetailModel.fromMap(Map<String, dynamic> map) {
     return InvoiceDetailModel(
       docId: map['docid'] as String,
-      createDate: map['createdate'] != null
-          ? DateTime.parse(map['createdate'] as String).toLocal()
-          : null,
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      createDate: map['createdate'] != null ? DateTime.parse(map['createdate'] as String).toLocal() : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
       lineNum: map['linenum'] as int,
       docNum: map['docnum'] as String,
@@ -166,24 +162,15 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
       editTime: DateTime.parse(map['edittime'] as String).toLocal(),
       cogs: map['cogs'] as double,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      promotionTingkat: map['promotiontingkat'] != null
-          ? map['promotiontingkat'] as String
-          : null,
-      promoVoucherNo: map['promovoucherno'] != null
-          ? map['promovoucherno'] as String
-          : null,
+      promotionTingkat: map['promotiontingkat'] != null ? map['promotiontingkat'] as String : null,
+      promoVoucherNo: map['promovoucherno'] != null ? map['promovoucherno'] as String : null,
       baseDocId: map['basedocid'] != null ? map['basedocid'] as String : null,
-      baseLineDocId:
-          map['baselinedocid'] != null ? map['baselinedocid'] as String : null,
+      baseLineDocId: map['baselinedocid'] != null ? map['baselinedocid'] as String : null,
       includeTax: map['includetax'] as int,
       tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
-      discHeaderAmount: map['discheaderamount'] != null
-          ? map['discheaderamount'] as double
-          : null,
-      subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
-          ? map['subtotalafterdischeader'] as double
-          : null,
+      discHeaderAmount: map['discheaderamount'] != null ? map['discheaderamount'] as double : null,
+      subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null ? map['subtotalafterdischeader'] as double : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
     );
   }
@@ -191,21 +178,11 @@ class InvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
   factory InvoiceDetailModel.fromMapRemote(Map<String, dynamic> map) {
     return InvoiceDetailModel.fromMap({
       ...map,
-      "toinvId": map['toinv_id']?['docid'] != null
-          ? map['toinv_id']['docid'] as String
-          : null,
-      "toitmId": map['toitm_id']?['docid'] != null
-          ? map['toitm_id']['docid'] as String
-          : null,
-      "tovatId": map['tovat_id']?['docid'] != null
-          ? map['tovat_id']['docid'] as String
-          : null,
-      "tovenId": map['toven_id']?['docid'] != null
-          ? map['toven_id']['docid'] as String
-          : null,
-      "tbitmId": map['tbitm_id']?['docid'] != null
-          ? map['tbitm_id']['docid'] as String
-          : null,
+      "toinvId": map['toinv_id']?['docid'] != null ? map['toinv_id']['docid'] as String : null,
+      "toitmId": map['toitm_id']?['docid'] != null ? map['toitm_id']['docid'] as String : null,
+      "tovatId": map['tovat_id']?['docid'] != null ? map['tovat_id']['docid'] as String : null,
+      "tovenId": map['toven_id']?['docid'] != null ? map['toven_id']['docid'] as String : null,
+      "tbitmId": map['tbitm_id']?['docid'] != null ? map['tbitm_id']['docid'] as String : null,
       "quantity": map['quantity'].toDouble() as double,
       "sellingprice": map['sellingprice'].toDouble() as double,
       "discprctg": map['discprctg'].toDouble() as double,
