@@ -38,12 +38,21 @@ class InvoiceAppliedPromoDao extends BaseDao<InvoiceAppliedPromoModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(
       tableName,
-      where: 'toinvdocId = ? AND tinv1docId = ?',
+      where: 'toinvdocid = ? AND tinv1docid = ?',
       whereArgs: [toinvId, tinv1Id],
     );
 
-    log("Query result: $result");
+    return result.map((itemData) => InvoiceAppliedPromoModel.fromMap(itemData)).toList();
+  }
 
+  Future<List<InvoiceAppliedPromoModel>> readByToinvId(String toinvId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.query(
+      tableName,
+      where: 'toinvdocid = ? AND promotiontype = \'999\'',
+      whereArgs: [toinvId],
+    );
+    log("RESULT - $result");
     return result.map((itemData) => InvoiceAppliedPromoModel.fromMap(itemData)).toList();
   }
 }

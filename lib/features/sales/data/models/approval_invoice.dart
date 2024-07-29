@@ -37,7 +37,7 @@ class ApprovalInvoiceModel extends ApprovalInvoiceEntity implements BaseModel {
   @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'docId': docId,
+      'docid': docId,
       'createdate': createDate.toUtc().toIso8601String(),
       'updatedate': updateDate?.toUtc().toIso8601String(),
       'toinvId': toinvId,
@@ -49,10 +49,10 @@ class ApprovalInvoiceModel extends ApprovalInvoiceEntity implements BaseModel {
 
   factory ApprovalInvoiceModel.fromMap(Map<String, dynamic> map) {
     return ApprovalInvoiceModel(
-      docId: map['docId'] as String,
+      docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
       updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
-      toinvId: map['toinvId'] as String,
+      toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
       tousrId: map['tousrId'] as String,
       remarks: map['remarks'] as String,
       category: map['category'] as String,

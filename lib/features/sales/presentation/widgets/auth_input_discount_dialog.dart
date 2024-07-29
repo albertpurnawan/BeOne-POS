@@ -20,7 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
   final double discountValue;
-  const AuthInputDiscountDialog({Key? key, required this.discountValue}) : super(key: key);
+  final String docnum;
+  const AuthInputDiscountDialog({Key? key, required this.discountValue, required this.docnum}) : super(key: key);
 
   @override
   State<AuthInputDiscountDialog> createState() => _AuthInputDiscountDialogState();

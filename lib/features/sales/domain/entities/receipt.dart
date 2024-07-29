@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -46,6 +47,7 @@ class ReceiptEntity {
   String? remarks;
   String? toinvTohemId;
   String? salesTohemId;
+  List<ApprovalInvoiceEntity>? approvals;
 
   ReceiptEntity({
     required this.docNum,
@@ -77,6 +79,7 @@ class ReceiptEntity {
     this.remarks,
     this.toinvTohemId,
     this.salesTohemId,
+    this.approvals,
   });
 
   ReceiptEntity copyWith({
@@ -109,6 +112,7 @@ class ReceiptEntity {
     String? remarks,
     String? toinvTohemId,
     String? salesTohemId,
+    List<ApprovalInvoiceEntity>? approvals,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -140,6 +144,7 @@ class ReceiptEntity {
       remarks: remarks ?? this.remarks,
       toinvTohemId: toinvTohemId ?? this.toinvTohemId,
       salesTohemId: salesTohemId ?? this.salesTohemId,
+      approvals: approvals ?? this.approvals,
     );
   }
 
@@ -171,6 +176,7 @@ class ReceiptEntity {
       'remarks': remarks,
       'toinvTohemId': toinvTohemId,
       'salesTohemId': salesTohemId,
+      'approvals': approvals?.map((x) => x.toMap()).toList(),
     };
   }
 
@@ -219,6 +225,8 @@ class ReceiptEntity {
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       toinvTohemId: map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
       salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
+      approvals:
+          (map['approvals'] as List).map((x) => ApprovalInvoiceEntity.fromMap(x as Map<String, dynamic>)).toList(),
     );
   }
 
@@ -228,7 +236,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelections, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId, salesTohemId: $salesTohemId,
+    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelections, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId, salesTohemId: $salesTohemId, approvals: $approvals,
     
     previousReceiptEntity: $previousReceiptEntity)""";
   }
@@ -262,7 +270,8 @@ class ReceiptEntity {
         other.discHeaderPromo == discHeaderPromo &&
         other.remarks == remarks &&
         other.toinvTohemId == toinvTohemId &&
-        other.salesTohemId == salesTohemId;
+        other.salesTohemId == salesTohemId &&
+        other.approvals == approvals;
     // other.previousReceiptEntity == previousReceiptEntity; kalau tidak ada perubahan apa2 previous gak ke emit
   }
 
@@ -293,7 +302,8 @@ class ReceiptEntity {
         discHeaderPromo.hashCode ^
         remarks.hashCode ^
         toinvTohemId.hashCode ^
-        salesTohemId.hashCode;
+        salesTohemId.hashCode ^
+        approvals.hashCode;
     // previousReceiptEntity.hashCode;
   }
 }

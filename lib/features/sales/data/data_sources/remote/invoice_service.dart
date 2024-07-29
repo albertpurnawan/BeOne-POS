@@ -136,8 +136,17 @@ class InvoiceApi {
         }
       }
 
-      List<dynamic> promotionsHeader = [];
-      List<dynamic> promotionsDetail = [];
+      List<Map<String, dynamic>> promotionsHeader = [];
+      if (invHead[0].discHeaderManual != 0) {
+        final promoHeader =
+            await GetIt.instance<AppDatabase>().invoiceAppliedPromoDao.readByToinvId(invHead[0].docId!, null);
+        List<Map<String, dynamic>> promoMaps =
+            promoHeader.map((promo) => promo.promoToMapWithEmptyString(promo)).toList();
+        promotionsHeader.addAll(promoMaps);
+      }
+      log("promotionsHeader - $promotionsHeader");
+
+      List<Map<String, dynamic>> promotionsDetail = [];
       for (final tinv1 in invDet) {
         final appliedPromos = await GetIt.instance<AppDatabase>()
             .invoiceAppliedPromoDao
@@ -147,7 +156,9 @@ class InvoiceApi {
 
         promotionsDetail.addAll(promoMaps);
       }
-      log("promotionDetail - $promotionsDetail");
+      log("promotionsDetail - $promotionsDetail");
+
+      List<Map<String, dynamic>> approvals = [];
 
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
@@ -187,7 +198,6 @@ class InvoiceApi {
         "totalpayment": invHead[0].totalPayment.round() - invHead[0].changed,
         "tocsr_id": invHead[0].tocsrId,
         "toinv_tohem_id": invHead[0].toinvTohemId,
-        "sales_tohem_id": invHead[0].salesTohemId,
         "refpos1": invHead[0].refpos1,
         "invoice_item": invDet.map((item) {
           return {
@@ -239,14 +249,11 @@ class InvoiceApi {
         }).toList(),
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
-        "approval": [
-          {
-            "tousr_id": "e59c938c-520a-4eff-a713-689ef180bd9b",
-            "remarks": "test remarks",
-            "category": "test",
-          }
-        ]
+        "approval": []
       };
+      if (invHead[0].salesTohemId != "") {
+        dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;
+      }
 
       log("Data2Send: ${jsonEncode(dataToSend)}");
 

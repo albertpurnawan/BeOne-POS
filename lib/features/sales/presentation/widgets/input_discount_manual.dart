@@ -13,7 +13,8 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 
 class InputDiscountManual extends StatefulWidget {
-  const InputDiscountManual({super.key});
+  final String docnum;
+  const InputDiscountManual({super.key, required this.docnum});
 
   @override
   State<InputDiscountManual> createState() => _InputDiscountManualState();
@@ -49,7 +50,10 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
           showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (context) => AuthInputDiscountDialog(discountValue: input));
+              builder: (context) => AuthInputDiscountDialog(
+                    discountValue: input,
+                    docnum: widget.docnum,
+                  ));
           return KeyEventResult.handled;
         } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
           context.pop();
@@ -131,10 +135,12 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                 // double inputValue = Helpers.revertMoneyToDecimalFormatDouble(
                 //     _textEditorDiscountController.text);
                 await showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => AuthInputDiscountDialog(discountValue: input))
-                    .then((value) => _discountFocusNode.requestFocus());
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => AuthInputDiscountDialog(
+                          discountValue: input,
+                          docnum: widget.docnum,
+                        )).then((value) => _discountFocusNode.requestFocus());
               },
               autofocus: true,
               inputFormatters: [MoneyInputFormatter()],
@@ -214,7 +220,10 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                   showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder: (context) => AuthInputDiscountDialog(discountValue: input));
+                      builder: (context) => AuthInputDiscountDialog(
+                            discountValue: input,
+                            docnum: widget.docnum,
+                          ));
                 },
                 child: Center(
                   child: RichText(

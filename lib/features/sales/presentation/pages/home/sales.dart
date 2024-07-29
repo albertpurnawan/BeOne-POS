@@ -1161,7 +1161,9 @@ class _SalesPageState extends State<SalesPage> {
                             await showDialog(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (context) => const InputDiscountManual());
+                                builder: (context) => InputDiscountManual(
+                                      docnum: context.read<ReceiptCubit>().state.docNum,
+                                    ));
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -1509,7 +1511,9 @@ class _SalesPageState extends State<SalesPage> {
                             await showDialog(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (context) => const InputDiscountManual());
+                                builder: (context) => InputDiscountManual(
+                                      docnum: context.read<ReceiptCubit>().state.docNum,
+                                    ));
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -1798,7 +1802,9 @@ class _SalesPageState extends State<SalesPage> {
                           await showDialog(
                               context: context,
                               barrierDismissible: false,
-                              builder: (context) => const InputDiscountManual());
+                              builder: (context) => InputDiscountManual(
+                                    docnum: context.read<ReceiptCubit>().state.docNum,
+                                  ));
                           setState(() {
                             isEditingNewReceiptItemCode = true;
                             Future.delayed(
@@ -3286,11 +3292,15 @@ class _SalesPageState extends State<SalesPage> {
           isEditingNewReceiptItemQty = false;
           isUpdatingReceiptItemQty = false;
         });
-        await showDialog(context: context, barrierDismissible: false, builder: (context) => const InputDiscountManual())
-            .then((value) => setState(() {
-                  isEditingNewReceiptItemCode = true;
-                  _newReceiptItemCodeFocusNode.requestFocus();
-                }));
+        await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => InputDiscountManual(
+                  docnum: context.read<ReceiptCubit>().state.docNum,
+                )).then((value) => setState(() {
+              isEditingNewReceiptItemCode = true;
+              _newReceiptItemCodeFocusNode.requestFocus();
+            }));
       } else if (event.physicalKey == (PhysicalKeyboardKey.f4)) {
         setState(() {
           isEditingNewReceiptItemCode = false;

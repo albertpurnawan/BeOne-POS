@@ -51,6 +51,19 @@ class InvoiceAppliedPromoModel extends InvoiceAppliedPromoEntity implements Base
     };
   }
 
+  Map<String, dynamic> promoToMapWithEmptyString(InvoiceAppliedPromoModel promo) {
+    return {
+      'docid': promo.docId,
+      'createdate': promo.createDate.toIso8601String(),
+      'updatedate': promo.updateDate?.toIso8601String() ?? '',
+      'toinvdocid': promo.toinvDocId ?? '',
+      'tinv1docid': promo.tinv1DocId ?? '',
+      'promotiontype': promo.promotionType,
+      'promotiondocid': promo.promotionDocId ?? '',
+      'amount': promo.amount,
+    };
+  }
+
   factory InvoiceAppliedPromoModel.fromMap(Map<String, dynamic> map) {
     return InvoiceAppliedPromoModel(
       docId: map['docid'] as String,

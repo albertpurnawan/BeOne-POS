@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/approval_invoice_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/auth_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/authorization_dao.dart';
@@ -268,6 +269,7 @@ class AppDatabase {
   late InvoiceHeaderDao invoiceHeaderDao;
   late InvoiceDetailDao invoiceDetailDao;
   late InvoiceAppliedPromoDao invoiceAppliedPromoDao;
+  late ApprovalInvoiceDao approvalInvoiceDao;
   late POSParameterDao posParameterDao;
   late UserDao userDao;
   late PayMeansDao payMeansDao;
@@ -387,6 +389,7 @@ PRAGMA foreign_keys = ON;
     invoiceHeaderDao = InvoiceHeaderDao(_database!);
     invoiceDetailDao = InvoiceDetailDao(_database!);
     invoiceAppliedPromoDao = InvoiceAppliedPromoDao(_database!);
+    approvalInvoiceDao = ApprovalInvoiceDao(_database!);
     userDao = UserDao(_database!);
     posParameterDao = POSParameterDao(_database!);
     payMeansDao = PayMeansDao(_database!);
@@ -3368,7 +3371,7 @@ CREATE TABLE $tableApprovalInvoice (
   $uuidDefinition,
   ${ApprovalInvoiceFields.createDate} datetime NOT NULL,
   ${ApprovalInvoiceFields.updateDate} datetime DEFAULT NULL,
-  ${ApprovalInvoiceFields.toinvId} text NOT NULL,
+  ${ApprovalInvoiceFields.toinvId} text DEFAULT NULL,
   ${ApprovalInvoiceFields.tousrId} text NOT NULL,
   ${ApprovalInvoiceFields.remarks} text NOT NULL,
   ${ApprovalInvoiceFields.category} varchar(200) NOT NULL,
