@@ -294,7 +294,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                 }
               });
             } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
-              showAppliedPromotions();
+              showAppliedPromotions().then((value) => _focusScopeNode.requestFocus());
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f8 && !isCharged) {
               printDraftBill();
