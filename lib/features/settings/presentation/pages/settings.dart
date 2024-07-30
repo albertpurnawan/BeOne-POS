@@ -810,84 +810,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 35,
-                      ),
-                      Column(
-                        children: [
-                          const Row(
-                            children: [
-                              Text(
-                                "Cache",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66), fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          const Divider(
-                            height: 0,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              GetIt.instance<SharedPreferences>().clear();
-                              context.goNamed(RouteConstants.welcome);
-                            },
-                            child: const Column(
-                              children: [
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Icon(
-                                          Icons.delete_outline,
-                                          color: Color.fromARGB(255, 66, 66, 66),
-                                        ),
-                                        SizedBox(
-                                          width: 30,
-                                        ),
-                                        Text(
-                                          "Clear Cache",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 15,
-                                        ),
-                                        Icon(
-                                          Icons.navigate_next,
-                                          color: Color.fromARGB(255, 66, 66, 66),
-                                        ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Divider(
-                            height: 0,
-                          ),
-                        ],
-                      ),
+                      // const SizedBox(
+                      //   height: 35,
+                      // ),
+                      // Column(
+                      //   children: [
+                      //     const Row(
+                      //       children: [
+                      //         Text(
+                      //           "Cache",
+                      //           style: TextStyle(
+                      //               fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66), fontSize: 16),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     const SizedBox(
+                      //       height: 15,
+                      //     ),
+                      //     const Divider(
+                      //       height: 0,
+                      //     ),
+                      //     InkWell(
+                      //       onTap: () {
+                      //         GetIt.instance<SharedPreferences>().clear();
+                      //         context.goNamed(RouteConstants.welcome);
+                      //       },
+                      //       child: const Column(
+                      //         children: [
+                      //           SizedBox(
+                      //             height: 20,
+                      //           ),
+                      //           Row(
+                      //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //             children: [
+                      //               Row(
+                      //                 children: [
+                      //                   SizedBox(
+                      //                     width: 5,
+                      //                   ),
+                      //                   Icon(
+                      //                     Icons.delete_outline,
+                      //                     color: Color.fromARGB(255, 66, 66, 66),
+                      //                   ),
+                      //                   SizedBox(
+                      //                     width: 30,
+                      //                   ),
+                      //                   Text(
+                      //                     "Clear Cache",
+                      //                     style: TextStyle(fontSize: 16),
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //               Row(
+                      //                 children: [
+                      //                   SizedBox(
+                      //                     width: 15,
+                      //                   ),
+                      //                   Icon(
+                      //                     Icons.navigate_next,
+                      //                     color: Color.fromARGB(255, 66, 66, 66),
+                      //                   ),
+                      //                   SizedBox(
+                      //                     width: 5,
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //             ],
+                      //           ),
+                      //           SizedBox(
+                      //             height: 20,
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //     const Divider(
+                      //       height: 0,
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),

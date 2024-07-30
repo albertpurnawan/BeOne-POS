@@ -42,4 +42,20 @@ class ApprovalInvoiceDao extends BaseDao<ApprovalInvoiceModel> {
 
     return res.isNotEmpty ? ApprovalInvoiceModel.fromMap(res[0]) : null;
   }
+
+  Future<List<ApprovalInvoiceModel?>> readByToinvId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'toinvId = ?',
+      whereArgs: [docId],
+    );
+
+    if (res.isNotEmpty) {
+      return res.map((map) => ApprovalInvoiceModel.fromMap(map)).toList();
+    } else {
+      return [];
+    }
+  }
 }

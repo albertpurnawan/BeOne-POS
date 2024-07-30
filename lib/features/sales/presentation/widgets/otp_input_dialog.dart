@@ -84,7 +84,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
         Navigator.of(childContext).pop(); // Close the input otp dialog
         Navigator.of(childContext).pop(); // Close the method dialog
         Navigator.of(childContext).pop(); // Close the input discount dialog
-        Navigator.of(childContext).pop(); // Close the input discount dialog
+        Navigator.of(childContext).pop(widget.discountValue); // Close the input discount dialog
 
         SnackBarHelper.presentSuccessSnackBar(
             parentContext, "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");

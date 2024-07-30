@@ -1158,12 +1158,18 @@ class _SalesPageState extends State<SalesPage> {
                               isEditingNewReceiptItemQty = false;
                               isUpdatingReceiptItemQty = false;
                             });
-                            await showDialog(
+                            final double? appliedHeaderDisc = await showDialog(
                                 context: context,
                                 barrierDismissible: false,
                                 builder: (context) => InputDiscountManual(
                                       docnum: context.read<ReceiptCubit>().state.docNum,
                                     ));
+
+                            if (appliedHeaderDisc != null) {
+                              SnackBarHelper.presentSuccessSnackBar(
+                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                            }
+
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -1508,12 +1514,17 @@ class _SalesPageState extends State<SalesPage> {
                               isEditingNewReceiptItemQty = false;
                               isUpdatingReceiptItemQty = false;
                             });
-                            await showDialog(
+                            final double? appliedHeaderDisc = await showDialog(
                                 context: context,
                                 barrierDismissible: false,
                                 builder: (context) => InputDiscountManual(
                                       docnum: context.read<ReceiptCubit>().state.docNum,
                                     ));
+
+                            if (appliedHeaderDisc != null) {
+                              SnackBarHelper.presentSuccessSnackBar(
+                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                            }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -1790,78 +1801,87 @@ class _SalesPageState extends State<SalesPage> {
               padding: const EdgeInsets.only(right: 12),
               child: Column(
                 children: [
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          setState(() {
-                            isEditingNewReceiptItemCode = false;
-                            isEditingNewReceiptItemQty = false;
-                            isUpdatingReceiptItemQty = false;
-                          });
-                          await showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => InputDiscountManual(
-                                    docnum: context.read<ReceiptCubit>().state.docNum,
-                                  ));
-                          setState(() {
-                            isEditingNewReceiptItemCode = true;
-                            Future.delayed(
-                                const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
-                          });
-                        },
-                        style: OutlinedButton.styleFrom(
-                          elevation: 5,
-                          shadowColor: Colors.black87,
-                          padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                          foregroundColor: Colors.white,
-                          backgroundColor: ProjectColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          side: BorderSide.none,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
-                          child: Stack(
-                            children: [
-                              const Positioned.fill(
-                                child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        "F5",
-                                        style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+                  BlocBuilder<ReceiptCubit, ReceiptEntity>(
+                    builder: (context, state) {
+                      return Expanded(
+                        child: SizedBox.expand(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              setState(() {
+                                isEditingNewReceiptItemCode = false;
+                                isEditingNewReceiptItemQty = false;
+                                isUpdatingReceiptItemQty = false;
+                              });
+                              final double? appliedHeaderDisc = await showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => InputDiscountManual(
+                                        docnum: context.read<ReceiptCubit>().state.docNum,
+                                      ));
+
+                              if (appliedHeaderDisc != null) {
+                                SnackBarHelper.presentSuccessSnackBar(
+                                    context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                              }
+                              setState(() {
+                                isEditingNewReceiptItemCode = true;
+                                Future.delayed(const Duration(milliseconds: 50),
+                                    () => _newReceiptItemCodeFocusNode.requestFocus());
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              elevation: 5,
+                              shadowColor: Colors.black87,
+                              padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                              foregroundColor: Colors.white,
+                              backgroundColor: ProjectColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              side: BorderSide.none,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
+                              child: Stack(
+                                children: [
+                                  const Positioned.fill(
+                                    child: Align(
+                                      alignment: Alignment.topRight,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "F5",
+                                            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                child: Align(
-                                  alignment: Alignment.bottomLeft,
-                                  child: RichText(
-                                    textAlign: TextAlign.left,
-                                    text: const TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: "Discount",
-                                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                                        ),
-                                      ],
                                     ),
-                                    overflow: TextOverflow.clip,
                                   ),
-                                ),
+                                  Positioned.fill(
+                                    child: Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: RichText(
+                                        textAlign: TextAlign.left,
+                                        text: const TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: "Discount",
+                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                        overflow: TextOverflow.clip,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                   const SizedBox(
                     height: 5,
@@ -2130,8 +2150,7 @@ class _SalesPageState extends State<SalesPage> {
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(
-                                    (state.subtotal - (state.discAmount ?? 0) + (state.discHeaderManual ?? 0)).round()),
+                                Helpers.parseMoney((state.subtotal - (state.discAmount ?? 0)).round()),
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
@@ -3297,10 +3316,15 @@ class _SalesPageState extends State<SalesPage> {
             barrierDismissible: false,
             builder: (context) => InputDiscountManual(
                   docnum: context.read<ReceiptCubit>().state.docNum,
-                )).then((value) => setState(() {
-              isEditingNewReceiptItemCode = true;
-              _newReceiptItemCodeFocusNode.requestFocus();
-            }));
+                )).then((value) {
+          if (value != null) {
+            SnackBarHelper.presentSuccessSnackBar(context, "Header discount applied: ${Helpers.parseMoney(value)}");
+          }
+          setState(() {
+            isEditingNewReceiptItemCode = true;
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f4)) {
         setState(() {
           isEditingNewReceiptItemCode = false;

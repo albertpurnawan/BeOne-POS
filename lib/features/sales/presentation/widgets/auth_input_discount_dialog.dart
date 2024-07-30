@@ -13,10 +13,12 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
+import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
   final double discountValue;
@@ -67,17 +69,31 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     if (!formKey.currentState!.validate()) return;
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
+      await updateReceiptApprovals(childContext);
       childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
       Navigator.of(childContext).pop(); // Close the dialog
-      Navigator.of(childContext).pop(); // Close the select method if needed
-      // Navigator.of(childContext).pop(); // Close the input discount if needed
-      SnackBarHelper.presentSuccessSnackBar(
-          parentContext, "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
+      Navigator.of(childContext).pop(widget.discountValue); // Close the select method if needed
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
       if (Platform.isWindows) _usernameFocusNode.requestFocus();
     }
+  }
+
+  Future<void> updateReceiptApprovals(BuildContext context) async {
+    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
+    final receiptCubit = context.read<ReceiptCubit>();
+
+    final approval = ApprovalInvoiceModel(
+      docId: const Uuid().v4(),
+      createDate: DateTime.now(),
+      updateDate: null,
+      toinvId: receiptCubit.state.docNum,
+      tousrId: user!.docId,
+      remarks: "Discount Amount: ${Helpers.parseMoney(widget.discountValue)}",
+      category: "001 - Discount Manual",
+    );
+    context.read<ReceiptCubit>().updateApprovals(approval);
   }
 
   Future<String> createOTP() async {

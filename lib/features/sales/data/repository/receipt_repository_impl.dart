@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_applied_promo.dart';
@@ -20,6 +21,7 @@ import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -79,7 +81,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           remarks: receiptEntity.remarks,
           subTotal: receiptEntity.subtotal,
           discPrctg: receiptEntity.discPrctg ?? 0,
-          discAmount: (receiptEntity.discHeaderManual ?? 0) + (receiptEntity.discHeaderPromo ?? 0),
+          discAmount: receiptEntity.discAmount ?? 0,
           discountCard: 0,
           coupon: "",
           discountCoupun: 0,
@@ -267,6 +269,23 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           );
           log("invoiceAppHeader - $invoiceAppHeader");
           await _appDatabase.invoiceAppliedPromoDao.create(data: invoiceAppHeader, txn: txn);
+        }
+
+        if (receiptEntity.approvals != null) {
+          final List<ApprovalInvoiceModel> approvalsModel = [];
+          for (final ApprovalInvoiceEntity approvalEntity in receiptEntity.approvals!) {
+            approvalsModel.add(ApprovalInvoiceModel(
+              docId: approvalEntity.docId,
+              createDate: approvalEntity.createDate,
+              updateDate: approvalEntity.updateDate,
+              toinvId: generatedInvoiceHeaderDocId,
+              tousrId: approvalEntity.tousrId,
+              remarks: approvalEntity.remarks,
+              category: approvalEntity.category,
+            ));
+          }
+          await _appDatabase.approvalInvoiceDao.bulkCreate(data: approvalsModel, txn: txn);
+          log("approvalsModel - $approvalsModel");
         }
       });
 

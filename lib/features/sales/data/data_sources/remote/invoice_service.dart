@@ -159,6 +159,16 @@ class InvoiceApi {
       log("promotionsDetail - $promotionsDetail");
 
       List<Map<String, dynamic>> approvals = [];
+      final tinv6s = await GetIt.instance<AppDatabase>().approvalInvoiceDao.readByToinvId(invHead[0].docId!, null);
+      log("tinv6s - $tinv6s");
+      for (final tinv6 in tinv6s) {
+        Map<String, dynamic> tinv6Maps = {
+          "tousr_id": tinv6!.tousrId,
+          "remarks": tinv6.remarks,
+          "category": tinv6.category,
+        };
+        approvals.add(tinv6Maps);
+      }
 
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
@@ -178,13 +188,13 @@ class InvoiceApi {
             .toIso8601String(),
         "timezone": invHead[0].timezone,
         "remarks": invHead[0].remarks ?? "",
-        "subtotal": (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0)).round(),
+        "subtotal": (invHead[0].subTotal - (invHead[0].discHeaderPromo ?? 0)).round(),
         "discprctg": invHead[0].subTotal == 0
             ? 0
             : 100 *
-                ((invHead[0].discHeaderManual ?? 0) /
-                    (invHead[0].subTotal - invHead[0].discAmount + (invHead[0].discHeaderManual ?? 0))),
-        "discamount": invHead[0].discHeaderManual,
+                ((invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0)) /
+                    (invHead[0].subTotal - (invHead[0].discHeaderPromo ?? 0))),
+        "discamount": invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0),
         "discountcard": invHead[0].discountCard,
         "coupon": invHead[0].coupon,
         "discountcoupon": invHead[0].discountCoupun,
@@ -211,6 +221,7 @@ class InvoiceApi {
             "totalamount":
                 ((item['quantity'] * item['sellingprice'] * (100 / (100 + item['taxprctg']))) - item['discamount'])
                     .round(),
+            // item['totalamount'].round(),
             "taxprctg": item['taxprctg'],
             "promotiontype": item['promotiontype'],
             "promotionid": item['promotionid'],
@@ -249,7 +260,7 @@ class InvoiceApi {
         }).toList(),
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
-        "approval": []
+        "approval": approvals
       };
       if (invHead[0].salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;
@@ -456,7 +467,7 @@ class InvoiceApi {
             : 100 *
                 ((invHead.discHeaderManual ?? 0) /
                     (invHead.subTotal - invHead.discAmount + (invHead.discHeaderManual ?? 0))),
-        "discamount": invHead.discHeaderManual,
+        "discamount": invHead.discAmount - (invHead.discHeaderPromo ?? 0),
         "discountcard": invHead.discountCard,
         "coupon": invHead.coupon,
         "discountcoupon": invHead.discountCoupun,
