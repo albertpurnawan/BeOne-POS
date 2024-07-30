@@ -63,7 +63,6 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
           throw Exception('Could not determine user profile directory');
         }
         final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
-
         backupFolder = Directory(backupDir);
         log("backupDir W - $backupDir");
         log("backupFolder W - $backupFolder");
