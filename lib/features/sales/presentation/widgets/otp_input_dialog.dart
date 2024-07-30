@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -7,16 +8,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
+import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:uuid/uuid.dart';
 
 class OTPInputDialog extends StatefulWidget {
   final double discountValue;
   final String requester;
+  final String docnum;
 
-  const OTPInputDialog({Key? key, required this.discountValue, required this.requester}) : super(key: key);
+  const OTPInputDialog({Key? key, required this.discountValue, required this.requester, required this.docnum})
+      : super(key: key);
 
   @override
   State<OTPInputDialog> createState() => _OTPInputDialogState();
@@ -60,10 +66,28 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
     _startTimer();
   }
 
+  Future<void> updateReceiptApprovals(BuildContext context, String approver) async {
+    final user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(approver, null);
+    final receiptCubit = context.read<ReceiptCubit>();
+
+    final approval = ApprovalInvoiceModel(
+      docId: const Uuid().v4(),
+      createDate: DateTime.now(),
+      updateDate: null,
+      toinvId: receiptCubit.state.docNum,
+      tousrId: user!.docId,
+      remarks: "Discount Amount: ${Helpers.parseMoney(widget.discountValue)}",
+      category: "001 - Discount Manual",
+    );
+    context.read<ReceiptCubit>().updateApprovals(approval);
+    log("receiptCubit - ${receiptCubit.state.approvals}");
+  }
+
   Future<void> onSubmit(BuildContext parentContext, BuildContext childContext, String otp, String requester) async {
     final response = await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
+    log("response - $response");
 
-    if (response == "200") {
+    if (response['status'] == "200") {
       if (childContext.mounted) {
         showDialog(
           context: childContext,
@@ -78,6 +102,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
         );
       }
       await Future.delayed(const Duration(seconds: 2));
+
       if (childContext.mounted) {
         childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
 
@@ -88,6 +113,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
 
         SnackBarHelper.presentSuccessSnackBar(
             parentContext, "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}");
+        await updateReceiptApprovals(childContext, response['approver']!);
       }
     } else {
       const message = "Wrong Code, Please Check Again";
