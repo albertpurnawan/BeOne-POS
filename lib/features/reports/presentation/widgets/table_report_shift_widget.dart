@@ -92,7 +92,7 @@ class _TableReportShiftState extends State<TableReportShift> {
               child: Column(
                 children: [
                   const Text(
-                    "Report By Shift",
+                    "Report By Invoice",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,

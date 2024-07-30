@@ -5,15 +5,19 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
+import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_submission_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class ApprovalDialog extends StatefulWidget {
   final Future<void> Function()? onSuccess;
@@ -64,12 +68,29 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     if (!formKey.currentState!.validate()) return;
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
+      await updateReceiptApprovals(childContext);
       parentContext.pop(true);
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
       if (Platform.isWindows) _usernameFocusNode.requestFocus();
     }
+  }
+
+  Future<void> updateReceiptApprovals(BuildContext context) async {
+    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
+    final receiptCubit = context.read<ReceiptCubit>();
+
+    final approval = ApprovalInvoiceModel(
+      docId: const Uuid().v4(),
+      createDate: DateTime.now(),
+      updateDate: null,
+      toinvId: receiptCubit.state.docNum,
+      tousrId: user!.docId,
+      remarks: "Approval Transaction 0",
+      category: "002 - Transaction 0",
+    );
+    context.read<ReceiptCubit>().updateApprovals(approval);
   }
 
   Future<String> createOTP() async {

@@ -1678,7 +1678,7 @@ class _SalesPageState extends State<SalesPage> {
                                       text: const TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: "Header\nAttr.",
+                                            text: "Header\nAttribute",
                                             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                           ),
                                         ],
@@ -1768,7 +1768,7 @@ class _SalesPageState extends State<SalesPage> {
                                         text: TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: "Item\nAttr.",
+                                              text: "Item\nAttribute",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,

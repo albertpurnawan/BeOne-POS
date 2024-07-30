@@ -43,12 +43,19 @@ class InvoiceApi {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
               if (entry['amount'] < 0) break;
-              if (entry['amount'] == 0 && invHead[0].grandTotal != 0) break;
-              invoicePayments.add({
-                "tpmt3_id": entry['tpmt3Id'],
-                "amount": entry['amount'],
-                "rrn": entry['rrn'] ?? "",
-              });
+              if (entry['amount'] == 0 && invHead[0].grandTotal != 0) {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              } else {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              }
               break;
             case "2": // EDC
               if (entry['tpmt2Id'] == null) {
@@ -260,7 +267,7 @@ class InvoiceApi {
         }).toList(),
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
-        "approval": approvals
+        "approval": approvals,
       };
       if (invHead[0].salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;
@@ -343,21 +350,27 @@ class InvoiceApi {
       // log("$invDet");
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead.docId.toString());
-      // log("paymean - $payMean");
+      log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
-
       if (payMean != null) {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
               if (entry['amount'] < 0) break;
-              if (entry['amount'] == 0 && invHead.grandTotal != 0) break;
-              invoicePayments.add({
-                "tpmt3_id": entry['tpmt3Id'],
-                "amount": entry['amount'],
-                "rrn": entry['rrn'] ?? "",
-              });
+              if (entry['amount'] == 0 && invHead.grandTotal != 0) {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              } else {
+                invoicePayments.add({
+                  "tpmt3_id": entry['tpmt3Id'],
+                  "amount": entry['amount'],
+                  "rrn": entry['rrn'] ?? "",
+                });
+              }
               break;
             case "2": // EDC
               if (entry['tpmt2Id'] == null) {
@@ -445,6 +458,40 @@ class InvoiceApi {
         }
       }
 
+      List<Map<String, dynamic>> promotionsHeader = [];
+      if (invHead.discHeaderManual != 0) {
+        final promoHeader =
+            await GetIt.instance<AppDatabase>().invoiceAppliedPromoDao.readByToinvId(invHead.docId!, null);
+        List<Map<String, dynamic>> promoMaps =
+            promoHeader.map((promo) => promo.promoToMapWithEmptyString(promo)).toList();
+        promotionsHeader.addAll(promoMaps);
+      }
+      log("promotionsHeader - $promotionsHeader");
+
+      List<Map<String, dynamic>> promotionsDetail = [];
+      for (final tinv1 in invDet) {
+        final appliedPromos = await GetIt.instance<AppDatabase>()
+            .invoiceAppliedPromoDao
+            .readByToinvIdAndTinv1Id(tinv1.toinvId!, tinv1.docId, null);
+
+        List<Map<String, dynamic>> promoMaps = appliedPromos.map((promo) => promo.toMap()).toList();
+
+        promotionsDetail.addAll(promoMaps);
+      }
+      log("promotionsDetail - $promotionsDetail");
+
+      List<Map<String, dynamic>> approvals = [];
+      final tinv6s = await GetIt.instance<AppDatabase>().approvalInvoiceDao.readByToinvId(invHead.docId!, null);
+      log("tinv6s - $tinv6s");
+      for (final tinv6 in tinv6s) {
+        Map<String, dynamic> tinv6Maps = {
+          "tousr_id": tinv6!.tousrId,
+          "remarks": tinv6.remarks,
+          "category": tinv6.category,
+        };
+        approvals.add(tinv6Maps);
+      }
+
       final dataToSend = {
         "tostr_id": invHead.tostrId,
         "docnum": invHead.docnum,
@@ -481,7 +528,6 @@ class InvoiceApi {
         "totalpayment": invHead.totalPayment.round() - invHead.changed,
         "tocsr_id": invHead.tocsrId,
         "toinv_tohem_id": invHead.toinvTohemId,
-        "sales_tohem_id": invHead.salesTohemId,
         "refpos1": invHead.refpos1,
         "invoice_item": invDet.map((item) {
           return {
@@ -525,13 +571,19 @@ class InvoiceApi {
             "qtyconv": 0.0,
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item.tohemId ?? ""
+            "tohem_id": item.tohemId ?? "",
+            "promotion": promotionsDetail
           };
         }).toList(),
-        "invoice_payment": invoicePayments
+        "invoice_payment": invoicePayments,
+        "promotion": promotionsHeader,
+        "approval": approvals,
       };
+      if (invHead.salesTohemId != "") {
+        dataToSend["sales_tohem_id"] = invHead.salesTohemId;
+      }
 
-      // log("Data2Send: ${jsonEncode(dataToSend)}");
+      log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
         "$url/tenant-invoice/",
@@ -542,7 +594,7 @@ class InvoiceApi {
           },
         ),
       );
-      // log("response - $response");
+      log("response - $response");
 
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         // log("Success Post");

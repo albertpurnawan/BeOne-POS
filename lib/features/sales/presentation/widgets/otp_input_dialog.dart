@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -80,12 +79,10 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
       category: "001 - Discount Manual",
     );
     context.read<ReceiptCubit>().updateApprovals(approval);
-    log("receiptCubit - ${receiptCubit.state.approvals}");
   }
 
   Future<void> onSubmit(BuildContext parentContext, BuildContext childContext, String otp, String requester) async {
     final response = await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
-    log("response - $response");
 
     if (response['status'] == "200") {
       if (childContext.mounted) {
