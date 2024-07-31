@@ -171,6 +171,8 @@ class _SettingsFormState extends State<SettingsForm> {
         throw UnsupportedError("Unsupported platform");
       }
 
+      if (!backupFolder.existsSync()) return;
+
       final backupFiles = backupFolder.listSync().where((file) => file.path.endsWith('.zip')).toList()
         ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
       log("backup - $backupFiles");

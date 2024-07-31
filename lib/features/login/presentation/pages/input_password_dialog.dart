@@ -33,7 +33,6 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final parentContext = context;
     String errorMessage = "";
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
@@ -169,10 +168,10 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                       onPressed: () async {
                         await RestoreDatabaseUseCase()
-                            .call(params: RestoreDatabaseParams(_passwordController.text, context: parentContext));
-                        // context.pop(true);
-                        // context.pop(true);
-                        // context.pop(true);
+                            .call(params: RestoreDatabaseParams(_passwordController.text, context: context));
+                        context.pop(true);
+                        context.pop(true);
+                        context.pop(true);
                       },
                       child: Center(
                         child: RichText(

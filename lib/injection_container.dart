@@ -177,6 +177,7 @@ Future<void> initializeDependencies() async {
    * PACKAGE AND RESOURCES
    * =================================
    */
+
   sl.registerSingleton<Dio>(Dio());
   sl.registerSingleton<GoRouter>(AppRouter().router);
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
