@@ -132,7 +132,7 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
     final endDate = end.toUtc().toIso8601String();
 
     final result = await db.rawQuery('''
-      SELECT x1.docnum, x0.transdate, x0.transtime, x2.username, x0.grandtotal, x0.docnum as invdocnum, x0.docid
+      SELECT x1.docnum, x0.transdate, x0.transtime, x2.username, x0.grandtotal, x0.docnum as invdocnum, x0.timezone
       FROM $tableName AS x0
       INNER JOIN tcsr1 AS x1 ON  x1.docid = x0.tcsr1Id
       INNER JOIN tousr AS x2 ON x1.tousrId = x2.docid

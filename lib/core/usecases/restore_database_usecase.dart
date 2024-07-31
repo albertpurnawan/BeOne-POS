@@ -5,9 +5,11 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/permission_handler.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -103,28 +105,38 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
 
       final restoredPath = p.join(backupFolder.path, "backup.db");
       final restoredFile = File(restoredPath);
+      // Close the database connection
+      await GetIt.instance<AppDatabase>().close();
+
+      // Rename original file if it's not open by another process
       final originalFile = File(path);
       final renamedOriginal = "${path}_01";
-      await originalFile.rename(renamedOriginal);
+      try {
+        await originalFile.rename(renamedOriginal);
+      } catch (e) {
+        log("Failed to rename the original file. It may be in use.");
+        SnackBarHelper.presentErrorSnackBar(context, "Failed to rename the original file. It may be in use.");
+        return;
+      }
 
+      // Continue with restoration logic if renaming was successful
       if (await restoredFile.exists()) {
         try {
           await restoredFile.copy(path);
+          await File(renamedOriginal).delete(); // Remove backup if the copy was successful
 
-          // If copy successful, delete the renamed original
-          await File(renamedOriginal).delete();
           if (context.mounted) {
             Navigator.pop(context);
             log("Database restored from $restoredPath");
             SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
           }
         } catch (e) {
-          // If copy unsuccessful, rename the renamed original
+          // If copy unsuccessful, attempt to restore original state
           await File(renamedOriginal).rename(path);
-          // Handle error, display error message
+
           if (context.mounted) {
-            log("Restored file does not exist at $restoredPath");
-            SnackBarHelper.presentErrorSnackBar(context, "Restored file does not exist at $restoredPath.");
+            log("Failed to restore the database. Reverting to the original.");
+            SnackBarHelper.presentErrorSnackBar(context, "Failed to restore the database. Reverting to the original.");
           }
           rethrow;
         }

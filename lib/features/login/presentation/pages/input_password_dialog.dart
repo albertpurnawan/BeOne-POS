@@ -98,7 +98,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
               contentPadding: const EdgeInsets.all(0),
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
-                height: MediaQuery.of(context).size.height * 0.25,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
                   child: Column(
@@ -139,12 +139,12 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                               color: Colors.yellow.shade700,
                               size: 26.0,
                             ),
-                            const SizedBox(width: 10.0), // Space between icon and text
+                            const SizedBox(width: 10.0),
                             const Text(
                               "The app will close itself after the database is restored!",
-                              textAlign: TextAlign.center, // Centering the text
+                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Colors.black, // Text color for contrast
+                                color: Colors.black,
                                 fontSize: 16,
                                 fontStyle: FontStyle.italic,
                                 fontWeight: FontWeight.w500,
