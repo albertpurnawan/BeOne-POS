@@ -120,6 +120,14 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       await restoredFile.delete();
     } catch (e) {
       log("Error restoring database: $e");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error restoring database: $e'),
+          ),
+        );
+      });
+      Navigator.pop(context);
       rethrow;
     }
   }

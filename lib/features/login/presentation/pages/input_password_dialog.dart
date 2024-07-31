@@ -33,6 +33,8 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final parentContext = context;
+    String errorMessage = "";
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
         return Scaffold(
@@ -98,14 +100,26 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                 height: MediaQuery.of(context).size.height * 0.2,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
-                  child: CustomInput(
-                    // focusNode: _textFocusNode,
-                    controller: _passwordController,
-                    label: "Password",
-                    hint: "Database Password",
-                    prefixIcon: const Icon(Icons.lock),
-                    validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
-                    type: CustomInputType.password,
+                  child: Column(
+                    children: [
+                      CustomInput(
+                        // focusNode: _textFocusNode,
+                        controller: _passwordController,
+                        label: "Password",
+                        hint: "Database Password",
+                        prefixIcon: const Icon(Icons.lock),
+                        validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
+                        type: CustomInputType.password,
+                      ),
+                      if (errorMessage != "")
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            errorMessage,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -154,12 +168,11 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                           backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                       onPressed: () async {
-                        //handle onpressed
                         await RestoreDatabaseUseCase()
-                            .call(params: RestoreDatabaseParams(_passwordController.text, context: context));
-                        context.pop(true);
-                        context.pop(true);
-                        context.pop(true);
+                            .call(params: RestoreDatabaseParams(_passwordController.text, context: parentContext));
+                        // context.pop(true);
+                        // context.pop(true);
+                        // context.pop(true);
                       },
                       child: Center(
                         child: RichText(
