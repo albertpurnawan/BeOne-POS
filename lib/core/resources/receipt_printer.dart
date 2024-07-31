@@ -1093,43 +1093,57 @@ class ReceiptPrinter {
     bytes += generator.hr();
     bytes += generator.emptyLines(1);
     bytes += generator.row([
-      PosColumn(width: 4, text: 'Store Name', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 8,
-          text: ":  ${printOpenShiftDetail.storeMasterEntity.storeName}",
+          width: 4,
+          text: Helpers.alignLeftByAddingSpace('Store Name', 15),
           styles: const PosStyles(align: PosAlign.left)),
-    ]);
-    bytes += generator.row([
-      PosColumn(width: 4, text: 'Cash Register', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: ":  ${printOpenShiftDetail.cashRegisterEntity.description}",
+          text: Helpers.alignLeftByAddingSpace(":  ${printOpenShiftDetail.storeMasterEntity.storeName}", 30),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
       PosColumn(
           width: 4,
-          text: 'Cashier',
+          text: Helpers.alignLeftByAddingSpace('Cash Register', 15),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 8,
+          text: Helpers.alignLeftByAddingSpace(":  ${printOpenShiftDetail.cashRegisterEntity.description}", 30),
+          styles: const PosStyles(align: PosAlign.left)),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 4,
+          text: Helpers.alignLeftByAddingSpace('Cashier', 15),
           styles: const PosStyles(
             align: PosAlign.left,
           )),
       PosColumn(
           width: 8,
-          text: ":  ${printOpenShiftDetail.userEntity.username}",
+          text: Helpers.alignLeftByAddingSpace(":  ${printOpenShiftDetail.userEntity.username}", 30),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 4, text: 'Opened At', styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 4,
+          text: Helpers.alignLeftByAddingSpace('Opened At', 15),
+          styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: ":  ${Helpers.dateddMMMyyyyHHmmss(printOpenShiftDetail.cashierBalanceTransactionEntity.openDate)}",
+          text: Helpers.alignLeftByAddingSpace(
+              ":  ${Helpers.dateddMMMyyyyHHmmss(printOpenShiftDetail.cashierBalanceTransactionEntity.openDate)}", 30),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 4, text: 'Opening Balance', styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 4,
+          text: Helpers.alignLeftByAddingSpace('Opening Balance', 15),
+          styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: ":  ${Helpers.parseMoney(printOpenShiftDetail.cashierBalanceTransactionEntity.openValue)}",
+          text: Helpers.alignLeftByAddingSpace(
+              ":  ${Helpers.parseMoney(printOpenShiftDetail.cashierBalanceTransactionEntity.openValue)}", 30),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
 
@@ -1168,97 +1182,139 @@ class ReceiptPrinter {
     bytes += generator.hr();
     bytes += generator.emptyLines(1);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Store Name', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${printCloseShiftDetail.storeMasterEntity.storeName}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Store Name', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.storeMasterEntity.storeName}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Cash Register', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${printCloseShiftDetail.cashRegisterEntity.description}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Cash Register', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.cashRegisterEntity.description}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Cashier', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${printCloseShiftDetail.userEntity.username}",
+          width: 6, text: Helpers.alignLeftByAddingSpace('Cashier', 23), styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.userEntity.username}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Opened at', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.dateddMMMyyyyHHmmss(printCloseShiftDetail.cashierBalanceTransactionEntity.openDate)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Opened at', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(
+              ":  ${Helpers.dateddMMMyyyyHHmmss(printCloseShiftDetail.cashierBalanceTransactionEntity.openDate)}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Closed at', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.dateddMMMyyyyHHmmss(printCloseShiftDetail.cashierBalanceTransactionEntity.closeDate)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Closed at', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(
+              ":  ${Helpers.dateddMMMyyyyHHmmss(printCloseShiftDetail.cashierBalanceTransactionEntity.closeDate)}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Approved by', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7, text: ":  ${printCloseShiftDetail.approverName}", styles: const PosStyles(align: PosAlign.left)),
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Approved by', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.approverName}", 23),
+          styles: const PosStyles(align: PosAlign.left)),
     ]);
 
     bytes += generator.emptyLines(1);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Opening Balance', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.cashierBalanceTransactionEntity.openValue.round())}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Opening Balance', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.cashierBalanceTransactionEntity.openValue.round())}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Total Cash Sales', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalCashSales)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Total Cash Sales', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${Helpers.parseMoney(printCloseShiftDetail.totalCashSales)}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Expected Cash', styles: const PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.expectedCash)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Expected Cash', 23),
+          styles: const PosStyles(align: PosAlign.left, bold: true)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${Helpers.parseMoney(printCloseShiftDetail.expectedCash)}", 23),
           styles: const PosStyles(align: PosAlign.left, bold: true)),
     ]);
     bytes += generator.emptyLines(1);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Total Non Cash Sales', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalNonCashSales)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Total Non Cash Sales', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${Helpers.parseMoney(printCloseShiftDetail.totalNonCashSales)}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Total Sales', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.totalSales)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Total Sales', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${Helpers.parseMoney(printCloseShiftDetail.totalSales)}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.emptyLines(1);
 
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Actual Cash', styles: const PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.cashReceived)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Actual Cash', 23),
+          styles: const PosStyles(align: PosAlign.left, bold: true)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${Helpers.parseMoney(printCloseShiftDetail.cashReceived)}", 23),
           styles: const PosStyles(align: PosAlign.left, bold: true)),
     ]);
     bytes += generator.row([
-      PosColumn(width: 5, text: 'Difference', styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
-          width: 7,
-          text: ":  ${Helpers.parseMoney(printCloseShiftDetail.difference)}",
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace('Difference', 23),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 6,
+          text: Helpers.alignLeftByAddingSpace(":  ${Helpers.parseMoney(printCloseShiftDetail.difference)}", 23),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
 
