@@ -174,10 +174,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         }
 
         await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
-        // log("payMeansModels - $payMeansModels");
+        log("payMeansModels - $payMeansModels");
 
         List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
-        // log("vouchers - $vouchers");
+        log("vouchers - $vouchers");
 
         for (final voucherSelection in vouchers) {
           final PayMeansModel paymeansModel = PayMeansModel(

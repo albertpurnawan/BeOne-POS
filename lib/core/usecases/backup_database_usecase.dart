@@ -5,6 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/permission_handler.dart';
@@ -57,13 +58,21 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
 
       Directory backupFolder;
       if (Platform.isWindows) {
-        const backupDir = 'C:\\RubyPOS';
+        final userProfile = Platform.environment['USERPROFILE'];
+        if (userProfile == null) {
+          throw Exception('Could not determine user profile directory');
+        }
+        final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
         backupFolder = Directory(backupDir);
-        log("backupDir - $backupDir");
-        log("backupFolder - $backupFolder");
+        log("backupDir W - $backupDir");
+        log("backupFolder W - $backupFolder");
       } else if (Platform.isAndroid) {
         const backupDir = "/storage/emulated/0";
         backupFolder = Directory('$backupDir/RubyPOS');
+      } else if (Platform.isIOS) {
+        final documentsDir = await getApplicationDocumentsDirectory();
+        final backupDir = p.join(documentsDir.path, 'RubyPOS');
+        backupFolder = Directory(backupDir);
       } else {
         throw UnsupportedError("Unsupported platform");
       }
@@ -84,10 +93,8 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
       }
 
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-      // final backupPath = p.join(backupFolder.path, 'backup.db');
 
       final dbFile = File(path);
-      // await dbFile.copy(backupPath);
 
       // Zip the database file
       final zipPath = p.join(backupFolder.path, "backup_$timestamp.zip");

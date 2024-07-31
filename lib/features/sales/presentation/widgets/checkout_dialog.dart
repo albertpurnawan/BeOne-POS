@@ -690,7 +690,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                     RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                                 backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                                 overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                            onPressed: isLoadingQRIS ? null : () async => await charge(),
+                            onPressed: isCharging
+                                ? null
+                                : isLoadingQRIS
+                                    ? null
+                                    : () async => await charge(),
                             child: Center(
                               child: isLoadingQRIS
                                   ? const SizedBox(

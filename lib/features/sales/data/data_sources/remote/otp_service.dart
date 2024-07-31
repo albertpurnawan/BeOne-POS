@@ -88,7 +88,7 @@ class OTPServiceAPi {
     }
   }
 
-  Future<String> validateOTP(String otp, String requester) async {
+  Future<Map<String, String>> validateOTP(String otp, String requester) async {
     try {
       // log("VALIDATE OTP");
       String url = "http://110.239.68.248:7070/api/otp/submit";
@@ -105,11 +105,12 @@ class OTPServiceAPi {
         data: dataToSend,
         options: options,
       );
+      log("responseValidate - $response");
 
-      return "${response.statusCode}";
+      return {"status": "${response.statusCode}", "approver": "${response.data['data']?['Destination']}"};
     } catch (e) {
       handleError(e);
-      return e.toString();
+      return {"errpr": e.toString()};
     }
   }
 }

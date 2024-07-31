@@ -42,4 +42,16 @@ class UserDao extends BaseDao<UserModel> {
 
     return res.isNotEmpty ? UserModel.fromMap(res[0]) : null;
   }
+
+  Future<UserModel?> readbyEmail(String email, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+
+    return res.isNotEmpty ? UserModel.fromMap(res[0]) : null;
+  }
 }

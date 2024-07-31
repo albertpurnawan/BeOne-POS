@@ -124,6 +124,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
           builder: (context) => OTPInputDialog(
             discountValue: widget.discountValue,
             requester: value,
+            docnum: widget.docnum,
           ),
         );
       });

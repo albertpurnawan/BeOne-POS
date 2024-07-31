@@ -392,8 +392,21 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     if (approvalsMap.containsKey(approvalsEntity.toinvId)) {
-      approvalsMap[approvalsEntity.toinvId!] = approvalsEntity;
+      bool categoryExists = false;
+      for (var approval in approvalsMap.values) {
+        if (approval.toinvId == approvalsEntity.toinvId && approval.category == approvalsEntity.category) {
+          // Update the approval with the same category
+          approvalsMap[approvalsEntity.toinvId!] = approvalsEntity;
+          categoryExists = true;
+          break;
+        }
+      }
+      // If the category is different, add the new approval
+      if (!categoryExists) {
+        approvalsMap[approvalsEntity.docId] = approvalsEntity;
+      }
     } else {
+      // Add the approval if toinvId does not exist
       approvalsMap[approvalsEntity.docId] = approvalsEntity;
     }
 
@@ -401,6 +414,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       approvals: approvalsMap.values.toList(),
     );
 
+    dev.log("updateApp newState - ${newState.approvals}");
     emit(newState);
   }
 
