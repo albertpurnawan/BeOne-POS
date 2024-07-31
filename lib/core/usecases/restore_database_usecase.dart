@@ -56,9 +56,14 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
 
       Directory backupFolder;
       if (Platform.isWindows) {
-        final documentsDir = await getApplicationDocumentsDirectory();
-        final backupDir = p.join(documentsDir.path, 'RubyPOS');
+        final userProfile = Platform.environment['USERPROFILE'];
+        if (userProfile == null) {
+          throw Exception('Could not determine user profile directory');
+        }
+        final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
         backupFolder = Directory(backupDir);
+        log("backupDir W - $backupDir");
+        log("backupFolder W - $backupFolder");
       } else if (Platform.isAndroid) {
         const backupDir = "/storage/emulated/0/RubyPOS";
         backupFolder = Directory(backupDir);
