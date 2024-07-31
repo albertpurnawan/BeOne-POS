@@ -57,10 +57,10 @@ class PrintReceiptUseCase implements UseCase<void, PrintReceiptUseCaseParams?> {
         storeMasterEntity: storeMasterEntity,
         cashRegisterEntity: cashRegisterEntity,
         receiptContentEntities: receiptContentEntities,
-        isDraft: params.isDraft,
+        printType: params.printType,
       );
 
-      await _receiptPrinter.printReceipt(printReceiptDetail, params.isDraft);
+      await _receiptPrinter.printReceipt(printReceiptDetail, params.printType);
     } catch (e, s) {
       log(e.toString());
       log(s.toString());
@@ -70,10 +70,10 @@ class PrintReceiptUseCase implements UseCase<void, PrintReceiptUseCaseParams?> {
 
 class PrintReceiptUseCaseParams {
   ReceiptEntity receiptEntity;
-  bool isDraft;
+  int printType; // 1: normal bill, 2: draft bill, 3: copy bill
 
   PrintReceiptUseCaseParams({
     required this.receiptEntity,
-    required this.isDraft,
+    required this.printType,
   });
 }

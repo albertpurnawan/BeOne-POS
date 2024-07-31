@@ -19,9 +19,9 @@ class PrintOpenShiftUsecase implements UseCase<void, CashierBalanceTransactionEn
       this._receiptPrinter, this._cashRegisterRepository, this._storeMasterRepository, this._userRepository);
 
   @override
-  Future<void> call({CashierBalanceTransactionEntity? params}) async {
+  Future<void> call({CashierBalanceTransactionEntity? params, int? printType}) async {
     try {
-      if (params == null || params.tocsrId == null || params.tousrId == null) {
+      if (params == null || params.tocsrId == null || params.tousrId == null || printType == null) {
         return;
       }
 
@@ -39,11 +39,13 @@ class PrintOpenShiftUsecase implements UseCase<void, CashierBalanceTransactionEn
       final UserEntity? userEntityRes = await _userRepository.getUser(params.tousrId!);
       if (userEntityRes == null) throw "User not found";
 
-      await _receiptPrinter.printOpenShift(PrintOpenShiftDetail(
-          storeMasterEntity: storeMasterEntityRes,
-          cashRegisterEntity: cashRegisterEntityRes,
-          userEntity: userEntityRes,
-          cashierBalanceTransactionEntity: params));
+      await _receiptPrinter.printOpenShift(
+          PrintOpenShiftDetail(
+              storeMasterEntity: storeMasterEntityRes,
+              cashRegisterEntity: cashRegisterEntityRes,
+              userEntity: userEntityRes,
+              cashierBalanceTransactionEntity: params),
+          printType);
     } catch (e) {
       rethrow;
     }

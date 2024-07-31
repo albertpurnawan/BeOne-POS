@@ -4,7 +4,7 @@ import 'package:sqflite/sqflite.dart';
 abstract class ReceiptRepository {
   Future<ReceiptEntity?> createInvoiceHeaderAndDetail(ReceiptEntity receiptEntity);
 
-  Future<ReceiptEntity?> getReceiptByInvoiceHeaderDocId(String docId, Transaction txn);
+  Future<ReceiptEntity?> getReceiptByInvoiceHeaderDocId(String docId, Transaction? txn);
 
   Future<List<ReceiptEntity>> getReceipts();
 

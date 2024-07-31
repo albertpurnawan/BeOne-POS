@@ -220,7 +220,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       });
       await Future.delayed(Durations.extralong1, null);
       await GetIt.instance<PrintReceiptUseCase>()
-          .call(params: PrintReceiptUseCaseParams(isDraft: true, receiptEntity: context.read<ReceiptCubit>().state));
+          .call(params: PrintReceiptUseCaseParams(printType: 2, receiptEntity: context.read<ReceiptCubit>().state));
       setState(() {
         isPrinting = false;
       });

@@ -10,7 +10,7 @@ class PrintReceiptDetail {
   final StoreMasterEntity storeMasterEntity;
   final CashRegisterEntity cashRegisterEntity;
   final List<ReceiptContentEntity?> receiptContentEntities;
-  final bool isDraft;
+  final int printType;
 
   PrintReceiptDetail({
     required this.receiptEntity,
@@ -18,6 +18,6 @@ class PrintReceiptDetail {
     required this.storeMasterEntity,
     required this.cashRegisterEntity,
     required this.receiptContentEntities,
-    required this.isDraft,
+    required this.printType,
   });
 }

@@ -5,6 +5,10 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 
 class TableReportShift extends StatefulWidget {
   final DateTime? fromDate;
@@ -26,6 +30,8 @@ class _TableReportShiftState extends State<TableReportShift> {
   final tableHead = ["Date", "Shift", "Invoice", "Cashier", "Amount", ""];
   List<dynamic>? fetched;
   bool isLoading = true;
+  bool isPrinting = false;
+  String invDocIdPrinted = "";
 
   @override
   void initState() {
@@ -141,6 +147,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                         final userName = shift['username'];
                         final transDate = "${shift['transdate']} ${shift['transtime']}";
                         final docnum = shift['invdocnum'];
+                        final invDocId = shift['docid'];
 
                         return TableRow(
                           children: [
@@ -266,12 +273,36 @@ class _TableReportShiftState extends State<TableReportShift> {
                                     ),
                                   ),
                                   child: Center(
-                                    child: IconButton(
-                                      icon: const Icon(Icons.print_outlined, size: 20),
-                                      onPressed: () {
-                                        log("invoice - $docnum");
-                                      },
-                                    ),
+                                    child: isPrinting && invDocIdPrinted == invDocId
+                                        ? const CircularProgressIndicator()
+                                        : IconButton(
+                                            icon: const Icon(Icons.print_outlined, size: 20),
+                                            onPressed: () async {
+                                              try {
+                                                setState(() {
+                                                  isPrinting = true;
+                                                  invDocIdPrinted = invDocId;
+                                                });
+                                                final ReceiptEntity? targetReceipt =
+                                                    await GetIt.instance<ReceiptRepository>()
+                                                        .getReceiptByInvoiceHeaderDocId(invDocId, null);
+                                                if (targetReceipt == null) throw "Receipt not found";
+                                                await GetIt.instance<PrintReceiptUseCase>().call(
+                                                    params: PrintReceiptUseCaseParams(
+                                                        receiptEntity: targetReceipt, printType: 3));
+                                                setState(() {
+                                                  isPrinting = false;
+                                                  invDocIdPrinted = "";
+                                                });
+                                              } catch (e) {
+                                                setState(() {
+                                                  isPrinting = false;
+                                                  invDocIdPrinted = "";
+                                                });
+                                                SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                              }
+                                            },
+                                          ),
                                   )),
                             ),
                           ],

@@ -464,7 +464,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         // dev.log("createdReceipt onCharge $createdReceipt");
         try {
           await _printReceiptUsecase.call(
-              params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, isDraft: false));
+              params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, printType: 1));
           await _openCashDrawerUseCase.call();
         } catch (e) {
           dev.log(e.toString());

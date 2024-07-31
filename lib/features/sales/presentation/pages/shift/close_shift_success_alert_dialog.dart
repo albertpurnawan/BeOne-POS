@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
@@ -33,6 +34,7 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
   CashRegisterEntity? cashRegisterEntity;
   StoreMasterEntity? storeMasterEntity;
   UserEntity? userEntity;
+  bool isPrinting = false;
 
   Future<void> populateData() async {
     try {
@@ -74,9 +76,94 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
           borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
         ),
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: const Text(
-          'Close Shift',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+        child: Row(
+          children: [
+            const Text(
+              'Close Shift',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            ),
+            const Spacer(),
+            TextButton(
+              style: ButtonStyle(
+                  shape: MaterialStatePropertyAll(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(
+                          color: Colors.white,
+                          width: 2,
+                        )),
+                  ),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+              onPressed: isPrinting
+                  ? null
+                  : () async {
+                      try {
+                        setState(() {
+                          isPrinting = true;
+                        });
+                        await GetIt.instance<PrintCloseShiftUsecase>().call(
+                            params: PrintCloseShiftUsecaseParams(
+                                cashierBalanceTransactionEntity: widget.closedShift,
+                                totalCashSales: widget.printCloseShiftUsecaseParams.totalCashSales,
+                                expectedCash: widget.printCloseShiftUsecaseParams.expectedCash,
+                                totalNonCashSales: widget.printCloseShiftUsecaseParams.totalNonCashSales,
+                                totalSales: widget.printCloseShiftUsecaseParams.totalSales,
+                                cashReceived: widget.printCloseShiftUsecaseParams.cashReceived,
+                                difference: widget.printCloseShiftUsecaseParams.difference,
+                                approverName: widget.printCloseShiftUsecaseParams.approverName),
+                            printType: 2);
+                        setState(() {
+                          isPrinting = false;
+                        });
+                      } catch (e) {
+                        setState(() {
+                          isPrinting = false;
+                        });
+                        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                      }
+                    },
+              child: Center(
+                child: isPrinting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator.adaptive(
+                            // backgroundColor: Colors.white,
+                            ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.print_outlined,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          const SizedBox(
+                            width: 7,
+                          ),
+                          RichText(
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Reprint\nClose Shift",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                // TextSpan(
+                                //   text: "  (F12)",
+                                //   style: TextStyle(fontWeight: FontWeight.w300),
+                                // ),
+                              ],
+                              style: TextStyle(height: 1, fontSize: 10),
+                            ),
+                            overflow: TextOverflow.clip,
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ],
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),

@@ -72,7 +72,7 @@ class ReceiptPrinter {
     return receiptPrinter;
   }
 
-  String _convertPrintReceiptContentToText(PrintReceiptContent printReceiptContent, bool isDraft) {
+  String _convertPrintReceiptContentToText(PrintReceiptContent printReceiptContent, int printType) {
     switch (printReceiptContent.printReceiptContentType) {
       case PrintReceiptContentType.storeName:
         return currentPrintReceiptDetail?.storeMasterEntity.storeName ?? "";
@@ -82,9 +82,9 @@ class ReceiptPrinter {
         return DateFormat('hh:mm aaa').format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
         log(DateFormat('dd/MM/yy HH:mm')
-            .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!));
+            .format(printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!));
         return DateFormat('dd/MM/yy HH:mm')
-            .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
+            .format(printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
       case PrintReceiptContentType.employeeCodeAndName:
@@ -123,7 +123,7 @@ class ReceiptPrinter {
   }
 
   Future<List<int>> _convertPrintReceiptContentToBytes(
-      List<PrintReceiptContent> printReceiptContentsRow, Generator generator, bool isDraft) async {
+      List<PrintReceiptContent> printReceiptContentsRow, Generator generator, int printType) async {
     List<int> bytes = [];
 
     if (printReceiptContentsRow.length == 1) {
@@ -618,7 +618,7 @@ class ReceiptPrinter {
                 )),
           ]);
         case PrintReceiptContentType.draftWatermarkTop:
-          if (isDraft == false) break;
+          if (printType != 2) break;
           bytes += generator.hr();
           bytes += generator.text("PENDING ORDER",
               styles: const PosStyles(
@@ -627,8 +627,25 @@ class ReceiptPrinter {
               ));
           bytes += generator.hr();
         case PrintReceiptContentType.draftWatermarkBottom:
-          if (isDraft == false) break;
+          if (printType != 2) break;
           bytes += generator.text("PENDING ORDER",
+              styles: const PosStyles(
+                align: PosAlign.center,
+                bold: true,
+              ));
+          bytes += generator.hr();
+        case PrintReceiptContentType.copyWatermarkTop:
+          if (printType != 3) break;
+          bytes += generator.hr();
+          bytes += generator.text("COPY BILL",
+              styles: const PosStyles(
+                align: PosAlign.center,
+                bold: true,
+              ));
+          bytes += generator.hr();
+        case PrintReceiptContentType.copyWatermarkBottom:
+          if (printType != 3) break;
+          bytes += generator.text("COPY BILL",
               styles: const PosStyles(
                 align: PosAlign.center,
                 bold: true,
@@ -665,8 +682,8 @@ class ReceiptPrinter {
             PosColumn(
                 width: 5,
                 text: Helpers.alignRightByAddingSpace(
-                    DateFormat('dd/MM/yy HH:mm')
-                        .format(isDraft ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!),
+                    DateFormat('dd/MM/yy HH:mm').format(
+                        printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!),
                     19),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
@@ -695,7 +712,7 @@ class ReceiptPrinter {
           bytes += generator.imageRaster(img.copyResize(decodedImage, width: 200), align: PosAlign.center);
           bytes += generator.emptyLines(1);
         default:
-          final String text = _convertPrintReceiptContentToText(printReceiptContent, isDraft);
+          final String text = _convertPrintReceiptContentToText(printReceiptContent, printType);
           if (text == "") break;
           bytes += generator.text(text,
               styles: PosStyles(
@@ -710,8 +727,8 @@ class ReceiptPrinter {
           .map((e) => PosColumn(
               width: 12 ~/ printReceiptContentsRow.length,
               text: e.alignment == PosAlign.right
-                  ? Helpers.alignRightByAddingSpace(_convertPrintReceiptContentToText(e, isDraft), 23)
-                  : _convertPrintReceiptContentToText(e, isDraft),
+                  ? Helpers.alignRightByAddingSpace(_convertPrintReceiptContentToText(e, printType), 23)
+                  : _convertPrintReceiptContentToText(e, printType),
               styles: PosStyles(
                 bold: e.isBold,
                 height: e.fontSize,
@@ -747,7 +764,7 @@ class ReceiptPrinter {
     }
   }
 
-  Future<void> printReceipt(PrintReceiptDetail printReceiptDetail, bool isDraft) async {
+  Future<void> printReceipt(PrintReceiptDetail printReceiptDetail, int printType) async {
     List<int> bytes = [];
     final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
@@ -792,7 +809,7 @@ class ReceiptPrinter {
 
     for (int i = 0; i < printReceiptContents.length; i++) {
       final List<PrintReceiptContent> row = printReceiptContents[i];
-      bytes.addAll(await _convertPrintReceiptContentToBytes(row, generator, isDraft));
+      bytes.addAll(await _convertPrintReceiptContentToBytes(row, generator, printType));
     }
 
     _printEscPos(bytes, generator);
@@ -882,7 +899,7 @@ class ReceiptPrinter {
     }
   }
 
-  Future<void> printOpenShift(PrintOpenShiftDetail printOpenShiftDetail) async {
+  Future<void> printOpenShift(PrintOpenShiftDetail printOpenShiftDetail, int printType) async {
     List<int> bytes = [];
     final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
@@ -901,7 +918,16 @@ class ReceiptPrinter {
           width: PosTextSize.size2,
           bold: true,
         ));
-    bytes += generator.emptyLines(1);
+    if (printType == 2) {
+      bytes += generator.hr();
+      bytes += generator.text("COPY",
+          styles: const PosStyles(
+            align: PosAlign.center,
+            bold: true,
+          ));
+    } else {
+      bytes += generator.emptyLines(1);
+    }
     bytes += generator.hr();
     bytes += generator.emptyLines(1);
     bytes += generator.row([
@@ -948,7 +974,7 @@ class ReceiptPrinter {
     _printEscPos(bytes, generator);
   }
 
-  Future<void> printCloseShift(PrintCloseShiftDetail printCloseShiftDetail) async {
+  Future<void> printCloseShift(PrintCloseShiftDetail printCloseShiftDetail, int printType) async {
     List<int> bytes = [];
     final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
@@ -967,7 +993,16 @@ class ReceiptPrinter {
           width: PosTextSize.size2,
           bold: true,
         ));
-    bytes += generator.emptyLines(1);
+    if (printType == 2) {
+      bytes += generator.hr();
+      bytes += generator.text("COPY",
+          styles: const PosStyles(
+            align: PosAlign.center,
+            bold: true,
+          ));
+    } else {
+      bytes += generator.emptyLines(1);
+    }
     bytes += generator.hr();
     bytes += generator.emptyLines(1);
     bytes += generator.row([
@@ -1290,6 +1325,9 @@ enum PrintReceiptContentType {
 
   draftWatermarkTop,
   draftWatermarkBottom,
+
+  copyWatermarkTop,
+  copyWatermarkBottom,
 }
 
 /// Draw the image [src] onto the image [dst].

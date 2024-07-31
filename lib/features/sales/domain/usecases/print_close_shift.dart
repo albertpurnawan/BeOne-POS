@@ -7,6 +7,7 @@ import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/repository/cash_register_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
+import 'package:thermal_printer/thermal_printer.dart';
 
 class PrintCloseShiftUsecase implements UseCase<void, PrintCloseShiftUsecaseParams> {
   // POS Parameter
@@ -19,11 +20,12 @@ class PrintCloseShiftUsecase implements UseCase<void, PrintCloseShiftUsecasePara
       this._receiptPrinter, this._cashRegisterRepository, this._storeMasterRepository, this._userRepository);
 
   @override
-  Future<void> call({PrintCloseShiftUsecaseParams? params}) async {
+  Future<void> call({PrintCloseShiftUsecaseParams? params, int? printType}) async {
     try {
       if (params == null ||
           params.cashierBalanceTransactionEntity.tocsrId == null ||
-          params.cashierBalanceTransactionEntity.tousrId == null) {
+          params.cashierBalanceTransactionEntity.tousrId == null ||
+          printType == null) {
         return;
       }
 
@@ -41,19 +43,21 @@ class PrintCloseShiftUsecase implements UseCase<void, PrintCloseShiftUsecasePara
       final UserEntity? userEntityRes = await _userRepository.getUser(params.cashierBalanceTransactionEntity.tousrId!);
       if (userEntityRes == null) throw "User not found";
 
-      await _receiptPrinter.printCloseShift(PrintCloseShiftDetail(
-        storeMasterEntity: storeMasterEntityRes,
-        cashRegisterEntity: cashRegisterEntityRes,
-        userEntity: userEntityRes,
-        cashierBalanceTransactionEntity: params.cashierBalanceTransactionEntity,
-        totalCashSales: params.totalCashSales.round(),
-        expectedCash: params.expectedCash.round(),
-        totalNonCashSales: params.totalCashSales.round(),
-        totalSales: params.totalSales.round(),
-        cashReceived: params.cashReceived.round(),
-        difference: params.difference.round(),
-        approverName: params.approverName,
-      ));
+      await _receiptPrinter.printCloseShift(
+          PrintCloseShiftDetail(
+            storeMasterEntity: storeMasterEntityRes,
+            cashRegisterEntity: cashRegisterEntityRes,
+            userEntity: userEntityRes,
+            cashierBalanceTransactionEntity: params.cashierBalanceTransactionEntity,
+            totalCashSales: params.totalCashSales.round(),
+            expectedCash: params.expectedCash.round(),
+            totalNonCashSales: params.totalCashSales.round(),
+            totalSales: params.totalSales.round(),
+            cashReceived: params.cashReceived.round(),
+            difference: params.difference.round(),
+            approverName: params.approverName,
+          ),
+          printType);
     } catch (e) {
       rethrow;
     }
