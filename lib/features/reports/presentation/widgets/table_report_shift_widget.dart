@@ -139,7 +139,16 @@ class _TableReportShiftState extends State<TableReportShift> {
                         final isLastRow = index == fetched!.length - 1;
                         final shiftName = shift['docnum'];
                         final userName = shift['username'];
+
                         final transDate = "${shift['transdate']} ${shift['transtime']}";
+                        final dateTime = DateTime.parse(transDate);
+                        final gmt = shift['timezone'];
+                        final offsetHours = int.parse(gmt.substring(3));
+                        final offsetSign = gmt[3];
+                        final offset = Duration(hours: offsetSign == '+' ? offsetHours : -offsetHours);
+                        final adjustedDateTime = dateTime.add(offset);
+                        final formattedTransDate = Helpers.dateddMMMyyyyHHmmss(adjustedDateTime);
+
                         final docnum = shift['invdocnum'];
 
                         return TableRow(
@@ -159,7 +168,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      transDate,
+                                      formattedTransDate,
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
