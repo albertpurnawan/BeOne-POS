@@ -2774,7 +2774,6 @@ CREATE TABLE $tablePOSParameter (
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
   ${POSParameterFields.usernameAdmin} text DEFAULT NULL,
   ${POSParameterFields.passwordAdmin} text DEFAULT NULL,
-  ${POSParameterFields.otpChannel} text DEFAULT NULL,
   ${POSParameterFields.lastSync} text DEFAULT NULL,
   $createdAtDefinition
 )
@@ -3431,4 +3430,11 @@ CREATE TABLE $tableApprovalInvoice (
 
   //   await db.close();
   // }
+
+  Future<void> close() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
+  }
 }

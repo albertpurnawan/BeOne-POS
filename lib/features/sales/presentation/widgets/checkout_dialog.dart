@@ -151,7 +151,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
         final bodyDetail = {
           "custIdMerchant": tostr.netzmeCustidMerchant,
-          "partnerReferenceNo": invoiceDocNum + topos[0].otpChannel! + generateRandomString(5),
+          "partnerReferenceNo": invoiceDocNum + tostr.otpChannel! + generateRandomString(5),
           "amount": {
             "value": Helpers.revertMoneyToString(qrisMop.first.amount!),
             "currency": "IDR"

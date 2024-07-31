@@ -111,6 +111,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
         try {
           await restoredFile.copy(path);
 
+          // If copy successful, delete the renamed original
           await File(renamedOriginal).delete();
           if (context.mounted) {
             Navigator.pop(context);
@@ -118,8 +119,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
             SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
           }
         } catch (e) {
-          // Handle copy error, restore original file
-
+          // If copy unsuccessful, rename the renamed original
           await File(renamedOriginal).rename(path);
           // Handle error, display error message
           if (context.mounted) {

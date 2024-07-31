@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -96,7 +98,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
               contentPadding: const EdgeInsets.all(0),
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
-                height: MediaQuery.of(context).size.height * 0.2,
+                height: MediaQuery.of(context).size.height * 0.25,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
                   child: Column(
@@ -118,6 +120,39 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),
+                      const SizedBox(height: 15),
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.yellow.shade100,
+                          border: Border.all(
+                            color: Colors.yellow.shade700,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.warning,
+                              color: Colors.yellow.shade700,
+                              size: 26.0,
+                            ),
+                            const SizedBox(width: 10.0), // Space between icon and text
+                            const Text(
+                              "The app will close itself after the database is restored!",
+                              textAlign: TextAlign.center, // Centering the text
+                              style: TextStyle(
+                                color: Colors.black, // Text color for contrast
+                                fontSize: 16,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -169,16 +204,17 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                       onPressed: () async {
                         await RestoreDatabaseUseCase()
                             .call(params: RestoreDatabaseParams(_passwordController.text, context: context));
-                        context.pop(true);
-                        context.pop(true);
-                        context.pop(true);
+                        exit(0);
+                        // context.pop(true);
+                        // context.pop(true);
+                        // context.pop(true);
                       },
                       child: Center(
                         child: RichText(
                           text: const TextSpan(
                             children: [
                               TextSpan(
-                                text: "Enter",
+                                text: "Proceed",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               TextSpan(

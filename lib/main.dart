@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/widgets/restart_widget.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
@@ -72,7 +73,9 @@ void main() async {
   //   },
   //   appRunner: () => runApp(const MyApp()),
   // );
-  runApp(const MyApp());
+  runApp(const RestartWidget(
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

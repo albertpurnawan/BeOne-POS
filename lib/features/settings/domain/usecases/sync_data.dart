@@ -2268,7 +2268,6 @@ Future<void> syncData() async {
         baseUrl: singleTopos.baseUrl,
         usernameAdmin: singleTopos.usernameAdmin,
         passwordAdmin: singleTopos.passwordAdmin,
-        otpChannel: singleTopos.otpChannel,
         lastSync: nextSyncDate,
       );
 
@@ -2301,7 +2300,6 @@ Future<void> syncData() async {
           baseUrl: singleToposAfterSync.baseUrl,
           usernameAdmin: singleToposAfterSync.usernameAdmin,
           passwordAdmin: singleToposAfterSync.passwordAdmin,
-          otpChannel: singleToposAfterSync.otpChannel,
           lastSync: singleToposAfterSync.lastSync,
         );
 
