@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:developer';
+import 'dart:developer' as dev;
 import 'dart:io';
+import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image/image.dart' as img;
@@ -81,7 +83,7 @@ class ReceiptPrinter {
       case PrintReceiptContentType.time:
         return DateFormat('hh:mm aaa').format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
-        log(DateFormat('dd/MM/yy HH:mm')
+        dev.log(DateFormat('dd/MM/yy HH:mm')
             .format(printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!));
         return DateFormat('dd/MM/yy HH:mm')
             .format(printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
@@ -134,13 +136,14 @@ class ReceiptPrinter {
         case PrintReceiptContentType.horizontalLine:
           bytes += generator.hr();
         case PrintReceiptContentType.items:
+          int count = 1;
           for (final item in currentPrintReceiptDetail!.receiptEntity.receiptItems) {
             EmployeeEntity? salesEmployeeEntity;
             if (item.tohemId != null && item.tohemId != "") {
               salesEmployeeEntity = await GetIt.instance<EmployeeRepository>().getEmployee(item.tohemId!);
-            } else if (currentPrintReceiptDetail!.receiptEntity.toinvTohemId != null) {
+            } else if (currentPrintReceiptDetail!.receiptEntity.salesTohemId != null) {
               salesEmployeeEntity = await GetIt.instance<EmployeeRepository>()
-                  .getEmployee(currentPrintReceiptDetail!.receiptEntity.toinvTohemId!);
+                  .getEmployee(currentPrintReceiptDetail!.receiptEntity.salesTohemId!);
             }
 
             // Layout1
@@ -275,54 +278,213 @@ class ReceiptPrinter {
             //       )),
             // ]);
 
-            // Layout2
+            // // Layout2
+            // bytes += generator.row([
+            //   PosColumn(
+            //       width: 5,
+            //       text: ("${item.promos.isEmpty || (item.discAmount ?? 0) <= 0 ? "" : "*"}${item.itemEntity.barcode}"),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: true,
+            //       )),
+            //   PosColumn(
+            //       width: 4,
+            //       text: Helpers.alignLeftByAddingSpace(
+            //           " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}",
+            //           15),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: true,
+            //       )),
+            //   PosColumn(
+            //       width: 3,
+            //       text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(item.totalAmount.round()), 11),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: true,
+            //       )),
+            // ]);
+            // bytes += generator.text(
+            //     Helpers.alignLeftByAddingSpace(item.itemEntity.shortName ?? item.itemEntity.itemName, 48),
+            //     styles: PosStyles(
+            //       align: PosAlign.left,
+            //       height: printReceiptContent.fontSize,
+            //       width: printReceiptContent.fontSize,
+            //       bold: printReceiptContent.isBold,
+            //     ));
+            // if (salesEmployeeEntity?.empName == null) continue;
+            // bytes += generator.text(Helpers.alignLeftByAddingSpace(">> ${salesEmployeeEntity!.empName}", 48),
+            //     styles: PosStyles(
+            //       align: PosAlign.left,
+            //       height: printReceiptContent.fontSize,
+            //       width: printReceiptContent.fontSize,
+            //       bold: printReceiptContent.isBold,
+            //     ));
+
+            // Layout3
+            String barcodeString = item.itemEntity.barcode;
+            int barcodeLength = barcodeString.length;
+            final int barcodeRequiredRow = (barcodeLength / 15).ceil();
+
+            String priceQtyString =
+                " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}";
+            int priceQtyLength = priceQtyString.length;
+            final int priceQtyRequiredRow = (priceQtyLength / 15).ceil();
+
+            String totalAmountString =
+                Helpers.alignRightByAddingSpace(Helpers.parseMoney(item.totalAmount.round()), 11);
+            int totalAmountLength = totalAmountString.length;
+            final int totalAmountRequiredRow = (totalAmountLength / 11).ceil();
+
+            for (int i = 0; i < max(max(barcodeRequiredRow, priceQtyRequiredRow), totalAmountRequiredRow); i++) {
+              bytes += generator.row([
+                PosColumn(
+                    width: 1,
+                    text: i == 0 ? count.toString() : "",
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                      bold: true,
+                    )),
+                PosColumn(
+                    width: 4,
+                    text: i < barcodeRequiredRow
+                        ? Helpers.alignLeftByAddingSpace(
+                            barcodeString.substring(i * 15, i == barcodeRequiredRow - 1 ? null : (i + 1) * 15), 15)
+                        : Helpers.alignLeftByAddingSpace("", 15),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                      bold: true,
+                    )),
+                PosColumn(
+                    width: 4,
+                    text: i < priceQtyRequiredRow
+                        ? Helpers.alignLeftByAddingSpace(
+                            priceQtyString.substring(i * 15, i == priceQtyRequiredRow - 1 ? null : (i + 1) * 15), 15)
+                        : Helpers.alignLeftByAddingSpace("", 15),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                      bold: true,
+                    )),
+                PosColumn(
+                    width: 3,
+                    text: i < totalAmountRequiredRow
+                        ? Helpers.alignRightByAddingSpace(
+                            totalAmountString.substring(i * 11, i == totalAmountRequiredRow - 1 ? null : (i + 1) * 11),
+                            11)
+                        : Helpers.alignLeftByAddingSpace("", 11),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                      bold: true,
+                    )),
+              ]);
+            }
+
+            // bytes += generator.row([
+            //   PosColumn(
+            //       width: 1,
+            //       text: count.toString(),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: true,
+            //       )),
+            //   PosColumn(
+            //       width: 4,
+            //       text: Helpers.alignLeftByAddingSpace(
+            //           "${item.promos.isEmpty || (item.discAmount ?? 0) <= 0 ? "" : "*"}${item.itemEntity.barcode}", 15),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: true,
+            //       )),
+            //   PosColumn(
+            //       width: 4,
+            //       text: Helpers.alignLeftByAddingSpace(
+            //           " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}",
+            //           15),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: true,
+            //       )),
+            //   PosColumn(
+            //       width: 3,
+            //       text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(item.totalAmount.round()), 11),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //         bold: true,
+            //       )),
+            // ]);
+            count += 1;
+
+            int itemNameLength = (item.itemEntity.shortName ?? item.itemEntity.itemName).length;
+            final int requiredRow = (itemNameLength / 42).ceil();
+            dev.log("$itemNameLength $requiredRow");
+            for (int i = 0; i < requiredRow; i++) {
+              dev.log("$i");
+              dev.log(
+                  "${Helpers.alignLeftByAddingSpace((item.itemEntity.shortName ?? item.itemEntity.itemName).substring(i * 42, i != 0 && i != requiredRow - 1 ? (i + 1) * 42 : null), 42)}");
+
+              bytes += generator.row([
+                PosColumn(
+                    width: 1,
+                    text: "",
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                    )),
+                PosColumn(
+                    width: 11,
+                    text: Helpers.alignLeftByAddingSpace(
+                        (item.itemEntity.shortName ?? item.itemEntity.itemName)
+                            .substring(i * 42, i == requiredRow - 1 ? null : (i + 1) * 42),
+                        42),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                    )),
+              ]);
+            }
+            if (salesEmployeeEntity?.empName == null) continue;
             bytes += generator.row([
               PosColumn(
-                  width: 5,
-                  text: ("${item.promos.isEmpty || (item.discAmount ?? 0) <= 0 ? "" : "*"}${item.itemEntity.barcode}"),
+                  width: 1,
+                  text: "",
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
                     width: printReceiptContent.fontSize,
-                    bold: true,
                   )),
               PosColumn(
-                  width: 4,
-                  text: Helpers.alignLeftByAddingSpace(
-                      " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}",
-                      15),
+                  width: 11,
+                  text: Helpers.alignLeftByAddingSpace(">> ${salesEmployeeEntity!.empName}", 42).substring(0, 42),
                   styles: PosStyles(
                     align: PosAlign.left,
                     height: printReceiptContent.fontSize,
                     width: printReceiptContent.fontSize,
-                    bold: true,
-                  )),
-              PosColumn(
-                  width: 3,
-                  text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(item.totalAmount.round()), 11),
-                  styles: PosStyles(
-                    align: PosAlign.left,
-                    height: printReceiptContent.fontSize,
-                    width: printReceiptContent.fontSize,
-                    bold: true,
                   )),
             ]);
-            bytes += generator.text(
-                Helpers.alignLeftByAddingSpace(item.itemEntity.shortName ?? item.itemEntity.itemName, 48),
-                styles: PosStyles(
-                  align: PosAlign.left,
-                  height: printReceiptContent.fontSize,
-                  width: printReceiptContent.fontSize,
-                  bold: printReceiptContent.isBold,
-                ));
-            if (salesEmployeeEntity?.empName == null) continue;
-            bytes += generator.text(Helpers.alignLeftByAddingSpace(">> ${salesEmployeeEntity!.empName}", 48),
-                styles: PosStyles(
-                  align: PosAlign.left,
-                  height: printReceiptContent.fontSize,
-                  width: printReceiptContent.fontSize,
-                  bold: printReceiptContent.isBold,
-                ));
           }
         case PrintReceiptContentType.totalPrice:
           bytes += generator.emptyLines(1);
@@ -884,7 +1046,7 @@ class ReceiptPrinter {
       case PrinterType.network:
         connectedTCP = await printerManager.connect(
             type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
-        if (!connectedTCP) log(' --- please review your connection ---');
+        if (!connectedTCP) dev.log(' --- please review your connection ---');
         break;
       default:
     }
@@ -1218,7 +1380,7 @@ class ReceiptPrinter {
         bytes += generator.cut();
         connectedTCP = await printerManager.connect(
             type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
-        if (!connectedTCP) log(' --- please review your connection ---');
+        if (!connectedTCP) dev.log(' --- please review your connection ---');
         pendingTask = null;
         break;
       default:

@@ -60,7 +60,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isPaymentSufficient = true;
   bool isLoadingQRIS = false;
   bool isCharging = false;
-  bool isMultiMOPs = false;
+  bool isMultiMOPs = true;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
@@ -469,7 +469,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                             text: const TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: "Print\nDraft",
+                                                  text: "Print Pending\nOrder",
                                                   style: TextStyle(fontWeight: FontWeight.w600),
                                                 ),
                                                 TextSpan(
@@ -708,7 +708,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                       text: const TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: "Charge",
+                                            text: "Pay",
                                             style: TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           TextSpan(
