@@ -87,15 +87,15 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       }
 
       final mostRecentBackup = backupFiles.first;
-      log("Restoring from backup file: ${mostRecentBackup.path}");
+      log("Restoring from backup file: ${mostRecentBackup.path} to $path");
 
       final bytes = File(mostRecentBackup.path).readAsBytesSync();
-
       final archive = ZipDecoder().decodeBytes(bytes, password: password);
 
       for (final file in archive) {
         final filename = file.name;
         final data = file.content as List<int>;
+
         File(p.join(backupFolder.path, filename))
           ..createSync(recursive: true)
           ..writeAsBytesSync(data);
@@ -103,30 +103,37 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
 
       final restoredPath = p.join(backupFolder.path, "backup.db");
       final restoredFile = File(restoredPath);
+      final originalFile = File(path);
+      final renamedOriginal = "${path}_01";
+      await originalFile.rename(renamedOriginal);
 
       if (await restoredFile.exists()) {
-        await restoredFile.copy(path);
-        if (context.mounted) {
-          Navigator.pop(context);
-          log("Database restored from $restoredPath");
-          SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
-        }
-      } else {
-        if (context.mounted) {
-          log("Restored file does not exist at $restoredPath");
-          SnackBarHelper.presentErrorSnackBar(context, "Restored file does not exist at $restoredPath.");
+        try {
+          await restoredFile.copy(path);
+
+          // If copy successful, delete the renamed original
+          await File(renamedOriginal).delete();
+          if (context.mounted) {
+            Navigator.pop(context);
+            log("Database restored from $restoredPath");
+            SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
+          }
+        } catch (e) {
+          // If copy unsuccessful, rename the renamed original
+          await File(renamedOriginal).rename(path);
+          // Handle error, display error message
+          if (context.mounted) {
+            log("Restored file does not exist at $restoredPath");
+            SnackBarHelper.presentErrorSnackBar(context, "Restored file does not exist at $restoredPath.");
+          }
+          rethrow;
         }
       }
+
       await restoredFile.delete();
     } catch (e) {
       log("Error restoring database: $e");
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error restoring database: $e'),
-          ),
-        );
-      });
+      SnackBarHelper.presentErrorSnackBar(context, "Error restoring database: $e");
       Navigator.pop(context);
       rethrow;
     }

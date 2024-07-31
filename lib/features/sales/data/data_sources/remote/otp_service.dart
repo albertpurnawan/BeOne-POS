@@ -18,9 +18,10 @@ class OTPServiceAPi {
   Future<Map<String, dynamic>> createSendOTP(double? amount) async {
     try {
       log("CREATE & SEND OTP - $amount");
-      final otpDao = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-      otpChannel = otpDao[0].otpChannel;
-      String url = "http://110.239.68.248:7070/api/otp/send-mailer";
+      final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
+      otpChannel = store!.otpChannel;
+      String url = "${store.otpUrl}/api/otp/send-mailer";
       final spvList = await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
       log("spvList - $spvList");
       if (spvList == null || spvList.isEmpty) throw "Approver not found";
@@ -30,8 +31,6 @@ class OTPServiceAPi {
       final formattedExpired = formatter.format(DateTime.now().toUtc().add(const Duration(hours: 1)));
       final formattedDateTime = formatter.format(DateTime.now().toUtc());
 
-      final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-      final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
       final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos[0].tocsrId!, null);
       final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
       final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
@@ -48,7 +47,7 @@ class OTPServiceAPi {
             "RequestTimestamp": formattedDateTime,
             "isUsed": false,
             "additionalInfo": {
-              "StoreName": store!.storeName,
+              "StoreName": store.storeName,
               "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
               "CashierName": cashierName!.username,
               "DiscountAmmount": discount,
@@ -63,7 +62,7 @@ class OTPServiceAPi {
             "RequestTimestamp": formattedDateTime,
             "isUsed": false,
             "additionalInfo": {
-              "StoreName": store!.storeName,
+              "StoreName": store.storeName,
               "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
               "CashierName": cashierName!.username
             }
@@ -91,7 +90,9 @@ class OTPServiceAPi {
   Future<Map<String, String>> validateOTP(String otp, String requester) async {
     try {
       // log("VALIDATE OTP");
-      String url = "http://110.239.68.248:7070/api/otp/submit";
+      final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
+      String url = "${store!.otpUrl}/api/otp/submit";
       final options = Options(headers: {"Content-Type": "application/json"});
 
       final dataToSend = {

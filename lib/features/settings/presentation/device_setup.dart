@@ -305,30 +305,30 @@ class _SettingsFormState extends State<SettingsForm> {
             ],
           ),
           const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: CustomInput(
-                    controller: otpChannelController,
-                    validator: (val) => val == null || val.isEmpty ? "OTP Channel is required" : null,
-                    label: "OTP Channel",
-                    hint: "OTP Channel",
-                    prefixIcon: const Icon(Icons.vpn_key),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 30),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: const Text(""),
-                ),
-              ),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Expanded(
+          //       child: Container(
+          //         constraints: const BoxConstraints(maxWidth: 400),
+          //         child: CustomInput(
+          //           controller: otpChannelController,
+          //           validator: (val) => val == null || val.isEmpty ? "OTP Channel is required" : null,
+          //           label: "OTP Channel",
+          //           hint: "OTP Channel",
+          //           prefixIcon: const Icon(Icons.vpn_key),
+          //         ),
+          //       ),
+          //     ),
+          //     const SizedBox(width: 30),
+          //     Expanded(
+          //       child: Container(
+          //         constraints: const BoxConstraints(maxWidth: 400),
+          //         child: const Text(""),
+          //       ),
+          //     ),
+          //   ],
+          // ),
           const SizedBox(height: 150),
           Row(
             children: [
@@ -355,7 +355,6 @@ class _SettingsFormState extends State<SettingsForm> {
                           baseUrl: urlController.text,
                           usernameAdmin: emailController.text,
                           passwordAdmin: hashedPassword,
-                          otpChannel: otpChannelController.text,
                           lastSync: '2000-01-01 00:00:00',
                         );
 

@@ -88,13 +88,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Future<void> checkTopos() async {
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-    (topos.isNotEmpty)
-        ? setState(() {
-            haveTopos = true;
-          })
-        : setState(() {
-            haveTopos = false;
-          });
+    (topos.isNotEmpty) ? haveTopos = true : haveTopos = false;
     log("TOPOS CHECKED - $haveTopos");
   }
 
