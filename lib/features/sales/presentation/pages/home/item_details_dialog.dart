@@ -187,7 +187,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                         ),
                                         SizedBox(width: 30),
                                         Text(
-                                          "Sales Employee",
+                                          "Sales Person",
                                           style: TextStyle(fontSize: 16),
                                         ),
                                       ],

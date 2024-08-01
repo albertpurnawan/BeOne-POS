@@ -183,7 +183,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                         ),
                                         SizedBox(width: 30),
                                         Text(
-                                          "Sales Employee",
+                                          "Sales Person",
                                           style: TextStyle(fontSize: 16),
                                         ),
                                       ],

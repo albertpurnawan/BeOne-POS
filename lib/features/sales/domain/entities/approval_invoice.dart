@@ -5,7 +5,7 @@ class ApprovalInvoiceEntity {
   final String docId;
   final DateTime createDate;
   final DateTime? updateDate;
-  final String toinvId;
+  final String? toinvId;
   final String tousrId;
   final String remarks;
   final String category;
@@ -14,7 +14,7 @@ class ApprovalInvoiceEntity {
     required this.docId,
     required this.createDate,
     this.updateDate,
-    required this.toinvId,
+    this.toinvId,
     required this.tousrId,
     required this.remarks,
     required this.category,
@@ -57,7 +57,7 @@ class ApprovalInvoiceEntity {
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
       updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
-      toinvId: map['toinvId'] as String,
+      toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
       tousrId: map['tousrId'] as String,
       remarks: map['remarks'] as String,
       category: map['category'] as String,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/usecases/restore_database_usecase.dart';
+import 'package:pos_fe/features/login/presentation/pages/input_password_dialog.dart';
 
 class ConfirmRestoreDBDialog extends StatefulWidget {
   const ConfirmRestoreDBDialog({super.key});
@@ -142,9 +142,10 @@ class _ConfirmRestoreDBDialogState extends State<ConfirmRestoreDBDialog> {
                     backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                     overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () async {
-                  await RestoreDatabaseUseCase().call(params: RestoreDatabaseParams(context: context));
-                  context.pop(true);
-                  context.pop(true);
+                  showDialog(
+                    context: context,
+                    builder: (context) => const InputPasswordDialog(),
+                  );
                 },
                 child: Center(
                   child: RichText(

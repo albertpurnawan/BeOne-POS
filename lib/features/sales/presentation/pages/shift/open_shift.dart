@@ -383,7 +383,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             await prefs.setString('tcsr1Id', shift.docId);
 
                             final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
-                            await printOpenShiftUsecase.call(params: shift);
+                            await printOpenShiftUsecase.call(params: shift, printType: 1);
                             await GetIt.instance<OpenCashDrawerUseCase>().call();
 
                             context.pop(shift);
@@ -522,7 +522,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             await prefs.setString('tcsr1Id', shift.docId);
 
                             final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
-                            await printOpenShiftUsecase.call(params: shift);
+                            await printOpenShiftUsecase.call(params: shift, printType: 1);
                             await GetIt.instance<OpenCashDrawerUseCase>().call();
 
                             context.pop(shift);

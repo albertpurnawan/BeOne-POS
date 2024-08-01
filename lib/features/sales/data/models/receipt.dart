@@ -29,6 +29,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.rounding,
     super.toinvTohemId,
     super.salesTohemId,
+    super.approvals,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -59,6 +60,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       rounding: entity.rounding,
       toinvTohemId: entity.toinvTohemId,
       salesTohemId: entity.salesTohemId,
+      approvals: entity.approvals,
     );
   }
 }

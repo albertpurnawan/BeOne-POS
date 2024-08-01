@@ -5,8 +5,11 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
+import 'package:get_it/get_it.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/permission_handler.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -15,8 +18,9 @@ import 'package:sqflite/sqflite.dart';
 
 class RestoreDatabaseParams {
   final BuildContext context;
+  final String password;
 
-  RestoreDatabaseParams({required this.context});
+  RestoreDatabaseParams(this.password, {required this.context});
 }
 
 class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
@@ -27,6 +31,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
     if (params == null) return;
 
     final context = params.context;
+    final password = params.password;
     Database? database;
 
     try {
@@ -49,10 +54,28 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       }
 
       final dbPath = await getDatabasesPath();
-      final path = join(dbPath, _databaseName);
+      final path = p.join(dbPath, _databaseName);
 
-      const backupDir = "/storage/emulated/0";
-      final backupFolder = Directory('$backupDir/RubyPOS');
+      Directory backupFolder;
+      if (Platform.isWindows) {
+        final userProfile = Platform.environment['USERPROFILE'];
+        if (userProfile == null) {
+          throw Exception('Could not determine user profile directory');
+        }
+        final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
+        backupFolder = Directory(backupDir);
+        log("backupDir W - $backupDir");
+        log("backupFolder W - $backupFolder");
+      } else if (Platform.isAndroid) {
+        const backupDir = "/storage/emulated/0/RubyPOS";
+        backupFolder = Directory(backupDir);
+      } else if (Platform.isIOS) {
+        final documentsDir = await getApplicationDocumentsDirectory();
+        final backupDir = p.join(documentsDir.path, 'RubyPOS');
+        backupFolder = Directory(backupDir);
+      } else {
+        throw UnsupportedError("Unsupported platform");
+      }
 
       final backupFiles = backupFolder.listSync().where((file) => file.path.endsWith('.zip')).toList()
         ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
@@ -66,37 +89,64 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       }
 
       final mostRecentBackup = backupFiles.first;
-      log("Restoring from backup file: ${mostRecentBackup.path}");
+      log("Restoring from backup file: ${mostRecentBackup.path} to $path");
 
       final bytes = File(mostRecentBackup.path).readAsBytesSync();
-      final archive = ZipDecoder().decodeBytes(bytes, password: "BeOne\$\$123");
+      final archive = ZipDecoder().decodeBytes(bytes, password: password);
 
       for (final file in archive) {
         final filename = file.name;
         final data = file.content as List<int>;
-        File(join(backupFolder.path, filename))
+
+        File(p.join(backupFolder.path, filename))
           ..createSync(recursive: true)
           ..writeAsBytesSync(data);
       }
 
-      final restoredPath = join(backupFolder.path, "backup.db");
+      final restoredPath = p.join(backupFolder.path, "backup.db");
       final restoredFile = File(restoredPath);
+      // Close the database connection
+      await GetIt.instance<AppDatabase>().close();
 
+      // Rename original file if it's not open by another process
+      final originalFile = File(path);
+      final renamedOriginal = "${path}_01";
+      try {
+        await originalFile.rename(renamedOriginal);
+      } catch (e) {
+        log("Failed to rename the original file. It may be in use.");
+        SnackBarHelper.presentErrorSnackBar(context, "Failed to rename the original file. It may be in use.");
+        return;
+      }
+
+      // Continue with restoration logic if renaming was successful
       if (await restoredFile.exists()) {
-        await restoredFile.copy(path);
-        if (context.mounted) {
-          Navigator.pop(context);
-          log("Database restored from $restoredPath");
-          SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
-        }
-      } else {
-        if (context.mounted) {
-          log("Restored file does not exist at $restoredPath");
-          SnackBarHelper.presentErrorSnackBar(context, "Restored file does not exist at $restoredPath.");
+        try {
+          await restoredFile.copy(path);
+          await File(renamedOriginal).delete(); // Remove backup if the copy was successful
+
+          if (context.mounted) {
+            Navigator.pop(context);
+            log("Database restored from $restoredPath");
+            SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
+          }
+        } catch (e) {
+          // If copy unsuccessful, attempt to restore original state
+          await File(renamedOriginal).rename(path);
+
+          if (context.mounted) {
+            log("Failed to restore the database. Reverting to the original.");
+            SnackBarHelper.presentErrorSnackBar(context, "Failed to restore the database. Reverting to the original.");
+          }
+          rethrow;
         }
       }
+
+      await restoredFile.delete();
     } catch (e) {
       log("Error restoring database: $e");
+      SnackBarHelper.presentErrorSnackBar(context, "Error restoring database: $e");
+      Navigator.pop(context);
       rethrow;
     }
   }

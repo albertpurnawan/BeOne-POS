@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/constants.dart';
@@ -148,8 +150,28 @@ class _SettingsFormState extends State<SettingsForm> {
 
   Future<void> checkDatabase() async {
     try {
-      const backupDir = "/storage/emulated/0";
-      final backupFolder = Directory('$backupDir/RubyPOS');
+      Directory backupFolder;
+      if (Platform.isWindows) {
+        final userProfile = Platform.environment['USERPROFILE'];
+        if (userProfile == null) {
+          throw Exception('Could not determine user profile directory');
+        }
+        final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
+        backupFolder = Directory(backupDir);
+        log("backupDir W - $backupDir");
+        log("backupFolder W - $backupFolder");
+      } else if (Platform.isAndroid) {
+        const backupDir = "/storage/emulated/0";
+        backupFolder = Directory('$backupDir/RubyPOS');
+      } else if (Platform.isIOS) {
+        final documentsDir = await getApplicationDocumentsDirectory();
+        final backupDir = p.join(documentsDir.path, 'RubyPOS');
+        backupFolder = Directory(backupDir);
+      } else {
+        throw UnsupportedError("Unsupported platform");
+      }
+
+      if (!backupFolder.existsSync()) return;
 
       final backupFiles = backupFolder.listSync().where((file) => file.path.endsWith('.zip')).toList()
         ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
@@ -283,30 +305,30 @@ class _SettingsFormState extends State<SettingsForm> {
             ],
           ),
           const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: CustomInput(
-                    controller: otpChannelController,
-                    validator: (val) => val == null || val.isEmpty ? "OTP Channel is required" : null,
-                    label: "OTP Channel",
-                    hint: "OTP Channel",
-                    prefixIcon: const Icon(Icons.vpn_key),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 30),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: const Text(""),
-                ),
-              ),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Expanded(
+          //       child: Container(
+          //         constraints: const BoxConstraints(maxWidth: 400),
+          //         child: CustomInput(
+          //           controller: otpChannelController,
+          //           validator: (val) => val == null || val.isEmpty ? "OTP Channel is required" : null,
+          //           label: "OTP Channel",
+          //           hint: "OTP Channel",
+          //           prefixIcon: const Icon(Icons.vpn_key),
+          //         ),
+          //       ),
+          //     ),
+          //     const SizedBox(width: 30),
+          //     Expanded(
+          //       child: Container(
+          //         constraints: const BoxConstraints(maxWidth: 400),
+          //         child: const Text(""),
+          //       ),
+          //     ),
+          //   ],
+          // ),
           const SizedBox(height: 150),
           Row(
             children: [
@@ -333,7 +355,6 @@ class _SettingsFormState extends State<SettingsForm> {
                           baseUrl: urlController.text,
                           usernameAdmin: emailController.text,
                           passwordAdmin: hashedPassword,
-                          otpChannel: otpChannelController.text,
                           lastSync: '2000-01-01 00:00:00',
                         );
 

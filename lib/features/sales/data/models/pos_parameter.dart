@@ -15,7 +15,6 @@ class POSParameterFields {
     baseUrl,
     usernameAdmin,
     passwordAdmin,
-    otpChannel,
     lastSync,
   ];
 
@@ -29,7 +28,6 @@ class POSParameterFields {
   static const String baseUrl = "baseurl";
   static const String usernameAdmin = "usernameadmin";
   static const String passwordAdmin = "passwordadmin";
-  static const String otpChannel = "otpchannel";
   static const String lastSync = "lastsync";
 }
 
@@ -45,7 +43,6 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
     required super.baseUrl,
     required super.usernameAdmin,
     required super.passwordAdmin,
-    required super.otpChannel,
     required super.lastSync,
   });
 
@@ -62,7 +59,6 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       'baseurl': baseUrl,
       'usernameadmin': usernameAdmin,
       'passwordadmin': passwordAdmin,
-      'otpchannel': otpChannel,
       'lastsync': lastSync, // toIsoString
     };
   }
@@ -70,23 +66,15 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
   factory POSParameterModel.fromMap(Map<String, dynamic> map) {
     return POSParameterModel(
       docId: map['docid'] as String,
-      createDate: map['createdate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
-          : null,
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['createdate']).toLocal()
-          : null,
+      createDate: map['createdate'] != null ? DateTime.parse(map['createdate']).toLocal() : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['createdate']).toLocal() : null,
       gtentId: map['gtentId'] != null ? map['gtentId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       storeName: map['storename'] != null ? map['storename'] as String : null,
       tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
       baseUrl: map['baseurl'] != null ? map['baseurl'] as String : null,
-      usernameAdmin:
-          map['usernameadmin'] != null ? map['usernameadmin'] as String : null,
-      passwordAdmin:
-          map['passwordadmin'] != null ? map['passwordadmin'] as String : null,
-      otpChannel:
-          map['otpchannel'] != null ? map['otpchannel'] as String : null,
+      usernameAdmin: map['usernameadmin'] != null ? map['usernameadmin'] as String : null,
+      passwordAdmin: map['passwordadmin'] != null ? map['passwordadmin'] as String : null,
       lastSync: map['lastsync'] != null ? map['lastsync'] as String : null,
     );
   }
@@ -103,7 +91,6 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       baseUrl: entity.baseUrl,
       usernameAdmin: entity.usernameAdmin,
       passwordAdmin: entity.passwordAdmin,
-      otpChannel: entity.otpChannel,
       lastSync: entity.lastSync,
     );
   }

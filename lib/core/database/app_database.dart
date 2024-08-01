@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/approval_invoice_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/auth_store_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/authorization_dao.dart';
@@ -268,6 +269,7 @@ class AppDatabase {
   late InvoiceHeaderDao invoiceHeaderDao;
   late InvoiceDetailDao invoiceDetailDao;
   late InvoiceAppliedPromoDao invoiceAppliedPromoDao;
+  late ApprovalInvoiceDao approvalInvoiceDao;
   late POSParameterDao posParameterDao;
   late UserDao userDao;
   late PayMeansDao payMeansDao;
@@ -387,6 +389,7 @@ PRAGMA foreign_keys = ON;
     invoiceHeaderDao = InvoiceHeaderDao(_database!);
     invoiceDetailDao = InvoiceDetailDao(_database!);
     invoiceAppliedPromoDao = InvoiceAppliedPromoDao(_database!);
+    approvalInvoiceDao = ApprovalInvoiceDao(_database!);
     userDao = UserDao(_database!);
     posParameterDao = POSParameterDao(_database!);
     payMeansDao = PayMeansDao(_database!);
@@ -2771,7 +2774,6 @@ CREATE TABLE $tablePOSParameter (
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
   ${POSParameterFields.usernameAdmin} text DEFAULT NULL,
   ${POSParameterFields.passwordAdmin} text DEFAULT NULL,
-  ${POSParameterFields.otpChannel} text DEFAULT NULL,
   ${POSParameterFields.lastSync} text DEFAULT NULL,
   $createdAtDefinition
 )
@@ -3368,7 +3370,7 @@ CREATE TABLE $tableApprovalInvoice (
   $uuidDefinition,
   ${ApprovalInvoiceFields.createDate} datetime NOT NULL,
   ${ApprovalInvoiceFields.updateDate} datetime DEFAULT NULL,
-  ${ApprovalInvoiceFields.toinvId} text NOT NULL,
+  ${ApprovalInvoiceFields.toinvId} text DEFAULT NULL,
   ${ApprovalInvoiceFields.tousrId} text NOT NULL,
   ${ApprovalInvoiceFields.remarks} text NOT NULL,
   ${ApprovalInvoiceFields.category} varchar(200) NOT NULL,
@@ -3428,4 +3430,11 @@ CREATE TABLE $tableApprovalInvoice (
 
   //   await db.close();
   // }
+
+  Future<void> close() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
+  }
 }

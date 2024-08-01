@@ -14,7 +14,8 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 
 class InputDiscountManual extends StatefulWidget {
-  const InputDiscountManual({super.key});
+  final String docnum;
+  const InputDiscountManual({super.key, required this.docnum});
 
   @override
   State<InputDiscountManual> createState() => _InputDiscountManualState();
@@ -46,15 +47,18 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
                 double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
                 final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
-                  // context.pop();
-                  ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
+                if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input <= 0) {
+                  context.pop();
+                  ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
                   return KeyEventResult.handled;
                 }
                 showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (context) => AuthInputDiscountDialog(discountValue: input));
+                    builder: (context) => AuthInputDiscountDialog(
+                          discountValue: input,
+                          docnum: widget.docnum,
+                        ));
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
@@ -178,7 +182,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                     onFieldSubmitted: (value) async {
                       double input = Helpers.revertMoneyToDecimalFormat(value);
                       final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                      if (input > state.subtotal - (state.discAmount ?? 0)) {
+                      if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
                         return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
                       }
                       // context
@@ -191,7 +195,8 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                       await showDialog(
                               context: context,
                               barrierDismissible: false,
-                              builder: (context) => AuthInputDiscountDialog(discountValue: input))
+                              builder: (context) =>
+                                  AuthInputDiscountDialog(discountValue: input, docnum: widget.docnum))
                           .then((value) => _discountFocusNode.requestFocus());
                     },
                     autofocus: true,
@@ -267,13 +272,16 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                       onPressed: () async {
                         double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
                         final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                        if (input > state.grandTotal - (state.discHeaderManual ?? 0)) {
+                        if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
                           return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
                         }
                         final bool? isHeaderDiscApplied = await showDialog<bool>(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) => AuthInputDiscountDialog(discountValue: input));
+                            builder: (context) => AuthInputDiscountDialog(
+                                  discountValue: input,
+                                  docnum: widget.docnum,
+                                ));
                       },
                       child: Center(
                         child: RichText(

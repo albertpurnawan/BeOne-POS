@@ -20,6 +20,7 @@ import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transactio
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift_success_alert_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
@@ -110,6 +111,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   EmployeeEntity? closeShiftApproverEmployee;
   UserEntity? openShiftApproverUser;
   EmployeeEntity? openShiftApproverEmployee;
+  bool isPrinting = false;
 
   @override
   void initState() {
@@ -324,11 +326,11 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Row(
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
+            const Expanded(
               child: Text(
                 "Shift",
                 style: TextStyle(
@@ -338,6 +340,70 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 textAlign: TextAlign.start,
               ),
             ),
+            TextButton(
+              style: ButtonStyle(
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+              onPressed: isPrinting
+                  ? null
+                  : () async {
+                      try {
+                        setState(() {
+                          isPrinting = true;
+                        });
+                        await GetIt.instance<PrintOpenShiftUsecase>().call(params: activeShift, printType: 2);
+
+                        setState(() {
+                          isPrinting = false;
+                        });
+                      } catch (e) {
+                        setState(() {
+                          isPrinting = false;
+                        });
+                        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                      }
+                    },
+              child: Center(
+                child: isPrinting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator.adaptive(
+                            // backgroundColor: Colors.white,
+                            ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.print_outlined,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          const SizedBox(
+                            width: 7,
+                          ),
+                          RichText(
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Reprint\nOpen Shift",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                // TextSpan(
+                                //   text: "  (F12)",
+                                //   style: TextStyle(fontWeight: FontWeight.w300),
+                                // ),
+                              ],
+                              style: TextStyle(height: 1, fontSize: 10),
+                            ),
+                            overflow: TextOverflow.clip,
+                          ),
+                        ],
+                      ),
+              ),
+            )
           ],
         ),
         const Divider(
@@ -777,7 +843,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                       difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
                           Helpers.revertMoneyToDecimalFormat(expectedCash),
                       approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
-                  await GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams);
+                  await GetIt.instance<PrintCloseShiftUsecase>()
+                      .call(params: printCloseShiftUsecaseParams, printType: 1);
 
                   if (!checkLastShift) {
                     if (!context.mounted) return;

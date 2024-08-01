@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_applied_promo.dart';
@@ -20,6 +21,7 @@ import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -102,7 +104,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
           syncToBos: '', // get di sini
           paymentSuccess: '1', // get di sini
-          salesTohemId: receiptEntity.salesTohemId ?? receiptEntity.employeeEntity!.docId,
+          salesTohemId: receiptEntity.salesTohemId ?? "",
         );
         log("INVOICE HEADER MODEL 1 - $invoiceHeaderModel");
 
@@ -172,10 +174,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         }
 
         await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
-        // log("payMeansModels - $payMeansModels");
+        log("payMeansModels - $payMeansModels");
 
         List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
-        // log("vouchers - $vouchers");
+        log("vouchers - $vouchers");
 
         for (final voucherSelection in vouchers) {
           final PayMeansModel paymeansModel = PayMeansModel(
@@ -231,7 +233,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         final Map<int, String> indexToDocIdMap = {
           for (var e in invoiceDetailModels.asMap().entries) e.key: e.value.docId
         };
-        log("indexToDocIdMap - $indexToDocIdMap");
+
         final List<InvoiceAppliedPromoModel> invoiceAppliedPromoModels =
             receiptEntity.receiptItems.asMap().entries.expand((entry) {
           final int index = entry.key;
@@ -240,7 +242,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           return receiptItem.promos.map((promo) {
             return InvoiceAppliedPromoModel(
               docId: _uuid.v4(),
-              createDate: promo.date,
+              createDate: DateTime.now(),
               updateDate: null,
               toinvDocId: generatedInvoiceHeaderDocId,
               tinv1DocId: invoiceDetailDocId,
@@ -253,6 +255,38 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
         log("invoiceAppliedPromoModels 1 - $invoiceAppliedPromoModels");
         await _appDatabase.invoiceAppliedPromoDao.bulkCreate(data: invoiceAppliedPromoModels, txn: txn);
+
+        if (invoiceHeaderModel.discHeaderManual != 0) {
+          final invoiceAppHeader = InvoiceAppliedPromoModel(
+            docId: _uuid.v4(),
+            createDate: DateTime.now(),
+            updateDate: null,
+            toinvDocId: generatedInvoiceHeaderDocId,
+            tinv1DocId: null,
+            promotionType: "999",
+            promotionDocId: null,
+            amount: invoiceHeaderModel.discHeaderManual!,
+          );
+          log("invoiceAppHeader - $invoiceAppHeader");
+          await _appDatabase.invoiceAppliedPromoDao.create(data: invoiceAppHeader, txn: txn);
+        }
+
+        if (receiptEntity.approvals != null) {
+          final List<ApprovalInvoiceModel> approvalsModel = [];
+          for (final ApprovalInvoiceEntity approvalEntity in receiptEntity.approvals!) {
+            approvalsModel.add(ApprovalInvoiceModel(
+              docId: approvalEntity.docId,
+              createDate: approvalEntity.createDate,
+              updateDate: approvalEntity.updateDate,
+              toinvId: generatedInvoiceHeaderDocId,
+              tousrId: approvalEntity.tousrId,
+              remarks: approvalEntity.remarks,
+              category: approvalEntity.category,
+            ));
+          }
+          await _appDatabase.approvalInvoiceDao.bulkCreate(data: approvalsModel, txn: txn);
+          log("approvalsModel - $approvalsModel");
+        }
       });
 
       return await getReceiptByInvoiceHeaderDocId(generatedInvoiceHeaderDocId, null);

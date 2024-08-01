@@ -60,7 +60,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isPaymentSufficient = true;
   bool isLoadingQRIS = false;
   bool isCharging = false;
-  bool isMultiMOPs = false;
+  bool isMultiMOPs = true;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
@@ -151,7 +151,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
         final bodyDetail = {
           "custIdMerchant": tostr.netzmeCustidMerchant,
-          "partnerReferenceNo": invoiceDocNum + topos[0].otpChannel! + generateRandomString(5),
+          "partnerReferenceNo": invoiceDocNum + tostr.otpChannel! + generateRandomString(5),
           "amount": {
             "value": Helpers.revertMoneyToString(qrisMop.first.amount!),
             "currency": "IDR"
@@ -220,7 +220,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       });
       await Future.delayed(Durations.extralong1, null);
       await GetIt.instance<PrintReceiptUseCase>()
-          .call(params: PrintReceiptUseCaseParams(isDraft: true, receiptEntity: context.read<ReceiptCubit>().state));
+          .call(params: PrintReceiptUseCaseParams(printType: 2, receiptEntity: context.read<ReceiptCubit>().state));
       setState(() {
         isPrinting = false;
       });
@@ -286,7 +286,10 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               node.nextFocus();
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged) {
-              showDialog(context: context, barrierDismissible: false, builder: (context) => const InputDiscountManual())
+              showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum))
                   .then((value) {
                 if (value != null) {
                   SnackBarHelper.presentSuccessSnackBar(
@@ -349,7 +352,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   final double? appliedHeaderDisc = await showDialog(
                                       context: context,
                                       barrierDismissible: false,
-                                      builder: (context) => const InputDiscountManual());
+                                      builder: (context) =>
+                                          InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum));
 
                                   if (appliedHeaderDisc != null) {
                                     SnackBarHelper.presentSuccessSnackBar(childContext,
@@ -465,7 +469,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                             text: const TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: "Print\nDraft",
+                                                  text: "Print Pending\nOrder",
                                                   style: TextStyle(fontWeight: FontWeight.w600),
                                                 ),
                                                 TextSpan(
@@ -686,7 +690,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                     RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                                 backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                                 overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                            onPressed: isLoadingQRIS ? null : () async => await charge(),
+                            onPressed: isCharging
+                                ? null
+                                : isLoadingQRIS
+                                    ? null
+                                    : () async => await charge(),
                             child: Center(
                               child: isLoadingQRIS
                                   ? const SizedBox(
@@ -700,7 +708,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                       text: const TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: "Charge",
+                                            text: "Pay",
                                             style: TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           TextSpan(

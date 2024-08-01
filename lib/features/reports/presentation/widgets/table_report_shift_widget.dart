@@ -1,8 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
 
 class TableReportShift extends StatefulWidget {
   final DateTime? fromDate;
@@ -21,9 +27,11 @@ class TableReportShift extends StatefulWidget {
 }
 
 class _TableReportShiftState extends State<TableReportShift> {
-  final tableHead = ["No", "Date", "Shift", "Cashier", "Amount"];
+  final tableHead = ["Date", "Shift", "Invoice", "Cashier", "Amount", ""];
   List<dynamic>? fetched;
   bool isLoading = true;
+  bool isPrinting = false;
+  String invDocIdPrinted = "";
 
   @override
   void initState() {
@@ -59,6 +67,7 @@ class _TableReportShiftState extends State<TableReportShift> {
       final filteredInvoice = fetchedInvoice.where((invoice) {
         return invoice['docnum'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
             invoice['username'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
+            invoice['invdocnum'].toLowerCase().contains(widget.searchQuery!.toLowerCase()) ||
             invoice['transdate'].toLowerCase().contains(widget.searchQuery!.toLowerCase());
       }).toList();
       setState(() {
@@ -89,7 +98,7 @@ class _TableReportShiftState extends State<TableReportShift> {
               child: Column(
                 children: [
                   const Text(
-                    "Report By Shift",
+                    "Report By Invoice",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -99,11 +108,12 @@ class _TableReportShiftState extends State<TableReportShift> {
                   Table(
                     border: TableBorder.all(color: Colors.transparent, width: 1),
                     columnWidths: const {
-                      0: FixedColumnWidth(50),
-                      1: FlexColumnWidth(80),
-                      2: FlexColumnWidth(100),
-                      3: FlexColumnWidth(100),
-                      4: FlexColumnWidth(80),
+                      0: FixedColumnWidth(200),
+                      1: FlexColumnWidth(70),
+                      2: FlexColumnWidth(70),
+                      3: FlexColumnWidth(30),
+                      4: FlexColumnWidth(50),
+                      5: FlexColumnWidth(15),
                     },
                     children: [
                       TableRow(
@@ -135,12 +145,24 @@ class _TableReportShiftState extends State<TableReportShift> {
                         final isLastRow = index == fetched!.length - 1;
                         final shiftName = shift['docnum'];
                         final userName = shift['username'];
+
                         final transDate = "${shift['transdate']} ${shift['transtime']}";
+                        final dateTime = DateTime.parse(transDate);
+                        final gmt = shift['timezone'];
+                        final offsetHours = int.parse(gmt.substring(3));
+                        final offsetSign = gmt[3];
+                        final offset = Duration(hours: offsetSign == '+' ? offsetHours : -offsetHours);
+                        final adjustedDateTime = dateTime.add(offset);
+                        final formattedTransDate = Helpers.dateddMMMyyyyHHmmss(adjustedDateTime);
+
+                        final docnum = shift['invdocnum'];
+                        final invDocId = shift['docid'];
 
                         return TableRow(
                           children: [
                             TableCell(
                               child: Container(
+                                height: 55,
                                 padding: const EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
                                   border: Border(
@@ -153,7 +175,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      (index + 1).toString(),
+                                      formattedTransDate,
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                   ],
@@ -162,27 +184,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                             ),
                             TableCell(
                               child: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: isLastRow
-                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
-                                        : BorderSide.none,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      transDate,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
+                                height: 55,
                                 padding: const EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
                                   border: Border(
@@ -204,6 +206,29 @@ class _TableReportShiftState extends State<TableReportShift> {
                             ),
                             TableCell(
                               child: Container(
+                                height: 55,
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: isLastRow
+                                        ? const BorderSide(color: ProjectColors.primary, width: 2.0)
+                                        : BorderSide.none,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      docnum,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                height: 55,
                                 padding: const EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
                                   border: Border(
@@ -225,6 +250,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                             ),
                             TableCell(
                               child: Container(
+                                height: 55,
                                 padding: const EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
                                   border: Border(
@@ -244,22 +270,73 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 ),
                               ),
                             ),
+                            TableCell(
+                              child: Container(
+                                  height: 55,
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: isLastRow
+                                          ? const BorderSide(color: ProjectColors.primary, width: 2.0)
+                                          : BorderSide.none,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: isPrinting && invDocIdPrinted == invDocId
+                                        ? const CircularProgressIndicator()
+                                        : IconButton(
+                                            icon: const Icon(Icons.print_outlined, size: 20),
+                                            onPressed: () async {
+                                              try {
+                                                setState(() {
+                                                  isPrinting = true;
+                                                  invDocIdPrinted = invDocId;
+                                                });
+                                                final ReceiptEntity? targetReceipt =
+                                                    await GetIt.instance<ReceiptRepository>()
+                                                        .getReceiptByInvoiceHeaderDocId(invDocId, null);
+                                                if (targetReceipt == null) throw "Receipt not found";
+                                                await GetIt.instance<PrintReceiptUseCase>().call(
+                                                    params: PrintReceiptUseCaseParams(
+                                                        receiptEntity: targetReceipt, printType: 3));
+                                                setState(() {
+                                                  isPrinting = false;
+                                                  invDocIdPrinted = "";
+                                                });
+                                              } catch (e) {
+                                                setState(() {
+                                                  isPrinting = false;
+                                                  invDocIdPrinted = "";
+                                                });
+                                                SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                              }
+                                            },
+                                          ),
+                                  )),
+                            ),
                           ],
                         );
                       }).toList(),
                       TableRow(
                         children: [
                           TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
+                            child: Container(
+                              height: 55,
+                            ),
                           ),
                           TableCell(
                             child: Container(
+                              height: 55,
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              height: 55,
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              height: 55,
                               padding: const EdgeInsets.all(8.0),
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -277,6 +354,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                           ),
                           TableCell(
                             child: Container(
+                              height: 55,
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -292,21 +370,31 @@ class _TableReportShiftState extends State<TableReportShift> {
                               ),
                             ),
                           ),
+                          TableCell(
+                            child: Container(),
+                          ),
                         ],
                       ),
                       TableRow(
                         children: [
                           TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
-                          ),
-                          TableCell(
-                            child: Container(),
+                            child: Container(
+                              height: 55,
+                            ),
                           ),
                           TableCell(
                             child: Container(
+                              height: 55,
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              height: 55,
+                            ),
+                          ),
+                          TableCell(
+                            child: Container(
+                              height: 55,
                               padding: const EdgeInsets.all(8.0),
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -324,6 +412,7 @@ class _TableReportShiftState extends State<TableReportShift> {
                           ),
                           TableCell(
                             child: Container(
+                              height: 55,
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -338,6 +427,9 @@ class _TableReportShiftState extends State<TableReportShift> {
                                 ],
                               ),
                             ),
+                          ),
+                          TableCell(
+                            child: Container(),
                           ),
                         ],
                       ),

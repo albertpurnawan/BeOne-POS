@@ -11,6 +11,7 @@ import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
@@ -381,6 +382,42 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(state.copyWith(employeeEntity: employeeEntity, previousReceiptEntity: state.previousReceiptEntity));
   }
 
+  Future<void> updateApprovals(ApprovalInvoiceEntity approvalsEntity) async {
+    final approvalsMap = <String, ApprovalInvoiceEntity>{};
+
+    if (state.approvals != null) {
+      for (var approval in state.approvals!) {
+        approvalsMap[approval.toinvId!] = approval;
+      }
+    }
+
+    if (approvalsMap.containsKey(approvalsEntity.toinvId)) {
+      bool categoryExists = false;
+      for (var approval in approvalsMap.values) {
+        if (approval.toinvId == approvalsEntity.toinvId && approval.category == approvalsEntity.category) {
+          // Update the approval with the same category
+          approvalsMap[approvalsEntity.toinvId!] = approvalsEntity;
+          categoryExists = true;
+          break;
+        }
+      }
+      // If the category is different, add the new approval
+      if (!categoryExists) {
+        approvalsMap[approvalsEntity.docId] = approvalsEntity;
+      }
+    } else {
+      // Add the approval if toinvId does not exist
+      approvalsMap[approvalsEntity.docId] = approvalsEntity;
+    }
+
+    final newState = state.copyWith(
+      approvals: approvalsMap.values.toList(),
+    );
+
+    dev.log("updateApp newState - ${newState.approvals}");
+    emit(newState);
+  }
+
   Future<void> removeReceiptItem(ReceiptItemEntity receiptItemEntity, BuildContext context) async {
     List<ReceiptItemEntity> newReceiptItems = [];
 
@@ -441,7 +478,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         // dev.log("createdReceipt onCharge $createdReceipt");
         try {
           await _printReceiptUsecase.call(
-              params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, isDraft: false));
+              params: PrintReceiptUseCaseParams(receiptEntity: createdReceipt, printType: 1));
           await _openCashDrawerUseCase.call();
         } catch (e) {
           dev.log(e.toString());
