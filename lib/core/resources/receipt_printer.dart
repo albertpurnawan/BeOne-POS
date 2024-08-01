@@ -104,8 +104,26 @@ class ReceiptPrinter {
         return currentPrintReceiptDetail?.storeMasterEntity.addr3 ?? "";
       case PrintReceiptContentType.city:
         return currentPrintReceiptDetail?.storeMasterEntity.city ?? "";
+      case PrintReceiptContentType.header01:
+        return currentPrintReceiptDetail?.storeMasterEntity.header01?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.header02:
+        return currentPrintReceiptDetail?.storeMasterEntity.header02?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.header03:
+        return currentPrintReceiptDetail?.storeMasterEntity.header03?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.header04:
+        return currentPrintReceiptDetail?.storeMasterEntity.header04?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.header05:
+        return currentPrintReceiptDetail?.storeMasterEntity.header05?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.footer01:
         return currentPrintReceiptDetail?.storeMasterEntity.footer01?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.footer02:
+        return currentPrintReceiptDetail?.storeMasterEntity.footer02?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.footer03:
+        return currentPrintReceiptDetail?.storeMasterEntity.footer03?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.footer04:
+        return currentPrintReceiptDetail?.storeMasterEntity.footer04?.replaceAll("\\n", "\n") ?? "";
+      case PrintReceiptContentType.footer05:
+        return currentPrintReceiptDetail?.storeMasterEntity.footer05?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.customer:
         return "Customer: [${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custCode ?? "-"}] ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custName ?? "-"}";
       case PrintReceiptContentType.customRow1:
@@ -327,22 +345,121 @@ class ReceiptPrinter {
             //       bold: printReceiptContent.isBold,
             //     ));
 
-            // Layout3
+            // // Layout3
+            // String barcodeString = item.itemEntity.barcode;
+            // int barcodeLength = barcodeString.length;
+            // final int barcodeRequiredRow = (barcodeLength / 15).ceil();
+            // String priceQtyString =
+            //     " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}";
+            // int priceQtyLength = priceQtyString.length;
+            // final int priceQtyRequiredRow = (priceQtyLength / 15).ceil();
+            // String totalAmountString =
+            //     Helpers.alignRightByAddingSpace(Helpers.parseMoney(item.totalAmount.round()), 11);
+            // int totalAmountLength = totalAmountString.length;
+            // final int totalAmountRequiredRow = (totalAmountLength / 11).ceil();
+            // for (int i = 0; i < max(max(barcodeRequiredRow, priceQtyRequiredRow), totalAmountRequiredRow); i++) {
+            //   bytes += generator.row([
+            //     PosColumn(
+            //         width: 1,
+            //         text: i == 0 ? count.toString() : "",
+            //         styles: PosStyles(
+            //           align: PosAlign.left,
+            //           height: printReceiptContent.fontSize,
+            //           width: printReceiptContent.fontSize,
+            //           bold: true,
+            //         )),
+            //     PosColumn(
+            //         width: 4,
+            //         text: i < barcodeRequiredRow
+            //             ? Helpers.alignLeftByAddingSpace(
+            //                 barcodeString.substring(i * 15, i == barcodeRequiredRow - 1 ? null : (i + 1) * 15), 15)
+            //             : Helpers.alignLeftByAddingSpace("", 15),
+            //         styles: PosStyles(
+            //           align: PosAlign.left,
+            //           height: printReceiptContent.fontSize,
+            //           width: printReceiptContent.fontSize,
+            //           bold: true,
+            //         )),
+            //     PosColumn(
+            //         width: 4,
+            //         text: i < priceQtyRequiredRow
+            //             ? Helpers.alignLeftByAddingSpace(
+            //                 priceQtyString.substring(i * 15, i == priceQtyRequiredRow - 1 ? null : (i + 1) * 15), 15)
+            //             : Helpers.alignLeftByAddingSpace("", 15),
+            //         styles: PosStyles(
+            //           align: PosAlign.left,
+            //           height: printReceiptContent.fontSize,
+            //           width: printReceiptContent.fontSize,
+            //           bold: true,
+            //         )),
+            //     PosColumn(
+            //         width: 3,
+            //         text: i < totalAmountRequiredRow
+            //             ? Helpers.alignRightByAddingSpace(
+            //                 totalAmountString.substring(i * 11, i == totalAmountRequiredRow - 1 ? null : (i + 1) * 11),
+            //                 11)
+            //             : Helpers.alignLeftByAddingSpace("", 11),
+            //         styles: PosStyles(
+            //           align: PosAlign.left,
+            //           height: printReceiptContent.fontSize,
+            //           width: printReceiptContent.fontSize,
+            //           bold: true,
+            //         )),
+            //   ]);
+            // }
+            // count += 1;
+            // int itemNameLength = (item.itemEntity.shortName ?? item.itemEntity.itemName).length;
+            // final int requiredRow = (itemNameLength / 42).ceil();
+            // dev.log("$itemNameLength $requiredRow");
+            // for (int i = 0; i < requiredRow; i++) {
+            //   bytes += generator.row([
+            //     PosColumn(
+            //         width: 1,
+            //         text: "",
+            //         styles: PosStyles(
+            //           align: PosAlign.left,
+            //           height: printReceiptContent.fontSize,
+            //           width: printReceiptContent.fontSize,
+            //         )),
+            //     PosColumn(
+            //         width: 11,
+            //         text: Helpers.alignLeftByAddingSpace(
+            //             (item.itemEntity.shortName ?? item.itemEntity.itemName)
+            //                 .substring(i * 42, i == requiredRow - 1 ? null : (i + 1) * 42),
+            //             42),
+            //         styles: PosStyles(
+            //           align: PosAlign.left,
+            //           height: printReceiptContent.fontSize,
+            //           width: printReceiptContent.fontSize,
+            //         )),
+            //   ]);
+            // }
+            // if (salesEmployeeEntity?.empName == null) continue;
+            // bytes += generator.row([
+            //   PosColumn(
+            //       width: 1,
+            //       text: "",
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //       )),
+            //   PosColumn(
+            //       width: 11,
+            //       text: Helpers.alignLeftByAddingSpace(">> ${salesEmployeeEntity!.empName}", 42).substring(0, 42),
+            //       styles: PosStyles(
+            //         align: PosAlign.left,
+            //         height: printReceiptContent.fontSize,
+            //         width: printReceiptContent.fontSize,
+            //       )),
+            // ]);
+
+            // Layout4
             String barcodeString = item.itemEntity.barcode;
             int barcodeLength = barcodeString.length;
-            final int barcodeRequiredRow = (barcodeLength / 15).ceil();
+            final int barcodeRequiredRow = (barcodeLength / 42).ceil();
 
-            String priceQtyString =
-                " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}";
-            int priceQtyLength = priceQtyString.length;
-            final int priceQtyRequiredRow = (priceQtyLength / 15).ceil();
-
-            String totalAmountString =
-                Helpers.alignRightByAddingSpace(Helpers.parseMoney(item.totalAmount.round()), 11);
-            int totalAmountLength = totalAmountString.length;
-            final int totalAmountRequiredRow = (totalAmountLength / 11).ceil();
-
-            for (int i = 0; i < max(max(barcodeRequiredRow, priceQtyRequiredRow), totalAmountRequiredRow); i++) {
+            for (int i = 0; i < barcodeRequiredRow; i++) {
               bytes += generator.row([
                 PosColumn(
                     width: 1,
@@ -354,36 +471,11 @@ class ReceiptPrinter {
                       bold: true,
                     )),
                 PosColumn(
-                    width: 4,
+                    width: 11,
                     text: i < barcodeRequiredRow
                         ? Helpers.alignLeftByAddingSpace(
-                            barcodeString.substring(i * 15, i == barcodeRequiredRow - 1 ? null : (i + 1) * 15), 15)
-                        : Helpers.alignLeftByAddingSpace("", 15),
-                    styles: PosStyles(
-                      align: PosAlign.left,
-                      height: printReceiptContent.fontSize,
-                      width: printReceiptContent.fontSize,
-                      bold: true,
-                    )),
-                PosColumn(
-                    width: 4,
-                    text: i < priceQtyRequiredRow
-                        ? Helpers.alignLeftByAddingSpace(
-                            priceQtyString.substring(i * 15, i == priceQtyRequiredRow - 1 ? null : (i + 1) * 15), 15)
-                        : Helpers.alignLeftByAddingSpace("", 15),
-                    styles: PosStyles(
-                      align: PosAlign.left,
-                      height: printReceiptContent.fontSize,
-                      width: printReceiptContent.fontSize,
-                      bold: true,
-                    )),
-                PosColumn(
-                    width: 3,
-                    text: i < totalAmountRequiredRow
-                        ? Helpers.alignRightByAddingSpace(
-                            totalAmountString.substring(i * 11, i == totalAmountRequiredRow - 1 ? null : (i + 1) * 11),
-                            11)
-                        : Helpers.alignLeftByAddingSpace("", 11),
+                            barcodeString.substring(i * 42, i == barcodeRequiredRow - 1 ? null : (i + 1) * 42), 42)
+                        : Helpers.alignLeftByAddingSpace("", 42),
                     styles: PosStyles(
                       align: PosAlign.left,
                       height: printReceiptContent.fontSize,
@@ -393,57 +485,9 @@ class ReceiptPrinter {
               ]);
             }
 
-            // bytes += generator.row([
-            //   PosColumn(
-            //       width: 1,
-            //       text: count.toString(),
-            //       styles: PosStyles(
-            //         align: PosAlign.left,
-            //         height: printReceiptContent.fontSize,
-            //         width: printReceiptContent.fontSize,
-            //         bold: true,
-            //       )),
-            //   PosColumn(
-            //       width: 4,
-            //       text: Helpers.alignLeftByAddingSpace(
-            //           "${item.promos.isEmpty || (item.discAmount ?? 0) <= 0 ? "" : "*"}${item.itemEntity.barcode}", 15),
-            //       styles: PosStyles(
-            //         align: PosAlign.left,
-            //         height: printReceiptContent.fontSize,
-            //         width: printReceiptContent.fontSize,
-            //         bold: true,
-            //       )),
-            //   PosColumn(
-            //       width: 4,
-            //       text: Helpers.alignLeftByAddingSpace(
-            //           " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}",
-            //           15),
-            //       styles: PosStyles(
-            //         align: PosAlign.left,
-            //         height: printReceiptContent.fontSize,
-            //         width: printReceiptContent.fontSize,
-            //         bold: true,
-            //       )),
-            //   PosColumn(
-            //       width: 3,
-            //       text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(item.totalAmount.round()), 11),
-            //       styles: PosStyles(
-            //         align: PosAlign.left,
-            //         height: printReceiptContent.fontSize,
-            //         width: printReceiptContent.fontSize,
-            //         bold: true,
-            //       )),
-            // ]);
-            count += 1;
-
             int itemNameLength = (item.itemEntity.shortName ?? item.itemEntity.itemName).length;
             final int requiredRow = (itemNameLength / 42).ceil();
-            dev.log("$itemNameLength $requiredRow");
             for (int i = 0; i < requiredRow; i++) {
-              dev.log("$i");
-              dev.log(
-                  "${Helpers.alignLeftByAddingSpace((item.itemEntity.shortName ?? item.itemEntity.itemName).substring(i * 42, i != 0 && i != requiredRow - 1 ? (i + 1) * 42 : null), 42)}");
-
               bytes += generator.row([
                 PosColumn(
                     width: 1,
@@ -466,6 +510,54 @@ class ReceiptPrinter {
                     )),
               ]);
             }
+
+            String priceQtyString =
+                " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}";
+            int priceQtyLength = priceQtyString.length;
+            final int priceQtyRequiredRow = (priceQtyLength / 19).ceil();
+
+            String totalAmountString = Helpers.parseMoney(item.totalAmount.round());
+            int totalAmountLength = totalAmountString.length;
+            final int totalAmountRequiredRow = (totalAmountLength / 15).ceil();
+
+            for (int i = 0; i < max(priceQtyRequiredRow, totalAmountRequiredRow); i++) {
+              bytes += generator.row([
+                PosColumn(
+                    width: 3,
+                    text: "",
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                    )),
+                PosColumn(
+                    width: 5,
+                    text: i < priceQtyRequiredRow
+                        ? Helpers.alignLeftByAddingSpace(
+                            priceQtyString.substring(i * 19, i == priceQtyRequiredRow - 1 ? null : (i + 1) * 19), 19)
+                        : Helpers.alignLeftByAddingSpace("", 19),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                    )),
+                PosColumn(
+                    width: 4,
+                    text: i < totalAmountRequiredRow
+                        ? Helpers.alignRightByAddingSpace(
+                            totalAmountString.substring(i * 15, i == totalAmountRequiredRow - 1 ? null : (i + 1) * 15),
+                            15)
+                        : Helpers.alignLeftByAddingSpace("", 15),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                    )),
+              ]);
+            }
+
+            count += 1;
+
             if (salesEmployeeEntity?.empName == null) continue;
             bytes += generator.row([
               PosColumn(
@@ -491,7 +583,7 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 4,
-                text: "Total",
+                text: Helpers.alignLeftByAddingSpace("Total", 15),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -501,7 +593,7 @@ class ReceiptPrinter {
             PosColumn(
                 width: 8,
                 text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.grandTotal.round()), 15),
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.grandTotal.round()), 31),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -509,7 +601,7 @@ class ReceiptPrinter {
                   bold: printReceiptContent.isBold,
                 )),
           ]);
-          bytes += generator.emptyLines(1);
+          // bytes += generator.emptyLines(1);
           // bytes += generator.text(
           //     Helpers.alignLeftByAddingSpace(
           //         'Total Qty.: ${Helpers.cleanDecimal(currentPrintReceiptDetail!.receiptEntity.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element), 3)}',
@@ -524,7 +616,7 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 6,
-                text: "Total Qty.",
+                text: Helpers.alignLeftByAddingSpace("Total Qty.", 23),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -539,7 +631,7 @@ class ReceiptPrinter {
                             .map((e) => e.quantity)
                             .reduce((value, element) => value + element),
                         3),
-                    11),
+                    23),
                 // text: "sssssssssssssssS",
                 styles: PosStyles(
                   align: PosAlign.left,
@@ -1539,7 +1631,17 @@ enum PrintReceiptContentType {
   customRow9,
   customRow10,
 
+  header01,
+  header02,
+  header03,
+  header04,
+  header05,
+
   footer01,
+  footer02,
+  footer03,
+  footer04,
+  footer05,
 
   draftWatermarkTop,
   draftWatermarkBottom,

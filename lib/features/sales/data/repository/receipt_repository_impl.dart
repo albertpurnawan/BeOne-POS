@@ -247,7 +247,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
               toinvDocId: generatedInvoiceHeaderDocId,
               tinv1DocId: invoiceDetailDocId,
               promotionType: promo.promoType.toString(),
-              promotionDocId: promo.docId,
+              promotionDocId: promo.promoId,
               amount: promo.discAmount ?? 0.0,
             );
           });

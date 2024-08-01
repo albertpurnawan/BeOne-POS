@@ -115,6 +115,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       if ((state.totalPayment ?? 0) < state.grandTotal) {
         setState(() {
           isPaymentSufficient = false;
+          isCharging = false;
         });
         Future.delayed(const Duration(milliseconds: 2000), () => setState(() => isPaymentSufficient = true));
         return;
