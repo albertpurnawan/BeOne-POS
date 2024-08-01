@@ -26,6 +26,7 @@ class GetItemsByPricelistUseCase implements UseCase<List<ItemEntity>, GetItemsBy
       final StoreMasterEntity? storeMasterEntity =
           await _storeMasterRepository.getStoreMaster(posParameterEntity.tostrId!);
       if (storeMasterEntity == null) throw "Store master not found";
+      if (storeMasterEntity.toplnId == null) throw "Store master has no pricelist assigned";
       final List<ItemEntity> normalPriceItems = await _itemRepository.getItemsByPricelist(
         searchKeyword: params.searchKeyword,
         pricelistId: storeMasterEntity.toplnId!,

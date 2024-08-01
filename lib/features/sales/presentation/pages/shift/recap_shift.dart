@@ -4,10 +4,16 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
+import 'package:pos_fe/features/sales/domain/entities/user.dart';
+import 'package:pos_fe/features/sales/domain/repository/employee_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
+import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/recap_money_denom_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -73,6 +79,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalNonCash = '0';
   String totalSales = '0';
   String calculatedTotalCash = '0';
+  bool isPrintingOpenShift = false;
+  bool isPrintingCloseShift = false;
 
   @override
   void initState() {
@@ -135,6 +143,178 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Shift",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.start,
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                TextButton(
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                  onPressed: isPrintingOpenShift
+                      ? null
+                      : () async {
+                          try {
+                            setState(() {
+                              isPrintingOpenShift = true;
+                            });
+                            await GetIt.instance<PrintOpenShiftUsecase>().call(params: tcsr1, printType: 2);
+                            setState(() {
+                              isPrintingOpenShift = false;
+                            });
+                          } catch (e) {
+                            setState(() {
+                              isPrintingOpenShift = false;
+                            });
+                            SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                          }
+                        },
+                  child: Center(
+                    child: isPrintingOpenShift
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator.adaptive(
+                                // backgroundColor: Colors.white,
+                                ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.print_outlined,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              const SizedBox(
+                                width: 7,
+                              ),
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Reprint\nOpen Shift",
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                    // TextSpan(
+                                    //   text: "  (F12)",
+                                    //   style: TextStyle(fontWeight: FontWeight.w300),
+                                    // ),
+                                  ],
+                                  style: TextStyle(height: 1, fontSize: 10),
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                TextButton(
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                  onPressed: isPrintingCloseShift
+                      ? null
+                      : () async {
+                          try {
+                            setState(() {
+                              isPrintingCloseShift = true;
+                            });
+                            if (tcsr1 == null) throw "Shift not found";
+                            if (tcsr1?.closedApproveById == null) throw "Shift has no approval";
+                            final UserEntity? approverUser = await GetIt.instance<AppDatabase>()
+                                .userDao
+                                .readByDocId(tcsr1!.closedApproveById!, null);
+                            if (approverUser == null) throw "Approver not found";
+
+                            EmployeeEntity? approverEmployee;
+                            if (approverUser.tohemId != null) {
+                              approverEmployee =
+                                  await GetIt.instance<EmployeeRepository>().getEmployee(approverUser.tohemId!);
+                            }
+                            await GetIt.instance<PrintCloseShiftUsecase>().call(
+                                printType: 2,
+                                params: PrintCloseShiftUsecaseParams(
+                                    cashierBalanceTransactionEntity: tcsr1!,
+                                    totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCash),
+                                    expectedCash: expectedCash,
+                                    totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                                    totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
+                                    cashReceived: tcsr1!.calcValue,
+                                    difference: tcsr1!.calcValue - expectedCash,
+                                    approverName: approverEmployee?.empName ?? approverUser.username));
+                            setState(() {
+                              isPrintingCloseShift = false;
+                            });
+                          } catch (e) {
+                            setState(() {
+                              isPrintingCloseShift = false;
+                            });
+                            SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                          }
+                        },
+                  child: Center(
+                    child: isPrintingCloseShift
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator.adaptive(
+                                // backgroundColor: Colors.white,
+                                ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.print_outlined,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              const SizedBox(
+                                width: 7,
+                              ),
+                              RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Reprint\nClose Shift",
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                    // TextSpan(
+                                    //   text: "  (F12)",
+                                    //   style: TextStyle(fontWeight: FontWeight.w300),
+                                    // ),
+                                  ],
+                                  style: TextStyle(height: 1, fontSize: 10),
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            ],
+                          ),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,

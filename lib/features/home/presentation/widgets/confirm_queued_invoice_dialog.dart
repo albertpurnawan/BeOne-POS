@@ -1,9 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmQueuedInvoiceDialog extends StatefulWidget {
   const ConfirmQueuedInvoiceDialog({
@@ -18,6 +26,22 @@ class _ConfirmQueuedInvoiceDialogState extends State<ConfirmQueuedInvoiceDialog>
   @override
   initState() {
     super.initState();
+  }
+
+  Future<StoreMasterEntity?> getStoreMasterEntity() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+
+      final StoreMasterEntity? storeMasterEntity =
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
+      if (storeMasterEntity == null) throw "Failed to retrieve Store Master";
+
+      return storeMasterEntity;
+    } catch (e) {
+      SnackBarHelper.presentFailSnackBar(context, e.toString());
+      return null;
+    }
   }
 
   @override
@@ -105,13 +129,19 @@ class _ConfirmQueuedInvoiceDialogState extends State<ConfirmQueuedInvoiceDialog>
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-              onPressed: () {
+              onPressed: () async {
+                final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
+                await GetIt.instance<AppDatabase>().refreshItemsTable();
+                await GetIt.instance<SharedPreferences>()
+                    .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
                 context.pop();
                 context.pop();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const SalesPage(),
+                    builder: (context) => SalesPage(
+                      uiVersion: storeMasterEntity?.salesViewType ?? 1,
+                    ),
                   ),
                 );
                 showDialog(context: context, barrierDismissible: false, builder: (context) => const QueueListDialog());

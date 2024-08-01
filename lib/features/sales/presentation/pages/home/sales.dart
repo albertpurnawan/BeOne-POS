@@ -10,13 +10,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -34,7 +37,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SalesPage extends StatefulWidget {
   const SalesPage({
     Key? key,
-    this.uiVersion = 1,
+    required this.uiVersion,
   }) : super(key: key);
   final int uiVersion;
 
@@ -571,6 +574,7 @@ class _SalesPageState extends State<SalesPage> {
                                     ],
                                   ),
                                 );
+
                                 return TapRegion(
                                   groupId: 1,
                                   child: GestureDetector(
@@ -717,19 +721,42 @@ class _SalesPageState extends State<SalesPage> {
                                                           ),
                                                           Expanded(
                                                             flex: 1,
-                                                            child: Align(
-                                                              alignment: Alignment.centerRight,
-                                                              child: Column(
-                                                                // TotalPriceUI
-                                                                children: [
-                                                                  Text(
-                                                                    Helpers.parseMoney(
-                                                                        (e.sellingPrice * e.quantity).round()),
-                                                                    style: const TextStyle(
-                                                                        fontSize: 16, fontWeight: FontWeight.w500),
-                                                                  ),
-                                                                ],
-                                                              ),
+                                                            child: Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                                              mainAxisSize: MainAxisSize.max,
+                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                              // TotalPriceUI
+                                                              children: [
+                                                                Text(
+                                                                  Helpers.parseMoney(
+                                                                      (e.sellingPrice * e.quantity).round()),
+                                                                  style: const TextStyle(
+                                                                      fontSize: 16, fontWeight: FontWeight.w500),
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 6,
+                                                                ),
+                                                                e.tohemId != null || state.salesTohemId != null
+                                                                    ? FutureBuilder(
+                                                                        future: getSalesPerson(
+                                                                            e.tohemId, state.salesTohemId),
+                                                                        builder: (context, snapshot) {
+                                                                          log("${e.itemEntity.itemName} ${state.salesTohemId} ${e.tohemId}");
+                                                                          if (snapshot.hasData) {
+                                                                            return Text(
+                                                                              snapshot.data?.empName ?? "",
+                                                                              textAlign: TextAlign.right,
+                                                                              style: const TextStyle(
+                                                                                  height: 1,
+                                                                                  fontSize: 12,
+                                                                                  fontWeight: FontWeight.w500),
+                                                                            );
+                                                                          } else {
+                                                                            return const SizedBox.shrink();
+                                                                          }
+                                                                        })
+                                                                    : const SizedBox.shrink(),
+                                                              ],
                                                             ),
                                                           ),
                                                         ],
@@ -1678,7 +1705,7 @@ class _SalesPageState extends State<SalesPage> {
                                       text: const TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: "Header\nAttribute",
+                                            text: "Header\nAttributes",
                                             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                           ),
                                         ],
@@ -1768,7 +1795,7 @@ class _SalesPageState extends State<SalesPage> {
                                         text: TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: "Item\nAttribute",
+                                              text: "Item\nAttributes",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,
@@ -3483,6 +3510,22 @@ class _SalesPageState extends State<SalesPage> {
       });
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
+  Future<EmployeeEntity?> getSalesPerson(String? itemSalesTohemId, String? headerSalesTohemId) async {
+    try {
+      log("$itemSalesTohemId $headerSalesTohemId");
+      EmployeeEntity? employeeEntity;
+      if (headerSalesTohemId != null && headerSalesTohemId != "") {
+        employeeEntity = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(headerSalesTohemId, null);
+      }
+      if (itemSalesTohemId != null && itemSalesTohemId != "") {
+        employeeEntity = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(itemSalesTohemId, null);
+      }
+      return employeeEntity;
+    } catch (e) {
+      return null;
     }
   }
   // =================================================

@@ -47,7 +47,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
                 double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
                 final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                if ((input > state.subtotal - (state.discAmount ?? 0)) || input <= 0) {
+                if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input <= 0) {
                   context.pop();
                   ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
                   return KeyEventResult.handled;
@@ -182,7 +182,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                     onFieldSubmitted: (value) async {
                       double input = Helpers.revertMoneyToDecimalFormat(value);
                       final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                      if (input > state.subtotal - (state.discAmount ?? 0)) {
+                      if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
                         return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
                       }
                       // context
@@ -272,7 +272,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                       onPressed: () async {
                         double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
                         final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                        if (input > state.grandTotal - (state.discHeaderManual ?? 0)) {
+                        if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
                           return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
                         }
                         final bool? isHeaderDiscApplied = await showDialog<bool>(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -276,7 +277,7 @@ abstract class Helpers {
   //   return day;
   // }
 
-  static alignRightByAddingSpace(String string, int n) {
+  static String alignRightByAddingSpace(String string, int n) {
     if (string.length > n) {
       return string;
     } else {
@@ -293,7 +294,7 @@ abstract class Helpers {
     }
   }
 
-  static alignLeftByAddingSpace(String string, int n) {
+  static String alignLeftByAddingSpace(String string, int n) {
     if (string.length > n) {
       final int numOflines = (string.length / n).floor() + 1;
       final List<String> stringByLines = [];
@@ -302,6 +303,7 @@ abstract class Helpers {
         final String currentString = string.substring((i * n), i + 1 == numOflines ? null : ((i + 1) * n));
         stringByLines.add("$currentString${List.generate(n - currentString.length, (index) => " ").join("")}");
       }
+      dev.log(stringByLines.toString());
       return stringByLines.join("");
     } else {
       final String spaces = List.generate(n - string.length, (index) => " ").join("");

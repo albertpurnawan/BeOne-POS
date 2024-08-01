@@ -49,8 +49,8 @@ class _ShiftsListState extends State<ShiftsList> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 75),
               child: Divider(
-                color: Colors.black,
-                thickness: 2,
+                color: Colors.grey,
+                // thickness: 0.5,
               ),
             ),
             AllShift(),
@@ -413,6 +413,7 @@ class _AllShiftState extends State<AllShift> {
                                 ),
                                 const Divider(
                                   color: Colors.grey,
+                                  thickness: 0.5,
                                 ),
                               ],
                             ),

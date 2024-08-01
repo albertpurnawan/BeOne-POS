@@ -406,7 +406,8 @@ Future<void> initializeDependencies() async {
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(() => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
-  sl.registerSingleton<ApplyRoundingUseCase>(ApplyRoundingUseCase());
+  sl.registerSingletonWithDependencies<ApplyRoundingUseCase>(() => ApplyRoundingUseCase(sl(), sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<CheckCredentialActiveStatusUseCase>(
       () => CheckCredentialActiveStatusUseCase(sl()),
       dependsOn: [SharedPreferences]);
