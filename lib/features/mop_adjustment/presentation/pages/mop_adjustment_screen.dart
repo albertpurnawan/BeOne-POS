@@ -91,11 +91,14 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   }
 
   Future<Map<CashierBalanceTransactionModel, Map<String, dynamic>>> _fetchSearchResultsWithDetails() async {
-    final searchResults = shiftsFound!;
+    final searchResults = shiftsFound;
+
+    if (searchResults == null) {
+      return {};
+    }
 
     final userFutures = searchResults.map((shift) => _getUser(shift.tousrId!));
     final cashierFutures = searchResults.map((shift) => _getCashier(shift.tocsrId!));
-
     final users = await Future.wait(userFutures);
     final cashiers = await Future.wait(cashierFutures);
 
@@ -109,7 +112,12 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
               }),
     );
 
-    return resultMap;
+    final sortedEntries = resultMap.entries.toList()..sort((a, b) => b.key.createDate.compareTo(a.key.createDate));
+
+    final sortedMap = Map.fromEntries(sortedEntries);
+
+    log("resultMap (sorted by createDate): $sortedMap");
+    return sortedMap;
   }
 
   void _handleShiftSelected(CashierBalanceTransactionModel? shift) async {
@@ -419,55 +427,73 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                     subtitle: SizedBox(
                       height: 25,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          const Icon(
-                            Icons.calendar_month_outlined,
-                            size: 20,
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_month_outlined,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                Helpers.dateEEddMMMyyy(shift.openDate),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(
-                            width: 5,
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.account_circle_outlined,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                user.username,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            Helpers.dateEEddMMMyyy(shift.openDate),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.point_of_sale_outlined,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                cashier.idKassa!,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          const Icon(
-                            Icons.account_circle_outlined,
-                            size: 20,
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            user.username,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          const Icon(
-                            Icons.point_of_sale_outlined,
-                            size: 20,
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            cashier.idKassa!,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          Row(
+                            children: [
+                              Icon(
+                                shift.approvalStatus == 0 ? Icons.lock_open_outlined : Icons.lock_outline,
+                                size: 20,
+                                color: shift.approvalStatus == 0 ? Colors.green : ProjectColors.primary,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                shift.approvalStatus == 0 ? "Open" : "Closed",
+                                style: TextStyle(
+                                  color: shift.approvalStatus == 0 ? Colors.green : ProjectColors.primary,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
