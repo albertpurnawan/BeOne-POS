@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -83,9 +85,6 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
-    final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-
-    final bool isOpen = prefs.getBool('isOpen') ?? false;
 
     return Center(
       child: Form(
@@ -120,6 +119,9 @@ class _LoginFormState extends State<LoginForm> {
               child: const Text("Login"),
               onTap: () async {
                 if (!formKey.currentState!.validate()) return;
+                final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+                final bool isOpen = prefs.getBool('isOpen') ?? false;
+                log("isOpen $isOpen");
                 // await refreshToken();
                 final loginSuccess = await GetIt.instance<LoginUseCase>().call(
                     params: UserAuthEntity(
@@ -172,6 +174,7 @@ class _LoginFormState extends State<LoginForm> {
                     );
 
                     bool isOpenShiftConfirmed = false;
+                    log("opened shift $openedShift");
                     if (openedShift != null) {
                       isOpenShiftConfirmed = await showDialog(
                           context: context,

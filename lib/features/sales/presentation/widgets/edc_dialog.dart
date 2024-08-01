@@ -210,7 +210,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    "${mop.mopAlias}",
+                                    mop.mopAlias,
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,

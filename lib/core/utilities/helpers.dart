@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:developer' as dev;
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -100,6 +100,17 @@ abstract class Helpers {
     } catch (e) {
       return 0;
     }
+  }
+
+  static String formatPhoneNumber(String value) {
+    String cleanNumber = value.replaceAll(RegExp(r'\D'), '');
+
+    List<String> chunks = [];
+    for (int i = 0; i < cleanNumber.length; i += 4) {
+      chunks.add(cleanNumber.substring(i, i + 4 > cleanNumber.length ? cleanNumber.length : i + 4));
+    }
+
+    return chunks.join('-');
   }
 
   static Future<T?> navigate<T>(BuildContext context, Widget child) {

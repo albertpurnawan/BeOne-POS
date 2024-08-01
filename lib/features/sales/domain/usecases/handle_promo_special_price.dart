@@ -101,7 +101,8 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                 currentReceiptItem.taxAmount =
                     (currentReceiptItem.totalGross - discountBeforeTax) * (currentReceiptItem.itemEntity.taxRate / 100);
 
-                currentReceiptItem.totalAmount = currentReceiptItem.totalGross + currentReceiptItem.taxAmount;
+                currentReceiptItem.totalAmount =
+                    currentReceiptItem.totalGross - discountBeforeTax + currentReceiptItem.taxAmount;
                 isNewReceiptItem = false;
 
                 newReceiptItems.add(ReceiptItemEntity(
@@ -170,7 +171,8 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
               currentReceiptItem.taxAmount =
                   (currentReceiptItem.totalGross - discountBeforeTax) * (currentReceiptItem.itemEntity.taxRate / 100);
 
-              currentReceiptItem.totalAmount = currentReceiptItem.totalGross + currentReceiptItem.taxAmount;
+              currentReceiptItem.totalAmount =
+                  currentReceiptItem.totalGross - discountBeforeTax + currentReceiptItem.taxAmount;
               isNewReceiptItem = false;
 
               newReceiptItems.add(ReceiptItemEntity(
@@ -290,7 +292,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                 itemEntity.includeTax == 1 ? (priceQty * (100 / (100 + itemEntity.taxRate))) : priceQty;
             final double taxAmountNewItem = (totalGross - discountBeforeTax) * (itemEntity.taxRate / 100);
 
-            final double totalAmount = totalGross + taxAmountNewItem;
+            final double totalAmount = totalGross - discountBeforeTax + taxAmountNewItem;
 
             newReceiptItems.add(ReceiptItemEntity(
               quantity: quantity,

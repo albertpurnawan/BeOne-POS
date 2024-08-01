@@ -14,7 +14,9 @@ class PermissionHandler {
       log("Permission Granted");
     } else {
       log("Permission Denied");
-      _showPermissionDeniedDialog(context);
+      if (context.mounted) {
+        _showPermissionDeniedDialog(context);
+      }
     }
   }
 

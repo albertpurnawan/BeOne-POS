@@ -115,7 +115,9 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
         await originalFile.rename(renamedOriginal);
       } catch (e) {
         log("Failed to rename the original file. It may be in use.");
-        SnackBarHelper.presentErrorSnackBar(context, "Failed to rename the original file. It may be in use.");
+        if (context.mounted) {
+          SnackBarHelper.presentErrorSnackBar(context, "Failed to rename the original file. It may be in use.");
+        }
         return;
       }
 
@@ -145,8 +147,10 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       await restoredFile.delete();
     } catch (e) {
       log("Error restoring database: $e");
-      SnackBarHelper.presentErrorSnackBar(context, "Error restoring database: $e");
-      Navigator.pop(context);
+      if (context.mounted) {
+        SnackBarHelper.presentErrorSnackBar(context, "Error restoring database: $e");
+        Navigator.pop(context);
+      }
       rethrow;
     }
   }

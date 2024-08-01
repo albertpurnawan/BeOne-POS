@@ -120,7 +120,9 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                         setState(() {
                           isPrinting = false;
                         });
-                        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                        if (context.mounted) {
+                          SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                        }
                       }
                     },
               child: Center(

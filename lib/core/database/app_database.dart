@@ -519,9 +519,132 @@ INNER JOIN (
       storeTaxRate = taxMaster.rate;
     }
 
+//     final String mainQuery = """
+// INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname, toplnId)
+// SELECT
+//   i.itemname,
+//   i.itemcode,
+//   bc.barcode,
+//   b.price,
+//   p.toitmId,
+//   b.tbitmId,
+//   b.tpln2Id,
+//   i.openprice,
+//   v.tovenId,
+//   i.includetax,
+//   ${taxByItem ? "t.tovatId as tovatId" : storeTovatId},
+//   ${taxByItem ? "t.taxrate as taxrate" : storeTaxRate},
+//   ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"},
+//   i.tocatId,
+//   i.shortname,
+//   p.toplnId
+// FROM
+//   (
+//     SELECT
+//       docid AS toplnId,
+//       pp.tpln1Id,
+//       pr.tpln2Id,
+//       pr.toitmId,
+//       DATETIME(pp.tpln1createdate) AS tpln1createdate
+//     FROM
+//       topln AS pl
+//       INNER JOIN (
+//         SELECT
+//           docid AS tpln1Id,
+//           toplnId,
+//           createdate AS tpln1createdate
+//         FROM
+//           tpln1
+//         WHERE
+//           DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
+//           AND
+//           statusactive = 1
+//       ) AS pp ON pl.docid = pp.toplnId
+//       INNER JOIN (
+//         SELECT
+//           docid AS tpln2Id,
+//           tpln1Id,
+//           toitmId
+//         FROM
+//           tpln2
+//       ) AS pr ON pr.tpln1Id = pp.tpln1Id
+//     WHERE
+//       ((toplnId = '${storeMaster.toplnId}'
+//       	  AND
+//       	  DATETIME(tpln1createdate) = (SELECT MAX(DATETIME(createdate)) FROM tpln1 WHERE DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
+// 	          AND
+// 	          statusactive = 1
+// 	          AND
+// 	          toplnId = '${storeMaster.toplnId}')
+//       	OR (pl.type = '2'))
+//       AND
+//       pl.tcurrId = '${storeMaster.tcurrId}'
+//       AND
+//       pl.statusactive = 1)
+//   ) as p
+//   INNER JOIN (
+//     SELECT
+//       tbitmId,
+//       price,
+//       tpln2Id
+//     FROM
+//       tpln4
+//   ) as b ON p.tpln2Id = b.tpln2Id
+//   INNER JOIN (
+//     SELECT
+//       docid,
+//       barcode
+//     FROM
+//       tbitm
+//     WHERE
+//       statusactive = 1
+//   ) as bc ON bc.docid = b.tbitmId
+//   INNER JOIN (
+//     SELECT
+//       docid,
+//       itemcode,
+//       itemname,
+//       touomId,
+//       openprice,
+//       includetax,
+//       tocatId,
+//       shortname
+//     FROM
+//       toitm
+//     WHERE
+//       statusactive = 1
+//   ) as i ON i.docid = p.toitmId
+//   INNER JOIN (
+//     SELECT
+//       docid AS touomId,
+//       uomcode
+//     FROM
+//       touom
+//     WHERE
+//       statusactive = 1
+//   ) as u ON u.touomId = i.touomId
+//   INNER JOIN (
+//     SELECT
+//       docid AS tsitmId,
+//       ${taxByItem ? "tovatId," : ""}
+//       toitmId
+//     FROM
+//       tsitm
+//     WHERE
+//       statusactive = 1
+//   ) as s ON s.toitmId = p.toitmId
+//   LEFT JOIN (
+//     SELECT
+//       tsitmId,
+//       tovenId
+//     FROM
+//       tvitm
+//   ) as v ON v.tsitmId = s.tsitmId
+//   ${taxByItem ? taxAdditionalQuery : ""}""";
+
     final String mainQuery = """
 INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname, toplnId)
-SELECT 
+WITH all_pricelist AS (SELECT
   i.itemname, 
   i.itemcode, 
   bc.barcode, 
@@ -537,7 +660,9 @@ SELECT
   ${taxByItem ? "IIF(i.includetax == 1, 100/(100 + taxrate) * b.price, b.price) as dpp" : "IIF(i.includetax == 1, 100/(100 + $storeTaxRate) * b.price, b.price) as dpp"},
   i.tocatId,
   i.shortname,
-  p.toplnId
+  p.toplnId,
+  p.tpln1createdate,
+  ROW_NUMBER() OVER (PARTITION BY bc.barcode, p.toplnId ORDER BY p.tpln1createdate DESC) AS rn
 FROM 
   (
     SELECT 
@@ -545,9 +670,21 @@ FROM
       pp.tpln1Id, 
       pr.tpln2Id, 
       pr.toitmId, 
-      DATETIME(pp.tpln1createdate) AS tpln1createdate
+      DATETIME(pp.tpln1createdate) AS tpln1createdate,
+      pm.tpln3Id
     FROM 
-      topln AS pl 
+      topln AS pl
+      LEFT JOIN (
+      	SELECT
+      		docid as tpln3Id,
+      		toplnId as tpln3ToplnId
+      	FROM
+      		tpln3
+      	WHERE
+      		statusactive = 1
+      		AND
+      		tostrId = '${storeMaster.docId}'
+      ) AS pm ON pm.tpln3ToplnId = pl.docid
       INNER JOIN (
         SELECT 
           docid AS tpln1Id, 
@@ -569,18 +706,13 @@ FROM
           tpln2
       ) AS pr ON pr.tpln1Id = pp.tpln1Id 
     WHERE 
-      ((toplnId = '${storeMaster.toplnId}'
-      	  AND
-      	  DATETIME(tpln1createdate) = (SELECT MAX(DATETIME(createdate)) FROM tpln1 WHERE DATETIME(tpln1.periodfr) <= DATETIME() <= DATETIME(tpln1.periodto)
-	          AND
-	          statusactive = 1
-	          AND
-	          toplnId = '${storeMaster.toplnId}')
-      	OR (pl.type = '2'))
+      toplnId = '${storeMaster.toplnId}'
+      	  
+      	OR (pl.type = '2' AND pm.tpln3Id IS NOT NULL)
       AND
       pl.tcurrId = '${storeMaster.tcurrId}'
       AND 
-      pl.statusactive = 1)
+      pl.statusactive = 1
   ) as p 
   INNER JOIN (
     SELECT 
@@ -640,7 +772,26 @@ FROM
     FROM
       tvitm
   ) as v ON v.tsitmId = s.tsitmId
-  ${taxByItem ? taxAdditionalQuery : ""}""";
+  ${taxByItem ? taxAdditionalQuery : ""})
+    SELECT 
+  	itemname, 
+  	itemcode, 
+  	barcode, 
+  	price, 
+  	toitmId, 
+  	tbitmId, 
+  	tpln2Id, 
+  	openprice, 
+  	tovenId, 
+  	includetax, 
+  	tovatId, 
+  	taxrate, 
+	  dpp, 
+  	tocatId, 
+  	shortname, 
+  	toplnId
+  FROM all_pricelist
+  WHERE rn = 1;""";
 
     try {
       await _database!.execute("""
@@ -648,6 +799,8 @@ FROM
       """);
 
       await _database!.execute(mainQuery);
+
+      log(mainQuery);
     } catch (e, s) {
       debugPrintStack(stackTrace: s);
     }
@@ -1668,7 +1821,7 @@ CREATE TABLE $tableCashierBalanceTransaction (
   ${CashierBalanceTransactionFields.closedbyId} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.approvalStatus} int DEFAULT NULL,
   ${CashierBalanceTransactionFields.refpos} text DEFAULT NULL,
-  ${CashierBalanceTransactionFields.syncToBos} int DEFAULT NULL,
+  ${CashierBalanceTransactionFields.syncToBos} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.closedApproveById} text DEFAULT NULL,
   $createdAtDefinition
 )
@@ -3360,8 +3513,7 @@ CREATE TABLE $tableInvoiceAppliedPromo (
   ${InvoiceAppliedPromoFields.amount} double NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv5_toinvId_fkey` FOREIGN KEY (`toinvdocid`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tinv5_tinv1Id_fkey` FOREIGN KEY (`tinv1docid`) REFERENCES `tinv1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tinv5_toprmId_fkey` FOREIGN KEY (`promotiondocid`) REFERENCES `toprm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tinv5_tinv1Id_fkey` FOREIGN KEY (`tinv1docid`) REFERENCES `tinv1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 

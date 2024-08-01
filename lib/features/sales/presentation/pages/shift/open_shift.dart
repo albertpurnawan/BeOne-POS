@@ -11,11 +11,13 @@ import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
+import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
@@ -129,7 +131,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
   late Timer _timer;
   ValueNotifier<String> formattedDate = ValueNotifier<String>(Helpers.formatDate(DateTime.now()));
 
-  void _insertCashierBalanceTransaction(CashierBalanceTransactionModel value) async {
+  Future<void> _insertCashierBalanceTransaction(CashierBalanceTransactionModel value) async {
     await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.create(data: value);
   }
 
@@ -331,62 +333,74 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                         constraints: const BoxConstraints(maxWidth: 400),
                         child: CustomInput(
                           onEditingComplete: () async {
-                            if (!formKey.currentState!.validate()) return;
+                            try {
+                              if (!formKey.currentState!.validate()) return;
 
-                            final prefs = GetIt.instance<SharedPreferences>();
-                            await prefs.setBool('isOpen', true);
+                              final inputText = openValueController.text.replaceAll(',', '');
+                              final double inputValue = double.tryParse(inputText) ?? 0.0;
 
-                            final inputText = openValueController.text.replaceAll(',', '');
-                            final double inputValue = double.tryParse(inputText) ?? 0.0;
+                              final store =
+                                  await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(widget.tostrId!, null);
+                              final storeCode = store!.storeCode;
+                              final date = DateTime.now();
 
-                            final store =
-                                await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(widget.tostrId!, null);
-                            final storeCode = store!.storeCode;
-                            final date = DateTime.now();
+                              String formattedDate = DateFormat('yyMMddHHmmss').format(date);
+                              final countShift =
+                                  await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
 
-                            String formattedDate = DateFormat('yyMMddHHmmss').format(date);
-                            final countShift =
-                                await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
+                              final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
+                              final docnum = '$storeCode-$formattedDate-$number-S';
 
-                            final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
-                            final docnum = '$storeCode-$formattedDate-$number-S';
+                              final shiftId = const Uuid().v4();
 
-                            final shiftId = const Uuid().v4();
+                              final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
+                                docId: shiftId,
+                                createDate: DateTime.now(),
+                                updateDate: DateTime.now(),
+                                tocsrId: widget.cashRegister?.docId,
+                                tousrId: widget.user?.docId,
+                                docNum: docnum,
+                                openDate: DateTime.now(),
+                                openTime: DateTime.now(),
+                                calcDate: DateTime.utc(1970, 1, 1),
+                                calcTime: DateTime.utc(1970, 1, 1),
+                                closeDate: DateTime.utc(1970, 1, 1),
+                                closeTime: DateTime.utc(1970, 1, 1),
+                                timezone: "GMT+07",
+                                openValue: inputValue,
+                                calcValue: 0,
+                                cashValue: 0,
+                                closeValue: 0,
+                                openedbyId: widget.user?.docId,
+                                closedbyId: "",
+                                approvalStatus: 0,
+                                refpos: shiftId,
+                                syncToBos: null,
+                                closedApproveById: null,
+                              );
+                              await _insertCashierBalanceTransaction(shift);
 
-                            final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
-                              docId: shiftId,
-                              createDate: DateTime.now(),
-                              updateDate: DateTime.now(),
-                              tocsrId: widget.cashRegister?.docId,
-                              tousrId: widget.user?.docId,
-                              docNum: docnum,
-                              openDate: DateTime.now(),
-                              openTime: DateTime.now(),
-                              calcDate: DateTime.utc(1970, 1, 1),
-                              calcTime: DateTime.utc(1970, 1, 1),
-                              closeDate: DateTime.utc(1970, 1, 1),
-                              closeTime: DateTime.utc(1970, 1, 1),
-                              timezone: "GMT+07",
-                              openValue: inputValue,
-                              calcValue: 0,
-                              cashValue: 0,
-                              closeValue: 0,
-                              openedbyId: widget.user?.docId,
-                              closedbyId: "",
-                              approvalStatus: 0,
-                              refpos: shiftId,
-                              syncToBos: 0,
-                              closedApproveById: null,
-                            );
-                            _insertCashierBalanceTransaction(shift);
+                              final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
+                                  await GetIt.instance<AppDatabase>()
+                                      .cashierBalanceTransactionDao
+                                      .readByDocId(shift.docId, null);
+                              if (cashierBalanceTransactionEntity == null) throw "Open Shift Fail";
 
-                            await prefs.setString('tcsr1Id', shift.docId);
+                              final prefs = GetIt.instance<SharedPreferences>();
+                              await prefs.setBool('isOpen', true);
+                              await prefs.setString('tcsr1Id', shift.docId);
 
-                            final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
-                            await printOpenShiftUsecase.call(params: shift, printType: 1);
-                            await GetIt.instance<OpenCashDrawerUseCase>().call();
+                              final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
+                              await printOpenShiftUsecase.call(params: shift, printType: 1);
+                              await GetIt.instance<OpenCashDrawerUseCase>().call();
 
-                            context.pop(shift);
+                              context.pop(shift);
+                            } catch (e) {
+                              context.pop();
+                              await prefs.setBool('isOpen', false);
+                              await prefs.setString('tcsr1Id', "");
+                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                            }
                             // if (!context.mounted) return;
                             // if (context.mounted)
                             //   context.pushNamed(RouteConstants.home);
@@ -397,13 +411,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a value';
                             }
-                            // final isNumeric = double.tryParse(value);
-                            // if (isNumeric == null) {
-                            //   return 'Please enter a valid number';
-                            // }
+
                             return null;
                           },
-                          // label: "Openvalue",
                           inputFormatters: [MoneyInputFormatter()],
                           keyboardType: TextInputType.number,
                           hint: "Enter Amount of Opening Balance",
@@ -419,22 +429,6 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                 width: double.infinity,
                 child: Row(
                   children: [
-                    // Expanded(
-                    //   flex: 1,
-                    //   child: Container(
-                    //     height: 55,
-                    //     padding: EdgeInsets.fromLTRB(10, 0, 0, 10),
-                    //     child: CustomButton(
-                    //       padding: EdgeInsets.all(0),
-                    //       color: Color.fromARGB(255, 255, 140, 0),
-                    //       child: const Text("Skip"),
-                    //       onTap: () async {},
-                    //     ),
-                    //   ),
-                    // ),
-                    // SizedBox(
-                    //   width: 10,
-                    // ),
                     Expanded(
                       flex: 3,
                       child: Container(
@@ -471,61 +465,72 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                           padding: const EdgeInsets.all(0),
                           child: const Text("Open Shift"),
                           onTap: () async {
-                            if (!formKey.currentState!.validate()) return;
+                            try {
+                              if (!formKey.currentState!.validate()) return;
 
-                            final prefs = GetIt.instance<SharedPreferences>();
-                            await prefs.setBool('isOpen', true);
+                              final inputText = openValueController.text.replaceAll(',', '');
+                              final double inputValue = double.tryParse(inputText) ?? 0.0;
 
-                            final inputText = openValueController.text.replaceAll(',', '');
-                            final double inputValue = double.tryParse(inputText) ?? 0.0;
+                              final store = await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
+                              final storeCode = store[0].storeCode;
+                              final date = DateTime.now();
 
-                            final store = await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
-                            final storeCode = store[0].storeCode;
-                            final date = DateTime.now();
+                              String formattedDate = DateFormat('yyMMddHHmmss').format(date);
+                              final countShift =
+                                  await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
 
-                            String formattedDate = DateFormat('yyMMddHHmmss').format(date);
-                            final countShift =
-                                await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
+                              final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
+                              final docnum = '$storeCode-$formattedDate-$number-S';
 
-                            final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
-                            final docnum = '$storeCode-$formattedDate-$number-S';
+                              final shiftId = const Uuid().v4();
 
-                            final shiftId = const Uuid().v4();
+                              final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
+                                docId: shiftId,
+                                createDate: DateTime.now(),
+                                updateDate: DateTime.now(),
+                                tocsrId: widget.cashRegister?.docId,
+                                tousrId: widget.user?.docId,
+                                docNum: docnum,
+                                openDate: DateTime.now(),
+                                openTime: DateTime.now(),
+                                calcDate: DateTime.utc(1970, 1, 1),
+                                calcTime: DateTime.utc(1970, 1, 1),
+                                closeDate: DateTime.utc(1970, 1, 1),
+                                closeTime: DateTime.utc(1970, 1, 1),
+                                timezone: "GMT+07",
+                                openValue: inputValue,
+                                calcValue: 0,
+                                cashValue: 0,
+                                closeValue: 0,
+                                openedbyId: widget.user?.docId,
+                                closedbyId: "",
+                                approvalStatus: 0,
+                                refpos: shiftId,
+                                syncToBos: null,
+                                closedApproveById: null,
+                              );
+                              await _insertCashierBalanceTransaction(shift);
+                              final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
+                                  await GetIt.instance<AppDatabase>()
+                                      .cashierBalanceTransactionDao
+                                      .readByDocId(shift.docId, null);
+                              if (cashierBalanceTransactionEntity == null) throw "Open Shift Fail";
 
-                            final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
-                              docId: shiftId,
-                              createDate: DateTime.now(),
-                              updateDate: DateTime.now(),
-                              tocsrId: widget.cashRegister?.docId,
-                              tousrId: widget.user?.docId,
-                              docNum: docnum,
-                              openDate: DateTime.now(),
-                              openTime: DateTime.now(),
-                              calcDate: DateTime.utc(1970, 1, 1),
-                              calcTime: DateTime.utc(1970, 1, 1),
-                              closeDate: DateTime.utc(1970, 1, 1),
-                              closeTime: DateTime.utc(1970, 1, 1),
-                              timezone: "GMT+07",
-                              openValue: inputValue,
-                              calcValue: 0,
-                              cashValue: 0,
-                              closeValue: 0,
-                              openedbyId: widget.user?.docId,
-                              closedbyId: "",
-                              approvalStatus: 0,
-                              refpos: shiftId,
-                              syncToBos: 0,
-                              closedApproveById: null,
-                            );
-                            _insertCashierBalanceTransaction(shift);
+                              final prefs = GetIt.instance<SharedPreferences>();
+                              await prefs.setString('tcsr1Id', shift.docId);
+                              await prefs.setBool('isOpen', true);
 
-                            await prefs.setString('tcsr1Id', shift.docId);
+                              final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
+                              await printOpenShiftUsecase.call(params: shift, printType: 1);
+                              await GetIt.instance<OpenCashDrawerUseCase>().call();
 
-                            final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
-                            await printOpenShiftUsecase.call(params: shift, printType: 1);
-                            await GetIt.instance<OpenCashDrawerUseCase>().call();
-
-                            context.pop(shift);
+                              context.pop(shift);
+                            } catch (e) {
+                              context.pop(null);
+                              await prefs.setBool('isOpen', false);
+                              await prefs.setString('tcsr1Id', "");
+                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                            }
                             // if (!context.mounted) return;
                             // if (context.mounted)
                             //   context.pushNamed(RouteConstants.home);

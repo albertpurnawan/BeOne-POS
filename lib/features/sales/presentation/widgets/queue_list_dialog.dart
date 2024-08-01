@@ -98,7 +98,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
           ),
           padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
           child: const Text(
-            'Queue List',
+            'Pending Orders',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),

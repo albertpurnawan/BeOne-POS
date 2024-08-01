@@ -79,11 +79,11 @@ class _ConfirmQueuedInvoiceDialogState extends State<ConfirmQueuedInvoiceDialog>
               text: const TextSpan(
                 children: [
                   TextSpan(
-                    text: "Queued Transactions Detected!",
+                    text: "Pending Orders Detected!",
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                   TextSpan(
-                    text: "\n\nClear all queued transactions before ending your shift.",
+                    text: "\n\nClear all pending orders before ending your shift.",
                   )
                 ],
                 style: TextStyle(

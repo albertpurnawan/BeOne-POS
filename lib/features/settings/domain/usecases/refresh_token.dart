@@ -22,7 +22,7 @@ class RefreshTokenUseCase implements UseCase<void, String> {
     final token = await GetIt.instance<TokenApi>().getToken(topos[0].baseUrl!, topos[0].usernameAdmin!, decryptPass);
 
     final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
-    final encryptToken = await encryptPasswordUseCase.call(params: token);
+    await encryptPasswordUseCase.call(params: token);
     prefs.setString('adminToken', token!);
   }
 }

@@ -19,7 +19,6 @@ import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -733,7 +732,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                   style: const TextStyle(
                                                                       fontSize: 16, fontWeight: FontWeight.w500),
                                                                 ),
-                                                                SizedBox(
+                                                                const SizedBox(
                                                                   height: 6,
                                                                 ),
                                                                 e.tohemId != null || state.salesTohemId != null
@@ -1268,7 +1267,7 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Queue List",
+                                "Pending Orders",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -1623,7 +1622,7 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Queue List",
+                                "Pending Orders",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -1971,7 +1970,7 @@ class _SalesPageState extends State<SalesPage> {
                                     text: const TextSpan(
                                       children: [
                                         TextSpan(
-                                          text: "Queue\nList",
+                                          text: "Pending\nOrders",
                                           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                         ),
                                       ],
@@ -2420,7 +2419,7 @@ class _SalesPageState extends State<SalesPage> {
                         return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
                       }
                       context.read<ReceiptCubit>().queueReceipt();
-                      SnackBarHelper.presentSuccessSnackBar(context, "Queue success");
+                      SnackBarHelper.presentSuccessSnackBar(context, "Pending order added");
 
                       setState(() {
                         isEditingNewReceiptItemQty = false;
@@ -2430,7 +2429,7 @@ class _SalesPageState extends State<SalesPage> {
                       });
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.fromLTRB(20, 3, 20, 3),
+                      padding: const EdgeInsets.fromLTRB(15, 3, 15, 3),
                       // elevation: 5,
                       backgroundColor: ProjectColors.primary,
                       foregroundColor: Colors.white,
@@ -2454,10 +2453,10 @@ class _SalesPageState extends State<SalesPage> {
                               width: 8,
                             ),
                             Text(
-                              "Queue",
+                              "Pending Order",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 17,
+                                fontSize: 16,
                               ),
                             ),
                           ],
@@ -2479,7 +2478,7 @@ class _SalesPageState extends State<SalesPage> {
                   child: OutlinedButton(
                     onPressed: () async => await checkout(),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.fromLTRB(20, 3, 20, 3),
+                      padding: const EdgeInsets.fromLTRB(15, 3, 15, 3),
                       // elevation: 5,
                       backgroundColor: ProjectColors.green,
                       // 48, 107, 52
@@ -2505,7 +2504,7 @@ class _SalesPageState extends State<SalesPage> {
                             ),
                             Text(
                               "Checkout",
-                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                             ),
                           ],
                         ),
@@ -2626,7 +2625,7 @@ class _SalesPageState extends State<SalesPage> {
                     });
                     return showDialog<void>(
                       context: context,
-                      barrierDismissible: false, // user must tap button!
+                      barrierDismissible: false,
                       builder: (BuildContext context) {
                         return const SelectCustomerDialog();
                       },
@@ -3254,7 +3253,7 @@ class _SalesPageState extends State<SalesPage> {
           return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
         }
         context.read<ReceiptCubit>().queueReceipt();
-        SnackBarHelper.presentSuccessSnackBar(context, "Queue success");
+        SnackBarHelper.presentSuccessSnackBar(context, "Pending order added");
       } else if (event.physicalKey == (PhysicalKeyboardKey.f9)) {
         setState(() {
           isEditingNewReceiptItemCode = false;

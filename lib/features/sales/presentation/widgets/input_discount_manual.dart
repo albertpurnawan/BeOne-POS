@@ -118,7 +118,9 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                       ),
                       onPressed: () async {
                         await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0);
-                        SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success");
+                        if (context.mounted) {
+                          SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success");
+                        }
                       },
                       child: Row(
                         children: [
@@ -275,7 +277,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                         if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
                           return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
                         }
-                        final bool? isHeaderDiscApplied = await showDialog<bool>(
+                        await showDialog<bool>(
                             context: context,
                             barrierDismissible: false,
                             builder: (context) => AuthInputDiscountDialog(

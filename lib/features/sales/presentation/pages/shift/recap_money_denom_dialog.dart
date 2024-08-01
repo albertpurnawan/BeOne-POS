@@ -7,8 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class RecapMoneyDialog extends StatefulWidget {
   final String tcsr1Id;
+  final Function(Map<String, int>) setTotal;
 
-  const RecapMoneyDialog({super.key, required this.tcsr1Id});
+  const RecapMoneyDialog({super.key, required this.tcsr1Id, required this.setTotal});
 
   @override
   State<RecapMoneyDialog> createState() => _RecapMoneyDialogState();
@@ -40,6 +41,7 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
   int total200 = 0;
   int total100 = 0;
   int total50 = 0;
+  int calculatedTotalCash = 0;
 
   @override
   void initState() {
@@ -80,6 +82,8 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
         total200 = qty200 * 200;
         total100 = qty100 * 100;
         total50 = qty50 * 50;
+
+        calculateTotalCash();
       });
     } catch (e) {
       rethrow;
@@ -99,6 +103,24 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
       ),
     );
     return denomination?.count ?? 0;
+  }
+
+  void calculateTotalCash() {
+    setState(() {
+      calculatedTotalCash = total100k +
+          total50k +
+          total20k +
+          total10k +
+          total5k +
+          total2k +
+          total1k +
+          total500 +
+          total200 +
+          total100 +
+          total50;
+
+      widget.setTotal({'totalCash': calculatedTotalCash});
+    });
   }
 
   @override
@@ -536,7 +558,7 @@ class _RecapMoneyDialogState extends State<RecapMoneyDialog> {
             ),
           ],
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 10),
       ],
     );
   }
