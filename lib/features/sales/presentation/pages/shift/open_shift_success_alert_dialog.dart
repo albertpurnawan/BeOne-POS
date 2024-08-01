@@ -105,7 +105,9 @@ class _OpenShiftSuccessAlertDialogState extends State<OpenShiftSuccessAlertDialo
                         setState(() {
                           isPrinting = false;
                         });
-                        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                        if (context.mounted) {
+                          SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                        }
                       }
                     },
               child: Center(

@@ -152,7 +152,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                   groupValue: radioValue,
                                   title: Text(
                                     customerEntity.custName,
-                                    style: TextStyle(fontSize: 16),
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                   subtitle: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -162,14 +162,14 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                         child: Wrap(
                                           crossAxisAlignment: WrapCrossAlignment.center,
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.numbers_outlined,
                                               size: 18,
                                             ),
                                             const SizedBox(width: 5),
                                             Text(
                                               customerEntity.custCode,
-                                              style: TextStyle(fontSize: 14),
+                                              style: const TextStyle(fontSize: 14),
                                             ),
                                           ],
                                         ),
@@ -180,14 +180,14 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                           alignment: WrapAlignment.start,
                                           crossAxisAlignment: WrapCrossAlignment.center,
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.phone_iphone_outlined,
                                               size: 18,
                                             ),
                                             const SizedBox(width: 5),
                                             Text(
                                               Helpers.formatPhoneNumber(customerEntity.phone),
-                                              style: TextStyle(fontSize: 14),
+                                              style: const TextStyle(fontSize: 14),
                                             ),
                                           ],
                                         ),
@@ -259,7 +259,9 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                     onPressed: () async {
                       selectedCustomer = radioValue;
                       await context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
-                      Navigator.of(context).pop();
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
                     },
                     child: Center(
                       child: RichText(
@@ -293,6 +295,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
 
     selectedCustomer = radioValue;
     await context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
+
     Navigator.of(context).pop();
   }
 }
