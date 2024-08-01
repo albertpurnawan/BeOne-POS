@@ -3360,8 +3360,7 @@ CREATE TABLE $tableInvoiceAppliedPromo (
   ${InvoiceAppliedPromoFields.amount} double NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv5_toinvId_fkey` FOREIGN KEY (`toinvdocid`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tinv5_tinv1Id_fkey` FOREIGN KEY (`tinv1docid`) REFERENCES `tinv1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `tinv5_toprmId_fkey` FOREIGN KEY (`promotiondocid`) REFERENCES `toprm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `tinv5_tinv1Id_fkey` FOREIGN KEY (`tinv1docid`) REFERENCES `tinv1` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
 
