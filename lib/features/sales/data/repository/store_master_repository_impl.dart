@@ -14,7 +14,7 @@ class StoreMasterRepositoryImpl implements StoreMasterRepository {
 
   @override
   Future<bool?> getTaxSettings(StoreMasterEntity storeMasterEntity) {
-    // TODO: implement getTaxSettings
+    // TODO: implement getTaxSettings;
     throw UnimplementedError();
   }
 }

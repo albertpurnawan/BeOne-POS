@@ -43,8 +43,8 @@ class _QRISDialogState extends State<QRISDialog> {
   void initState() {
     super.initState();
     _startCheckQRISStatus();
-    print(widget.data.paymentUrl);
-    print(widget.data.qrImage);
+    // print(widget.data.paymentUrl);
+    // print(widget.data.qrImage);
   }
 
   @override
@@ -179,7 +179,7 @@ class _QRISDialogState extends State<QRISDialog> {
     final ui.Image image = await boundary.toImage();
     final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final Uint8List pngBytes = byteData!.buffer.asUint8List();
-    print("capture $pngBytes");
+    // print("capture $pngBytes");
 
     await GetIt.instance<PrintQrisUseCase>().call(
         params: PrintQrisPaymentUsecaseParams(

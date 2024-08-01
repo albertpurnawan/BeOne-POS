@@ -2,9 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ScrollWidget extends StatelessWidget {
-  const ScrollWidget(
-      {Key? key, this.controller, required this.child, this.padding})
-      : super(key: key);
+  const ScrollWidget({Key? key, this.controller, required this.child, this.padding}) : super(key: key);
 
   final ScrollController? controller;
   final Widget child;
@@ -13,25 +11,19 @@ class ScrollWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
-      final _controller = controller ?? ScrollController();
+      final localController = controller ?? ScrollController();
 
       return Scrollbar(
           thickness: 8,
           radius: const Radius.circular(100),
-          controller: _controller,
+          controller: localController,
           thumbVisibility: true,
           trackVisibility: true,
           child: SingleChildScrollView(
-              controller: _controller,
-              padding: padding,
-              physics: const BouncingScrollPhysics(),
-              child: child));
+              controller: localController, padding: padding, physics: const BouncingScrollPhysics(), child: child));
     }
 
     return SingleChildScrollView(
-        controller: controller,
-        padding: padding,
-        physics: const BouncingScrollPhysics(),
-        child: child);
+        controller: controller, padding: padding, physics: const BouncingScrollPhysics(), child: child);
   }
 }

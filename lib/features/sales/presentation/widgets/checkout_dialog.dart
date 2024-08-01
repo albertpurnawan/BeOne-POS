@@ -709,7 +709,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                       text: const TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: "Pay",
+                                            text: "Paid",
                                             style: TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           TextSpan(

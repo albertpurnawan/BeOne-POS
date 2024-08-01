@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
@@ -85,11 +86,11 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
           ),
           child: StatefulBuilder(builder: (context, setState) {
             return SizedBox(
-              width: 350,
+              width: MediaQuery.of(context).size.width * 0.5,
               child: Column(
                 children: [
                   const SizedBox(
-                    height: 15,
+                    height: 10,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -149,8 +150,50 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                   controlAffinity: ListTileControlAffinity.trailing,
                                   value: state[index],
                                   groupValue: radioValue,
-                                  title: Text(customerEntity.custName),
-                                  subtitle: Text(customerEntity.phone),
+                                  title: Text(
+                                    customerEntity.custName,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  subtitle: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Wrap(
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.numbers_outlined,
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              customerEntity.custCode,
+                                              style: const TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Wrap(
+                                          alignment: WrapAlignment.start,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.phone_iphone_outlined,
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              Helpers.formatPhoneNumber(customerEntity.phone),
+                                              style: const TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   // shape: RoundedRectangleBorder(
                                   //     borderRadius:
                                   //         BorderRadius.circular(5)),
@@ -216,7 +259,9 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                     onPressed: () async {
                       selectedCustomer = radioValue;
                       await context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
-                      Navigator.of(context).pop();
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
                     },
                     child: Center(
                       child: RichText(
@@ -250,6 +295,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
 
     selectedCustomer = radioValue;
     await context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
+
     Navigator.of(context).pop();
   }
 }

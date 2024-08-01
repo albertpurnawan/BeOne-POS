@@ -177,7 +177,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                             setState(() {
                               isPrintingOpenShift = false;
                             });
-                            SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                            if (context.mounted) {
+                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                            }
                           }
                         },
                   child: Center(
@@ -265,7 +267,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                             setState(() {
                               isPrintingCloseShift = false;
                             });
-                            SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                            if (context.mounted) {
+                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                            }
                           }
                         },
                   child: Center(

@@ -19,7 +19,6 @@ import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -733,7 +732,7 @@ class _SalesPageState extends State<SalesPage> {
                                                                   style: const TextStyle(
                                                                       fontSize: 16, fontWeight: FontWeight.w500),
                                                                 ),
-                                                                SizedBox(
+                                                                const SizedBox(
                                                                   height: 6,
                                                                 ),
                                                                 e.tohemId != null || state.salesTohemId != null
@@ -2626,7 +2625,7 @@ class _SalesPageState extends State<SalesPage> {
                     });
                     return showDialog<void>(
                       context: context,
-                      barrierDismissible: false, // user must tap button!
+                      barrierDismissible: false,
                       builder: (BuildContext context) {
                         return const SelectCustomerDialog();
                       },

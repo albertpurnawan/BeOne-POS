@@ -411,13 +411,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a value';
                             }
-                            // final isNumeric = double.tryParse(value);
-                            // if (isNumeric == null) {
-                            //   return 'Please enter a valid number';
-                            // }
+
                             return null;
                           },
-                          // label: "Openvalue",
                           inputFormatters: [MoneyInputFormatter()],
                           keyboardType: TextInputType.number,
                           hint: "Enter Amount of Opening Balance",
@@ -433,22 +429,6 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                 width: double.infinity,
                 child: Row(
                   children: [
-                    // Expanded(
-                    //   flex: 1,
-                    //   child: Container(
-                    //     height: 55,
-                    //     padding: EdgeInsets.fromLTRB(10, 0, 0, 10),
-                    //     child: CustomButton(
-                    //       padding: EdgeInsets.all(0),
-                    //       color: Color.fromARGB(255, 255, 140, 0),
-                    //       child: const Text("Skip"),
-                    //       onTap: () async {},
-                    //     ),
-                    //   ),
-                    // ),
-                    // SizedBox(
-                    //   width: 10,
-                    // ),
                     Expanded(
                       flex: 3,
                       child: Container(

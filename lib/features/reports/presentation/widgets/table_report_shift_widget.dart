@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -308,7 +306,9 @@ class _TableReportShiftState extends State<TableReportShift> {
                                                   isPrinting = false;
                                                   invDocIdPrinted = "";
                                                 });
-                                                SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                                if (context.mounted) {
+                                                  SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                                }
                                               }
                                             },
                                           ),
