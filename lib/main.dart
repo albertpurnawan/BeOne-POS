@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/usecases/first_install_runner_usecase.dart';
 import 'package:pos_fe/core/widgets/restart_widget.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
@@ -59,6 +60,7 @@ void main() async {
   }
   await initializeDependencies();
   await GetIt.instance.allReady();
+  await FirstRunManager.checkFirstRun();
   await syncWithBOS();
   // await SentryFlutter.init(
   //   (options) {

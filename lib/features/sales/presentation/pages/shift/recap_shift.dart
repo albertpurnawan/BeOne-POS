@@ -78,7 +78,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   String totalCash = '0';
   String totalNonCash = '0';
   String totalSales = '0';
-  String calculatedTotalCash = '0';
+  int calculatedTotalCash = 0;
+  int difference = 0;
+  String approver = '';
   bool isPrintingOpenShift = false;
   bool isPrintingCloseShift = false;
 
@@ -101,6 +103,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> fetchShift() async {
     final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shiftId, null);
+    await fetchApprover(shift!);
     setState(() {
       tcsr1 = shift;
     });
@@ -113,9 +116,17 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     });
   }
 
-  void updateTotalCash(Map<String, dynamic> total) {
+  Future<void> fetchApprover(CashierBalanceTransactionModel shift) async {
+    final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift.closedApproveById!, null);
+    final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(user!.tohemId!, null);
     setState(() {
-      calculatedTotalCash = totalCash;
+      approver = employee!.empName.isNotEmpty ? employee.empName : user.username;
+    });
+  }
+
+  void updateTotalCash(Map<String, int> total) {
+    setState(() {
+      calculatedTotalCash = total.values.fold(0, (sum, value) => sum + value);
     });
   }
 
@@ -126,6 +137,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     }
 
     String formattedOpenDate = Helpers.formatDateNoSeconds(tcsr1!.openDate);
+    String formattedCloseDate = Helpers.formatDateNoSeconds(tcsr1!.closeDate);
     String formattedOpenValue = NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
     NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
     NumberFormat.decimalPattern().format(tcsr1!.calcValue.toInt());
@@ -133,6 +145,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     NumberFormat.decimalPattern().format(cashFlow.toInt());
     double expectedCash = tcsr1!.openValue + tcsr1!.cashValue + cashFlow;
     String formattedExpectedCash = NumberFormat.decimalPattern().format(expectedCash.toInt());
+
+    setState(() {
+      difference = calculatedTotalCash - expectedCash.toInt();
+    });
 
     final cashier = prefs.getString('username');
 
@@ -144,12 +160,12 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               "Shift",
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
               textAlign: TextAlign.start,
@@ -316,9 +332,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             )
           ],
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -327,7 +341,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Cashier",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -336,7 +350,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 cashier!,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -351,7 +365,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Opened at",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -360,7 +374,55 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 formattedOpenDate,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Closed At",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                formattedCloseDate,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Approved By",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                approver,
+                style: const TextStyle(
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -368,7 +430,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           ],
         ),
         const Divider(
-          height: 50,
+          height: 30,
           color: Colors.grey,
         ),
         const Row(
@@ -379,7 +441,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Sales",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.start,
@@ -387,9 +449,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -398,7 +458,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Opening Balance",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -407,7 +467,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 formattedOpenValue,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -422,7 +482,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Total Cash Sales",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -431,7 +491,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 totalCash,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -446,7 +506,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Expected Cash",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: ProjectColors.mediumBlack,
                 ),
@@ -457,7 +517,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 formattedExpectedCash,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: ProjectColors.mediumBlack,
                 ),
@@ -466,9 +526,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -477,7 +535,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Total Non Cash Sales",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -486,7 +544,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 totalNonCash,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -501,7 +559,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Total Sales",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -510,7 +568,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 totalSales,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.end,
               ),
@@ -518,7 +576,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           ],
         ),
         const Divider(
-          height: 50,
+          height: 30,
           color: Colors.grey,
         ),
         const Row(
@@ -529,7 +587,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               child: Text(
                 "Cash Received",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.start,
@@ -537,10 +595,101 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 10,
+        // const SizedBox(height: 10),
+        RecapMoneyDialog(
+          tcsr1Id: shiftId,
+          setTotal: updateTotalCash,
         ),
-        RecapMoneyDialog(tcsr1Id: shiftId),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(
+              width: 300,
+              child: Text(
+                "Total Actual Cash",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            const Expanded(
+              child: Text(""),
+            ),
+            SizedBox(
+              width: 300,
+              child: Text(
+                Helpers.parseMoney(calculatedTotalCash),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Difference",
+                  style: TextStyle(
+                    height: 1,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
+                        ? Colors.red
+                        : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
+                            ? Colors.orange
+                            : Colors.green,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Icon(
+                  Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
+                      ? Icons.warning_amber_rounded
+                      : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
+                          ? Icons.warning_amber_rounded
+                          : Icons.check_circle_outlined,
+                  color: Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
+                      ? Colors.red
+                      : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
+                          ? Colors.orange
+                          : Colors.green,
+                  size: 16,
+                ),
+              ],
+            ),
+            const Expanded(
+              child: Text(""),
+            ),
+            Text(
+              Helpers.parseMoney(difference),
+              style: TextStyle(
+                height: 1,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
+                    ? Colors.red
+                    : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
+                        ? Colors.orange
+                        : Colors.green,
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ],
+        ),
+        const SizedBox(height: 30),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 200),
           child: CustomButton(
@@ -550,9 +699,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Navigator.pop(context);
               }),
         ),
-        const SizedBox(
-          height: 30,
-        ),
+        const SizedBox(height: 30),
       ],
     );
   }

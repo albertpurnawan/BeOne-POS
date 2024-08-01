@@ -192,12 +192,17 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> checkLastShiftId() async {
     final lastShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
-    log("lastShift - $lastShift");
+    log("lastShift - $checkLastShift");
     if (lastShift!.docId == activeShift!.docId) {
       setState(() {
         checkLastShift = true;
       });
+    } else {
+      setState(() {
+        checkLastShift = false;
+      });
     }
+    log("lastShift 2 - $checkLastShift");
   }
 
   Future<void> backupDatabase() async {}
@@ -826,9 +831,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
                   if (isProceed != true) return;
 
-                  await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
                   await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
                   await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
+                  await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
 
                   final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
                       await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);
@@ -848,17 +853,22 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                   await GetIt.instance<PrintCloseShiftUsecase>()
                       .call(params: printCloseShiftUsecaseParams, printType: 1);
 
-                  if (!checkLastShift) {
-                    if (!context.mounted) return;
-                    context.goNamed(RouteConstants.shifts);
-                  } else {
+                  if (checkLastShift) {
                     await prefs.setBool('isOpen', false);
                     await prefs.setString('tcsr1Id', "");
                     await GetIt.instance<LogoutUseCase>().call();
+                    if (context.mounted) {
+                      await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
+                    }
+                    if (context.mounted) {
+                      log('Navigating to welcome route');
+                      context.goNamed(RouteConstants.welcome);
+                    }
+                  } else {
                     if (!context.mounted) return;
-                    await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
-                    if (!context.mounted) return;
-                    context.goNamed(RouteConstants.welcome);
+                    Future.delayed(Durations.short1, () => checkLastShiftId());
+                    log('Navigating to shifts route');
+                    context.goNamed(RouteConstants.home);
                   }
 
                   await Future.delayed(Durations.extralong4);

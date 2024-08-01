@@ -4,11 +4,7 @@ import 'package:sqflite/sqflite.dart';
 
 class EmployeeDao extends BaseDao<EmployeeModel> {
   String statusActive = "AND statusactive = 1";
-  EmployeeDao(Database db)
-      : super(
-            db: db,
-            tableName: tableEmployee,
-            modelFields: EmployeeFields.values);
+  EmployeeDao(Database db) : super(db: db, tableName: tableEmployee, modelFields: EmployeeFields.values);
 
   @override
   Future<EmployeeModel?> readByDocId(String docId, Transaction? txn) async {
@@ -44,11 +40,9 @@ class EmployeeDao extends BaseDao<EmployeeModel> {
     return res.isNotEmpty ? EmployeeModel.fromMap(res[0]) : null;
   }
 
-  Future<List<EmployeeModel>> readAllWithSearch(
-      {String? searchKeyword, Transaction? txn}) async {
+  Future<List<EmployeeModel>> readAllWithSearch({String? searchKeyword, Transaction? txn}) async {
     final result = await db.query(tableName,
-        where:
-            "(${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?) $statusActive",
+        where: "(${EmployeeFields.empName} LIKE ? OR ${EmployeeFields.phone} LIKE ?) $statusActive",
         whereArgs: ["%$searchKeyword%", "%$searchKeyword%"]);
 
     return result.map((itemData) => EmployeeModel.fromMap(itemData)).toList();
