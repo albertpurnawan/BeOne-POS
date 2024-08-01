@@ -484,7 +484,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           dev.log(e.toString());
         }
         try {
-          await GetIt.instance<InvoiceApi>().sendInvoice();
+          GetIt.instance<InvoiceApi>().sendInvoice();
         } catch (e) {
           return;
         }
