@@ -477,23 +477,26 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Icon(
-                                shift.approvalStatus == 0 ? Icons.lock_open_outlined : Icons.lock_outline,
-                                size: 20,
-                                color: shift.approvalStatus == 0 ? Colors.green : ProjectColors.primary,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                shift.approvalStatus == 0 ? "Open" : "Closed",
-                                style: TextStyle(
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.07,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  shift.approvalStatus == 0 ? Icons.lock_open_outlined : Icons.lock_outline,
+                                  size: 20,
                                   color: shift.approvalStatus == 0 ? Colors.green : ProjectColors.primary,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 5),
+                                Text(
+                                  shift.approvalStatus == 0 ? "Open" : "Closed",
+                                  style: TextStyle(
+                                    color: shift.approvalStatus == 0 ? Colors.green : ProjectColors.primary,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),

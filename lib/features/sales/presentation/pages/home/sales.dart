@@ -2599,7 +2599,7 @@ class _SalesPageState extends State<SalesPage> {
                     });
                     return showDialog<void>(
                       context: context,
-                      barrierDismissible: false, // user must tap button!
+                      barrierDismissible: false,
                       builder: (BuildContext context) {
                         return const SelectCustomerDialog();
                       },

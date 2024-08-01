@@ -85,11 +85,11 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
           ),
           child: StatefulBuilder(builder: (context, setState) {
             return SizedBox(
-              width: 350,
+              width: MediaQuery.of(context).size.width * 0.5,
               child: Column(
                 children: [
                   const SizedBox(
-                    height: 15,
+                    height: 10,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -149,8 +149,50 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                   controlAffinity: ListTileControlAffinity.trailing,
                                   value: state[index],
                                   groupValue: radioValue,
-                                  title: Text(customerEntity.custName),
-                                  subtitle: Text(customerEntity.phone),
+                                  title: Text(
+                                    customerEntity.custName,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  subtitle: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Wrap(
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.numbers_outlined,
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              customerEntity.custCode,
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Wrap(
+                                          alignment: WrapAlignment.start,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.phone_iphone_outlined,
+                                              size: 18,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              customerEntity.phone,
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   // shape: RoundedRectangleBorder(
                                   //     borderRadius:
                                   //         BorderRadius.circular(5)),
