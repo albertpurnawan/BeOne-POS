@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
@@ -185,7 +186,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                             ),
                                             const SizedBox(width: 5),
                                             Text(
-                                              customerEntity.phone,
+                                              Helpers.formatPhoneNumber(customerEntity.phone),
                                               style: TextStyle(fontSize: 14),
                                             ),
                                           ],
