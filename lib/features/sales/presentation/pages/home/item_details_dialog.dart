@@ -55,6 +55,13 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
     }
   }
 
+  void removeSalesPerson() async {
+    setState(() {
+      salesSelected = "Not Set";
+      tohemIdSelected = "";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Focus(
@@ -203,12 +210,34 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                           ),
                                         ),
                                         const SizedBox(
-                                          width: 15,
+                                          width: 10,
                                         ),
-                                        const Icon(
-                                          Icons.navigate_next,
-                                          color: Color.fromARGB(255, 66, 66, 66),
-                                        ),
+                                        (salesSelected != "Not Set" && salesSelected!.isNotEmpty)
+                                            ? IconButton(
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: ProjectColors.primary,
+                                                ),
+                                                onPressed: () {
+                                                  removeSalesPerson();
+                                                },
+                                              )
+                                            : IconButton(
+                                                icon: const Icon(
+                                                  Icons.navigate_next,
+                                                  color: Color.fromARGB(255, 66, 66, 66),
+                                                ),
+                                                onPressed: () => showDialog<EmployeeEntity>(
+                                                      context: context,
+                                                      builder: (BuildContext context) => const SelectEmployee(),
+                                                    ).then((selectedEmployee) {
+                                                      if (selectedEmployee != null) {
+                                                        setState(() {
+                                                          salesSelected = selectedEmployee.empName;
+                                                          tohemIdSelected = selectedEmployee.docId;
+                                                        });
+                                                      }
+                                                    })),
                                         const SizedBox(width: 5),
                                       ],
                                     ),

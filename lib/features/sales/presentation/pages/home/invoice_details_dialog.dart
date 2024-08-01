@@ -54,6 +54,13 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     }
   }
 
+  void removeSalesPerson() async {
+    setState(() {
+      salesSelected = "Not Set";
+      tohemIdSelected = "";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final ReceiptEntity stateInvoice = context.read<ReceiptCubit>().state;
@@ -170,7 +177,6 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                             }),
                             child: Column(
                               children: [
-                                const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -198,13 +204,33 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                             color: Color.fromARGB(255, 66, 66, 66),
                                           ),
                                         ),
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        const Icon(
-                                          Icons.navigate_next,
-                                          color: Color.fromARGB(255, 66, 66, 66),
-                                        ),
+                                        const SizedBox(width: 10),
+                                        (salesSelected != "Not Set" && salesSelected!.isNotEmpty)
+                                            ? IconButton(
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: ProjectColors.primary,
+                                                ),
+                                                onPressed: () {
+                                                  removeSalesPerson();
+                                                },
+                                              )
+                                            : IconButton(
+                                                icon: const Icon(
+                                                  Icons.navigate_next,
+                                                  color: Color.fromARGB(255, 66, 66, 66),
+                                                ),
+                                                onPressed: () => showDialog<EmployeeEntity>(
+                                                      context: context,
+                                                      builder: (BuildContext context) => const SelectEmployee(),
+                                                    ).then((selectedEmployee) {
+                                                      if (selectedEmployee != null) {
+                                                        setState(() {
+                                                          salesSelected = selectedEmployee.empName;
+                                                          tohemIdSelected = selectedEmployee.docId;
+                                                        });
+                                                      }
+                                                    })),
                                         const SizedBox(
                                           width: 5,
                                         ),
@@ -212,7 +238,6 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 10),
                               ],
                             ),
                           ),
