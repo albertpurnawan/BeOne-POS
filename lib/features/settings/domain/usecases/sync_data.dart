@@ -79,6 +79,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_materi
 import 'package:pos_fe/features/settings/data/data_sources/remote/bill_of_material_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/campaign_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/cash_register_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/country_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
@@ -2613,8 +2614,7 @@ Future<void> syncData() async {
           }
         }
       }
-      prefs.setBool('isSyncing', false);
-      log('Data synched - $checkSync');
+      // End Check Failed Invoices and Try to Send
 
       // VALIDATE INACTIVE tostr, tocsr, tousr, tohem
       try {
@@ -2626,6 +2626,28 @@ Future<void> syncData() async {
         SnackBarHelper.presentFailSnackBar(NavigationHelper.context, e.toString());
       }
       // END OF VALIDATE INACTIVE tostr, tohem, tocsr, tousr
+
+      // Check Failed Invoices and Try to Send TCSR1
+      final tcsr1s = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
+      for (var tcsr1 in tcsr1s) {
+        if (tcsr1.syncToBos == null) {
+          try {
+            await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(tcsr1);
+          } catch (e) {
+            final logErr = LogErrorModel(
+                docId: const Uuid().v4(),
+                createDate: DateTime.now(),
+                updateDate: DateTime.now(),
+                processInfo: "AutoSync: SendTcsr1",
+                description: e.toString());
+            await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+          }
+        }
+      }
+      // End Check Failed Invoices and Try to Send TCSR1
+
+      prefs.setBool('isSyncing', false);
+      log('Data synched - $checkSync');
     } catch (error, stack) {
       prefs.setBool('isSyncing', false);
       log("Error synchronizing: $error");

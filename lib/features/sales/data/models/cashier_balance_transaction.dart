@@ -134,7 +134,7 @@ class CashierBalanceTransactionModel extends CashierBalanceTransactionEntity imp
       closedbyId: map['closedbyId'] != null ? map['closedbyId'] as String : null,
       approvalStatus: map['approvalstatus'] as int,
       refpos: map['refpos'] != null ? map['refpos'] as String : null,
-      syncToBos: map['synctobos'] != null ? map['synctobos'] as int : null,
+      syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
       closedApproveById: map['closedaprovebyId'] != null ? map['closedaprovebyId'] as String : null,
     );
   }

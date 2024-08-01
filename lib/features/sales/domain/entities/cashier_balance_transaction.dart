@@ -24,7 +24,7 @@ class CashierBalanceTransactionEntity {
   final String? closedbyId;
   final int approvalStatus;
   final String? refpos;
-  final int? syncToBos;
+  final String? syncToBos;
   final String? closedApproveById;
 
   CashierBalanceTransactionEntity({
@@ -75,7 +75,7 @@ class CashierBalanceTransactionEntity {
     String? closedbyId,
     int? approvalStatus,
     String? refpos,
-    int? syncToBos,
+    String? syncToBos,
     String? closedApproveById,
   }) {
     return CashierBalanceTransactionEntity(
@@ -156,7 +156,7 @@ class CashierBalanceTransactionEntity {
       closedbyId: map['closedbyId'] != null ? map['closedbyId'] as String : null,
       approvalStatus: map['approvalStatus'] as int,
       refpos: map['refpos'] != null ? map['refpos'] as String : null,
-      syncToBos: map['syncToBos'] != null ? map['syncToBos'] as int : null,
+      syncToBos: map['syncToBos'] != null ? map['syncToBos'] as String : null,
       closedApproveById: map['closedApproveById'] != null ? map['closedApproveById'] as String : null,
     );
   }

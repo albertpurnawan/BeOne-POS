@@ -1668,7 +1668,7 @@ CREATE TABLE $tableCashierBalanceTransaction (
   ${CashierBalanceTransactionFields.closedbyId} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.approvalStatus} int DEFAULT NULL,
   ${CashierBalanceTransactionFields.refpos} text DEFAULT NULL,
-  ${CashierBalanceTransactionFields.syncToBos} int DEFAULT NULL,
+  ${CashierBalanceTransactionFields.syncToBos} text DEFAULT NULL,
   ${CashierBalanceTransactionFields.closedApproveById} text DEFAULT NULL,
   $createdAtDefinition
 )

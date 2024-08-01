@@ -826,9 +826,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
                   if (isProceed != true) return;
 
-                  await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
                   await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
                   await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
+                  await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
 
                   final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
                       await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);

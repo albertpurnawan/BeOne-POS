@@ -11,8 +11,7 @@ class MoneyDenominationDao extends BaseDao<MoneyDenominationModel> {
         );
 
   @override
-  Future<MoneyDenominationModel?> readByDocId(
-      String docId, Transaction? txn) async {
+  Future<MoneyDenominationModel?> readByDocId(String docId, Transaction? txn) async {
     final res = await db.query(
       tableName,
       columns: modelFields,
@@ -27,22 +26,16 @@ class MoneyDenominationDao extends BaseDao<MoneyDenominationModel> {
   Future<List<MoneyDenominationModel>> readAll({Transaction? txn}) async {
     final result = await db.query(tableName);
 
-    return result
-        .map((itemData) => MoneyDenominationModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => MoneyDenominationModel.fromMap(itemData)).toList();
   }
 
-  Future<List<MoneyDenominationModel?>> readByTcsr1Id(
-      String tcsr1Id, Transaction? txn) async {
+  Future<List<MoneyDenominationModel?>> readByTcsr1Id(String tcsr1Id, Transaction? txn) async {
     final res = await db.query(
       tableName,
       columns: modelFields,
       where: 'tcsr1Id = ?',
       whereArgs: [tcsr1Id],
     );
-
-    return res.isNotEmpty
-        ? res.map((map) => MoneyDenominationModel.fromMap(map)).toList()
-        : [];
+    return res.isNotEmpty ? res.map((map) => MoneyDenominationModel.fromMap(map)).toList() : [];
   }
 }
