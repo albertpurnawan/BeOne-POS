@@ -264,7 +264,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             tinv1DocId: null,
             promotionType: "999",
             promotionDocId: null,
-            amount: invoiceHeaderModel.discHeaderManual!,
+            amount: invoiceHeaderModel.discAmount - (invoiceHeaderModel.discHeaderPromo ?? 0),
           );
           log("invoiceAppHeader - $invoiceAppHeader");
           await _appDatabase.invoiceAppliedPromoDao.create(data: invoiceAppHeader, txn: txn);

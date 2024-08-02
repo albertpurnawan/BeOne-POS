@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                    color: Color.fromARGB(255, 213, 213, 213),
+                    color: Color.fromARGB(255, 199, 199, 199),
                     height: double.infinity,
                     child: Image.asset(
                       'assets/images/supermarket-illustration.png',

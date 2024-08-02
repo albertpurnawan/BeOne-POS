@@ -833,7 +833,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
                   await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
                   await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
-                  await GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
+                  try {
+                    GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
+                  } catch (e) {}
 
                   final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
                       await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);
@@ -850,8 +852,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                       difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
                           Helpers.revertMoneyToDecimalFormat(expectedCash),
                       approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
-                  await GetIt.instance<PrintCloseShiftUsecase>()
-                      .call(params: printCloseShiftUsecaseParams, printType: 1);
+                  try {
+                    GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams, printType: 1);
+                  } catch (e) {}
 
                   if (checkLastShift) {
                     await prefs.setBool('isOpen', false);
@@ -870,8 +873,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     log('Navigating to shifts route');
                     context.goNamed(RouteConstants.home);
                   }
-
-                  await Future.delayed(Durations.extralong4);
                   await showDialog(
                       context: NavigationHelper.context!,
                       builder: (context) => CloseShiftSuccessAlertDialog(

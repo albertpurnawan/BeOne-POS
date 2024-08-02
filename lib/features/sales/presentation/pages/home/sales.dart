@@ -445,6 +445,13 @@ class _SalesPageState extends State<SalesPage> {
                                 topLeft: Radius.circular(4),
                                 bottomRight: Radius.circular(45),
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 10,
+                                  color: Color.fromRGBO(212, 212, 212, 0.211),
+                                ),
+                              ],
                             ),
                             child: Image.asset(
                               "assets/logo/ruby_pos.png",
