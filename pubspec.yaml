@@ -94,6 +94,8 @@ flutter:
     - assets/logo/white.svg
     - assets/logo/maroon_only_pos.svg
     - assets/logo/white_only_pos.svg
+    - assets/logo/ruby_pos.png
+    - assets/logo/ruby_pos_icon.png
     - assets/images/empty-item.svg
     - assets/images/empty-search.svg
     - assets/images/barcode-scanner.svg

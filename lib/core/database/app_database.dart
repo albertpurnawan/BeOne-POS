@@ -799,8 +799,6 @@ FROM
       """);
 
       await _database!.execute(mainQuery);
-
-      log(mainQuery);
     } catch (e, s) {
       debugPrintStack(stackTrace: s);
     }

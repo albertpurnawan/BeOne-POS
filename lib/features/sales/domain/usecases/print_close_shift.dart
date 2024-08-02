@@ -7,7 +7,6 @@ import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/repository/cash_register_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
-import 'package:thermal_printer/thermal_printer.dart';
 
 class PrintCloseShiftUsecase implements UseCase<void, PrintCloseShiftUsecaseParams> {
   // POS Parameter

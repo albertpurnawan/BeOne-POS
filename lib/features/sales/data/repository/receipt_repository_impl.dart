@@ -41,7 +41,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     try {
       final String generatedInvoiceHeaderDocId = _uuid.v4();
       final Database db = await _appDatabase.getDB();
-      ReceiptModel? result;
 
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1IdPref = prefs.getString('tcsr1Id');

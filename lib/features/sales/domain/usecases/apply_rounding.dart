@@ -43,10 +43,10 @@ class ApplyRoundingUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
               : -1 * remainder;
       final double grandTotal = beforeRounding + rounding;
 
-      log("remainder $remainder");
-      log("beforeRounding $beforeRounding");
-      log("rounding $rounding");
-      log("grandtotal $grandTotal");
+      // log("remainder $remainder");
+      // log("beforeRounding $beforeRounding");
+      // log("rounding $rounding");
+      // log("grandtotal $grandTotal");
 
       return params.copyWith(grandTotal: grandTotal, rounding: rounding);
     } catch (e) {

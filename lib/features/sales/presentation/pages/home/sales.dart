@@ -437,17 +437,17 @@ class _SalesPageState extends State<SalesPage> {
                         alignment: Alignment.centerLeft,
                         child: Container(
                             height: 50,
-                            width: 100,
-                            padding: const EdgeInsets.fromLTRB(20, 15, 10, 16),
+                            width: 120,
+                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
                             decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 85, 0, 0),
+                              color: Color.fromARGB(255, 234, 234, 234),
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(5),
+                                topLeft: Radius.circular(4),
                                 bottomRight: Radius.circular(45),
                               ),
                             ),
-                            child: SvgPicture.asset(
-                              "assets/logo/white_only_pos.svg",
+                            child: Image.asset(
+                              "assets/logo/ruby_pos.png",
                               alignment: Alignment.centerLeft,
                             )),
                       ),
@@ -2456,7 +2456,7 @@ class _SalesPageState extends State<SalesPage> {
                               "Pending Order",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                                fontSize: 15,
                               ),
                             ),
                           ],
@@ -2545,7 +2545,7 @@ class _SalesPageState extends State<SalesPage> {
                       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
                           barcode: null,
                           itemEntity: itemEntitySearch,
-                          quantity: 1,
+                          quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
                           context: context,
                           onOpenPriceInputted: () => setState(() {
                                 isEditingNewReceiptItemCode = true;
@@ -3268,7 +3268,7 @@ class _SalesPageState extends State<SalesPage> {
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
               barcode: null,
               itemEntity: itemEntitySearch,
-              quantity: 1,
+              quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
               context: context,
               onOpenPriceInputted: () => setState(() {
                     isEditingNewReceiptItemCode = true;
