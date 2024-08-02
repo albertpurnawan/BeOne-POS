@@ -227,7 +227,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  late final databaseVersion = 2;
+  final int databaseVersion = 1;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -328,7 +328,8 @@ class AppDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 1, onCreate: _createDB, onConfigure: _onConfigure, onUpgrade: _onUpgrade);
+    return await openDatabase(path,
+        version: databaseVersion, onCreate: _createDB, onConfigure: _onConfigure, onUpgrade: _onUpgrade);
   }
 
   Future<void> emptyDb() async {
@@ -346,6 +347,7 @@ class AppDatabase {
   }
 
   Future _onConfigure(Database db) async {
+    log((await db.getVersion()).toString());
     await db.execute('''
 PRAGMA foreign_keys = ON;
 ''');
