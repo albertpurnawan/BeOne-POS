@@ -227,7 +227,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  late final databaseVersion = 1;
+  late final databaseVersion = 2;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -328,7 +328,7 @@ class AppDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 1, onCreate: _createDB, onConfigure: _onConfigure);
+    return await openDatabase(path, version: 1, onCreate: _createDB, onConfigure: _onConfigure, onUpgrade: _onUpgrade);
   }
 
   Future<void> emptyDb() async {
@@ -3577,11 +3577,21 @@ CREATE TABLE $tableApprovalInvoice (
     _database = await _initDB(_databaseName);
     await _injectDao();
   }
-  // Future close() async {
-  //   final db = await instance.database;
 
-  //   await db.close();
-  // }
+  FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    for (var migration = oldVersion; migration < newVersion; migration++) {
+      _onUpgrades["from_version_${migration}_to_version_${migration + 1}"]!(db);
+    }
+  }
+
+  final Map<String, Function> _onUpgrades = {
+    'from_version_1_to_version_2': (Database db) async {
+      await db.execute('''ALTER TABLE $tableCashierBalanceTransaction ADD COLUMN syncToBos_new TEXT''');
+      await db.execute('''UPDATE $tableCashierBalanceTransaction SET syncToBos_new = CAST(synctobos AS TEXT)''');
+      await db.execute('''ALTER TABLE $tableCashierBalanceTransaction DROP COLUMN synctobos''');
+      await db.execute('''ALTER TABLE $tableCashierBalanceTransaction RENAME syncToBos_new TO synctobos''');
+    },
+  };
 
   Future<void> close() async {
     if (_database != null) {

@@ -120,7 +120,6 @@ class _SettingsFormState extends State<SettingsForm> {
 
   @override
   void dispose() {
-    super.dispose();
     gtentController.dispose();
     tostrController.dispose();
     tocsrController.dispose();
@@ -128,6 +127,7 @@ class _SettingsFormState extends State<SettingsForm> {
     emailController.dispose();
     passwordController.dispose();
     otpChannelController.dispose();
+    super.dispose();
   }
 
   Future<void> checkPermission() async {
@@ -218,6 +218,7 @@ class _SettingsFormState extends State<SettingsForm> {
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
+                    autofocus: true,
                     controller: gtentController,
                     validator: (val) => val == null || val.isEmpty ? "TenantId is required" : null,
                     label: "TenantId",
