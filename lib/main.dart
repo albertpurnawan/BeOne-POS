@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -147,10 +146,10 @@ class MyApp extends StatelessWidget {
                   return Container(
                     color: Colors.white,
                     child: Center(
-                      child: SvgPicture.asset(
-                        "assets/logo/maroon_only_pos.svg",
-                        width: 130,
-                        color: const Color(0xFFD42627),
+                      child: Image.asset(
+                        "assets/images/ruby_pos.png",
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        // color: const Color(0xFFD42627),
                       ),
                     ),
                   );
@@ -159,7 +158,7 @@ class MyApp extends StatelessWidget {
                 final str = snapshot.data!;
                 debugPrint(str);
                 return MaterialApp.router(
-                  title: 'TestPOS',
+                  title: 'RubyPOS',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
                     colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),

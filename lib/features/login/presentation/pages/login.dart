@@ -43,9 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              height: (MediaQuery.of(context).size.height / 5),
+              height: (MediaQuery.of(context).size.height / 6),
             ),
-            const BeOneLogo(size: 90),
+            const BeOneLogo(size: 300),
             const SizedBox(height: 30),
             const LoginForm(),
             const SizedBox(

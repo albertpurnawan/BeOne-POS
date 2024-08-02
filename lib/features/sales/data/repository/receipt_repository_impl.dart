@@ -41,7 +41,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     try {
       final String generatedInvoiceHeaderDocId = _uuid.v4();
       final Database db = await _appDatabase.getDB();
-      ReceiptModel? result;
 
       final prefs = GetIt.instance<SharedPreferences>();
       final tcsr1IdPref = prefs.getString('tcsr1Id');
@@ -265,7 +264,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             tinv1DocId: null,
             promotionType: "999",
             promotionDocId: null,
-            amount: invoiceHeaderModel.discHeaderManual!,
+            amount: invoiceHeaderModel.discAmount - (invoiceHeaderModel.discHeaderPromo ?? 0),
           );
           log("invoiceAppHeader - $invoiceAppHeader");
           await _appDatabase.invoiceAppliedPromoDao.create(data: invoiceAppHeader, txn: txn);

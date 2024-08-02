@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:pos_fe/core/usecases/usecase.dart';
@@ -30,8 +29,6 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
 
     // return params;
 
-    log("before recalculatetax $params");
-
     double discHeaderManual = params!.discHeaderManual ?? 0.0;
     double grandTotal = params.grandTotal;
     double discHprctg = (discHeaderManual) / (grandTotal);
@@ -52,8 +49,6 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
     params.grandTotal = subtotalAfterHeaderDiscount + taxAfterHeaderDiscount;
     params.discAmount = discAmountAfterHeaderDiscount;
     params.discPrctg = (params.discAmount ?? 0) / (params.subtotal == 0 ? 1 : params.subtotal);
-
-    log("after recalculatetax $params");
 
     return params;
   }

@@ -100,351 +100,374 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Row(
         children: [
           Expanded(
-              child: Image.asset(
-            'assets/images/supermarket-illustration.png',
-            height: double.infinity,
-            fit: BoxFit.cover,
+              child: Stack(
+            children: [
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    color: Color.fromARGB(255, 199, 199, 199),
+                    height: double.infinity,
+                    child: Image.asset(
+                      'assets/images/supermarket-illustration.png',
+                      // height: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                // height: double.infinity,
+
+                // width: double.infinity,
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                        alignment: Alignment.centerLeft,
+                        height: 50,
+                        width: 120,
+                        padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
+                        decoration: const BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: 0.5,
+                              blurRadius: 5,
+                              color: Color.fromRGBO(0, 0, 0, 0.122),
+                            ),
+                          ],
+                          color: Color.fromARGB(255, 231, 231, 231),
+                          borderRadius: BorderRadius.only(
+                            // topLeft: Radius.circular(5),
+                            bottomRight: Radius.circular(45),
+                          ),
+                        ),
+                        child: Image.asset(
+                          "assets/logo/ruby_pos.png",
+                          // width: 200,
+                          // alignment: Alignment.centerLeft,
+                        )),
+                  ),
+                ),
+              ),
+            ],
           )),
           Expanded(
               child: Container(
             color: const Color.fromRGBO(128, 0, 0, 1),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.36,
-              child: Stack(
+            alignment: Alignment.topCenter,
+            width: MediaQuery.of(context).size.width * 0.36,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.1,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              child: RichText(
-                                  textAlign: TextAlign.left,
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Good $timeOfDay ",
-                                      ),
-                                      TextSpan(
-                                          text: GetIt.instance<SharedPreferences>().getString("username"),
-                                          style: const TextStyle(fontWeight: FontWeight.w700)),
-                                      TextSpan(
-                                        text: " $symbol",
-                                      )
-                                    ],
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 28,
-                                    ),
-                                  )),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
-                              child: Text(
-                                "Have a great day!",
-                                textAlign: TextAlign.left,
-                                style: TextStyle(color: Colors.white, fontSize: 28),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              width: MediaQuery.of(context).size.width * 0.36,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    elevation: const MaterialStatePropertyAll(2),
-                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      borderRadius: BorderRadius.circular(5),
-                                    )),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor.resolveWith(
-                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () async {
-                                  if (openShifts) {
-                                    await showDialog<bool>(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) => ConfirmActiveShiftDialog(
-                                        currentShiftDocId: activeShift!.docId,
-                                        checkShifts: openShifts,
-                                      ),
-                                    );
-
-                                    return;
-                                  }
-                                  try {
-                                    final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
-                                    await GetIt.instance<AppDatabase>().refreshItemsTable();
-                                    await GetIt.instance<SharedPreferences>()
-                                        .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
-                                    await context.read<ReceiptCubit>().resetReceipt();
-                                    await context.pushNamed(RouteConstants.sales,
-                                        extra: storeMasterEntity?.salesViewType ?? 1);
-                                  } catch (e) {
-                                    ErrorHandler.presentErrorSnackBar(context, e.toString());
-                                  }
-                                },
-                                child: const Text(
-                                  "Sales",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              width: MediaQuery.of(context).size.width * 0.36,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      borderRadius: BorderRadius.circular(5),
-                                    )),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor.resolveWith(
-                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () => context.pushNamed(RouteConstants.shifts),
-                                child: const Text(
-                                  "Shifts",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              width: MediaQuery.of(context).size.width * 0.36,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                            side: const BorderSide(color: Colors.white, width: 2),
-                                            borderRadius: BorderRadius.circular(5),
-                                          )),
-                                          backgroundColor:
-                                              MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                          foregroundColor: MaterialStateColor.resolveWith(
-                                              (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                          overlayColor:
-                                              MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                      onPressed: () {
-                                        context.pushNamed(RouteConstants.reports);
-                                      },
-                                      child: const Text(
-                                        "Reports",
-                                        textAlign: TextAlign.center,
-                                        style:
-                                            TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              width: MediaQuery.of(context).size.width * 0.36,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                            side: const BorderSide(color: Colors.white, width: 2),
-                                            borderRadius: BorderRadius.circular(5),
-                                          )),
-                                          backgroundColor:
-                                              MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                          foregroundColor: MaterialStateColor.resolveWith(
-                                              (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                          overlayColor:
-                                              MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                      onPressed: () {
-                                        context.pushNamed(RouteConstants.checkStocks);
-                                      },
-                                      child: const Text(
-                                        "Stock",
-                                        textAlign: TextAlign.center,
-                                        style:
-                                            TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              width: MediaQuery.of(context).size.width * 0.36,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      borderRadius: BorderRadius.circular(5),
-                                    )),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor.resolveWith(
-                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () {
-                                  context.pushNamed(RouteConstants.mopAdjustment);
-                                },
-                                child: const Text(
-                                  "MOP Adjustment",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              width: MediaQuery.of(context).size.width * 0.36,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      borderRadius: BorderRadius.circular(5),
-                                    )),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor.resolveWith(
-                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () {
-                                  context.pushNamed(RouteConstants.settings).then((value) {
-                                    if (!Platform.isWindows) {
-                                      Future.delayed(Durations.short1, () {
-                                        SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-                                            statusBarColor: Color.fromARGB(255, 134, 1, 1),
-                                            statusBarBrightness: Brightness.light,
-                                            statusBarIconBrightness: Brightness.light));
-                                      });
-                                    }
-                                  });
-                                },
-                                child: const Text(
-                                  "Settings",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              width: MediaQuery.of(context).size.width * 0.36,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.white, width: 2),
-                                      borderRadius: BorderRadius.circular(5),
-                                    )),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    foregroundColor: MaterialStateColor.resolveWith(
-                                        (states) => const Color.fromARGB(255, 255, 255, 255)),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () async {
-                                  if (activeShift != null) {
-                                    if (activeShift!.approvalStatus == 0) {
-                                      await showDialog<bool>(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (context) => ConfirmActiveShiftDialog(
-                                          currentShiftDocId: activeShift!.docId,
-                                          checkShifts: openShifts,
-                                        ),
-                                      );
-
-                                      return;
-                                    }
-                                  }
-
-                                  GetIt.instance<LogoutUseCase>().call();
-                                  context.goNamed(RouteConstants.welcome);
-                                },
-                                child: const Text(
-                                  "Logout",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ),
-
-                            // SizedBox.expand(),
-                          ],
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.36,
+                    alignment: Alignment.topLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.1,
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: RichText(
+                              textAlign: TextAlign.left,
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Good $timeOfDay ",
+                                  ),
+                                  TextSpan(
+                                      text: GetIt.instance<SharedPreferences>().getString("username"),
+                                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                                  TextSpan(
+                                    text: " $symbol",
+                                  )
+                                ],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                ),
+                              )),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30),
+                          child: Text(
+                            "Have a great day!",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(color: Colors.white, fontSize: 28),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Positioned.fill(
-                    // height: double.infinity,
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          width: MediaQuery.of(context).size.width * 0.36,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                elevation: const MaterialStatePropertyAll(2),
+                                padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.white, width: 2),
+                                  borderRadius: BorderRadius.circular(5),
+                                )),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                foregroundColor: MaterialStateColor.resolveWith(
+                                    (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            onPressed: () async {
+                              if (openShifts) {
+                                await showDialog<bool>(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => ConfirmActiveShiftDialog(
+                                    currentShiftDocId: activeShift!.docId,
+                                    checkShifts: openShifts,
+                                  ),
+                                );
 
-                    // width: double.infinity,
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        alignment: Alignment.bottomRight,
-                        child: Container(
-                            alignment: Alignment.centerRight,
-                            height: 50,
-                            width: 130,
-                            padding: const EdgeInsets.fromLTRB(10, 16, 0, 15),
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 85, 0, 0),
-                              borderRadius: BorderRadius.only(
-                                // topLeft: Radius.circular(5),
-                                topLeft: Radius.circular(60),
-                              ),
+                                return;
+                              }
+                              try {
+                                final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
+                                await GetIt.instance<SharedPreferences>()
+                                    .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
+                                await context.read<ReceiptCubit>().resetReceipt();
+                                await context.pushNamed(RouteConstants.sales,
+                                    extra: storeMasterEntity?.salesViewType ?? 1);
+                              } catch (e) {
+                                ErrorHandler.presentErrorSnackBar(context, e.toString());
+                              }
+                            },
+                            child: const Text(
+                              "Sales",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
                             ),
-                            child: SvgPicture.asset(
-                              "assets/logo/white_only_pos.svg",
-                              // alignment: Alignment.centerLeft,
-                            )),
-                      ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          width: MediaQuery.of(context).size.width * 0.36,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.white, width: 2),
+                                  borderRadius: BorderRadius.circular(5),
+                                )),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                foregroundColor: MaterialStateColor.resolveWith(
+                                    (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            onPressed: () => context.pushNamed(RouteConstants.shifts),
+                            child: const Text(
+                              "Shifts",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          width: MediaQuery.of(context).size.width * 0.36,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                        side: const BorderSide(color: Colors.white, width: 2),
+                                        borderRadius: BorderRadius.circular(5),
+                                      )),
+                                      backgroundColor:
+                                          MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                      foregroundColor: MaterialStateColor.resolveWith(
+                                          (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                      overlayColor:
+                                          MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                  onPressed: () {
+                                    context.pushNamed(RouteConstants.reports);
+                                  },
+                                  child: const Text(
+                                    "Reports",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          width: MediaQuery.of(context).size.width * 0.36,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                        side: const BorderSide(color: Colors.white, width: 2),
+                                        borderRadius: BorderRadius.circular(5),
+                                      )),
+                                      backgroundColor:
+                                          MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                      foregroundColor: MaterialStateColor.resolveWith(
+                                          (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                      overlayColor:
+                                          MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                  onPressed: () {
+                                    context.pushNamed(RouteConstants.checkStocks);
+                                  },
+                                  child: const Text(
+                                    "Stock",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          width: MediaQuery.of(context).size.width * 0.36,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.white, width: 2),
+                                  borderRadius: BorderRadius.circular(5),
+                                )),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                foregroundColor: MaterialStateColor.resolveWith(
+                                    (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            onPressed: () {
+                              context.pushNamed(RouteConstants.mopAdjustment);
+                            },
+                            child: const Text(
+                              "MOP Adjustment",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          width: MediaQuery.of(context).size.width * 0.36,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.white, width: 2),
+                                  borderRadius: BorderRadius.circular(5),
+                                )),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                foregroundColor: MaterialStateColor.resolveWith(
+                                    (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            onPressed: () {
+                              context.pushNamed(RouteConstants.settings).then((value) {
+                                if (!Platform.isWindows) {
+                                  Future.delayed(Durations.short1, () {
+                                    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                        statusBarColor: Color.fromARGB(255, 134, 1, 1),
+                                        statusBarBrightness: Brightness.light,
+                                        statusBarIconBrightness: Brightness.light));
+                                  });
+                                }
+                              });
+                            },
+                            child: const Text(
+                              "Settings",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          width: MediaQuery.of(context).size.width * 0.36,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 20)),
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.white, width: 2),
+                                  borderRadius: BorderRadius.circular(5),
+                                )),
+                                backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                foregroundColor: MaterialStateColor.resolveWith(
+                                    (states) => const Color.fromARGB(255, 255, 255, 255)),
+                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            onPressed: () async {
+                              if (activeShift != null) {
+                                if (activeShift!.approvalStatus == 0) {
+                                  await showDialog<bool>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => ConfirmActiveShiftDialog(
+                                      currentShiftDocId: activeShift!.docId,
+                                      checkShifts: openShifts,
+                                    ),
+                                  );
+
+                                  return;
+                                }
+                              }
+
+                              GetIt.instance<LogoutUseCase>().call();
+                              context.goNamed(RouteConstants.welcome);
+                            },
+                            child: const Text(
+                              "Logout",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.1,
+                        ),
+                      ],
                     ),
-                  )
+                  ),
+
+                  // SizedBox.expand(),
                 ],
               ),
             ),
