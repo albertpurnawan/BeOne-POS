@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class BeOneLogo extends StatelessWidget {
   const BeOneLogo({
@@ -13,7 +12,6 @@ class BeOneLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset("assets/logo/maroon_only_pos.svg",
-        color: color, width: size);
+    return Image.asset("assets/images/ruby_pos.png", color: color, width: size);
   }
 }
