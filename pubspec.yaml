@@ -64,6 +64,8 @@ dependencies:
   permission_handler: ^11.3.1
   archive: ^3.6.1
   connectivity_plus: ^6.0.3
+  flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -110,6 +112,9 @@ flutter:
     - assets/images/logo-topgolf.png
     - assets/images/logo-topgolf.jpg
     - assets/images/found.png
+    - assets/icon/ruby_pos_icon.png
+    - assets/icon/ruby_pos_logo.png
+    - assets/images/ruby_pos.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -164,3 +169,32 @@ msix_config:
     show_prompt: true
     force_update_from_any_version: false
   msix_version: 1.0.3.0
+
+# Splash Screen
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/icon/ruby_pos_icon.png
+  android_12:
+    image: assets/icon/ruby_pos_icon.png
+  android: true
+  ios: true
+
+  # Launcher Icon
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/ruby_pos_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/icon/ruby_pos_icon.png"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
+  windows:
+    generate: true
+    image_path: "assets/icon/ruby_pos_icon.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/ruby_pos_icon.png"

@@ -127,8 +127,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const BeOneLogo(size: 90),
-                  const SizedBox(height: 50),
+                  const BeOneLogo(size: 300),
+                  const SizedBox(height: 30),
                   Container(
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
