@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -78,44 +79,41 @@ class SettingsForm extends StatefulWidget {
 }
 
 class _SettingsFormState extends State<SettingsForm> {
-  late TextEditingController gtentController,
-      tostrController,
-      tocsrController,
-      urlController,
-      emailController,
-      passwordController,
-      otpChannelController;
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String dflDate = "2000-01-01 00:00:00";
 
+  final formKey = GlobalKey<FormState>();
+
+  final TextEditingController gtentController = TextEditingController();
+  final TextEditingController tostrController = TextEditingController();
+  final TextEditingController tocsrController = TextEditingController();
+  final TextEditingController urlController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController otpChannelController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-
-    gtentController = TextEditingController();
-    tostrController = TextEditingController();
-    tocsrController = TextEditingController();
-    urlController = TextEditingController();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-    otpChannelController = TextEditingController();
 
     oldGtentId = Constant.gtentId;
     oldTostrId = Constant.tostrId;
     oldTocsrId = Constant.tocsrId;
     oldUrl = Constant.url;
 
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        oldGtentId = prefs.getString('gtentId') ?? oldGtentId;
-        oldTostrId = prefs.getString('tostrId') ?? oldTostrId;
-        oldTocsrId = prefs.getString('tocsrId') ?? oldTocsrId;
-        oldUrl = prefs.getString('url') ?? oldUrl;
-      });
-    });
+    // initValuesFromPref();
 
     if (!widget.haveTopos) checkPermission();
+  }
+
+  void initValuesFromPref() {
+    setState(() {
+      oldGtentId = prefs.getString('gtentId') ?? oldGtentId;
+      oldTostrId = prefs.getString('tostrId') ?? oldTostrId;
+      oldTocsrId = prefs.getString('tocsrId') ?? oldTocsrId;
+      oldUrl = prefs.getString('url') ?? oldUrl;
+    });
   }
 
   @override
@@ -203,8 +201,6 @@ class _SettingsFormState extends State<SettingsForm> {
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-
     return Form(
       key: formKey,
       child: Column(
@@ -218,7 +214,6 @@ class _SettingsFormState extends State<SettingsForm> {
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
-                    autofocus: true,
                     controller: gtentController,
                     validator: (val) => val == null || val.isEmpty ? "TenantId is required" : null,
                     label: "TenantId",
