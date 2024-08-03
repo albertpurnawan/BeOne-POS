@@ -328,6 +328,7 @@ class AppDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
+    log(path);
     return await openDatabase(path,
         version: databaseVersion, onCreate: _createDB, onConfigure: _onConfigure, onUpgrade: _onUpgrade);
   }
@@ -3586,10 +3587,10 @@ CREATE TABLE $tableApprovalInvoice (
 
   final Map<String, Function> _onUpgrades = {
     'from_version_1_to_version_2': (Database db) async {
-      await db.execute('''ALTER TABLE $tableCashierBalanceTransaction ADD COLUMN syncToBos_new TEXT''');
-      await db.execute('''UPDATE $tableCashierBalanceTransaction SET syncToBos_new = CAST(synctobos AS TEXT)''');
-      await db.execute('''ALTER TABLE $tableCashierBalanceTransaction DROP COLUMN synctobos''');
-      await db.execute('''ALTER TABLE $tableCashierBalanceTransaction RENAME syncToBos_new TO synctobos''');
+      // await db.execute('''ALTER TABLE $tableCashierBalanceTransaction ADD COLUMN syncToBos_new TEXT''');
+      // await db.execute('''UPDATE $tableCashierBalanceTransaction SET syncToBos_new = CAST(synctobos AS TEXT)''');
+      // await db.execute('''ALTER TABLE $tableCashierBalanceTransaction DROP COLUMN synctobos''');
+      // await db.execute('''ALTER TABLE $tableCashierBalanceTransaction RENAME syncToBos_new TO synctobos''');
     },
   };
 
