@@ -863,6 +863,16 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     if (context.mounted) {
                       await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
                     }
+                    await showDialog(
+                        context: NavigationHelper.context!,
+                        barrierDismissible: false,
+                        builder: (context) => PopScope(
+                              canPop: false,
+                              child: CloseShiftSuccessAlertDialog(
+                                closedShift: cashierBalanceTransactionEntity,
+                                printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
+                              ),
+                            ));
                     if (context.mounted) {
                       log('Navigating to welcome route');
                       context.goNamed(RouteConstants.welcome);
@@ -871,14 +881,14 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     if (!context.mounted) return;
                     Future.delayed(Durations.short1, () => checkLastShiftId());
                     log('Navigating to shifts route');
+                    await showDialog(
+                        context: NavigationHelper.context!,
+                        builder: (context) => CloseShiftSuccessAlertDialog(
+                              closedShift: cashierBalanceTransactionEntity,
+                              printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
+                            ));
                     context.goNamed(RouteConstants.home);
                   }
-                  await showDialog(
-                      context: NavigationHelper.context!,
-                      builder: (context) => CloseShiftSuccessAlertDialog(
-                            closedShift: cashierBalanceTransactionEntity,
-                            printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
-                          ));
                 } catch (e) {
                   if (!context.mounted) return;
                   SnackBarHelper.presentFailSnackBar(context, e.toString());

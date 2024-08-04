@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
@@ -105,7 +106,7 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
       final encoder = ZipEncoder(password: decryptPass);
       final archiveFile = ArchiveFile('backup.db', dbFile.lengthSync(), dbFile.readAsBytesSync());
       final archive = Archive()..addFile(archiveFile);
-      final bytes = encoder.encode(archive);
+      final bytes = await compute((archive) => encoder.encode(archive), archive);
 
       final zipFile = File(zipPath);
       await zipFile.writeAsBytes(bytes!);
