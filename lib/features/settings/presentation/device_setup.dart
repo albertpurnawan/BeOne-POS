@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -277,9 +276,9 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: emailController,
-                    validator: (val) => val == null || val.isEmpty ? "Manager Email is required" : null,
-                    label: "Manager Email",
-                    hint: "Manager Email",
+                    validator: (val) => val == null || val.isEmpty ? "Interfacing Email is required" : null,
+                    label: "Interfacing Email",
+                    hint: "Interfacing Email",
                     prefixIcon: const Icon(Icons.email_outlined),
                   ),
                 ),
@@ -290,10 +289,10 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: passwordController,
-                    validator: (val) => val == null || val.isEmpty ? "Manager Password is required" : null,
+                    validator: (val) => val == null || val.isEmpty ? "Interfacing Password is required" : null,
                     obscureText: true,
-                    label: "Manager Password",
-                    hint: "Manager Password",
+                    label: "Interfacing Password",
+                    hint: "Interfacing Password",
                     prefixIcon: const Icon(Icons.password_outlined),
                   ),
                 ),
