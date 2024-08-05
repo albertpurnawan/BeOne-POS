@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
@@ -91,20 +92,12 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       final mostRecentBackup = backupFiles.first;
       log("Restoring from backup file: ${mostRecentBackup.path} to $path");
 
-      final bytes = File(mostRecentBackup.path).readAsBytesSync();
-      final archive = ZipDecoder().decodeBytes(bytes, password: password);
-
-      for (final file in archive) {
-        final filename = file.name;
-        final data = file.content as List<int>;
-
-        File(p.join(backupFolder.path, filename))
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(data);
-      }
-
-      final restoredPath = p.join(backupFolder.path, "backup.db");
-      final restoredFile = File(restoredPath);
+      final restoredPath = await compute(restoreDatabaseTask, {
+        'backupFolderPath': backupFolder.path,
+        'mostRecentBackupPath': mostRecentBackup.path,
+        'path': path,
+        'password': password,
+      });
       // Close the database connection
       await GetIt.instance<AppDatabase>().close();
 
@@ -122,6 +115,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       }
 
       // Continue with restoration logic if renaming was successful
+      final restoredFile = File(restoredPath);
       if (await restoredFile.exists()) {
         try {
           await restoredFile.copy(path);
@@ -154,4 +148,29 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       rethrow;
     }
   }
+}
+
+Future<String> restoreDatabaseTask(Map<String, dynamic> params) async {
+  final String backupFolderPath = params['backupFolderPath'];
+  final String mostRecentBackupPath = params['mostRecentBackupPath'];
+  final String path = params['path'];
+  final String password = params['password'];
+
+  final backupFolder = Directory(backupFolderPath);
+  final mostRecentBackup = File(mostRecentBackupPath);
+
+  final bytes = mostRecentBackup.readAsBytesSync();
+  final archive = ZipDecoder().decodeBytes(bytes, password: password);
+
+  for (final file in archive) {
+    final filename = file.name;
+    final data = file.content as List<int>;
+
+    File(p.join(backupFolder.path, filename))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(data);
+  }
+
+  final restoredPath = p.join(backupFolder.path, "backup.db");
+  return restoredPath;
 }
