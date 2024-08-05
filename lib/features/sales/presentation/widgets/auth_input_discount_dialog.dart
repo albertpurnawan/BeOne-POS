@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
@@ -98,7 +99,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   Future<String> createOTP() async {
     try {
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(widget.discountValue);
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, widget.discountValue);
+      log("RESPONSE OTP - $response");
       return response['Requester'];
     } catch (e) {
       rethrow;
@@ -269,6 +271,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () async {
+                                          FocusScope.of(childContext).unfocus();
                                           await handleOTP(childContext);
                                         },
                                     ),

@@ -140,13 +140,24 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         });
         final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
         final tostr = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
-        final url = tostr!.netzmeUrl;
+        if (tostr == null) {
+          throw Exception("Store data not found.");
+        }
+        final url = tostr.netzmeUrl;
         final clientKey = tostr.netzmeClientKey;
         final clientSecret = tostr.netzmeClientSecret;
         final privateKey = tostr.netzmeClientPrivateKey;
         final channelId = tostr.netzmeChannelId;
 
-        final signature = await GetIt.instance<NetzmeApi>().createSignature(url!, clientKey!, privateKey!);
+        if (url == null || clientKey == null || clientSecret == null || privateKey == null || channelId == null) {
+          setState(() {
+            isLoadingQRIS = false;
+            isCharging = false;
+          });
+          throw Exception("Missing required Netzme data. Please check Store data.");
+        }
+
+        final signature = await GetIt.instance<NetzmeApi>().createSignature(url, clientKey, privateKey);
 
         final accessToken = await GetIt.instance<NetzmeApi>().requestAccessToken(url, clientKey, privateKey, signature);
 
@@ -179,7 +190,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           }
         };
         final serviceSignature = await GetIt.instance<NetzmeApi>().createSignatureService(
-            url, clientKey, clientSecret!, privateKey, accessToken, "api/v1.0/invoice/create-transaction", bodyDetail);
+            url, clientKey, clientSecret, privateKey, accessToken, "api/v1.0/invoice/create-transaction", bodyDetail);
 
         final transactionQris = await GetIt.instance<NetzmeApi>().createTransactionQRIS(
           url,
@@ -187,7 +198,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           clientSecret,
           privateKey,
           serviceSignature,
-          channelId!,
+          channelId,
           bodyDetail,
         );
         // dev.log("transactionQris - $transactionQris");

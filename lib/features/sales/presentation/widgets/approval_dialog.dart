@@ -95,7 +95,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
 
   Future<String> createOTP() async {
     try {
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(widget.discount);
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, widget.discount);
       return response['Requester'];
     } catch (e) {
       rethrow;
@@ -263,6 +263,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () async {
+                                          FocusScope.of(childContext).unfocus();
                                           await handleOTP(childContext);
                                         },
                                     ),

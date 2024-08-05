@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 
 class OTPServiceAPi {
   final Dio _dio;
@@ -15,12 +17,22 @@ class OTPServiceAPi {
 
   OTPServiceAPi(this._dio);
 
-  Future<Map<String, dynamic>> createSendOTP(double? amount) async {
+  Future<Map<String, dynamic>> createSendOTP(BuildContext context, double? amount) async {
     try {
       log("CREATE & SEND OTP - $amount");
       final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
-      otpChannel = store!.otpChannel;
+
+      if (store == null) {
+        throw "No Store Found";
+      }
+
+      if (store.otpChannel == null || store.otpUrl == null) {
+        SnackBarHelper.presentFailSnackBar(context, "OTP data not found. Please check Store data");
+        throw "OTP data not found. Please check Store data.";
+      }
+
+      otpChannel = store.otpChannel;
       String url = "${store.otpUrl}/api/otp/send-mailer";
       final spvList = await GetIt.instance<AppDatabase>().authStoreDao.readEmailByTousrId();
       log("spvList - $spvList");
