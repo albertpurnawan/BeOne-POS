@@ -538,6 +538,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void retrieveFromQueue(ReceiptEntity receiptEntity, BuildContext context) async {
+    dev.log("retrieveFromQueue - $receiptEntity");
     await resetReceipt();
 
     for (final receiptItem in receiptEntity.receiptItems) {
@@ -548,7 +549,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           context: context,
           onOpenPriceInputted: () => receiptItem.itemEntity.price));
     }
-    emit(state..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId);
+
+    emit(state
+      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
+      ..customerEntity = receiptEntity.customerEntity);
   }
 
   Future<void> updateTotalAmountFromDiscount(double discValue) async {
