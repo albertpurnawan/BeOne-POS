@@ -32,7 +32,7 @@ class PayMeansFields {
   static const String cardHolder = "cardholder";
   static const String sisaVoucher = "sisavoucher";
   static const String rrn = "rrn";
-  static const String tpmt6Id = "tpmt6dId";
+  static const String tpmt6Id = "tpmt6Id";
 }
 
 class PayMeansModel extends PayMeantEntity implements BaseModel {
@@ -67,7 +67,7 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
       'cardholder': cardHolder,
       'sisavoucher': sisaVoucher,
       'rrn': rrn,
-      'tpmt6dId': tpmt6Id,
+      'tpmt6Id': tpmt6Id,
     };
   }
 
@@ -85,7 +85,7 @@ class PayMeansModel extends PayMeantEntity implements BaseModel {
       cardHolder: map['cardholder'] != null ? map['cardholder'] as String : null,
       sisaVoucher: map['sisavoucher'] != null ? map['sisavoucher'] as double : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,
-      tpmt6Id: map['tpmt6dId'] != null ? map['tpmt6dId'] as String : null,
+      tpmt6Id: map['tpmt6Id'] != null ? map['tpmt6Id'] as String : null,
     );
   }
 
