@@ -154,6 +154,7 @@ class FetchScreen extends StatefulWidget {
 class _FetchScreenState extends State<FetchScreen> {
   POSParameterEntity? _posParameterEntity;
   final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
+  final prefs = GetIt.instance<SharedPreferences>();
 
   bool isManualSyncing = false;
   int statusCode = 0;
@@ -239,11 +240,9 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<BankIssuerModel> tpmt5;
     late List<CampaignModel> tpmt6;
 
-    final prefs = GetIt.instance<SharedPreferences>();
-
-    bool? checkSync = prefs.getBool('isSyncing');
+    bool checkSync = prefs.getBool('isSyncing') ?? false;
     log("Synching data...");
-    if (checkSync == null || checkSync == false) {
+    if (checkSync == false) {
       try {
         prefs.setBool('isSyncing', true);
         // final topos =
@@ -3061,15 +3060,12 @@ class _FetchScreenState extends State<FetchScreen> {
         // End Check Failed Invoices and Try to Send TCSR1
 
         prefs.setBool('isSyncing', false);
-        log('Data synced - $checkSync');
+        log('Data synced');
       } catch (error, stack) {
         prefs.setBool('isSyncing', false);
         log("Error synchronizing: $error");
         debugPrintStack(stackTrace: stack);
       }
-    } else {
-      log("Sync is in progress");
-      prefs.setBool('isSyncing', false);
     }
   }
 
