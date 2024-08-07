@@ -77,6 +77,7 @@ import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
@@ -3247,7 +3248,16 @@ class _FetchScreenState extends State<FetchScreen> {
                         onPressed: isManualSyncing
                             ? null
                             : () async {
-                                await GetIt.instance<AppDatabase>().resetDatabase();
+                                try {
+                                  final bool? isAuthorized = await showDialog<bool>(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => const ApprovalDialog());
+                                  if (isAuthorized != true) return;
+                                  await GetIt.instance<AppDatabase>().resetDatabase();
+                                } catch (e) {
+                                  SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                }
                               },
                         style: ButtonStyle(
                           shape: MaterialStatePropertyAll(

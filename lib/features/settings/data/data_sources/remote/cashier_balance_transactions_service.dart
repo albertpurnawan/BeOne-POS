@@ -62,7 +62,7 @@ class CashierBalanceTransactionApi {
 
       log("${response.data['description']}");
 
-      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+      if (response.statusCode == 200) {
         final tcsr1Success = CashierBalanceTransactionModel(
           docId: tcsr1.docId,
           createDate: tcsr1.createDate,
@@ -92,6 +92,39 @@ class CashierBalanceTransactionApi {
         await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(
               docId: tcsr1.docId,
               data: tcsr1Success,
+            );
+      }
+    } on DioException catch (err) {
+      if (err.response!.data['description'] == "Duplicate" && tcsr1.syncToBos == null) {
+        final tcsr1Update = CashierBalanceTransactionModel(
+          docId: tcsr1.docId,
+          createDate: tcsr1.createDate,
+          updateDate: tcsr1.updateDate,
+          tocsrId: tcsr1.tocsrId,
+          tousrId: tcsr1.tousrId,
+          docNum: tcsr1.docNum,
+          openDate: tcsr1.openDate,
+          openTime: tcsr1.openTime,
+          calcDate: tcsr1.calcDate,
+          calcTime: tcsr1.calcTime,
+          closeDate: tcsr1.closeDate,
+          closeTime: tcsr1.closeTime,
+          timezone: tcsr1.timezone,
+          openValue: tcsr1.openValue,
+          calcValue: tcsr1.calcValue,
+          cashValue: tcsr1.cashValue,
+          closeValue: tcsr1.closeValue,
+          openedbyId: tcsr1.openedbyId,
+          closedbyId: tcsr1.closedbyId,
+          approvalStatus: tcsr1.approvalStatus,
+          refpos: tcsr1.refpos,
+          syncToBos: err.response!.data['_checkDocNum']['docid'],
+          closedApproveById: tcsr1.closedApproveById,
+        );
+
+        await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(
+              docId: tcsr1.docId,
+              data: tcsr1Update,
             );
       }
     } catch (e) {
