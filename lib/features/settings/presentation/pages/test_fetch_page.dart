@@ -2660,8 +2660,16 @@ class _FetchScreenState extends State<FetchScreen> {
         // ------------------- END OF FETCHING FUNCTIONS-------------------
 
         final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-
         final strName = store?.storeName;
+
+        for (final fetchFunction in fetchFunctions) {
+          try {
+            await fetchFunction();
+          } catch (e) {
+            handleError(e);
+            rethrow;
+          }
+        }
 
         final toposData = POSParameterModel(
           docId: toposId,
@@ -2678,15 +2686,6 @@ class _FetchScreenState extends State<FetchScreen> {
         );
 
         await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-
-        for (final fetchFunction in fetchFunctions) {
-          try {
-            await fetchFunction();
-          } catch (e) {
-            handleError(e);
-            rethrow;
-          }
-        }
 
         final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
         final singleToposAfterSync = toposAfterSync[0];

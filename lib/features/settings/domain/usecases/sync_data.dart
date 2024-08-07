@@ -2264,8 +2264,16 @@ Future<void> syncData() async {
       // ------------------- END OF FETCHING FUNCTIONS-------------------
 
       final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-
       final strName = store?.storeName;
+
+      for (final fetchFunction in fetchFunctions) {
+        try {
+          await fetchFunction();
+        } catch (e) {
+          handleError(e);
+          rethrow;
+        }
+      }
 
       final toposData = POSParameterModel(
         docId: toposId,
@@ -2282,15 +2290,6 @@ Future<void> syncData() async {
       );
 
       await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-
-      for (final fetchFunction in fetchFunctions) {
-        try {
-          await fetchFunction();
-        } catch (e) {
-          handleError(e);
-          rethrow;
-        }
-      }
 
       final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleToposAfterSync = toposAfterSync[0];
