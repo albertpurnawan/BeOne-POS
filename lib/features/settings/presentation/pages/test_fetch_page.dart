@@ -3139,6 +3139,15 @@ class _FetchScreenState extends State<FetchScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text('Sync Data'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outlined),
+            onPressed: () async {
+              await prefs.clear();
+            },
+            tooltip: 'Clear Logs',
+          ),
+        ],
         leading: BackButton(
           color: Colors.white,
           onPressed: () {
@@ -3227,7 +3236,7 @@ class _FetchScreenState extends State<FetchScreen> {
                         : const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Sync',
+                              'Synchronize',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18,
@@ -3265,14 +3274,14 @@ class _FetchScreenState extends State<FetchScreen> {
                         ),
                       ),
                       backgroundColor: const MaterialStatePropertyAll(
-                        Color.fromARGB(255, 234, 234, 234),
+                        ProjectColors.primary,
                       ),
-                      foregroundColor: const MaterialStatePropertyAll(ProjectColors.primary),
+                      foregroundColor: const MaterialStatePropertyAll(Colors.white),
                     ),
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        'Logs',
+                        'Error Logs',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 18,
