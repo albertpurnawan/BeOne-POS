@@ -154,4 +154,27 @@ class InvoiceHeaderDao extends BaseDao<InvoiceHeaderModel> {
 
     return res.isNotEmpty ? InvoiceHeaderModel.fromMap(res[0]) : null;
   }
+
+  Future<Map<String, List<Map<String, dynamic>>>> getTableData(String tcsr1Id, DateTime start, DateTime end) async {
+    final Map<String, List<Map<String, dynamic>>> data = {};
+    final rows = await db.rawQuery('''
+      SELECT x0.* FROM $tableName x0
+        INNER JOIN tcsr1 x1 ON x0.tcsr1Id = x1.docid
+        WHERE (x0.createdat BETWEEN ? AND ?) 
+        AND x0.synctobos NOT NULL
+        AND x0.tcsr1Id = ?
+    ''', [start.toString(), end.toString(), tcsr1Id]);
+    data[tableName] = rows;
+
+    return data;
+  }
+
+  Future<void> deleteArchived(String tcsr1Id, DateTime start, DateTime end) async {
+    await db.rawDelete('''
+      DELETE FROM $tableName
+        WHERE (createdat BETWEEN ? AND ?)
+        AND synctobos IS NOT NULL
+        AND tcsr1Id = ?
+    ''', [start.toString(), end.toString(), tcsr1Id]);
+  }
 }

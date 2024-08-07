@@ -100,4 +100,25 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
 
     return result.map((itemData) => MopSelectionModel.fromMap(itemData)).toList();
   }
+
+  Future<Map<String, List<Map<String, dynamic>>>> getTableData(String toinvId, DateTime start, DateTime end) async {
+    final Map<String, List<Map<String, dynamic>>> data = {};
+    final rows = await db.rawQuery('''
+      SELECT x0.* FROM $tableName x0
+        INNER JOIN toinv x1 ON x0.toinvId = x1.docid
+        WHERE (x0.createdat BETWEEN ? AND ?) 
+        AND x0.toinvId = ?
+    ''', [start.toString(), end.toString(), toinvId]);
+    data[tableName] = rows;
+
+    return data;
+  }
+
+  Future<void> deleteArchived(String toinvId, DateTime start, DateTime end) async {
+    await db.rawDelete('''
+      DELETE FROM $tableName
+        WHERE (createdat BETWEEN ? AND ?)
+        AND toinvId = ?
+    ''', [start.toString(), end.toString(), toinvId]);
+  }
 }

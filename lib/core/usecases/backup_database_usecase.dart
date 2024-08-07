@@ -94,7 +94,6 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
       }
 
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-
       final dbFile = File(path);
 
       // Zip the database file

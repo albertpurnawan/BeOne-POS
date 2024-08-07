@@ -93,4 +93,23 @@ class CashierBalanceTransactionDao extends BaseDao<CashierBalanceTransactionMode
     }
     return transactions;
   }
+
+  Future<Map<String, List<Map<String, dynamic>>>> getTableData(DateTime start, DateTime end) async {
+    final Map<String, List<Map<String, dynamic>>> data = {};
+
+    final rows = await db.rawQuery('''
+      SELECT * FROM $tableName WHERE (createdat BETWEEN ? AND ?) 
+        AND approvalstatus = 1 AND synctobos NOT NULL
+    ''', [start.toString(), end.toString()]);
+    data[tableName] = rows;
+
+    return data;
+  }
+
+  Future<void> deleteArchived(DateTime start, DateTime end) async {
+    await db.rawDelete('''
+      DELETE FROM $tableName WHERE (createdat BETWEEN ? AND ?)
+      AND approvalstatus = 1 AND synctobos NOT NULL
+    ''', [start.toString(), end.toString()]);
+  }
 }

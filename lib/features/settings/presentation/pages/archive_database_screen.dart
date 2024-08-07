@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/usecases/archive_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 
 class ArchiveScreen extends StatefulWidget {
@@ -18,9 +19,11 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
   Future<void> selectDateFunction(BuildContext context, bool isFromDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isFromDate ? selectedFromDate ?? DateTime.now() : selectedToDate ?? DateTime.now(),
+      initialDate: isFromDate
+          ? selectedFromDate ?? DateTime.now() //.subtract(const Duration(days: 30)
+          : selectedToDate ?? DateTime.now(), //.subtract(const Duration(days: 30))
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(), //.subtract(const Duration(days: 1))
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -49,7 +52,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
             selectedToDate = null;
             endDateExceed = true;
           } else {
-            selectedToDate = picked;
+            selectedToDate = picked.add(const Duration(hours: 23, minutes: 59, seconds: 59));
             endDateExceed = false;
           }
         }
@@ -231,7 +234,10 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                 )),
                 backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                 overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-            onPressed: () {},
+            onPressed: () async {
+              await ArchiveDatabaseUseCase()
+                  .call(params: ArchiveDatabaseParams(selectedFromDate!, selectedToDate!, context: context));
+            },
             child: const Center(
                 child: Text(
               "Archive",

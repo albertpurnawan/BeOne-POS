@@ -167,7 +167,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         await checkTopos();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const FetchScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const FetchScreen(
+                                    outside: true,
+                                  )),
                         ).then((value) => Future.delayed(
                             const Duration(milliseconds: 200),
                             () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
