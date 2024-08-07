@@ -1,17 +1,21 @@
-import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'dart:developer';
 
-class FirstRunManager {
-  static const String firstRunKey = "firstRun";
+// import 'package:get_it/get_it.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
-  static Future<void> checkFirstRun() async {
-    final prefs = GetIt.instance<SharedPreferences>();
-    bool isFirstRun = prefs.getBool(firstRunKey) ?? true;
+// class FirstRunManager {
+//   static const String firstRunKey = "firstRun";
 
-    if (isFirstRun) {
-      await prefs.clear();
+//   static Future<void> checkFirstRun() async {
+//     final prefs = GetIt.instance<SharedPreferences>();
+//     bool isFirstRun = prefs.getBool(firstRunKey) ?? true;
 
-      await prefs.setBool(firstRunKey, false);
-    }
-  }
-}
+//     if (isFirstRun) {
+//       await prefs.clear();
+//     }
+
+//     await prefs.setBool(firstRunKey, false);
+
+//     log("FirstRun - $isFirstRun");
+//   }
+// }
