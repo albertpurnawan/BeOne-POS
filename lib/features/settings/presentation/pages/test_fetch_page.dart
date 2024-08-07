@@ -3140,20 +3140,23 @@ class _FetchScreenState extends State<FetchScreen> {
         foregroundColor: Colors.white,
         title: const Text('Sync Data'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outlined),
-            onPressed: () async {
-              await prefs.clear();
-            },
-            tooltip: 'Clear Logs',
-          ),
+          if (widget.outside && !isManualSyncing)
+            IconButton(
+              icon: const Icon(Icons.delete_outlined),
+              onPressed: () async {
+                await prefs.clear();
+              },
+              tooltip: 'Clear Preferences',
+            ),
         ],
-        leading: BackButton(
-          color: Colors.white,
-          onPressed: () {
-            Navigator.pop(context, true);
-          },
-        ),
+        leading: isManualSyncing
+            ? null
+            : BackButton(
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+              ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -3249,34 +3252,37 @@ class _FetchScreenState extends State<FetchScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        syncProgress = 0;
-                      });
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LogErrorScreen()),
-                      ).then((value) => Future.delayed(
-                          const Duration(milliseconds: 200),
-                          () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-                              statusBarColor: ProjectColors.primary,
-                              statusBarBrightness: Brightness.light,
-                              statusBarIconBrightness: Brightness.light))));
-                    },
+                    onPressed: isManualSyncing
+                        ? null
+                        : () {
+                            setState(() {
+                              syncProgress = 0;
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LogErrorScreen()),
+                            ).then((value) => Future.delayed(
+                                const Duration(milliseconds: 200),
+                                () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                    statusBarColor: ProjectColors.primary,
+                                    statusBarBrightness: Brightness.light,
+                                    statusBarIconBrightness: Brightness.light))));
+                          },
                     style: ButtonStyle(
                       shape: MaterialStatePropertyAll(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(100),
-                          side: const BorderSide(
-                            color: ProjectColors.primary,
+                          side: BorderSide(
+                            color: isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
                             width: 2,
                           ),
                         ),
                       ),
-                      backgroundColor: const MaterialStatePropertyAll(
-                        ProjectColors.primary,
+                      backgroundColor: MaterialStatePropertyAll(
+                        isManualSyncing ? Colors.grey : ProjectColors.primary,
                       ),
-                      foregroundColor: const MaterialStatePropertyAll(Colors.white),
+                      foregroundColor: MaterialStatePropertyAll(
+                          isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : Colors.white),
                     ),
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
