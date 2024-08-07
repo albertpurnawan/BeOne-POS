@@ -906,7 +906,10 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
           child: const Center(
               child: Text(
             "Cancel",
-            style: TextStyle(color: ProjectColors.primary),
+            style: TextStyle(
+              color: ProjectColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
           )),
         )),
         const SizedBox(width: 10),
@@ -995,7 +998,10 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
           child: const Center(
               child: Text(
             "Adjust",
-            style: TextStyle(color: Color.fromARGB(255, 234, 234, 234)),
+            style: TextStyle(
+              color: Color.fromARGB(255, 234, 234, 234),
+              fontWeight: FontWeight.bold,
+            ),
           )),
         )),
       ],
