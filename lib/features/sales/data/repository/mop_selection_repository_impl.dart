@@ -15,16 +15,14 @@ class MopSelectionRepositoryImpl implements MopSelectionRepository {
 
   @override
   Future<MopSelectionModel?> getMopSelectionByTpmt3Id(String tpmt3Id) async {
-    return await _appDatabase.mopByStoreDao
-        .readByDocIdIncludeRelations(tpmt3Id, null);
+    return await _appDatabase.mopByStoreDao.readByDocIdIncludeRelations(tpmt3Id, null);
   }
 
   @override
   Future<MopSelectionModel> getCashMopSelection() async {
     try {
-      final List<MopSelectionModel> cashMopSelections = await _appDatabase
-          .mopByStoreDao
-          .readAllIncludeRelations(payTypeCode: "1");
+      final List<MopSelectionModel> cashMopSelections =
+          await _appDatabase.mopByStoreDao.readAllIncludeRelations(payTypeCode: "1");
       if (cashMopSelections.isEmpty) throw "Cash MOP not found";
       return cashMopSelections.first;
     } catch (e) {
