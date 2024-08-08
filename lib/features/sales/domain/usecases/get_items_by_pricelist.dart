@@ -20,7 +20,9 @@ class GetItemsByPricelistUseCase implements UseCase<List<ItemEntity>, GetItemsBy
     try {
       if (params == null) throw "GetItemsByPricelistUseCaseParams requires params";
       List<ItemEntity> result = [];
-
+      if ((params.searchKeyword ?? "").contains("1") && (params.searchKeyword ?? "").contains("=")) {
+        throw "Invalid search keyword";
+      }
       final POSParameterEntity posParameterEntity = await _posParameterRepository.getPosParameter();
       if (posParameterEntity.tostrId == null) throw "Invalid POS Parameter";
       final StoreMasterEntity? storeMasterEntity =
