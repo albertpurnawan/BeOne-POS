@@ -53,6 +53,10 @@ class CashierBalanceTransactionApi {
         "detail_cash_register": tcsr2List,
         "closedaproveby_id": tcsr1.closedApproveById,
       };
+
+      if (dataToSend['closedaproveby_id'] == null) {
+        return;
+      }
       log("dataToSend - ${jsonEncode(dataToSend)}");
       final response = await _dio.post("$url/tenant-cashier-balance-transaction",
           data: dataToSend,

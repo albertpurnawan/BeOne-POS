@@ -55,4 +55,25 @@ class InvoiceAppliedPromoDao extends BaseDao<InvoiceAppliedPromoModel> {
     log("RESULT - $result");
     return result.map((itemData) => InvoiceAppliedPromoModel.fromMap(itemData)).toList();
   }
+
+  Future<Map<String, List<Map<String, dynamic>>>> getTableData(String toinvId, DateTime start, DateTime end) async {
+    final Map<String, List<Map<String, dynamic>>> data = {};
+    final rows = await db.rawQuery('''
+      SELECT x0.* FROM $tableName x0
+        INNER JOIN toinv x1 ON x0.toinvdocid = x1.docid
+        WHERE (x0.createdat BETWEEN ? AND ?) 
+        AND x0.toinvdocid = ?
+    ''', [start.toString(), end.toString(), toinvId]);
+    data[tableName] = rows;
+
+    return data;
+  }
+
+  Future<void> deleteArchived(String toinvId, DateTime start, DateTime end) async {
+    await db.rawDelete('''
+      DELETE FROM $tableName
+        WHERE (createdat BETWEEN ? AND ?)
+        AND toinvdocid = ?
+    ''', [start.toString(), end.toString(), toinvId]);
+  }
 }

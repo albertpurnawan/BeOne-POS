@@ -725,6 +725,7 @@ class _EDCDialogState extends State<EDCDialog> {
                               : "${_cardNumber1Controller.text}-xxxx-xxxx-${_cardNumber2Controller.text}",
                           cardHolder: _cardHolderController.text,
                           rrn: _refNumberController.text,
+                          tpmt6Id: campaignSelected?.docId,
                         );
                         mopsSelected.add(mopEDC);
                         FocusScope.of(context).unfocus();

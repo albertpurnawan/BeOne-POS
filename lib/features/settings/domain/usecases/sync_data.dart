@@ -136,7 +136,10 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_servic
 import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
 import 'package:pos_fe/features/settings/domain/usecases/refresh_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
+
+final syncLock = Lock();
 
 Future<void> syncData() async {
   late List<CurrencyModel> tcurr;
@@ -200,14 +203,20 @@ Future<void> syncData() async {
   late List<BankIssuerModel> tpmt5;
   late List<CampaignModel> tpmt6;
 
-  final prefs = GetIt.instance<SharedPreferences>();
-  final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
+  await syncLock.synchronized(() async {
+    final prefs = GetIt.instance<SharedPreferences>();
+    final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
 
-  bool? checkSync = prefs.getBool('isSyncing');
-  log("Synching data...");
-  if (checkSync == null || checkSync == false) {
+    bool isSyncing = prefs.getBool('isSyncing') ?? false;
+
+    if (isSyncing) {
+      log('Sync is already in progress');
+      return;
+    }
+
+    prefs.setBool('isSyncing', true);
+    log("Synching data...");
     try {
-      prefs.setBool('isSyncing', true);
       await refreshTokenUsecase.call();
       final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleTopos = topos[0];
@@ -2255,8 +2264,16 @@ Future<void> syncData() async {
       // ------------------- END OF FETCHING FUNCTIONS-------------------
 
       final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-
       final strName = store?.storeName;
+
+      for (final fetchFunction in fetchFunctions) {
+        try {
+          await fetchFunction();
+        } catch (e) {
+          handleError(e);
+          rethrow;
+        }
+      }
 
       final toposData = POSParameterModel(
         docId: toposId,
@@ -2273,15 +2290,6 @@ Future<void> syncData() async {
       );
 
       await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-
-      for (final fetchFunction in fetchFunctions) {
-        try {
-          await fetchFunction();
-        } catch (e) {
-          handleError(e);
-          rethrow;
-        }
-      }
 
       final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleToposAfterSync = toposAfterSync[0];
@@ -2536,61 +2544,6 @@ Future<void> syncData() async {
       log("PROMOS INSERTED");
       // END OF REFRESH TOPRM
 
-      // fetched = tcurr.length +
-      //     tocry.length +
-      //     toprv.length +
-      //     tozcd.length +
-      //     tohem.length +
-      //     tovat.length +
-      //     topmt.length +
-      //     tpmt1.length +
-      //     tpmt2.length +
-      //     topln.length +
-      //     tostr.length +
-      //     tpmt3.length +
-      //     tocsr.length +
-      //     touom.length +
-      //     torol.length +
-      //     tousr.length +
-      //     tpln1.length +
-      //     tocat.length +
-      //     toitm.length +
-      //     tsitm.length +
-      //     tbitm.length +
-      //     tritm.length +
-      //     tovdg.length +
-      //     toven.length +
-      //     tvitm.length +
-      //     tocrg.length +
-      //     tocus.length +
-      //     tpln2.length +
-      //     tpln3.length +
-      //     tpln4.length +
-      //     topsb.length +
-      //     tpsb1.length +
-      //     tpsb2.length +
-      //     tpsb4.length +
-      //     topmi.length +
-      //     tpmi1.length +
-      //     tpmi2.length +
-      //     tpmi4.length +
-      //     tpmi5.length +
-      //     topdi.length +
-      //     tpdi1.length +
-      //     tpdi2.length +
-      //     tpdi4.length +
-      //     tpdi5.length +
-      //     topdg.length +
-      //     tpdg1.length +
-      //     tpdg2.length +
-      //     tpdg4.length +
-      //     tpdg5.length +
-      //     toprb.length +
-      //     tprb1.length +
-      //     tprb2.length +
-      //     tprb4.length +
-      //     tprb5.length;
-
       // REFRESH TABLE ITEMS
       await GetIt.instance<AppDatabase>().refreshItemsTable();
       // END OF REFRESH TABLE ITEMS
@@ -2647,22 +2600,19 @@ Future<void> syncData() async {
       // End Check Failed Invoices and Try to Send TCSR1
 
       prefs.setBool('isSyncing', false);
-      log('Data synched - $checkSync');
+      log('Data synched');
     } catch (error, stack) {
       prefs.setBool('isSyncing', false);
       log("Error synchronizing: $error");
       debugPrintStack(stackTrace: stack);
     }
-  } else {
-    log("Sync is in progress");
-    prefs.setBool('isSyncing', false);
-  }
+  });
 }
 
-Future<void> resendFailedInv() async {
-  final prefs = GetIt.instance<SharedPreferences>();
+// Future<void> resendFailedInv() async {
+//   final prefs = GetIt.instance<SharedPreferences>();
 
-  bool? checkSync = prefs.getBool('isSyncing');
-  log("Synching data... - $checkSync");
-  if (checkSync == null || checkSync == false) {}
-}
+//   bool? checkSync = prefs.getBool('isSyncing');
+//   log("Synching data... - $checkSync");
+//   if (checkSync == null || checkSync == false) {}
+// }

@@ -74,6 +74,7 @@ class InvoiceApi {
                   "cardno": entry['cardno'],
                   "cardholder": entry['cardholder'],
                   "rrn": entry['rrn'] ?? "",
+                  if (entry['tpmt2Id'] != null) "tpmt6_id": entry['tpmt6Id'],
                 });
               }
               break;
@@ -380,6 +381,7 @@ class InvoiceApi {
                   "cardno": entry['cardno'],
                   "cardholder": entry['cardholder'],
                   "rrn": entry['rrn'] ?? "",
+                  "tpmt6_id": "",
                 });
               } else {
                 invoicePayments.add({
@@ -389,6 +391,7 @@ class InvoiceApi {
                   "cardno": entry['cardno'],
                   "cardholder": entry['cardholder'],
                   "rrn": entry['rrn'] ?? "",
+                  "tpmt6_id": "",
                 });
               }
               break;

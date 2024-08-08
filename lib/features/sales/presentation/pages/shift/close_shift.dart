@@ -835,7 +835,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                   await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
                   try {
                     GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
-                  } catch (e) {}
+                  } catch (e) {
+                    log(e.toString());
+                  }
 
                   final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
                       await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);
@@ -881,13 +883,13 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     if (!context.mounted) return;
                     Future.delayed(Durations.short1, () => checkLastShiftId());
                     log('Navigating to shifts route');
+                    context.goNamed(RouteConstants.home);
                     await showDialog(
                         context: NavigationHelper.context!,
                         builder: (context) => CloseShiftSuccessAlertDialog(
                               closedShift: cashierBalanceTransactionEntity,
                               printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
                             ));
-                    context.goNamed(RouteConstants.home);
                   }
                 } catch (e) {
                   if (!context.mounted) return;

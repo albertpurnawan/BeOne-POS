@@ -2029,9 +2029,11 @@ CREATE TABLE $tablePayMeans (
   ${PayMeansFields.cardHolder} varchar(20) DEFAULT NULL,
   ${PayMeansFields.sisaVoucher} double DEFAULT NULL,
   ${PayMeansFields.rrn} varchar(250) DEFAULT NULL,
+  ${PayMeansFields.tpmt6Id} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv2_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `tinv2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `tinv2_tpmt3Id_fkey` FOREIGN KEY (`tpmt3Id`) REFERENCES `tpmt3` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `tinv2_tpmt6Id_fkey` FOREIGN KEY (`tpmt6Id`) REFERENCES `tpmt6` (`docid`) ON DELETE RESTRICT ON UPDATE CASCADE
 )
 """);
         // CONSTRAINT `tinv2_tpmt2Id_fkey` FOREIGN KEY (`tpmt2Id`) REFERENCES `tpmt2` (`id`) ON DELETE SET NULL ON UPDATE CASCADE

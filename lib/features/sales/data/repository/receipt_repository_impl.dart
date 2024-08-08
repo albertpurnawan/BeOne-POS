@@ -155,21 +155,21 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         for (final MopSelectionEntity mopSelectionEntity in receiptEntity.mopSelections) {
           log("mopSelectionEntityIMPL - $mopSelectionEntity");
           payMeansModels.add(PayMeansModel(
-            docId: _uuid.v4(),
-            createDate: null,
-            updateDate: null,
-            toinvId: generatedInvoiceHeaderDocId,
-            lineNum: 1,
-            tpmt3Id: mopSelectionEntity.tpmt3Id,
-            amount: mopSelectionEntity.payTypeCode == "1"
-                ? (mopSelectionEntity.amount ?? 0) - (receiptEntity.changed ?? 0)
-                : mopSelectionEntity.amount ?? 0,
-            tpmt2Id: mopSelectionEntity.tpmt2Id,
-            cardNo: mopSelectionEntity.cardNo,
-            cardHolder: mopSelectionEntity.cardHolder,
-            sisaVoucher: null,
-            rrn: mopSelectionEntity.rrn,
-          ));
+              docId: _uuid.v4(),
+              createDate: null,
+              updateDate: null,
+              toinvId: generatedInvoiceHeaderDocId,
+              lineNum: 1,
+              tpmt3Id: mopSelectionEntity.tpmt3Id,
+              amount: mopSelectionEntity.payTypeCode == "1"
+                  ? (mopSelectionEntity.amount ?? 0) - (receiptEntity.changed ?? 0)
+                  : mopSelectionEntity.amount ?? 0,
+              tpmt2Id: mopSelectionEntity.tpmt2Id,
+              cardNo: mopSelectionEntity.cardNo,
+              cardHolder: mopSelectionEntity.cardHolder,
+              sisaVoucher: null,
+              rrn: mopSelectionEntity.rrn,
+              tpmt6Id: mopSelectionEntity.tpmt6Id));
         }
 
         await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
@@ -180,19 +180,19 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
         for (final voucherSelection in vouchers) {
           final PayMeansModel paymeansModel = PayMeansModel(
-            docId: _uuid.v4(),
-            createDate: null,
-            updateDate: null,
-            toinvId: generatedInvoiceHeaderDocId,
-            lineNum: 1,
-            tpmt3Id: voucherSelection.tpmt3Id,
-            amount: double.parse(voucherSelection.voucherAmount.toString()),
-            tpmt2Id: null,
-            cardNo: null,
-            cardHolder: null,
-            sisaVoucher: 0,
-            rrn: null,
-          );
+              docId: _uuid.v4(),
+              createDate: null,
+              updateDate: null,
+              toinvId: generatedInvoiceHeaderDocId,
+              lineNum: 1,
+              tpmt3Id: voucherSelection.tpmt3Id,
+              amount: double.parse(voucherSelection.voucherAmount.toString()),
+              tpmt2Id: null,
+              cardNo: null,
+              cardHolder: null,
+              sisaVoucher: 0,
+              rrn: null,
+              tpmt6Id: null);
 
           await _appDatabase.payMeansDao.create(data: paymeansModel, txn: txn);
           vouchers = vouchers.map((voucher) {

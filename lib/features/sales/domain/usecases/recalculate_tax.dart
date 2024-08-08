@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
