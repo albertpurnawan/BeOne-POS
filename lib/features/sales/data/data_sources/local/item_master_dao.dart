@@ -35,7 +35,7 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
 
   Future<List<dynamic>?> readByKeyword(String keyword) async {
     final result = await db.rawQuery('''
-    SELECT x0.itemname, x0.itemcode, x1.barcode, x2. price FROM toitm AS x0 
+    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price FROM toitm AS x0 
       INNER JOIN tbitm AS x1 ON x1.toitmId = x0.docid 
       INNER JOIN tpln2 AS x2 ON x2.toitmId = x0.docid
       WHERE x0.itemcode LIKE ? OR x1.barcode LIKE ? OR x0.itemname LIKE ?

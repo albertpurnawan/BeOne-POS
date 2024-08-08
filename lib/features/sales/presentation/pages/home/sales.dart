@@ -735,7 +735,6 @@ class _SalesPageState extends State<SalesPage> {
                                                                           future: getSalesPerson(
                                                                               e.tohemId, state.salesTohemId),
                                                                           builder: (context, snapshot) {
-                                                                            log("${e.itemEntity.itemName} ${state.salesTohemId} ${e.tohemId}");
                                                                             if (snapshot.hasData) {
                                                                               return Text(
                                                                                 snapshot.data?.empName ?? "",
@@ -3373,7 +3372,6 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
         if (indexIsSelect[1] != 0) {
           final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-          log("receiptTarget - $receiptItemTarget");
           await showDialog(
             context: context,
             builder: (BuildContext context) => ItemDetailsDialog(indexSelected: indexIsSelect[0]),
@@ -3509,7 +3507,6 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<EmployeeEntity?> getSalesPerson(String? itemSalesTohemId, String? headerSalesTohemId) async {
     try {
-      log("$itemSalesTohemId $headerSalesTohemId");
       EmployeeEntity? employeeEntity;
       if (headerSalesTohemId != null && headerSalesTohemId != "") {
         employeeEntity = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(headerSalesTohemId, null);

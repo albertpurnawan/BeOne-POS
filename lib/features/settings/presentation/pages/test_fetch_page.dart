@@ -162,7 +162,7 @@ class _FetchScreenState extends State<FetchScreen> {
   String errorMessage = '';
   double syncProgress = 0.0;
   int totalData = 0;
-  int totalTable = 60;
+  int totalTable = 61;
 
   @override
   void initState() {
@@ -3058,6 +3058,9 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
         // End Check Failed Invoices and Try to Send TCSR1
+        setState(() {
+          syncProgress += 1 / totalTable;
+        });
 
         prefs.setBool('isSyncing', false);
         log('Data synced');
