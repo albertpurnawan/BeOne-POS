@@ -2324,8 +2324,6 @@ Future<void> syncData() async {
       final promos = <PromotionsModel>[];
       final today = DateTime.now().weekday;
 
-      await GetIt.instance<AppDatabase>().promosDao.deletePromos();
-
       topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
       for (final header in topsb) {
         if (header.statusActive != 1) continue;
@@ -2539,6 +2537,8 @@ Future<void> syncData() async {
           }
         }
       }
+
+      await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
       await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
       log("PROMOS INSERTED");

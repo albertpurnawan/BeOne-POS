@@ -2721,8 +2721,6 @@ class _FetchScreenState extends State<FetchScreen> {
         final promos = <PromotionsModel>[];
         final today = DateTime.now().weekday;
 
-        await GetIt.instance<AppDatabase>().promosDao.deletePromos();
-
         topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
         for (final header in topsb) {
           if (header.statusActive != 1) continue;
@@ -2938,6 +2936,8 @@ class _FetchScreenState extends State<FetchScreen> {
             }
           }
         }
+
+        await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
         await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
         log("PROMOS INSERTED");
