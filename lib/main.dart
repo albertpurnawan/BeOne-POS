@@ -59,7 +59,7 @@ void main() async {
   await initializeDependencies();
   await GetIt.instance.allReady();
   // await FirstRunManager.checkFirstRun();
-  await syncWithBOS();
+  await configureBackgroundTasks();
   // await SentryFlutter.init(
   //   (options) {
   //     options.dsn =
