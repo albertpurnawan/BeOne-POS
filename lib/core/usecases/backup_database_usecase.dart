@@ -113,7 +113,7 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
       log("Database backed up to $zipPath");
 
       if (context.mounted) {
-        SnackBarHelper.presentSuccessSnackBar(context, "Database backed up at ${backupFolder.path}");
+        SnackBarHelper.presentSuccessSnackBar(context, "Database backed up at ${backupFolder.path}", 3);
       }
     } catch (e) {
       log("Error backing up database: $e");

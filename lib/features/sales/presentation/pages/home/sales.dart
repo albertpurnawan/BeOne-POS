@@ -1187,7 +1187,7 @@ class _SalesPageState extends State<SalesPage> {
 
                             if (appliedHeaderDisc != null) {
                               SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
                             }
 
                             setState(() {
@@ -1543,7 +1543,7 @@ class _SalesPageState extends State<SalesPage> {
 
                             if (appliedHeaderDisc != null) {
                               SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
                             }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
@@ -1841,7 +1841,7 @@ class _SalesPageState extends State<SalesPage> {
 
                               if (appliedHeaderDisc != null) {
                                 SnackBarHelper.presentSuccessSnackBar(
-                                    context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                    context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
                               }
                               setState(() {
                                 isEditingNewReceiptItemCode = true;
@@ -2413,7 +2413,7 @@ class _SalesPageState extends State<SalesPage> {
                         return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
                       }
                       context.read<ReceiptCubit>().queueReceipt();
-                      SnackBarHelper.presentSuccessSnackBar(context, "Pending order added");
+                      SnackBarHelper.presentSuccessSnackBar(context, "Pending order added", 3);
 
                       setState(() {
                         isEditingNewReceiptItemQty = false;
@@ -3247,7 +3247,7 @@ class _SalesPageState extends State<SalesPage> {
           return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
         }
         context.read<ReceiptCubit>().queueReceipt();
-        SnackBarHelper.presentSuccessSnackBar(context, "Pending order added");
+        SnackBarHelper.presentSuccessSnackBar(context, "Pending order added", 3);
       } else if (event.physicalKey == (PhysicalKeyboardKey.f9)) {
         setState(() {
           isEditingNewReceiptItemCode = false;
@@ -3338,7 +3338,7 @@ class _SalesPageState extends State<SalesPage> {
                   docnum: context.read<ReceiptCubit>().state.docNum,
                 )).then((value) {
           if (value != null) {
-            SnackBarHelper.presentSuccessSnackBar(context, "Header discount applied: ${Helpers.parseMoney(value)}");
+            SnackBarHelper.presentSuccessSnackBar(context, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
           }
           setState(() {
             isEditingNewReceiptItemCode = true;

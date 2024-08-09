@@ -152,7 +152,7 @@ class ArchiveDatabaseUseCase implements UseCase<void, ArchiveDatabaseParams> {
 
       log("Database archived to $zipPath");
       if (context.mounted) {
-        SnackBarHelper.presentSuccessSnackBar(context, "Database archived to $zipPath");
+        SnackBarHelper.presentSuccessSnackBar(context, "Database archived to $zipPath", 3);
       }
     } catch (e) {
       log("Error archiving database: $e");
