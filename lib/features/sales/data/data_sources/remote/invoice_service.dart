@@ -262,7 +262,7 @@ class InvoiceApi {
             "qtyconv": item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item['tohemId'] ?? "",
+            "tohem_id": (item['tohemId'] == "") ? invHead[0].salesTohemId : item['tohemId'],
             "promotion": promotionsDetail
           };
         }).toList(),
@@ -574,7 +574,7 @@ class InvoiceApi {
             "qtyconv": 0.0,
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item.tohemId ?? "",
+            "tohem_id": (item.tohemId == "") ? invHead.salesTohemId : item.tohemId,
             "promotion": promotionsDetail
           };
         }).toList(),

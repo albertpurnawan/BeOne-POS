@@ -3023,6 +3023,7 @@ CREATE TABLE $tableQueuedInvoiceHeader (
   ${QueuedInvoiceHeaderFields.discHeaderManual} double NOT NULL,
   ${QueuedInvoiceHeaderFields.discHeaderPromo} double NOT NULL,
   ${QueuedInvoiceHeaderFields.syncToBos} text DEFAULT NULL,
+  ${QueuedInvoiceHeaderFields.salesTohemId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `toinv_tocusId_fkey` FOREIGN KEY (`tocusId`) REFERENCES `tocus` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
@@ -3063,6 +3064,7 @@ CREATE TABLE $tableQueuedInvoiceDetail (
   ${QueuedInvoiceDetailFields.tovenId} text DEFAULT NULL,
   ${QueuedInvoiceDetailFields.tbitmId} text DEFAULT NULL,
   ${QueuedInvoiceDetailFields.discHeaderAmount} double NOT NULL,
+  ${QueuedInvoiceDetailFields.tohemId} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `queuedInvoiceDetails_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `queuedInvoiceHeaders` (`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `queuedInvoiceDetails_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

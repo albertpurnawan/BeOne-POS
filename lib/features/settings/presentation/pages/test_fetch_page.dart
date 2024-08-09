@@ -162,7 +162,7 @@ class _FetchScreenState extends State<FetchScreen> {
   String errorMessage = '';
   double syncProgress = 0.0;
   int totalData = 0;
-  int totalTable = 60;
+  int totalTable = 61;
 
   @override
   void initState() {
@@ -1499,6 +1499,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData("2000-01-01 00:00:00");
+                topsb.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.bulkCreate(data: topsb);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -1663,6 +1664,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                topmi.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.bulkCreate(data: topmi);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -1868,6 +1870,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                topdi.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.bulkCreate(data: topdi);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -2073,6 +2076,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                topdg.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.bulkCreate(data: topdg);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -2279,6 +2283,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData("2000-01-01 00:00:00");
+                toprb.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.bulkCreate(data: toprb);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -2721,8 +2726,6 @@ class _FetchScreenState extends State<FetchScreen> {
         final promos = <PromotionsModel>[];
         final today = DateTime.now().weekday;
 
-        await GetIt.instance<AppDatabase>().promosDao.deletePromos();
-
         topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
         for (final header in topsb) {
           if (header.statusActive != 1) continue;
@@ -2939,12 +2942,10 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
-        final stopwatch = Stopwatch()..start();
+        await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
         await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
         log("PROMOS INSERTED");
-        stopwatch.stop();
-        print('Function Execution Time : ${stopwatch.elapsed}');
         // END OF REFRESH TOPRM
 
         totalData = tcurr.length +
@@ -3062,6 +3063,9 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
         // End Check Failed Invoices and Try to Send TCSR1
+        setState(() {
+          syncProgress += 1 / totalTable;
+        });
 
         prefs.setBool('isSyncing', false);
         log('Data synced');

@@ -41,7 +41,7 @@ class InvoiceAppliedPromoDao extends BaseDao<InvoiceAppliedPromoModel> {
       where: 'toinvdocid = ? AND tinv1docid = ?',
       whereArgs: [toinvId, tinv1Id],
     );
-
+    log("result 1 - $result");
     return result.map((itemData) => InvoiceAppliedPromoModel.fromMap(itemData)).toList();
   }
 
@@ -52,7 +52,7 @@ class InvoiceAppliedPromoDao extends BaseDao<InvoiceAppliedPromoModel> {
       where: 'toinvdocid = ? AND promotiontype = \'999\'',
       whereArgs: [toinvId],
     );
-    log("RESULT - $result");
+    log("RESULT 2 - $result");
     return result.map((itemData) => InvoiceAppliedPromoModel.fromMap(itemData)).toList();
   }
 

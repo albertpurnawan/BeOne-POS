@@ -747,7 +747,7 @@ class _EDCDialogState extends State<EDCDialog> {
                         widget.onEDCSelected(mopEDC);
                         (widget.isMultiMOPs)
                             ? (currentAmount! > 0)
-                                ? SnackBarHelper.presentSuccessSnackBar(childContext, "Success Add Card")
+                                ? SnackBarHelper.presentSuccessSnackBar(childContext, "Success Add Card", 3)
                                 : Navigator.of(childContext).pop()
                             : Navigator.of(childContext).pop();
                       },

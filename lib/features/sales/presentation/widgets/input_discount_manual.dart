@@ -66,7 +66,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                 context
                     .read<ReceiptCubit>()
                     .updateTotalAmountFromDiscount(0)
-                    .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success"));
+                    .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3));
                 return KeyEventResult.handled;
               }
 
@@ -119,7 +119,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> {
                       onPressed: () async {
                         await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0);
                         if (context.mounted) {
-                          SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success");
+                          SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3);
                         }
                       },
                       child: Row(

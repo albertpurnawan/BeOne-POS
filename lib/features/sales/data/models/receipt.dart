@@ -30,6 +30,7 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.toinvTohemId,
     super.salesTohemId,
     super.approvals,
+    super.remarks,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {

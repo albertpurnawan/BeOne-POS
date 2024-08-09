@@ -125,7 +125,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
           if (context.mounted) {
             Navigator.pop(context);
             log("Database restored from $restoredPath");
-            SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
+            SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!", 3);
           }
         } catch (e) {
           // If copy unsuccessful, attempt to restore original state

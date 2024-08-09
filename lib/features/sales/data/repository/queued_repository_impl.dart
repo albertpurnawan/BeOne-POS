@@ -41,7 +41,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         tohemId: null, // get di sini atau dari awal aja
         transDateTime: null, // dao
         timezone: "GMT+07",
-        remarks: null, // sementara hardcode
+        remarks: receiptEntity.remarks,
         subTotal: receiptEntity.subtotal,
         discPrctg: 0,
         discAmount: 0,
@@ -67,6 +67,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
         syncToBos: '', // get di sini
         paymentSuccess: '0', // get di sini
+        salesTohemId: receiptEntity.salesTohemId,
       );
 
       await _appDatabase.queuedInvoiceHeaderDao.create(data: queuedInvoiceHeaderModel, txn: txn);
@@ -92,7 +93,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           taxPrctg: e.itemEntity.taxRate,
           promotionType: "",
           promotionId: "",
-          remarks: null,
+          remarks: e.remarks,
           editTime: DateTime.now(), // ?
           cogs: 0,
           tovatId: e.itemEntity.tovatId, // get disini/dari sales page
@@ -104,6 +105,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           tovenId: e.itemEntity.tovenId, // belum ada
           tbitmId: e.itemEntity.tbitmId,
           discHeaderAmount: e.discHeaderAmount ?? 0, // need to check
+          tohemId: e.tohemId ?? receiptEntity.salesTohemId,
           // subtotalAfterDiscHeader: 0, // need to check
         );
       }).toList();
@@ -208,6 +210,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
     await db.transaction((txn) async {
       final List<QueuedInvoiceHeaderModel> queuedInvoiceHeaderModels =
           await _appDatabase.queuedInvoiceHeaderDao.readAll(txn: txn);
+
       for (final queuedInvoiceHeaderModel in queuedInvoiceHeaderModels) {
         final CustomerModel? customerModel = queuedInvoiceHeaderModel.tocusId != null
             ? await _appDatabase.customerDao.readByDocId(queuedInvoiceHeaderModel.tocusId!, txn)
@@ -260,6 +263,8 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             totalAmount: queuedInvoiceDetailModel.totalAmount,
             totalSellBarcode: queuedInvoiceDetailModel.sellingPrice * queuedInvoiceDetailModel.quantity,
             promos: [],
+            tohemId: queuedInvoiceDetailModel.tohemId,
+            remarks: queuedInvoiceDetailModel.remarks,
           ));
         }
         queuedReceiptModels.add(ReceiptModel(
@@ -282,6 +287,8 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           totalNonVoucher: 0, // diambil service vouchers
           promos: [], // diambil service promos
           queuedInvoiceHeaderDocId: queuedInvoiceHeaderModel.docId,
+          salesTohemId: queuedInvoiceHeaderModel.salesTohemId,
+          remarks: queuedInvoiceHeaderModel.remarks,
         ));
       }
     });

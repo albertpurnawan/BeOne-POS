@@ -14,7 +14,7 @@ class FiltereReportScreen extends StatefulWidget {
 
 class _FiltereReportScreenState extends State<FiltereReportScreen> {
   final List<String> filterOptions = ["Invoice", "MOP", "Item"];
-  String? selectedFilter;
+  String? selectedFilter = "Invoice";
 
   DateTime? selectedFromDate;
   DateTime? selectedToDate;
@@ -66,7 +66,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
         if (isFromDate) {
           selectedFromDate = picked;
         } else {
-          selectedToDate = picked;
+          selectedToDate = DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
         }
       });
     }

@@ -471,8 +471,9 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                               final inputText = openValueController.text.replaceAll(',', '');
                               final double inputValue = double.tryParse(inputText) ?? 0.0;
 
-                              final store = await GetIt.instance<AppDatabase>().storeMasterDao.readAll();
-                              final storeCode = store[0].storeCode;
+                              final store =
+                                  await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(widget.tostrId!, null);
+                              final storeCode = store!.storeCode;
                               final date = DateTime.now();
 
                               String formattedDate = DateFormat('yyMMddHHmmss').format(date);

@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer' as dev;
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -535,6 +536,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     if (state.queuedInvoiceHeaderDocId != null) {
       await GetIt.instance<AppDatabase>().queuedInvoiceHeaderDao.deleteByDocId(state.queuedInvoiceHeaderDocId!, null);
     }
+    log("queueReceiptCubit - $state");
     await _queueReceiptUseCase.call(params: state.previousReceiptEntity ?? state);
     resetReceipt();
   }
@@ -552,9 +554,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           onOpenPriceInputted: () => receiptItem.itemEntity.price));
     }
 
+    dev.log("Retrievefromqueue $state");
+
     emit(state
-      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
-      ..customerEntity = receiptEntity.customerEntity);
+          ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
+          ..customerEntity = receiptEntity.customerEntity
+          ..salesTohemId = receiptEntity.salesTohemId
+          ..remarks = receiptEntity.remarks
+        // ..receiptItems = receiptEntity.receiptItems
+        );
   }
 
   Future<void> updateTotalAmountFromDiscount(double discValue) async {
