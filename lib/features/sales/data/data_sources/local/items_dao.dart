@@ -85,41 +85,6 @@ class ItemsDao extends BaseDao<ItemModel> {
       final String shortNameQuery =
           notNullSearchKeyword.split('%').map((e) => "${ItemFields.shortName} LIKE '%${e}%'").join(" AND ");
 
-      log(itemNameQuery);
-//       await db.rawQuery("DROP TABLE IF EXISTS ftsitems;");
-
-//       await db.rawQuery("""
-// CREATE VIRTUAL TABLE ftsitems USING fts5(itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname, toplnId, tokenize="trigram");
-// """);
-
-//       await db.rawQuery("""
-// INSERT INTO ftsitems SELECT itemname,
-//   	itemcode,
-//   	barcode,
-//   	price,
-//   	toitmId,
-//   	tbitmId,
-//   	tpln2Id,
-//   	openprice,
-//   	tovenId,
-//   	includetax,
-//   	tovatId,
-//   	taxrate,
-// 	  dpp,
-//   	tocatId,
-//   	shortname,
-//   	toplnId FROM items
-//   WHERE
-//     ${ItemFields.toplnId} = '$pricelistId';
-// """);
-
-//       result = await db.rawQuery("""
-// SELECT * FROM ftsitems
-// WHERE ftsitems MATCH(itemname: '$itemNameQuery', itemcode: '$itemNameQuery', shortname: '$itemNameQuery', itemcode: '$itemNameQuery')
-// ORDER BY ${ItemFields.itemName}
-// LIMIT 300;
-// """);
-
       result = await db.query(
         tableName,
         where: """(($itemNameQuery)
@@ -131,16 +96,8 @@ AND ${ItemFields.toplnId} = ?""",
         whereArgs: [pricelistId],
         limit: 300,
       );
-      log("""(($itemNameQuery)
-OR ($barcodeQuery)
-OR ($itemCodeQuery)
-OR ($shortNameQuery))
-AND ${ItemFields.toplnId} = $pricelistId""");
-
-      // await db.rawQuery("DROP TABLE ftsitems;");
     }
 
-    // log(result[0].toString());
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 

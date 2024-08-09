@@ -5,30 +5,30 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/src/enums.dart';
 
-class PaperSizeSettings extends StatefulWidget {
-  const PaperSizeSettings({super.key});
+class CharactersPerLineSettings extends StatefulWidget {
+  const CharactersPerLineSettings({super.key});
 
   @override
-  State<PaperSizeSettings> createState() => _PaperSizeSettingsState();
+  State<CharactersPerLineSettings> createState() => _CharachtersPerLineSettingsState();
 }
 
-class _PaperSizeSettingsState extends State<PaperSizeSettings> {
-  PaperSize? radioValue;
+class _CharachtersPerLineSettingsState extends State<CharactersPerLineSettings> {
+  int? radioValue;
 
   @override
   void initState() {
     super.initState();
-    final String? prefPaperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
-    radioValue = prefPaperSize == null || prefPaperSize == "80 mm" ? PaperSize.mm80 : PaperSize.mm58;
+    final int? charactersPerLine = GetIt.instance<SharedPreferences>().getInt("charactersPerLine");
+    radioValue = charactersPerLine == null || charactersPerLine == 42 ? 42 : 48;
   }
 
-  void _setPaperSize() {
+  void _setCharactersPerLine() {
     final SharedPreferences pref = GetIt.instance<SharedPreferences>();
 
     if (radioValue == null) {
       return;
     } else {
-      pref.setString("paperSize", radioValue == PaperSize.mm80 ? "80 mm" : "58 mm");
+      pref.setInt("charactersPerLine", radioValue == 42 ? 42 : 48);
     }
   }
 
@@ -37,7 +37,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       appBar: AppBar(
-        title: const Text('Paper Size'),
+        title: const Text('Characters Per Line'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -49,33 +49,10 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
           ),
           child: Column(
             children: [
-              // const Divider(
-              //   height: 0,
-              // ),
-              // RadioListTile<PaperSize>(
-              //     activeColor: ProjectColors.primary,
-              //     hoverColor: ProjectColors.primary,
-              //     // selected: index == radioValue,
-              //     selectedTileColor: ProjectColors.primary,
-              //     contentPadding: const EdgeInsets.symmetric(
-              //       horizontal: 15,
-              //     ),
-              //     controlAffinity: ListTileControlAffinity.trailing,
-              //     value: PaperSize.mm58,
-              //     groupValue: radioValue,
-              //     title: const Text("58 mm"),
-              //     // shape: RoundedRectangleBorder(
-              //     //     borderRadius:
-              //     //         BorderRadius.circular(5)),
-              //     onChanged: (val) {
-              //       setState(() {
-              //         radioValue = val;
-              //       });
-              //     }),
               const Divider(
                 height: 0,
               ),
-              RadioListTile<PaperSize>(
+              RadioListTile<int>(
                   activeColor: ProjectColors.primary,
                   hoverColor: ProjectColors.primary,
                   // selected: index == radioValue,
@@ -84,9 +61,32 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
                     horizontal: 15,
                   ),
                   controlAffinity: ListTileControlAffinity.trailing,
-                  value: PaperSize.mm80,
+                  value: 42,
                   groupValue: radioValue,
-                  title: const Text("80 mm"),
+                  title: const Text("42"),
+                  // shape: RoundedRectangleBorder(
+                  //     borderRadius:
+                  //         BorderRadius.circular(5)),
+                  onChanged: (val) {
+                    setState(() {
+                      radioValue = val;
+                    });
+                  }),
+              const Divider(
+                height: 0,
+              ),
+              RadioListTile<int>(
+                  activeColor: ProjectColors.primary,
+                  hoverColor: ProjectColors.primary,
+                  // selected: index == radioValue,
+                  selectedTileColor: ProjectColors.primary,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                  ),
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  value: 48,
+                  groupValue: radioValue,
+                  title: const Text("48"),
                   // shape: RoundedRectangleBorder(
                   //     borderRadius:
                   //         BorderRadius.circular(5)),
@@ -117,7 +117,7 @@ class _PaperSizeSettingsState extends State<PaperSizeSettings> {
                   onPressed: radioValue == null
                       ? null
                       : () {
-                          _setPaperSize();
+                          _setCharactersPerLine();
                           Navigator.pop(context);
                         },
                   child: const Text("Set", textAlign: TextAlign.center),

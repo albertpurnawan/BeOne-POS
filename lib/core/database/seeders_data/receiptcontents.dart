@@ -9,7 +9,7 @@ const receiptcontents = [
   {
     "row": 1,
     "content": "storeName",
-    "fontsize": 2,
+    "fontsize": 1,
     "isbold": 1,
     "alignment": 1,
   },

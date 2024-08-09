@@ -2939,8 +2939,12 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        final stopwatch = Stopwatch()..start();
+
         await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
         log("PROMOS INSERTED");
+        stopwatch.stop();
+        print('Function Execution Time : ${stopwatch.elapsed}');
         // END OF REFRESH TOPRM
 
         totalData = tcurr.length +

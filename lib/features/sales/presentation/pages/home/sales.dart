@@ -556,8 +556,8 @@ class _SalesPageState extends State<SalesPage> {
                                                 ? const SizedBox.shrink()
                                                 : Text(
                                                     (e.itemEntity.includeTax == 1)
-                                                        ? "- ${Helpers.parseMoney((((promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
-                                                        : "- ${Helpers.parseMoney(((promo.discAmount!).round()))}",
+                                                        ? "${Helpers.parseMoney(((-1 * (promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
+                                                        : "${Helpers.parseMoney(((promo.discAmount! * -1).round()))}",
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       fontStyle: FontStyle.italic,

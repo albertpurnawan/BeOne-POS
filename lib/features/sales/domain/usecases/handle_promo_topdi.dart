@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
@@ -30,7 +32,6 @@ class HandlePromoTopdiUseCase implements UseCase<ReceiptEntity, HandlePromosUseC
       final bool isApplicable = await _checkPromoTopdiApplicabilityUseCase.call(
           params: CheckPromoTopdiApplicabilityUseCaseParams(
               topdiHeaderAndDetail: topdiHeaderAndDetail, handlePromosUseCaseParams: params));
-      // log(isApplicable.toString());
       if (!isApplicable) return params.receiptEntity;
 
       // Apply promo (pctg and amount)
