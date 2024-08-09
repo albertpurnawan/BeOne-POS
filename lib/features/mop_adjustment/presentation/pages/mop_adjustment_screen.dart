@@ -80,6 +80,16 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     return shifts;
   }
 
+  Future<void> resetState() async {
+    setState(() {
+      selectedMOP1 = "";
+      selectedMOP2 = "";
+      _amountController.text = "";
+      _remarksController.text = "";
+    });
+    generateTmpadDocNum();
+  }
+
   Future<UserModel> _getUser(String tousrId) async {
     final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(tousrId, null);
     return user!;
@@ -906,7 +916,10 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
           child: const Center(
               child: Text(
             "Cancel",
-            style: TextStyle(color: ProjectColors.primary),
+            style: TextStyle(
+              color: ProjectColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
           )),
         )),
         const SizedBox(width: 10),
@@ -927,6 +940,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                   setState(() {
                     _autoValidate = true;
                   });
+                  FocusScope.of(context).unfocus();
                   if (_formKey.currentState!.validate()) {
                     final tmpadDocId = const Uuid().v4();
                     final MOPAdjustmentHeaderModel tmpad = MOPAdjustmentHeaderModel(
@@ -989,13 +1003,17 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
 
                     await GetIt.instance<MOPAdjustmentService>().sendMOPAdjustment(tmpad, [mpad1From, mpad1To]);
 
-                    Navigator.pop(context);
+                    SnackBarHelper.presentSuccessSnackBar(context, "Success Adjust MOP - $mopDocNum", 5);
+                    await resetState();
                   }
                 },
           child: const Center(
               child: Text(
             "Adjust",
-            style: TextStyle(color: Color.fromARGB(255, 234, 234, 234)),
+            style: TextStyle(
+              color: Color.fromARGB(255, 234, 234, 234),
+              fontWeight: FontWeight.bold,
+            ),
           )),
         )),
       ],

@@ -12,5 +12,6 @@ class ReceiptItemModel extends ReceiptItemEntity {
     required super.promos,
     super.discAmount,
     super.tohemId,
+    super.remarks,
   });
 }

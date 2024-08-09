@@ -3,57 +3,22 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/database/permission_handler.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
-import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/settings/domain/usecases/decrypt.dart';
 import 'package:sqflite/sqflite.dart';
 
-class BackupDatabaseParams {
-  final BuildContext context;
-
-  BackupDatabaseParams({required this.context});
-}
-
-class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
+class AutoBackupUseCase implements UseCase<void, void> {
   final _databaseName = "pos_fe.db";
   final decryptPasswordUseCase = GetIt.instance<DecryptPasswordUseCase>();
 
   @override
-  Future<void> call({BackupDatabaseParams? params}) async {
-    final context = params!.context;
+  Future<void> call({void params}) async {
     try {
-      if (Platform.isAndroid) {
-        final permissionStatus = await Permission.manageExternalStorage.status;
-        final storageStatus = await Permission.storage.status;
-
-        if (!permissionStatus.isGranted && !storageStatus.isGranted) {
-          if (context.mounted) await PermissionHandler.requestStoragePermissions(context);
-          final updatedStatus = await Permission.manageExternalStorage.status;
-          if (!updatedStatus.isGranted) {
-            log("Permission still not granted. Cannot proceed with backup.");
-            return;
-          }
-        }
-      }
-
-      if (context.mounted) {
-        log("Showing progress dialog");
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) => const Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }
-
+      log("RUN AutoBackup");
       final dbPath = await getDatabasesPath();
       final path = p.join(dbPath, _databaseName);
 
@@ -111,21 +76,10 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
       await zipFile.writeAsBytes(bytes!);
 
       log("Database backed up to $zipPath");
-
-      if (context.mounted) {
-        SnackBarHelper.presentSuccessSnackBar(context, "Database backed up at ${backupFolder.path}", 3);
-      }
     } catch (e) {
       log("Error backing up database: $e");
-      if (context.mounted) {
-        SnackBarHelper.presentErrorSnackBar(context, "Error backing up database: $e");
-      }
+
       rethrow;
-    } finally {
-      if (context.mounted) {
-        log("Closing progress dialog");
-        Navigator.of(context, rootNavigator: true).pop();
-      }
     }
   }
 }

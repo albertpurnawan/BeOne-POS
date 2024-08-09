@@ -1,19 +1,30 @@
+import 'dart:developer';
+
 import 'package:cron/cron.dart';
 import 'package:pos_fe/core/constants/constants.dart';
+import 'package:pos_fe/core/usecases/auto_backup_usecase.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/settings/domain/usecases/sync_data.dart';
 
-Future<void> syncWithBOS() async {
-  final cron = Cron();
-  String cronSyntax = "${Constant.minute} ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}";
+final cron = Cron();
 
-  try {
-    cron.schedule(Schedule.parse(cronSyntax), () async {
+Future<void> configureBackgroundTasks() async {
+  final syncSchedule = "${Constant.minute} ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}";
+  cron.schedule(Schedule.parse(syncSchedule), () async {
+    try {
       await syncData();
-      // log("Sync Via CRON Success");
-    });
-  } catch (err) {
-    handleError(err);
-    rethrow;
-  }
+      log("Sync Via CRON Success");
+    } catch (e) {
+      handleError(e);
+    }
+  });
+
+  final autoBackupSchedule = "*/10 ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}";
+  cron.schedule(Schedule.parse(autoBackupSchedule), () async {
+    try {
+      await AutoBackupUseCase().call();
+    } catch (e) {
+      handleError(e);
+    }
+  });
 }

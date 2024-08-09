@@ -44,6 +44,7 @@ class QueuedInvoiceHeaderFields {
     discHeaderManual,
     discHeaderPromo,
     syncToBos,
+    salesTohemId,
     // paymentSuccess,
   ];
 
@@ -83,11 +84,11 @@ class QueuedInvoiceHeaderFields {
   static const String discHeaderManual = "discheadermanual";
   static const String discHeaderPromo = "discheaderpromo";
   static const String syncToBos = "synctobos";
+  static const String salesTohemId = "salesTohemId";
   // static const String paymentSuccess = "paymentsuccess";
 }
 
-class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
-    implements BaseModel {
+class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel {
   QueuedInvoiceHeaderModel({
     required super.docId,
     required super.createDate,
@@ -125,6 +126,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
     required super.discHeaderPromo,
     required super.syncToBos,
     required super.paymentSuccess,
+    required super.salesTohemId,
   });
 
   @override
@@ -162,6 +164,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       'discheadermanual': discHeaderManual,
       'discheaderpromo': discHeaderPromo,
       'synctobos': '',
+      'salesTohemId': salesTohemId,
       // 'paymentsuccess': '0',
     };
     if (transDateTime == null) {
@@ -177,54 +180,46 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
 
   factory QueuedInvoiceHeaderModel.fromMap(Map<String, dynamic> map) {
     return QueuedInvoiceHeaderModel(
-        docId: map['docid'] as String,
-        createDate: map['createdate'] != null
-            ? DateTime.parse(map['createdate'] as String).toLocal()
-            : null,
-        updateDate: map['updatedate'] != null
-            ? DateTime.parse(map['updatedate'] as String).toLocal()
-            : null,
-        tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
-        docnum: map['docnum'] as String,
-        orderNo: map['orderno'] as int,
-        tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
-        tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
-        transDateTime: map['transdate'] != null && map['transtime'] != null
-            ? DateTime.parse("${map['transdate']} ${map['transtime']}Z")
-                .toLocal()
-            : null,
-        timezone: map['timezone'] as String,
-        remarks: map['remarks'] != null ? map['remarks'] as String : null,
-        subTotal: map['subtotal'] as double,
-        discPrctg: map['discprctg'] as double,
-        discAmount: map['discamount'] as double,
-        discountCard: map['discountcard'] as double,
-        coupon: map['coupon'] as String,
-        discountCoupun: map['discountcoupun'] as double,
-        taxPrctg: map['taxprctg'] as double,
-        taxAmount: map['taxamount'] as double,
-        addCost: map['addcost'] as double,
-        rounding: map['rounding'] as double,
-        grandTotal: map['grandtotal'] as double,
-        changed: map['changed'] as double,
-        totalPayment: map['totalpayment'] as double,
-        tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
-        docStatus: map['docstatus'] as int,
-        sync: map['sync'] as int,
-        syncCRM: map['synccrm'] as int,
-        toinvTohemId:
-            map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
-        refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
-        refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
-        tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
-        discHeaderManual: map['discheadermanual'] != null
-            ? map['discheadermanual'] as double
-            : null,
-        discHeaderPromo: map['discheaderpromo'] != null
-            ? map['discheaderpromo'] as double
-            : null,
-        syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
-        paymentSuccess: "0");
+      docId: map['docid'] as String,
+      createDate: map['createdate'] != null ? DateTime.parse(map['createdate'] as String).toLocal() : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
+      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+      docnum: map['docnum'] as String,
+      orderNo: map['orderno'] as int,
+      tocusId: map['tocusId'] != null ? map['tocusId'] as String : null,
+      tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
+      transDateTime: map['transdate'] != null && map['transtime'] != null
+          ? DateTime.parse("${map['transdate']} ${map['transtime']}Z").toLocal()
+          : null,
+      timezone: map['timezone'] as String,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
+      subTotal: map['subtotal'] as double,
+      discPrctg: map['discprctg'] as double,
+      discAmount: map['discamount'] as double,
+      discountCard: map['discountcard'] as double,
+      coupon: map['coupon'] as String,
+      discountCoupun: map['discountcoupun'] as double,
+      taxPrctg: map['taxprctg'] as double,
+      taxAmount: map['taxamount'] as double,
+      addCost: map['addcost'] as double,
+      rounding: map['rounding'] as double,
+      grandTotal: map['grandtotal'] as double,
+      changed: map['changed'] as double,
+      totalPayment: map['totalpayment'] as double,
+      tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
+      docStatus: map['docstatus'] as int,
+      sync: map['sync'] as int,
+      syncCRM: map['synccrm'] as int,
+      toinvTohemId: map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      refpos1: map['refpos1'] != null ? map['refpos1'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      tcsr1Id: map['tcsr1Id'] != null ? map['tcsr1Id'] as String : null,
+      discHeaderManual: map['discheadermanual'] != null ? map['discheadermanual'] as double : null,
+      discHeaderPromo: map['discheaderpromo'] != null ? map['discheaderpromo'] as double : null,
+      syncToBos: map['synctobos'] != null ? map['synctobos'] as String : null,
+      paymentSuccess: "0",
+      salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
+    );
   }
 
   factory QueuedInvoiceHeaderModel.fromMapRemote(Map<String, dynamic> map) {
@@ -298,6 +293,7 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity
       discHeaderPromo: entity.discHeaderPromo,
       syncToBos: entity.syncToBos,
       paymentSuccess: entity.paymentSuccess,
+      salesTohemId: entity.salesTohemId,
     );
   }
 }

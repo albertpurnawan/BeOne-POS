@@ -37,7 +37,7 @@ class _QRISExpiredDialogState extends State<QRISExpiredDialog> {
             child: Column(
               children: [
                 const Text(
-                  "QRIS HAS EXPIRED}",
+                  "QRIS HAS EXPIRED",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,

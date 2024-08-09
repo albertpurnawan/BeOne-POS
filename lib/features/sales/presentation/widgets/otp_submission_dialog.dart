@@ -85,7 +85,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
         parentContext.pop(true); // Close the input otp dialog
         parentContext.pop(true); // Close the input otp dialog
 
-        SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success");
+        SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
         await updateReceiptApprovals(childContext, response['approver']!);
       }
     } else {

@@ -33,6 +33,7 @@ class QueuedInvoiceDetailFields {
     tovenId,
     tbitmId,
     discHeaderAmount,
+    tohemId,
     // subtotalAfterDiscHeader,
     //maybe need more to send to bos
   ];
@@ -65,11 +66,11 @@ class QueuedInvoiceDetailFields {
   static const String tovenId = "tovenId";
   static const String tbitmId = "tbitmId";
   static const String discHeaderAmount = "discheaderamount";
+  static const String tohemId = "tohemId";
   // static const String subtotalAfterDiscHeader = "subtotalafterdischeader";
 }
 
-class QueuedInvoiceDetailModel extends InvoiceDetailEntity
-    implements BaseModel {
+class QueuedInvoiceDetailModel extends InvoiceDetailEntity implements BaseModel {
   QueuedInvoiceDetailModel({
     required super.docId,
     required super.createDate,
@@ -99,6 +100,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
     required super.tovenId,
     required super.tbitmId,
     required super.discHeaderAmount,
+    required super.tohemId,
     // required super.subtotalAfterDiscHeader,
   });
 
@@ -133,6 +135,8 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       'tovenId': tovenId,
       'tbitmId': tbitmId,
       'discheaderamount': discHeaderAmount,
+      'tohemId': tohemId,
+
       // 'subtotalafterdischeader': subtotalAfterDiscHeader,
     };
   }
@@ -140,12 +144,8 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
   factory QueuedInvoiceDetailModel.fromMap(Map<String, dynamic> map) {
     return QueuedInvoiceDetailModel(
       docId: map['docid'] as String,
-      createDate: map['createdate'] != null
-          ? DateTime.parse(map['createdate'] as String).toLocal()
-          : null,
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      createDate: map['createdate'] != null ? DateTime.parse(map['createdate'] as String).toLocal() : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
       lineNum: map['linenum'] as int,
       docNum: map['docnum'] as String,
@@ -163,21 +163,15 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       editTime: DateTime.parse(map['edittime'] as String).toLocal(),
       cogs: map['cogs'] as double,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      promotionTingkat: map['promotiontingkat'] != null
-          ? map['promotiontingkat'] as String
-          : null,
-      promoVoucherNo: map['promovoucherno'] != null
-          ? map['promovoucherno'] as String
-          : null,
+      promotionTingkat: map['promotiontingkat'] != null ? map['promotiontingkat'] as String : null,
+      promoVoucherNo: map['promovoucherno'] != null ? map['promovoucherno'] as String : null,
       baseDocId: map['basedocid'] != null ? map['basedocid'] as String : null,
-      baseLineDocId:
-          map['baselinedocid'] != null ? map['baselinedocid'] as String : null,
+      baseLineDocId: map['baselinedocid'] != null ? map['baselinedocid'] as String : null,
       includeTax: map['includetax'] as int,
       tovenId: map['tovenId'] != null ? map['tovenId'] as String : null,
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
-      discHeaderAmount: map['discheaderamount'] != null
-          ? map['discheaderamount'] as double
-          : null,
+      discHeaderAmount: map['discheaderamount'] != null ? map['discheaderamount'] as double : null,
+      tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       // subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
       //     ? map['subtotalafterdischeader'] as double
       //     : null,
@@ -187,21 +181,11 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
   factory QueuedInvoiceDetailModel.fromMapRemote(Map<String, dynamic> map) {
     return QueuedInvoiceDetailModel.fromMap({
       ...map,
-      "toinvId": map['toinv_id']?['docid'] != null
-          ? map['toinv_id']['docid'] as String
-          : null,
-      "toitmId": map['toitm_id']?['docid'] != null
-          ? map['toitm_id']['docid'] as String
-          : null,
-      "tovatId": map['tovat_id']?['docid'] != null
-          ? map['tovat_id']['docid'] as String
-          : null,
-      "tovenId": map['toven_id']?['docid'] != null
-          ? map['toven_id']['docid'] as String
-          : null,
-      "tbitmId": map['tbitm_id']?['docid'] != null
-          ? map['tbitm_id']['docid'] as String
-          : null,
+      "toinvId": map['toinv_id']?['docid'] != null ? map['toinv_id']['docid'] as String : null,
+      "toitmId": map['toitm_id']?['docid'] != null ? map['toitm_id']['docid'] as String : null,
+      "tovatId": map['tovat_id']?['docid'] != null ? map['tovat_id']['docid'] as String : null,
+      "tovenId": map['toven_id']?['docid'] != null ? map['toven_id']['docid'] as String : null,
+      "tbitmId": map['tbitm_id']?['docid'] != null ? map['tbitm_id']['docid'] as String : null,
       "quantity": map['quantity'].toDouble() as double,
       "sellingprice": map['sellingprice'].toDouble() as double,
       "discprctg": map['discprctg'].toDouble() as double,
@@ -242,6 +226,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity
       tovenId: entity.tovenId,
       tbitmId: entity.baseDocId,
       discHeaderAmount: entity.discHeaderAmount,
+      tohemId: entity.tohemId,
       // subtotalAfterDiscHeader: entity.subtotalAfterDiscHeader,
     );
   }

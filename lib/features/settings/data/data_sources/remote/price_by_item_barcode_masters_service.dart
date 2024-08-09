@@ -24,8 +24,7 @@ class PriceByItemBarcodeApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
@@ -61,9 +60,8 @@ class PriceByItemBarcodeApi {
         log("--- Price By Item Barcode ---");
         log(resp.data['data'][0].toString());
 
-        List<PriceByItemBarcodeModel> data = (resp.data['data'] as List)
-            .map((e) => PriceByItemBarcodeModel.fromMapRemote(e))
-            .toList();
+        List<PriceByItemBarcodeModel> data =
+            (resp.data['data'] as List).map((e) => PriceByItemBarcodeModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 
@@ -87,8 +85,7 @@ class PriceByItemBarcodeApi {
       // log(response.data.toString());
       if (response.data == null) throw Exception('Null Data');
 
-      PriceByItemBarcodeModel datum =
-          PriceByItemBarcodeModel.fromMap(response.data);
+      PriceByItemBarcodeModel datum = PriceByItemBarcodeModel.fromMap(response.data);
 
       // log(datum.toString());
       return datum;

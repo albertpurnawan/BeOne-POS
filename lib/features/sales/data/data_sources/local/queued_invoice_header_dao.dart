@@ -11,8 +11,7 @@ class QueuedInvoiceHeaderDao extends BaseDao<QueuedInvoiceHeaderModel> {
         );
 
   @override
-  Future<QueuedInvoiceHeaderModel?> readByDocId(
-      String docId, Transaction? txn) async {
+  Future<QueuedInvoiceHeaderModel?> readByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -29,19 +28,15 @@ class QueuedInvoiceHeaderDao extends BaseDao<QueuedInvoiceHeaderModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => QueuedInvoiceHeaderModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => QueuedInvoiceHeaderModel.fromMap(itemData)).toList();
   }
 
   @override
-  Future<QueuedInvoiceHeaderModel?> create(
-      {required QueuedInvoiceHeaderModel data, Transaction? txn}) async {
+  Future<QueuedInvoiceHeaderModel?> create({required QueuedInvoiceHeaderModel data, Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.insert(tableName, data.toMap());
     final List<Map<String, Object?>> createdData =
         await dbExecutor.query(tableName, where: "rowid = ?", whereArgs: [res]);
-
     if (createdData.isNotEmpty) {
       return QueuedInvoiceHeaderModel.fromMap(createdData.first);
     } else {
@@ -56,9 +51,7 @@ class QueuedInvoiceHeaderDao extends BaseDao<QueuedInvoiceHeaderModel> {
       limit: 1,
     );
 
-    return res
-        .map((itemData) => QueuedInvoiceHeaderModel.fromMap(itemData))
-        .toList();
+    return res.map((itemData) => QueuedInvoiceHeaderModel.fromMap(itemData)).toList();
   }
 
   Future<void> deleteByDocId(String docId, Transaction? txn) async {

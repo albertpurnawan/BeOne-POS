@@ -14,7 +14,7 @@ class FiltereReportScreen extends StatefulWidget {
 
 class _FiltereReportScreenState extends State<FiltereReportScreen> {
   final List<String> filterOptions = ["Invoice", "MOP", "Item"];
-  String? selectedFilter;
+  String? selectedFilter = "Invoice";
 
   DateTime? selectedFromDate;
   DateTime? selectedToDate;
@@ -42,13 +42,31 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
       initialDate: isFromDate ? selectedFromDate ?? DateTime.now() : selectedToDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: ProjectColors.lightBlack,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: ProjectColors.lightBlack,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.black,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {
         if (isFromDate) {
           selectedFromDate = picked;
         } else {
-          selectedToDate = picked;
+          selectedToDate = DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
         }
       });
     }

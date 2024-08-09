@@ -24,8 +24,7 @@ class PriceByItemApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
       url = pos[0].baseUrl;
 
@@ -61,9 +60,8 @@ class PriceByItemApi {
         log("--- Price By Item ---");
         log(resp.data['data'][0].toString());
 
-        List<PriceByItemModel> data = (resp.data['data'] as List)
-            .map((e) => PriceByItemModel.fromMapRemote(e))
-            .toList();
+        List<PriceByItemModel> data =
+            (resp.data['data'] as List).map((e) => PriceByItemModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

@@ -725,6 +725,7 @@ class _EDCDialogState extends State<EDCDialog> {
                               : "${_cardNumber1Controller.text}-xxxx-xxxx-${_cardNumber2Controller.text}",
                           cardHolder: _cardHolderController.text,
                           rrn: _refNumberController.text,
+                          tpmt6Id: campaignSelected?.docId,
                         );
                         mopsSelected.add(mopEDC);
                         FocusScope.of(context).unfocus();
@@ -746,7 +747,7 @@ class _EDCDialogState extends State<EDCDialog> {
                         widget.onEDCSelected(mopEDC);
                         (widget.isMultiMOPs)
                             ? (currentAmount! > 0)
-                                ? SnackBarHelper.presentSuccessSnackBar(childContext, "Success Add Card")
+                                ? SnackBarHelper.presentSuccessSnackBar(childContext, "Success Add Card", 3)
                                 : Navigator.of(childContext).pop()
                             : Navigator.of(childContext).pop();
                       },

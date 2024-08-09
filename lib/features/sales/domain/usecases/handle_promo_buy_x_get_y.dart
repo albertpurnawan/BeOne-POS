@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/promotion_detail.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
@@ -117,6 +119,7 @@ class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBu
                 return e.copyWith(
                     discAmount: thisDiscAmount,
                     promotionDetails: ((e.promotionDetails as PromoBuyXGetYDetails)
+                      ..isY = true
                       ..applyCount += 1
                       ..quantity +=
                           conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply));
@@ -126,10 +129,12 @@ class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBu
             }).toList();
           }
 
+          log("finalPromos $finalPromos");
+
           receiptItemYs.add(
             ReceiptHelper.updateReceiptItemAggregateFields(existingReceiptItemY.first.copyWith(
               quantity: existingReceiptItemY.first.quantity +
-                  conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply,
+                  (conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity * conditionAndItemY.multiply),
               discAmount: discAmount,
               promos: finalPromos,
             )),
@@ -137,8 +142,43 @@ class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBu
         }
       }
 
+      List<ReceiptItemEntity> intersectionReceiptItemXs = existingReceiptItemXs
+          .where((element) => itemYBarcodes.contains(element.itemEntity.barcode))
+          .map((e) => e.copyWith())
+          .toList();
+      List<ReceiptItemEntity> exclusiveReceiptItemXs = existingReceiptItemXs
+          .where((element) => !itemYBarcodes.contains(element.itemEntity.barcode))
+          .map((e) => e.copyWith())
+          .toList();
+      List<ReceiptItemEntity> exclusiveReceiptItemYs = receiptItemYs
+          .where((element) => !itemXBarcodes.contains(element.itemEntity.barcode))
+          .map((e) => e.copyWith())
+          .toList();
+
+      List<ReceiptItemEntity> finalIntersections = [];
+      if (intersectionReceiptItemXs.isNotEmpty) {
+        final List<String> intersectionBarcodes = intersectionReceiptItemXs.map((e) => e.itemEntity.barcode).toList();
+        for (ReceiptItemEntity intersectionX in intersectionReceiptItemXs) {
+          final ReceiptItemEntity? intersectionY =
+              receiptItemYs.where((element) => intersectionBarcodes.contains(element.itemEntity.barcode)).firstOrNull;
+          if (intersectionY == null) throw "Issue in calculating Buy X Get Y Promotion";
+          log("intersectionY promos ${intersectionY.promos}");
+          finalIntersections.add(ReceiptHelper.updateReceiptItemAggregateFields(intersectionX.copyWith(
+            quantity: intersectionY.quantity,
+            discAmount: intersectionY.discAmount ?? 0,
+            promos: intersectionX.promos.where((element) => element.promoId == params.promo.promoId).toList() +
+                intersectionY.promos,
+          )));
+        }
+      }
+
       return params.receiptEntity.copyWith(
-        receiptItems: [...otherReceiptItems, ...existingReceiptItemXs, ...receiptItemYs],
+        receiptItems: [
+          ...otherReceiptItems,
+          ...exclusiveReceiptItemXs,
+          ...finalIntersections,
+          ...exclusiveReceiptItemYs
+        ],
         promos: params.receiptEntity.promos.map((e) => e.promoId).contains(params.promo.promoId)
             ? params.receiptEntity.promos.map((e) {
                 if (e.promoId == params.promo.promoId) {

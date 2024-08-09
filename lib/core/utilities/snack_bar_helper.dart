@@ -17,9 +17,7 @@ class SnackBarHelper {
           const SizedBox(
             width: 10,
           ),
-          Text(message,
-              style: const TextStyle(
-                  color: ProjectColors.primary, fontWeight: FontWeight.w700)),
+          Text(message, style: const TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700)),
         ],
       ),
       showCloseIcon: true,
@@ -34,8 +32,7 @@ class SnackBarHelper {
         MediaQuery.of(context).size.height - 100,
       ),
       shape: RoundedRectangleBorder(
-          side: const BorderSide(color: ProjectColors.primary, width: 1),
-          borderRadius: BorderRadius.circular(5)),
+          side: const BorderSide(color: ProjectColors.primary, width: 1), borderRadius: BorderRadius.circular(5)),
     ));
   }
 
@@ -54,9 +51,7 @@ class SnackBarHelper {
           const SizedBox(
             width: 10,
           ),
-          Text(message,
-              style: const TextStyle(
-                  color: ProjectColors.primary, fontWeight: FontWeight.w700)),
+          Text(message, style: const TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700)),
         ],
       ),
       showCloseIcon: true,
@@ -71,12 +66,11 @@ class SnackBarHelper {
         MediaQuery.of(context).size.height - 100,
       ),
       shape: RoundedRectangleBorder(
-          side: const BorderSide(color: ProjectColors.primary, width: 1),
-          borderRadius: BorderRadius.circular(5)),
+          side: const BorderSide(color: ProjectColors.primary, width: 1), borderRadius: BorderRadius.circular(5)),
     ));
   }
 
-  static void presentSuccessSnackBar(BuildContext? context, String message) {
+  static void presentSuccessSnackBar(BuildContext? context, String message, int? second) {
     if (context == null) return;
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -91,9 +85,7 @@ class SnackBarHelper {
           const SizedBox(
             width: 10,
           ),
-          Text(message,
-              style: const TextStyle(
-                  color: ProjectColors.green, fontWeight: FontWeight.w700)),
+          Text(message, style: const TextStyle(color: ProjectColors.green, fontWeight: FontWeight.w700)),
         ],
       ),
       showCloseIcon: true,
@@ -108,8 +100,8 @@ class SnackBarHelper {
         MediaQuery.of(context).size.height - 100,
       ),
       shape: RoundedRectangleBorder(
-          side: const BorderSide(color: ProjectColors.green, width: 1),
-          borderRadius: BorderRadius.circular(5)),
+          side: const BorderSide(color: ProjectColors.green, width: 1), borderRadius: BorderRadius.circular(5)),
+      duration: Duration(seconds: second ?? 3),
     ));
   }
 }

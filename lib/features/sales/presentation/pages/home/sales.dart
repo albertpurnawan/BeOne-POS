@@ -398,404 +398,391 @@ class _SalesPageState extends State<SalesPage> {
   // =================================================
 
   Widget _receiptItemsList() {
-    return Expanded(
-      flex: 16,
-      child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            // border: Border.all(
-            //     color: Color.fromRGBO(195, 53, 53, 1),
-            //     width: 4.0),
-            borderRadius: BorderRadius.circular(5),
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                spreadRadius: 0.5,
-                blurRadius: 5,
-                color: Color.fromRGBO(197, 197, 197, 1),
+    return BlocBuilder<ReceiptCubit, ReceiptEntity>(
+      builder: (context, state) {
+        return Expanded(
+          flex: 16,
+          child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                // border: Border.all(
+                //     color: Color.fromRGBO(195, 53, 53, 1),
+                //     width: 4.0),
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                    spreadRadius: 0.5,
+                    blurRadius: 5,
+                    color: Color.fromRGBO(197, 197, 197, 1),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                // padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                height: 50,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  // border: Border.all(
-                  //     color: Color.fromRGBO(195, 53, 53, 1),
-                  //     width: 4.0),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-                  color: Color.fromRGBO(128, 0, 0, 1),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                            height: 50,
-                            width: 120,
-                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 234, 234, 234),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(4),
-                                bottomRight: Radius.circular(45),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  spreadRadius: 0.5,
-                                  blurRadius: 10,
-                                  color: Color.fromRGBO(212, 212, 212, 0.211),
+              child: Column(
+                children: [
+                  Container(
+                    // padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                    height: 50,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      // border: Border.all(
+                      //     color: Color.fromRGBO(195, 53, 53, 1),
+                      //     width: 4.0),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
+                      color: Color.fromRGBO(128, 0, 0, 1),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                                height: 50,
+                                width: 120,
+                                padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
+                                decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 234, 234, 234),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(4),
+                                    bottomRight: Radius.circular(45),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      spreadRadius: 0.5,
+                                      blurRadius: 10,
+                                      color: Color.fromRGBO(212, 212, 212, 0.211),
+                                    ),
+                                  ],
+                                ),
+                                child: Image.asset(
+                                  "assets/logo/ruby_pos.png",
+                                  alignment: Alignment.centerLeft,
+                                )),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.receipt_outlined, color: Colors.white),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  context.read<ReceiptCubit>().state.docNum,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ],
                             ),
-                            child: Image.asset(
-                              "assets/logo/ruby_pos.png",
-                              alignment: Alignment.centerLeft,
-                            )),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.receipt_outlined, color: Colors.white),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              context.read<ReceiptCubit>().state.docNum,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        // decoration: BoxDecoration(
-                        //   color: Color.fromRGBO(71, 168, 0, 1),
-                        //   border: Border.all(
-                        //       color: Color.fromRGBO(0, 0, 0, 0.1), width: 3),
-                        //   borderRadius: BorderRadius.circular(5),
-                        //   // boxShadow: const [
-                        //   //   BoxShadow(
-                        //   //     spreadRadius: 0.5,
-                        //   //     blurRadius: 5,
-                        //   //     color: Color.fromRGBO(132, 0, 0, 0.608),
-                        //   //   ),
-                        //   // ],
-                        // ),
-                        padding: const EdgeInsets.only(right: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const Icon(Icons.stars, color: Colors.white),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              context.read<ReceiptCubit>().state.customerEntity != null
-                                  ? context.read<ReceiptCubit>().state.customerEntity!.custName
-                                  : " - ",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    BlocBuilder<ReceiptCubit, ReceiptEntity>(
-                      builder: (context, state) {
-                        if (state.receiptItems.isEmpty) {
-                          return const Expanded(
-                              child: EmptyList(
-                            imagePath: "assets/images/empty-item.svg",
-                            sentence: "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
-                          ));
-                        }
-                        return Expanded(
-                          child: Scrollbar(
-                            controller: _scrollControllerReceiptItems,
-                            thumbVisibility: true,
-                            child: ScrollablePositionedList.builder(
-                              padding: const EdgeInsets.symmetric(vertical: 0),
-                              itemScrollController: itemScrollController,
-                              scrollOffsetController: scrollOffsetController,
-                              itemPositionsListener: itemPositionsListener,
-                              scrollOffsetListener: scrollOffsetListener,
-                              itemCount: state.receiptItems.length,
-                              itemBuilder: (context, index) {
-                                final e = state.receiptItems[index];
-                                // final hasPromos = e.promos.isNotEmpty;
-                                final test = e.promos.map(
-                                  (promo) => Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                          child: Text(
-                                        promo.promoDescription,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontStyle: FontStyle.italic,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      )),
-                                      Expanded(
-                                          // DiscountUI
-                                          child: promo.discAmount == null || promo.discAmount == 0
-                                              ? const SizedBox.shrink()
-                                              : Text(
-                                                  (e.itemEntity.includeTax == 1)
-                                                      ? "- ${Helpers.parseMoney((((promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
-                                                      : "- ${Helpers.parseMoney(((promo.discAmount!).round()))}",
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontStyle: FontStyle.italic,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                  textAlign: TextAlign.right,
-                                                )),
-                                    ],
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Icon(Icons.stars, color: Colors.white),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  context.read<ReceiptCubit>().state.customerEntity != null
+                                      ? context.read<ReceiptCubit>().state.customerEntity!.custName
+                                      : " - ",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
                                   ),
-                                );
-
-                                return TapRegion(
-                                  groupId: 1,
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () => setState(() {
-                                      if (indexIsSelect[0] == index) {
-                                        indexIsSelect = [-1, 0];
-                                        _textEditingControllerNewReceiptItemQuantity.text = "1";
-                                        _textEditingControllerNewReceiptItemCode.text = "";
-                                        _newReceiptItemQuantityFocusNode.unfocus();
-                                        isUpdatingReceiptItemQty = false;
-                                        isEditingNewReceiptItemCode = true;
-                                        _newReceiptItemCodeFocusNode.requestFocus();
-                                      } else {
-                                        indexIsSelect = [index, 1];
-                                        _textEditingControllerNewReceiptItemQuantity.text = "";
-                                        // Helpers.cleanDecimal(e.quantity, 3);
-                                        _textEditingControllerNewReceiptItemCode.text = e.itemEntity.barcode;
-                                        _newReceiptItemCodeFocusNode.unfocus();
-                                        isUpdatingReceiptItemQty = true;
-                                        isEditingNewReceiptItemCode = false;
-                                        _newReceiptItemQuantityFocusNode.requestFocus();
-                                      }
-                                    }),
-                                    child: Column(
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        if (state.receiptItems.isEmpty)
+                          const Expanded(
+                            child: EmptyList(
+                              imagePath: "assets/images/empty-item.svg",
+                              sentence: "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
+                            ),
+                          )
+                        else
+                          Expanded(
+                            child: Scrollbar(
+                              controller: _scrollControllerReceiptItems,
+                              thumbVisibility: true,
+                              child: ScrollablePositionedList.builder(
+                                padding: const EdgeInsets.symmetric(vertical: 0),
+                                itemScrollController: itemScrollController,
+                                scrollOffsetController: scrollOffsetController,
+                                itemPositionsListener: itemPositionsListener,
+                                scrollOffsetListener: scrollOffsetListener,
+                                itemCount: state.receiptItems.length,
+                                itemBuilder: (context, index) {
+                                  final e = state.receiptItems[index];
+                                  // final hasPromos = e.promos.isNotEmpty;
+                                  final test = e.promos.map(
+                                    (promo) => Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        if (index == 0)
-                                          const Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Divider(
-                                                height: 1,
-                                                thickness: 0.5,
-                                                color: Color.fromARGB(100, 118, 118, 118),
-                                              ),
-                                            ],
+                                        Expanded(
+                                            child: Text(
+                                          promo.promoDescription,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.w500,
                                           ),
-                                        AnimatedContainer(
-                                          duration: index == indexIsSelect[0] && indexIsSelect[1] == 1
-                                              ? Duration.zero
-                                              : const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.all(0),
-                                          color: index == indexIsSelect[0] && indexIsSelect[1] == 1
-                                              ? const Color.fromARGB(255, 255, 222, 222)
-                                              : isNewItemAdded && (index == state.receiptItems.length - 1)
-                                                  ? const Color.fromARGB(95, 100, 202, 122)
-                                                  : Colors.white,
-                                          child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
+                                        )),
+                                        Expanded(
+                                            // DiscountUI
+                                            child: promo.discAmount == null || promo.discAmount == 0
+                                                ? const SizedBox.shrink()
+                                                : Text(
+                                                    (e.itemEntity.includeTax == 1)
+                                                        ? "${Helpers.parseMoney(((-1 * (promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
+                                                        : "${Helpers.parseMoney(((promo.discAmount! * -1).round()))}",
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontStyle: FontStyle.italic,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                    textAlign: TextAlign.right,
+                                                  )),
+                                      ],
+                                    ),
+                                  );
+
+                                  return TapRegion(
+                                    groupId: 1,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () => setState(() {
+                                        if (indexIsSelect[0] == index) {
+                                          indexIsSelect = [-1, 0];
+                                          _textEditingControllerNewReceiptItemQuantity.text = "1";
+                                          _textEditingControllerNewReceiptItemCode.text = "";
+                                          _newReceiptItemQuantityFocusNode.unfocus();
+                                          isUpdatingReceiptItemQty = false;
+                                          isEditingNewReceiptItemCode = true;
+                                          _newReceiptItemCodeFocusNode.requestFocus();
+                                        } else {
+                                          indexIsSelect = [index, 1];
+                                          _textEditingControllerNewReceiptItemQuantity.text = "";
+                                          // Helpers.cleanDecimal(e.quantity, 3);
+                                          _textEditingControllerNewReceiptItemCode.text = e.itemEntity.barcode;
+                                          _newReceiptItemCodeFocusNode.unfocus();
+                                          isUpdatingReceiptItemQty = true;
+                                          isEditingNewReceiptItemCode = false;
+                                          _newReceiptItemQuantityFocusNode.requestFocus();
+                                        }
+                                      }),
+                                      child: Column(
+                                        children: [
+                                          if (index == 0)
+                                            const Column(
                                               children: [
-                                                Expanded(
-                                                  flex: 6,
-                                                  child: Column(
-                                                    children: [
-                                                      Row(
-                                                        // mainAxisAlignment:
-                                                        //     MainAxisAlignment
-                                                        //         .spaceBetween,
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Expanded(
-                                                            flex: 3,
-                                                            child: Column(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
-                                                                FittedBox(
-                                                                  alignment: Alignment.centerLeft,
-                                                                  child: Row(
-                                                                    children: [
-                                                                      SvgPicture.asset(
-                                                                        "assets/images/inventory.svg",
-                                                                        height: 16,
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        width: 5,
-                                                                      ),
-                                                                      Text(
-                                                                        e.itemEntity.itemCode,
-                                                                        style: const TextStyle(
-                                                                          fontSize: 16,
-                                                                          fontWeight: FontWeight.w500,
-                                                                        ),
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        width: 15,
-                                                                      ),
-                                                                      SvgPicture.asset(
-                                                                        "assets/images/barcode.svg",
-                                                                        height: 20,
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        width: 5,
-                                                                      ),
-                                                                      Text(
-                                                                        e.itemEntity.barcode,
-                                                                        style: const TextStyle(
-                                                                          fontSize: 16,
-                                                                          fontWeight: FontWeight.w500,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                Text(
-                                                                  e.itemEntity.shortName ?? e.itemEntity.itemName,
-                                                                  style: const TextStyle(
-                                                                      fontSize: 16, fontWeight: FontWeight.w500),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 1,
-                                                            child: Column(
-                                                              // QuantityUI
-                                                              children: [
-                                                                Text(
-                                                                  "${Helpers.cleanDecimal(e.quantity, 3)} x",
-                                                                  textAlign: TextAlign.right,
-                                                                  style: const TextStyle(
-                                                                      fontSize: 16, fontWeight: FontWeight.w500),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 1,
-                                                            child: Column(
-                                                              // PriceUI
-                                                              children: [
-                                                                Text(
-                                                                  "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
-                                                                  textAlign: TextAlign.right,
-                                                                  style: const TextStyle(
-                                                                      fontSize: 16, fontWeight: FontWeight.w500),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Expanded(
-                                                            flex: 1,
-                                                            child: Column(
-                                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                                              mainAxisSize: MainAxisSize.max,
-                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                              // TotalPriceUI
-                                                              children: [
-                                                                Text(
-                                                                  Helpers.parseMoney(
-                                                                      (e.sellingPrice * e.quantity).round()),
-                                                                  style: const TextStyle(
-                                                                      fontSize: 16, fontWeight: FontWeight.w500),
-                                                                ),
-                                                                const SizedBox(
-                                                                  height: 6,
-                                                                ),
-                                                                e.tohemId != null || state.salesTohemId != null
-                                                                    ? FutureBuilder(
-                                                                        future: getSalesPerson(
-                                                                            e.tohemId, state.salesTohemId),
-                                                                        builder: (context, snapshot) {
-                                                                          log("${e.itemEntity.itemName} ${state.salesTohemId} ${e.tohemId}");
-                                                                          if (snapshot.hasData) {
-                                                                            return Text(
-                                                                              snapshot.data?.empName ?? "",
-                                                                              textAlign: TextAlign.right,
-                                                                              style: const TextStyle(
-                                                                                  height: 1,
-                                                                                  fontSize: 12,
-                                                                                  fontWeight: FontWeight.w500),
-                                                                            );
-                                                                          } else {
-                                                                            return const SizedBox.shrink();
-                                                                          }
-                                                                        })
-                                                                    : const SizedBox.shrink(),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      // SHOW PROMO HERE
-                                                      ...test,
-                                                    ],
-                                                  ),
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                Divider(
+                                                  height: 1,
+                                                  thickness: 0.5,
+                                                  color: Color.fromARGB(100, 118, 118, 118),
                                                 ),
                                               ],
                                             ),
+                                          AnimatedContainer(
+                                            duration: index == indexIsSelect[0] && indexIsSelect[1] == 1
+                                                ? Duration.zero
+                                                : const Duration(milliseconds: 200),
+                                            padding: const EdgeInsets.all(0),
+                                            color: index == indexIsSelect[0] && indexIsSelect[1] == 1
+                                                ? const Color.fromARGB(255, 255, 222, 222)
+                                                : isNewItemAdded && (index == state.receiptItems.length - 1)
+                                                    ? const Color.fromARGB(95, 100, 202, 122)
+                                                    : Colors.white,
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    flex: 6,
+                                                    child: Column(
+                                                      children: [
+                                                        Row(
+                                                          // mainAxisAlignment:
+                                                          //     MainAxisAlignment
+                                                          //         .spaceBetween,
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Expanded(
+                                                              flex: 3,
+                                                              child: Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  FittedBox(
+                                                                    alignment: Alignment.centerLeft,
+                                                                    child: Row(
+                                                                      children: [
+                                                                        SvgPicture.asset(
+                                                                          "assets/images/inventory.svg",
+                                                                          height: 16,
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width: 5,
+                                                                        ),
+                                                                        Text(
+                                                                          e.itemEntity.itemCode,
+                                                                          style: const TextStyle(
+                                                                            fontSize: 16,
+                                                                            fontWeight: FontWeight.w500,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width: 15,
+                                                                        ),
+                                                                        SvgPicture.asset(
+                                                                          "assets/images/barcode.svg",
+                                                                          height: 20,
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width: 5,
+                                                                        ),
+                                                                        Text(
+                                                                          e.itemEntity.barcode,
+                                                                          style: const TextStyle(
+                                                                            fontSize: 16,
+                                                                            fontWeight: FontWeight.w500,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    e.itemEntity.shortName ?? e.itemEntity.itemName,
+                                                                    style: const TextStyle(
+                                                                        fontSize: 16, fontWeight: FontWeight.w500),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 1,
+                                                              child: Column(
+                                                                // QuantityUI
+                                                                children: [
+                                                                  Text(
+                                                                    "${Helpers.cleanDecimal(e.quantity, 3)} x",
+                                                                    textAlign: TextAlign.right,
+                                                                    style: const TextStyle(
+                                                                        fontSize: 16, fontWeight: FontWeight.w500),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 1,
+                                                              child: Column(
+                                                                // PriceUI
+                                                                children: [
+                                                                  Text(
+                                                                    "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
+                                                                    textAlign: TextAlign.right,
+                                                                    style: const TextStyle(
+                                                                        fontSize: 16, fontWeight: FontWeight.w500),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 1,
+                                                              child: Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                                mainAxisSize: MainAxisSize.max,
+                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                // TotalPriceUI
+                                                                children: [
+                                                                  Text(
+                                                                    Helpers.parseMoney(
+                                                                        (e.sellingPrice * e.quantity).round()),
+                                                                    style: const TextStyle(
+                                                                        fontSize: 16, fontWeight: FontWeight.w500),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 6,
+                                                                  ),
+                                                                  e.tohemId != null || state.salesTohemId != null
+                                                                      ? FutureBuilder(
+                                                                          future: getSalesPerson(
+                                                                              e.tohemId, state.salesTohemId),
+                                                                          builder: (context, snapshot) {
+                                                                            if (snapshot.hasData) {
+                                                                              return Text(
+                                                                                snapshot.data?.empName ?? "",
+                                                                                textAlign: TextAlign.right,
+                                                                                style: const TextStyle(
+                                                                                    height: 1,
+                                                                                    fontSize: 12,
+                                                                                    fontWeight: FontWeight.w500),
+                                                                              );
+                                                                            } else {
+                                                                              return const SizedBox.shrink();
+                                                                            }
+                                                                          })
+                                                                      : const SizedBox.shrink(),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        // SHOW PROMO HERE
+                                                        ...test,
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        const Divider(
-                                          height: 1,
-                                          thickness: 0.5,
-                                          color: Color.fromARGB(100, 118, 118, 118),
-                                        ),
-                                      ],
+                                          const Divider(
+                                            height: 1,
+                                            thickness: 0.5,
+                                            color: Color.fromARGB(100, 118, 118, 118),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          )
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            ],
-          )),
+                  ),
+                ],
+              )),
+        );
+      },
     );
     // End - Item List
   }
@@ -1200,7 +1187,7 @@ class _SalesPageState extends State<SalesPage> {
 
                             if (appliedHeaderDisc != null) {
                               SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
                             }
 
                             setState(() {
@@ -1556,7 +1543,7 @@ class _SalesPageState extends State<SalesPage> {
 
                             if (appliedHeaderDisc != null) {
                               SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
                             }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
@@ -1854,7 +1841,7 @@ class _SalesPageState extends State<SalesPage> {
 
                               if (appliedHeaderDisc != null) {
                                 SnackBarHelper.presentSuccessSnackBar(
-                                    context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                    context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
                               }
                               setState(() {
                                 isEditingNewReceiptItemCode = true;
@@ -2426,7 +2413,7 @@ class _SalesPageState extends State<SalesPage> {
                         return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
                       }
                       context.read<ReceiptCubit>().queueReceipt();
-                      SnackBarHelper.presentSuccessSnackBar(context, "Pending order added");
+                      SnackBarHelper.presentSuccessSnackBar(context, "Pending order added", 3);
 
                       setState(() {
                         isEditingNewReceiptItemQty = false;
@@ -3260,7 +3247,7 @@ class _SalesPageState extends State<SalesPage> {
           return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
         }
         context.read<ReceiptCubit>().queueReceipt();
-        SnackBarHelper.presentSuccessSnackBar(context, "Pending order added");
+        SnackBarHelper.presentSuccessSnackBar(context, "Pending order added", 3);
       } else if (event.physicalKey == (PhysicalKeyboardKey.f9)) {
         setState(() {
           isEditingNewReceiptItemCode = false;
@@ -3351,7 +3338,7 @@ class _SalesPageState extends State<SalesPage> {
                   docnum: context.read<ReceiptCubit>().state.docNum,
                 )).then((value) {
           if (value != null) {
-            SnackBarHelper.presentSuccessSnackBar(context, "Header discount applied: ${Helpers.parseMoney(value)}");
+            SnackBarHelper.presentSuccessSnackBar(context, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
           }
           setState(() {
             isEditingNewReceiptItemCode = true;
@@ -3385,7 +3372,6 @@ class _SalesPageState extends State<SalesPage> {
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
         if (indexIsSelect[1] != 0) {
           final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-          log("receiptTarget - $receiptItemTarget");
           await showDialog(
             context: context,
             builder: (BuildContext context) => ItemDetailsDialog(indexSelected: indexIsSelect[0]),
@@ -3521,7 +3507,6 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<EmployeeEntity?> getSalesPerson(String? itemSalesTohemId, String? headerSalesTohemId) async {
     try {
-      log("$itemSalesTohemId $headerSalesTohemId");
       EmployeeEntity? employeeEntity;
       if (headerSalesTohemId != null && headerSalesTohemId != "") {
         employeeEntity = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(headerSalesTohemId, null);

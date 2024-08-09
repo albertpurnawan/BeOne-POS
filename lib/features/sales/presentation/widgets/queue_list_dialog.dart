@@ -165,6 +165,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                             width: 15,
                                           ),
                                           Expanded(
+                                            flex: 3,
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
@@ -182,7 +183,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                       ),
                                     ),
                                     const SizedBox(
-                                      width: 100,
+                                      width: 50,
                                       child: Icon(
                                         Icons.navigate_next,
                                         size: 30,
@@ -308,6 +309,29 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                     ),
                                     const SizedBox(
                                       width: 100,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      alignment: Alignment.center,
+                                      width: 75,
+                                    ),
+                                    const Text(
+                                      "Customer",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color.fromARGB(255, 139, 139, 139),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      queuedReceipt.customerEntity!.custName,
+                                      style: const TextStyle(fontSize: 16),
                                     ),
                                   ],
                                 ),

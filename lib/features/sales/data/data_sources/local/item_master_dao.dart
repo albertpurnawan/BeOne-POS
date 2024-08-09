@@ -34,13 +34,43 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
   }
 
   Future<List<dynamic>?> readByKeyword(String keyword) async {
-    final result = await db.rawQuery('''
-    SELECT x0.itemname, x0.itemcode, x1.barcode, x2. price FROM toitm AS x0 
+    try {
+      if (keyword.contains("1") && keyword.contains("=")) {
+        throw "Invalid search keyword";
+      }
+
+      final List<Map<String, Object?>> result;
+
+      if (!keyword.contains("%")) {
+        result = await db.rawQuery('''
+    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price FROM toitm AS x0 
       INNER JOIN tbitm AS x1 ON x1.toitmId = x0.docid 
       INNER JOIN tpln2 AS x2 ON x2.toitmId = x0.docid
       WHERE x0.itemcode LIKE ? OR x1.barcode LIKE ? OR x0.itemname LIKE ?
+      ORDER BY itemname
     ''', ["%$keyword%", "%$keyword%", "%$keyword%"]);
+      } else {
+        final String itemNameQuery = keyword.split('%').map((e) => "itemname LIKE '%$e%'").join(" AND ");
+        final String barcodeQuery = keyword.split('%').map((e) => "barcode LIKE '%$e%'").join(" AND ");
+        final String itemCodeQuery = keyword.split('%').map((e) => "itemcode LIKE '%$e%'").join(" AND ");
+        final String shortNameQuery = keyword.split('%').map((e) => "shortname LIKE '%$e%'").join(" AND ");
 
-    return result;
+        result = await db.rawQuery('''
+    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price FROM toitm AS x0 
+      INNER JOIN tbitm AS x1 ON x1.toitmId = x0.docid 
+      INNER JOIN tpln2 AS x2 ON x2.toitmId = x0.docid
+      WHERE ($itemNameQuery)
+OR ($barcodeQuery)
+OR ($itemCodeQuery)
+OR ($shortNameQuery)
+      ORDER BY itemname
+      LIMIT 300
+    ''');
+      }
+
+      return result;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

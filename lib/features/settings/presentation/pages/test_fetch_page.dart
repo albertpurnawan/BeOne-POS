@@ -146,7 +146,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
-  const FetchScreen({Key? key}) : super(key: key);
+  final bool outside;
+  const FetchScreen({Key? key, required this.outside}) : super(key: key);
 
   @override
   State<FetchScreen> createState() => _FetchScreenState();
@@ -155,13 +156,13 @@ class FetchScreen extends StatefulWidget {
 class _FetchScreenState extends State<FetchScreen> {
   POSParameterEntity? _posParameterEntity;
   final refreshTokenUsecase = GetIt.instance<RefreshTokenUseCase>();
-
+  final prefs = GetIt.instance<SharedPreferences>();
   bool isManualSyncing = false;
   int statusCode = 0;
   String errorMessage = '';
   double syncProgress = 0.0;
   int totalData = 0;
-  int totalTable = 60;
+  int totalTable = 61;
 
   @override
   void initState() {
@@ -240,11 +241,9 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<BankIssuerModel> tpmt5;
     late List<CampaignModel> tpmt6;
 
-    final prefs = GetIt.instance<SharedPreferences>();
-
-    bool? checkSync = prefs.getBool('isSyncing');
+    bool checkSync = prefs.getBool('isSyncing') ?? false;
     log("Synching data...");
-    if (checkSync == null || checkSync == false) {
+    if (checkSync == false) {
       try {
         prefs.setBool('isSyncing', true);
         // final topos =
@@ -1500,6 +1499,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData("2000-01-01 00:00:00");
+                topsb.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.bulkCreate(data: topsb);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -1664,6 +1664,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                topmi.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.bulkCreate(data: topmi);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -1869,6 +1870,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                topdi.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.bulkCreate(data: topdi);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -2074,6 +2076,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                topdg.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.bulkCreate(data: topdg);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -2280,6 +2283,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 });
               } else {
                 toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData("2000-01-01 00:00:00");
+                toprb.sort((a, b) => a.createDate.compareTo(b.createDate));
                 await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.bulkCreate(data: toprb);
                 setState(() {
                   syncProgress += 1 / totalTable;
@@ -2662,8 +2666,16 @@ class _FetchScreenState extends State<FetchScreen> {
         // ------------------- END OF FETCHING FUNCTIONS-------------------
 
         final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-
         final strName = store?.storeName;
+
+        for (final fetchFunction in fetchFunctions) {
+          try {
+            await fetchFunction();
+          } catch (e) {
+            handleError(e);
+            rethrow;
+          }
+        }
 
         final toposData = POSParameterModel(
           docId: toposId,
@@ -2680,15 +2692,6 @@ class _FetchScreenState extends State<FetchScreen> {
         );
 
         await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-
-        for (final fetchFunction in fetchFunctions) {
-          try {
-            await fetchFunction();
-          } catch (e) {
-            handleError(e);
-            rethrow;
-          }
-        }
 
         final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
         final singleToposAfterSync = toposAfterSync[0];
@@ -2722,8 +2725,6 @@ class _FetchScreenState extends State<FetchScreen> {
         log("INSERTING PROMOS...");
         final promos = <PromotionsModel>[];
         final today = DateTime.now().weekday;
-
-        await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
         topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
         for (final header in topsb) {
@@ -2941,6 +2942,8 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        await GetIt.instance<AppDatabase>().promosDao.deletePromos();
+
         await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
         log("PROMOS INSERTED");
         // END OF REFRESH TOPRM
@@ -3060,17 +3063,17 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
         // End Check Failed Invoices and Try to Send TCSR1
+        setState(() {
+          syncProgress += 1 / totalTable;
+        });
 
         prefs.setBool('isSyncing', false);
-        log('Data synced - $checkSync');
+        log('Data synced');
       } catch (error, stack) {
         prefs.setBool('isSyncing', false);
         log("Error synchronizing: $error");
         debugPrintStack(stackTrace: stack);
       }
-    } else {
-      log("Sync is in progress");
-      prefs.setBool('isSyncing', false);
     }
   }
 
@@ -3144,205 +3147,218 @@ class _FetchScreenState extends State<FetchScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text('Sync Data'),
-        leading: BackButton(
-          color: Colors.white,
-          onPressed: () {
-            Navigator.pop(context, true);
-          },
-        ),
+        actions: [
+          if (widget.outside && !isManualSyncing)
+            IconButton(
+              icon: const Icon(Icons.delete_outlined),
+              onPressed: () async {
+                await prefs.clear();
+              },
+              tooltip: 'Clear Preferences',
+            ),
+        ],
+        leading: isManualSyncing
+            ? null
+            : BackButton(
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+              ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(30.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Stack(
+                  alignment: Alignment.center,
                   children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.1,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            syncProgress = 0;
-                          });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LogErrorScreen()),
-                          ).then((value) => Future.delayed(
-                              const Duration(milliseconds: 200),
-                              () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-                                  statusBarColor: ProjectColors.primary,
-                                  statusBarBrightness: Brightness.light,
-                                  statusBarIconBrightness: Brightness.light))));
-                        },
-                        style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100),
-                              side: const BorderSide(
-                                color: ProjectColors.primary,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                          backgroundColor: const MaterialStatePropertyAll(
-                            Color.fromARGB(255, 234, 234, 234),
-                          ),
-                          foregroundColor: const MaterialStatePropertyAll(ProjectColors.primary),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            'Logs',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18,
-                            ),
-                          ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: SizedBox(
+                        height: 40,
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        child: LinearProgressIndicator(
+                          value: syncProgress,
+                          backgroundColor: const Color.fromARGB(255, 184, 183, 183),
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: SizedBox(
-                            height: 40,
-                            width: MediaQuery.of(context).size.width * 0.5,
-                            child: LinearProgressIndicator(
-                              value: syncProgress,
-                              backgroundColor: const Color.fromARGB(255, 184, 183, 183),
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
-                            ),
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          syncProgress == 1.0
+                              ? "Data Synced: $totalData"
+                              : "${(syncProgress * 100).round().toString()}%",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Positioned.fill(
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              syncProgress == 1.0
-                                  ? "Data Synced: $totalData"
-                                  : "${(syncProgress * 100).round().toString()}%",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.1,
-                      child: ElevatedButton(
-                        onPressed: isManualSyncing
-                            ? null
-                            : () async {
-                                try {
-                                  final bool? isAuthorized = await showDialog<bool>(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) => const ApprovalDialog());
-                                  if (isAuthorized != true) return;
-                                  await GetIt.instance<AppDatabase>().resetDatabase();
-                                } catch (e) {
-                                  SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                                }
-                              },
-                        style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(100),
-                              side: BorderSide(
-                                color:
-                                    isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                          backgroundColor: MaterialStatePropertyAll(
-                            isManualSyncing ? Colors.grey : const Color.fromARGB(255, 234, 234, 234),
-                          ),
-                          foregroundColor: MaterialStatePropertyAll(
-                              isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            'Reset',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.1,
-                      child: ElevatedButton(
-                        onPressed: isManualSyncing
-                            ? null
-                            : () async {
-                                await refreshToken();
-                                setState(() {
-                                  syncProgress = 0;
-                                  isManualSyncing = true;
-                                });
-                                final prefs = await SharedPreferences.getInstance();
-                                prefs.setBool('isSyncing', false);
-                                await manualSync();
-                                setState(() {
-                                  isManualSyncing = false;
-                                });
-                                if (context.mounted) {
-                                  context.pop();
-                                }
-                              },
-                        style: const ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
-                          foregroundColor: MaterialStatePropertyAll(Colors.white),
-                        ),
-                        child: isManualSyncing
-                            ? const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator.adaptive(
-                                      // backgroundColor: Colors.white,
-                                      ),
-                                ),
-                              )
-                            : const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Sync',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: ElevatedButton(
+                    onPressed: isManualSyncing
+                        ? null
+                        : () async {
+                            await refreshToken();
+                            setState(() {
+                              syncProgress = 0;
+                              isManualSyncing = true;
+                            });
+                            final prefs = await SharedPreferences.getInstance();
+                            prefs.setBool('isSyncing', false);
+                            await manualSync();
+                            setState(() {
+                              isManualSyncing = false;
+                            });
+                            if (context.mounted) {
+                              context.pop();
+                            }
+                          },
+                    style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
+                      foregroundColor: MaterialStatePropertyAll(Colors.white),
+                    ),
+                    child: isManualSyncing
+                        ? const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator.adaptive(
+                                  // backgroundColor: Colors.white,
+                                  ),
+                            ),
+                          )
+                        : const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'Synchronize',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: ElevatedButton(
+                    onPressed: isManualSyncing
+                        ? null
+                        : () {
+                            setState(() {
+                              syncProgress = 0;
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LogErrorScreen()),
+                            ).then((value) => Future.delayed(
+                                const Duration(milliseconds: 200),
+                                () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                    statusBarColor: ProjectColors.primary,
+                                    statusBarBrightness: Brightness.light,
+                                    statusBarIconBrightness: Brightness.light))));
+                          },
+                    style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                          side: BorderSide(
+                            color: isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      backgroundColor: MaterialStatePropertyAll(
+                        isManualSyncing ? Colors.grey : ProjectColors.primary,
+                      ),
+                      foregroundColor: MaterialStatePropertyAll(
+                          isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : Colors.white),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Error Logs',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                (widget.outside)
+                    ? SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        child: ElevatedButton(
+                          onPressed: isManualSyncing
+                              ? null
+                              : () async {
+                                  try {
+                                    final bool? isAuthorized = await showDialog<bool>(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => const ApprovalDialog());
+                                    if (isAuthorized != true) return;
+                                    await GetIt.instance<AppDatabase>().resetDatabase();
+                                  } catch (e) {
+                                    SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                  }
+                                },
+                          style: ButtonStyle(
+                            shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(100),
+                                side: BorderSide(
+                                  color: isManualSyncing
+                                      ? const Color.fromARGB(255, 114, 114, 114)
+                                      : ProjectColors.primary,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            backgroundColor: MaterialStatePropertyAll(
+                              isManualSyncing ? Colors.grey : const Color.fromARGB(255, 234, 234, 234),
+                            ),
+                            foregroundColor: MaterialStatePropertyAll(
+                                isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'Reset',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+                const SizedBox(height: 20),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

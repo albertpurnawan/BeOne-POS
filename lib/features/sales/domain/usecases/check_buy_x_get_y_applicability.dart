@@ -44,8 +44,10 @@ class CheckBuyXGetYApplicabilityUseCase
         () async {
           try {
             // Get header and validate
-            // log("Get header and validate");
+            log("Get header and validate");
             toprb = await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readByDocId(params.promo.promoId!, null);
+            log("toprb $toprb");
+
             if (toprb == null) return isApplicable = false;
             if (params.receiptEntity.grandTotal < toprb!.minPurchase) {
               isApplicable = false;
@@ -70,9 +72,9 @@ class CheckBuyXGetYApplicabilityUseCase
               toprb!.endTime.second,
             );
 
-            // log("${toprb!.startDate} ${toprb!.endDate}");
-            // log("${toprb!.endDate.hour}, ${toprb!.endDate.minute}, ${toprb!.endDate.second},");
-            // log("waktu $startPromo $endPromo");
+            log("${toprb!.startDate} ${toprb!.endDate}");
+            log("${toprb!.endDate.hour}, ${toprb!.endDate.minute}, ${toprb!.endDate.second},");
+            log("waktu $startPromo $endPromo");
 
             if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
                 now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
@@ -85,7 +87,7 @@ class CheckBuyXGetYApplicabilityUseCase
         () async {
           try {
             // Check multiply
-            // log("Check multiply");
+            log("Check multiply");
 
             final existingPromo =
                 params.receiptEntity.promos.where((element) => element.promoId == params.promo.promoId);
@@ -113,7 +115,7 @@ class CheckBuyXGetYApplicabilityUseCase
         () async {
           try {
             // Get X condition and validate
-            // log("Get X condition and validate");
+            log("Get X condition and validate");
             tprb1 = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYBuyConditionDao
                 .readByToprbId(params.promo.promoId!, null);
@@ -152,7 +154,7 @@ class CheckBuyXGetYApplicabilityUseCase
         () async {
           try {
             // Get Y condition and validate
-            // log("Get Y condition and validate");
+            log("Get Y condition and validate");
 
             tprb4 = await GetIt.instance<AppDatabase>()
                 .promoBuyXGetYGetConditionDao
@@ -197,7 +199,7 @@ class CheckBuyXGetYApplicabilityUseCase
         () async {
           try {
             // Get existing item X from receipt and validate
-            // log("Get existing item X from receipt and validate");
+            log("Get existing item X from receipt and validate");
 
             itemXBarcodes = conditionAndItemXs.map((e) => e.itemEntity.barcode).toList();
             existingReceiptItemXs = params.receiptEntity.receiptItems
@@ -226,7 +228,7 @@ class CheckBuyXGetYApplicabilityUseCase
         () async {
           try {
             // Find available apply count
-            // log("Find available apply count");
+            log("Find available apply count");
             final List<ReceiptItemEntity> existingReceiptItemXsCopy =
                 existingReceiptItemXs.map((e) => e.copyWith()).toList();
 

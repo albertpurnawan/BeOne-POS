@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
 import 'package:pos_fe/features/sales/data/models/check_stock.dart';
 import 'package:pos_fe/features/sales/domain/entities/check_stock.dart';
@@ -39,8 +40,13 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   }
 
   Future<List<dynamic>?> _searchItem(String query) async {
-    final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByKeyword(query);
-    return item;
+    try {
+      final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByKeyword(query);
+      return item;
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      return null;
+    }
   }
 
   void _handleItemSelected(Map<String, dynamic> item) async {

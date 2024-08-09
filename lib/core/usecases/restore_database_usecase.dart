@@ -15,6 +15,7 @@ import 'package:pos_fe/core/database/permission_handler.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/progress_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class RestoreDatabaseParams {
@@ -92,7 +93,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       final mostRecentBackup = backupFiles.first;
       log("Restoring from backup file: ${mostRecentBackup.path} to $path");
 
-      final restoredPath = await compute(restoreDatabaseTask, {
+      final restoredPath = await compute(restoreDatabaseFucntion, {
         'backupFolderPath': backupFolder.path,
         'mostRecentBackupPath': mostRecentBackup.path,
         'path': path,
@@ -124,7 +125,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
           if (context.mounted) {
             Navigator.pop(context);
             log("Database restored from $restoredPath");
-            SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!");
+            SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!", 3);
           }
         } catch (e) {
           // If copy unsuccessful, attempt to restore original state
@@ -139,6 +140,8 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       }
 
       await restoredFile.delete();
+
+      final prefs = await GetIt.instance<SharedPreferences>().clear();
     } catch (e) {
       log("Error restoring database: $e");
       if (context.mounted) {
@@ -150,7 +153,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
   }
 }
 
-Future<String> restoreDatabaseTask(Map<String, dynamic> params) async {
+Future<String> restoreDatabaseFucntion(Map<String, dynamic> params) async {
   final String backupFolderPath = params['backupFolderPath'];
   final String mostRecentBackupPath = params['mostRecentBackupPath'];
   final String path = params['path'];

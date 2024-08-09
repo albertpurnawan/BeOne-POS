@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -29,7 +31,7 @@ class _TableReportShiftState extends State<TableReportShift> {
   List<dynamic>? fetched;
   bool isLoading = true;
   bool isPrinting = false;
-  String invDocIdPrinted = "";
+  String? invDocIdPrinted = "";
 
   @override
   void initState() {
@@ -155,6 +157,8 @@ class _TableReportShiftState extends State<TableReportShift> {
 
                         final docnum = shift['invdocnum'];
                         final invDocId = shift['docid'];
+
+                        log("$shift");
 
                         return TableRow(
                           children: [
@@ -301,11 +305,12 @@ class _TableReportShiftState extends State<TableReportShift> {
                                                   isPrinting = false;
                                                   invDocIdPrinted = "";
                                                 });
-                                              } catch (e) {
+                                              } catch (e, s) {
                                                 setState(() {
                                                   isPrinting = false;
                                                   invDocIdPrinted = "";
                                                 });
+                                                log("$e $s");
                                                 if (context.mounted) {
                                                   SnackBarHelper.presentErrorSnackBar(context, e.toString());
                                                 }

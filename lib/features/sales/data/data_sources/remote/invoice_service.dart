@@ -74,6 +74,7 @@ class InvoiceApi {
                   "cardno": entry['cardno'],
                   "cardholder": entry['cardholder'],
                   "rrn": entry['rrn'] ?? "",
+                  if (entry['tpmt2Id'] != null) "tpmt6_id": entry['tpmt6Id'],
                 });
               }
               break;
@@ -261,7 +262,7 @@ class InvoiceApi {
             "qtyconv": item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item['tohemId'] ?? "",
+            "tohem_id": (item['tohemId'] == "") ? invHead[0].salesTohemId : item['tohemId'],
             "promotion": promotionsDetail
           };
         }).toList(),
@@ -380,6 +381,7 @@ class InvoiceApi {
                   "cardno": entry['cardno'],
                   "cardholder": entry['cardholder'],
                   "rrn": entry['rrn'] ?? "",
+                  "tpmt6_id": "",
                 });
               } else {
                 invoicePayments.add({
@@ -389,6 +391,7 @@ class InvoiceApi {
                   "cardno": entry['cardno'],
                   "cardholder": entry['cardholder'],
                   "rrn": entry['rrn'] ?? "",
+                  "tpmt6_id": "",
                 });
               }
               break;
@@ -571,7 +574,7 @@ class InvoiceApi {
             "qtyconv": 0.0,
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": item.tohemId ?? "",
+            "tohem_id": (item.tohemId == "") ? invHead.salesTohemId : item.tohemId,
             "promotion": promotionsDetail
           };
         }).toList(),

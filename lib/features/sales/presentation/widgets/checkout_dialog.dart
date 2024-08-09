@@ -305,7 +305,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                   .then((value) {
                 if (value != null) {
                   SnackBarHelper.presentSuccessSnackBar(
-                      childContext, "Header discount applied: ${Helpers.parseMoney(value)}");
+                      childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
                 }
               });
             } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
@@ -369,7 +369,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
                                   if (appliedHeaderDisc != null) {
                                     SnackBarHelper.presentSuccessSnackBar(childContext,
-                                        "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}");
+                                        "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
                                   }
                                 },
                                 child: Row(
