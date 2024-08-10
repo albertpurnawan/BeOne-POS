@@ -18,6 +18,8 @@ class OTPServiceAPi {
   OTPServiceAPi(this._dio);
 
   Future<Map<String, dynamic>> createSendOTP(BuildContext context, double? amount) async {
+    Response? response;
+
     try {
       log("CREATE & SEND OTP - $amount");
       final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
@@ -82,17 +84,15 @@ class OTPServiceAPi {
         }
         log("Data2Send for ${spv['email']}: ${jsonEncode(dataToSend)}");
 
-        Response response = await _dio.post(
+        response = await _dio.post(
           url,
           data: dataToSend,
           options: options,
         );
 
         log("Response for ${spv['email']}: ${response.statusCode}");
-
-        return response.data;
       }
-      throw "No supervisors to send OTP to.";
+      return response?.data;
     } catch (e) {
       handleError(e);
       rethrow;
