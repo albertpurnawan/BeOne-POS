@@ -3472,6 +3472,12 @@ class _SalesPageState extends State<SalesPage> {
         return SnackBarHelper.presentErrorSnackBar(context, "Grand total cannot be negative");
       }
 
+      final ReceiptItemEntity? dpItem =
+          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0 && context.read<ReceiptCubit>().state.receiptItems.length > 2) {
+        return SnackBarHelper.presentErrorSnackBar(context, "Down payment has to be excluded from other transactions");
+      }
+
       setState(() {
         isEditingNewReceiptItemCode = false;
         isEditingNewReceiptItemQty = false;
