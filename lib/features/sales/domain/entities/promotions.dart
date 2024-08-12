@@ -103,8 +103,7 @@ class PromotionsEntity {
       promoDescription: map['promoDescription'] as String,
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      discAmount:
-          map['discAmount'] != null ? map['discAmount'] as double : null,
+      discAmount: map['discAmount'] != null ? map['discAmount'] as double : null,
       discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
       // promotionDetails: map['promotionDetails'] != null
       //     ? PromotionDetails.fromMap(
@@ -120,7 +119,7 @@ class PromotionsEntity {
 
   @override
   String toString() {
-    return 'PromotionsEntity(docId: $docId, toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks, discAmount: $discAmount, discPrctg: $discPrctg)';
+    return 'PromotionsEntity(docId: $docId, toitmId: $toitmId, promoType: $promoType, promoId: $promoId, date: $date, startTime: $startTime, endTime: $endTime, tocrgId: $tocrgId, promoDescription: $promoDescription, tocatId: $tocatId, remarks: $remarks, discAmount: $discAmount, discPrctg: $discPrctg), promotionDetails: $promotionDetails';
   }
 
   @override

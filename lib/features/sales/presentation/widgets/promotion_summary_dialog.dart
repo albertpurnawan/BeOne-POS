@@ -24,306 +24,317 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
   late final double previousGrandTotal;
 
   List<Widget> _buildBuyXGetYDetails() {
-    final List<Widget> widgets = [
-      const Text(
-        "Buy X Get Y",
-        style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
-      ),
-      const SizedBox(
-        height: 15,
-      ),
-    ];
+    try {
+      final List<Widget> widgets = [
+        const Text(
+          "Buy X Get Y",
+          style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+      ];
 
-    final List<PromotionsEntity> buyXGetYpromos =
-        widget.receiptEntity.promos.where((element) => element.promoType == 103).toList();
-    if (buyXGetYpromos.isEmpty) return [];
+      final List<PromotionsEntity> buyXGetYpromos =
+          widget.receiptEntity.promos.where((element) => element.promoType == 103).toList();
+      if (buyXGetYpromos.isEmpty) return [];
 
-    widgets.addAll([
-      const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 5,
-          ),
-          SizedBox(
-            width: 175,
-            child: Text(
-              "Description",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: ProjectColors.lightBlack,
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-              width: 150,
-              child: Text("Item Barcode",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: ProjectColors.lightBlack,
-                  ))),
-          SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-              width: 150,
-              child: Text("Item Name",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: ProjectColors.lightBlack,
-                  ))),
-          SizedBox(
-            width: 20,
-          ),
-          Expanded(
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text("Qty",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: ProjectColors.lightBlack,
-                      )))),
-          SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-              width: 150,
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text("Selling Price",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: ProjectColors.lightBlack,
-                      )))),
-          SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-              width: 150,
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text("Total",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: ProjectColors.lightBlack,
-                      )))),
-        ],
-      ),
-      const SizedBox(
-        height: 5,
-      )
-    ]);
-
-    double subtotal = 0;
-    double taxAmount = 0;
-    double totalPrice = 0;
-
-    for (final buyXGetYpromo in buyXGetYpromos) {
-      log(buyXGetYpromo.toString());
-      final List<ReceiptItemEntity> itemYs = widget.receiptEntity.receiptItems
-          .where((e1) => e1.promos
-              .where((e2) => e2.promoId == buyXGetYpromo.promoId && (e2.promotionDetails as PromoBuyXGetYDetails).isY)
-              .isNotEmpty)
-          .toList();
-      final List<Widget> itemYUIs = [];
-      log("itemYs $itemYs ${itemYs.length}");
-
-      for (final itemY in itemYs) {
-        final PromoBuyXGetYDetails associatedPromo = itemY.promos
-            .firstWhere((element) => element.promoId == buyXGetYpromo.promoId)
-            .promotionDetails as PromoBuyXGetYDetails;
-
-        final priceQty = associatedPromo.sellingPrice * associatedPromo.quantity;
-        subtotal += priceQty;
-        taxAmount += (itemY.itemEntity.taxRate / 100) * priceQty;
-
-        itemYUIs.add(Row(
+      widgets.addAll([
+        const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-                width: 175,
-                child: itemYUIs.isEmpty
-                    ? Text(
-                        buyXGetYpromo.promoDescription,
-                        style: const TextStyle(fontSize: 14),
-                      )
-                    : const SizedBox.shrink()),
-            const SizedBox(
+              height: 5,
+            ),
+            SizedBox(
+              width: 175,
+              child: Text(
+                "Description",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: ProjectColors.lightBlack,
+                ),
+              ),
+            ),
+            SizedBox(
               width: 20,
             ),
             SizedBox(
                 width: 150,
-                child: Text(
-                  itemY.itemEntity.barcode,
-                  style: const TextStyle(fontSize: 14),
-                )),
-            const SizedBox(
+                child: Text("Item Barcode",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: ProjectColors.lightBlack,
+                    ))),
+            SizedBox(
               width: 20,
             ),
             SizedBox(
                 width: 150,
-                child: Text(
-                  itemY.itemEntity.shortName ?? itemY.itemEntity.itemName,
-                  style: const TextStyle(fontSize: 14),
-                )),
-            const SizedBox(
+                child: Text("Item Name",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: ProjectColors.lightBlack,
+                    ))),
+            SizedBox(
               width: 20,
             ),
             Expanded(
                 child: Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      Helpers.cleanDecimal(associatedPromo.quantity, 3),
-                      style: const TextStyle(fontSize: 14),
-                    ))),
-            const SizedBox(
-              width: 20,
-            ),
+                    child: Text("Qty",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: ProjectColors.lightBlack,
+                        )))),
             SizedBox(
-                width: 150,
-                child: Align(
-                    // PromoPriceUI
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      (itemY.itemEntity.includeTax == 1)
-                          ? Helpers.parseMoney(
-                              (((associatedPromo.sellingPrice) * ((100 + itemY.itemEntity.taxRate) / 100)).round()))
-                          : Helpers.parseMoney(((associatedPromo.sellingPrice).round())),
-                      style: const TextStyle(fontSize: 14),
-                    ))),
-            const SizedBox(
               width: 20,
             ),
             SizedBox(
                 width: 150,
                 child: Align(
                     alignment: Alignment.centerRight,
+                    child: Text("Selling Price",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: ProjectColors.lightBlack,
+                        )))),
+            SizedBox(
+              width: 20,
+            ),
+            SizedBox(
+                width: 150,
+                child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text("Total",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: ProjectColors.lightBlack,
+                        )))),
+          ],
+        ),
+        const SizedBox(
+          height: 5,
+        )
+      ]);
+
+      double subtotal = 0;
+      double taxAmount = 0;
+      double totalPrice = 0;
+
+      for (final buyXGetYpromo in buyXGetYpromos) {
+        // log(buyXGetYpromo.toString());
+        final List<ReceiptItemEntity> itemYs = widget.receiptEntity.receiptItems
+            .where((e1) => e1.promos.where((e2) => e2.promoId == buyXGetYpromo.promoId).isNotEmpty)
+            .toList();
+        final List<Widget> itemYUIs = [];
+        log("itemYs $itemYs ${itemYs.length}");
+
+        for (final itemY in itemYs) {
+          // log("amosmdao");
+          final PromoBuyXGetYDetails? associatedPromo = itemY.promos
+              .where((element) =>
+                  element.promoId == buyXGetYpromo.promoId && (element.promotionDetails as PromoBuyXGetYDetails).isY)
+              .firstOrNull
+              ?.promotionDetails as PromoBuyXGetYDetails?;
+          if (associatedPromo == null) throw "Problems during reading promos";
+          log("amosmdaos ${associatedPromo}");
+
+          final priceQty = associatedPromo.sellingPrice * associatedPromo.quantity;
+          subtotal += priceQty;
+          taxAmount += (itemY.itemEntity.taxRate / 100) * priceQty;
+
+          itemYUIs.add(Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                  width: 175,
+                  child: itemYUIs.isEmpty
+                      ? Text(
+                          buyXGetYpromo.promoDescription,
+                          style: const TextStyle(fontSize: 14),
+                        )
+                      : const SizedBox.shrink()),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                  width: 150,
+                  child: Text(
+                    itemY.itemEntity.barcode,
+                    style: const TextStyle(fontSize: 14),
+                  )),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                  width: 150,
+                  child: Text(
+                    itemY.itemEntity.shortName ?? itemY.itemEntity.itemName,
+                    style: const TextStyle(fontSize: 14),
+                  )),
+              const SizedBox(
+                width: 20,
+              ),
+              Expanded(
+                  child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        Helpers.cleanDecimal(associatedPromo.quantity, 3),
+                        style: const TextStyle(fontSize: 14),
+                      ))),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                  width: 150,
+                  child: Align(
+                      // PromoPriceUI
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        (itemY.itemEntity.includeTax == 1)
+                            ? Helpers.parseMoney(
+                                (((associatedPromo.sellingPrice) * ((100 + itemY.itemEntity.taxRate) / 100)).round()))
+                            : Helpers.parseMoney(((associatedPromo.sellingPrice).round())),
+                        style: const TextStyle(fontSize: 14),
+                      ))),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                  width: 150,
+                  child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        (itemY.itemEntity.includeTax == 1)
+                            ? Helpers.parseMoney((((priceQty) * ((100 + itemY.itemEntity.taxRate) / 100)).round()))
+                            : Helpers.parseMoney(priceQty.round()),
+                        style: const TextStyle(fontSize: 14),
+                      ))),
+            ],
+          ));
+          itemYUIs.add(const SizedBox(
+            height: 10,
+          ));
+        }
+
+        widgets.addAll(itemYUIs);
+      }
+
+      totalPrice = subtotal + taxAmount;
+
+      widgets.addAll([
+        const SizedBox(
+          height: 15,
+        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.end,
+        //   children: [
+        //     const SizedBox(
+        //       width: 80,
+        //       child: Align(
+        //           alignment: Alignment.centerLeft,
+        //           child: Text(
+        //             "Subtotal",
+        //             style: TextStyle(fontSize: 14),
+        //           )),
+        //     ),
+        //     const SizedBox(
+        //       width: 20,
+        //     ),
+        //     SizedBox(
+        //         width: 150,
+        //         child: Align(
+        //             alignment: Alignment.centerRight,
+        //             child: Text(
+        //               Helpers.parseMoney(subtotal.round()),
+        //               style: const TextStyle(fontSize: 14),
+        //             ))),
+        //   ],
+        // ),
+        // const SizedBox(
+        //   height: 5,
+        // ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.end,
+        //   children: [
+        //     const SizedBox(
+        //       width: 80,
+        //       child: Align(
+        //           alignment: Alignment.centerLeft,
+        //           child: Text(
+        //             "Total Tax",
+        //             style: TextStyle(fontSize: 14),
+        //           )),
+        //     ),
+        //     const SizedBox(
+        //       width: 20,
+        //     ),
+        //     SizedBox(
+        //         width: 150,
+        //         child: Align(
+        //             alignment: Alignment.centerRight,
+        //             child: Text(
+        //               Helpers.parseMoney(taxAmount.round()),
+        //               style: const TextStyle(fontSize: 14),
+        //             ))),
+        //   ],
+        // ),
+        // const SizedBox(
+        //   height: 5,
+        // ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const SizedBox(
+              width: 80,
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Total Price",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  )),
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            SizedBox(
+                width: 150,
+                child: Align(
+                    alignment: Alignment.centerRight,
                     child: Text(
-                      (itemY.itemEntity.includeTax == 1)
-                          ? Helpers.parseMoney((((priceQty) * ((100 + itemY.itemEntity.taxRate) / 100)).round()))
-                          : Helpers.parseMoney(priceQty.round()),
+                      Helpers.parseMoney(totalPrice.round()),
                       style: const TextStyle(fontSize: 14),
                     ))),
           ],
-        ));
-        itemYUIs.add(const SizedBox(
-          height: 10,
-        ));
-      }
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+      ]);
 
-      widgets.addAll(itemYUIs);
+      return [
+        Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widgets,
+            )),
+        const Divider(),
+      ];
+    } catch (e) {
+      log(e.toString());
+      return [
+        SizedBox.shrink(),
+        const Divider(),
+      ];
     }
-
-    totalPrice = subtotal + taxAmount;
-
-    widgets.addAll([
-      const SizedBox(
-        height: 15,
-      ),
-      // Row(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   children: [
-      //     const SizedBox(
-      //       width: 80,
-      //       child: Align(
-      //           alignment: Alignment.centerLeft,
-      //           child: Text(
-      //             "Subtotal",
-      //             style: TextStyle(fontSize: 14),
-      //           )),
-      //     ),
-      //     const SizedBox(
-      //       width: 20,
-      //     ),
-      //     SizedBox(
-      //         width: 150,
-      //         child: Align(
-      //             alignment: Alignment.centerRight,
-      //             child: Text(
-      //               Helpers.parseMoney(subtotal.round()),
-      //               style: const TextStyle(fontSize: 14),
-      //             ))),
-      //   ],
-      // ),
-      // const SizedBox(
-      //   height: 5,
-      // ),
-      // Row(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   children: [
-      //     const SizedBox(
-      //       width: 80,
-      //       child: Align(
-      //           alignment: Alignment.centerLeft,
-      //           child: Text(
-      //             "Total Tax",
-      //             style: TextStyle(fontSize: 14),
-      //           )),
-      //     ),
-      //     const SizedBox(
-      //       width: 20,
-      //     ),
-      //     SizedBox(
-      //         width: 150,
-      //         child: Align(
-      //             alignment: Alignment.centerRight,
-      //             child: Text(
-      //               Helpers.parseMoney(taxAmount.round()),
-      //               style: const TextStyle(fontSize: 14),
-      //             ))),
-      //   ],
-      // ),
-      // const SizedBox(
-      //   height: 5,
-      // ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const SizedBox(
-            width: 80,
-            child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Total Price",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                )),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          SizedBox(
-              width: 150,
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    Helpers.parseMoney(totalPrice.round()),
-                    style: const TextStyle(fontSize: 14),
-                  ))),
-        ],
-      ),
-      const SizedBox(
-        height: 5,
-      ),
-    ]);
-
-    return [
-      Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
-          )),
-      const Divider(),
-    ];
   }
 
   List<Widget> _buildDiscountItemByItemDetails() {
@@ -378,9 +389,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
 
     for (final discountItemByItemPromo in discountItemByItemPromos) {
       final List<ReceiptItemEntity> appliedItems = widget.receiptEntity.receiptItems
-          .where((e1) => e1.promos
-              .where((e2) => e2.promoId == discountItemByItemPromo.promoId && (e2.discAmount ?? 0) != 0)
-              .isNotEmpty)
+          .where((e1) => e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).isNotEmpty)
           .toList();
       final double totalDiscByPromoId = appliedItems.map((e1) {
         final double discAmount =
@@ -517,7 +526,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     for (final discountItemByItemPromo in discountItemByItemPromos) {
       final List<ReceiptItemEntity> appliedItems = widget.receiptEntity.receiptItems
           .where((e1) => e1.promos
-              .where((e2) => e2.promoId == discountItemByItemPromo.promoId && (e2.discAmount ?? 0) != 0)
+              .where((e2) => e2.promoId == discountItemByItemPromo.promoId && (e2.discAmount ?? 0) >= 0)
               .isNotEmpty)
           .toList();
       final double totalDiscByPromoId = appliedItems.map((e1) {

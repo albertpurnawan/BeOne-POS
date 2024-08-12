@@ -25,8 +25,10 @@ class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBu
               !itemXBarcodes.contains(element.itemEntity.barcode))
           .toList();
       final List<ReceiptItemEntity> existingReceiptItemXs = [...params.existingReceiptItemXs];
-      final List<ReceiptItemEntity> existingReceiptItemYs =
-          params.receiptEntity.receiptItems.where((e) => itemYBarcodes.contains(e.itemEntity.barcode)).toList();
+      final List<ReceiptItemEntity> existingReceiptItemYs = params.receiptEntity.receiptItems
+          .where((e) => itemYBarcodes.contains(e.itemEntity.barcode))
+          .map((e) => e.copyWith())
+          .toList();
 
       // Handle X
       for (final existingReceiptItemX in existingReceiptItemXs) {
@@ -115,7 +117,7 @@ class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBu
             ];
           } else {
             finalPromos = existingReceiptItemY.first.promos.map((e) {
-              if (e.promoId == params.promo.promoId) {
+              if (e.promoId == params.promo.promoId && ((e.promotionDetails as PromoBuyXGetYDetails?)?.isY ?? false)) {
                 return e.copyWith(
                     discAmount: thisDiscAmount,
                     promotionDetails: ((e.promotionDetails as PromoBuyXGetYDetails)
@@ -129,7 +131,7 @@ class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBu
             }).toList();
           }
 
-          log("finalPromos $finalPromos");
+          // log("finalPromos $finalPromos");
 
           receiptItemYs.add(
             ReceiptHelper.updateReceiptItemAggregateFields(existingReceiptItemY.first.copyWith(
@@ -157,12 +159,13 @@ class HandlePromoBuyXGetYUseCase implements UseCase<ReceiptEntity, HandlePromoBu
 
       List<ReceiptItemEntity> finalIntersections = [];
       if (intersectionReceiptItemXs.isNotEmpty) {
-        final List<String> intersectionBarcodes = intersectionReceiptItemXs.map((e) => e.itemEntity.barcode).toList();
+        // final List<String> intersectionBarcodes = intersectionReceiptItemXs.map((e) => e.itemEntity.barcode).toList();
         for (ReceiptItemEntity intersectionX in intersectionReceiptItemXs) {
-          final ReceiptItemEntity? intersectionY =
-              receiptItemYs.where((element) => intersectionBarcodes.contains(element.itemEntity.barcode)).firstOrNull;
+          final ReceiptItemEntity? intersectionY = receiptItemYs
+              .where((element) => element.itemEntity.barcode == intersectionX.itemEntity.barcode)
+              .firstOrNull;
           if (intersectionY == null) throw "Issue in calculating Buy X Get Y Promotion";
-          log("intersectionY promos ${intersectionY.promos}");
+          // log("intersectionY promos ${intersectionY.promos}");
           finalIntersections.add(ReceiptHelper.updateReceiptItemAggregateFields(intersectionX.copyWith(
             quantity: intersectionY.quantity,
             discAmount: intersectionY.discAmount ?? 0,
