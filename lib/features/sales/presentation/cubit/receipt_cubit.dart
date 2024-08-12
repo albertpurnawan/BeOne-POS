@@ -152,11 +152,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         } else if (params.quantity < 0 && currentReceiptItemEntity.quantity > 0) {
           await removeReceiptItem(currentReceiptItemEntity, params.context!);
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
-              barcode: params.barcode,
-              itemEntity: params.itemEntity,
-              quantity: currentReceiptItemEntity.quantity + params.quantity,
-              context: params.context,
-              onOpenPriceInputted: params.onOpenPriceInputted));
+            barcode: params.barcode,
+            itemEntity: params.itemEntity,
+            quantity: currentReceiptItemEntity.quantity + params.quantity,
+            context: params.context,
+            onOpenPriceInputted: params.onOpenPriceInputted,
+            remarks: params.remarks,
+            tohemId: params.tohemId,
+          ));
           return;
         }
       }
@@ -201,7 +204,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (itemEntity == null) throw "Item not found";
 
       // Convert item entity to receipt item entity **qty conversion can be placed here**
-      receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(itemEntity, params.quantity);
+      receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(itemEntity, params.quantity)
+        ..tohemId = params.tohemId
+        ..remarks = params.remarks;
 
       // Handle open price
       if (receiptItemEntity.itemEntity.openPrice == 1) {
@@ -341,6 +346,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           quantity: receiptItem.quantity,
           context: context,
           onOpenPriceInputted: () => receiptItem.itemEntity.price,
+          remarks: receiptItem.remarks,
+          tohemId: receiptItem.tohemId,
         ));
       }
       return emit(state.copyWith(customerEntity: customerEntity));
@@ -365,6 +372,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         quantity: receiptItem.quantity,
         context: context,
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
+        remarks: receiptItem.remarks,
+        tohemId: receiptItem.tohemId,
       ));
     }
     emit(state.copyWith(customerEntity: customerEntity, previousReceiptEntity: state.previousReceiptEntity));
@@ -547,22 +556,23 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
     for (final receiptItem in receiptEntity.receiptItems) {
       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
-          barcode: receiptItem.itemEntity.barcode,
-          itemEntity: null,
-          quantity: receiptItem.quantity,
-          context: context,
-          onOpenPriceInputted: () => receiptItem.itemEntity.price));
+        barcode: receiptItem.itemEntity.barcode,
+        itemEntity: null,
+        quantity: receiptItem.quantity,
+        context: context,
+        onOpenPriceInputted: () => receiptItem.itemEntity.price,
+        remarks: receiptItem.remarks,
+        tohemId: receiptItem.tohemId,
+      ));
     }
 
     dev.log("Retrievefromqueue $state");
 
     emit(state
-          ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
-          ..customerEntity = receiptEntity.customerEntity
-          ..salesTohemId = receiptEntity.salesTohemId
-          ..remarks = receiptEntity.remarks
-        // ..receiptItems = receiptEntity.receiptItems
-        );
+      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
+      ..customerEntity = receiptEntity.customerEntity
+      ..salesTohemId = receiptEntity.salesTohemId
+      ..remarks = receiptEntity.remarks);
   }
 
   Future<void> updateTotalAmountFromDiscount(double discValue) async {
@@ -763,7 +773,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
       ));
 
-      dev.log("after emit $state");
+      // dev.log("after emit $state");
       return;
     } catch (e) {
       rethrow;
@@ -803,6 +813,8 @@ class AddUpdateReceiptItemsParams {
   final double quantity;
   final BuildContext? context;
   final void Function() onOpenPriceInputted;
+  final String? remarks;
+  final String? tohemId;
 
   AddUpdateReceiptItemsParams({
     required this.barcode,
@@ -810,5 +822,7 @@ class AddUpdateReceiptItemsParams {
     required this.quantity,
     required this.context,
     required this.onOpenPriceInputted,
+    this.remarks,
+    this.tohemId,
   });
 }

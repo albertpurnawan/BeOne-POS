@@ -13,6 +13,11 @@ class PromoBuyXGetYDetails extends PromotionDetails {
     required this.quantity,
     required this.sellingPrice,
   });
+
+  @override
+  String toString() {
+    return "PromoBuyXGetYDetails(applyCount: $applyCount, isY: $isY, quantity: $quantity, sellingPrice: $sellingPrice)";
+  }
 }
 
 class PromoBuyXGetYSummaryDetails extends PromotionDetails {
