@@ -11,7 +11,6 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
-import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';

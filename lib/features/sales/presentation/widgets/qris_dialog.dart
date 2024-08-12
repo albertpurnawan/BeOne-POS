@@ -373,7 +373,7 @@ class _QRISDialogState extends State<QRISDialog> {
                     backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                     overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  context.pop(false);
                 },
                 child: Center(
                   child: RichText(
