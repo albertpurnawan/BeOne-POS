@@ -789,6 +789,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     getPaymentTypes();
     // getCurrencyName();
     checkAndHandleZeroGrandTotal();
+    refreshQRISChip();
   }
 
   void getCurrencyName() async {
@@ -877,6 +878,23 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         ],
       ),
     );
+  }
+
+  Future<void> refreshQRISChip() async {
+    final mopState = context.read<ReceiptCubit>().state.mopSelections;
+    final filteredMopState = mopState.where((mop) => mop.payTypeCode == "1").toList();
+
+    if (mopState.isEmpty) return;
+    if (filteredMopState.isEmpty) {
+      setState(() {
+        _values = context.read<ReceiptCubit>().state.mopSelections;
+      });
+    } else {
+      setState(() {
+        _values = context.read<ReceiptCubit>().state.mopSelections;
+        _textEditingControllerCashAmount.text = Helpers.parseMoney(filteredMopState[0].amount!.toInt());
+      });
+    }
   }
 
   Future<void> _refreshVouchersChips(List<VouchersSelectionEntity> vouchers, int color) async {
