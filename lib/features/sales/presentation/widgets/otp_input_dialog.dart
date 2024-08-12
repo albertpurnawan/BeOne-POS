@@ -12,6 +12,10 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -57,7 +61,25 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
   }
 
   Future<void> resendOTP() async {
-    await GetIt.instance<OTPServiceAPi>().createSendOTP(context, widget.discountValue);
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+
+    final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+    if (store == null) throw "Failed to retrieve Store Master";
+
+    final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+    if (cashierMachine == null) throw "Failed to retrieve Cash Register";
+
+    final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+    final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
+
+    final Map<String, String> payload = {
+      "Store Name": store.storeName,
+      "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
+      "Cashier Name": cashierName!.username,
+      "Discount Amount": Helpers.parseMoney(widget.discountValue),
+    };
+    final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, payload);
     setState(() {
       _isOTPSent = true;
     });
