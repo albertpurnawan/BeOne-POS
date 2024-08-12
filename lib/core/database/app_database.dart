@@ -339,9 +339,9 @@ class AppDatabase {
       final path = join(dbPath, _databaseName);
       await databaseFactory.deleteDatabase(path);
       _database = null;
-      // log("Database Dropped before Updated");
+      log("Database Dropped before Updated");
       await _initDB(path);
-      // log("Database reinisiated");
+      log("Database reinitiated");
     } catch (error) {
       log("Error emptying database: $error");
     }

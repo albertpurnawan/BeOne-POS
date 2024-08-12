@@ -227,11 +227,11 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
       }
 
       // Run validations
-      int counter = 0;
+      // int counter = 0;
       for (final validation in finalValidations) {
-        log(counter.toString());
+        // log(counter.toString());
         // log("--- validation ---");
-        counter += 1;
+        // counter += 1;
         if (!isApplicable) break;
         await validation();
       }

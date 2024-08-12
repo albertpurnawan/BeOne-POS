@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -126,12 +128,14 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     double totalPrice = 0;
 
     for (final buyXGetYpromo in buyXGetYpromos) {
+      log(buyXGetYpromo.toString());
       final List<ReceiptItemEntity> itemYs = widget.receiptEntity.receiptItems
           .where((e1) => e1.promos
               .where((e2) => e2.promoId == buyXGetYpromo.promoId && (e2.promotionDetails as PromoBuyXGetYDetails).isY)
               .isNotEmpty)
           .toList();
       final List<Widget> itemYUIs = [];
+      log("itemYs $itemYs ${itemYs.length}");
 
       for (final itemY in itemYs) {
         final PromoBuyXGetYDetails associatedPromo = itemY.promos

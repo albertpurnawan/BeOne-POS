@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemsDao extends BaseDao<ItemModel> {
@@ -54,21 +57,47 @@ class ItemsDao extends BaseDao<ItemModel> {
       orderBy: "itemname",
       limit: 300,
     );
-    // log(result[0].toString());
+
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 
   Future<List<ItemModel>> readAllByPricelist(
       {String? searchKeyword, Transaction? txn, required String pricelistId}) async {
-    final result = await db.query(
-      tableName,
-      where:
-          "(${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ? OR ${ItemFields.shortName} LIKE ?) AND ${ItemFields.toplnId} = ?",
-      whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", pricelistId],
-      orderBy: "itemname",
-      limit: 300,
-    );
-    // log(result[0].toString());
+    final String notNullSearchKeyword = searchKeyword ?? "";
+    final List<Map<String, dynamic>> result;
+
+    if (!notNullSearchKeyword.contains("%")) {
+      result = await db.query(
+        tableName,
+        where:
+            "(${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ? OR ${ItemFields.shortName} LIKE ?) AND ${ItemFields.toplnId} = ?",
+        whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", pricelistId],
+        orderBy: "itemname",
+        limit: 300,
+      );
+    } else {
+      final String itemNameQuery =
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemName} LIKE '%${e}%'").join(" AND ");
+      final String barcodeQuery =
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.barcode} LIKE '%${e}%'").join(" AND ");
+      final String itemCodeQuery =
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemCode} LIKE '%${e}%'").join(" AND ");
+      final String shortNameQuery =
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.shortName} LIKE '%${e}%'").join(" AND ");
+
+      result = await db.query(
+        tableName,
+        where: """(($itemNameQuery)
+OR ($barcodeQuery)
+OR ($itemCodeQuery)
+OR ($shortNameQuery))
+AND ${ItemFields.toplnId} = ?""",
+        orderBy: "itemname",
+        whereArgs: [pricelistId],
+        limit: 300,
+      );
+    }
+
     return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
   }
 

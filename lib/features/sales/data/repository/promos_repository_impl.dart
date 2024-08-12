@@ -11,20 +11,16 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
   PromotionsRepositoryImpl(this._appDatabase);
 
   @override
-  Future<List<PromotionsEntity?>> createPromotions(
-      PromotionsEntity promotionsEntity) async {
+  Future<List<PromotionsEntity?>> createPromotions(PromotionsEntity promotionsEntity) async {
     final Database db = await _appDatabase.getDB();
     final promos = <PromotionsModel>[];
 
     await db.transaction((txn) async {
-      final topsb = await GetIt.instance<AppDatabase>()
-          .promoHargaSpesialHeaderDao
-          .readAll();
+      final topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
 
       for (final header in topsb) {
-        final tpsb4 = await GetIt.instance<AppDatabase>()
-            .promoHargaSpesialCustomerGroupDao
-            .readByTopsbId(header.docId, null);
+        final tpsb4 =
+            await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.readByTopsbId(header.docId, null);
 
         for (final customerGroup in tpsb4) {
           promos.add(PromotionsModel(
@@ -43,16 +39,13 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
         }
       }
 
-      final topdi =
-          await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
+      final topdi = await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
 
       for (final header in topdi) {
-        final tpdi1 = await GetIt.instance<AppDatabase>()
-            .promoMultiItemBuyConditionDao
-            .readByTopmiId(header.docId, null);
-        final tpdi5 = await GetIt.instance<AppDatabase>()
-            .promoMultiItemCustomerGroupDao
-            .readByTopmiId(header.docId, null);
+        final tpdi1 =
+            await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.readByTopmiId(header.docId, null);
+        final tpdi5 =
+            await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.readByTopmiId(header.docId, null);
 
         for (final buyCondition in tpdi1) {
           for (final customerGroup in tpdi5) {
@@ -79,13 +72,8 @@ class PromotionsRepositoryImpl extends PromotionsRepository {
 
   @override
   Future<List<PromotionsEntity>> checkPromos(String toitmId) async {
-    final Database db = await _appDatabase.getDB();
+    final List<PromotionsEntity> promos = await _appDatabase.promosDao.readByToitmId(toitmId, null);
 
-    return await db.transaction((txn) async {
-      final List<PromotionsEntity> promos =
-          await _appDatabase.promosDao.readByToitmId(toitmId, txn);
-
-      return promos;
-    });
+    return promos;
   }
 }

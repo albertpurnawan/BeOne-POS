@@ -8,6 +8,7 @@ import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/settings/presentation/pages/characters_per_line_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/default_printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/paper_size_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
@@ -837,7 +838,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          GetIt.instance<SharedPreferences>().getString("paperSize") ?? "Not Set",
+                                          GetIt.instance<SharedPreferences>().getString("paperSize") ?? "80 mm",
                                           style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(255, 66, 66, 66),
@@ -866,6 +867,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Divider(
                             height: 0,
                           ),
+                          InkWell(
+                            onTap: () => Helpers.navigate(context, const CharactersPerLineSettings())
+                                .then((value) => setState(() {})),
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.width_wide_outlined,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Characters per Line",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          (GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42)
+                                              .toString(),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                              fontSize: 16),
+                                        ),
+                                        const SizedBox(
+                                          width: 15,
+                                        ),
+                                        const Icon(
+                                          Icons.navigate_next,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            height: 0,
+                          )
                         ],
                       ),
                       // const SizedBox(

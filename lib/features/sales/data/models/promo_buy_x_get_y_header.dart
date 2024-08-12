@@ -47,8 +47,7 @@ class PromoBuyXGetYHeaderFields {
   static const String form = "form";
 }
 
-class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
-    implements BaseModel {
+class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity implements BaseModel {
   PromoBuyXGetYHeaderModel({
     required super.docId,
     required super.createDate,
@@ -100,15 +99,13 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
     return PromoBuyXGetYHeaderModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       promoCode: map['promocode'] as String,
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
       endDate: DateTime.parse(map['enddate'] as String).toLocal(),
-      startTime: DateTime.parse(map['starttime'] as String).toLocal(),
-      endTime: DateTime.parse(map['endtime'] as String).toLocal(),
+      startTime: DateTime.parse(map['starttime'] as String),
+      endTime: DateTime.parse(map['endtime'] as String),
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       minPurchase: map['minpurchase'] as double,
       buyCondition: map['buycondition'] as int,
@@ -133,8 +130,7 @@ class PromoBuyXGetYHeaderModel extends PromoBuyXGetYHeaderEntity
     });
   }
 
-  factory PromoBuyXGetYHeaderModel.fromEntity(
-      PromoBuyXGetYHeaderEntity entity) {
+  factory PromoBuyXGetYHeaderModel.fromEntity(PromoBuyXGetYHeaderEntity entity) {
     return PromoBuyXGetYHeaderModel(
       docId: entity.docId,
       createDate: entity.createDate,
