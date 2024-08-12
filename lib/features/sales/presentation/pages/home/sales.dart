@@ -1178,17 +1178,8 @@ class _SalesPageState extends State<SalesPage> {
                               isEditingNewReceiptItemQty = false;
                               isUpdatingReceiptItemQty = false;
                             });
-                            final double? appliedHeaderDisc = await showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => InputDiscountManual(
-                                      docnum: context.read<ReceiptCubit>().state.docNum,
-                                    ));
 
-                            if (appliedHeaderDisc != null) {
-                              SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
-                            }
+                            await applyHeaderDiscount(context);
 
                             setState(() {
                               isEditingNewReceiptItemCode = true;
@@ -1534,17 +1525,7 @@ class _SalesPageState extends State<SalesPage> {
                               isEditingNewReceiptItemQty = false;
                               isUpdatingReceiptItemQty = false;
                             });
-                            final double? appliedHeaderDisc = await showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => InputDiscountManual(
-                                      docnum: context.read<ReceiptCubit>().state.docNum,
-                                    ));
-
-                            if (appliedHeaderDisc != null) {
-                              SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
-                            }
+                            await applyHeaderDiscount(context);
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -1832,17 +1813,7 @@ class _SalesPageState extends State<SalesPage> {
                                 isEditingNewReceiptItemQty = false;
                                 isUpdatingReceiptItemQty = false;
                               });
-                              final double? appliedHeaderDisc = await showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) => InputDiscountManual(
-                                        docnum: context.read<ReceiptCubit>().state.docNum,
-                                      ));
-
-                              if (appliedHeaderDisc != null) {
-                                SnackBarHelper.presentSuccessSnackBar(
-                                    context, "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
-                              }
+                              await applyHeaderDiscount(context);
                               setState(() {
                                 isEditingNewReceiptItemCode = true;
                                 Future.delayed(const Duration(milliseconds: 50),
@@ -3331,19 +3302,10 @@ class _SalesPageState extends State<SalesPage> {
           isEditingNewReceiptItemQty = false;
           isUpdatingReceiptItemQty = false;
         });
-        await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => InputDiscountManual(
-                  docnum: context.read<ReceiptCubit>().state.docNum,
-                )).then((value) {
-          if (value != null) {
-            SnackBarHelper.presentSuccessSnackBar(context, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
-          }
-          setState(() {
-            isEditingNewReceiptItemCode = true;
-            _newReceiptItemCodeFocusNode.requestFocus();
-          });
+        await applyHeaderDiscount(context);
+        setState(() {
+          isEditingNewReceiptItemCode = true;
+          _newReceiptItemCodeFocusNode.requestFocus();
         });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f4)) {
         setState(() {
@@ -3523,6 +3485,28 @@ class _SalesPageState extends State<SalesPage> {
       return employeeEntity;
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<void> applyHeaderDiscount(BuildContext childContext) async {
+    try {
+      final ReceiptItemEntity? dpItem =
+          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0) {
+        throw "Header discount cannot be applied on down payment deposit";
+      }
+
+      await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
+        if (value != null) {
+          SnackBarHelper.presentSuccessSnackBar(
+              childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
+        }
+      });
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
   }
   // =================================================
