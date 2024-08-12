@@ -568,12 +568,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     dev.log("Retrievefromqueue $state");
 
     emit(state
-          ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
-          ..customerEntity = receiptEntity.customerEntity
-          ..salesTohemId = receiptEntity.salesTohemId
-          ..remarks = receiptEntity.remarks
-        // ..receiptItems = receiptEntity.receiptItems
-        );
+      ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
+      ..customerEntity = receiptEntity.customerEntity
+      ..salesTohemId = receiptEntity.salesTohemId
+      ..remarks = receiptEntity.remarks);
   }
 
   Future<void> updateTotalAmountFromDiscount(double discValue) async {
@@ -774,7 +772,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
       ));
 
-      dev.log("after emit $state");
+      // dev.log("after emit $state");
       return;
     } catch (e) {
       rethrow;
