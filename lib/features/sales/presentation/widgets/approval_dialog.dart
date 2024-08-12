@@ -14,6 +14,10 @@ import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_submission_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +33,7 @@ class ApprovalDialog extends StatefulWidget {
 }
 
 class _ApprovalDialogState extends State<ApprovalDialog> {
-  final formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
@@ -65,7 +69,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   }
 
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
-    if (!formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
@@ -95,7 +99,26 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
 
   Future<String> createOTP() async {
     try {
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, widget.discount);
+      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (topos == null) throw "Failed to retrieve POS Parameter";
+
+      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+      if (store == null) throw "Failed to retrieve Store Master";
+
+      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
+
+      final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+      final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
+
+      final Map<String, String> payload = {
+        "Store Name": store.storeName,
+        "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
+        "CashierName": cashierName!.username,
+        // "DiscountAmount": Helpers.parseMoney(widget.discountValue),
+      };
+
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, payload);
       return response['Requester'];
     } catch (e) {
       rethrow;
@@ -184,7 +207,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(30, 30, 30, 15),
                     child: Form(
-                      key: formKey,
+                      key: _formKey,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

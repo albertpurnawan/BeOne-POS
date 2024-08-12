@@ -22,6 +22,7 @@ import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
@@ -255,6 +256,28 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     _keyboardListenerFocusNode.requestFocus();
   }
 
+  Future<void> applyHeaderDiscount(BuildContext childContext) async {
+    try {
+      final ReceiptItemEntity? dpItem =
+          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0) {
+        throw "Header discount cannot be applied on down payment deposit";
+      }
+
+      await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
+        if (value != null) {
+          SnackBarHelper.presentSuccessSnackBar(
+              childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
+        }
+      });
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
   Future<void> toggleMultiMOPs() async {
     setState(() {
       isMultiMOPs = !isMultiMOPs;
@@ -298,16 +321,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               node.nextFocus();
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged) {
-              showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum))
-                  .then((value) {
-                if (value != null) {
-                  SnackBarHelper.presentSuccessSnackBar(
-                      childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
-                }
-              });
+              applyHeaderDiscount(childContext);
             } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
               showAppliedPromotions().then((value) => _focusScopeNode.requestFocus());
               return KeyEventResult.handled;
@@ -360,18 +374,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   ),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
-                                onPressed: () async {
-                                  final double? appliedHeaderDisc = await showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) =>
-                                          InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum));
-
-                                  if (appliedHeaderDisc != null) {
-                                    SnackBarHelper.presentSuccessSnackBar(childContext,
-                                        "Header discount applied: ${Helpers.parseMoney(appliedHeaderDisc)}", 3);
-                                  }
-                                },
+                                onPressed: () async => await applyHeaderDiscount(childContext),
                                 child: Row(
                                   children: [
                                     const Icon(
@@ -789,6 +792,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     getPaymentTypes();
     // getCurrencyName();
     checkAndHandleZeroGrandTotal();
+    refreshQRISChip();
   }
 
   void getCurrencyName() async {
@@ -877,6 +881,23 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         ],
       ),
     );
+  }
+
+  Future<void> refreshQRISChip() async {
+    final mopState = context.read<ReceiptCubit>().state.mopSelections;
+    final filteredMopState = mopState.where((mop) => mop.payTypeCode == "1").toList();
+
+    if (mopState.isEmpty) return;
+    if (filteredMopState.isEmpty) {
+      setState(() {
+        _values = context.read<ReceiptCubit>().state.mopSelections;
+      });
+    } else {
+      setState(() {
+        _values = context.read<ReceiptCubit>().state.mopSelections;
+        _textEditingControllerCashAmount.text = Helpers.parseMoney(filteredMopState[0].amount!.toInt());
+      });
+    }
   }
 
   Future<void> _refreshVouchersChips(List<VouchersSelectionEntity> vouchers, int color) async {

@@ -43,11 +43,14 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
 
       if (!keyword.contains("%")) {
         result = await db.rawQuery('''
-    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price FROM toitm AS x0 
+    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price, x4.description FROM toitm AS x0 
       INNER JOIN tbitm AS x1 ON x1.toitmId = x0.docid 
       INNER JOIN tpln2 AS x2 ON x2.toitmId = x0.docid
+      INNER JOIN tpln1 AS x3 On x2.tpln1Id = x3.docid
+      INNER JOIN topln AS x4 ON x3.toplnId = x4.docid
       WHERE x0.itemcode LIKE ? OR x1.barcode LIKE ? OR x0.itemname LIKE ?
       ORDER BY itemname
+      LIMIT 300
     ''', ["%$keyword%", "%$keyword%", "%$keyword%"]);
       } else {
         final String itemNameQuery = keyword.split('%').map((e) => "itemname LIKE '%$e%'").join(" AND ");
@@ -56,13 +59,15 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
         final String shortNameQuery = keyword.split('%').map((e) => "shortname LIKE '%$e%'").join(" AND ");
 
         result = await db.rawQuery('''
-    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price FROM toitm AS x0 
+    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price, x4.description FROM toitm AS x0 
       INNER JOIN tbitm AS x1 ON x1.toitmId = x0.docid 
       INNER JOIN tpln2 AS x2 ON x2.toitmId = x0.docid
+      INNER JOIN tpln1 AS x3 On x2.tpln1Id = x3.docid
+      INNER JOIN topln AS x4 ON x3.toplnId = x4.docid
       WHERE ($itemNameQuery)
-OR ($barcodeQuery)
-OR ($itemCodeQuery)
-OR ($shortNameQuery)
+      OR ($barcodeQuery)
+      OR ($itemCodeQuery)
+      OR ($shortNameQuery)
       ORDER BY itemname
       LIMIT 300
     ''');

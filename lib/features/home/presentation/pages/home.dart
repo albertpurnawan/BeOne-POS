@@ -36,6 +36,34 @@ class _HomeScreenState extends State<HomeScreen> {
   late String symbol;
   CashierBalanceTransactionModel? activeShift;
   bool openShifts = false;
+  int totalToinvs = 0;
+  int totalTcsr1s = 0;
+  int totalToinvSynced = 0;
+  int totalTcsr1Synced = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchActiveShift();
+    checkOpenShifts();
+    countTotalInvoice();
+    countTotalShifts();
+    now = DateTime.now();
+    morningEpoch = DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
+    afternoonEpoch = DateTime(now.year, now.month, now.day, 11, 0, 0).millisecondsSinceEpoch;
+    eveningEpoch = DateTime(now.year, now.month, now.day, 18, 0, 0).millisecondsSinceEpoch;
+    final nowEpoch = now.millisecondsSinceEpoch;
+    if (nowEpoch < morningEpoch || nowEpoch >= eveningEpoch) {
+      timeOfDay = "evening";
+      symbol = "🌆";
+    } else if (nowEpoch >= morningEpoch && nowEpoch < afternoonEpoch) {
+      timeOfDay = "morning";
+      symbol = "☕";
+    } else if (nowEpoch >= afternoonEpoch && nowEpoch < eveningEpoch) {
+      timeOfDay = "afternoon";
+      symbol = "☀️";
+    }
+  }
 
   Future<void> fetchActiveShift() async {
     activeShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
@@ -66,26 +94,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchActiveShift();
-    checkOpenShifts();
-    now = DateTime.now();
-    morningEpoch = DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
-    afternoonEpoch = DateTime(now.year, now.month, now.day, 11, 0, 0).millisecondsSinceEpoch;
-    eveningEpoch = DateTime(now.year, now.month, now.day, 18, 0, 0).millisecondsSinceEpoch;
-    final nowEpoch = now.millisecondsSinceEpoch;
-    if (nowEpoch < morningEpoch || nowEpoch >= eveningEpoch) {
-      timeOfDay = "evening";
-      symbol = "🌆";
-    } else if (nowEpoch >= morningEpoch && nowEpoch < afternoonEpoch) {
-      timeOfDay = "morning";
-      symbol = "☕";
-    } else if (nowEpoch >= afternoonEpoch && nowEpoch < eveningEpoch) {
-      timeOfDay = "afternoon";
-      symbol = "☀️";
-    }
+  Future<void> countTotalInvoice() async {
+    final invoices = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
+    final toinvSyncedCount = invoices.where((invoice) => invoice.syncToBos != null).length;
+    setState(() {
+      totalToinvSynced = toinvSyncedCount;
+      totalToinvs = invoices.length;
+    });
+  }
+
+  Future<void> countTotalShifts() async {
+    final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
+    final tcsr1SyncedCount = shifts.where((shift) => shift.syncToBos != null).length;
+    setState(() {
+      totalTcsr1Synced = tcsr1SyncedCount;
+      totalTcsr1s = shifts.length;
+    });
   }
 
   @override
@@ -164,13 +188,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      width: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text("Invoices Uploaded: $totalToinvSynced/$totalToinvs",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w300,
+                                    fontStyle: FontStyle.italic)),
+                            const SizedBox(width: 10),
+                            Text("Shifts Uploaded: $totalTcsr1Synced/$totalTcsr1s",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w300,
+                                    fontStyle: FontStyle.italic)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
                       width: MediaQuery.of(context).size.width * 0.36,
                       alignment: Alignment.topLeft,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.1,
+                            height: MediaQuery.of(context).size.height * 0.03,
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 30),

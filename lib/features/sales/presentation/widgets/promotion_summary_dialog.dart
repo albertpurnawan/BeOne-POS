@@ -131,7 +131,9 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
       for (final buyXGetYpromo in buyXGetYpromos) {
         // log(buyXGetYpromo.toString());
         final List<ReceiptItemEntity> itemYs = widget.receiptEntity.receiptItems
-            .where((e1) => e1.promos.where((e2) => e2.promoId == buyXGetYpromo.promoId).isNotEmpty)
+            .where((e1) => e1.promos
+                .where((e2) => e2.promoId == buyXGetYpromo.promoId && (e2.promotionDetails as PromoBuyXGetYDetails).isY)
+                .isNotEmpty)
             .toList();
         final List<Widget> itemYUIs = [];
         log("itemYs $itemYs ${itemYs.length}");
@@ -391,6 +393,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
       final List<ReceiptItemEntity> appliedItems = widget.receiptEntity.receiptItems
           .where((e1) => e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).isNotEmpty)
           .toList();
+      if (appliedItems.isEmpty) break;
       final double totalDiscByPromoId = appliedItems.map((e1) {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
@@ -529,6 +532,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
               .where((e2) => e2.promoId == discountItemByItemPromo.promoId && (e2.discAmount ?? 0) >= 0)
               .isNotEmpty)
           .toList();
+      if (appliedItems.isEmpty) break;
       final double totalDiscByPromoId = appliedItems.map((e1) {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;

@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
@@ -736,15 +737,20 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // dev.log("Process after checkout $newReceipt");
 
-      if (dpItem != null) {
+      if (dpItem != null && dpItem.quantity < 0) {
         if (dpItem.sellingPrice > newReceipt.grandTotal) {
-          throw "Down payment exceed grand total (overpayment: ${Helpers.parseMoney(dpItem.sellingPrice - newReceipt.grandTotal)})";
+          throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(dpItem.sellingPrice - newReceipt.grandTotal)})";
         } else {
           newReceipt = await _recalculateReceiptUseCase.call(
               params: newReceipt.copyWith(
             receiptItems: newReceipt.receiptItems.map((e) => e.copyWith()).toList() + [dpItem.copyWith()],
           ));
         }
+      } else if (dpItem != null && dpItem.quantity > 0) {
+        newReceipt = await _recalculateReceiptUseCase.call(
+            params: newReceipt.copyWith(
+          receiptItems: [dpItem.copyWith()],
+        ));
       }
 
       if (discHeaderManual > 0 && newReceipt.grandTotal + (dpItem?.sellingPrice ?? 0) >= discHeaderManual) {

@@ -472,7 +472,7 @@ class ReceiptPrinter {
             // ]);
 
             // Layout4
-            String barcodeString = item.itemEntity.barcode;
+            String barcodeString = "${(item.discAmount ?? 0) > 0 ? '*' : ''}${item.itemEntity.barcode}";
             int barcodeLength = barcodeString.length;
             final int barcodeRequiredRow = (barcodeLength / 42).ceil();
 

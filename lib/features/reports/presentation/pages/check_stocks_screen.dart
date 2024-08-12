@@ -63,8 +63,16 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   }
 
   Future<List<CheckStockModel>> _checkStock(String itemCode, String itemName) async {
-    final stockData = await GetIt.instance<CheckStockApi>().fetchData(itemCode, itemName);
-    return stockData;
+    try {
+      final stockData = await GetIt.instance<CheckStockApi>().fetchData(itemCode, itemName);
+      return stockData;
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, "Error Fetching Data");
+      setState(() {
+        isLoading = false;
+      });
+      rethrow;
+    }
   }
 
   @override
@@ -280,7 +288,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(item['price'].toInt())}",
+                            "Rp ${Helpers.parseMoney(item['price'].toInt())} (${item['description']})",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -308,279 +316,284 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
     final price = selectedItem!['price'].toInt();
     final priceFormatted = Helpers.parseMoney(price);
     setState(() => isLoading = false);
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.65,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                    margin: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Center(
-                        child: Text(
-                      "${(selectedItem != null) ? selectedItem!['itemname'] : ""}",
-                      style:
-                          const TextStyle(color: ProjectColors.mediumBlack, fontSize: 20, fontWeight: FontWeight.bold),
-                    )),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
+    return SingleChildScrollView(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.65,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
                       padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       child: Center(
-                        child: FittedBox(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.inventory_2_outlined, color: Colors.black, size: 18.0),
-                              const SizedBox(width: 10),
-                              Text(
-                                "${(selectedItem != null) ? selectedItem!['itemcode'] : ""}",
-                                style: const TextStyle(
-                                    color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                          child: Text(
+                        "${(selectedItem != null) ? selectedItem!['itemname'] : ""}",
+                        style: const TextStyle(
+                            color: ProjectColors.mediumBlack, fontSize: 20, fontWeight: FontWeight.bold),
+                      )),
                     ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(
-                        child: FittedBox(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/images/barcode.svg",
-                                height: 20,
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                "${(selectedItem != null) ? selectedItem!['barcode'] : ""}",
-                                style: const TextStyle(
-                                    color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(
-                        child: FittedBox(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.monetization_on_outlined, color: Colors.black, size: 18.0),
-                              const SizedBox(width: 10),
-                              Text(
-                                (selectedItem != null) ? priceFormatted : "",
-                                style: const TextStyle(
-                                    color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Center(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                boxShadow: const [
-                  BoxShadow(
-                    spreadRadius: 0.5,
-                    blurRadius: 5,
-                    color: Color.fromRGBO(0, 0, 0, 0.222),
-                    offset: Offset(2, 5),
-                  ),
-                ],
-              ),
-              child: Table(
-                border: TableBorder.symmetric(
-                  outside: BorderSide.none,
-                  inside: BorderSide.none,
+                  ],
                 ),
-                columnWidths: const {
-                  0: FlexColumnWidth(),
-                  1: FlexColumnWidth(),
-                  2: FlexColumnWidth(),
-                  3: FlexColumnWidth(),
-                  4: FlexColumnWidth(),
-                },
-                children: [
-                  TableRow(
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: ProjectColors.primary,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text("Store",
-                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: ProjectColors.primary,
-                        ),
-                        child: const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text("On Hand",
-                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ),
+            SizedBox(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Center(
+                          child: FittedBox(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.inventory_2_outlined, color: Colors.black, size: 18.0),
+                                const SizedBox(width: 10),
+                                Text(
+                                  "${(selectedItem != null) ? selectedItem!['itemcode'] : ""}",
+                                  style: const TextStyle(
+                                      color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: ProjectColors.primary,
-                        ),
-                        child: const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text("Ordered",
-                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Center(
+                          child: FittedBox(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/barcode.svg",
+                                  height: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  "${(selectedItem != null) ? selectedItem!['barcode'] : ""}",
+                                  style: const TextStyle(
+                                      color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: ProjectColors.primary,
-                        ),
-                        child: const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text("Committed",
-                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Center(
+                          child: FittedBox(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.monetization_on_outlined, color: Colors.black, size: 18.0),
+                                const SizedBox(width: 10),
+                                Text(
+                                  (selectedItem != null) ? priceFormatted : "",
+                                  style: const TextStyle(
+                                      color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: ProjectColors.primary,
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(8),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text("Available",
-                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  boxShadow: const [
+                    BoxShadow(
+                      spreadRadius: 0.5,
+                      blurRadius: 5,
+                      color: Color.fromRGBO(0, 0, 0, 0.222),
+                      offset: Offset(2, 5),
+                    ),
+                  ],
+                ),
+                child: Table(
+                  border: TableBorder.symmetric(
+                    outside: BorderSide.none,
+                    inside: BorderSide.none,
                   ),
-                  ...stocksFetched!.asMap().entries.map((entry) {
-                    final stock = entry.value;
-                    final index = entry.key;
-                    final isLast = index == stocksFetched!.length - 1;
-                    return TableRow(
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 239, 238, 238),
-                        borderRadius:
-                            isLast ? const BorderRadius.vertical(bottom: Radius.circular(8)) : BorderRadius.zero,
-                      ),
+                  columnWidths: const {
+                    0: FlexColumnWidth(),
+                    1: FlexColumnWidth(),
+                    2: FlexColumnWidth(),
+                    3: FlexColumnWidth(),
+                    4: FlexColumnWidth(),
+                  },
+                  children: [
+                    TableRow(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                              child: Text(
-                            stock.storeCode,
-                            style: const TextStyle(
-                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
-                          )),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: ProjectColors.primary,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                            ),
+                          ),
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Store",
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                              child: Text(
-                            stock.qtyOnHand.toString(),
-                            style: const TextStyle(
-                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
-                          )),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: ProjectColors.primary,
+                          ),
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("On Hand",
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                              child: Text(
-                            stock.ordered.toString(),
-                            style: const TextStyle(
-                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
-                          )),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: ProjectColors.primary,
+                          ),
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Ordered",
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                              child: Text(
-                            stock.commited.toString(),
-                            style: const TextStyle(
-                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
-                          )),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: ProjectColors.primary,
+                          ),
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Committed",
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                              child: Text(
-                            stock.available.toString(),
-                            style: const TextStyle(
-                                color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
-                          )),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: ProjectColors.primary,
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(8),
+                            ),
+                          ),
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Available",
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         ),
                       ],
-                    );
-                  }).toList(),
-                ],
+                    ),
+                    ...stocksFetched!.asMap().entries.map((entry) {
+                      final stock = entry.value;
+                      final index = entry.key;
+                      final isLast = index == stocksFetched!.length - 1;
+                      return TableRow(
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 239, 238, 238),
+                          borderRadius:
+                              isLast ? const BorderRadius.vertical(bottom: Radius.circular(8)) : BorderRadius.zero,
+                        ),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                                child: Text(
+                              stock.storeCode,
+                              style: const TextStyle(
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            )),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                                child: Text(
+                              stock.qtyOnHand.toString(),
+                              style: const TextStyle(
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            )),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                                child: Text(
+                              stock.ordered.toString(),
+                              style: const TextStyle(
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            )),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                                child: Text(
+                              stock.commited.toString(),
+                              style: const TextStyle(
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            )),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                                child: Text(
+                              stock.available.toString(),
+                              style: const TextStyle(
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
+                            )),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          if (stocksFetched!.isEmpty)
-            const Center(
-                child: Text(
-              "No Data Available",
-              style: TextStyle(
-                  color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700, fontStyle: FontStyle.italic),
-            )),
-        ],
+            const SizedBox(height: 20),
+            if (stocksFetched!.isEmpty)
+              const Center(
+                  child: Text(
+                "No Data Available",
+                style: TextStyle(
+                    color: ProjectColors.primary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    fontStyle: FontStyle.italic),
+              )),
+          ],
+        ),
       ),
     );
   }

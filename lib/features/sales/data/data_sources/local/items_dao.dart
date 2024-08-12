@@ -1,8 +1,5 @@
-import 'dart:developer';
-
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
-import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemsDao extends BaseDao<ItemModel> {
@@ -77,13 +74,13 @@ class ItemsDao extends BaseDao<ItemModel> {
       );
     } else {
       final String itemNameQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemName} LIKE '%${e}%'").join(" AND ");
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemName} LIKE '%$e%'").join(" AND ");
       final String barcodeQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.barcode} LIKE '%${e}%'").join(" AND ");
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.barcode} LIKE '%$e%'").join(" AND ");
       final String itemCodeQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemCode} LIKE '%${e}%'").join(" AND ");
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemCode} LIKE '%$e%'").join(" AND ");
       final String shortNameQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.shortName} LIKE '%${e}%'").join(" AND ");
+          notNullSearchKeyword.split('%').map((e) => "${ItemFields.shortName} LIKE '%$e%'").join(" AND ");
 
       result = await db.query(
         tableName,
