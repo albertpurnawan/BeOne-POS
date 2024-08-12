@@ -188,21 +188,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
                       width: double.infinity,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text("Sent Invoices: $totalToinvSynced / $totalToinvs",
-                                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
-                            const SizedBox(width: 20),
-                            Text("Sent Shifts: $totalTcsr1Synced / $totalTcsr1s",
-                                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+                            Text("Invoices Uploaded: $totalToinvSynced/$totalToinvs",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w300,
+                                    fontStyle: FontStyle.italic)),
+                            const SizedBox(width: 10),
+                            Text("Shifts Uploaded: $totalTcsr1Synced/$totalTcsr1s",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w300,
+                                    fontStyle: FontStyle.italic)),
                           ],
                         ),
                       ),
+                    ),
+                    const SizedBox(
+                      height: 20,
                     ),
                     Container(
                       width: MediaQuery.of(context).size.width * 0.36,
