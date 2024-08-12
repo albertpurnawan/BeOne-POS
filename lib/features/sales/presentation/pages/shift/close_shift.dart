@@ -72,7 +72,7 @@ class CloseShiftScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 CloseShiftForm(
                   shiftId: shiftId,
-                  username: username!,
+                  username: username ?? "",
                 ),
               ],
             ),
@@ -483,7 +483,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "null",
+                closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "N/A",
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -856,7 +856,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                       approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
                   try {
                     GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams, printType: 1);
-                  } catch (e) {}
+                  } catch (e) {
+                    log("$e");
+                  }
 
                   if (checkLastShift) {
                     await prefs.setBool('isOpen', false);

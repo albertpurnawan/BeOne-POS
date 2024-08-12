@@ -769,9 +769,15 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
             if (selectedMOP1 == null)
               const Padding(
                 padding: EdgeInsets.only(left: 10),
-                child: Text(
-                  "There's no transactions found",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: ProjectColors.primary),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: ProjectColors.primary),
+                    SizedBox(width: 5),
+                    Text(
+                      "There's no transactions found on this shift",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: ProjectColors.primary),
+                    ),
+                  ],
                 ),
               ),
             const SizedBox(height: 10),

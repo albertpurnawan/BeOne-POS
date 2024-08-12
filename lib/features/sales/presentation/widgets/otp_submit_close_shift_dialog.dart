@@ -4,32 +4,33 @@ import 'dart:developer';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
-import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
+import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:uuid/uuid.dart';
+import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 
-class OTPSubmissionDialog extends StatefulWidget {
+class OTPEndShiftDialog extends StatefulWidget {
+  final CashierBalanceTransactionModel shift;
   final String requester;
   final double? amount;
 
-  const OTPSubmissionDialog({super.key, required this.requester, this.amount});
+  const OTPEndShiftDialog({super.key, required this.shift, required this.requester, this.amount});
 
   @override
-  State<OTPSubmissionDialog> createState() => _OTPSubmissionDialogState();
+  State<OTPEndShiftDialog> createState() => _OTPEndShiftDialogState();
 }
 
-class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
+class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
   final _otpControllers = List<TextEditingController>.generate(6, (index) => TextEditingController());
   String _otpCode = '';
   late Timer _timer;
@@ -42,6 +43,8 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
 
   @override
   void initState() {
+    log("SHIFT - ${widget.shift}");
+    log("REQUEST - ${widget.requester}");
     super.initState();
     _otpFocusNode = FocusNode();
     _startTimer();
@@ -60,6 +63,24 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
 
   Future<void> resendOTP() async {
     try {
+      double totalSales = 0;
+      final DateTime now = DateTime.now();
+      final start = widget.shift.openDate.subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
+      final end = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        23,
+        59,
+        59,
+        999,
+      );
+
+      final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
+      for (final mop in fetched!) {
+        totalSales += mop['totalamount'];
+      }
+
       final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
       if (topos == null) throw "Failed to retrieve POS Parameter";
 
@@ -69,14 +90,17 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
       final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
       if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
-      final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
-      final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
+      final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(widget.shift.tousrId!, null);
+      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByEmpCode(cashierName!.tohemId!, null);
 
       final Map<String, String> payload = {
         "Store Name": store.storeName,
         "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-        "Cashier Name": cashierName!.username,
-        // "DiscountAmount": Helpers.parseMoney(widget.discountValue),
+        "Cashier Name": employee?.empName ?? cashierName.username,
+        "Shift": widget.shift.docNum,
+        "Open Date": Helpers.dateEEddMMMyyy(widget.shift.openDate),
+        "Opening Balance": Helpers.parseMoney(widget.shift.openValue),
+        "Total Sales": Helpers.parseMoney(totalSales),
       };
 
       await GetIt.instance<OTPServiceAPi>().createSendOTP(context, payload);
@@ -89,6 +113,18 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<String> getApprover(String email) async {
+    try {
+      final UserEntity? user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(email, null);
+      if (user == null) throw "User not found";
+
+      return user.username;
+    } catch (e) {
+      log("$e when fetch close shift approver");
+    }
+    return "";
   }
 
   Future<void> onSubmit(BuildContext parentContext, BuildContext childContext, String otp, String requester) async {
@@ -108,13 +144,21 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
           ),
         );
       }
+
       await Future.delayed(const Duration(seconds: 2));
       if (childContext.mounted) {
         parentContext.pop(true); // Close the input otp dialog
         parentContext.pop(true); // Close the input otp dialog
+        parentContext.pop(true); // Close the input otp dialog
+
+        Helpers.navigate(
+            childContext,
+            CloseShiftScreen(
+              shiftId: widget.shift.docId,
+              username: await getApprover(response['approver']!),
+            ));
 
         SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
-        await updateReceiptApprovals(childContext, response['approver']!);
       }
     } else {
       const message = "Wrong Code, Please Check Again";
@@ -122,23 +166,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
         SnackBarHelper.presentErrorSnackBar(childContext, message);
       }
     }
-  }
-
-  Future<void> updateReceiptApprovals(BuildContext context, String approver) async {
-    final user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(approver, null);
-    final receiptCubit = context.read<ReceiptCubit>();
-
-    final approval = ApprovalInvoiceModel(
-      docId: const Uuid().v4(),
-      createDate: DateTime.now(),
-      updateDate: null,
-      toinvId: receiptCubit.state.docNum,
-      tousrId: user!.docId,
-      remarks: "Approval Transaction 0",
-      category: "002 - Transaction 0",
-    );
-    context.read<ReceiptCubit>().updateApprovals(approval);
-    log("receiptCubit - ${receiptCubit.state.approvals}");
   }
 
   Future<void> showOTPSent() async {

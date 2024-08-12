@@ -63,8 +63,16 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   }
 
   Future<List<CheckStockModel>> _checkStock(String itemCode, String itemName) async {
-    final stockData = await GetIt.instance<CheckStockApi>().fetchData(itemCode, itemName);
-    return stockData;
+    try {
+      final stockData = await GetIt.instance<CheckStockApi>().fetchData(itemCode, itemName);
+      return stockData;
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, "Error Fetching Data");
+      setState(() {
+        isLoading = false;
+      });
+      rethrow;
+    }
   }
 
   @override
@@ -280,7 +288,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             width: 5,
                           ),
                           Text(
-                            "Rp ${Helpers.parseMoney(item['price'].toInt())}",
+                            "Rp ${Helpers.parseMoney(item['price'].toInt())} (${item['description']})",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,

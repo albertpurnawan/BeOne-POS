@@ -7,7 +7,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 
 class OTPServiceAPi {
@@ -17,11 +16,11 @@ class OTPServiceAPi {
 
   OTPServiceAPi(this._dio);
 
-  Future<Map<String, dynamic>> createSendOTP(BuildContext context, double? amount) async {
+  Future<Map<String, dynamic>> createSendOTP(BuildContext context, Map<String, String> payload) async {
     Response? response;
 
     try {
-      log("CREATE & SEND OTP - $amount");
+      log("CREATE & SEND OTP");
       final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
 
@@ -45,43 +44,19 @@ class OTPServiceAPi {
       final formattedExpired = formatter.format(DateTime.now().toUtc().add(const Duration(hours: 1)));
       final formattedDateTime = formatter.format(DateTime.now().toUtc());
 
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos[0].tocsrId!, null);
-      final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
-      final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
-
       for (final spv in spvList) {
         Map<String, dynamic> dataToSend = {};
-        if (amount != null) {
-          final discount = Helpers.parseMoney(amount);
-          dataToSend = {
-            "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
-            "channelId": otpChannel, // uuid smtp
-            "Destination": spv['email'],
-            "Expired": formattedExpired,
-            "RequestTimestamp": formattedDateTime,
-            "isUsed": false,
-            "additionalInfo": {
-              "StoreName": store.storeName,
-              "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
-              "CashierName": cashierName!.username,
-              "DiscountAmmount": discount,
-            }
-          };
-        } else {
-          dataToSend = {
-            "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
-            "channelId": otpChannel, // uuid smtp
-            "Destination": spv['email'],
-            "Expired": formattedExpired,
-            "RequestTimestamp": formattedDateTime,
-            "isUsed": false,
-            "additionalInfo": {
-              "StoreName": store.storeName,
-              "CashierId": (cashierMachine!.description == "") ? cashierMachine.idKassa : cashierMachine.description,
-              "CashierName": cashierName!.username
-            }
-          };
-        }
+
+        dataToSend = {
+          "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
+          "channelId": otpChannel, // uuid smtp
+          "Destination": spv['email'],
+          "Expired": formattedExpired,
+          "RequestTimestamp": formattedDateTime,
+          "isUsed": false,
+          "additionalInfo": payload
+        };
+
         log("Data2Send for ${spv['email']}: ${jsonEncode(dataToSend)}");
 
         response = await _dio.post(
@@ -109,8 +84,8 @@ class OTPServiceAPi {
 
       final dataToSend = {
         "otp": otp,
-        "requesterId": "Top-Golf",
-      }; // need to change the requesterId
+        "requesterId": requester,
+      };
       // log("Data2Send: ${jsonEncode(dataToSend)}");
 
       Response response = await _dio.post(
@@ -123,7 +98,7 @@ class OTPServiceAPi {
       return {"status": "${response.statusCode}", "approver": "${response.data['data']?['Destination']}"};
     } catch (e) {
       handleError(e);
-      return {"errpr": e.toString()};
+      return {"error": e.toString()};
     }
   }
 }
