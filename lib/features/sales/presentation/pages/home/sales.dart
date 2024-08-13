@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -976,7 +978,8 @@ class _SalesPageState extends State<SalesPage> {
                           onPressed: () {
                             context.read<ReceiptCubit>().resetReceipt();
                             setState(() {});
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
+                            context.goNamed(RouteConstants.home);
                           },
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
@@ -1967,7 +1970,8 @@ class _SalesPageState extends State<SalesPage> {
                         onPressed: () {
                           context.read<ReceiptCubit>().resetReceipt();
                           setState(() {});
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
+                          context.goNamed(RouteConstants.home);
                         },
                         style: OutlinedButton.styleFrom(
                           elevation: 5,
