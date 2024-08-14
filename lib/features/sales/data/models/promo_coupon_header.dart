@@ -45,8 +45,7 @@ class PromoCouponHeaderFields {
   static const String statusActive = "statusactive";
 }
 
-class PromoCouponHeaderModel extends PromoCouponHeaderEntity
-    implements BaseModel {
+class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseModel {
   PromoCouponHeaderModel({
     required super.docId,
     required super.createDate,
@@ -86,8 +85,8 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
       'minpurchase': minPurchase,
       'generaldisc': generalDisc,
       'maxgeneraldisc': maxGeneralDisc,
-      'memberisc': memberDisc,
-      'maxmemberisc': maxMemberDisc,
+      'memberdisc': memberDisc,
+      'maxmemberdisc': maxMemberDisc,
       'statusactive': statusActive,
     };
   }
@@ -96,9 +95,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
     return PromoCouponHeaderModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       couponCode: map['couponcode'] as String,
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
@@ -111,8 +108,8 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
       minPurchase: map['minpurchase'] as double,
       generalDisc: map['generaldisc'] as double,
       maxGeneralDisc: map['maxgeneraldisc'] as String,
-      memberDisc: map['memberisc'] as double,
-      maxMemberDisc: map['maxmemberisc'] as double,
+      memberDisc: map['memberdisc'] as double,
+      maxMemberDisc: map['maxmemberdisc'] as double,
       statusActive: map['statusactive'] as int,
     );
   }
@@ -122,8 +119,8 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
       ...map,
       "minpurchase": map['minpurchase'].toDouble() as double,
       "generaldisc": map['generaldisc'].toDouble() as double,
-      "memberdisc": map['memberisc'].toDouble() as double,
-      "maxMemberdisc": map['maxmemberisc'].toDouble() as double,
+      "memberdisc": map['memberdisc'].toDouble() as double,
+      "maxMemberdisc": map['maxmemberdisc'].toDouble() as double,
     });
   }
 
