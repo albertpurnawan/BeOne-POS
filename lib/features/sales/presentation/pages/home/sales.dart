@@ -1202,7 +1202,7 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Discount",
+                                "Discount &\nCode",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -1547,7 +1547,7 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Discount",
+                                "Discount &\nCoupon",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -1857,7 +1857,7 @@ class _SalesPageState extends State<SalesPage> {
                                         text: const TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: "Discount",
+                                              text: "Discount \n& Coupon",
                                               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                             ),
                                           ],
