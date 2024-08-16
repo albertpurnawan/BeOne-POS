@@ -54,7 +54,6 @@ import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_promo_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promo_get_y_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'receipt_state.dart';
 
@@ -755,15 +754,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         }
       }
 
-      final couponsApplied = state.copyWith().coupons;
-      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      final check = prefs.getBool('isSyncing');
-      dev.log("check - $check");
-      if (couponsApplied != null) {
-        newReceipt = await _applyPromoToprnUseCase.call(params: newReceipt);
-      }
+      // Coupons Process
+      // final couponsApplied = state.copyWith().coupons;
+      // final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      // final check = prefs.getBool('isSyncing');
+      // dev.log("check - $check");
+      // if (couponsApplied != null) {
+      //   newReceipt = await _applyPromoToprnUseCase.call(params: newReceipt);
+      // }
 
-      dev.log("newReceiptCoupon - $newReceipt");
+      // dev.log("newReceiptCoupon - $newReceipt");
 
       // dev.log("Process after checkout $newReceipt");
 
