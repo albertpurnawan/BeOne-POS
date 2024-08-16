@@ -27,7 +27,6 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
-import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
@@ -76,7 +75,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final RecalculateTaxUseCase _recalculateTaxUseCase;
   final HandlePromoTopdgUseCase _handlePromoTopdgUseCase;
   final HandlePromoTopdiUseCase _handlePromoTopdiUseCase;
-  final ApplyPromoToprnUseCase _applyPromoToprnUseCase;
+  // final ApplyPromoToprnUseCase _applyPromoToprnUseCase;
   final GetPosParameterUseCase _getPosParameterUseCase;
   final GetStoreMasterUseCase _getStoreMasterUseCase;
   final GetCashRegisterUseCase _getCashRegisterUseCase;
@@ -102,7 +101,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._recalculateTaxUseCase,
     this._handlePromoTopdgUseCase,
     this._handlePromoTopdiUseCase,
-    this._applyPromoToprnUseCase,
+    // this._applyPromoToprnUseCase,
     this._getPosParameterUseCase,
     this._getStoreMasterUseCase,
     this._getCashRegisterUseCase,

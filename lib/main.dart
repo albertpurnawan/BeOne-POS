@@ -8,7 +8,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/widgets/restart_widget.dart';
-import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
@@ -129,7 +128,7 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<RecalculateTaxUseCase>(),
                       GetIt.instance<HandlePromoTopdgUseCase>(),
                       GetIt.instance<HandlePromoTopdiUseCase>(),
-                      GetIt.instance<ApplyPromoToprnUseCase>(),
+                      // GetIt.instance<ApplyPromoToprnUseCase>(),
                       GetIt.instance<GetPosParameterUseCase>(),
                       GetIt.instance<GetStoreMasterUseCase>(),
                       GetIt.instance<GetCashRegisterUseCase>(),
