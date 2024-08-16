@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
+import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
@@ -431,6 +432,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<EncryptPasswordUseCase>(EncryptPasswordUseCase());
   sl.registerSingleton<DecryptPasswordUseCase>(DecryptPasswordUseCase());
   sl.registerSingleton<RefreshTokenUseCase>(RefreshTokenUseCase());
+  sl.registerSingleton<GetAppVersionUseCase>(GetAppVersionUseCase());
   /**
    * =================================
    * END OF USECASES

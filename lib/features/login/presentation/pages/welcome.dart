@@ -13,6 +13,7 @@ import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
+import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/features/settings/presentation/device_setup.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,9 +68,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   bool isLoggedIn = false;
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   bool haveTopos = false;
+  String appVersion = "";
+  String buildNumber = "";
 
   @override
   void initState() {
+    checkAppVersion();
     checkTopos();
     checkPermission();
     super.initState();
@@ -103,6 +107,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, "Error on check permission");
     }
+  }
+
+  Future<void> checkAppVersion() async {
+    final appVersionUseCase = await GetIt.instance<GetAppVersionUseCase>().call();
+    setState(() {
+      appVersion = appVersionUseCase.version;
+      buildNumber = appVersionUseCase.buildNumber;
+    });
   }
 
   // Future<void> checkPrefs() async {
@@ -213,6 +225,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ),
                   ),
                   const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Version  ",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text("$appVersion.$buildNumber")
+                    ],
+                  ),
                   // Container(
                   //   constraints: const BoxConstraints(maxWidth: 400),
                   //   child: CustomButton(
