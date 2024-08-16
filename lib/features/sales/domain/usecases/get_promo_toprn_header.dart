@@ -5,11 +5,11 @@
 // import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 // import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 
-// class GetPromoToprnHeaderAndDetailUseCase implements UseCase<GetPromoToprnHeaderAndDetailUseCaseResult, ReceiptEntity> {
-//   GetPromoToprnHeaderAndDetailUseCase();
+// class GetPromoToprnHeaderUseCase implements UseCase<GetPromoToprnHeaderUseCaseResult, ReceiptEntity> {
+//   GetPromoToprnHeaderUseCase();
 
 //   @override
-//   Future<GetPromoToprnHeaderAndDetailUseCaseResult> call({ReceiptEntity? params}) async {
+//   Future<GetPromoToprnHeaderUseCaseResult> call({ReceiptEntity? params}) async {
 //     try {
 //       if (params == null) {
 //         throw "HandlePromoCouponUseCase requires params";
@@ -22,7 +22,7 @@
 //       final toprn = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
 //       if (toprn.isEmpty) throw incompleDataErrMsg;
 
-//       return GetPromoToprnHeaderAndDetailUseCaseResult(
+//       return GetPromoToprnHeaderUseCaseResult(
 //         toprn: toprn,
 //       );
 //     } catch (e) {
@@ -31,10 +31,10 @@
 //   }
 // }
 
-// class GetPromoToprnHeaderAndDetailUseCaseResult {
+// class GetPromoToprnHeaderUseCaseResult {
 //   final List<PromoCouponHeaderEntity> toprn;
 
-//   GetPromoToprnHeaderAndDetailUseCaseResult({
+//   GetPromoToprnHeaderUseCaseResult({
 //     required this.toprn,
 //   });
 

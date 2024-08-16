@@ -3,13 +3,12 @@
 // import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 // import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header.dart';
 // import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
-// import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_toprn.dart';
 
 // class HandlePromoToprnUseCase implements UseCase<ReceiptEntity, HandlePromosUseCaseParams> {
-//   HandlePromoToprnUseCase(this._getPromoToprnHeaderAndDetailUseCaseResult, this._applyPromoToprnUseCase,
-//       this._recalculateReceiptByToprnUseCase);
+//   HandlePromoToprnUseCase(
+//       this._getPromoToprnHeaderUseCaseResult, this._applyPromoToprnUseCase, this._recalculateReceiptByToprnUseCase);
 
-//   final GetPromoToprnHeaderAndDetailUseCaseResult _getPromoToprnHeaderAndDetailUseCaseResult;
+//   final GetPromoToprnHeaderUseCaseResult _getPromoToprnHeaderUseCaseResult;
 //   final ApplyPromoToprnUseCase _applyPromoToprnUseCase;
 //   final RecalculateReceiptByToprnUseCase _recalculateReceiptByToprnUseCase;
 
@@ -19,8 +18,15 @@
 //       if (params == null) {
 //         throw "HandlePromoToprnUseCase requires params";
 //       }
-//       final GetPromoToprnHeaderAndDetailUseCaseResult toprnHeader =
-//           await _getPromoToprnHeaderAndDetailUseCaseResult.call(params: params.promo);
+//       // Get conditions
+//       final GetPromoToprnHeaderUseCaseResult toprnHeader =
+//           await _getPromoToprnHeaderUseCaseResult.call(params: params.promo);
+
+//       // Check applicability
+//       final bool isApplicable = await _checkPromoTopdiApplicabilityUseCase.call(
+//           params: CheckPromoTopdiApplicabilityUseCaseParams(
+//               topdiHeaderAndDetail: topdiHeaderAndDetail, handlePromosUseCaseParams: params));
+//       if (!isApplicable) return params.receiptEntity;
 
 //       ReceiptEntity newReceipt = await _applyPromoToprnUseCase.call(
 //           params: ApplyPromoToprnUseCaseParams(toprnHeader: toprnHeader, handlePromosUseCaseParams: params));

@@ -2546,39 +2546,39 @@ Future<void> syncData() async {
         }
       }
 
-      toprn = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
-      for (final header in toprn) {
-        if (header.statusActive != 1) continue;
+      // toprn = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
+      // for (final header in toprn) {
+      //   if (header.statusActive != 1) continue;
 
-        final tprn2 = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByToprnId(header.docId, null);
+      //   final tprn2 = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByToprnId(header.docId, null);
 
-        final dayProperties = {
-          1: tprn2.day1,
-          2: tprn2.day2,
-          3: tprn2.day3,
-          4: tprn2.day4,
-          5: tprn2.day5,
-          6: tprn2.day6,
-          7: tprn2.day7,
-        };
+      //   final dayProperties = {
+      //     1: tprn2.day1,
+      //     2: tprn2.day2,
+      //     3: tprn2.day3,
+      //     4: tprn2.day4,
+      //     5: tprn2.day5,
+      //     6: tprn2.day6,
+      //     7: tprn2.day7,
+      //   };
 
-        final isValid = dayProperties[today] == 1;
-        if (isValid) {
-          promos.add(PromotionsModel(
-            docId: const Uuid().v4(),
-            toitmId: null,
-            promoType: 107,
-            promoId: header.docId,
-            date: DateTime.now(),
-            startTime: header.startTime,
-            endTime: header.endTime,
-            tocrgId: null,
-            promoDescription: header.description,
-            tocatId: null,
-            remarks: null,
-          ));
-        }
-      }
+      //   final isValid = dayProperties[today] == 1;
+      //   if (isValid) {
+      //     promos.add(PromotionsModel(
+      //       docId: const Uuid().v4(),
+      //       toitmId: null,
+      //       promoType: 107,
+      //       promoId: header.docId,
+      //       date: DateTime.now(),
+      //       startTime: header.startTime,
+      //       endTime: header.endTime,
+      //       tocrgId: null,
+      //       promoDescription: header.description,
+      //       tocatId: null,
+      //       remarks: null,
+      //     ));
+      //   }
+      // }
 
       await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
