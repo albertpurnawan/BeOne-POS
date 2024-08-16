@@ -334,7 +334,7 @@ class _SettingsFormState extends State<SettingsForm> {
           //     ),
           //   ],
           // ),
-          SelectableText(device),
+          // SelectableText(device),
           const SizedBox(height: 150),
           Row(
             children: [
