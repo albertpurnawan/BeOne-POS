@@ -1,5 +1,7 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
@@ -50,9 +52,11 @@ class AppRouter {
         name: RouteConstants.sales,
         path: "/sales",
         pageBuilder: (context, state) {
+          final SalesRouterExtra salesRouterExtra = state.extra as SalesRouterExtra;
           return MaterialPage(
             child: SalesPage(
-              uiVersion: state.extra as int,
+              salesViewType: salesRouterExtra.salesViewType,
+              onFirstBuild: salesRouterExtra.onFirstBuild,
             ),
           );
         },
@@ -122,6 +126,12 @@ class AppRouter {
   );
 }
 
-class TransactionsList {
-  const TransactionsList();
+class SalesRouterExtra {
+  int salesViewType;
+  Function(BuildContext)? onFirstBuild;
+
+  SalesRouterExtra({
+    this.salesViewType = 1,
+    this.onFirstBuild,
+  });
 }

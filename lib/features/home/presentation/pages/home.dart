@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -190,26 +192,92 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       width: double.infinity,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text("Invoices Uploaded: $totalToinvSynced/$totalToinvs",
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w300,
-                                    fontStyle: FontStyle.italic)),
-                            const SizedBox(width: 10),
-                            Text("Shifts Uploaded: $totalTcsr1Synced/$totalTcsr1s",
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w300,
-                                    fontStyle: FontStyle.italic)),
-                          ],
-                        ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.fromLTRB(10, 1, 10, 5),
+                            decoration: const BoxDecoration(
+                              // border: Border.all(
+                              //     color: Color.fromRGBO(195, 53, 53, 1),
+                              //     width: 4.0),
+                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+
+                              color: ProjectColors.green,
+                              boxShadow: [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 5,
+                                  color: Color.fromRGBO(0, 0, 0, 0.248),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Text("Invoices  $totalToinvSynced/$totalToinvs",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    )),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                // const Icon(Icons.upload, color: Colors.white, size: 14),
+                                totalToinvSynced == totalToinvs
+                                    ? const Icon(Icons.check_circle_outline_outlined, color: Colors.green, size: 14)
+                                    : Container(
+                                        padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                        width: 12,
+                                        height: 12,
+                                        child: const CircularProgressIndicator(
+                                          color: Colors.green,
+                                        )),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
+                            decoration: const BoxDecoration(
+                              border: Border(),
+                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                              color: ProjectColors.green,
+                              boxShadow: [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 5,
+                                  color: Color.fromRGBO(0, 0, 0, 0.248),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Text("Shifts  $totalTcsr1Synced/$totalTcsr1s",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    )),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                // const Icon(Icons.upload, color: Colors.white, size: 14),
+
+                                totalTcsr1Synced == totalTcsr1s
+                                    ? const Icon(Icons.check_circle_outline_outlined, color: Colors.green, size: 14)
+                                    : Container(
+                                        padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                        width: 12,
+                                        height: 12,
+                                        child: const CircularProgressIndicator(
+                                          color: Colors.green,
+                                        )),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(
@@ -298,9 +366,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
                                   await GetIt.instance<SharedPreferences>()
                                       .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
-                                  await context.read<ReceiptCubit>().resetReceipt();
                                   await context.pushNamed(RouteConstants.sales,
-                                      extra: storeMasterEntity?.salesViewType ?? 1);
+                                      extra: SalesRouterExtra(salesViewType: storeMasterEntity?.salesViewType ?? 1));
                                 } catch (e) {
                                   ErrorHandler.presentErrorSnackBar(context, e.toString());
                                 }

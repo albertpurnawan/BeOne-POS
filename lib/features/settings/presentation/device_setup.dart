@@ -131,7 +131,7 @@ class _SettingsFormState extends State<SettingsForm> {
   }
 
   Future<void> generateDeviceNumber() async {
-    final deviceId = await GenerateDeviceNumberUseCase().call();
+    final deviceId = await GetIt.instance<GenerateDeviceNumberUseCase>().call();
     setState(() {
       device = deviceId;
     });

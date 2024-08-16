@@ -738,8 +738,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // dev.log("Process after checkout $newReceipt");
 
       if (dpItem != null && dpItem.quantity < 0) {
-        if (dpItem.sellingPrice > newReceipt.grandTotal) {
-          throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(dpItem.sellingPrice - newReceipt.grandTotal)})";
+        if (dpItem.totalAmount > newReceipt.grandTotal) {
+          throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(dpItem.totalAmount - newReceipt.grandTotal)})";
         } else {
           newReceipt = await _recalculateReceiptUseCase.call(
               params: newReceipt.copyWith(
@@ -753,7 +753,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         ));
       }
 
-      if (discHeaderManual > 0 && newReceipt.grandTotal + (dpItem?.sellingPrice ?? 0) >= discHeaderManual) {
+      if (discHeaderManual > 0 && newReceipt.grandTotal + (dpItem?.totalAmount ?? 0) >= discHeaderManual) {
         newReceipt = await _recalculateTaxUseCase.call(
             params: newReceipt.copyWith(
           discHeaderManual: discHeaderManual,
