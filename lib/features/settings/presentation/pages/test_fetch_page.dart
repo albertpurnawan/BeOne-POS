@@ -3230,13 +3230,12 @@ class _FetchScreenState extends State<FetchScreen> {
         setState(() {
           syncProgress += 1 / totalTable;
         });
-
-        prefs.setBool('isSyncing', false);
         log('Data synced');
       } catch (error, stack) {
-        prefs.setBool('isSyncing', false);
         log("Error synchronizing: $error");
         debugPrintStack(stackTrace: stack);
+      } finally {
+        prefs.setBool('isSyncing', false);
       }
     }
   }

@@ -17,6 +17,7 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class OTPSubmissionDialog extends StatefulWidget {
@@ -69,17 +70,28 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
       final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
       if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
-      final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
-      final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
+      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      final userId = prefs.getString('tousrId') ?? "";
+      final employeeId = prefs.getString('tohemId') ?? "";
+      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+      if (user == null) throw "User Not Found";
+      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
 
-      final Map<String, String> payload = {
-        "Store Name": store.storeName,
-        "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-        "Cashier Name": cashierName!.username,
-        // "DiscountAmount": Helpers.parseMoney(widget.discountValue),
-      };
+      // final Map<String, String> payload = {
+      //   "Store Name": store.storeName,
+      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
+      //   "Cashier Name": employee?.empName ?? user.username,
+      // };
 
-      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, payload);
+      final String body = '''
+    Approval For: Zero Transaction,
+    Store Name: ${store.storeName},
+    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+    Cashier Name: ${employee?.empName ?? user.username},
+''';
+
+      final String subject = "OTP RUBY POS [ZT-${store.storeCode}]";
+      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
 
       setState(() {
         _isOTPSent = true;

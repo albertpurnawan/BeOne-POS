@@ -94,7 +94,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                     children: [
                       GestureDetector(
                         child: const Text(
-                          'Discount & Coupon',
+                          'Discount & Rounding',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w500,

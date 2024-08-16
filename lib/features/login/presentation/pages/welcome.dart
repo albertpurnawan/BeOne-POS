@@ -228,11 +228,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         "Version  ",
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      Text("$appVersion.$buildNumber")
+                      Text(appVersion, style: const TextStyle(fontSize: 16)),
                     ],
                   ),
                   // Container(
