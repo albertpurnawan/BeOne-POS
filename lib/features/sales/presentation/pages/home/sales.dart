@@ -25,7 +25,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_coupons_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
@@ -1179,7 +1179,10 @@ class _SalesPageState extends State<SalesPage> {
                               isUpdatingReceiptItemQty = false;
                             });
 
-                            await applyHeaderDiscount(context);
+                            await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => const InputCouponsDialog());
 
                             setState(() {
                               isEditingNewReceiptItemCode = true;
@@ -1202,7 +1205,7 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Discount &\nCode",
+                                "Coupon",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -1525,7 +1528,12 @@ class _SalesPageState extends State<SalesPage> {
                               isEditingNewReceiptItemQty = false;
                               isUpdatingReceiptItemQty = false;
                             });
-                            await applyHeaderDiscount(context);
+
+                            await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => const InputCouponsDialog());
+
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -1547,7 +1555,7 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Discount &\nCoupon",
+                                "Coupon",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
@@ -1807,25 +1815,32 @@ class _SalesPageState extends State<SalesPage> {
                       return Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: () async {
-                              setState(() {
-                                isEditingNewReceiptItemCode = false;
-                                isEditingNewReceiptItemQty = false;
-                                isUpdatingReceiptItemQty = false;
-                              });
-                              await applyHeaderDiscount(context);
-                              setState(() {
-                                isEditingNewReceiptItemCode = true;
-                                Future.delayed(const Duration(milliseconds: 50),
-                                    () => _newReceiptItemCodeFocusNode.requestFocus());
-                              });
-                            },
+                            onPressed: null
+                            // () async {
+                            //   setState(() {
+                            //     isEditingNewReceiptItemCode = false;
+                            //     isEditingNewReceiptItemQty = false;
+                            //     isUpdatingReceiptItemQty = false;
+                            //   });
+
+                            //   await showDialog(
+                            //       context: context,
+                            //       barrierDismissible: false,
+                            //       builder: (context) => const InputCouponsDialog());
+
+                            //   setState(() {
+                            //     isEditingNewReceiptItemCode = true;
+                            //     Future.delayed(const Duration(milliseconds: 50),
+                            //         () => _newReceiptItemCodeFocusNode.requestFocus());
+                            //   });
+                            // }
+                            ,
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                              foregroundColor: Colors.white,
-                              backgroundColor: ProjectColors.primary,
+                              foregroundColor: ProjectColors.mediumBlack,
+                              backgroundColor: ProjectColors.lightBlack,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -1857,7 +1872,7 @@ class _SalesPageState extends State<SalesPage> {
                                         text: const TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: "Discount \n& Coupon",
+                                              text: "Coupon",
                                               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                             ),
                                           ],
@@ -3302,7 +3317,8 @@ class _SalesPageState extends State<SalesPage> {
           isEditingNewReceiptItemQty = false;
           isUpdatingReceiptItemQty = false;
         });
-        await applyHeaderDiscount(context);
+        await showDialog(context: context, barrierDismissible: false, builder: (context) => const InputCouponsDialog());
+
         setState(() {
           isEditingNewReceiptItemCode = true;
           _newReceiptItemCodeFocusNode.requestFocus();
@@ -3488,27 +3504,27 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  Future<void> applyHeaderDiscount(BuildContext childContext) async {
-    try {
-      final ReceiptItemEntity? dpItem =
-          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
-      if (dpItem != null && dpItem.quantity > 0) {
-        throw "Header discount cannot be applied on down payment deposit";
-      }
+  // Future<void> applyHeaderDiscount(BuildContext childContext) async {
+  //   try {
+  //     final ReceiptItemEntity? dpItem =
+  //         context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+  //     if (dpItem != null && dpItem.quantity > 0) {
+  //       throw "Header discount cannot be applied on down payment deposit";
+  //     }
 
-      await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
-        if (value != null) {
-          SnackBarHelper.presentSuccessSnackBar(
-              childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
-        }
-      });
-    } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(context, e.toString());
-    }
-  }
+  //     await showDialog(
+  //         context: context,
+  //         barrierDismissible: false,
+  //         builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
+  //       if (value != null) {
+  //         SnackBarHelper.presentSuccessSnackBar(
+  //             childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
+  //       }
+  //     });
+  //   } catch (e) {
+  //     SnackBarHelper.presentErrorSnackBar(context, e.toString());
+  //   }
+  // }
   // =================================================
   //             [END] Other Functions
   // =================================================

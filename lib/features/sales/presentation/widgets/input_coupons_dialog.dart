@@ -1,40 +1,131 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/resources/error_handler.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
-import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 
-class InputDiscountManual extends StatefulWidget {
-  final String docnum;
-  const InputDiscountManual({super.key, required this.docnum});
+class InputCouponsDialog extends StatefulWidget {
+  const InputCouponsDialog({super.key});
 
   @override
-  State<InputDiscountManual> createState() => _InputDiscountManualState();
+  State<InputCouponsDialog> createState() => _InputCouponsDialogState();
 }
 
-class _InputDiscountManualState extends State<InputDiscountManual> with SingleTickerProviderStateMixin {
-  final TextEditingController _textEditorDiscountController = TextEditingController();
-  final FocusNode _discountFocusNode = FocusNode();
+class _InputCouponsDialogState extends State<InputCouponsDialog> {
+  final TextEditingController _textEditorCouponController = TextEditingController();
+  final FocusNode _couponFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
+
+  List<PromoCouponHeaderEntity> couponList = [];
 
   @override
   void initState() {
     super.initState();
+    _couponFocusNode.requestFocus();
+    if (context.read<ReceiptCubit>().state.coupons != null) {
+      couponList = context.read<ReceiptCubit>().state.coupons!;
+    }
   }
 
   @override
   void dispose() {
-    _textEditorDiscountController.dispose();
-    _discountFocusNode.dispose();
+    _textEditorCouponController.dispose();
+    _couponFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
     super.dispose();
+  }
+
+  // -------------- DELETE THIS AFTER API AVAILABLE --------------
+  // Future<void> insertToprn() async {
+  // final List<dynamic> toprn = [
+  //   "1f027a2f-09aa-4dde-bc0b-fcc32cbef9a8",
+  //   "2024-08-14T14:11:15.000Z",
+  //   "2024-08-14T14:11:47.000Z",
+  //   "dev_promo_couponxxx",
+  //   "Dev Promo Couponxxx",
+  //   "2024-08-01T00:00:00.000Z",
+  //   "2025-12-31T00:00:00.000Z",
+  //   "1970-01-01T00:00:00.000Z",
+  //   "1970-01-01T11:30:00.000Z",
+  //   "Promo Dev Coupon xxx Remarks",
+  //   1,
+  //   999999999,
+  //   1,
+  //   0.1,
+  //   0.1,
+  //   0.2,
+  //   0.2,
+  //   1
+  // ];
+
+  //   final List<dynamic> tprn2 = [
+  //     "26d0bbc0-8598-4c21-a7d8-326a6815cd5a",
+  //     "2024-07-29T04:15:38.000Z",
+  //     "2024-08-16T03:09:18.000Z",
+  //     "c01cad2f-b6a9-40c4-a50f-26a82ebdb1e1",
+  //     "57d88de1-7160-41e3-827c-cf8da0b228b9",
+  //     1,
+  //     1,
+  //     1,
+  //     1,
+  //     1,
+  //     1,
+  //     1,
+  //     1
+  //   ];
+
+  //   await GetIt.instance<AppDatabase>().upsertToprn(tprn2);
+  // }
+  // --------------------------------------------------------------
+
+  Future<void> _checkCoupons(BuildContext context, String couponCode) async {
+    final coupon = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.checkCoupons(couponCode);
+    final DateTime now = DateTime.now();
+    final TimeOfDay currentTime = TimeOfDay.fromDateTime(now);
+
+    log("currentTime = $currentTime");
+
+    if (coupon == null) {
+      if (context.mounted) {
+        SnackBarHelper.presentErrorSnackBar(context, "Coupon not found");
+      }
+    } else {
+      final TimeOfDay couponStartTime = TimeOfDay.fromDateTime(coupon.startTime.toUtc());
+      final TimeOfDay couponEndTime = TimeOfDay.fromDateTime(coupon.endTime.toUtc());
+
+      if (couponList.any((c) => c.couponCode == couponCode)) {
+        if (context.mounted) {
+          SnackBarHelper.presentErrorSnackBar(context, "Coupon's already applied");
+        }
+        return;
+      }
+      if (coupon.startDate.isBefore(now) &&
+          coupon.endDate.isAfter(now) &&
+          Helpers.isTimeWithinRange(currentTime, couponStartTime, couponEndTime)) {
+        setState(() {
+          couponList.add(coupon);
+        });
+        if (context.mounted) {
+          SnackBarHelper.presentSuccessSnackBar(context, "Coupon applied", 3);
+        }
+      } else {
+        if (context.mounted) {
+          SnackBarHelper.presentErrorSnackBar(context, "Coupon expired");
+        }
+      }
+    }
+  }
+
+  Future<void> _saveCoupons(List<PromoCouponHeaderEntity> couponsList) async {
+    await context.read<ReceiptCubit>().updateCoupons(couponsList);
   }
 
   @override
@@ -48,21 +139,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
               if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
-                double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
-                final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input <= 0) {
-                  context.pop();
-                  ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
-                  return KeyEventResult.handled;
-                }
-                showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => AuthInputDiscountDialog(
-                          discountValue: input,
-                          docnum: widget.docnum,
-                        ));
-                return KeyEventResult.handled;
+                // apply key enter
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
               } else if (value.physicalKey == PhysicalKeyboardKey.f9) {
@@ -116,12 +193,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                           ),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         ),
-                        onPressed: () async {
-                          await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0);
-                          if (context.mounted) {
-                            SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3);
-                          }
-                        },
+                        onPressed: null,
                         child: Row(
                           children: [
                             const Icon(
@@ -159,12 +231,13 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                 content: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
+                    padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        const SizedBox(height: 20),
+                        promoCouponWidget(childContext),
                         const SizedBox(height: 10),
-                        discountHeaderWidget(childContext),
                       ],
                     ),
                   ),
@@ -214,19 +287,12 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                             backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                          double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
-                          final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                          if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
-                            return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
+                          await _saveCoupons(couponList);
+                          if (context.mounted) {
+                            final receiptCubit = context.read<ReceiptCubit>().state;
+                            log("receiptCubit - $receiptCubit");
+                            context.pop();
                           }
-                          await showDialog<bool>(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => AuthInputDiscountDialog(
-                                    discountValue: input,
-                                    docnum: widget.docnum,
-                                  ));
                         },
                         child: Center(
                           child: RichText(
@@ -258,54 +324,104 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
     );
   }
 
-  Widget discountHeaderWidget(BuildContext context) {
+  Widget promoCouponWidget(BuildContext context) {
+    // final receiptCubit = context.read<ReceiptCubit>().state;
+    // log("receieptCubit - $receiptCubit");
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: TextFormField(
-          focusNode: _discountFocusNode,
-          controller: _textEditorDiscountController,
-          onFieldSubmitted: (value) async {
-            double input = Helpers.revertMoneyToDecimalFormat(value);
-            final ReceiptEntity state = context.read<ReceiptCubit>().state;
-            if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
-              return ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
-            }
-            // context
-            //     .read<ReceiptCubit>()
-            //     .updateTotalAmountFromDiscount(discountValue);
-            // Navigator.of(context).pop();
-            // send input to auth
-            // double inputValue = Helpers.revertMoneyToDecimalFormatDouble(
-            //     _textEditorDiscountController.text);
-            await showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => AuthInputDiscountDialog(discountValue: input, docnum: widget.docnum))
-                .then((value) => _discountFocusNode.requestFocus());
-          },
-          autofocus: true,
-          inputFormatters: [MoneyInputFormatter()],
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 24),
-          // onEditingComplete: () {
-          //   double discountValue = Helpers.revertMoneyToDecimalFormat(
-          //       _textEditorDiscountController.text);
-
-          //   context
-          //       .read<ReceiptCubit>()
-          //       .updateTotalAmountFromDiscount(discountValue);
-          //   Navigator.of(context).pop();
-          // },
-          decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(10),
-              hintText: "Enter Discount",
-              hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(
-                Icons.discount_outlined,
-                size: 24,
-              )),
+        child: Column(
+          children: [
+            TextFormField(
+              focusNode: _couponFocusNode,
+              textInputAction: TextInputAction.search,
+              controller: _textEditorCouponController,
+              onFieldSubmitted: (value) async {
+                await _checkCoupons(context, value);
+              },
+              autofocus: true,
+              keyboardType: TextInputType.text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 24),
+              decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.all(10),
+                  hintText: "Enter Coupon Code",
+                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(
+                    Icons.confirmation_number_outlined,
+                    size: 24,
+                  )),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Coupons Applied:",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            SingleChildScrollView(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.height * 0.5,
+                height: MediaQuery.of(context).size.height * 0.3,
+                child: couponList.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: couponList.length,
+                        itemBuilder: (context, index) {
+                          final coupon = couponList[index];
+                          return Container(
+                            width: double.infinity,
+                            height: 30,
+                            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                            child: Center(
+                              child: SelectableText(
+                                coupon.couponCode,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: ProjectColors.mediumBlack,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+            OutlinedButton(
+              focusNode: FocusNode(skipTraversal: true),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: ProjectColors.primary,
+                padding: const EdgeInsets.all(10),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+              onPressed: () async {
+                FocusScope.of(context).unfocus();
+                await _checkCoupons(context, _textEditorCouponController.text);
+                _textEditorCouponController.text = "";
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Check Coupon",
+                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                      ],
+                      style: TextStyle(height: 1, fontSize: 12),
+                    ),
+                    overflow: TextOverflow.clip,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
