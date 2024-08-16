@@ -137,6 +137,8 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_ge
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
@@ -262,6 +264,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PromoBuyXGetYGetConditionApi>(PromoBuyXGetYGetConditionApi(sl()));
   sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(PromoBuyXGetYCustomerGroupApi(sl()));
   sl.registerSingleton<PromoCouponHeaderApi>(PromoCouponHeaderApi(sl()));
+  sl.registerSingleton<PromoCouponAssignStoreApi>(PromoCouponAssignStoreApi(sl()));
+  sl.registerSingleton<PromoCouponCustomerGroupApi>(PromoCouponCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));

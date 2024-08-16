@@ -55,6 +55,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_get_condition_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_coupon_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_coupon_customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_coupon_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_buy_condition.dart';
@@ -309,6 +310,7 @@ class AppDatabase {
   late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
   late PromoCouponHeaderDao promoCouponHeaderDao;
   late PromoCouponAssignStoreDao promoCouponAssignStoreDao;
+  late PromoCouponCustomerGroupDao promoCouponCustomerGroupDao;
   late PromosDao promosDao;
   late AuthStoreDao authStoreDao;
   late BillOfMaterialDao billOfMaterialDao;
@@ -434,6 +436,7 @@ PRAGMA foreign_keys = ON;
     promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
     promoCouponHeaderDao = PromoCouponHeaderDao(_database!);
     promoCouponAssignStoreDao = PromoCouponAssignStoreDao(_database!);
+    promoCouponCustomerGroupDao = PromoCouponCustomerGroupDao(_database!);
     promosDao = PromosDao(_database!);
     authStoreDao = AuthStoreDao(_database!);
     billOfMaterialDao = BillOfMaterialDao(_database!);
@@ -2860,6 +2863,7 @@ CREATE TABLE $tablePromoCouponHeader (
   ${PromoCouponHeaderFields.memberDisc} double NOT NULL,
   ${PromoCouponHeaderFields.maxMemberDisc} double NOT NULL,
   ${PromoCouponHeaderFields.statusActive} int NOT NULL,
+  ${PromoCouponHeaderFields.isTada} int NOT NULL,
   ${PromoCouponHeaderFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
@@ -2880,6 +2884,7 @@ CREATE TABLE $tablePromoCouponAssignStore (
   ${PromoCouponAssignStoreFields.day5} int NOT NULL,
   ${PromoCouponAssignStoreFields.day6} int NOT NULL,
   ${PromoCouponAssignStoreFields.day7} int NOT NULL,
+  ${PromoCouponAssignStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprn2_toprnId_fkey` FOREIGN KEY (`toprnId`) REFERENCES `toprn` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tprn2_tostrId_fkey` FOREIGN KEY (`tostrId`) REFERENCES `tostr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2906,6 +2911,7 @@ CREATE TABLE $tablePromoCouponCustomerGroup (
   ${PromoCouponCustomerGroupFields.updateDate} datetime DEFAULT NULL,
   ${PromoCouponCustomerGroupFields.toprnId} text DEFAULT NULL,
   ${PromoCouponCustomerGroupFields.tocrgId} text DEFAULT NULL,
+  ${PromoCouponCustomerGroupFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tprn4_toprnId_fkey` FOREIGN KEY (`toprnId`) REFERENCES `toprn` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tprn4_tocrgId_fkey` FOREIGN KEY (`tocrgId`) REFERENCES `tocrg` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3662,10 +3668,15 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''UPDATE $tablePromoCouponAssignStore SET day2_new = COALESCE(day2, 1)''');
       await db.execute('''ALTER TABLE $tablePromoCouponAssignStore DROP COLUMN day2''');
       await db.execute('''ALTER TABLE $tablePromoCouponAssignStore RENAME day2_new TO day2''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN form varchar(1) NOT NULL''');
+
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN istada int NOT NULL''');
       await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN form varchar(1) NOT NULL''');
       await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN temp double NOT NULL''');
       await db.execute('''ALTER TABLE $tablePromoCouponHeader DROP COLUMN maxgeneraldisc''');
       await db.execute('''ALTER TABLE $tablePromoCouponHeader RENAME temp TO maxgeneraldisc''');
+
+      await db.execute('''ALTER TABLE $tablePromoCouponCustomerGroup ADD COLUMN form varchar(1) NOT NULL''');
     },
   };
 

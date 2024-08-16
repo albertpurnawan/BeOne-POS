@@ -18,6 +18,7 @@ class PromoCouponAssignStoreFields {
     day5,
     day6,
     day7,
+    form,
   ];
 
   static const String docId = "docid";
@@ -33,10 +34,10 @@ class PromoCouponAssignStoreFields {
   static const String day5 = "day5";
   static const String day6 = "day6";
   static const String day7 = "day7";
+  static const String form = "form";
 }
 
-class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity
-    implements BaseModel {
+class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity implements BaseModel {
   PromoCouponAssignStoreModel({
     required super.docId,
     required super.createDate,
@@ -51,6 +52,7 @@ class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity
     required super.day5,
     required super.day6,
     required super.day7,
+    required super.form,
   });
 
   @override
@@ -69,6 +71,7 @@ class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity
       'day5': day5,
       'day6': day6,
       'day7': day7,
+      'form': form,
     };
   }
 
@@ -76,9 +79,7 @@ class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity
     return PromoCouponAssignStoreModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       toprnId: map['toprnId'] != null ? map['toprnId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       holiday: map['holiday'] as int,
@@ -89,23 +90,19 @@ class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity
       day5: map['day5'] as int,
       day6: map['day6'] as int,
       day7: map['day7'] as int,
+      form: map['form'] as String,
     );
   }
 
   factory PromoCouponAssignStoreModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoCouponAssignStoreModel.fromMap({
       ...map,
-      "toprnId": map['toprn_id']?['docid'] != null
-          ? map['toprn_id']['docid'] as String
-          : null,
-      "tostrId": map['tostr_id']?['docid'] != null
-          ? map['tostr_id']['docid'] as String
-          : null,
+      "toprnId": map['toprn_id']?['docid'] != null ? map['toprn_id']['docid'] as String : null,
+      "tostrId": map['tostr_id']?['docid'] != null ? map['tostr_id']['docid'] as String : null,
     });
   }
 
-  factory PromoCouponAssignStoreModel.fromEntity(
-      PromoCouponAssignStoreEntity entity) {
+  factory PromoCouponAssignStoreModel.fromEntity(PromoCouponAssignStoreEntity entity) {
     return PromoCouponAssignStoreModel(
       docId: entity.docId,
       createDate: entity.createDate,
@@ -120,6 +117,7 @@ class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity
       day5: entity.day5,
       day6: entity.day6,
       day7: entity.day7,
+      form: entity.form,
     );
   }
 }

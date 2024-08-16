@@ -50,6 +50,8 @@ import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_buy_conditio
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_get_condition.dart';
 import 'package:pos_fe/features/sales/data/models/promo_buy_x_get_y_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_coupon_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_coupon_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_coupon_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_diskon_group_item_buy_condition.dart';
@@ -117,6 +119,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_ge
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
@@ -236,7 +239,8 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<PromoBuyXGetYGetConditionModel> tprb4;
     late List<PromoBuyXGetYCustomerGroupModel> tprb5;
     late List<PromoCouponHeaderModel> toprn;
-    // late List<PromoCouponAssignStoreModel> tprn2;
+    late List<PromoCouponAssignStoreModel> tprn2;
+    late List<PromoCouponCustomerGroupModel> tprn4;
     late List<AuthStoreModel> tastr;
     late List<BillOfMaterialModel> toitt;
     late List<BillOfMaterialLineItemModel> titt1;
@@ -2665,33 +2669,74 @@ class _FetchScreenState extends State<FetchScreen> {
               await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
+          () async {
+            try {
+              final toprnDb = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
+
+              if (toprnDb.isNotEmpty) {
+                final toprnDbMap = {for (var datum in toprnDb) datum.docId: datum};
+
+                toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData(lastSyncDate);
+                for (final datumBos in toprn) {
+                  final datumDb = toprnDbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .promoCouponHeaderDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>().promoCouponHeaderDao.create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoCouponHeaderDao.bulkCreate(data: toprn);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Toprn1",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+            }
+          },
           // () async {
           //   try {
-          //     final toprnDb = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
+          //     final tprn2Db = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readAll();
 
-          //     if (toprnDb.isNotEmpty) {
-          //       final toprnDbMap = {for (var datum in toprnDb) datum.docId: datum};
+          //     if (tprn2Db.isNotEmpty) {
+          //       final tprn2DbMap = {for (var datum in tprn2Db) datum.docId: datum};
 
-          //       toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData(lastSyncDate);
-          //       for (final datumBos in toprn) {
-          //         final datumDb = toprnDbMap[datumBos.docId];
+          //       tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData(lastSyncDate);
+          //       for (final datumBos in tprn2) {
+          //         final datumDb = tprn2DbMap[datumBos.docId];
 
           //         if (datumDb != null) {
           //           if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
           //             await GetIt.instance<AppDatabase>()
-          //                 .promoCouponHeaderDao
+          //                 .promoCouponAssignStoreDao
           //                 .update(docId: datumDb.docId, data: datumBos);
           //           }
           //         } else {
-          //           await GetIt.instance<AppDatabase>().promoCouponHeaderDao.create(data: datumBos);
+          //           await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.create(data: datumBos);
           //         }
           //       }
           //       setState(() {
           //         syncProgress += 1 / totalTable;
           //       });
           //     } else {
-          //       toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData("2000-01-01 00:00:00");
-          //       await GetIt.instance<AppDatabase>().promoCouponHeaderDao.bulkCreate(data: toprn);
+          //       tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+          //       await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.bulkCreate(data: tprn2);
           //       setState(() {
           //         syncProgress += 1 / totalTable;
           //       });
@@ -2701,7 +2746,48 @@ class _FetchScreenState extends State<FetchScreen> {
           //         docId: const Uuid().v4(),
           //         createDate: DateTime.now(),
           //         updateDate: DateTime.now(),
-          //         processInfo: "ManualSync: Tpdg1",
+          //         processInfo: "ManualSync: Tprn2",
+          //         description: e.toString());
+          //     await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+          //   }
+          // },
+          // () async {
+          //   try {
+          //     final tprn4Db = await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.readAll();
+
+          //     if (tprn4Db.isNotEmpty) {
+          //       final tprn4DbMap = {for (var datum in tprn4Db) datum.docId: datum};
+
+          //       tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData(lastSyncDate);
+          //       for (final datumBos in tprn4) {
+          //         final datumDb = tprn4DbMap[datumBos.docId];
+
+          //         if (datumDb != null) {
+          //           if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+          //             await GetIt.instance<AppDatabase>()
+          //                 .promoCouponCustomerGroupDao
+          //                 .update(docId: datumDb.docId, data: datumBos);
+          //           }
+          //         } else {
+          //           await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.create(data: datumBos);
+          //         }
+          //       }
+          //       setState(() {
+          //         syncProgress += 1 / totalTable;
+          //       });
+          //     } else {
+          //       tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+          //       await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.bulkCreate(data: tprn4);
+          //       setState(() {
+          //         syncProgress += 1 / totalTable;
+          //       });
+          //     }
+          //   } catch (e) {
+          //     final logErr = LogErrorModel(
+          //         docId: const Uuid().v4(),
+          //         createDate: DateTime.now(),
+          //         updateDate: DateTime.now(),
+          //         processInfo: "ManualSync: Tprn4",
           //         description: e.toString());
           //     await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
           //   }

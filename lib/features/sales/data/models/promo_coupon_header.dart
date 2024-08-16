@@ -23,6 +23,7 @@ class PromoCouponHeaderFields {
     memberDisc,
     maxMemberDisc,
     statusActive,
+    isTada,
     form,
   ];
 
@@ -44,6 +45,7 @@ class PromoCouponHeaderFields {
   static const String memberDisc = "memberdisc";
   static const String maxMemberDisc = "maxmemberdisc";
   static const String statusActive = "statusactive";
+  static const String isTada = "isTada";
   static const String form = "form";
 }
 
@@ -67,6 +69,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
     required super.memberDisc,
     required super.maxMemberDisc,
     required super.statusActive,
+    required super.isTada,
     required super.form,
   });
 
@@ -91,6 +94,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
       'memberdisc': memberDisc,
       'maxmemberdisc': maxMemberDisc,
       'statusactive': statusActive,
+      'isTada': isTada,
       'form': form,
     };
   }
@@ -115,6 +119,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
       memberDisc: map['memberdisc'] as double,
       maxMemberDisc: map['maxmemberdisc'] as double,
       statusActive: map['statusactive'] as int,
+      isTada: map['isTada'] as int,
       form: map['form'] as String,
     );
   }
@@ -150,6 +155,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
       memberDisc: entity.memberDisc,
       maxMemberDisc: entity.maxMemberDisc,
       statusActive: entity.statusActive,
+      isTada: entity.isTada,
       form: entity.form,
     );
   }
