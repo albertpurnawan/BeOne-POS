@@ -111,6 +111,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_ge
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
@@ -2197,7 +2198,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "ManualSync: Tpmt4",
+                processInfo: "AutoSync: Tpmt4",
                 description: e.toString());
             await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
           }
@@ -2230,7 +2231,7 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "ManualSync: Tpmt5",
+                processInfo: "AutoSync: Tpmt5",
                 description: e.toString());
             await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
           }
@@ -2263,11 +2264,116 @@ Future<void> syncData() async {
                 docId: const Uuid().v4(),
                 createDate: DateTime.now(),
                 updateDate: DateTime.now(),
-                processInfo: "ManualSync: Tpmt6",
+                processInfo: "AutoSync: Tpmt6",
                 description: e.toString());
             await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
           }
         },
+        () async {
+          try {
+            final toprnDb = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
+
+            if (toprnDb.isNotEmpty) {
+              final toprnDbMap = {for (var datum in toprnDb) datum.docId: datum};
+
+              toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData(lastSyncDate);
+              for (final datumBos in toprn) {
+                final datumDb = toprnDbMap[datumBos.docId];
+
+                if (datumDb != null) {
+                  if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    await GetIt.instance<AppDatabase>()
+                        .promoCouponHeaderDao
+                        .update(docId: datumDb.docId, data: datumBos);
+                  }
+                } else {
+                  await GetIt.instance<AppDatabase>().promoCouponHeaderDao.create(data: datumBos);
+                }
+              }
+            } else {
+              toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData("2000-01-01 00:00:00");
+              await GetIt.instance<AppDatabase>().promoCouponHeaderDao.bulkCreate(data: toprn);
+            }
+          } catch (e) {
+            final logErr = LogErrorModel(
+                docId: const Uuid().v4(),
+                createDate: DateTime.now(),
+                updateDate: DateTime.now(),
+                processInfo: "AutoSync: Toprn",
+                description: e.toString());
+            await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+          }
+        },
+        // () async {
+        //   try {
+        //     final tprn2Db = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readAll();
+
+        //     if (tprn2Db.isNotEmpty) {
+        //       final tprn2DbMap = {for (var datum in tprn2Db) datum.docId: datum};
+
+        //       tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData(lastSyncDate);
+        //       for (final datumBos in tprn2) {
+        //         final datumDb = tprn2DbMap[datumBos.docId];
+
+        //         if (datumDb != null) {
+        //           if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+        //             await GetIt.instance<AppDatabase>()
+        //                 .promoCouponAssignStoreDao
+        //                 .update(docId: datumDb.docId, data: datumBos);
+        //           }
+        //         } else {
+        //           await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.create(data: datumBos);
+        //         }
+        //       }
+        //     } else {
+        //       tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+        //       await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.bulkCreate(data: tprn2);
+        //     }
+        //   } catch (e) {
+        //     final logErr = LogErrorModel(
+        //         docId: const Uuid().v4(),
+        //         createDate: DateTime.now(),
+        //         updateDate: DateTime.now(),
+        //         processInfo: "AutoSync: Tprn2",
+        //         description: e.toString());
+        //     await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+        //   }
+        // },
+        // () async {
+        //   try {
+        //     final tprn4Db = await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.readAll();
+
+        //     if (tprn4Db.isNotEmpty) {
+        //       final tprn4DbMap = {for (var datum in tprn4Db) datum.docId: datum};
+
+        //       tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData(lastSyncDate);
+        //       for (final datumBos in tprn4) {
+        //         final datumDb = tprn4DbMap[datumBos.docId];
+
+        //         if (datumDb != null) {
+        //           if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+        //             await GetIt.instance<AppDatabase>()
+        //                 .promoCouponCustomerGroupDao
+        //                 .update(docId: datumDb.docId, data: datumBos);
+        //           }
+        //         } else {
+        //           await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.create(data: datumBos);
+        //         }
+        //       }
+        //     } else {
+        //       tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+        //       await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.bulkCreate(data: tprn4);
+        //     }
+        //   } catch (e) {
+        //     final logErr = LogErrorModel(
+        //         docId: const Uuid().v4(),
+        //         createDate: DateTime.now(),
+        //         updateDate: DateTime.now(),
+        //         processInfo: "AutoSync: Tprn4",
+        //         description: e.toString());
+        //     await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+        //   }
+        // }
       ];
       // ------------------- END OF FETCHING FUNCTIONS-------------------
 

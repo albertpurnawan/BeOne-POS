@@ -20,6 +20,7 @@ class PromoCouponHeaderEntity {
   final double memberDisc;
   final double maxMemberDisc;
   final int statusActive;
+  final int isTada;
   final String form;
 
   PromoCouponHeaderEntity({
@@ -41,6 +42,7 @@ class PromoCouponHeaderEntity {
     required this.memberDisc,
     required this.maxMemberDisc,
     required this.statusActive,
+    required this.isTada,
     required this.form,
   });
 
@@ -63,6 +65,7 @@ class PromoCouponHeaderEntity {
     double? memberDisc,
     double? maxMemberDisc,
     int? statusActive,
+    int? isTada,
     String? form,
   }) {
     return PromoCouponHeaderEntity(
@@ -84,6 +87,7 @@ class PromoCouponHeaderEntity {
       memberDisc: memberDisc ?? this.memberDisc,
       maxMemberDisc: maxMemberDisc ?? this.maxMemberDisc,
       statusActive: statusActive ?? this.statusActive,
+      isTada: isTada ?? this.isTada,
       form: form ?? this.form,
     );
   }
@@ -108,6 +112,7 @@ class PromoCouponHeaderEntity {
       'memberDisc': memberDisc,
       'maxMemberDisc': maxMemberDisc,
       'statusActive': statusActive,
+      'isTada': isTada,
       'form': form,
     };
   }
@@ -132,6 +137,7 @@ class PromoCouponHeaderEntity {
       memberDisc: map['memberDisc'] as double,
       maxMemberDisc: map['maxMemberDisc'] as double,
       statusActive: map['statusActive'] as int,
+      isTada: map['isTada'] as int,
       form: map['form'] as String,
     );
   }
@@ -143,7 +149,7 @@ class PromoCouponHeaderEntity {
 
   @override
   String toString() {
-    return 'PromoCouponHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, couponCode: $couponCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, includePromo: $includePromo, maxTimes: $maxTimes, minPurchase: $minPurchase, generalDisc: $generalDisc, maxGeneralDisc: $maxGeneralDisc, memberDisc: $memberDisc, maxMemberDisc: $maxMemberDisc, statusActive: $statusActive, form: $form)';
+    return 'PromoCouponHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, couponCode: $couponCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, includePromo: $includePromo, maxTimes: $maxTimes, minPurchase: $minPurchase, generalDisc: $generalDisc, maxGeneralDisc: $maxGeneralDisc, memberDisc: $memberDisc, maxMemberDisc: $maxMemberDisc, statusActive: $statusActive, isTada: $isTada, form: $form)';
   }
 
   @override
@@ -168,6 +174,7 @@ class PromoCouponHeaderEntity {
         other.memberDisc == memberDisc &&
         other.maxMemberDisc == maxMemberDisc &&
         other.statusActive == statusActive &&
+        other.isTada == isTada &&
         other.form == form;
   }
 
@@ -191,6 +198,7 @@ class PromoCouponHeaderEntity {
         memberDisc.hashCode ^
         maxMemberDisc.hashCode ^
         statusActive.hashCode ^
+        isTada.hashCode ^
         form.hashCode;
   }
 }

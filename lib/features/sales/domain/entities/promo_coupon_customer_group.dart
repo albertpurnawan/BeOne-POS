@@ -7,13 +7,15 @@ class PromoCouponCustomerGroupEntity {
   final DateTime? updateDate;
   final String? toprnId;
   final String? tocrgId;
+  final String form;
 
   PromoCouponCustomerGroupEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
-    required this.toprnId,
-    required this.tocrgId,
+    this.updateDate,
+    this.toprnId,
+    this.tocrgId,
+    required this.form,
   });
 
   PromoCouponCustomerGroupEntity copyWith({
@@ -22,6 +24,7 @@ class PromoCouponCustomerGroupEntity {
     DateTime? updateDate,
     String? toprnId,
     String? tocrgId,
+    String? form,
   }) {
     return PromoCouponCustomerGroupEntity(
       docId: docId ?? this.docId,
@@ -29,6 +32,7 @@ class PromoCouponCustomerGroupEntity {
       updateDate: updateDate ?? this.updateDate,
       toprnId: toprnId ?? this.toprnId,
       tocrgId: tocrgId ?? this.tocrgId,
+      form: form ?? this.form,
     );
   }
 
@@ -39,6 +43,7 @@ class PromoCouponCustomerGroupEntity {
       'updateDate': updateDate?.millisecondsSinceEpoch,
       'toprnId': toprnId,
       'tocrgId': tocrgId,
+      'form': form,
     };
   }
 
@@ -46,23 +51,21 @@ class PromoCouponCustomerGroupEntity {
     return PromoCouponCustomerGroupEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       toprnId: map['toprnId'] != null ? map['toprnId'] as String : null,
       tocrgId: map['tocrgId'] != null ? map['tocrgId'] as String : null,
+      form: map['form'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory PromoCouponCustomerGroupEntity.fromJson(String source) =>
-      PromoCouponCustomerGroupEntity.fromMap(
-          json.decode(source) as Map<String, dynamic>);
+      PromoCouponCustomerGroupEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'PromoCouponCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toprnId: $toprnId, tocrgId: $tocrgId)';
+    return 'PromoCouponCustomerGroupEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toprnId: $toprnId, tocrgId: $tocrgId, form: $form)';
   }
 
   @override
@@ -73,7 +76,8 @@ class PromoCouponCustomerGroupEntity {
         other.createDate == createDate &&
         other.updateDate == updateDate &&
         other.toprnId == toprnId &&
-        other.tocrgId == tocrgId;
+        other.tocrgId == tocrgId &&
+        other.form == form;
   }
 
   @override
@@ -82,6 +86,7 @@ class PromoCouponCustomerGroupEntity {
         createDate.hashCode ^
         updateDate.hashCode ^
         toprnId.hashCode ^
-        tocrgId.hashCode;
+        tocrgId.hashCode ^
+        form.hashCode;
   }
 }
