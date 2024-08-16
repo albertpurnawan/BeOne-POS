@@ -16,7 +16,8 @@ class OTPServiceAPi {
 
   OTPServiceAPi(this._dio);
 
-  Future<Map<String, dynamic>> createSendOTP(BuildContext context, Map<String, String> payload) async {
+  Future<Map<String, dynamic>> createSendOTP(
+      BuildContext context, Map<String, String>? payload, String? subject, String? emailBody) async {
     Response? response;
 
     try {
@@ -47,6 +48,8 @@ class OTPServiceAPi {
       for (final spv in spvList) {
         Map<String, dynamic> dataToSend = {};
 
+        const String greeting = "Hi {destination}, your OTP CODE is {otp}.";
+
         dataToSend = {
           "uuid": "c3ba4678-bacf-4f60-9d2d-405f7bf8deed", // uuid master channel
           "channelId": otpChannel, // uuid smtp
@@ -54,7 +57,9 @@ class OTPServiceAPi {
           "Expired": formattedExpired,
           "RequestTimestamp": formattedDateTime,
           "isUsed": false,
-          "additionalInfo": payload
+          "additionalInfo": {},
+          if (emailBody != null) "customEmailText": "$greeting\n$emailBody",
+          if (subject != null) "customSubject": subject,
         };
 
         log("Data2Send for ${spv['email']}: ${jsonEncode(dataToSend)}");

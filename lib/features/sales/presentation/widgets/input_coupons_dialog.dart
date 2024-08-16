@@ -171,7 +171,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                     children: [
                       GestureDetector(
                         child: const Text(
-                          'Discount & Coupon',
+                          'Coupon',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w500,

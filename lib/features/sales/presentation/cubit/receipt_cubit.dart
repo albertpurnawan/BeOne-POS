@@ -152,6 +152,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           await removeReceiptItem(currentReceiptItemEntity, params.context!);
           return;
         } else if (params.quantity < 0 && currentReceiptItemEntity.quantity > 0) {
+          if ((params.barcode ?? params.itemEntity!.barcode) == "99" &&
+              currentReceiptItemEntity.quantity + params.quantity < -1) throw "Down payment quantity must be -1 or 1";
           await removeReceiptItem(currentReceiptItemEntity, params.context!);
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
             barcode: params.barcode,
@@ -180,9 +182,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ReceiptEntity newReceipt = state.previousReceiptEntity ?? state;
 
       // Get item entity and validate
-
-      // if (params.barcode != null) {
-      // itemEntity = await _getItemByBarcodeUseCase.call(params: params.barcode);
       if (state.customerEntity?.toplnId != null) {
         itemEntity = await _getItemWithAndConditionUseCase.call(params: {
           ItemFields.barcode: params.barcode ?? params.itemEntity?.barcode,
@@ -200,9 +199,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           ItemFields.toplnId: storeMasterEntity!.toplnId
         });
       }
-      // } else {
-      //   itemEntity = params.itemEntity;
-      // }
       if (itemEntity == null) throw "Item not found";
 
       // Convert item entity to receipt item entity **qty conversion can be placed here**
@@ -235,22 +231,24 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Handle promos
       // dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
-      availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
       bool anyPromoApplied = false;
-      if (availablePromos.isNotEmpty) {
-        for (final availablePromo in availablePromos) {
-          switch (availablePromo!.promoType) {
-            case 202:
-              // dev.log("CASE 202");
-              newReceipt = await _handlePromoSpecialPriceUseCase.call(
-                  params: HandlePromosUseCaseParams(
-                receiptItemEntity: receiptItemEntity,
-                receiptEntity: newReceipt,
-                promo: availablePromo,
-              ));
-              anyPromoApplied = true;
-            default:
-              break;
+      if (receiptItemEntity.itemEntity.barcode != "99") {
+        availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
+        if (availablePromos.isNotEmpty) {
+          for (final availablePromo in availablePromos) {
+            switch (availablePromo!.promoType) {
+              case 202:
+                // dev.log("CASE 202");
+                newReceipt = await _handlePromoSpecialPriceUseCase.call(
+                    params: HandlePromosUseCaseParams(
+                  receiptItemEntity: receiptItemEntity,
+                  receiptEntity: newReceipt,
+                  promo: availablePromo,
+                ));
+                anyPromoApplied = true;
+              default:
+                break;
+            }
           }
         }
       }

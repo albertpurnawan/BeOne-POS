@@ -200,6 +200,7 @@ Future<void> syncData() async {
   late List<PromoBuyXGetYCustomerGroupModel> tprb5;
   late List<PromoCouponHeaderModel> toprn;
   // late List<PromoCouponAssignStoreModel> tprn2;
+  // late List<PromoCouponCustomerGroupModel> tprn4;
   late List<AuthStoreModel> tastr;
   late List<BillOfMaterialModel> toitt;
   late List<BillOfMaterialLineItemModel> titt1;

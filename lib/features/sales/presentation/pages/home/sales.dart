@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -311,99 +312,191 @@ class _SalesPageState extends State<SalesPage> {
           controller: _scrollControllerMain,
           child: SizedBox(
             height: MediaQuery.of(context).size.height * 0.98,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(38, Platform.isWindows ? 28 : 38, 38, 10),
-              child: Row(
-                children: [
-                  // Start - Column 1
-                  Expanded(
-                    flex: 2,
-                    child: Column(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.fromLTRB(10, 1, 10, 5),
+                      decoration: const BoxDecoration(
+                        // border: Border.all(
+                        //     color: Color.fromRGBO(195, 53, 53, 1),
+                        //     width: 4.0),
+                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+
+                        color: ProjectColors.green,
+                        boxShadow: [
+                          BoxShadow(
+                            spreadRadius: 0.5,
+                            blurRadius: 5,
+                            color: Color.fromRGBO(0, 0, 0, 0.248),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Text("Invoices ",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              )),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          // const Icon(Icons.upload, color: Colors.white, size: 14),
+                          Container(
+                              padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                              width: 12,
+                              height: 12,
+                              child: const CircularProgressIndicator(
+                                color: Colors.green,
+                              )),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
+                      decoration: const BoxDecoration(
+                        border: Border(),
+                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                        color: ProjectColors.green,
+                        boxShadow: [
+                          BoxShadow(
+                            spreadRadius: 0.5,
+                            blurRadius: 5,
+                            color: Color.fromRGBO(0, 0, 0, 0.248),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Text("Shifts",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              )),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          // const Icon(Icons.upload, color: Colors.white, size: 14),
+
+                          Container(
+                              padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                              width: 12,
+                              height: 12,
+                              child: const CircularProgressIndicator(
+                                color: Colors.green,
+                              )),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 38),
+                  ],
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(38, Platform.isWindows ? 8 : 18, 38, 10),
+                    child: Row(
                       children: [
-                        _receiptItemsList(),
-                        SizedBox(height: salesViewType == 1 ? 20 : 0),
-                        salesViewType == 1
-                            ? Expanded(
-                                flex: salesViewType == 1 ? 2 : 1,
+                        // Start - Column 1
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              _receiptItemsList(),
+                              SizedBox(height: salesViewType == 1 ? 20 : 0),
+                              salesViewType == 1
+                                  ? Expanded(
+                                      flex: salesViewType == 1 ? 2 : 1,
+                                      child: Row(
+                                        children: [
+                                          _buttonGroup1V1(),
+                                          const SizedBox(
+                                            width: 15,
+                                          ),
+                                          Expanded(flex: 4, child: _receiptItemForm())
+                                        ],
+                                      ))
+                                  : const SizedBox.shrink(),
+                            ],
+                          ),
+                        ),
+                        // End - Column 1
+
+                        const SizedBox(
+                          width: 20,
+                        ),
+
+                        // Start - Column 2
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                flex: 12,
+                                child: salesViewType == 1
+                                    ? Column(
+                                        children: [
+                                          _transactionSummaryV1(),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        children: [
+                                          _transactionSummaryV2(),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Expanded(
+                                            flex: 3,
+                                            child: _buttonGroup1V3(),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Expanded(flex: 2, child: _receiptItemForm()),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+
+                              // Start - Numpad & ButtonGroup 2
+                              Expanded(
+                                flex: 8,
                                 child: Row(
                                   children: [
-                                    _buttonGroup1V1(),
+                                    _numpad(),
                                     const SizedBox(
                                       width: 15,
                                     ),
-                                    Expanded(flex: 4, child: _receiptItemForm())
-                                  ],
-                                ))
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  ),
-                  // End - Column 1
-
-                  const SizedBox(
-                    width: 20,
-                  ),
-
-                  // Start - Column 2
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 12,
-                          child: salesViewType == 1
-                              ? Column(
-                                  children: [
-                                    _transactionSummaryV1(),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                  ],
-                                )
-                              : Column(
-                                  children: [
-                                    _transactionSummaryV2(),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: _buttonGroup1V3(),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Expanded(flex: 2, child: _receiptItemForm()),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
+                                    _buttonGroup3()
                                   ],
                                 ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-
-                        // Start - Numpad & ButtonGroup 2
-                        Expanded(
-                          flex: 8,
-                          child: Row(
-                            children: [
-                              _numpad(),
-                              const SizedBox(
-                                width: 15,
-                              ),
-                              _buttonGroup3()
+                              )
+                              // End - Numeric Keypad & ButtonGroup 2
                             ],
                           ),
-                        )
-                        // End - Numeric Keypad & ButtonGroup 2
+                        ),
+                        // End - Column 2
                       ],
                     ),
                   ),
-                  // End - Column 2
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -651,7 +744,7 @@ class _SalesPageState extends State<SalesPage> {
                                                       width: 40,
                                                       alignment: Alignment.topLeft,
                                                       child: Text(
-                                                        (index + 90).toString(),
+                                                        (index + 1).toString(),
                                                         style: const TextStyle(
                                                           fontSize: 16,
                                                           fontWeight: FontWeight.w500,
@@ -828,28 +921,36 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                       Expanded(
                           flex: 1,
-                          child: Container(
-                            height: 20,
-                            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                            decoration: const BoxDecoration(
-                              // border: Border.all(
-                              //     color: Color.fromRGBO(195, 53, 53, 1),
-                              //     width: 4.0),
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Container(
+                              height: 25,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.fromLTRB(5, 1, 5, 1),
+                              decoration: const BoxDecoration(
+                                // border: Border.all(
+                                //     color: Color.fromRGBO(195, 53, 53, 1),
+                                //     width: 4.0),
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
 
-                              color: Colors.grey,
-                              boxShadow: [
-                                BoxShadow(
-                                  spreadRadius: 0.5,
-                                  blurRadius: 5,
-                                  color: Color.fromRGBO(0, 0, 0, 0.248),
+                                color: ProjectColors.primary,
+                                boxShadow: [
+                                  BoxShadow(
+                                    spreadRadius: 0.5,
+                                    blurRadius: 5,
+                                    color: Color.fromRGBO(0, 0, 0, 0.248),
+                                  ),
+                                ],
+                              ),
+                              child: FittedBox(
+                                child: Text(
+                                  "Total Qty.  ${Helpers.cleanDecimal(state.receiptItems.isEmpty ? 0 : state.receiptItems.map((e) => e.quantity).reduce((value, element) => value + element), 3)}",
+                                  style: const TextStyle(
+                                    height: 1,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: const Text(
-                              "Total Qty.",
-                              style: TextStyle(
-                                color: Colors.white,
                               ),
                             ),
                           )),

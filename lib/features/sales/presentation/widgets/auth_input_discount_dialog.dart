@@ -112,17 +112,34 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
       if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
-      final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
-      final cashierName = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift!.tousrId!, null);
+      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      final userId = prefs.getString('tousrId') ?? "";
+      final employeeId = prefs.getString('tohemId') ?? "";
+      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+      if (user == null) throw "User Not Found";
+      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
 
-      final Map<String, String> payload = {
-        "Store Name": store.storeName,
-        "Cashier Register Id":
-            (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-        "Cashier Name": cashierName!.username,
-        "Discount Amount": Helpers.parseMoney(widget.discountValue),
-      };
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, payload);
+      final receipt = context.read<ReceiptCubit>().state;
+
+      // final Map<String, String> payload = {
+      //   "Store Name": store.storeName,
+      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
+      //   "Cashier Name": employee?.empName ?? user.username,
+      //   "Discount Amount": Helpers.parseMoney(widget.discountValue),
+      //   "Grand Total": Helpers.parseMoney(receipt.grandTotal),
+      //   "Total After Discount": Helpers.parseMoney(receipt.grandTotal - widget.discountValue),
+      // };
+
+      final String subject = "OTP RUBY POS [DR-${store.storeCode}]";
+      final String body = '''
+    Approval For: Discount or Rounding,
+    Store Name: ${store.storeName},
+    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+    Cashier Name: ${employee?.empName ?? user.username},
+    Discount Amount: ${Helpers.parseMoney(widget.discountValue)},
+    Total After Discount: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue)},
+''';
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
       log("RESPONSE OTP - $response");
       return response['Requester'];
     } catch (e) {
