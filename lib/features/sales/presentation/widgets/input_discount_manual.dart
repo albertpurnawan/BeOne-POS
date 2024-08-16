@@ -50,7 +50,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
                 double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
                 final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input <= 0) {
+                if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
                   context.pop();
                   ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
                   return KeyEventResult.handled;
@@ -94,7 +94,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                     children: [
                       GestureDetector(
                         child: const Text(
-                          'Discount & Coupon',
+                          'Discount & Rounding',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w500,
@@ -217,7 +217,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                           FocusScope.of(context).unfocus();
                           double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
                           final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                          if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
+                          if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
                             return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
                           }
                           await showDialog<bool>(
@@ -268,7 +268,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
           onFieldSubmitted: (value) async {
             double input = Helpers.revertMoneyToDecimalFormat(value);
             final ReceiptEntity state = context.read<ReceiptCubit>().state;
-            if ((input > state.grandTotal + (state.discHeaderManual ?? 0)) || input < 0) {
+            if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
               return ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
             }
             // context
@@ -285,7 +285,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                 .then((value) => _discountFocusNode.requestFocus());
           },
           autofocus: true,
-          inputFormatters: [MoneyInputFormatter()],
+          // inputFormatters: [MoneyInputFormatter()],
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24),
           // onEditingComplete: () {

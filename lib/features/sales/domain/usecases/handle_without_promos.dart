@@ -16,9 +16,18 @@ class HandleWithoutPromosUseCase implements UseCase<ReceiptEntity, HandlePromosU
           params.receiptEntity.receiptItems, params.receiptItemEntity.itemEntity.barcode);
 
       if (existingItem.isNotEmpty) {
+        if (params.receiptItemEntity.itemEntity.barcode == "99" &&
+            (params.receiptItemEntity.quantity + existingItem[0].quantity < -1 ||
+                params.receiptItemEntity.quantity + existingItem[0].quantity > 1)) {
+          throw "Down payment quantity must be -1 or 1";
+        }
         existingItem[0] = ReceiptHelper.updateReceiptItemAggregateFields(
             existingItem[0]..quantity += params.receiptItemEntity.quantity);
       } else {
+        if (params.receiptItemEntity.itemEntity.barcode == "99" &&
+            (params.receiptItemEntity.quantity < -1 || params.receiptItemEntity.quantity > 1)) {
+          throw "Down payment quantity must be -1 or 1";
+        }
         existingItem.add(ReceiptHelper.updateReceiptItemAggregateFields(params.receiptItemEntity));
       }
 
