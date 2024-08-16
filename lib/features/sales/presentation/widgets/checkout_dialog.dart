@@ -126,7 +126,12 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       if (state.grandTotal == 0) {
         final bool? isAuthorized = await showDialog<bool>(
             context: context, barrierDismissible: false, builder: (context) => const ApprovalDialog());
-        if (isAuthorized != true) return;
+        if (isAuthorized != true) {
+          setState(() {
+            isCharging = false;
+          });
+          return;
+        }
       }
 
       // Edit to QRIS here
