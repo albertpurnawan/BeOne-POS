@@ -1,9 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
@@ -130,21 +135,20 @@ class _ConfirmQueuedInvoiceDialogState extends State<ConfirmQueuedInvoiceDialog>
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () async {
-                final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
-                await GetIt.instance<AppDatabase>().refreshItemsTable();
-                await GetIt.instance<SharedPreferences>()
-                    .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
-                context.pop();
-                context.pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SalesPage(
-                      uiVersion: storeMasterEntity?.salesViewType ?? 1,
-                    ),
-                  ),
-                );
-                showDialog(context: context, barrierDismissible: false, builder: (context) => const QueueListDialog());
+                try {
+                  final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
+                  await GetIt.instance<SharedPreferences>()
+                      .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
+                  context.goNamed(RouteConstants.sales,
+                      extra: SalesRouterExtra(
+                          salesViewType: storeMasterEntity?.salesViewType ?? 1,
+                          onFirstBuild: (context) => showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const QueueListDialog())));
+                } catch (e) {
+                  log(e.toString());
+                }
               },
               child: const Center(
                   child: Text(

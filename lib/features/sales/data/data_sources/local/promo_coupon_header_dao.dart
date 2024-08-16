@@ -11,8 +11,7 @@ class PromoCouponHeaderDao extends BaseDao<PromoCouponHeaderModel> {
         );
 
   @override
-  Future<PromoCouponHeaderModel?> readByDocId(
-      String docId, Transaction? txn) async {
+  Future<PromoCouponHeaderModel?> readByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -29,8 +28,30 @@ class PromoCouponHeaderDao extends BaseDao<PromoCouponHeaderModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => PromoCouponHeaderModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => PromoCouponHeaderModel.fromMap(itemData)).toList();
+  }
+
+  Future<PromoCouponHeaderModel?> checkCoupons(String couponCode, {Transaction? txn}) async {
+    final List<Map<String, dynamic>> result;
+
+    if (txn != null) {
+      result = await txn.query(
+        tableName,
+        where: 'couponcode = ?',
+        whereArgs: [couponCode],
+      );
+    } else {
+      result = await db.query(
+        tableName,
+        where: 'couponcode = ?',
+        whereArgs: [couponCode],
+      );
+    }
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    return PromoCouponHeaderModel.fromMap(result.first);
   }
 }

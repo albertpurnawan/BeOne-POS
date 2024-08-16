@@ -67,6 +67,8 @@ dependencies:
   flutter_native_splash: ^2.4.0
   flutter_launcher_icons: ^0.13.1
   synchronized: ^3.1.0+1
+  device_info_plus: ^10.1.2
+  autoscale_tabbarview: ^1.0.2
 
 dev_dependencies:
   flutter_test:

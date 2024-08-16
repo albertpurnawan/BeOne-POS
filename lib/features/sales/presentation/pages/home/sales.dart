@@ -5,11 +5,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -25,20 +31,20 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_coupons_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_customer_dialog.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SalesPage extends StatefulWidget {
   const SalesPage({
     Key? key,
-    required this.uiVersion,
+    required this.salesViewType,
+    this.onFirstBuild,
   }) : super(key: key);
-  final int uiVersion;
+  final int salesViewType;
+  final Function(BuildContext)? onFirstBuild;
 
   @override
   State<SalesPage> createState() => _SalesPageState();
@@ -57,7 +63,7 @@ class _SalesPageState extends State<SalesPage> {
   bool isUpdatingReceiptItemQty = false;
   bool isEditingReceiptItemQty = false;
   bool isNewItemAdded = false;
-  late int uiVersion;
+  late int salesViewType;
 
   // States for handling current time
   late Timer _timer;
@@ -252,10 +258,22 @@ class _SalesPageState extends State<SalesPage> {
   @override
   void initState() {
     super.initState();
+    // Initialize timer for time UI
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       currentTime.value = DateFormat.Hms().format(DateTime.now());
     });
-    uiVersion = widget.uiVersion;
+
+    // Set Sales View Type
+    salesViewType = widget.salesViewType;
+
+    // Reset receipt if no items listed on state
+    final ReceiptCubit receiptCubit = context.read<ReceiptCubit>();
+    if (receiptCubit.state.receiptItems.isEmpty) context.read<ReceiptCubit>().resetReceipt();
+
+    // Run a function (if any) on first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.onFirstBuild != null) widget.onFirstBuild!(context);
+    });
   }
 
   @override
@@ -303,10 +321,10 @@ class _SalesPageState extends State<SalesPage> {
                     child: Column(
                       children: [
                         _receiptItemsList(),
-                        SizedBox(height: uiVersion == 1 ? 20 : 0),
-                        uiVersion == 1
+                        SizedBox(height: salesViewType == 1 ? 20 : 0),
+                        salesViewType == 1
                             ? Expanded(
-                                flex: uiVersion == 1 ? 2 : 1,
+                                flex: salesViewType == 1 ? 2 : 1,
                                 child: Row(
                                   children: [
                                     _buttonGroup1V1(),
@@ -333,7 +351,7 @@ class _SalesPageState extends State<SalesPage> {
                       children: [
                         Expanded(
                           flex: 12,
-                          child: uiVersion == 1
+                          child: salesViewType == 1
                               ? Column(
                                   children: [
                                     _transactionSummaryV1(),
@@ -418,369 +436,430 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                 ],
               ),
-              child: Column(
-                children: [
-                  Container(
-                    // padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                    height: 50,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      // border: Border.all(
-                      //     color: Color.fromRGBO(195, 53, 53, 1),
-                      //     width: 4.0),
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-                      color: Color.fromRGBO(128, 0, 0, 1),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                                height: 50,
-                                width: 120,
-                                padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
-                                decoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 234, 234, 234),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(4),
-                                    bottomRight: Radius.circular(45),
+              child: Stack(children: [
+                Positioned.fill(
+                  child: Column(
+                    children: [
+                      Container(
+                        // padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                        height: 50,
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          // border: Border.all(
+                          //     color: Color.fromRGBO(195, 53, 53, 1),
+                          //     width: 4.0),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
+                          color: Color.fromRGBO(128, 0, 0, 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                    height: 50,
+                                    width: 120,
+                                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 234, 234, 234),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(4),
+                                        bottomRight: Radius.circular(45),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          spreadRadius: 0.5,
+                                          blurRadius: 10,
+                                          color: Color.fromRGBO(212, 212, 212, 0.211),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Image.asset(
+                                      "assets/logo/ruby_pos.png",
+                                      alignment: Alignment.centerLeft,
+                                    )),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Center(
+                                child: FittedBox(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.receipt_outlined, color: Colors.white),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                        context.read<ReceiptCubit>().state.docNum,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      spreadRadius: 0.5,
-                                      blurRadius: 10,
-                                      color: Color.fromRGBO(212, 212, 212, 0.211),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                padding: const EdgeInsets.only(right: 20),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Icon(Icons.stars, color: Colors.white),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: FittedBox(
+                                        child: Text(
+                                          context.read<ReceiptCubit>().state.customerEntity != null
+                                              ? context.read<ReceiptCubit>().state.customerEntity!.custName
+                                              : " - ",
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
-                                child: Image.asset(
-                                  "assets/logo/ruby_pos.png",
-                                  alignment: Alignment.centerLeft,
-                                )),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.receipt_outlined, color: Colors.white),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  context.read<ReceiptCubit>().state.docNum,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        Expanded(
-                          flex: 2,
-                          child: Container(
-                            padding: const EdgeInsets.only(right: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                const Icon(Icons.stars, color: Colors.white),
-                                const SizedBox(
-                                  width: 5,
+                      ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            if (state.receiptItems.isEmpty)
+                              const Expanded(
+                                child: EmptyList(
+                                  imagePath: "assets/images/empty-item.svg",
+                                  sentence: "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
                                 ),
-                                Text(
-                                  context.read<ReceiptCubit>().state.customerEntity != null
-                                      ? context.read<ReceiptCubit>().state.customerEntity!.custName
-                                      : " - ",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        if (state.receiptItems.isEmpty)
-                          const Expanded(
-                            child: EmptyList(
-                              imagePath: "assets/images/empty-item.svg",
-                              sentence: "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
-                            ),
-                          )
-                        else
-                          Expanded(
-                            child: Scrollbar(
-                              controller: _scrollControllerReceiptItems,
-                              thumbVisibility: true,
-                              child: ScrollablePositionedList.builder(
-                                padding: const EdgeInsets.symmetric(vertical: 0),
-                                itemScrollController: itemScrollController,
-                                scrollOffsetController: scrollOffsetController,
-                                itemPositionsListener: itemPositionsListener,
-                                scrollOffsetListener: scrollOffsetListener,
-                                itemCount: state.receiptItems.length,
-                                itemBuilder: (context, index) {
-                                  final e = state.receiptItems[index];
-                                  // final hasPromos = e.promos.isNotEmpty;
-                                  final test = e.promos.map(
-                                    (promo) => Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                            child: Text(
-                                          promo.promoDescription,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        )),
-                                        Expanded(
-                                            // DiscountUI
-                                            child: promo.discAmount == null || promo.discAmount == 0
-                                                ? const SizedBox.shrink()
-                                                : Text(
-                                                    (e.itemEntity.includeTax == 1)
-                                                        ? "${Helpers.parseMoney(((-1 * (promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
-                                                        : "${Helpers.parseMoney(((promo.discAmount! * -1).round()))}",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontStyle: FontStyle.italic,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                    textAlign: TextAlign.right,
-                                                  )),
-                                      ],
-                                    ),
-                                  );
-
-                                  return TapRegion(
-                                    groupId: 1,
-                                    child: GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () => setState(() {
-                                        if (indexIsSelect[0] == index) {
-                                          indexIsSelect = [-1, 0];
-                                          _textEditingControllerNewReceiptItemQuantity.text = "1";
-                                          _textEditingControllerNewReceiptItemCode.text = "";
-                                          _newReceiptItemQuantityFocusNode.unfocus();
-                                          isUpdatingReceiptItemQty = false;
-                                          isEditingNewReceiptItemCode = true;
-                                          _newReceiptItemCodeFocusNode.requestFocus();
-                                        } else {
-                                          indexIsSelect = [index, 1];
-                                          _textEditingControllerNewReceiptItemQuantity.text = "";
-                                          // Helpers.cleanDecimal(e.quantity, 3);
-                                          _textEditingControllerNewReceiptItemCode.text = e.itemEntity.barcode;
-                                          _newReceiptItemCodeFocusNode.unfocus();
-                                          isUpdatingReceiptItemQty = true;
-                                          isEditingNewReceiptItemCode = false;
-                                          _newReceiptItemQuantityFocusNode.requestFocus();
-                                        }
-                                      }),
-                                      child: Column(
+                              )
+                            else
+                              Expanded(
+                                child: ScrollablePositionedList.builder(
+                                  padding: const EdgeInsets.symmetric(vertical: 0),
+                                  itemScrollController: itemScrollController,
+                                  scrollOffsetController: scrollOffsetController,
+                                  itemPositionsListener: itemPositionsListener,
+                                  scrollOffsetListener: scrollOffsetListener,
+                                  itemCount: state.receiptItems.length,
+                                  itemBuilder: (context, index) {
+                                    final e = state.receiptItems[index];
+                                    // final hasPromos = e.promos.isNotEmpty;
+                                    final test = e.promos.map(
+                                      (promo) => Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          if (index == 0)
-                                            const Column(
-                                              children: [
-                                                SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Divider(
-                                                  height: 1,
-                                                  thickness: 0.5,
-                                                  color: Color.fromARGB(100, 118, 118, 118),
-                                                ),
-                                              ],
+                                          Expanded(
+                                              child: Text(
+                                            promo.promoDescription,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontStyle: FontStyle.italic,
+                                              fontWeight: FontWeight.w500,
                                             ),
-                                          AnimatedContainer(
-                                            duration: index == indexIsSelect[0] && indexIsSelect[1] == 1
-                                                ? Duration.zero
-                                                : const Duration(milliseconds: 200),
-                                            padding: const EdgeInsets.all(0),
-                                            color: index == indexIsSelect[0] && indexIsSelect[1] == 1
-                                                ? const Color.fromARGB(255, 255, 222, 222)
-                                                : isNewItemAdded && (index == state.receiptItems.length - 1)
-                                                    ? const Color.fromARGB(95, 100, 202, 122)
-                                                    : Colors.white,
-                                            child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.start,
+                                          )),
+                                          Expanded(
+                                              // DiscountUI
+                                              child: promo.discAmount == null || promo.discAmount == 0
+                                                  ? const SizedBox.shrink()
+                                                  : Text(
+                                                      (e.itemEntity.includeTax == 1)
+                                                          ? "${Helpers.parseMoney(((-1 * (promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
+                                                          : "${Helpers.parseMoney(((promo.discAmount! * -1).round()))}",
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontStyle: FontStyle.italic,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                      textAlign: TextAlign.right,
+                                                    )),
+                                        ],
+                                      ),
+                                    );
+
+                                    return TapRegion(
+                                      groupId: 1,
+                                      child: GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onTap: () => setState(() {
+                                          if (indexIsSelect[0] == index) {
+                                            indexIsSelect = [-1, 0];
+                                            _textEditingControllerNewReceiptItemQuantity.text = "1";
+                                            _textEditingControllerNewReceiptItemCode.text = "";
+                                            _newReceiptItemQuantityFocusNode.unfocus();
+                                            isUpdatingReceiptItemQty = false;
+                                            isEditingNewReceiptItemCode = true;
+                                            _newReceiptItemCodeFocusNode.requestFocus();
+                                          } else {
+                                            indexIsSelect = [index, 1];
+                                            _textEditingControllerNewReceiptItemQuantity.text = "";
+                                            // Helpers.cleanDecimal(e.quantity, 3);
+                                            _textEditingControllerNewReceiptItemCode.text = e.itemEntity.barcode;
+                                            _newReceiptItemCodeFocusNode.unfocus();
+                                            isUpdatingReceiptItemQty = true;
+                                            isEditingNewReceiptItemCode = false;
+                                            _newReceiptItemQuantityFocusNode.requestFocus();
+                                          }
+                                        }),
+                                        child: Column(
+                                          children: [
+                                            if (index == 0)
+                                              const Column(
                                                 children: [
-                                                  Expanded(
-                                                    flex: 6,
-                                                    child: Column(
-                                                      children: [
-                                                        Row(
-                                                          // mainAxisAlignment:
-                                                          //     MainAxisAlignment
-                                                          //         .spaceBetween,
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Expanded(
-                                                              flex: 3,
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                children: [
-                                                                  FittedBox(
-                                                                    alignment: Alignment.centerLeft,
-                                                                    child: Row(
-                                                                      children: [
-                                                                        SvgPicture.asset(
-                                                                          "assets/images/inventory.svg",
-                                                                          height: 16,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 5,
-                                                                        ),
-                                                                        Text(
-                                                                          e.itemEntity.itemCode,
-                                                                          style: const TextStyle(
-                                                                            fontSize: 16,
-                                                                            fontWeight: FontWeight.w500,
-                                                                          ),
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 15,
-                                                                        ),
-                                                                        SvgPicture.asset(
-                                                                          "assets/images/barcode.svg",
-                                                                          height: 20,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 5,
-                                                                        ),
-                                                                        Text(
-                                                                          e.itemEntity.barcode,
-                                                                          style: const TextStyle(
-                                                                            fontSize: 16,
-                                                                            fontWeight: FontWeight.w500,
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                  Text(
-                                                                    e.itemEntity.shortName ?? e.itemEntity.itemName,
-                                                                    style: const TextStyle(
-                                                                        fontSize: 16, fontWeight: FontWeight.w500),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child: Column(
-                                                                // QuantityUI
-                                                                children: [
-                                                                  Text(
-                                                                    "${Helpers.cleanDecimal(e.quantity, 3)} x",
-                                                                    textAlign: TextAlign.right,
-                                                                    style: const TextStyle(
-                                                                        fontSize: 16, fontWeight: FontWeight.w500),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child: Column(
-                                                                // PriceUI
-                                                                children: [
-                                                                  Text(
-                                                                    "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
-                                                                    textAlign: TextAlign.right,
-                                                                    style: const TextStyle(
-                                                                        fontSize: 16, fontWeight: FontWeight.w500),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                                mainAxisSize: MainAxisSize.max,
-                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                // TotalPriceUI
-                                                                children: [
-                                                                  Text(
-                                                                    Helpers.parseMoney(
-                                                                        (e.sellingPrice * e.quantity).round()),
-                                                                    style: const TextStyle(
-                                                                        fontSize: 16, fontWeight: FontWeight.w500),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    height: 6,
-                                                                  ),
-                                                                  e.tohemId != null || state.salesTohemId != null
-                                                                      ? FutureBuilder(
-                                                                          future: getSalesPerson(
-                                                                              e.tohemId, state.salesTohemId),
-                                                                          builder: (context, snapshot) {
-                                                                            if (snapshot.hasData) {
-                                                                              return Text(
-                                                                                snapshot.data?.empName ?? "",
-                                                                                textAlign: TextAlign.right,
-                                                                                style: const TextStyle(
-                                                                                    height: 1,
-                                                                                    fontSize: 12,
-                                                                                    fontWeight: FontWeight.w500),
-                                                                              );
-                                                                            } else {
-                                                                              return const SizedBox.shrink();
-                                                                            }
-                                                                          })
-                                                                      : const SizedBox.shrink(),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        // SHOW PROMO HERE
-                                                        ...test,
-                                                      ],
-                                                    ),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Divider(
+                                                    height: 1,
+                                                    thickness: 0.5,
+                                                    color: Color.fromARGB(100, 118, 118, 118),
                                                   ),
                                                 ],
                                               ),
+                                            AnimatedContainer(
+                                              duration: index == indexIsSelect[0] && indexIsSelect[1] == 1
+                                                  ? Duration.zero
+                                                  : const Duration(milliseconds: 200),
+                                              padding: const EdgeInsets.all(0),
+                                              color: index == indexIsSelect[0] && indexIsSelect[1] == 1
+                                                  ? const Color.fromARGB(255, 255, 222, 222)
+                                                  : isNewItemAdded && (index == state.receiptItems.length - 1)
+                                                      ? const Color.fromARGB(95, 100, 202, 122)
+                                                      : Colors.white,
+                                              child: Padding(
+                                                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width: 40,
+                                                      alignment: Alignment.topLeft,
+                                                      child: Text(
+                                                        (index + 90).toString(),
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 6,
+                                                      child: Column(
+                                                        children: [
+                                                          Row(
+                                                            // mainAxisAlignment:
+                                                            //     MainAxisAlignment
+                                                            //         .spaceBetween,
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Expanded(
+                                                                flex: 3,
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  children: [
+                                                                    FittedBox(
+                                                                      alignment: Alignment.centerLeft,
+                                                                      child: Row(
+                                                                        children: [
+                                                                          SvgPicture.asset(
+                                                                            "assets/images/inventory.svg",
+                                                                            height: 16,
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width: 5,
+                                                                          ),
+                                                                          Text(
+                                                                            e.itemEntity.itemCode,
+                                                                            style: const TextStyle(
+                                                                              fontSize: 16,
+                                                                              fontWeight: FontWeight.w500,
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width: 15,
+                                                                          ),
+                                                                          SvgPicture.asset(
+                                                                            "assets/images/barcode.svg",
+                                                                            height: 20,
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width: 5,
+                                                                          ),
+                                                                          Text(
+                                                                            e.itemEntity.barcode,
+                                                                            style: const TextStyle(
+                                                                              fontSize: 16,
+                                                                              fontWeight: FontWeight.w500,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Text(
+                                                                      e.itemEntity.shortName ?? e.itemEntity.itemName,
+                                                                      style: const TextStyle(
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Column(
+                                                                  // QuantityUI
+                                                                  children: [
+                                                                    Text(
+                                                                      "${Helpers.cleanDecimal(e.quantity, 3)} x",
+                                                                      textAlign: TextAlign.right,
+                                                                      style: const TextStyle(
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Column(
+                                                                  // PriceUI
+                                                                  children: [
+                                                                    Text(
+                                                                      "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
+                                                                      textAlign: TextAlign.right,
+                                                                      style: const TextStyle(
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                                  mainAxisSize: MainAxisSize.max,
+                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                  // TotalPriceUI
+                                                                  children: [
+                                                                    Text(
+                                                                      Helpers.parseMoney(
+                                                                          (e.sellingPrice * e.quantity).round()),
+                                                                      style: const TextStyle(
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      height: 6,
+                                                                    ),
+                                                                    e.tohemId != null || state.salesTohemId != null
+                                                                        ? FutureBuilder(
+                                                                            future: getSalesPerson(
+                                                                                e.tohemId, state.salesTohemId),
+                                                                            builder: (context, snapshot) {
+                                                                              if (snapshot.hasData) {
+                                                                                return Text(
+                                                                                  snapshot.data?.empName ?? "",
+                                                                                  textAlign: TextAlign.right,
+                                                                                  style: const TextStyle(
+                                                                                      height: 1,
+                                                                                      fontSize: 12,
+                                                                                      fontWeight: FontWeight.w500),
+                                                                                );
+                                                                              } else {
+                                                                                return const SizedBox.shrink();
+                                                                              }
+                                                                            })
+                                                                        : const SizedBox.shrink(),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          // SHOW PROMO HERE
+                                                          ...test,
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                          const Divider(
-                                            height: 1,
-                                            thickness: 0.5,
-                                            color: Color.fromARGB(100, 118, 118, 118),
-                                          ),
-                                        ],
+                                            const Divider(
+                                              height: 1,
+                                              thickness: 0.5,
+                                              color: Color.fromARGB(100, 118, 118, 118),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
+                              )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned.fill(
+                    child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 40,
+                      ),
+                      const Spacer(
+                        flex: 3,
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: Container(
+                            height: 20,
+                            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                            decoration: const BoxDecoration(
+                              // border: Border.all(
+                              //     color: Color.fromRGBO(195, 53, 53, 1),
+                              //     width: 4.0),
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+
+                              color: Colors.grey,
+                              boxShadow: [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 5,
+                                  color: Color.fromRGBO(0, 0, 0, 0.248),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              "Total Qty.",
+                              style: TextStyle(
+                                color: Colors.white,
                               ),
                             ),
-                          )
-                      ],
-                    ),
+                          )),
+                      const Spacer(
+                        flex: 2,
+                      ),
+                    ],
                   ),
-                ],
-              )),
+                ))
+              ])),
         );
       },
     );
@@ -973,10 +1052,11 @@ class _SalesPageState extends State<SalesPage> {
                   Expanded(
                     child: SizedBox.expand(
                       child: OutlinedButton(
-                          onPressed: () {
-                            context.read<ReceiptCubit>().resetReceipt();
+                          onPressed: () async {
+                            // await context.read<ReceiptCubit>().resetReceipt();
                             setState(() {});
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
+                            context.goNamed(RouteConstants.home);
                           },
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
@@ -1172,26 +1252,30 @@ class _SalesPageState extends State<SalesPage> {
                   Expanded(
                     child: SizedBox.expand(
                       child: OutlinedButton(
-                          onPressed: () async {
-                            setState(() {
-                              isEditingNewReceiptItemCode = false;
-                              isEditingNewReceiptItemQty = false;
-                              isUpdatingReceiptItemQty = false;
-                            });
+                          onPressed: null,
+                          // onPressed: () async {
+                          //   setState(() {
+                          //     isEditingNewReceiptItemCode = false;
+                          //     isEditingNewReceiptItemQty = false;
+                          //     isUpdatingReceiptItemQty = false;
+                          //   });
 
-                            await applyHeaderDiscount(context);
+                          //   await showDialog(
+                          //       context: context,
+                          //       barrierDismissible: false,
+                          //       builder: (context) => const InputCouponsDialog());
 
-                            setState(() {
-                              isEditingNewReceiptItemCode = true;
-                              Future.delayed(
-                                  const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
-                            });
-                          },
+                          //   setState(() {
+                          //     isEditingNewReceiptItemCode = true;
+                          //     Future.delayed(
+                          //         const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
+                          //   });
+                          // },
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                            foregroundColor: Colors.white,
+                            foregroundColor: Colors.grey,
                             backgroundColor: ProjectColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
@@ -1202,12 +1286,12 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Discount",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                                "Coupon",
+                                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey),
                               ),
                               Text(
                                 "F5",
-                                style: TextStyle(fontWeight: FontWeight.w300),
+                                style: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey),
                               ),
                             ],
                           )),
@@ -1321,9 +1405,9 @@ class _SalesPageState extends State<SalesPage> {
                     child: SizedBox.expand(
                       child: OutlinedButton(
                           onPressed: () {
-                            context.read<ReceiptCubit>().resetReceipt();
+                            // context.read<ReceiptCubit>().resetReceipt();
                             setState(() {});
-                            Navigator.pop(context);
+                            context.goNamed(RouteConstants.home);
                           },
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
@@ -1519,24 +1603,31 @@ class _SalesPageState extends State<SalesPage> {
                   Expanded(
                     child: SizedBox.expand(
                       child: OutlinedButton(
-                          onPressed: () async {
-                            setState(() {
-                              isEditingNewReceiptItemCode = false;
-                              isEditingNewReceiptItemQty = false;
-                              isUpdatingReceiptItemQty = false;
-                            });
-                            await applyHeaderDiscount(context);
-                            setState(() {
-                              isEditingNewReceiptItemCode = true;
-                              Future.delayed(
-                                  const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
-                            });
-                          },
+                          onPressed: null,
+
+                          // onPressed: () async {
+                          //   setState(() {
+                          //     isEditingNewReceiptItemCode = false;
+                          //     isEditingNewReceiptItemQty = false;
+                          //     isUpdatingReceiptItemQty = false;
+                          //   });
+
+                          //   await showDialog(
+                          //       context: context,
+                          //       barrierDismissible: false,
+                          //       builder: (context) => const InputCouponsDialog());
+
+                          //   setState(() {
+                          //     isEditingNewReceiptItemCode = true;
+                          //     Future.delayed(
+                          //         const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
+                          //   });
+                          // },
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                            foregroundColor: Colors.white,
+                            foregroundColor: Colors.grey,
                             backgroundColor: ProjectColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
@@ -1547,12 +1638,12 @@ class _SalesPageState extends State<SalesPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Discount",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                                "Coupon",
+                                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey),
                               ),
                               Text(
                                 "F5",
-                                style: TextStyle(fontWeight: FontWeight.w300),
+                                style: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey),
                               ),
                             ],
                           )),
@@ -1807,25 +1898,32 @@ class _SalesPageState extends State<SalesPage> {
                       return Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: () async {
-                              setState(() {
-                                isEditingNewReceiptItemCode = false;
-                                isEditingNewReceiptItemQty = false;
-                                isUpdatingReceiptItemQty = false;
-                              });
-                              await applyHeaderDiscount(context);
-                              setState(() {
-                                isEditingNewReceiptItemCode = true;
-                                Future.delayed(const Duration(milliseconds: 50),
-                                    () => _newReceiptItemCodeFocusNode.requestFocus());
-                              });
-                            },
+                            onPressed: null
+                            // () async {
+                            //   setState(() {
+                            //     isEditingNewReceiptItemCode = false;
+                            //     isEditingNewReceiptItemQty = false;
+                            //     isUpdatingReceiptItemQty = false;
+                            //   });
+
+                            //   await showDialog(
+                            //       context: context,
+                            //       barrierDismissible: false,
+                            //       builder: (context) => const InputCouponsDialog());
+
+                            //   setState(() {
+                            //     isEditingNewReceiptItemCode = true;
+                            //     Future.delayed(const Duration(milliseconds: 50),
+                            //         () => _newReceiptItemCodeFocusNode.requestFocus());
+                            //   });
+                            // }
+                            ,
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                              foregroundColor: Colors.white,
-                              backgroundColor: ProjectColors.primary,
+                              foregroundColor: Colors.grey,
+                              backgroundColor: ProjectColors.lightBlack,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -1843,7 +1941,8 @@ class _SalesPageState extends State<SalesPage> {
                                         children: [
                                           Text(
                                             "F5",
-                                            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w300, fontSize: 14, color: Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -1857,8 +1956,9 @@ class _SalesPageState extends State<SalesPage> {
                                         text: const TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: "Discount",
-                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                              text: "Coupon",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
                                             ),
                                           ],
                                         ),
@@ -1964,10 +2064,11 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                        onPressed: () {
-                          context.read<ReceiptCubit>().resetReceipt();
+                        onPressed: () async {
+                          // await context.read<ReceiptCubit>().resetReceipt();
                           setState(() {});
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
+                          context.goNamed(RouteConstants.home);
                         },
                         style: OutlinedButton.styleFrom(
                           elevation: 5,
@@ -2528,7 +2629,7 @@ class _SalesPageState extends State<SalesPage> {
                     padding: const EdgeInsets.all(0),
                     elevation: 5,
                     shadowColor: Colors.black87,
-                    backgroundColor: uiVersion == 1 ? ProjectColors.primary : ProjectColors.primary,
+                    backgroundColor: salesViewType == 1 ? ProjectColors.primary : ProjectColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
@@ -2604,7 +2705,7 @@ class _SalesPageState extends State<SalesPage> {
                     padding: const EdgeInsets.all(0),
                     elevation: 5,
                     shadowColor: Colors.black87,
-                    backgroundColor: uiVersion == 1 ? ProjectColors.primary : ProjectColors.primary,
+                    backgroundColor: salesViewType == 1 ? ProjectColors.primary : ProjectColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
@@ -2680,7 +2781,7 @@ class _SalesPageState extends State<SalesPage> {
                       padding: const EdgeInsets.all(0),
                       elevation: 5,
                       shadowColor: Colors.black87,
-                      backgroundColor: uiVersion == 1 ? ProjectColors.primary : ProjectColors.primary,
+                      backgroundColor: salesViewType == 1 ? ProjectColors.primary : ProjectColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
@@ -2759,7 +2860,7 @@ class _SalesPageState extends State<SalesPage> {
                     shadowColor: Colors.black87,
                     backgroundColor: isEditingNewReceiptItemQty
                         ? const Color.fromARGB(255, 113, 0, 0)
-                        : uiVersion == 1
+                        : salesViewType == 1
                             ? ProjectColors.primary
                             : ProjectColors.primary,
                     foregroundColor: Colors.white,
@@ -3302,7 +3403,8 @@ class _SalesPageState extends State<SalesPage> {
           isEditingNewReceiptItemQty = false;
           isUpdatingReceiptItemQty = false;
         });
-        await applyHeaderDiscount(context);
+        await showDialog(context: context, barrierDismissible: false, builder: (context) => const InputCouponsDialog());
+
         setState(() {
           isEditingNewReceiptItemCode = true;
           _newReceiptItemCodeFocusNode.requestFocus();
@@ -3488,27 +3590,27 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  Future<void> applyHeaderDiscount(BuildContext childContext) async {
-    try {
-      final ReceiptItemEntity? dpItem =
-          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
-      if (dpItem != null && dpItem.quantity > 0) {
-        throw "Header discount cannot be applied on down payment deposit";
-      }
+  // Future<void> applyHeaderDiscount(BuildContext childContext) async {
+  //   try {
+  //     final ReceiptItemEntity? dpItem =
+  //         context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+  //     if (dpItem != null && dpItem.quantity > 0) {
+  //       throw "Header discount cannot be applied on down payment deposit";
+  //     }
 
-      await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
-        if (value != null) {
-          SnackBarHelper.presentSuccessSnackBar(
-              childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
-        }
-      });
-    } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(context, e.toString());
-    }
-  }
+  //     await showDialog(
+  //         context: context,
+  //         barrierDismissible: false,
+  //         builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
+  //       if (value != null) {
+  //         SnackBarHelper.presentSuccessSnackBar(
+  //             childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
+  //       }
+  //     });
+  //   } catch (e) {
+  //     SnackBarHelper.presentErrorSnackBar(context, e.toString());
+  //   }
+  // }
   // =================================================
   //             [END] Other Functions
   // =================================================

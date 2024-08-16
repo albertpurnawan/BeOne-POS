@@ -112,152 +112,155 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
           child: Container(
             padding: const EdgeInsets.all(15),
             width: MediaQuery.of(context).size.width * 0.65,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              // crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...[
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(
-                            width: 15,
-                          ),
-                          Text(
-                            "Get Items (${isAndYCondition ? "AND" : "OR"})",
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: remainingQty > 0
-                                  ? const Color.fromARGB(255, 47, 143, 8)
-                                  : remainingQty == 0
-                                      ? Colors.grey
-                                      : ProjectColors.primary,
+            height: MediaQuery.of(context).size.height * 0.65,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...[
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(
+                              width: 15,
                             ),
+                            Text(
+                              "Get Items (${isAndYCondition ? "AND" : "OR"})",
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: remainingQty > 0
+                                    ? const Color.fromARGB(255, 47, 143, 8)
+                                    : remainingQty == 0
+                                        ? Colors.grey
+                                        : ProjectColors.primary,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    "Remaining Get Qty.",
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    Helpers.cleanDecimal(remainingQty, 5),
+                                    style:
+                                        const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 30,
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    )
+                  ],
+                  ...widget.conditionAndItemYs.asMap().entries.map((entry) {
+                    final PromoBuyXGetYGetConditionAndItemEntity conditionAndItemY = entry.value;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CheckboxListTile.adaptive(
+                          value: isAndYCondition
+                              ? true
+                              : selectedItemYs
+                                  .map((e) => e.itemEntity.barcode)
+                                  .contains(conditionAndItemY.itemEntity.barcode),
+                          onChanged: isAndYCondition
+                              ? (checked) {}
+                              : (checked) {
+                                  if (checked!) {
+                                    selectedItemYs = [...selectedItemYs, conditionAndItemY];
+
+                                    remainingQty -= conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity;
+                                  } else {
+                                    selectedItemYs = selectedItemYs
+                                        .where((element) =>
+                                            element.itemEntity.barcode != conditionAndItemY.itemEntity.barcode)
+                                        .toList();
+                                    remainingQty += conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity;
+                                  }
+                                  setState(() {});
+                                },
+                          title: Text(conditionAndItemY.itemEntity.shortName ?? conditionAndItemY.itemEntity.itemName),
+                          subtitle: SizedBox(
+                            height: 25,
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Text(
-                                  "Remaining Get Qty.",
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
+                                  "Quantity",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                                 const SizedBox(
                                   width: 10,
                                 ),
                                 Text(
-                                  Helpers.cleanDecimal(remainingQty, 5),
-                                  style:
-                                      const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
+                                  Helpers.cleanDecimal(conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity, 5),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                const Text(
+                                  "Selling Price",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Rp ${Helpers.parseMoney((conditionAndItemY.itemEntity.includeTax == 1 ? conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice : conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice * (100 / (100 + conditionAndItemY.itemEntity.taxRate))).round())}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(
-                            width: 30,
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  )
-                ],
-                ...widget.conditionAndItemYs.asMap().entries.map((entry) {
-                  final PromoBuyXGetYGetConditionAndItemEntity conditionAndItemY = entry.value;
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CheckboxListTile.adaptive(
-                        value: isAndYCondition
-                            ? true
-                            : selectedItemYs
-                                .map((e) => e.itemEntity.barcode)
-                                .contains(conditionAndItemY.itemEntity.barcode),
-                        onChanged: isAndYCondition
-                            ? (checked) {}
-                            : (checked) {
-                                if (checked!) {
-                                  selectedItemYs = [...selectedItemYs, conditionAndItemY];
-
-                                  remainingQty -= conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity;
-                                } else {
-                                  selectedItemYs = selectedItemYs
-                                      .where((element) =>
-                                          element.itemEntity.barcode != conditionAndItemY.itemEntity.barcode)
-                                      .toList();
-                                  remainingQty += conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity;
-                                }
-                                setState(() {});
-                              },
-                        title: Text(conditionAndItemY.itemEntity.shortName ?? conditionAndItemY.itemEntity.itemName),
-                        subtitle: SizedBox(
-                          height: 25,
-                          child: Row(
-                            children: [
-                              const Text(
-                                "Quantity",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                Helpers.cleanDecimal(conditionAndItemY.promoBuyXGetYGetConditionEntity.quantity, 5),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 30,
-                              ),
-                              const Text(
-                                "Selling Price",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                "Rp ${Helpers.parseMoney((conditionAndItemY.itemEntity.includeTax == 1 ? conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice : conditionAndItemY.promoBuyXGetYGetConditionEntity.sellingPrice * (100 / (100 + conditionAndItemY.itemEntity.taxRate))).round())}",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
-                      ),
-                      const Divider(
-                        height: 1,
-                        thickness: 0.5,
-                        color: Color.fromARGB(100, 118, 118, 118),
-                      ),
-                    ],
-                  );
-                }).toList()
-              ],
+                        const Divider(
+                          height: 1,
+                          thickness: 0.5,
+                          color: Color.fromARGB(100, 118, 118, 118),
+                        ),
+                      ],
+                    );
+                  }).toList()
+                ],
+              ),
             ),
           ),
         ),

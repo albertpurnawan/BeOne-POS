@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 
 class ConfirmActiveShiftDialog extends StatefulWidget {
@@ -113,14 +114,9 @@ class _ConfirmActiveShiftDialogState extends State<ConfirmActiveShiftDialog> {
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-              onPressed: () {
+              onPressed: () async {
                 context.pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ShiftsList(),
-                  ),
-                );
+                await context.pushNamed(RouteConstants.shifts);
               },
               child: const Center(
                   child: Text(

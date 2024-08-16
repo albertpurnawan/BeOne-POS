@@ -31,6 +31,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.salesTohemId,
     super.approvals,
     super.remarks,
+    super.coupons,
+    super.includePromo,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -62,6 +64,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       toinvTohemId: entity.toinvTohemId,
       salesTohemId: entity.salesTohemId,
       approvals: entity.approvals,
+      coupons: entity.coupons,
+      includePromo: entity.includePromo,
     );
   }
 }

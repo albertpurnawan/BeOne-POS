@@ -12,6 +12,7 @@ import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/permission_handler.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
+import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
@@ -80,7 +81,6 @@ class SettingsForm extends StatefulWidget {
 class _SettingsFormState extends State<SettingsForm> {
   String? oldGtentId, oldTostrId, oldTocsrId, oldUrl;
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-  String dflDate = "2000-01-01 00:00:00";
 
   final formKey = GlobalKey<FormState>();
 
@@ -92,6 +92,8 @@ class _SettingsFormState extends State<SettingsForm> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController otpChannelController = TextEditingController();
 
+  String device = "";
+
   @override
   void initState() {
     super.initState();
@@ -102,18 +104,19 @@ class _SettingsFormState extends State<SettingsForm> {
     oldUrl = Constant.url;
 
     // initValuesFromPref();
+    generateDeviceNumber();
 
     if (!widget.haveTopos) checkPermission();
   }
 
-  void initValuesFromPref() {
-    setState(() {
-      oldGtentId = prefs.getString('gtentId') ?? oldGtentId;
-      oldTostrId = prefs.getString('tostrId') ?? oldTostrId;
-      oldTocsrId = prefs.getString('tocsrId') ?? oldTocsrId;
-      oldUrl = prefs.getString('url') ?? oldUrl;
-    });
-  }
+  // void initValuesFromPref() {
+  //   setState(() {
+  //     oldGtentId = prefs.getString('gtentId') ?? oldGtentId;
+  //     oldTostrId = prefs.getString('tostrId') ?? oldTostrId;
+  //     oldTocsrId = prefs.getString('tocsrId') ?? oldTocsrId;
+  //     oldUrl = prefs.getString('url') ?? oldUrl;
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -125,6 +128,13 @@ class _SettingsFormState extends State<SettingsForm> {
     passwordController.dispose();
     otpChannelController.dispose();
     super.dispose();
+  }
+
+  Future<void> generateDeviceNumber() async {
+    final deviceId = await GetIt.instance<GenerateDeviceNumberUseCase>().call();
+    setState(() {
+      device = deviceId;
+    });
   }
 
   Future<void> checkPermission() async {
@@ -324,6 +334,7 @@ class _SettingsFormState extends State<SettingsForm> {
           //     ),
           //   ],
           // ),
+          SelectableText(device),
           const SizedBox(height: 150),
           Row(
             children: [

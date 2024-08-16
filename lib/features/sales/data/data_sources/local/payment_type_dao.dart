@@ -28,8 +28,6 @@ class PaymentTypeDao extends BaseDao<PaymentTypeModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => PaymentTypeModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => PaymentTypeModel.fromMap(itemData)).toList();
   }
 }

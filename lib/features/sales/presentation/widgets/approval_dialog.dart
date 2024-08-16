@@ -24,9 +24,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class ApprovalDialog extends StatefulWidget {
-  final Future<void> Function()? onSuccess;
+  final ApprovalType approvalType;
   final double? discount;
-  const ApprovalDialog({Key? key, this.onSuccess, this.discount}) : super(key: key);
+  const ApprovalDialog({Key? key, this.approvalType = ApprovalType.general, this.discount}) : super(key: key);
 
   @override
   State<ApprovalDialog> createState() => _ApprovalDialogState();
@@ -388,4 +388,15 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
       }),
     );
   }
+}
+
+enum ApprovalType {
+  headerDiscount,
+  zeroTransaction,
+
+  closeShift,
+
+  resetDatabase,
+
+  general,
 }

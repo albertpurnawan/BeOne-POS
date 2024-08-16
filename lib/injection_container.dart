@@ -1,9 +1,11 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
+import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
@@ -137,6 +139,9 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_ge
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
@@ -182,6 +187,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<GoRouter>(AppRouter().router);
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
   sl.registerSingleton<Uuid>(const Uuid());
+  sl.registerSingleton<DeviceInfoPlugin>(DeviceInfoPlugin());
   sl.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
   sl.registerSingletonAsync<ReceiptPrinter>(() => ReceiptPrinter.init(), dependsOn: [SharedPreferences]);
   /**
@@ -260,6 +266,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PromoBuyXGetYAssignStoreApi>(PromoBuyXGetYAssignStoreApi(sl()));
   sl.registerSingleton<PromoBuyXGetYGetConditionApi>(PromoBuyXGetYGetConditionApi(sl()));
   sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(PromoBuyXGetYCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoCouponHeaderApi>(PromoCouponHeaderApi(sl()));
+  sl.registerSingleton<PromoCouponAssignStoreApi>(PromoCouponAssignStoreApi(sl()));
+  sl.registerSingleton<PromoCouponCustomerGroupApi>(PromoCouponCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
@@ -404,6 +413,17 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<ApplyPromoTopdiUseCase>(ApplyPromoTopdiUseCase());
   sl.registerSingletonWithDependencies<HandlePromoTopdiUseCase>(() => HandlePromoTopdiUseCase(sl(), sl(), sl(), sl()),
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
+  // toprn usecases
+  // sl.registerSingleton<GetPromoToprnHeaderUseCase>(GetPromoToprnHeaderUseCase());
+  // sl.registerSingleton<ApplyPromoToprnUseCase>(ApplyPromoToprnUseCase());
+  // sl.registerSingletonWithDependencies<CheckPromoToprnApplicabilityUseCase>(
+  //   () => CheckPromoToprnApplicabilityUseCase(),
+  // );
+  // sl.registerSingleton<RecalculateReceiptByToprnUseCase>(RecalculateReceiptByToprnUseCase());
+  // sl.registerSingletonWithDependencies<HandlePromoToprnUseCase>(
+  //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),
+  // );
+
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(() => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
   sl.registerSingletonWithDependencies<ApplyRoundingUseCase>(() => ApplyRoundingUseCase(sl(), sl()),
@@ -414,6 +434,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<EncryptPasswordUseCase>(EncryptPasswordUseCase());
   sl.registerSingleton<DecryptPasswordUseCase>(DecryptPasswordUseCase());
   sl.registerSingleton<RefreshTokenUseCase>(RefreshTokenUseCase());
+  sl.registerSingleton<GenerateDeviceNumberUseCase>(GenerateDeviceNumberUseCase(sl(), sl()));
   /**
    * =================================
    * END OF USECASES
