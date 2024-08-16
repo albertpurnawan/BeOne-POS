@@ -23,6 +23,7 @@ class PromoCouponHeaderFields {
     memberDisc,
     maxMemberDisc,
     statusActive,
+    form,
   ];
 
   static const String docId = "docid";
@@ -43,6 +44,7 @@ class PromoCouponHeaderFields {
   static const String memberDisc = "memberdisc";
   static const String maxMemberDisc = "maxmemberdisc";
   static const String statusActive = "statusactive";
+  static const String form = "form";
 }
 
 class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseModel {
@@ -65,6 +67,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
     required super.memberDisc,
     required super.maxMemberDisc,
     required super.statusActive,
+    required super.form,
   });
 
   @override
@@ -88,6 +91,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
       'memberdisc': memberDisc,
       'maxmemberdisc': maxMemberDisc,
       'statusactive': statusActive,
+      'form': form,
     };
   }
 
@@ -107,20 +111,22 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
       maxTimes: map['maxtimes'] as int,
       minPurchase: map['minpurchase'] as double,
       generalDisc: map['generaldisc'] as double,
-      maxGeneralDisc: map['maxgeneraldisc'] as String,
+      maxGeneralDisc: map['maxgeneraldisc'] as double,
       memberDisc: map['memberdisc'] as double,
       maxMemberDisc: map['maxmemberdisc'] as double,
       statusActive: map['statusactive'] as int,
+      form: map['form'] as String,
     );
   }
 
   factory PromoCouponHeaderModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoCouponHeaderModel.fromMap({
       ...map,
-      "minpurchase": map['minpurchase'].toDouble() as double,
-      "generaldisc": map['generaldisc'].toDouble() as double,
-      "memberdisc": map['memberdisc'].toDouble() as double,
-      "maxMemberdisc": map['maxmemberdisc'].toDouble() as double,
+      "minpurchase": (map['minpurchase'] as num).toDouble(),
+      "generaldisc": (map['generaldisc'] as num).toDouble(),
+      "maxgeneraldisc": (map['maxgeneraldisc'] as num).toDouble(),
+      "memberdisc": (map['memberdisc'] as num).toDouble(),
+      "maxmemberdisc": (map['maxmemberdisc'] as num).toDouble(),
     });
   }
 
@@ -144,6 +150,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
       memberDisc: entity.memberDisc,
       maxMemberDisc: entity.maxMemberDisc,
       statusActive: entity.statusActive,
+      form: entity.form,
     );
   }
 }

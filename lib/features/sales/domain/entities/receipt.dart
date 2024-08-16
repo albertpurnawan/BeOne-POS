@@ -6,6 +6,7 @@ import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
@@ -48,6 +49,8 @@ class ReceiptEntity {
   String? toinvTohemId;
   String? salesTohemId;
   List<ApprovalInvoiceEntity>? approvals;
+  List<PromoCouponHeaderEntity>? coupons;
+  int? includePromo;
 
   ReceiptEntity({
     required this.docNum,
@@ -80,6 +83,8 @@ class ReceiptEntity {
     this.toinvTohemId,
     this.salesTohemId,
     this.approvals,
+    this.coupons,
+    this.includePromo,
   });
 
   ReceiptEntity copyWith({
@@ -113,6 +118,8 @@ class ReceiptEntity {
     String? toinvTohemId,
     String? salesTohemId,
     List<ApprovalInvoiceEntity>? approvals,
+    List<PromoCouponHeaderEntity>? coupons,
+    int? includePromo,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -145,6 +152,8 @@ class ReceiptEntity {
       toinvTohemId: toinvTohemId ?? this.toinvTohemId,
       salesTohemId: salesTohemId ?? this.salesTohemId,
       approvals: approvals ?? this.approvals,
+      coupons: coupons ?? this.coupons,
+      includePromo: includePromo ?? this.includePromo,
     );
   }
 
@@ -177,6 +186,8 @@ class ReceiptEntity {
       'toinvTohemId': toinvTohemId,
       'salesTohemId': salesTohemId,
       'approvals': approvals?.map((x) => x.toMap()).toList(),
+      'coupons': coupons?.map((x) => x.toMap()).toList(),
+      'includePromo': includePromo,
     };
   }
 
@@ -227,6 +238,8 @@ class ReceiptEntity {
       salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
       approvals:
           (map['approvals'] as List).map((x) => ApprovalInvoiceEntity.fromMap(x as Map<String, dynamic>)).toList(),
+      coupons: (map['coupons'] as List).map((x) => PromoCouponHeaderEntity.fromMap(x as Map<String, dynamic>)).toList(),
+      includePromo: map['includePromo'] != null ? map['includePromo'] as int : null,
     );
   }
 
@@ -236,7 +249,7 @@ class ReceiptEntity {
 
   @override
   String toString() {
-    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelections, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId, salesTohemId: $salesTohemId, approvals: $approvals,
+    return """ReceiptEntity(docNum: $docNum, receiptItems: $receiptItems, mopSelection: $mopSelections, customerEntity: $customerEntity, employeeEntity: $employeeEntity, totalTax: $totalTax, transDateTime: $transDateTime, transStart: $transStart, transEnd: $transEnd, subtotal: $subtotal, taxAmount: $taxAmount, grandTotal: $grandTotal, totalPayment: $totalPayment, changed: $changed, toinvId: $toinvId, vouchers: $vouchers, totalVoucher: $totalVoucher, totalNonVoucher: $totalNonVoucher, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderManual: $discHeaderManual, discHeaderPromo: $discHeaderPromo, remarks: $remarks, toinvTohemId: $toinvTohemId, salesTohemId: $salesTohemId, approvals: $approvals, coupons: $coupons, includePromo: $includePromo, rounding: $rounding,
     
     previousReceiptEntity: $previousReceiptEntity)""";
   }
@@ -271,7 +284,9 @@ class ReceiptEntity {
         other.remarks == remarks &&
         other.toinvTohemId == toinvTohemId &&
         other.salesTohemId == salesTohemId &&
-        other.approvals == approvals;
+        other.approvals == approvals &&
+        other.coupons == coupons &&
+        other.includePromo == includePromo;
     // other.previousReceiptEntity == previousReceiptEntity; kalau tidak ada perubahan apa2 previous gak ke emit
   }
 
@@ -303,7 +318,9 @@ class ReceiptEntity {
         remarks.hashCode ^
         toinvTohemId.hashCode ^
         salesTohemId.hashCode ^
-        approvals.hashCode;
+        approvals.hashCode ^
+        coupons.hashCode ^
+        includePromo.hashCode;
     // previousReceiptEntity.hashCode;
   }
 }

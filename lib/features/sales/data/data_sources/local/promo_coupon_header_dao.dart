@@ -30,4 +30,28 @@ class PromoCouponHeaderDao extends BaseDao<PromoCouponHeaderModel> {
 
     return result.map((itemData) => PromoCouponHeaderModel.fromMap(itemData)).toList();
   }
+
+  Future<PromoCouponHeaderModel?> checkCoupons(String couponCode, {Transaction? txn}) async {
+    final List<Map<String, dynamic>> result;
+
+    if (txn != null) {
+      result = await txn.query(
+        tableName,
+        where: 'couponcode = ?',
+        whereArgs: [couponCode],
+      );
+    } else {
+      result = await db.query(
+        tableName,
+        where: 'couponcode = ?',
+        whereArgs: [couponCode],
+      );
+    }
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    return PromoCouponHeaderModel.fromMap(result.first);
+  }
 }

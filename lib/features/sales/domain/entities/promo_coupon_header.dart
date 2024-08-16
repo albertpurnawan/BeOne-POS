@@ -16,22 +16,23 @@ class PromoCouponHeaderEntity {
   final int maxTimes;
   final double minPurchase;
   final double generalDisc;
-  final String maxGeneralDisc;
+  final double maxGeneralDisc;
   final double memberDisc;
   final double maxMemberDisc;
   final int statusActive;
+  final String form;
 
   PromoCouponHeaderEntity({
     required this.docId,
     required this.createDate,
-    required this.updateDate,
+    this.updateDate,
     required this.couponCode,
     required this.description,
     required this.startDate,
     required this.endDate,
     required this.startTime,
     required this.endTime,
-    required this.remarks,
+    this.remarks,
     required this.includePromo,
     required this.maxTimes,
     required this.minPurchase,
@@ -40,6 +41,7 @@ class PromoCouponHeaderEntity {
     required this.memberDisc,
     required this.maxMemberDisc,
     required this.statusActive,
+    required this.form,
   });
 
   PromoCouponHeaderEntity copyWith({
@@ -57,10 +59,11 @@ class PromoCouponHeaderEntity {
     int? maxTimes,
     double? minPurchase,
     double? generalDisc,
-    String? maxGeneralDisc,
+    double? maxGeneralDisc,
     double? memberDisc,
     double? maxMemberDisc,
     int? statusActive,
+    String? form,
   }) {
     return PromoCouponHeaderEntity(
       docId: docId ?? this.docId,
@@ -81,6 +84,7 @@ class PromoCouponHeaderEntity {
       memberDisc: memberDisc ?? this.memberDisc,
       maxMemberDisc: maxMemberDisc ?? this.maxMemberDisc,
       statusActive: statusActive ?? this.statusActive,
+      form: form ?? this.form,
     );
   }
 
@@ -104,6 +108,7 @@ class PromoCouponHeaderEntity {
       'memberDisc': memberDisc,
       'maxMemberDisc': maxMemberDisc,
       'statusActive': statusActive,
+      'form': form,
     };
   }
 
@@ -111,9 +116,7 @@ class PromoCouponHeaderEntity {
     return PromoCouponHeaderEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       couponCode: map['couponCode'] as String,
       description: map['description'] as String,
       startDate: DateTime.fromMillisecondsSinceEpoch(map['startDate'] as int),
@@ -125,22 +128,22 @@ class PromoCouponHeaderEntity {
       maxTimes: map['maxTimes'] as int,
       minPurchase: map['minPurchase'] as double,
       generalDisc: map['generalDisc'] as double,
-      maxGeneralDisc: map['maxGeneralDisc'] as String,
+      maxGeneralDisc: map['maxGeneralDisc'] as double,
       memberDisc: map['memberDisc'] as double,
       maxMemberDisc: map['maxMemberDisc'] as double,
       statusActive: map['statusActive'] as int,
+      form: map['form'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory PromoCouponHeaderEntity.fromJson(String source) =>
-      PromoCouponHeaderEntity.fromMap(
-          json.decode(source) as Map<String, dynamic>);
+      PromoCouponHeaderEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'PromoCouponHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, couponCode: $couponCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, includePromo: $includePromo, maxTimes: $maxTimes, minPurchase: $minPurchase, generalDisc: $generalDisc, maxGeneralDisc: $maxGeneralDisc, memberDisc: $memberDisc, maxMemberDisc: $maxMemberDisc, statusActive: $statusActive)';
+    return 'PromoCouponHeaderEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, couponCode: $couponCode, description: $description, startDate: $startDate, endDate: $endDate, startTime: $startTime, endTime: $endTime, remarks: $remarks, includePromo: $includePromo, maxTimes: $maxTimes, minPurchase: $minPurchase, generalDisc: $generalDisc, maxGeneralDisc: $maxGeneralDisc, memberDisc: $memberDisc, maxMemberDisc: $maxMemberDisc, statusActive: $statusActive, form: $form)';
   }
 
   @override
@@ -164,7 +167,8 @@ class PromoCouponHeaderEntity {
         other.maxGeneralDisc == maxGeneralDisc &&
         other.memberDisc == memberDisc &&
         other.maxMemberDisc == maxMemberDisc &&
-        other.statusActive == statusActive;
+        other.statusActive == statusActive &&
+        other.form == form;
   }
 
   @override
@@ -186,6 +190,7 @@ class PromoCouponHeaderEntity {
         maxGeneralDisc.hashCode ^
         memberDisc.hashCode ^
         maxMemberDisc.hashCode ^
-        statusActive.hashCode;
+        statusActive.hashCode ^
+        form.hashCode;
   }
 }

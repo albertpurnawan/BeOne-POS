@@ -117,6 +117,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_ge
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
@@ -163,7 +164,7 @@ class _FetchScreenState extends State<FetchScreen> {
   String errorMessage = '';
   double syncProgress = 0.0;
   int totalData = 0;
-  int totalTable = 61;
+  int totalTable = 62;
 
   @override
   void initState() {
@@ -2665,6 +2666,47 @@ class _FetchScreenState extends State<FetchScreen> {
               await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
             }
           },
+          () async {
+            try {
+              final toprnDb = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
+
+              if (toprnDb.isNotEmpty) {
+                final toprnDbMap = {for (var datum in toprnDb) datum.docId: datum};
+
+                toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData(lastSyncDate);
+                for (final datumBos in toprn) {
+                  final datumDb = toprnDbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .promoCouponHeaderDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>().promoCouponHeaderDao.create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoCouponHeaderDao.bulkCreate(data: toprn);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Tpdg1",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+            }
+          }
         ];
         // ------------------- END OF FETCHING FUNCTIONS-------------------
 
@@ -3138,6 +3180,9 @@ class _FetchScreenState extends State<FetchScreen> {
                 color: Colors.white,
                 onPressed: () {
                   Navigator.pop(context, true);
+                  setState(() {
+                    prefs.setBool('isSyncing', false);
+                  });
                 },
               ),
       ),
@@ -3202,6 +3247,9 @@ class _FetchScreenState extends State<FetchScreen> {
                             });
                             if (context.mounted) {
                               context.pop();
+                              setState(() {
+                                prefs.setBool('isSyncing', false);
+                              });
                             }
                           },
                     style: const ButtonStyle(

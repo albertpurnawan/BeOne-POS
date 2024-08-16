@@ -2856,10 +2856,11 @@ CREATE TABLE $tablePromoCouponHeader (
   ${PromoCouponHeaderFields.maxTimes} int NOT NULL,
   ${PromoCouponHeaderFields.minPurchase} double NOT NULL,
   ${PromoCouponHeaderFields.generalDisc} double NOT NULL,
-  ${PromoCouponHeaderFields.maxGeneralDisc} varchar(20) NOT NULL,
+  ${PromoCouponHeaderFields.maxGeneralDisc} double NOT NULL,
   ${PromoCouponHeaderFields.memberDisc} double NOT NULL,
   ${PromoCouponHeaderFields.maxMemberDisc} double NOT NULL,
   ${PromoCouponHeaderFields.statusActive} int NOT NULL,
+  ${PromoCouponHeaderFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
 """);
@@ -3583,42 +3584,42 @@ CREATE TABLE $tableApprovalInvoice (
     }
   }
 
-  Future upsertToprn(List<dynamic> toprn, List<dynamic> tprn2) async {
+  Future upsertToprn(List<dynamic> tprn2) async {
     try {
       Database db = await getDB();
       await db.transaction((txn) async {
-        await txn.rawInsert('''
-          INSERT OR REPLACE INTO toprn (
-            docid, createdate, updatedate, couponcode, description, startdate, 
-            enddate, starttime, endtime, remarks, includepromo, maxtimes, 
-            minpurchase, generaldisc, maxgeneraldisc, memberdisc, 
-            maxmemberdisc, statusactive
-            ) VALUES (
-              ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )
-            ON CONFLICT(docid) DO UPDATE SET
-          createdate = excluded.createdate,
-          updatedate = excluded.updatedate,
-          couponcode = excluded.couponcode,
-          description = excluded.description,
-          startdate = excluded.startdate,
-          enddate = excluded.enddate,
-          starttime = excluded.starttime,
-          endtime = excluded.endtime,
-          remarks = excluded.remarks,
-          includepromo = excluded.includepromo,
-          maxtimes = excluded.maxtimes,
-          minpurchase = excluded.minpurchase,
-          generaldisc = excluded.generaldisc,
-          maxgeneraldisc = excluded.maxgeneraldisc,
-          memberdisc = excluded.memberdisc,
-          maxmemberdisc = excluded.maxmemberdisc,
-          statusactive = excluded.statusactive
-        ''', toprn);
+        // await txn.rawInsert('''
+        //   INSERT OR REPLACE INTO toprn (
+        //     docid, createdate, updatedate, couponcode, description, startdate,
+        //     enddate, starttime, endtime, remarks, includepromo, maxtimes,
+        //     minpurchase, generaldisc, maxgeneraldisc, memberdisc,
+        //     maxmemberdisc, statusactive
+        //     ) VALUES (
+        //       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        //     )
+        //     ON CONFLICT(docid) DO UPDATE SET
+        //   createdate = excluded.createdate,
+        //   updatedate = excluded.updatedate,
+        //   couponcode = excluded.couponcode,
+        //   description = excluded.description,
+        //   startdate = excluded.startdate,
+        //   enddate = excluded.enddate,
+        //   starttime = excluded.starttime,
+        //   endtime = excluded.endtime,
+        //   remarks = excluded.remarks,
+        //   includepromo = excluded.includepromo,
+        //   maxtimes = excluded.maxtimes,
+        //   minpurchase = excluded.minpurchase,
+        //   generaldisc = excluded.generaldisc,
+        //   maxgeneraldisc = excluded.maxgeneraldisc,
+        //   memberdisc = excluded.memberdisc,
+        //   maxmemberdisc = excluded.maxmemberdisc,
+        //   statusactive = excluded.statusactive
+        // ''', toprn);
         await txn.rawInsert('''
           INSERT OR REPLACE INTO tprn2 (
-            docid, createdate, updatedate, toprnId, tostrId, holiday, 
-            day1, day2, day3, day4, day5, day6, day7 
+            docid, createdate, updatedate, toprnId, tostrId, holiday,
+            day1, day2, day3, day4, day5, day6, day7
             ) VALUES (
               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
@@ -3661,6 +3662,10 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''UPDATE $tablePromoCouponAssignStore SET day2_new = COALESCE(day2, 1)''');
       await db.execute('''ALTER TABLE $tablePromoCouponAssignStore DROP COLUMN day2''');
       await db.execute('''ALTER TABLE $tablePromoCouponAssignStore RENAME day2_new TO day2''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN form varchar(1) NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN temp double NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader DROP COLUMN maxgeneraldisc''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader RENAME temp TO maxgeneraldisc''');
     },
   };
 
