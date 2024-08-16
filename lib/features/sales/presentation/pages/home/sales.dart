@@ -627,7 +627,7 @@ class _SalesPageState extends State<SalesPage> {
                                                   Divider(
                                                     height: 1,
                                                     thickness: 0.5,
-                                                    color: Color.fromARGB(100, 118, 118, 118),
+                                                    color: Color.fromARGB(100, 118, 118, 117),
                                                   ),
                                                 ],
                                               ),
