@@ -10,9 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/loop_tracker.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
-import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
@@ -23,6 +21,7 @@ import 'package:pos_fe/features/sales/domain/entities/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -76,6 +75,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final RecalculateTaxUseCase _recalculateTaxUseCase;
   final HandlePromoTopdgUseCase _handlePromoTopdgUseCase;
   final HandlePromoTopdiUseCase _handlePromoTopdiUseCase;
+  // final ApplyPromoToprnUseCase _applyPromoToprnUseCase;
   final GetPosParameterUseCase _getPosParameterUseCase;
   final GetStoreMasterUseCase _getStoreMasterUseCase;
   final GetCashRegisterUseCase _getCashRegisterUseCase;
@@ -101,6 +101,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._recalculateTaxUseCase,
     this._handlePromoTopdgUseCase,
     this._handlePromoTopdiUseCase,
+    // this._applyPromoToprnUseCase,
     this._getPosParameterUseCase,
     this._getStoreMasterUseCase,
     this._getCashRegisterUseCase,
@@ -431,6 +432,22 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
+  Future<void> updateCoupons(List<PromoCouponHeaderEntity> couponsEntity) async {
+    List<PromoCouponHeaderEntity> appliedCoupons = [];
+    int? promo;
+    appliedCoupons = couponsEntity;
+
+    for (var coupon in appliedCoupons) {
+      if (coupon.includePromo == 1) {
+        promo = 1;
+      } else {
+        promo = 0;
+      }
+    }
+
+    return emit(state.copyWith(coupons: appliedCoupons, includePromo: promo));
+  }
+
   Future<void> removeReceiptItem(ReceiptItemEntity receiptItemEntity, BuildContext context) async {
     List<ReceiptItemEntity> newReceiptItems = [];
 
@@ -721,6 +738,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                   receiptEntity: newReceipt,
                   promo: availablePromo,
                 ));
+
               case 204:
                 newReceipt = await _handlePromoTopdgUseCase.call(
                     params: HandlePromosUseCaseParams(
@@ -734,6 +752,17 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           }
         }
       }
+
+      // Coupons Process
+      // final couponsApplied = state.copyWith().coupons;
+      // final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+      // final check = prefs.getBool('isSyncing');
+      // dev.log("check - $check");
+      // if (couponsApplied != null) {
+      //   newReceipt = await _applyPromoToprnUseCase.call(params: newReceipt);
+      // }
+
+      // dev.log("newReceiptCoupon - $newReceipt");
 
       // dev.log("Process after checkout $newReceipt");
 
@@ -772,7 +801,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // )}");
 
       // dev.log("previousreceipt before emit ${state.previousReceiptEntity}");
-
+      dev.log("newReceiptLast - $newReceipt");
       emit(newReceipt.copyWith(
         previousReceiptEntity: state.previousReceiptEntity ??
             state.copyWith(

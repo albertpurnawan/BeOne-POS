@@ -54,6 +54,8 @@ import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_get_condition_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_buy_x_get_y_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_coupon_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_coupon_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_buy_condition.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_diskon_group_item_customer_group.dart';
@@ -227,7 +229,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 1;
+  final int databaseVersion = 2;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -305,6 +307,8 @@ class AppDatabase {
   late PromoBuyXGetYAssignStoreDao promoBuyXGetYAssignStoreDao;
   late PromoBuyXGetYGetConditionDao promoBuyXGetYGetConditionDao;
   late PromoBuyXGetYCustomerGroupDao promoBuyXGetYCustomerGroupDao;
+  late PromoCouponHeaderDao promoCouponHeaderDao;
+  late PromoCouponAssignStoreDao promoCouponAssignStoreDao;
   late PromosDao promosDao;
   late AuthStoreDao authStoreDao;
   late BillOfMaterialDao billOfMaterialDao;
@@ -428,6 +432,8 @@ PRAGMA foreign_keys = ON;
     promoBuyXGetYAssignStoreDao = PromoBuyXGetYAssignStoreDao(_database!);
     promoBuyXGetYGetConditionDao = PromoBuyXGetYGetConditionDao(_database!);
     promoBuyXGetYCustomerGroupDao = PromoBuyXGetYCustomerGroupDao(_database!);
+    promoCouponHeaderDao = PromoCouponHeaderDao(_database!);
+    promoCouponAssignStoreDao = PromoCouponAssignStoreDao(_database!);
     promosDao = PromosDao(_database!);
     authStoreDao = AuthStoreDao(_database!);
     billOfMaterialDao = BillOfMaterialDao(_database!);
@@ -2850,10 +2856,11 @@ CREATE TABLE $tablePromoCouponHeader (
   ${PromoCouponHeaderFields.maxTimes} int NOT NULL,
   ${PromoCouponHeaderFields.minPurchase} double NOT NULL,
   ${PromoCouponHeaderFields.generalDisc} double NOT NULL,
-  ${PromoCouponHeaderFields.maxGeneralDisc} varchar(20) NOT NULL,
+  ${PromoCouponHeaderFields.maxGeneralDisc} double NOT NULL,
   ${PromoCouponHeaderFields.memberDisc} double NOT NULL,
   ${PromoCouponHeaderFields.maxMemberDisc} double NOT NULL,
   ${PromoCouponHeaderFields.statusActive} int NOT NULL,
+  ${PromoCouponHeaderFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
 """);
@@ -2867,7 +2874,7 @@ CREATE TABLE $tablePromoCouponAssignStore (
   ${PromoCouponAssignStoreFields.tostrId} text DEFAULT NULL,
   ${PromoCouponAssignStoreFields.holiday} int NOT NULL,
   ${PromoCouponAssignStoreFields.day1} int NOT NULL,
-  ${PromoCouponAssignStoreFields.day2}
+  ${PromoCouponAssignStoreFields.day2} int NOT NULL,
   ${PromoCouponAssignStoreFields.day3} int NOT NULL,
   ${PromoCouponAssignStoreFields.day4} int NOT NULL,
   ${PromoCouponAssignStoreFields.day5} int NOT NULL,
@@ -3577,6 +3584,65 @@ CREATE TABLE $tableApprovalInvoice (
     }
   }
 
+  // Future upsertToprn(List<dynamic> tprn2) async {
+  //   try {
+  //     Database db = await getDB();
+  //     await db.transaction((txn) async {
+  //       // await txn.rawInsert('''
+  //       //   INSERT OR REPLACE INTO toprn (
+  //       //     docid, createdate, updatedate, couponcode, description, startdate,
+  //       //     enddate, starttime, endtime, remarks, includepromo, maxtimes,
+  //       //     minpurchase, generaldisc, maxgeneraldisc, memberdisc,
+  //       //     maxmemberdisc, statusactive
+  //       //     ) VALUES (
+  //       //       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  //       //     )
+  //       //     ON CONFLICT(docid) DO UPDATE SET
+  //       //   createdate = excluded.createdate,
+  //       //   updatedate = excluded.updatedate,
+  //       //   couponcode = excluded.couponcode,
+  //       //   description = excluded.description,
+  //       //   startdate = excluded.startdate,
+  //       //   enddate = excluded.enddate,
+  //       //   starttime = excluded.starttime,
+  //       //   endtime = excluded.endtime,
+  //       //   remarks = excluded.remarks,
+  //       //   includepromo = excluded.includepromo,
+  //       //   maxtimes = excluded.maxtimes,
+  //       //   minpurchase = excluded.minpurchase,
+  //       //   generaldisc = excluded.generaldisc,
+  //       //   maxgeneraldisc = excluded.maxgeneraldisc,
+  //       //   memberdisc = excluded.memberdisc,
+  //       //   maxmemberdisc = excluded.maxmemberdisc,
+  //       //   statusactive = excluded.statusactive
+  //       // ''', toprn);
+  //       await txn.rawInsert('''
+  //         INSERT OR REPLACE INTO tprn2 (
+  //           docid, createdate, updatedate, toprnId, tostrId, holiday,
+  //           day1, day2, day3, day4, day5, day6, day7
+  //           ) VALUES (
+  //             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  //           )
+  //           ON CONFLICT(docid) DO UPDATE SET
+  //         createdate = excluded.createdate,
+  //         updatedate = excluded.updatedate,
+  //         toprnId = excluded.toprnId,
+  //         tostrId = excluded.tostrId,
+  //         holiday = excluded.holiday,
+  //         day1 = excluded.day1,
+  //         day2 = excluded.day2,
+  //         day3 = excluded.day3,
+  //         day4 = excluded.day4,
+  //         day5 = excluded.day5,
+  //         day6 = excluded.day6,
+  //         day7 = excluded.day7
+  //       ''', tprn2);
+  //     });
+  //   } catch (e) {
+  //     log(e.toString());
+  //   }
+  // }
+
   Future<void> resetDatabase() async {
     await emptyDb();
     _database = await _initDB(_databaseName);
@@ -3591,10 +3657,15 @@ CREATE TABLE $tableApprovalInvoice (
 
   final Map<String, Function> _onUpgrades = {
     'from_version_1_to_version_2': (Database db) async {
-      // await db.execute('''ALTER TABLE $tableCashierBalanceTransaction ADD COLUMN syncToBos_new TEXT''');
-      // await db.execute('''UPDATE $tableCashierBalanceTransaction SET syncToBos_new = CAST(synctobos AS TEXT)''');
-      // await db.execute('''ALTER TABLE $tableCashierBalanceTransaction DROP COLUMN synctobos''');
-      // await db.execute('''ALTER TABLE $tableCashierBalanceTransaction RENAME syncToBos_new TO synctobos''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN day3 int NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN day2_new int NOT NULL''');
+      await db.execute('''UPDATE $tablePromoCouponAssignStore SET day2_new = COALESCE(day2, 1)''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore DROP COLUMN day2''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore RENAME day2_new TO day2''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN form varchar(1) NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN temp double NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader DROP COLUMN maxgeneraldisc''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader RENAME temp TO maxgeneraldisc''');
     },
   };
 

@@ -139,6 +139,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_ge
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_get_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_buy_x_get_y_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_coupon_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_assign_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_buy_condition_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_diskon_group_item_customer_group_service.dart';
@@ -263,6 +264,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PromoBuyXGetYAssignStoreApi>(PromoBuyXGetYAssignStoreApi(sl()));
   sl.registerSingleton<PromoBuyXGetYGetConditionApi>(PromoBuyXGetYGetConditionApi(sl()));
   sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(PromoBuyXGetYCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoCouponHeaderApi>(PromoCouponHeaderApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
@@ -407,6 +409,17 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<ApplyPromoTopdiUseCase>(ApplyPromoTopdiUseCase());
   sl.registerSingletonWithDependencies<HandlePromoTopdiUseCase>(() => HandlePromoTopdiUseCase(sl(), sl(), sl(), sl()),
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
+  // toprn usecases
+  // sl.registerSingleton<GetPromoToprnHeaderUseCase>(GetPromoToprnHeaderUseCase());
+  // sl.registerSingleton<ApplyPromoToprnUseCase>(ApplyPromoToprnUseCase());
+  // sl.registerSingletonWithDependencies<CheckPromoToprnApplicabilityUseCase>(
+  //   () => CheckPromoToprnApplicabilityUseCase(),
+  // );
+  // sl.registerSingleton<RecalculateReceiptByToprnUseCase>(RecalculateReceiptByToprnUseCase());
+  // sl.registerSingletonWithDependencies<HandlePromoToprnUseCase>(
+  //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),
+  // );
+
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(() => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
   sl.registerSingletonWithDependencies<ApplyRoundingUseCase>(() => ApplyRoundingUseCase(sl(), sl()),

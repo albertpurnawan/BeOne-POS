@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -125,9 +127,10 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     VouchersSelectionModel checkVoucher;
     try {
       final voucher = await GetIt.instance<VouchersSelectionApi>().checkVoucher(serialNumber);
+      log("voucher - $voucher");
       checkVoucher = voucher..tpmt3Id = widget.tpmt3Id;
       bool checkSerialNo = vouchers.any((v) => v.serialNo == voucher.serialNo);
-      // log("vouchertype ${widget.voucherType} checkVoucher ${checkVoucher.type}");
+      log("vouchertype ${widget.voucherType} checkVoucher ${checkVoucher.type}");
       if (checkVoucher.type != widget.voucherType) throw "Invalid voucher type";
 
       // log("${receiptCubit.state.grandTotal} ${voucher.minPurchase}");

@@ -19,7 +19,7 @@ Future<void> configureBackgroundTasks() async {
     }
   });
 
-  final autoBackupSchedule = "*/10 ${Constant.hour} ${Constant.day} ${Constant.month} ${Constant.weekday}";
+  final autoBackupSchedule = "03 */1 ${Constant.day} ${Constant.month} ${Constant.weekday}";
   cron.schedule(Schedule.parse(autoBackupSchedule), () async {
     try {
       await AutoBackupUseCase().call();

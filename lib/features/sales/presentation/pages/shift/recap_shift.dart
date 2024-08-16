@@ -118,9 +118,14 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> fetchApprover(CashierBalanceTransactionModel shift) async {
     final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift.closedApproveById!, null);
-    final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(user!.tohemId!, null);
+    if (user == null) return;
+
+    final approverName = user.tohemId != null
+        ? (await GetIt.instance<AppDatabase>().employeeDao.readByDocId(user.tohemId!, null))?.empName
+        : user.username;
+
     setState(() {
-      approver = employee!.empName.isNotEmpty ? employee.empName : user.username;
+      approver = approverName!;
     });
   }
 

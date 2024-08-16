@@ -23,6 +23,7 @@ class PromoCouponHeaderFields {
     memberDisc,
     maxMemberDisc,
     statusActive,
+    form,
   ];
 
   static const String docId = "docid";
@@ -43,10 +44,10 @@ class PromoCouponHeaderFields {
   static const String memberDisc = "memberdisc";
   static const String maxMemberDisc = "maxmemberdisc";
   static const String statusActive = "statusactive";
+  static const String form = "form";
 }
 
-class PromoCouponHeaderModel extends PromoCouponHeaderEntity
-    implements BaseModel {
+class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseModel {
   PromoCouponHeaderModel({
     required super.docId,
     required super.createDate,
@@ -66,6 +67,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
     required super.memberDisc,
     required super.maxMemberDisc,
     required super.statusActive,
+    required super.form,
   });
 
   @override
@@ -86,9 +88,10 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
       'minpurchase': minPurchase,
       'generaldisc': generalDisc,
       'maxgeneraldisc': maxGeneralDisc,
-      'memberisc': memberDisc,
-      'maxmemberisc': maxMemberDisc,
+      'memberdisc': memberDisc,
+      'maxmemberdisc': maxMemberDisc,
       'statusactive': statusActive,
+      'form': form,
     };
   }
 
@@ -96,9 +99,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
     return PromoCouponHeaderModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       couponCode: map['couponcode'] as String,
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
@@ -110,20 +111,22 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
       maxTimes: map['maxtimes'] as int,
       minPurchase: map['minpurchase'] as double,
       generalDisc: map['generaldisc'] as double,
-      maxGeneralDisc: map['maxgeneraldisc'] as String,
-      memberDisc: map['memberisc'] as double,
-      maxMemberDisc: map['maxmemberisc'] as double,
+      maxGeneralDisc: map['maxgeneraldisc'] as double,
+      memberDisc: map['memberdisc'] as double,
+      maxMemberDisc: map['maxmemberdisc'] as double,
       statusActive: map['statusactive'] as int,
+      form: map['form'] as String,
     );
   }
 
   factory PromoCouponHeaderModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoCouponHeaderModel.fromMap({
       ...map,
-      "minpurchase": map['minpurchase'].toDouble() as double,
-      "generaldisc": map['generaldisc'].toDouble() as double,
-      "memberdisc": map['memberisc'].toDouble() as double,
-      "maxMemberdisc": map['maxmemberisc'].toDouble() as double,
+      "minpurchase": (map['minpurchase'] as num).toDouble(),
+      "generaldisc": (map['generaldisc'] as num).toDouble(),
+      "maxgeneraldisc": (map['maxgeneraldisc'] as num).toDouble(),
+      "memberdisc": (map['memberdisc'] as num).toDouble(),
+      "maxmemberdisc": (map['maxmemberdisc'] as num).toDouble(),
     });
   }
 
@@ -147,6 +150,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity
       memberDisc: entity.memberDisc,
       maxMemberDisc: entity.maxMemberDisc,
       statusActive: entity.statusActive,
+      form: entity.form,
     );
   }
 }

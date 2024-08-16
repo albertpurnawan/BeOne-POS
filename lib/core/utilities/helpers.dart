@@ -321,6 +321,14 @@ abstract class Helpers {
       return string + spaces;
     }
   }
+
+  static bool isTimeWithinRange(TimeOfDay now, TimeOfDay start, TimeOfDay end) {
+    final nowMinutes = now.hour * 60 + now.minute;
+    final startMinutes = start.hour * 60 + start.minute;
+    final endMinutes = end.hour * 60 + end.minute;
+
+    return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
+  }
 }
 
 class SplitListResult<T> {
