@@ -46,6 +46,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
@@ -60,6 +61,7 @@ void main() async {
   await initializeDependencies();
   await GetIt.instance.allReady();
   // await FirstRunManager.checkFirstRun();
+  await GetIt.instance<SharedPreferences>().setBool("isSyncing", false);
   await configureBackgroundTasks();
   // await SentryFlutter.init(
   //   (options) {

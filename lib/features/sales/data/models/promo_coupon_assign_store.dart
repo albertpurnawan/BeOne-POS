@@ -97,8 +97,8 @@ class PromoCouponAssignStoreModel extends PromoCouponAssignStoreEntity implement
   factory PromoCouponAssignStoreModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoCouponAssignStoreModel.fromMap({
       ...map,
-      "toprnId": map['toprn_id']?['docid'] != null ? map['toprn_id']['docid'] as String : null,
-      "tostrId": map['tostr_id']?['docid'] != null ? map['tostr_id']['docid'] as String : null,
+      'toprnId': map['toprndocid'] != null ? map['toprndocid'] as String : null,
+      'tostrId': map['tostrdocid'] != null ? map['tostrdocid'] as String : null,
     });
   }
 
