@@ -3590,65 +3590,6 @@ CREATE TABLE $tableApprovalInvoice (
     }
   }
 
-  // Future upsertToprn(List<dynamic> tprn2) async {
-  //   try {
-  //     Database db = await getDB();
-  //     await db.transaction((txn) async {
-  //       // await txn.rawInsert('''
-  //       //   INSERT OR REPLACE INTO toprn (
-  //       //     docid, createdate, updatedate, couponcode, description, startdate,
-  //       //     enddate, starttime, endtime, remarks, includepromo, maxtimes,
-  //       //     minpurchase, generaldisc, maxgeneraldisc, memberdisc,
-  //       //     maxmemberdisc, statusactive
-  //       //     ) VALUES (
-  //       //       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-  //       //     )
-  //       //     ON CONFLICT(docid) DO UPDATE SET
-  //       //   createdate = excluded.createdate,
-  //       //   updatedate = excluded.updatedate,
-  //       //   couponcode = excluded.couponcode,
-  //       //   description = excluded.description,
-  //       //   startdate = excluded.startdate,
-  //       //   enddate = excluded.enddate,
-  //       //   starttime = excluded.starttime,
-  //       //   endtime = excluded.endtime,
-  //       //   remarks = excluded.remarks,
-  //       //   includepromo = excluded.includepromo,
-  //       //   maxtimes = excluded.maxtimes,
-  //       //   minpurchase = excluded.minpurchase,
-  //       //   generaldisc = excluded.generaldisc,
-  //       //   maxgeneraldisc = excluded.maxgeneraldisc,
-  //       //   memberdisc = excluded.memberdisc,
-  //       //   maxmemberdisc = excluded.maxmemberdisc,
-  //       //   statusactive = excluded.statusactive
-  //       // ''', toprn);
-  //       await txn.rawInsert('''
-  //         INSERT OR REPLACE INTO tprn2 (
-  //           docid, createdate, updatedate, toprnId, tostrId, holiday,
-  //           day1, day2, day3, day4, day5, day6, day7
-  //           ) VALUES (
-  //             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-  //           )
-  //           ON CONFLICT(docid) DO UPDATE SET
-  //         createdate = excluded.createdate,
-  //         updatedate = excluded.updatedate,
-  //         toprnId = excluded.toprnId,
-  //         tostrId = excluded.tostrId,
-  //         holiday = excluded.holiday,
-  //         day1 = excluded.day1,
-  //         day2 = excluded.day2,
-  //         day3 = excluded.day3,
-  //         day4 = excluded.day4,
-  //         day5 = excluded.day5,
-  //         day6 = excluded.day6,
-  //         day7 = excluded.day7
-  //       ''', tprn2);
-  //     });
-  //   } catch (e) {
-  //     log(e.toString());
-  //   }
-  // }
-
   Future<void> resetDatabase() async {
     await emptyDb();
     _database = await _initDB(_databaseName);

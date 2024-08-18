@@ -43,49 +43,6 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
     super.dispose();
   }
 
-  // -------------- DELETE THIS AFTER API AVAILABLE --------------
-  // Future<void> insertToprn() async {
-  // final List<dynamic> toprn = [
-  //   "1f027a2f-09aa-4dde-bc0b-fcc32cbef9a8",
-  //   "2024-08-14T14:11:15.000Z",
-  //   "2024-08-14T14:11:47.000Z",
-  //   "dev_promo_couponxxx",
-  //   "Dev Promo Couponxxx",
-  //   "2024-08-01T00:00:00.000Z",
-  //   "2025-12-31T00:00:00.000Z",
-  //   "1970-01-01T00:00:00.000Z",
-  //   "1970-01-01T11:30:00.000Z",
-  //   "Promo Dev Coupon xxx Remarks",
-  //   1,
-  //   999999999,
-  //   1,
-  //   0.1,
-  //   0.1,
-  //   0.2,
-  //   0.2,
-  //   1
-  // ];
-
-  //   final List<dynamic> tprn2 = [
-  //     "26d0bbc0-8598-4c21-a7d8-326a6815cd5a",
-  //     "2024-07-29T04:15:38.000Z",
-  //     "2024-08-16T03:09:18.000Z",
-  //     "c01cad2f-b6a9-40c4-a50f-26a82ebdb1e1",
-  //     "57d88de1-7160-41e3-827c-cf8da0b228b9",
-  //     1,
-  //     1,
-  //     1,
-  //     1,
-  //     1,
-  //     1,
-  //     1,
-  //     1
-  //   ];
-
-  //   await GetIt.instance<AppDatabase>().upsertToprn(tprn2);
-  // }
-  // --------------------------------------------------------------
-
   Future<void> _checkCoupons(BuildContext context, String couponCode) async {
     final coupon = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.checkCoupons(couponCode);
     final DateTime now = DateTime.now();
