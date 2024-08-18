@@ -3,18 +3,13 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -37,6 +32,8 @@ import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.da
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_customer_dialog.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SalesPage extends StatefulWidget {
   const SalesPage({
