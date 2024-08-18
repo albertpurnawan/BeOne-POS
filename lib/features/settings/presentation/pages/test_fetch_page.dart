@@ -1328,17 +1328,22 @@ class _FetchScreenState extends State<FetchScreen> {
                 final tpln2DbMap = {for (var datum in tpln2Db) datum.docId: datum};
 
                 tpln2 = await GetIt.instance<PriceByItemApi>().fetchData(lastSyncDate);
-                for (final datumBos in tpln2) {
-                  final datumDb = tpln2DbMap[datumBos.docId];
+                List<PriceByItemModel> createList = tpln2.where((element) => element.form == "A").toList();
+                List<PriceByItemModel> updateList = tpln2.where((element) => element.form == "U").toList();
 
+                // Update existing data
+                for (final datumBos in updateList) {
+                  final datumDb = tpln2DbMap[datumBos.docId];
                   if (datumDb != null) {
                     if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                       await GetIt.instance<AppDatabase>().priceByItemDao.update(docId: datumDb.docId, data: datumBos);
                     }
-                  } else {
-                    await GetIt.instance<AppDatabase>().priceByItemDao.create(data: datumBos);
                   }
                 }
+
+                // Bulk create new data
+                await GetIt.instance<AppDatabase>().priceByItemDao.bulkCreate(data: createList);
+
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
@@ -1408,7 +1413,10 @@ class _FetchScreenState extends State<FetchScreen> {
                 final tpln4DbMap = {for (var datum in tpln4Db) datum.docId: datum};
 
                 tpln4 = await GetIt.instance<PriceByItemBarcodeApi>().fetchData(lastSyncDate);
-                for (final datumBos in tpln4) {
+                List<PriceByItemBarcodeModel> createList = tpln4.where((element) => element.form == "A").toList();
+                List<PriceByItemBarcodeModel> updateList = tpln4.where((element) => element.form == "U").toList();
+
+                for (final datumBos in updateList) {
                   final datumDb = tpln4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
@@ -1417,10 +1425,11 @@ class _FetchScreenState extends State<FetchScreen> {
                           .priceByItemBarcodeDao
                           .update(docId: datumDb.docId, data: datumBos);
                     }
-                  } else {
-                    await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.create(data: datumBos);
                   }
                 }
+
+                await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.bulkCreate(data: createList);
+
                 setState(() {
                   syncProgress += 1 / totalTable;
                 });
