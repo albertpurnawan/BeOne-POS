@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -169,11 +170,17 @@ class _FetchScreenState extends State<FetchScreen> {
   double syncProgress = 0.0;
   int totalData = 0;
   int totalTable = 64;
+  bool checkSync = false;
 
   @override
   void initState() {
     super.initState();
     getPosParameter();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void getPosParameter() async {
@@ -250,7 +257,6 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<BankIssuerModel> tpmt5;
     late List<CampaignModel> tpmt6;
 
-    bool checkSync = prefs.getBool('isSyncing') ?? false;
     log("Synching data...");
     if (checkSync == false) {
       try {
@@ -3551,7 +3557,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
-                    onPressed: isManualSyncing
+                    onPressed: isManualSyncing || checkSync
                         ? null
                         : () async {
                             await refreshToken();
@@ -3704,10 +3710,5 @@ class _FetchScreenState extends State<FetchScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
