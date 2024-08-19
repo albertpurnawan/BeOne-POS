@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int totalTcsr1s = 0;
   int totalToinvSynced = 0;
   int totalTcsr1Synced = 0;
+  bool changeColor = false;
   String? lastSync;
   Timer? _timer;
 
@@ -100,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> checkIsSyncing() async {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
       await countTotalInvoice();
       await countTotalShifts();
       await getLastSync();
@@ -131,9 +132,23 @@ class _HomeScreenState extends State<HomeScreen> {
     if (topos == null) throw "Failed to retrieve POS Parameter";
     final dateTime = DateTime.parse(topos.lastSync!);
 
+    await updateColorBasedOnSyncTime(dateTime);
+
     setState(() {
       lastSync = Helpers.dateddMMMyyyyHHmmss(dateTime.toLocal());
     });
+  }
+
+  Future<void> updateColorBasedOnSyncTime(DateTime lastSync) async {
+    if (DateTime.now().difference(lastSync).inMinutes >= 60) {
+      setState(() {
+        changeColor = true;
+      });
+    } else {
+      setState(() {
+        changeColor = false;
+      });
+    }
   }
 
   @override
@@ -160,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: Container(
-                      color: Color.fromARGB(255, 199, 199, 199),
+                      color: const Color.fromARGB(255, 199, 199, 199),
                       height: double.infinity,
                       child: Image.asset(
                         'assets/images/supermarket-illustration.png',
@@ -226,14 +241,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Container(
                             padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               // border: Border.all(
                               //     color: Color.fromRGBO(195, 53, 53, 1),
                               //     width: 4.0),
-                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
 
-                              color: ProjectColors.green,
-                              boxShadow: [
+                              color: changeColor ? const Color.fromRGBO(243, 0, 0, 1) : ProjectColors.green,
+                              boxShadow: const [
                                 BoxShadow(
                                   spreadRadius: 0.5,
                                   blurRadius: 5,

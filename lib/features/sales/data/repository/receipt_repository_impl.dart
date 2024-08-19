@@ -114,7 +114,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           final ReceiptItemEntity e = entry.value;
           log("receiptItemEntity E - $e");
           return InvoiceDetailModel(
-            docId: _uuid.v4(), // save the created uuid somewhere ?
+            docId: _uuid.v4(),
             createDate: null,
             updateDate: null,
             toinvId: generatedInvoiceHeaderDocId,
@@ -147,13 +147,13 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           );
         }).toList();
 
-        log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
+        // log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
         await _appDatabase.invoiceDetailDao.bulkCreate(data: invoiceDetailModels, txn: txn);
 
         // log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");
         final List<PayMeansModel> payMeansModels = [];
         for (final MopSelectionEntity mopSelectionEntity in receiptEntity.mopSelections) {
-          log("mopSelectionEntityIMPL - $mopSelectionEntity");
+          // log("mopSelectionEntityIMPL - $mopSelectionEntity");
           payMeansModels.add(PayMeansModel(
               docId: _uuid.v4(),
               createDate: null,
@@ -173,10 +173,10 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         }
 
         await _appDatabase.payMeansDao.bulkCreate(data: payMeansModels, txn: txn);
-        log("payMeansModels - $payMeansModels");
+        // log("payMeansModels - $payMeansModels");
 
         List<VouchersSelectionEntity> vouchers = receiptEntity.vouchers;
-        log("vouchers - $vouchers");
+        // log("vouchers - $vouchers");
 
         for (final voucherSelection in vouchers) {
           final PayMeansModel paymeansModel = PayMeansModel(
@@ -266,7 +266,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             promotionDocId: null,
             amount: invoiceHeaderModel.discAmount - (invoiceHeaderModel.discHeaderPromo ?? 0),
           );
-          log("invoiceAppHeader - $invoiceAppHeader");
+          // log("invoiceAppHeader - $invoiceAppHeader");
           await _appDatabase.invoiceAppliedPromoDao.create(data: invoiceAppHeader, txn: txn);
         }
 
@@ -284,7 +284,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             ));
           }
           await _appDatabase.approvalInvoiceDao.bulkCreate(data: approvalsModel, txn: txn);
-          log("approvalsModel - $approvalsModel");
+          // log("approvalsModel - $approvalsModel");
         }
       });
 

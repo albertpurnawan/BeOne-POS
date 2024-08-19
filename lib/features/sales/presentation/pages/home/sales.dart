@@ -257,6 +257,7 @@ class _SalesPageState extends State<SalesPage> {
   int totalToinvSynced = 0;
   int totalTcsr1Synced = 0;
   String? lastSync;
+  bool changeColor = false;
 
   // =================================================
   //             [END] Variables
@@ -334,9 +335,23 @@ class _SalesPageState extends State<SalesPage> {
     if (topos == null) throw "Failed to retrieve POS Parameter";
     final dateTime = DateTime.parse(topos.lastSync!);
 
+    await updateColorBasedOnSyncTime(dateTime);
+
     setState(() {
       lastSync = Helpers.dateddMMMyyyyHHmmss(dateTime.toLocal());
     });
+  }
+
+  Future<void> updateColorBasedOnSyncTime(DateTime lastSync) async {
+    if (DateTime.now().difference(lastSync).inMinutes >= 60) {
+      setState(() {
+        changeColor = true;
+      });
+    } else {
+      setState(() {
+        changeColor = false;
+      });
+    }
   }
 
   @override
@@ -372,14 +387,14 @@ class _SalesPageState extends State<SalesPage> {
                     children: [
                       Container(
                         padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           // border: Border.all(
                           //     color: Color.fromRGBO(195, 53, 53, 1),
                           //     width: 4.0),
-                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
 
-                          color: ProjectColors.green,
-                          boxShadow: [
+                          color: changeColor ? const Color.fromRGBO(243, 0, 0, 1) : ProjectColors.green,
+                          boxShadow: const [
                             BoxShadow(
                               spreadRadius: 0.5,
                               blurRadius: 5,
@@ -769,8 +784,11 @@ class _SalesPageState extends State<SalesPage> {
                                                   ? const SizedBox.shrink()
                                                   : Text(
                                                       (e.itemEntity.includeTax == 1)
-                                                          ? "${Helpers.parseMoney(((-1 * (promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
-                                                          : "${Helpers.parseMoney(((promo.discAmount! * -1).round()))}",
+                                                          ? Helpers.parseMoney(((-1 *
+                                                                  (promo.discAmount!) *
+                                                                  ((100 + e.itemEntity.taxRate) / 100))
+                                                              .round()))
+                                                          : Helpers.parseMoney(((promo.discAmount! * -1).round())),
                                                       style: const TextStyle(
                                                         fontSize: 14,
                                                         fontStyle: FontStyle.italic,
