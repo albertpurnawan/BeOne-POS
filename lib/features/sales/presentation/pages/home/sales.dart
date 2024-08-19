@@ -2118,8 +2118,8 @@ class _SalesPageState extends State<SalesPage> {
                               elevation: 5,
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                              foregroundColor: Colors.grey,
-                              backgroundColor: ProjectColors.lightBlack,
+                              foregroundColor: Colors.white,
+                              backgroundColor: ProjectColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -2129,16 +2129,27 @@ class _SalesPageState extends State<SalesPage> {
                               padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
                               child: Stack(
                                 children: [
-                                  const Positioned.fill(
+                                  Positioned.fill(
                                     child: Align(
                                       alignment: Alignment.topRight,
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
+                                          Container(
+                                              width: 20.0,
+                                              height: 20.0,
+                                              alignment: Alignment.center,
+                                              decoration: const BoxDecoration(
+                                                color: ProjectColors.green,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Text(
+                                                context.read<ReceiptCubit>().state.coupons.length.toString(),
+                                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                              )),
+                                          const Text(
                                             "F5",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w300, fontSize: 14, color: Colors.grey),
+                                            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
                                           ),
                                         ],
                                       ),
@@ -2153,8 +2164,7 @@ class _SalesPageState extends State<SalesPage> {
                                           children: [
                                             TextSpan(
                                               text: "Coupon",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
+                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                             ),
                                           ],
                                         ),

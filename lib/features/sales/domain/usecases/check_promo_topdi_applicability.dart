@@ -233,7 +233,11 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
         // log("--- validation ---");
         // counter += 1;
         if (!isApplicable) break;
-        await validation();
+        try {
+          await validation();
+        } catch (e) {
+          isApplicable = false;
+        }
       }
 
       // Return validation result

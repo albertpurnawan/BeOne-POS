@@ -52,7 +52,7 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
-import 'package:pos_fe/features/sales/domain/usecases/check_promo_coupon_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdg_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdi_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
@@ -420,8 +420,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<GetPromoToprnHeaderAndDetailUseCase>(GetPromoToprnHeaderAndDetailUseCase());
   // sl.registerSingleton<ApplyPromoToprnUseCase>(ApplyPromoToprnUseCase());
   sl.registerSingletonWithDependencies<CheckPromoToprnApplicabilityUseCase>(
-    () => CheckPromoToprnApplicabilityUseCase(sl()),
-  );
+      () => CheckPromoToprnApplicabilityUseCase(sl()),
+      dependsOn: [AppDatabase]);
   // sl.registerSingleton<RecalculateReceiptByToprnUseCase>(RecalculateReceiptByToprnUseCase());
   // sl.registerSingletonWithDependencies<HandlePromoToprnUseCase>(
   //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),

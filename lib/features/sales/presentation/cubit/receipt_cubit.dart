@@ -353,14 +353,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       return emit(state.copyWith(customerEntity: customerEntity));
     }
 
-    // final bool? isProceed = await showDialog<bool>(
-    //   context: context,
-    //   barrierDismissible: false,
-    //   builder: (context) => const ConfirmResetPromoDialog(),
-    // );
-    // if (isProceed == null) return;
-    // if (!isProceed) return;
-
     final List<ReceiptItemEntity> receiptItems = state.receiptItems.map((e) => e.copyWith()).toList();
     await resetReceipt();
     emit(state.copyWith(customerEntity: customerEntity));
@@ -432,13 +424,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> updateCoupons(List<PromoCouponHeaderEntity> couponsEntity) async {
     List<PromoCouponHeaderEntity> appliedCoupons = [];
-    int? promo;
+    int promo = 1;
     appliedCoupons = couponsEntity;
 
     for (var coupon in appliedCoupons) {
-      if (coupon.includePromo == 1) {
-        promo = 1;
-      } else {
+      if (coupon.includePromo == 0) {
         promo = 0;
       }
     }
@@ -848,6 +838,7 @@ class AddUpdateReceiptItemsParams {
   final void Function() onOpenPriceInputted;
   final String? remarks;
   final String? tohemId;
+  final bool? isReinput;
 
   AddUpdateReceiptItemsParams({
     required this.barcode,
@@ -857,5 +848,6 @@ class AddUpdateReceiptItemsParams {
     required this.onOpenPriceInputted,
     this.remarks,
     this.tohemId,
+    this.isReinput,
   });
 }

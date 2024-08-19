@@ -21,6 +21,8 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
         throw "Promotion entity required";
       }
 
+      if (params.receiptItemEntity == null) throw "Receipt item entity required";
+
       List<ReceiptItemEntity> newReceiptItems = [];
       List<PromotionsEntity> promotionsApplied = [];
       double subtotal = 0;
@@ -28,14 +30,14 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
       bool isNewReceiptItem = true;
       final now = DateTime.now();
       final promo = params.promo!;
-      final itemEntity = params.receiptItemEntity.itemEntity;
-      final quantity = params.receiptItemEntity.quantity;
+      final itemEntity = params.receiptItemEntity!.itemEntity;
+      final quantity = params.receiptItemEntity!.quantity;
 
       // Recreate receipt
       for (var currentReceiptItem in params.receiptEntity.receiptItems) {
         // Handle item exist
-        if (currentReceiptItem.itemEntity.barcode == params.receiptItemEntity.itemEntity.barcode) {
-          currentReceiptItem.quantity += params.receiptItemEntity.quantity;
+        if (currentReceiptItem.itemEntity.barcode == params.receiptItemEntity!.itemEntity.barcode) {
+          currentReceiptItem.quantity += params.receiptItemEntity!.quantity;
 
           // check promo
           final startHour = promo.startTime.hour;
