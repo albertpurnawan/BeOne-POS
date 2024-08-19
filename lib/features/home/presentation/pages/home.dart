@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> updateColorBasedOnSyncTime(DateTime lastSync) async {
-    if (DateTime.now().difference(lastSync).inMinutes >= 30) {
+    if (DateTime.now().difference(lastSync).inMinutes >= 60) {
       setState(() {
         changeColor = true;
         log("Color changed");
