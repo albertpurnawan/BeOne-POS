@@ -346,12 +346,10 @@ class _SalesPageState extends State<SalesPage> {
     if (DateTime.now().difference(lastSync).inMinutes >= 60) {
       setState(() {
         changeColor = true;
-        log("Color changed");
       });
     } else {
       setState(() {
         changeColor = false;
-        log("Color stayed");
       });
     }
   }

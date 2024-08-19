@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -144,12 +143,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (DateTime.now().difference(lastSync).inMinutes >= 60) {
       setState(() {
         changeColor = true;
-        log("Color changed");
       });
     } else {
       setState(() {
         changeColor = false;
-        log("Color stayed");
       });
     }
   }
