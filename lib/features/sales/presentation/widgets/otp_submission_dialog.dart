@@ -84,13 +84,13 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
       // };
 
       final String body = '''
-    Approval For: Zero Transaction,
+    Approval For: Zero or Negative Transaction,
     Store Name: ${store.storeName},
     Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
     Cashier Name: ${employee?.empName ?? user.username},
 ''';
 
-      final String subject = "OTP RUBY POS [ZT-${store.storeCode}]";
+      final String subject = "OTP RUBY POS Zero/Negative Transaction - [${store.storeCode}]";
       await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
 
       setState(() {

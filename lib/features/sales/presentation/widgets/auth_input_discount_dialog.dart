@@ -133,7 +133,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       //   "Total After Discount": Helpers.parseMoney(receipt.grandTotal - widget.discountValue),
       // };
 
-      final String subject = "OTP RUBY POS [DR-${store.storeCode}]";
+      final String subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
       final String body = '''
     Approval For: Discount or Rounding,
     Store Name: ${store.storeName},
