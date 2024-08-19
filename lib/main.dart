@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -76,11 +75,11 @@ void main() async {
   //   },
   //   appRunner: () => runApp(const MyApp()),
   // );
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    log(details.toString());
-    // if (kReleaseMode) exit(1);
-  };
+  // FlutterError.onError = (details) {
+  //   FlutterError.presentError(details);
+  //   log(details.toString());
+  //   // if (kReleaseMode) exit(1);
+  // };
   runApp(const RestartWidget(
     child: MyApp(),
   ));

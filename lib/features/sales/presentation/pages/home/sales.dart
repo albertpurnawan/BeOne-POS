@@ -19,8 +19,10 @@ import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -249,6 +251,13 @@ class _SalesPageState extends State<SalesPage> {
   late final TextEditingController _textEditingControllerNewReceiptItemQuantity = TextEditingController()..text = "1";
   late final TextEditingController _textEditingControllerNewReceiptItemCode = TextEditingController();
 
+  // Check Synced
+  int totalToinvs = 0;
+  int totalTcsr1s = 0;
+  int totalToinvSynced = 0;
+  int totalTcsr1Synced = 0;
+  String? lastSync;
+
   // =================================================
   //             [END] Variables
   // =================================================
@@ -272,6 +281,12 @@ class _SalesPageState extends State<SalesPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.onFirstBuild != null) widget.onFirstBuild!(context);
     });
+
+    // Start Check Synced
+    countTotalInvoice();
+    countTotalShifts();
+    getLastSync();
+    checkIsSyncing();
   }
 
   @override
@@ -285,6 +300,43 @@ class _SalesPageState extends State<SalesPage> {
     _textEditingControllerNewReceiptItemCode.dispose();
     _textEditingControllerNewReceiptItemQuantity.dispose();
     super.dispose();
+  }
+
+  Future<void> checkIsSyncing() async {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      await countTotalInvoice();
+      await countTotalShifts();
+      await getLastSync();
+    });
+  }
+
+  Future<void> countTotalInvoice() async {
+    final invoices = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
+    final toinvSyncedCount = invoices.where((invoice) => invoice.syncToBos != null).length;
+    setState(() {
+      totalToinvSynced = toinvSyncedCount;
+      totalToinvs = invoices.length;
+    });
+  }
+
+  Future<void> countTotalShifts() async {
+    final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
+    final shiftsClosed = shifts.where((shift) => shift.approvalStatus == 1).length;
+    final tcsr1SyncedCount = shifts.where((shift) => shift.syncToBos != null).length;
+    setState(() {
+      totalTcsr1Synced = tcsr1SyncedCount;
+      totalTcsr1s = shiftsClosed;
+    });
+  }
+
+  Future<void> getLastSync() async {
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+    final dateTime = DateTime.parse(topos.lastSync!);
+
+    setState(() {
+      lastSync = Helpers.dateddMMMyyyyHHmmss(dateTime.toLocal());
+    });
   }
 
   @override
@@ -319,7 +371,7 @@ class _SalesPageState extends State<SalesPage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
-                        padding: EdgeInsets.fromLTRB(10, 1, 10, 5),
+                        padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
                         decoration: const BoxDecoration(
                           // border: Border.all(
                           //     color: Color.fromRGBO(195, 53, 53, 1),
@@ -337,7 +389,50 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         child: Row(
                           children: [
-                            Text("Invoices ",
+                            const Text("Last Sync on ",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                )),
+                            lastSync == null
+                                ? Container(
+                                    padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                    width: 12,
+                                    height: 12,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.green,
+                                    ))
+                                : Text("$lastSync",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    )),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
+                        decoration: const BoxDecoration(
+                          // border: Border.all(
+                          //     color: Color.fromRGBO(195, 53, 53, 1),
+                          //     width: 4.0),
+                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+
+                          color: ProjectColors.green,
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: 0.5,
+                              blurRadius: 5,
+                              color: Color.fromRGBO(0, 0, 0, 0.248),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Text("Invoices  $totalToinvSynced/$totalToinvs",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -347,13 +442,15 @@ class _SalesPageState extends State<SalesPage> {
                               width: 10,
                             ),
                             // const Icon(Icons.upload, color: Colors.white, size: 14),
-                            Container(
-                                padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
-                                width: 12,
-                                height: 12,
-                                child: const CircularProgressIndicator(
-                                  color: Colors.green,
-                                )),
+                            totalToinvSynced == totalToinvs
+                                ? const Icon(Icons.check_circle_outline_outlined, color: Colors.green, size: 14)
+                                : Container(
+                                    padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                    width: 12,
+                                    height: 12,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.green,
+                                    )),
                           ],
                         ),
                       ),
@@ -374,7 +471,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         child: Row(
                           children: [
-                            Text("Shifts",
+                            Text("Shifts  $totalTcsr1Synced/$totalTcsr1s",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -385,17 +482,18 @@ class _SalesPageState extends State<SalesPage> {
                             ),
                             // const Icon(Icons.upload, color: Colors.white, size: 14),
 
-                            Container(
-                                padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
-                                width: 12,
-                                height: 12,
-                                child: const CircularProgressIndicator(
-                                  color: Colors.green,
-                                )),
+                            totalTcsr1Synced == totalTcsr1s
+                                ? const Icon(Icons.check_circle_outline_outlined, color: Colors.green, size: 14)
+                                : Container(
+                                    padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                    width: 12,
+                                    height: 12,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.green,
+                                    )),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 38),
                     ],
                   ),
                   Expanded(
@@ -1998,26 +2096,24 @@ class _SalesPageState extends State<SalesPage> {
                       return Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: null
-                            // () async {
-                            //   setState(() {
-                            //     isEditingNewReceiptItemCode = false;
-                            //     isEditingNewReceiptItemQty = false;
-                            //     isUpdatingReceiptItemQty = false;
-                            //   });
+                            onPressed: () async {
+                              setState(() {
+                                isEditingNewReceiptItemCode = false;
+                                isEditingNewReceiptItemQty = false;
+                                isUpdatingReceiptItemQty = false;
+                              });
 
-                            //   await showDialog(
-                            //       context: context,
-                            //       barrierDismissible: false,
-                            //       builder: (context) => const InputCouponsDialog());
+                              await showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const InputCouponsDialog());
 
-                            //   setState(() {
-                            //     isEditingNewReceiptItemCode = true;
-                            //     Future.delayed(const Duration(milliseconds: 50),
-                            //         () => _newReceiptItemCodeFocusNode.requestFocus());
-                            //   });
-                            // }
-                            ,
+                              setState(() {
+                                isEditingNewReceiptItemCode = true;
+                                Future.delayed(const Duration(milliseconds: 50),
+                                    () => _newReceiptItemCodeFocusNode.requestFocus());
+                              });
+                            },
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
@@ -2550,12 +2646,12 @@ class _SalesPageState extends State<SalesPage> {
                       ],
                     ),
                   ),
-                  (state.discHeaderManual ?? 0) > 0
+                  (state.discHeaderManual ?? 0) != 0
                       ? Container(
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Text(
-                            "*${Helpers.parseMoney(state.discHeaderManual ?? 0)} header discount applied",
+                            "*${Helpers.parseMoney(state.discHeaderManual ?? 0)} header discount/rounding applied",
                             style: const TextStyle(fontStyle: FontStyle.italic),
                           ),
                         )

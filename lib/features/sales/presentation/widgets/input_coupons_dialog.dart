@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -286,100 +288,111 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
     // log("receieptCubit - $receiptCubit");
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          children: [
-            TextFormField(
-              focusNode: _couponFocusNode,
-              textInputAction: TextInputAction.search,
-              controller: _textEditorCouponController,
-              onFieldSubmitted: (value) async {
-                await _checkCoupons(context, value);
-              },
-              autofocus: true,
-              keyboardType: TextInputType.text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24),
-              decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(10),
-                  hintText: "Enter Coupon Code",
-                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(
-                    Icons.confirmation_number_outlined,
-                    size: 24,
-                  )),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Coupons Applied:",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SingleChildScrollView(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.height * 0.5,
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: couponList.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: couponList.length,
-                        itemBuilder: (context, index) {
-                          final coupon = couponList[index];
-                          return Container(
-                            width: double.infinity,
-                            height: 30,
-                            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                            child: Center(
-                              child: SelectableText(
-                                coupon.couponCode,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: ProjectColors.mediumBlack,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
-                                ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  focusNode: _couponFocusNode,
+                  textInputAction: TextInputAction.search,
+                  controller: _textEditorCouponController,
+                  onFieldSubmitted: (value) async {
+                    await _checkCoupons(context, value);
+                  },
+                  autofocus: true,
+                  keyboardType: TextInputType.text,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 24),
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(5),
+                    hintText: "Enter Coupon Code",
+                    hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(
+                      Icons.confirmation_number_outlined,
+                      size: 24,
+                    ),
+                    suffixIcon: Container(
+                      padding: EdgeInsets.all(10),
+                      width: 80,
+                      height: 60,
+                      child: OutlinedButton(
+                        focusNode: FocusNode(skipTraversal: true),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: ProjectColors.primary,
+                          padding: const EdgeInsets.all(10),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        ),
+                        onPressed: () async {
+                          FocusScope.of(context).unfocus();
+                          await _checkCoupons(context, _textEditorCouponController.text);
+                          _textEditorCouponController.text = "";
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            RichText(
+                              textAlign: TextAlign.center,
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Check",
+                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                                  ),
+                                ],
+                                style: TextStyle(height: 1, fontSize: 10),
+                              ),
+                              overflow: TextOverflow.clip,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          const Text(
+            "Coupons Applied",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+          SingleChildScrollView(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.height * 0.5,
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: couponList.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: couponList.length,
+                      itemBuilder: (context, index) {
+                        final coupon = couponList[index];
+                        return Container(
+                          width: double.infinity,
+                          height: 30,
+                          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                          child: Center(
+                            child: SelectableText(
+                              coupon.couponCode,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: ProjectColors.mediumBlack,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
                               ),
                             ),
-                          );
-                        },
-                      )
-                    : const SizedBox.shrink(),
-              ),
+                          ),
+                        );
+                      },
+                    )
+                  : const SizedBox.shrink(),
             ),
-            OutlinedButton(
-              focusNode: FocusNode(skipTraversal: true),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: ProjectColors.primary,
-                padding: const EdgeInsets.all(10),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-              ),
-              onPressed: () async {
-                FocusScope.of(context).unfocus();
-                await _checkCoupons(context, _textEditorCouponController.text);
-                _textEditorCouponController.text = "";
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Check Coupon",
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                        ),
-                      ],
-                      style: TextStyle(height: 1, fontSize: 12),
-                    ),
-                    overflow: TextOverflow.clip,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

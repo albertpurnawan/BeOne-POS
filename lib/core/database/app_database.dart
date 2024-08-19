@@ -3503,6 +3503,9 @@ CREATE TABLE $tableAuthStore (
   ${AuthStoreFields.tousrdocid} text NOT NULL,
   ${AuthStoreFields.statusActive} int NOT NULL,
   ${AuthStoreFields.dflt} int DEFAULT NULL,
+  ${AuthStoreFields.discAndRound} int DEFAULT 0,
+  ${AuthStoreFields.nonPositiveTrx} int DEFAULT 0,
+  ${AuthStoreFields.closeShift} int DEFAULT 0,
   ${AuthStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
@@ -3618,6 +3621,10 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''ALTER TABLE $tablePromoCouponHeader RENAME temp TO maxgeneraldisc''');
 
       await db.execute('''ALTER TABLE $tablePromoCouponCustomerGroup ADD COLUMN form varchar(1) NOT NULL''');
+
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN discandround int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN nonpositivetrx int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN closeshift int DEFAULT 0''');
     },
   };
 

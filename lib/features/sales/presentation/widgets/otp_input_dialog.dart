@@ -89,7 +89,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
     //   "Total After Discount": Helpers.parseMoney(receipt.grandTotal - widget.discountValue),
     // };
 
-    final String subject = "OTP RUBY POS [DR-${store.storeCode}]";
+    final String subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
 
     final String body = '''
     Approval For: Discount or Rounding,
@@ -153,7 +153,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
         Navigator.of(childContext).pop(widget.discountValue); // Close the input discount dialog
 
         SnackBarHelper.presentSuccessSnackBar(
-            parentContext, "Header discount applied: ${Helpers.parseMoney(widget.discountValue)}", 3);
+            parentContext, "Header discount/rounding applied: ${Helpers.parseMoney(widget.discountValue)}", 3);
         await updateReceiptApprovals(childContext, response['approver']!);
       }
     } else {

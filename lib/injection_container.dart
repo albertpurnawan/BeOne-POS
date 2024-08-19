@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
-import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
+import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
@@ -52,6 +52,7 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promo_coupon_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdg_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdi_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
@@ -74,6 +75,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart' as sales_get_pos_parameter_use_case;
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and_detail.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
@@ -415,11 +417,11 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<HandlePromoTopdiUseCase>(() => HandlePromoTopdiUseCase(sl(), sl(), sl(), sl()),
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
   // toprn usecases
-  // sl.registerSingleton<GetPromoToprnHeaderUseCase>(GetPromoToprnHeaderUseCase());
+  sl.registerSingleton<GetPromoToprnHeaderAndDetailUseCase>(GetPromoToprnHeaderAndDetailUseCase());
   // sl.registerSingleton<ApplyPromoToprnUseCase>(ApplyPromoToprnUseCase());
-  // sl.registerSingletonWithDependencies<CheckPromoToprnApplicabilityUseCase>(
-  //   () => CheckPromoToprnApplicabilityUseCase(),
-  // );
+  sl.registerSingletonWithDependencies<CheckPromoToprnApplicabilityUseCase>(
+    () => CheckPromoToprnApplicabilityUseCase(sl()),
+  );
   // sl.registerSingleton<RecalculateReceiptByToprnUseCase>(RecalculateReceiptByToprnUseCase());
   // sl.registerSingletonWithDependencies<HandlePromoToprnUseCase>(
   //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),

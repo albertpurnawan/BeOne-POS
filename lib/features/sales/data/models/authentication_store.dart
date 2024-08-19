@@ -12,6 +12,9 @@ class AuthStoreFields {
     tousrdocid,
     statusActive,
     dflt,
+    discAndRound,
+    nonPositiveTrx,
+    closeShift,
     form,
   ];
   static const String docId = "docid";
@@ -21,6 +24,9 @@ class AuthStoreFields {
   static const String tousrdocid = "tousrdocid";
   static const String statusActive = "statusactive";
   static const String dflt = "dflt";
+  static const String discAndRound = "discandround";
+  static const String nonPositiveTrx = "nonpositivetrx";
+  static const String closeShift = "closeshift";
   static const String form = "form";
 }
 
@@ -33,6 +39,9 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
     required super.tousrdocid,
     required super.statusActive,
     required super.dflt,
+    required super.discAndRound,
+    required super.nonPositiveTrx,
+    required super.closeShift,
     required super.form,
   });
 
@@ -46,6 +55,9 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       'tousrdocid': tousrdocid,
       'statusactive': statusActive,
       'dflt': dflt,
+      'discandround': discAndRound,
+      'nonpositivetrx': nonPositiveTrx,
+      'closeshift': closeShift,
       'form': form,
     };
   }
@@ -54,13 +66,14 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
     return AuthStoreModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String)
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String) : null,
       tostrdocid: map['tostrdocid'] as String,
       tousrdocid: map['tousrdocid'] as String,
       statusActive: map['statusactive'] as int,
       dflt: map['dflt'] != null ? map['dflt'] as int : null,
+      discAndRound: map['discandround'] as int,
+      nonPositiveTrx: map['nonpositivetrx'] as int,
+      closeShift: map['closeshift'] as int,
       form: map['form'] as String,
     );
   }
@@ -81,6 +94,9 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       tousrdocid: entity.tousrdocid,
       statusActive: entity.statusActive,
       dflt: entity.dflt,
+      discAndRound: entity.discAndRound,
+      nonPositiveTrx: entity.nonPositiveTrx,
+      closeShift: entity.closeShift,
       form: entity.form,
     );
   }

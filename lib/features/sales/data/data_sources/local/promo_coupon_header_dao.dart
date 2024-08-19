@@ -23,6 +23,18 @@ class PromoCouponHeaderDao extends BaseDao<PromoCouponHeaderModel> {
     return res.isNotEmpty ? PromoCouponHeaderModel.fromMap(res[0]) : null;
   }
 
+  Future<PromoCouponHeaderModel?> readByCouponCode(String couponCode, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'couponcode = ?',
+      whereArgs: [couponCode],
+    );
+
+    return res.isNotEmpty ? PromoCouponHeaderModel.fromMap(res[0]) : null;
+  }
+
   @override
   Future<List<PromoCouponHeaderModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;

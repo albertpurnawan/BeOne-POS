@@ -40,6 +40,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   final passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
   final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
@@ -47,11 +48,12 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
+    String category = "discandround";
 
     final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -71,6 +73,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   }
 
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
+    FocusScope.of(context).unfocus();
     if (!formKey.currentState!.validate()) return;
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
@@ -130,7 +133,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       //   "Total After Discount": Helpers.parseMoney(receipt.grandTotal - widget.discountValue),
       // };
 
-      final String subject = "OTP RUBY POS [DR-${store.storeCode}]";
+      final String subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
       final String body = '''
     Approval For: Discount or Rounding,
     Store Name: ${store.storeName},
@@ -181,6 +184,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   @override
   void dispose() {
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -243,7 +248,10 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                               controller: usernameController,
                               autofocus: true,
                               keyboardType: TextInputType.text,
-                              onFieldSubmitted: (value) async => await onSubmit(childContext, parentContext),
+                              onFieldSubmitted: (value) async {
+                                _usernameFocusNode.unfocus();
+                                await onSubmit(childContext, parentContext);
+                              },
                               validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
@@ -262,11 +270,13 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                           SizedBox(
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
+                              focusNode: _passwordFocusNode,
                               controller: passwordController,
                               obscureText: _obscureText,
-                              autofocus: true,
+                              autofocus: false,
                               keyboardType: TextInputType.text,
                               onFieldSubmitted: (value) async {
+                                _passwordFocusNode.unfocus();
                                 await onSubmit(childContext, parentContext);
                               },
                               validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
@@ -380,7 +390,10 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                     backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                                     overlayColor:
                                         MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                                onPressed: () async => await onSubmit(childContext, parentContext),
+                                onPressed: () async {
+                                  FocusScope.of(childContext).unfocus();
+                                  await onSubmit(childContext, parentContext);
+                                },
                                 child: Center(
                                   child: RichText(
                                     text: const TextSpan(

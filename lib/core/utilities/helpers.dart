@@ -86,7 +86,7 @@ abstract class Helpers {
     final moneyReversion = RegExp(r"\.00|\,");
 
     try {
-      return double.parse(value.replaceAll(moneyReversion, ""));
+      return value == "-" ? double.negativeInfinity : double.parse(value.replaceAll(moneyReversion, ""));
     } catch (e) {
       return 0;
     }

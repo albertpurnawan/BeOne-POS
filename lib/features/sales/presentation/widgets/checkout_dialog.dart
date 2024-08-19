@@ -275,7 +275,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
         if (value != null) {
           SnackBarHelper.presentSuccessSnackBar(
-              childContext, "Header discount applied: ${Helpers.parseMoney(value)}", 3);
+              childContext, "Header discount/rounding applied: ${Helpers.parseMoney(value)}", 3);
         }
       });
     } catch (e) {
@@ -1138,13 +1138,13 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    (receipt.discHeaderManual ?? 0) > 0
+                                    (receipt.discHeaderManual ?? 0) != 0
                                         ? Container(
                                             height: 35,
                                             alignment: Alignment.topCenter,
                                             padding: const EdgeInsets.symmetric(horizontal: 20.0),
                                             child: Text(
-                                              "*${Helpers.parseMoney(receipt.discHeaderManual ?? 0)} header discount applied",
+                                              "*${Helpers.parseMoney(receipt.discHeaderManual ?? 0)} header discount/rounding applied",
                                               style: const TextStyle(fontStyle: FontStyle.italic),
                                             ),
                                           )
