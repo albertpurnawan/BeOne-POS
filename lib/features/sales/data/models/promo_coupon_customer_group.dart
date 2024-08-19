@@ -57,8 +57,8 @@ class PromoCouponCustomerGroupModel extends PromoCouponCustomerGroupEntity imple
   factory PromoCouponCustomerGroupModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoCouponCustomerGroupModel.fromMap({
       ...map,
-      "toprnId": map['toprn_id']?['docid'] != null ? map['toprn_id']['docid'] as String : null,
-      "tocrgId": map['tocrg_id']?['docid'] != null ? map['tocrg_id']['docid'] as String : null,
+      'toprnId': map['toprndocid'] != null ? map['toprndocid'] as String : null,
+      'tocrgId': map['tocrgdocid'] != null ? map['tocrgdocid'] as String : null,
     });
   }
 
