@@ -62,7 +62,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
           await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
 
-      if (input < (storeMasterEntity.totalMinus ?? 0) || input > (storeMasterEntity.totalZero ?? 0)) {
+      if (input < (storeMasterEntity.minDiscount ?? 0) || input > (storeMasterEntity.maxDiscount ?? 0)) {
         await showDialog(
             context: context,
             barrierDismissible: false,
