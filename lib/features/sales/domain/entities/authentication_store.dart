@@ -10,6 +10,9 @@ class AuthStoreEntity {
   final String tousrdocid;
   final int statusActive;
   final int? dflt;
+  final int discAndRound;
+  final int nonPositiveTrx;
+  final int closeShift;
   final String form;
 
   AuthStoreEntity({
@@ -20,6 +23,9 @@ class AuthStoreEntity {
     required this.tousrdocid,
     required this.statusActive,
     this.dflt,
+    required this.discAndRound,
+    required this.nonPositiveTrx,
+    required this.closeShift,
     required this.form,
   });
 
@@ -31,6 +37,9 @@ class AuthStoreEntity {
     String? tousrdocid,
     int? statusActive,
     int? dflt,
+    int? discAndRound,
+    int? nonPositiveTrx,
+    int? closeShift,
     String? form,
   }) {
     return AuthStoreEntity(
@@ -41,6 +50,9 @@ class AuthStoreEntity {
       tousrdocid: tousrdocid ?? this.tousrdocid,
       statusActive: statusActive ?? this.statusActive,
       dflt: dflt ?? this.dflt,
+      discAndRound: discAndRound ?? this.discAndRound,
+      nonPositiveTrx: nonPositiveTrx ?? this.nonPositiveTrx,
+      closeShift: closeShift ?? this.closeShift,
       form: form ?? this.form,
     );
   }
@@ -54,6 +66,9 @@ class AuthStoreEntity {
       'tousrdocid': tousrdocid,
       'statusActive': statusActive,
       'dflt': dflt,
+      'discAndRound': discAndRound,
+      'nonPositiveTrx': nonPositiveTrx,
+      'closeShift': closeShift,
       'form': form,
     };
   }
@@ -62,13 +77,14 @@ class AuthStoreEntity {
     return AuthStoreEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       tostrdocid: map['tostrdocid'] as String,
       tousrdocid: map['tousrdocid'] as String,
       statusActive: map['statusActive'] as int,
       dflt: map['dflt'] != null ? map['dflt'] as int : null,
+      discAndRound: map['discAndRound'] as int,
+      nonPositiveTrx: map['nonPositiveTrx'] as int,
+      closeShift: map['closeShift'] as int,
       form: map['form'] as String,
     );
   }
@@ -80,7 +96,7 @@ class AuthStoreEntity {
 
   @override
   String toString() {
-    return 'AuthStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid, statusActive: $statusActive, dflt: $dflt, form: $form)';
+    return 'AuthStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid, statusActive: $statusActive, dflt: $dflt, discAndRound: $discAndRound, nonPositiveTrx: $nonPositiveTrx, closeShift: $closeShift, form: $form)';
   }
 
   @override
@@ -94,6 +110,9 @@ class AuthStoreEntity {
         other.tousrdocid == tousrdocid &&
         other.statusActive == statusActive &&
         other.dflt == dflt &&
+        other.discAndRound == discAndRound &&
+        other.nonPositiveTrx == nonPositiveTrx &&
+        other.closeShift == closeShift &&
         other.form == form;
   }
 
@@ -106,6 +125,9 @@ class AuthStoreEntity {
         tousrdocid.hashCode ^
         statusActive.hashCode ^
         dflt.hashCode ^
+        discAndRound.hashCode ^
+        nonPositiveTrx.hashCode ^
+        closeShift.hashCode ^
         form.hashCode;
   }
 }
