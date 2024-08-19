@@ -62,7 +62,6 @@ class StoreMasterEntity {
   final String? mtxline02;
   final String? mtxline03;
   final String? mtxline04;
-  final String form;
   final int? salesViewType;
   final String? otpChannel;
   final String? otpUrl;
@@ -72,6 +71,9 @@ class StoreMasterEntity {
   final String? netzmeClientPrivateKey;
   final String? netzmeCustidMerchant;
   final String? netzmeChannelId;
+  final int? minDiscount;
+  final int? maxDiscount;
+  final String form;
   // final String defaultTocusId;
 
   StoreMasterEntity({
@@ -135,7 +137,6 @@ class StoreMasterEntity {
     this.mtxline02,
     this.mtxline03,
     this.mtxline04,
-    required this.form,
     this.salesViewType,
     this.otpChannel,
     this.otpUrl,
@@ -145,6 +146,9 @@ class StoreMasterEntity {
     this.netzmeClientPrivateKey,
     this.netzmeCustidMerchant,
     this.netzmeChannelId,
+    this.minDiscount,
+    this.maxDiscount,
+    required this.form,
     // required this.defaultTocusId,
   });
 
@@ -209,7 +213,6 @@ class StoreMasterEntity {
     String? mtxline02,
     String? mtxline03,
     String? mtxline04,
-    String? form,
     int? salesViewType,
     String? otpChannel,
     String? otpUrl,
@@ -219,6 +222,9 @@ class StoreMasterEntity {
     String? netzmeClientPrivateKey,
     String? netzmeCustidMerchant,
     String? netzmeChannelId,
+    int? minDiscount,
+    int? maxDiscount,
+    String? form,
     // String? defaultTocusId,
   }) {
     return StoreMasterEntity(
@@ -282,7 +288,6 @@ class StoreMasterEntity {
       mtxline02: mtxline02 ?? this.mtxline02,
       mtxline03: mtxline03 ?? this.mtxline03,
       mtxline04: mtxline04 ?? this.mtxline04,
-      form: form ?? this.form,
       salesViewType: salesViewType ?? this.salesViewType,
       otpChannel: otpChannel ?? this.otpChannel,
       otpUrl: otpUrl ?? this.otpUrl,
@@ -292,6 +297,9 @@ class StoreMasterEntity {
       netzmeClientPrivateKey: netzmeClientPrivateKey ?? this.netzmeClientPrivateKey,
       netzmeCustidMerchant: netzmeCustidMerchant ?? this.netzmeCustidMerchant,
       netzmeChannelId: netzmeChannelId ?? this.netzmeChannelId,
+      minDiscount: minDiscount ?? this.minDiscount,
+      maxDiscount: maxDiscount ?? this.maxDiscount,
+      form: form ?? this.form,
       // defaultTocusId: defaultTocusId ?? this.defaultTocusId,
     );
   }
@@ -358,7 +366,6 @@ class StoreMasterEntity {
       'mtxline02': mtxline02,
       'mtxline03': mtxline03,
       'mtxline04': mtxline04,
-      'form': form,
       'salesViewType': salesViewType,
       'otpChannel': otpChannel,
       'otpUrl': otpUrl,
@@ -368,6 +375,9 @@ class StoreMasterEntity {
       'netzmeClientPrivateKey': netzmeClientPrivateKey,
       'netzmeCustidMerchant': netzmeCustidMerchant,
       'netzmeChannelId': netzmeChannelId,
+      'minDiscount': minDiscount,
+      'maxDiscount': maxDiscount,
+      'form': form,
       // 'defaultTocusId': defaultTocusId,
     };
   }
@@ -434,7 +444,6 @@ class StoreMasterEntity {
       mtxline02: map['mtxline02'] != null ? map['mtxline02'] as String : null,
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
-      form: map['form'] as String,
       salesViewType: map['salesViewType'] != null ? map['salesViewType'] as int : null,
       otpChannel: map['otpChannel'] != null ? map['otpChannel'] as String : null,
       otpUrl: map['otpUrl'] != null ? map['otpUrl'] as String : null,
@@ -444,6 +453,9 @@ class StoreMasterEntity {
       netzmeClientPrivateKey: map['netzmeClientPrivateKey'] != null ? map['netzmeClientPrivateKey'] as String : null,
       netzmeCustidMerchant: map['netzmeCustidMerchant'] != null ? map['netzmeCustidMerchant'] as String : null,
       netzmeChannelId: map['netzmeChannelId'] != null ? map['netzmeChannelId'] as String : null,
+      minDiscount: map['minDiscount'] != null ? map['minDiscount'] as int : null,
+      maxDiscount: map['maxDiscount'] != null ? map['maxDiscount'] as int : null,
+      form: map['form'] as String,
       // defaultTocusId: map['defaultTocusId'] != null ? map['defaultTocusId'] as String : "c2ee5bb8-9850-4014-b7bf-fd5492a60d84",
     );
   }
@@ -455,7 +467,7 @@ class StoreMasterEntity {
 
   @override
   String toString() {
-    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, form: $form, salesViewType: $salesViewType, otpChannel: $otpChannel, otpUrl: $otpUrl, netzmeUrl: $netzmeUrl, netzmeClientKey: $netzmeClientKey, netzmeClientSecret: $netzmeClientSecret, netzmeClientPrivateKey: $netzmeClientPrivateKey, netzmeCustidMerchant: $netzmeCustidMerchant, netzmeChannelId: $netzmeChannelId)';
+    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, salesViewType: $salesViewType, otpChannel: $otpChannel, otpUrl: $otpUrl, netzmeUrl: $netzmeUrl, netzmeClientKey: $netzmeClientKey, netzmeClientSecret: $netzmeClientSecret, netzmeClientPrivateKey: $netzmeClientPrivateKey, netzmeCustidMerchant: $netzmeCustidMerchant, netzmeChannelId: $netzmeChannelId, minDiscount: $minDiscount, maxDiscount: $maxDiscount, form: $form,)';
   }
 
   @override
@@ -522,7 +534,6 @@ class StoreMasterEntity {
         other.mtxline02 == mtxline02 &&
         other.mtxline03 == mtxline03 &&
         other.mtxline04 == mtxline04 &&
-        other.form == form &&
         other.salesViewType == salesViewType &&
         other.otpChannel == otpChannel &&
         other.otpUrl == otpUrl &&
@@ -531,7 +542,10 @@ class StoreMasterEntity {
         other.netzmeClientSecret == netzmeClientSecret &&
         other.netzmeClientPrivateKey == netzmeClientPrivateKey &&
         other.netzmeCustidMerchant == netzmeCustidMerchant &&
-        other.netzmeChannelId == netzmeChannelId;
+        other.netzmeChannelId == netzmeChannelId &&
+        other.minDiscount == minDiscount &&
+        other.maxDiscount == maxDiscount &&
+        other.form == form;
   }
 
   @override
@@ -596,7 +610,6 @@ class StoreMasterEntity {
         mtxline02.hashCode ^
         mtxline03.hashCode ^
         mtxline04.hashCode ^
-        form.hashCode ^
         salesViewType.hashCode ^
         otpChannel.hashCode ^
         otpUrl.hashCode ^
@@ -605,6 +618,9 @@ class StoreMasterEntity {
         netzmeClientSecret.hashCode ^
         netzmeClientPrivateKey.hashCode ^
         netzmeChannelId.hashCode ^
-        netzmeCustidMerchant.hashCode;
+        netzmeCustidMerchant.hashCode ^
+        minDiscount.hashCode ^
+        maxDiscount.hashCode ^
+        form.hashCode;
   }
 }
