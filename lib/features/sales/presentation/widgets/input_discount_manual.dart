@@ -42,7 +42,6 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
     super.dispose();
   }
 
-  @override
   Future<void> onSubmit() async {
     try {
       if (_textEditorDiscountController.text == "-" || _textEditorDiscountController.text == "") {
