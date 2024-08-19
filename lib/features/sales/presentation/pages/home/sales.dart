@@ -1998,26 +1998,24 @@ class _SalesPageState extends State<SalesPage> {
                       return Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
-                            onPressed: null
-                            // () async {
-                            //   setState(() {
-                            //     isEditingNewReceiptItemCode = false;
-                            //     isEditingNewReceiptItemQty = false;
-                            //     isUpdatingReceiptItemQty = false;
-                            //   });
+                            onPressed: () async {
+                              setState(() {
+                                isEditingNewReceiptItemCode = false;
+                                isEditingNewReceiptItemQty = false;
+                                isUpdatingReceiptItemQty = false;
+                              });
 
-                            //   await showDialog(
-                            //       context: context,
-                            //       barrierDismissible: false,
-                            //       builder: (context) => const InputCouponsDialog());
+                              await showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const InputCouponsDialog());
 
-                            //   setState(() {
-                            //     isEditingNewReceiptItemCode = true;
-                            //     Future.delayed(const Duration(milliseconds: 50),
-                            //         () => _newReceiptItemCodeFocusNode.requestFocus());
-                            //   });
-                            // }
-                            ,
+                              setState(() {
+                                isEditingNewReceiptItemCode = true;
+                                Future.delayed(const Duration(milliseconds: 50),
+                                    () => _newReceiptItemCodeFocusNode.requestFocus());
+                              });
+                            },
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
@@ -2550,12 +2548,12 @@ class _SalesPageState extends State<SalesPage> {
                       ],
                     ),
                   ),
-                  (state.discHeaderManual ?? 0) > 0
+                  (state.discHeaderManual ?? 0) != 0
                       ? Container(
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Text(
-                            "*${Helpers.parseMoney(state.discHeaderManual ?? 0)} header discount applied",
+                            "*${Helpers.parseMoney(state.discHeaderManual ?? 0)} header discount/rounding applied",
                             style: const TextStyle(fontStyle: FontStyle.italic),
                           ),
                         )

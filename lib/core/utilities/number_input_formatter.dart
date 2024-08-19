@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/services.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 
@@ -19,7 +21,16 @@ class NumberInputFormatter extends TextInputFormatter {
 class MoneyInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    final value = Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(newValue.text));
+    final double amount = Helpers.revertMoneyToDecimalFormat(newValue.text);
+    final value;
+    switch (amount) {
+      case double.negativeInfinity:
+        value = "-";
+      case 0:
+        value = "";
+      default:
+        value = Helpers.parseMoney(amount);
+    }
 
     return TextEditingValue(text: value, selection: TextSelection.collapsed(offset: value.length));
   }
@@ -28,7 +39,8 @@ class MoneyInputFormatter extends TextInputFormatter {
 class NegativeMoneyInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    final value = Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(newValue.text));
+    final double amount = Helpers.revertMoneyToDecimalFormat(newValue.text);
+    final value = amount == double.negativeInfinity ? "-" : Helpers.parseMoney(amount);
 
     return TextEditingValue(text: value, selection: TextSelection.collapsed(offset: value.length));
   }

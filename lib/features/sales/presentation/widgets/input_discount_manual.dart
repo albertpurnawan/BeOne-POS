@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 
@@ -38,6 +43,43 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
   }
 
   @override
+  Future<void> onSubmit() async {
+    try {
+      if (_textEditorDiscountController.text == "-" || _textEditorDiscountController.text == "") {
+        context.pop();
+        throw "Invalid discount amount";
+      }
+      double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
+      final ReceiptEntity state = context.read<ReceiptCubit>().state;
+      if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
+        context.pop();
+        throw "Invalid discount amount";
+      }
+
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "POS Parameter not found";
+      final StoreMasterEntity? storeMasterEntity =
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
+      if (storeMasterEntity == null) throw "Store master not found";
+
+      if (input < (storeMasterEntity.totalMinus ?? 0) || input > (storeMasterEntity.totalZero ?? 0)) {
+        await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AuthInputDiscountDialog(
+                  discountValue: input,
+                  docnum: widget.docnum,
+                ));
+      } else {
+        context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input);
+        context.pop(input);
+      }
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
@@ -48,23 +90,11 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
               if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
-                double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
-                final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
-                  context.pop();
-                  ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
-                  return KeyEventResult.handled;
-                }
-                showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => AuthInputDiscountDialog(
-                          discountValue: input,
-                          docnum: widget.docnum,
-                        ));
+                onSubmit();
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
+                return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.f9) {
                 context
                     .read<ReceiptCubit>()
@@ -215,18 +245,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
-                          final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                          if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
-                            return ErrorHandler.presentErrorSnackBar(childContext, "Invalid discount amount");
-                          }
-                          await showDialog<bool>(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => AuthInputDiscountDialog(
-                                    discountValue: input,
-                                    docnum: widget.docnum,
-                                  ));
+                          await onSubmit();
                         },
                         child: Center(
                           child: RichText(
@@ -265,27 +284,9 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
         child: TextFormField(
           focusNode: _discountFocusNode,
           controller: _textEditorDiscountController,
-          onFieldSubmitted: (value) async {
-            double input = Helpers.revertMoneyToDecimalFormat(value);
-            final ReceiptEntity state = context.read<ReceiptCubit>().state;
-            if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
-              return ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
-            }
-            // context
-            //     .read<ReceiptCubit>()
-            //     .updateTotalAmountFromDiscount(discountValue);
-            // Navigator.of(context).pop();
-            // send input to auth
-            // double inputValue = Helpers.revertMoneyToDecimalFormatDouble(
-            //     _textEditorDiscountController.text);
-            await showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => AuthInputDiscountDialog(discountValue: input, docnum: widget.docnum))
-                .then((value) => _discountFocusNode.requestFocus());
-          },
+          onFieldSubmitted: (value) async => await onSubmit(),
           autofocus: true,
-          // inputFormatters: [MoneyInputFormatter()],
+          inputFormatters: [MoneyInputFormatter()],
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24),
           // onEditingComplete: () {

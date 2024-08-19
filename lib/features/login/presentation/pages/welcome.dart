@@ -224,7 +224,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             },
                           ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
