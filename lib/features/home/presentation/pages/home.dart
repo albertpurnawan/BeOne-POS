@@ -1,9 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/routes/router.dart';
@@ -11,6 +10,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/home/presentation/widgets/confirm_active_shift_dialog.dart';
@@ -19,7 +19,6 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -42,6 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int totalTcsr1s = 0;
   int totalToinvSynced = 0;
   int totalTcsr1Synced = 0;
+  String? lastSync;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -50,6 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
     checkOpenShifts();
     countTotalInvoice();
     countTotalShifts();
+    getLastSync();
+    checkIsSyncing();
     now = DateTime.now();
     morningEpoch = DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
     afternoonEpoch = DateTime(now.year, now.month, now.day, 11, 0, 0).millisecondsSinceEpoch;
@@ -96,6 +99,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> checkIsSyncing() async {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      await countTotalInvoice();
+      await countTotalShifts();
+      await getLastSync();
+    });
+  }
+
   Future<void> countTotalInvoice() async {
     final invoices = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
     final toinvSyncedCount = invoices.where((invoice) => invoice.syncToBos != null).length;
@@ -107,11 +118,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> countTotalShifts() async {
     final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
+    final shiftsClosed = shifts.where((shift) => shift.approvalStatus == 1).length;
     final tcsr1SyncedCount = shifts.where((shift) => shift.syncToBos != null).length;
     setState(() {
       totalTcsr1Synced = tcsr1SyncedCount;
-      totalTcsr1s = shifts.length;
+      totalTcsr1s = shiftsClosed;
     });
+  }
+
+  Future<void> getLastSync() async {
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+    final dateTime = DateTime.parse(topos.lastSync!);
+
+    setState(() {
+      lastSync = Helpers.dateddMMMyyyyHHmmss(dateTime.toLocal());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -197,7 +225,50 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Container(
-                            padding: EdgeInsets.fromLTRB(10, 1, 10, 5),
+                            padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
+                            decoration: const BoxDecoration(
+                              // border: Border.all(
+                              //     color: Color.fromRGBO(195, 53, 53, 1),
+                              //     width: 4.0),
+                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+
+                              color: ProjectColors.green,
+                              boxShadow: [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 5,
+                                  color: Color.fromRGBO(0, 0, 0, 0.248),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Text("Last Sync on ",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    )),
+                                lastSync == null
+                                    ? Container(
+                                        padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                        width: 12,
+                                        height: 12,
+                                        child: const CircularProgressIndicator(
+                                          color: Colors.green,
+                                        ))
+                                    : Text("$lastSync",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        )),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
                             decoration: const BoxDecoration(
                               // border: Border.all(
                               //     color: Color.fromRGBO(195, 53, 53, 1),

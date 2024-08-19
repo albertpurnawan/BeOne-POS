@@ -241,18 +241,21 @@ Future<void> syncData() async {
 
             if (tcurrDb.isNotEmpty) {
               final tcurrDbMap = {for (var datum in tcurrDb) datum.docId: datum};
-              tcurr = await GetIt.instance<CurrencyApi>().fetchData(lastSyncDate);
-              for (final datumBos in tcurr) {
-                final datumDb = tcurrDbMap[datumBos.docId];
 
+              tcurr = await GetIt.instance<CurrencyApi>().fetchData(lastSyncDate);
+              List<CurrencyModel> createList = tcurr.where((element) => element.form == "A").toList();
+              List<CurrencyModel> updateList = tcurr.where((element) => element.form == "U").toList();
+
+              for (final datumBos in updateList) {
+                final datumDb = tcurrDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().currencyDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().currencyDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().currencyDao.bulkCreate(data: createList);
             } else {
               tcurr = await GetIt.instance<CurrencyApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().currencyDao.bulkCreate(data: tcurr);
@@ -275,17 +278,19 @@ Future<void> syncData() async {
               final tocryDbMap = {for (var datum in tocryDb) datum.docId: datum};
 
               tocry = await GetIt.instance<CountryApi>().fetchData(lastSyncDate);
-              for (final datumBos in tocry) {
-                final datumDb = tocryDbMap[datumBos.docId];
+              List<CountryModel> createList = tocry.where((element) => element.form == "A").toList();
+              List<CountryModel> updateList = tocry.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tocryDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().countryDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().countryDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().countryDao.bulkCreate(data: createList);
             } else {
               tocry = await GetIt.instance<CountryApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().countryDao.bulkCreate(data: tocry);
@@ -308,17 +313,19 @@ Future<void> syncData() async {
               final toprvDbMap = {for (var datum in toprvDb) datum.docId: datum};
 
               toprv = await GetIt.instance<ProvinceApi>().fetchData(lastSyncDate);
-              for (final datumBos in toprv) {
-                final datumDb = toprvDbMap[datumBos.docId];
+              List<ProvinceModel> createList = toprv.where((element) => element.form == "A").toList();
+              List<ProvinceModel> updateList = toprv.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = toprvDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().provinceDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().provinceDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(data: createList);
             } else {
               toprv = await GetIt.instance<ProvinceApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().provinceDao.bulkCreate(data: toprv);
@@ -341,17 +348,19 @@ Future<void> syncData() async {
               final tozcdDbMap = {for (var datum in tozcdDb) datum.docId: datum};
 
               tozcd = await GetIt.instance<ZipcodeApi>().fetchData(lastSyncDate);
-              for (final datumBos in tozcd) {
-                final datumDb = tozcdDbMap[datumBos.docId];
+              List<ZipCodeModel> createList = tozcd.where((element) => element.form == "A").toList();
+              List<ZipCodeModel> updateList = tozcd.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tozcdDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().zipcodeDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().zipcodeDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(data: createList);
             } else {
               tozcd = await GetIt.instance<ZipcodeApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().zipcodeDao.bulkCreate(data: tozcd);
@@ -374,17 +383,19 @@ Future<void> syncData() async {
               final tohemDbMap = {for (var datum in tohemDb) datum.docId: datum};
 
               tohem = await GetIt.instance<EmployeeApi>().fetchData(lastSyncDate);
-              for (final datumBos in tohem) {
-                final datumDb = tohemDbMap[datumBos.docId];
+              List<EmployeeModel> createList = tohem.where((element) => element.form == "A").toList();
+              List<EmployeeModel> updateList = tohem.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tohemDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().employeeDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().employeeDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().employeeDao.bulkCreate(data: createList);
             } else {
               tohem = await GetIt.instance<EmployeeApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().employeeDao.bulkCreate(data: tohem);
@@ -407,17 +418,19 @@ Future<void> syncData() async {
               final tovatDbMap = {for (var datum in tovatDb) datum.docId: datum};
 
               tovat = await GetIt.instance<TaxMasterApi>().fetchData(lastSyncDate);
-              for (final datumBos in tovat) {
-                final datumDb = tovatDbMap[datumBos.docId];
+              List<TaxMasterModel> createList = tovat.where((element) => element.form == "A").toList();
+              List<TaxMasterModel> updateList = tovat.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tovatDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().taxMasterDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().taxMasterDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().taxMasterDao.bulkCreate(data: createList);
             } else {
               tovat = await GetIt.instance<TaxMasterApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().taxMasterDao.bulkCreate(data: tovat);
@@ -440,17 +453,19 @@ Future<void> syncData() async {
               final topmtDbMap = {for (var datum in topmtDb) datum.docId: datum};
 
               topmt = await GetIt.instance<PaymentTypeApi>().fetchData(lastSyncDate);
-              for (final datumBos in topmt) {
-                final datumDb = topmtDbMap[datumBos.docId];
+              List<PaymentTypeModel> createList = topmt.where((element) => element.form == "A").toList();
+              List<PaymentTypeModel> updateList = topmt.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = topmtDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().paymentTypeDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().paymentTypeDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().paymentTypeDao.bulkCreate(data: createList);
             } else {
               topmt = await GetIt.instance<PaymentTypeApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().paymentTypeDao.bulkCreate(data: topmt);
@@ -473,17 +488,19 @@ Future<void> syncData() async {
               final tpmt1DbMap = {for (var datum in tpmt1Db) datum.docId: datum};
 
               tpmt1 = await GetIt.instance<MOPApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmt1) {
-                final datumDb = tpmt1DbMap[datumBos.docId];
+              List<MeansOfPaymentModel> createList = tpmt1.where((element) => element.form == "A").toList();
+              List<MeansOfPaymentModel> updateList = tpmt1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmt1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().meansOfPaymentDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().meansOfPaymentDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().meansOfPaymentDao.bulkCreate(data: createList);
             } else {
               tpmt1 = await GetIt.instance<MOPApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().meansOfPaymentDao.bulkCreate(data: tpmt1);
@@ -506,17 +523,19 @@ Future<void> syncData() async {
               final tpmt2DbMap = {for (var datum in tpmt2Db) datum.docId: datum};
 
               tpmt2 = await GetIt.instance<CreditCardApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmt2) {
-                final datumDb = tpmt2DbMap[datumBos.docId];
+              List<CreditCardModel> createList = tpmt2.where((element) => element.form == "A").toList();
+              List<CreditCardModel> updateList = tpmt2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmt2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().creditCardDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().creditCardDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(data: createList);
             } else {
               tpmt2 = await GetIt.instance<CreditCardApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().creditCardDao.bulkCreate(data: tpmt2);
@@ -539,17 +558,19 @@ Future<void> syncData() async {
               final toplnDbMap = {for (var datum in toplnDb) datum.docId: datum};
 
               topln = await GetIt.instance<PricelistApi>().fetchData(lastSyncDate);
-              for (final datumBos in topln) {
-                final datumDb = toplnDbMap[datumBos.docId];
+              List<PricelistModel> createList = topln.where((element) => element.form == "A").toList();
+              List<PricelistModel> updateList = topln.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = toplnDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().pricelistDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().pricelistDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().pricelistDao.bulkCreate(data: createList);
             } else {
               topln = await GetIt.instance<PricelistApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().pricelistDao.bulkCreate(data: topln);
@@ -572,17 +593,19 @@ Future<void> syncData() async {
               final tostrDbMap = {for (var datum in tostrDb) datum.docId: datum};
 
               tostr = await GetIt.instance<StoreMasterApi>().fetchData(lastSyncDate);
-              for (final datumBos in tostr) {
-                final datumDb = tostrDbMap[datumBos.docId];
+              List<StoreMasterModel> createList = tostr.where((element) => element.form == "A").toList();
+              List<StoreMasterModel> updateList = tostr.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tostrDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().storeMasterDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().storeMasterDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().storeMasterDao.bulkCreate(data: createList);
             } else {
               tostr = await GetIt.instance<StoreMasterApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().storeMasterDao.bulkCreate(data: tostr);
@@ -605,17 +628,19 @@ Future<void> syncData() async {
               final tpmt3DbMap = {for (var datum in tpmt3Db) datum.docId: datum};
 
               tpmt3 = await GetIt.instance<MOPByStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmt3) {
-                final datumDb = tpmt3DbMap[datumBos.docId];
+              List<MOPByStoreModel> createList = tpmt3.where((element) => element.form == "A").toList();
+              List<MOPByStoreModel> updateList = tpmt3.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmt3DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().mopByStoreDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().mopByStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().mopByStoreDao.bulkCreate(data: createList);
             } else {
               tpmt3 = await GetIt.instance<MOPByStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().mopByStoreDao.bulkCreate(data: tpmt3);
@@ -638,17 +663,19 @@ Future<void> syncData() async {
               final tocsrDbMap = {for (var datum in tocsrDb) datum.docId: datum};
 
               tocsr = await GetIt.instance<CashRegisterApi>().fetchData(lastSyncDate);
-              for (final datumBos in tocsr) {
-                final datumDb = tocsrDbMap[datumBos.docId];
+              List<CashRegisterModel> createList = tocsr.where((element) => element.form == "A").toList();
+              List<CashRegisterModel> updateList = tocsr.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tocsrDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().cashRegisterDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().cashRegisterDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().cashRegisterDao.bulkCreate(data: createList);
             } else {
               tocsr = await GetIt.instance<CashRegisterApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().cashRegisterDao.bulkCreate(data: tocsr);
@@ -671,17 +698,19 @@ Future<void> syncData() async {
               final touomDbMap = {for (var datum in touomDb) datum.docId: datum};
 
               touom = await GetIt.instance<UoMApi>().fetchData(lastSyncDate);
-              for (final datumBos in touom) {
-                final datumDb = touomDbMap[datumBos.docId];
+              List<UomModel> createList = touom.where((element) => element.form == "A").toList();
+              List<UomModel> updateList = touom.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = touomDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().uomDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().uomDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: createList);
             } else {
               touom = await GetIt.instance<UoMApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().uomDao.bulkCreate(data: touom);
@@ -704,17 +733,19 @@ Future<void> syncData() async {
               final torolDbMap = {for (var datum in torolDb) datum.docId: datum};
 
               torol = await GetIt.instance<UserRoleApi>().fetchData(lastSyncDate);
-              for (final datumBos in torol) {
-                final datumDb = torolDbMap[datumBos.docId];
+              List<UserRoleModel> createList = torol.where((element) => element.form == "A").toList();
+              List<UserRoleModel> updateList = torol.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = torolDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().userRoleDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().userRoleDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().userRoleDao.bulkCreate(data: createList);
             } else {
               torol = await GetIt.instance<UserRoleApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().userRoleDao.bulkCreate(data: torol);
@@ -737,17 +768,19 @@ Future<void> syncData() async {
               final tousrDbMap = {for (var datum in tousrDb) datum.docId: datum};
 
               tousr = await GetIt.instance<UserApi>().fetchData(lastSyncDate);
-              for (final datumBos in tousr) {
-                final datumDb = tousrDbMap[datumBos.docId];
+              List<UserModel> createList = tousr.where((element) => element.form == "A").toList();
+              List<UserModel> updateList = tousr.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tousrDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().userDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().userDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: createList);
             } else {
               tousr = await GetIt.instance<UserApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().userDao.bulkCreate(data: tousr);
@@ -770,17 +803,19 @@ Future<void> syncData() async {
               final tpln1DbMap = {for (var datum in tpln1Db) datum.docId: datum};
 
               tpln1 = await GetIt.instance<PricelistPeriodApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpln1) {
-                final datumDb = tpln1DbMap[datumBos.docId];
+              List<PricelistPeriodModel> createList = tpln1.where((element) => element.form == "A").toList();
+              List<PricelistPeriodModel> updateList = tpln1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpln1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().pricelistPeriodDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().pricelistPeriodDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().pricelistPeriodDao.bulkCreate(data: createList);
             } else {
               tpln1 = await GetIt.instance<PricelistPeriodApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().pricelistPeriodDao.bulkCreate(data: tpln1);
@@ -803,17 +838,19 @@ Future<void> syncData() async {
               final tocatDbMap = {for (var datum in tocatDb) datum.docId: datum};
 
               tocat = await GetIt.instance<ItemCategoryApi>().fetchData(lastSyncDate);
-              for (final datumBos in tocat) {
-                final datumDb = tocatDbMap[datumBos.docId];
+              List<ItemCategoryModel> createList = tocat.where((element) => element.form == "A").toList();
+              List<ItemCategoryModel> updateList = tocat.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tocatDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().itemCategoryDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().itemCategoryDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().itemCategoryDao.bulkCreate(data: createList);
             } else {
               tocat = await GetIt.instance<ItemCategoryApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().itemCategoryDao.bulkCreate(data: tocat);
@@ -836,17 +873,19 @@ Future<void> syncData() async {
               final toitmDbMap = {for (var datum in toitmDb) datum.docId: datum};
 
               toitm = await GetIt.instance<ItemMasterApi>().fetchData(lastSyncDate);
-              for (final datumBos in toitm) {
-                final datumDb = toitmDbMap[datumBos.docId];
+              List<ItemMasterModel> createList = toitm.where((element) => element.form == "A").toList();
+              List<ItemMasterModel> updateList = toitm.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = toitmDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().itemMasterDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().itemMasterDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().itemMasterDao.bulkCreate(data: createList);
             } else {
               toitm = await GetIt.instance<ItemMasterApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().itemMasterDao.bulkCreate(data: toitm);
@@ -869,17 +908,19 @@ Future<void> syncData() async {
               final tsitmDbMap = {for (var datum in tsitmDb) datum.docId: datum};
 
               tsitm = await GetIt.instance<ItemByStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tsitm) {
-                final datumDb = tsitmDbMap[datumBos.docId];
+              List<ItemByStoreModel> createList = tsitm.where((element) => element.form == "A").toList();
+              List<ItemByStoreModel> updateList = tsitm.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tsitmDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().itemByStoreDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().itemByStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().itemByStoreDao.bulkCreate(data: createList);
             } else {
               tsitm = await GetIt.instance<ItemByStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().itemByStoreDao.bulkCreate(data: tsitm);
@@ -902,17 +943,19 @@ Future<void> syncData() async {
               final tbitmDbMap = {for (var datum in tbitmDb) datum.docId: datum};
 
               tbitm = await GetIt.instance<ItemBarcodeApi>().fetchData(lastSyncDate);
-              for (final datumBos in tbitm) {
-                final datumDb = tbitmDbMap[datumBos.docId];
+              List<ItemBarcodeModel> createList = tbitm.where((element) => element.form == "A").toList();
+              List<ItemBarcodeModel> updateList = tbitm.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tbitmDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().itemBarcodeDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().itemBarcodeDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().itemBarcodeDao.bulkCreate(data: createList);
             } else {
               tbitm = await GetIt.instance<ItemBarcodeApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().itemBarcodeDao.bulkCreate(data: tbitm);
@@ -935,17 +978,19 @@ Future<void> syncData() async {
               final tritmDbMap = {for (var datum in tritmDb) datum.docId: datum};
 
               tritm = await GetIt.instance<ItemRemarksApi>().fetchData(lastSyncDate);
-              for (final datumBos in tritm) {
-                final datumDb = tritmDbMap[datumBos.docId];
+              List<ItemRemarksModel> createList = tritm.where((element) => element.form == "A").toList();
+              List<ItemRemarksModel> updateList = tritm.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tritmDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().itemRemarkDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().itemRemarkDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().itemRemarkDao.bulkCreate(data: createList);
             } else {
               tritm = await GetIt.instance<ItemRemarksApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().itemRemarkDao.bulkCreate(data: tritm);
@@ -968,17 +1013,19 @@ Future<void> syncData() async {
               final tovdgDbMap = {for (var datum in tovdgDb) datum.docId: datum};
 
               tovdg = await GetIt.instance<VendorGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tovdg) {
-                final datumDb = tovdgDbMap[datumBos.docId];
+              List<VendorGroupModel> createList = tovdg.where((element) => element.form == "A").toList();
+              List<VendorGroupModel> updateList = tovdg.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tovdgDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().vendorGroupDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().vendorGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().vendorGroupDao.bulkCreate(data: createList);
             } else {
               tovdg = await GetIt.instance<VendorGroupApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().vendorGroupDao.bulkCreate(data: tovdg);
@@ -1001,17 +1048,19 @@ Future<void> syncData() async {
               final tovenDbMap = {for (var datum in tovenDb) datum.docId: datum};
 
               toven = await GetIt.instance<VendorApi>().fetchData(lastSyncDate);
-              for (final datumBos in toven) {
-                final datumDb = tovenDbMap[datumBos.docId];
+              List<VendorModel> createList = toven.where((element) => element.form == "A").toList();
+              List<VendorModel> updateList = toven.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tovenDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().vendorDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().vendorDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(data: createList);
             } else {
               toven = await GetIt.instance<VendorApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().vendorDao.bulkCreate(data: toven);
@@ -1034,17 +1083,19 @@ Future<void> syncData() async {
               final tvitmDbMap = {for (var datum in tvitmDb) datum.docId: datum};
 
               tvitm = await GetIt.instance<PreferredVendorApi>().fetchData(lastSyncDate);
-              for (final datumBos in tvitm) {
-                final datumDb = tvitmDbMap[datumBos.docId];
+              List<PreferredVendorModel> createList = tvitm.where((element) => element.form == "A").toList();
+              List<PreferredVendorModel> updateList = tvitm.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tvitmDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().preferredVendorDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().preferredVendorDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().preferredVendorDao.bulkCreate(data: createList);
             } else {
               tvitm = await GetIt.instance<PreferredVendorApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().preferredVendorDao.bulkCreate(data: tvitm);
@@ -1067,17 +1118,19 @@ Future<void> syncData() async {
               final tocrgDbMap = {for (var datum in tocrgDb) datum.docId: datum};
 
               tocrg = await GetIt.instance<CustomerGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tocrg) {
-                final datumDb = tocrgDbMap[datumBos.docId];
+              List<CustomerGroupModel> createList = tocrg.where((element) => element.form == "A").toList();
+              List<CustomerGroupModel> updateList = tocrg.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tocrgDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().customerGroupDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().customerGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().customerGroupDao.bulkCreate(data: createList);
             } else {
               tocrg = await GetIt.instance<CustomerGroupApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().customerGroupDao.bulkCreate(data: tocrg);
@@ -1100,17 +1153,19 @@ Future<void> syncData() async {
               final tocusDbMap = {for (var datum in tocusDb) datum.docId: datum};
 
               tocus = await GetIt.instance<CustomerApi>().fetchData(lastSyncDate);
-              for (final datumBos in tocus) {
-                final datumDb = tocusDbMap[datumBos.docId];
+              List<CustomerCstModel> createList = tocus.where((element) => element.form == "A").toList();
+              List<CustomerCstModel> updateList = tocus.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tocusDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().customerCstDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().customerCstDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().customerCstDao.bulkCreate(data: createList);
             } else {
               tocus = await GetIt.instance<CustomerApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().customerCstDao.bulkCreate(data: tocus);
@@ -1133,17 +1188,19 @@ Future<void> syncData() async {
               final tpln2DbMap = {for (var datum in tpln2Db) datum.docId: datum};
 
               tpln2 = await GetIt.instance<PriceByItemApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpln2) {
-                final datumDb = tpln2DbMap[datumBos.docId];
+              List<PriceByItemModel> createList = tpln2.where((element) => element.form == "A").toList();
+              List<PriceByItemModel> updateList = tpln2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpln2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().priceByItemDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().priceByItemDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().priceByItemDao.bulkCreate(data: createList);
             } else {
               tpln2 = await GetIt.instance<PriceByItemApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().priceByItemDao.bulkCreate(data: tpln2);
@@ -1166,19 +1223,21 @@ Future<void> syncData() async {
               final tpln3DbMap = {for (var datum in tpln3Db) datum.docId: datum};
 
               tpln3 = await GetIt.instance<APMPSApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpln3) {
-                final datumDb = tpln3DbMap[datumBos.docId];
+              List<AssignPriceMemberPerStoreModel> createList = tpln3.where((element) => element.form == "A").toList();
+              List<AssignPriceMemberPerStoreModel> updateList = tpln3.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpln3DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .assignPriceMemberPerStoreDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().assignPriceMemberPerStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().assignPriceMemberPerStoreDao.bulkCreate(data: createList);
             } else {
               tpln3 = await GetIt.instance<APMPSApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().assignPriceMemberPerStoreDao.bulkCreate(data: tpln3);
@@ -1201,7 +1260,10 @@ Future<void> syncData() async {
               final tpln4DbMap = {for (var datum in tpln4Db) datum.docId: datum};
 
               tpln4 = await GetIt.instance<PriceByItemBarcodeApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpln4) {
+              List<PriceByItemBarcodeModel> createList = tpln4.where((element) => element.form == "A").toList();
+              List<PriceByItemBarcodeModel> updateList = tpln4.where((element) => element.form == "U").toList();
+
+              for (final datumBos in updateList) {
                 final datumDb = tpln4DbMap[datumBos.docId];
 
                 if (datumDb != null) {
@@ -1210,10 +1272,10 @@ Future<void> syncData() async {
                         .priceByItemBarcodeDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.bulkCreate(data: createList);
             } else {
               tpln4 = await GetIt.instance<PriceByItemBarcodeApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().priceByItemBarcodeDao.bulkCreate(data: tpln4);
@@ -1236,17 +1298,19 @@ Future<void> syncData() async {
               final tastrDbMap = {for (var datum in tastrDb) datum.docId: datum};
 
               tastr = await GetIt.instance<AuthStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tastr) {
-                final datumDb = tastrDbMap[datumBos.docId];
+              List<AuthStoreModel> createList = tastr.where((element) => element.form == "A").toList();
+              List<AuthStoreModel> updateList = tastr.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tastrDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().authStoreDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().authStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().authStoreDao.bulkCreate(data: createList);
             } else {
               tastr = await GetIt.instance<AuthStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().authStoreDao.bulkCreate(data: tastr);
@@ -1269,19 +1333,21 @@ Future<void> syncData() async {
               final topsbDbMap = {for (var datum in topsbDb) datum.docId: datum};
 
               topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData(lastSyncDate);
-              for (final datumBos in topsb) {
-                final datumDb = topsbDbMap[datumBos.docId];
+              List<PromoHargaSpesialHeaderModel> createList = topsb.where((element) => element.form == "A").toList();
+              List<PromoHargaSpesialHeaderModel> updateList = topsb.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = topsbDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoHargaSpesialHeaderDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.bulkCreate(data: createList);
             } else {
               topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData("2000-01-01 00:00:00");
               topsb.sort((a, b) => a.createDate.compareTo(b.createDate));
@@ -1305,19 +1371,21 @@ Future<void> syncData() async {
               final tpsb1DbMap = {for (var datum in tpsb1Db) datum.docId: datum};
 
               tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpsb1) {
-                final datumDb = tpsb1DbMap[datumBos.docId];
+              List<PromoHargaSpesialBuyModel> createList = tpsb1.where((element) => element.form == "A").toList();
+              List<PromoHargaSpesialBuyModel> updateList = tpsb1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpsb1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoHargaSpesialBuyDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.bulkCreate(data: createList);
             } else {
               tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.bulkCreate(data: tpsb1);
@@ -1340,19 +1408,23 @@ Future<void> syncData() async {
               final tpsb2DbMap = {for (var datum in tpsb2Db) datum.docId: datum};
 
               tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpsb2) {
-                final datumDb = tpsb2DbMap[datumBos.docId];
+              List<PromoHargaSpesialAssignStoreModel> createList =
+                  tpsb2.where((element) => element.form == "A").toList();
+              List<PromoHargaSpesialAssignStoreModel> updateList =
+                  tpsb2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpsb2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoHargaSpesialAssignStoreDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.bulkCreate(data: createList);
             } else {
               tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.bulkCreate(data: tpsb2);
@@ -1375,19 +1447,23 @@ Future<void> syncData() async {
               final tpsb4DbMap = {for (var datum in tpsb4Db) datum.docId: datum};
 
               tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpsb4) {
-                final datumDb = tpsb4DbMap[datumBos.docId];
+              List<PromoHargaSpesialCustomerGroupModel> createList =
+                  tpsb4.where((element) => element.form == "A").toList();
+              List<PromoHargaSpesialCustomerGroupModel> updateList =
+                  tpsb4.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpsb4DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoHargaSpesialCustomerGroupDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.bulkCreate(data: createList);
             } else {
               tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.bulkCreate(data: tpsb4);
@@ -1410,19 +1486,21 @@ Future<void> syncData() async {
               final topmiDbMap = {for (var datum in topmiDb) datum.docId: datum};
 
               topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData(lastSyncDate);
-              for (final datumBos in topmi) {
-                final datumDb = topmiDbMap[datumBos.docId];
+              List<PromoBonusMultiItemHeaderModel> createList = topmi.where((element) => element.form == "A").toList();
+              List<PromoBonusMultiItemHeaderModel> updateList = topmi.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = topmiDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoMultiItemHeaderDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.bulkCreate(data: createList);
             } else {
               topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData("2000-01-01 00:00:00");
               topmi.sort((a, b) => a.createDate.compareTo(b.createDate));
@@ -1446,19 +1524,23 @@ Future<void> syncData() async {
               final tpmi1DbMap = {for (var datum in tpmi1Db) datum.docId: datum};
 
               tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmi1) {
-                final datumDb = tpmi1DbMap[datumBos.docId];
+              List<PromoBonusMultiItemBuyConditionModel> createList =
+                  tpmi1.where((element) => element.form == "A").toList();
+              List<PromoBonusMultiItemBuyConditionModel> updateList =
+                  tpmi1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmi1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoMultiItemBuyConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.bulkCreate(data: createList);
             } else {
               tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.bulkCreate(data: tpmi1);
@@ -1481,19 +1563,23 @@ Future<void> syncData() async {
               final tpmi2DbMap = {for (var datum in tpmi2Db) datum.docId: datum};
 
               tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmi2) {
-                final datumDb = tpmi2DbMap[datumBos.docId];
+              List<PromoBonusMultiItemAssignStoreModel> createList =
+                  tpmi2.where((element) => element.form == "A").toList();
+              List<PromoBonusMultiItemAssignStoreModel> updateList =
+                  tpmi2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmi2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoMultiItemAssignStoreDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.bulkCreate(data: createList);
             } else {
               tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.bulkCreate(data: tpmi2);
@@ -1516,19 +1602,23 @@ Future<void> syncData() async {
               final tpmi4DbMap = {for (var datum in tpmi4Db) datum.docId: datum};
 
               tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmi4) {
-                final datumDb = tpmi4DbMap[datumBos.docId];
+              List<PromoBonusMultiItemGetConditionModel> createList =
+                  tpmi4.where((element) => element.form == "A").toList();
+              List<PromoBonusMultiItemGetConditionModel> updateList =
+                  tpmi4.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmi4DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoMultiItemGetConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoMultiItemGetConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoMultiItemGetConditionDao.bulkCreate(data: createList);
             } else {
               tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoMultiItemGetConditionDao.bulkCreate(data: tpmi4);
@@ -1551,19 +1641,23 @@ Future<void> syncData() async {
               final tpmi5DbMap = {for (var datum in tpmi5Db) datum.docId: datum};
 
               tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmi5) {
-                final datumDb = tpmi5DbMap[datumBos.docId];
+              List<PromoBonusMultiItemCustomerGroupModel> createList =
+                  tpmi5.where((element) => element.form == "A").toList();
+              List<PromoBonusMultiItemCustomerGroupModel> updateList =
+                  tpmi5.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmi5DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoMultiItemCustomerGroupDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.bulkCreate(data: createList);
             } else {
               tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.bulkCreate(data: tpmi5);
@@ -1586,19 +1680,21 @@ Future<void> syncData() async {
               final topdiDbMap = {for (var datum in topdiDb) datum.docId: datum};
 
               topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData(lastSyncDate);
-              for (final datumBos in topdi) {
-                final datumDb = topdiDbMap[datumBos.docId];
+              List<PromoDiskonItemHeaderModel> createList = topdi.where((element) => element.form == "A").toList();
+              List<PromoDiskonItemHeaderModel> updateList = topdi.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = topdiDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonItemHeaderDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.bulkCreate(data: createList);
             } else {
               topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData("2000-01-01 00:00:00");
               topdi.sort((a, b) => a.createDate.compareTo(b.createDate));
@@ -1622,19 +1718,23 @@ Future<void> syncData() async {
               final tpdi1DbMap = {for (var datum in tpdi1Db) datum.docId: datum};
 
               tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdi1) {
-                final datumDb = tpdi1DbMap[datumBos.docId];
+              List<PromoDiskonItemBuyConditionModel> createList =
+                  tpdi1.where((element) => element.form == "A").toList();
+              List<PromoDiskonItemBuyConditionModel> updateList =
+                  tpdi1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdi1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonItemBuyConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.bulkCreate(data: createList);
             } else {
               tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.bulkCreate(data: tpdi1);
@@ -1657,19 +1757,21 @@ Future<void> syncData() async {
               final tpdi2DbMap = {for (var datum in tpdi2Db) datum.docId: datum};
 
               tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdi2) {
-                final datumDb = tpdi2DbMap[datumBos.docId];
+              List<PromoDiskonItemAssignStoreModel> createList = tpdi2.where((element) => element.form == "A").toList();
+              List<PromoDiskonItemAssignStoreModel> updateList = tpdi2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdi2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonItemAssignStoreDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.bulkCreate(data: createList);
             } else {
               tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.bulkCreate(data: tpdi2);
@@ -1692,19 +1794,23 @@ Future<void> syncData() async {
               final tpdi4DbMap = {for (var datum in tpdi4Db) datum.docId: datum};
 
               tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdi4) {
-                final datumDb = tpdi4DbMap[datumBos.docId];
+              List<PromoDiskonItemGetConditionModel> createList =
+                  tpdi4.where((element) => element.form == "A").toList();
+              List<PromoDiskonItemGetConditionModel> updateList =
+                  tpdi4.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdi4DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonItemGetConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonItemGetConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonItemGetConditionDao.bulkCreate(data: createList);
             } else {
               tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoDiskonItemGetConditionDao.bulkCreate(data: tpdi4);
@@ -1727,19 +1833,23 @@ Future<void> syncData() async {
               final tpdi5DbMap = {for (var datum in tpdi5Db) datum.docId: datum};
 
               tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdi5) {
-                final datumDb = tpdi5DbMap[datumBos.docId];
+              List<PromoDiskonItemCustomerGroupModel> createList =
+                  tpdi5.where((element) => element.form == "A").toList();
+              List<PromoDiskonItemCustomerGroupModel> updateList =
+                  tpdi5.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdi5DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonItemCustomerGroupDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.bulkCreate(data: createList);
             } else {
               tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.bulkCreate(data: tpdi5);
@@ -1762,19 +1872,21 @@ Future<void> syncData() async {
               final topdgDbMap = {for (var datum in topdgDb) datum.docId: datum};
 
               topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData(lastSyncDate);
-              for (final datumBos in topdg) {
-                final datumDb = topdgDbMap[datumBos.docId];
+              List<PromoDiskonGroupItemHeaderModel> createList = topdg.where((element) => element.form == "A").toList();
+              List<PromoDiskonGroupItemHeaderModel> updateList = topdg.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = topdgDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonGroupItemHeaderDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.bulkCreate(data: createList);
             } else {
               topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData("2000-01-01 00:00:00");
               topdg.sort((a, b) => a.createDate.compareTo(b.createDate));
@@ -1798,19 +1910,23 @@ Future<void> syncData() async {
               final tpdg1DbMap = {for (var datum in tpdg1Db) datum.docId: datum};
 
               tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdg1) {
-                final datumDb = tpdg1DbMap[datumBos.docId];
+              List<PromoDiskonGroupItemBuyConditionModel> createList =
+                  tpdg1.where((element) => element.form == "A").toList();
+              List<PromoDiskonGroupItemBuyConditionModel> updateList =
+                  tpdg1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdg1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonGroupItemBuyConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.bulkCreate(data: createList);
             } else {
               tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.bulkCreate(data: tpdg1);
@@ -1833,19 +1949,23 @@ Future<void> syncData() async {
               final tpdg2DbMap = {for (var datum in tpdg2Db) datum.docId: datum};
 
               tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdg2) {
-                final datumDb = tpdg2DbMap[datumBos.docId];
+              List<PromoDiskonGroupItemAssignStoreModel> createList =
+                  tpdg2.where((element) => element.form == "A").toList();
+              List<PromoDiskonGroupItemAssignStoreModel> updateList =
+                  tpdg2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdg2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonGroupItemAssignStoreDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.bulkCreate(data: createList);
             } else {
               tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.bulkCreate(data: tpdg2);
@@ -1868,19 +1988,23 @@ Future<void> syncData() async {
               final tpdg4DbMap = {for (var datum in tpdg4Db) datum.docId: datum};
 
               tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdg4) {
-                final datumDb = tpdg4DbMap[datumBos.docId];
+              List<PromoDiskonGroupItemGetConditionModel> createList =
+                  tpdg4.where((element) => element.form == "A").toList();
+              List<PromoDiskonGroupItemGetConditionModel> updateList =
+                  tpdg4.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdg4DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonGroupItemGetConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonGroupItemGetConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonGroupItemGetConditionDao.bulkCreate(data: createList);
             } else {
               tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoDiskonGroupItemGetConditionDao.bulkCreate(data: tpdg4);
@@ -1903,19 +2027,23 @@ Future<void> syncData() async {
               final tpdg5DbMap = {for (var datum in tpdg5Db) datum.docId: datum};
 
               tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpdg5) {
-                final datumDb = tpdg5DbMap[datumBos.docId];
+              List<PromoDiskonGroupItemCustomerGroupModel> createList =
+                  tpdg5.where((element) => element.form == "A").toList();
+              List<PromoDiskonGroupItemCustomerGroupModel> updateList =
+                  tpdg5.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpdg5DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoDiskonGroupItemCustomerGroupDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoDiskonGroupItemCustomerGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoDiskonGroupItemCustomerGroupDao.bulkCreate(data: createList);
             } else {
               tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
 
@@ -1939,19 +2067,21 @@ Future<void> syncData() async {
               final toprbDbMap = {for (var datum in toprbDb) datum.docId: datum};
 
               toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData(lastSyncDate);
-              for (final datumBos in toprb) {
-                final datumDb = toprbDbMap[datumBos.docId];
+              List<PromoBuyXGetYHeaderModel> createList = toprb.where((element) => element.form == "A").toList();
+              List<PromoBuyXGetYHeaderModel> updateList = toprb.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = toprbDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoBuyXGetYHeaderDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.bulkCreate(data: createList);
             } else {
               toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData("2000-01-01 00:00:00");
               toprb.sort((a, b) => a.createDate.compareTo(b.createDate));
@@ -1975,19 +2105,21 @@ Future<void> syncData() async {
               final tprb1DbMap = {for (var datum in tprb1Db) datum.docId: datum};
 
               tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tprb1) {
-                final datumDb = tprb1DbMap[datumBos.docId];
+              List<PromoBuyXGetYBuyConditionModel> createList = tprb1.where((element) => element.form == "A").toList();
+              List<PromoBuyXGetYBuyConditionModel> updateList = tprb1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tprb1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoBuyXGetYBuyConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.bulkCreate(data: createList);
             } else {
               tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.bulkCreate(data: tprb1);
@@ -2010,19 +2142,21 @@ Future<void> syncData() async {
               final tprb2DbMap = {for (var datum in tprb2Db) datum.docId: datum};
 
               tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tprb2) {
-                final datumDb = tprb2DbMap[datumBos.docId];
+              List<PromoBuyXGetYAssignStoreModel> createList = tprb2.where((element) => element.form == "A").toList();
+              List<PromoBuyXGetYAssignStoreModel> updateList = tprb2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tprb2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoBuyXGetYAssignStoreDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.bulkCreate(data: createList);
             } else {
               tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.bulkCreate(data: tprb2);
@@ -2045,19 +2179,21 @@ Future<void> syncData() async {
               final tprb4DbMap = {for (var datum in tprb4Db) datum.docId: datum};
 
               tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>().fetchData(lastSyncDate);
-              for (final datumBos in tprb4) {
-                final datumDb = tprb4DbMap[datumBos.docId];
+              List<PromoBuyXGetYGetConditionModel> createList = tprb4.where((element) => element.form == "A").toList();
+              List<PromoBuyXGetYGetConditionModel> updateList = tprb4.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tprb4DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoBuyXGetYGetConditionDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoBuyXGetYGetConditionDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoBuyXGetYGetConditionDao.bulkCreate(data: createList);
             } else {
               tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoBuyXGetYGetConditionDao.bulkCreate(data: tprb4);
@@ -2080,19 +2216,21 @@ Future<void> syncData() async {
               final tprb5DbMap = {for (var datum in tprb5Db) datum.docId: datum};
 
               tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tprb5) {
-                final datumDb = tprb5DbMap[datumBos.docId];
+              List<PromoBuyXGetYCustomerGroupModel> createList = tprb5.where((element) => element.form == "A").toList();
+              List<PromoBuyXGetYCustomerGroupModel> updateList = tprb5.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tprb5DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoBuyXGetYCustomerGroupDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoBuyXGetYCustomerGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoBuyXGetYCustomerGroupDao.bulkCreate(data: createList);
             } else {
               tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoBuyXGetYCustomerGroupDao.bulkCreate(data: tprb5);
@@ -2115,17 +2253,19 @@ Future<void> syncData() async {
               final toittDbMap = {for (var datum in toittDb) datum.docId: datum};
 
               toitt = await GetIt.instance<BillOfMaterialApi>().fetchData(lastSyncDate);
-              for (final datumBos in toitt) {
-                final datumDb = toittDbMap[datumBos.docId];
+              List<BillOfMaterialModel> createList = toitt.where((element) => element.form == "A").toList();
+              List<BillOfMaterialModel> updateList = toitt.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = toittDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().billOfMaterialDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().billOfMaterialDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().billOfMaterialDao.bulkCreate(data: createList);
             } else {
               toitt = await GetIt.instance<BillOfMaterialApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().billOfMaterialDao.bulkCreate(data: toitt);
@@ -2148,19 +2288,21 @@ Future<void> syncData() async {
               final titt1DbMap = {for (var datum in titt1Db) datum.docId: datum};
 
               titt1 = await GetIt.instance<BillOfMaterialLineItemApi>().fetchData(lastSyncDate);
-              for (final datumBos in titt1) {
-                final datumDb = titt1DbMap[datumBos.docId];
+              List<BillOfMaterialLineItemModel> createList = titt1.where((element) => element.form == "A").toList();
+              List<BillOfMaterialLineItemModel> updateList = titt1.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = titt1DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .billOfMaterialLineItemDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().billOfMaterialLineItemDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().billOfMaterialLineItemDao.bulkCreate(data: createList);
             } else {
               titt1 = await GetIt.instance<BillOfMaterialLineItemApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().billOfMaterialLineItemDao.bulkCreate(data: titt1);
@@ -2183,17 +2325,19 @@ Future<void> syncData() async {
               final tpmt4DbMap = {for (var datum in tpmt4Db) datum.docId: datum};
 
               tpmt4 = await GetIt.instance<EDCApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmt4) {
-                final datumDb = tpmt4DbMap[datumBos.docId];
+              List<EDCModel> createList = tpmt4.where((element) => element.form == "A").toList();
+              List<EDCModel> updateList = tpmt4.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmt4DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().edcDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().edcDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().edcDao.bulkCreate(data: createList);
             } else {
               tpmt4 = await GetIt.instance<EDCApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().edcDao.bulkCreate(data: tpmt4);
@@ -2216,17 +2360,19 @@ Future<void> syncData() async {
               final tpmt5DbMap = {for (var datum in tpmt5Db) datum.docId: datum};
 
               tpmt5 = await GetIt.instance<BankIssuerApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmt5) {
-                final datumDb = tpmt5DbMap[datumBos.docId];
+              List<BankIssuerModel> createList = tpmt5.where((element) => element.form == "A").toList();
+              List<BankIssuerModel> updateList = tpmt5.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmt5DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().bankIssuerDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().bankIssuerDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().bankIssuerDao.bulkCreate(data: createList);
             } else {
               tpmt5 = await GetIt.instance<BankIssuerApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().bankIssuerDao.bulkCreate(data: tpmt5);
@@ -2249,17 +2395,19 @@ Future<void> syncData() async {
               final tpmt6DbMap = {for (var datum in tpmt6Db) datum.docId: datum};
 
               tpmt6 = await GetIt.instance<CampaignApi>().fetchData(lastSyncDate);
-              for (final datumBos in tpmt6) {
-                final datumDb = tpmt6DbMap[datumBos.docId];
+              List<CampaignModel> createList = tpmt6.where((element) => element.form == "A").toList();
+              List<CampaignModel> updateList = tpmt6.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tpmt6DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>().campaignDao.update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().campaignDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().campaignDao.bulkCreate(data: createList);
             } else {
               tpmt6 = await GetIt.instance<CampaignApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().campaignDao.bulkCreate(data: tpmt6);
@@ -2282,19 +2430,21 @@ Future<void> syncData() async {
               final toprnDbMap = {for (var datum in toprnDb) datum.docId: datum};
 
               toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData(lastSyncDate);
-              for (final datumBos in toprn) {
-                final datumDb = toprnDbMap[datumBos.docId];
+              List<PromoCouponHeaderModel> createList = toprn.where((element) => element.form == "A").toList();
+              List<PromoCouponHeaderModel> updateList = toprn.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = toprnDbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoCouponHeaderDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoCouponHeaderDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoCouponHeaderDao.bulkCreate(data: createList);
             } else {
               toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoCouponHeaderDao.bulkCreate(data: toprn);
@@ -2317,19 +2467,21 @@ Future<void> syncData() async {
               final tprn2DbMap = {for (var datum in tprn2Db) datum.docId: datum};
 
               tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData(lastSyncDate);
-              for (final datumBos in tprn2) {
-                final datumDb = tprn2DbMap[datumBos.docId];
+              List<PromoCouponAssignStoreModel> createList = tprn2.where((element) => element.form == "A").toList();
+              List<PromoCouponAssignStoreModel> updateList = tprn2.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tprn2DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoCouponAssignStoreDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.bulkCreate(data: createList);
             } else {
               tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.bulkCreate(data: tprn2);
@@ -2352,19 +2504,21 @@ Future<void> syncData() async {
               final tprn4DbMap = {for (var datum in tprn4Db) datum.docId: datum};
 
               tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData(lastSyncDate);
-              for (final datumBos in tprn4) {
-                final datumDb = tprn4DbMap[datumBos.docId];
+              List<PromoCouponCustomerGroupModel> createList = tprn4.where((element) => element.form == "A").toList();
+              List<PromoCouponCustomerGroupModel> updateList = tprn4.where((element) => element.form == "U").toList();
 
+              for (final datumBos in updateList) {
+                final datumDb = tprn4DbMap[datumBos.docId];
                 if (datumDb != null) {
                   if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
                     await GetIt.instance<AppDatabase>()
                         .promoCouponCustomerGroupDao
                         .update(docId: datumDb.docId, data: datumBos);
                   }
-                } else {
-                  await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.create(data: datumBos);
                 }
               }
+
+              await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.bulkCreate(data: createList);
             } else {
               tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
               await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.bulkCreate(data: tprn4);

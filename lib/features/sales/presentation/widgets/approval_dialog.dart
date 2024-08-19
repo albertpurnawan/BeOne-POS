@@ -45,11 +45,12 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
+    String category = "nonpositivetrx";
 
     final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -69,6 +70,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   }
 
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
+    FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
@@ -122,13 +124,13 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
       // };
 
       final String body = '''
-    Approval For: Zero Transaction,
+    Approval For: Zero or Negative Transaction,
     Store Name: ${store.storeName},
     Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
     Cashier Name: ${employee?.empName ?? user.username},
 ''';
 
-      final String subject = "OTP RUBY POS [ZT-${store.storeCode}]";
+      final String subject = "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
 
       final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
       return response['Requester'];

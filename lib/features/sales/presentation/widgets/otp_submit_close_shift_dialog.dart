@@ -129,7 +129,7 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
     Expected Cash: ${Helpers.parseMoney(cashAmount + widget.shift.openValue)},
 ''';
 
-      final String subject = "OTP RUBY POS [CS-${store.storeCode}]";
+      final String subject = "OTP RUBY POS Close Shift - [${store.storeCode}]";
 
       await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
 

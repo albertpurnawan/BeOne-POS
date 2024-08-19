@@ -26,16 +26,16 @@ class AuthStoreDao extends BaseDao<AuthStoreModel> {
     return result.map((itemData) => AuthStoreModel.fromMap(itemData)).toList();
   }
 
-  Future<AuthStoreModel?> readByTousrId(String tousrdocid, Transaction? txn) async {
+  Future<AuthStoreModel?> readByTousrId(String tousrdocid, String category, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
       columns: modelFields,
-      where: 'tousrdocid = ? AND statusactive = 1',
+      where: 'tousrdocid = ? AND statusactive = 1 AND $category = 1',
       whereArgs: [tousrdocid],
     );
 
-    return res.isNotEmpty ? AuthStoreModel.fromMap(res[0]) : null;
+    return res.isNotEmpty ? AuthStoreModel.fromMap(res.first) : null;
   }
 
   Future<List<dynamic>?> readEmailByTousrId() async {
