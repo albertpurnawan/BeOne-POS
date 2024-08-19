@@ -23,12 +23,12 @@ class HandlePromosUseCase implements UseCase<List<ReceiptItemEntity>, HandleProm
 }
 
 class HandlePromosUseCaseParams {
-  ReceiptItemEntity receiptItemEntity;
+  ReceiptItemEntity? receiptItemEntity;
   ReceiptEntity receiptEntity;
   PromotionsEntity? promo;
 
   HandlePromosUseCaseParams({
-    required this.receiptItemEntity,
+    this.receiptItemEntity,
     required this.receiptEntity,
     this.promo,
   });

@@ -49,7 +49,7 @@ class ReceiptEntity {
   String? toinvTohemId;
   String? salesTohemId;
   List<ApprovalInvoiceEntity>? approvals;
-  List<PromoCouponHeaderEntity>? coupons;
+  List<PromoCouponHeaderEntity> coupons;
   int? includePromo;
 
   ReceiptEntity({
@@ -83,7 +83,7 @@ class ReceiptEntity {
     this.toinvTohemId,
     this.salesTohemId,
     this.approvals,
-    this.coupons,
+    this.coupons = const [],
     this.includePromo,
   });
 
@@ -186,7 +186,7 @@ class ReceiptEntity {
       'toinvTohemId': toinvTohemId,
       'salesTohemId': salesTohemId,
       'approvals': approvals?.map((x) => x.toMap()).toList(),
-      'coupons': coupons?.map((x) => x.toMap()).toList(),
+      'coupons': coupons.map((x) => x.toMap()).toList(),
       'includePromo': includePromo,
     };
   }

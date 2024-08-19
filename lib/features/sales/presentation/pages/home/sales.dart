@@ -257,6 +257,7 @@ class _SalesPageState extends State<SalesPage> {
   int totalToinvSynced = 0;
   int totalTcsr1Synced = 0;
   String? lastSync;
+  bool changeColor = false;
 
   // =================================================
   //             [END] Variables
@@ -334,9 +335,23 @@ class _SalesPageState extends State<SalesPage> {
     if (topos == null) throw "Failed to retrieve POS Parameter";
     final dateTime = DateTime.parse(topos.lastSync!);
 
+    await updateColorBasedOnSyncTime(dateTime);
+
     setState(() {
       lastSync = Helpers.dateddMMMyyyyHHmmss(dateTime.toLocal());
     });
+  }
+
+  Future<void> updateColorBasedOnSyncTime(DateTime lastSync) async {
+    if (DateTime.now().difference(lastSync).inMinutes >= 60) {
+      setState(() {
+        changeColor = true;
+      });
+    } else {
+      setState(() {
+        changeColor = false;
+      });
+    }
   }
 
   @override
@@ -372,14 +387,14 @@ class _SalesPageState extends State<SalesPage> {
                     children: [
                       Container(
                         padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           // border: Border.all(
                           //     color: Color.fromRGBO(195, 53, 53, 1),
                           //     width: 4.0),
-                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
 
-                          color: ProjectColors.green,
-                          boxShadow: [
+                          color: changeColor ? const Color.fromRGBO(243, 0, 0, 1) : ProjectColors.green,
+                          boxShadow: const [
                             BoxShadow(
                               spreadRadius: 0.5,
                               blurRadius: 5,
@@ -769,8 +784,11 @@ class _SalesPageState extends State<SalesPage> {
                                                   ? const SizedBox.shrink()
                                                   : Text(
                                                       (e.itemEntity.includeTax == 1)
-                                                          ? "${Helpers.parseMoney(((-1 * (promo.discAmount!) * ((100 + e.itemEntity.taxRate) / 100)).round()))}"
-                                                          : "${Helpers.parseMoney(((promo.discAmount! * -1).round()))}",
+                                                          ? Helpers.parseMoney(((-1 *
+                                                                  (promo.discAmount!) *
+                                                                  ((100 + e.itemEntity.taxRate) / 100))
+                                                              .round()))
+                                                          : Helpers.parseMoney(((promo.discAmount! * -1).round())),
                                                       style: const TextStyle(
                                                         fontSize: 14,
                                                         fontStyle: FontStyle.italic,
@@ -2118,8 +2136,8 @@ class _SalesPageState extends State<SalesPage> {
                               elevation: 5,
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                              foregroundColor: Colors.grey,
-                              backgroundColor: ProjectColors.lightBlack,
+                              foregroundColor: Colors.white,
+                              backgroundColor: ProjectColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -2129,16 +2147,27 @@ class _SalesPageState extends State<SalesPage> {
                               padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
                               child: Stack(
                                 children: [
-                                  const Positioned.fill(
+                                  Positioned.fill(
                                     child: Align(
                                       alignment: Alignment.topRight,
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
+                                          Container(
+                                              width: 20.0,
+                                              height: 20.0,
+                                              alignment: Alignment.center,
+                                              decoration: const BoxDecoration(
+                                                color: ProjectColors.green,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Text(
+                                                context.read<ReceiptCubit>().state.coupons.length.toString(),
+                                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                              )),
+                                          const Text(
                                             "F5",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w300, fontSize: 14, color: Colors.grey),
+                                            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
                                           ),
                                         ],
                                       ),
@@ -2153,8 +2182,7 @@ class _SalesPageState extends State<SalesPage> {
                                           children: [
                                             TextSpan(
                                               text: "Coupon",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
+                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                             ),
                                           ],
                                         ),

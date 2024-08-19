@@ -42,7 +42,6 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
     super.dispose();
   }
 
-  @override
   Future<void> onSubmit() async {
     try {
       if (_textEditorDiscountController.text == "-" || _textEditorDiscountController.text == "") {
@@ -62,7 +61,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
           await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
 
-      if (input < (storeMasterEntity.totalMinus ?? 0) || input > (storeMasterEntity.totalZero ?? 0)) {
+      if (input < (storeMasterEntity.minDiscount ?? 0) || input > (storeMasterEntity.maxDiscount ?? 0)) {
         await showDialog(
             context: context,
             barrierDismissible: false,
@@ -289,15 +288,6 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
           inputFormatters: [MoneyInputFormatter()],
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24),
-          // onEditingComplete: () {
-          //   double discountValue = Helpers.revertMoneyToDecimalFormat(
-          //       _textEditorDiscountController.text);
-
-          //   context
-          //       .read<ReceiptCubit>()
-          //       .updateTotalAmountFromDiscount(discountValue);
-          //   Navigator.of(context).pop();
-          // },
           decoration: const InputDecoration(
               contentPadding: EdgeInsets.all(10),
               hintText: "Enter Discount",

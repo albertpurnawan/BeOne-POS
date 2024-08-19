@@ -26,13 +26,16 @@ class CheckPromoTopdgApplicabilityUseCase implements UseCase<bool, CheckPromoTop
       if (params == null) {
         throw "CheckPromoTopdgApplicabilityUseCase requires params";
       }
+
+      if (params.handlePromosUseCaseParams.receiptItemEntity == null) throw "Receipt item entity required";
+
       // Check applicability (general validation and branching)
       final PromoDiskonGroupItemHeaderEntity topdg = params.topdgHeaderAndDetail.topdg;
       final List<PromoDiskonGroupItemBuyConditionEntity> tpdg1 = params.topdgHeaderAndDetail.tpdg1;
       final List<PromoDiskonGroupItemCustomerGroupEntity> tpdg5 = params.topdgHeaderAndDetail.tpdg5;
 
       final ReceiptEntity receiptEntity = params.handlePromosUseCaseParams.receiptEntity;
-      final ReceiptItemEntity receiptItemEntity = params.handlePromosUseCaseParams.receiptItemEntity;
+      final ReceiptItemEntity receiptItemEntity = params.handlePromosUseCaseParams.receiptItemEntity!;
 
       bool isApplicable = true;
 
@@ -168,7 +171,11 @@ class CheckPromoTopdgApplicabilityUseCase implements UseCase<bool, CheckPromoTop
         // log("--- validation ---");
         counter += 1;
         if (!isApplicable) break;
-        await validation();
+        try {
+          await validation();
+        } catch (e) {
+          isApplicable = false;
+        }
       }
 
       return isApplicable;

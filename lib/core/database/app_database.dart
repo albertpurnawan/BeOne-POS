@@ -1588,7 +1588,6 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.mtxline02} varchar(100) DEFAULT '',
   ${StoreMasterFields.mtxline03} varchar(100) DEFAULT '',
   ${StoreMasterFields.mtxline04} varchar(100) DEFAULT '',
-  ${StoreMasterFields.form} varchar(1) NOT NULL,
   ${StoreMasterFields.salesViewType} int DEFAULT NULL,
   ${StoreMasterFields.otpChannel} varchar(191) DEFAULT NULL,
   ${StoreMasterFields.otpUrl} text DEFAULT NULL,
@@ -1598,6 +1597,9 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.netzmeClientPrivateKey} text DEFAULT NULL,
   ${StoreMasterFields.netzmeCustidMerchant} text DEFAULT NULL,
   ${StoreMasterFields.netzmeChannelId} text DEFAULT NULL,
+  ${StoreMasterFields.minDiscount} int DEFAULT 0,
+  ${StoreMasterFields.maxDiscount} int DEFAULT 0,
+  ${StoreMasterFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tostr_toplnId_fkey` FOREIGN KEY (`toplnId`) REFERENCES `topln` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3625,6 +3627,9 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN discandround int DEFAULT 0''');
       await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN nonpositivetrx int DEFAULT 0''');
       await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN closeshift int DEFAULT 0''');
+
+      await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN mindiscount int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN maxdiscount int DEFAULT 0''');
     },
   };
 
