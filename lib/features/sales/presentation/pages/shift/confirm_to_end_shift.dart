@@ -46,11 +46,12 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
+    String category = "closeshift";
 
     final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -70,6 +71,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   }
 
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
+    FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
@@ -136,16 +138,6 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
       final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
       if (user == null) throw "User Not Found";
       final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
-
-      // final Map<String, String> payload = {
-      //   "Store Name": store.storeName,
-      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-      //   "Cashier Name": employee?.empName ?? user.username,
-      //   "Shift": widget.shift.docNum,
-      //   "Open Date": Helpers.dateEEddMMMyyy(widget.shift.openDate),
-      //   "Opening Balance": Helpers.parseMoney(widget.shift.openValue),
-      //   "Total Sales": Helpers.parseMoney(totalSales),
-      // };
 
       final String body = '''
     Approval For: Closing Shift,
