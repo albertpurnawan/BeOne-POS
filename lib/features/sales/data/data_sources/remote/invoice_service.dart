@@ -156,6 +156,8 @@ class InvoiceApi {
 
       List<Map<String, dynamic>> promotionsDetail = [];
       for (final tinv1 in invDet) {
+        log("Processing item: $tinv1");
+
         final appliedPromos = await GetIt.instance<AppDatabase>()
             .invoiceAppliedPromoDao
             .readByToinvIdAndTinv1Id(tinv1['toinvId'], tinv1['docid'], null);
@@ -168,7 +170,7 @@ class InvoiceApi {
 
       List<Map<String, dynamic>> approvals = [];
       final tinv6s = await GetIt.instance<AppDatabase>().approvalInvoiceDao.readByToinvId(invHead[0].docId!, null);
-      log("tinv6s - $tinv6s");
+      // log("tinv6s - $tinv6s");
       for (final tinv6 in tinv6s) {
         Map<String, dynamic> tinv6Maps = {
           "tousr_id": tinv6!.tousrId,
@@ -208,7 +210,6 @@ class InvoiceApi {
         "discountcoupon": invHead[0].discountCoupun,
         "taxprctg": invHead[0].taxPrctg,
         "taxamount": double.parse(invHead[0].taxAmount.toStringAsFixed(2)),
-        // "taxamount": 0,
         "addcost": invHead[0].addCost,
         "rounding": invHead[0].rounding,
         "grandtotal": invHead[0].grandTotal.round(),
@@ -218,6 +219,9 @@ class InvoiceApi {
         "toinv_tohem_id": invHead[0].toinvTohemId,
         "refpos1": invHead[0].refpos1,
         "invoice_item": invDet.map((item) {
+          List<Map<String, dynamic>> filteredPromotions = promotionsDetail.where((promo) {
+            return promo['tinv1docid'] == item['docid'];
+          }).toList();
           return {
             "docnum": item['docnum'],
             "idnumber": item['idnumber'],
@@ -229,7 +233,6 @@ class InvoiceApi {
             "totalamount":
                 ((item['quantity'] * item['sellingprice'] * (100 / (100 + item['taxprctg']))) - item['discamount'])
                     .round(),
-            // item['totalamount'].round(),
             "taxprctg": item['taxprctg'],
             "promotiontype": item['promotiontype'],
             "promotionid": item['promotionid'],
@@ -263,7 +266,7 @@ class InvoiceApi {
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": (item['tohemId'] == "") ? invHead[0].salesTohemId : item['tohemId'],
-            "promotion": promotionsDetail
+            "promotion": filteredPromotions
           };
         }).toList(),
         "invoice_payment": invoicePayments,
