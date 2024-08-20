@@ -3363,31 +3363,29 @@ class _FetchScreenState extends State<FetchScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
-                    onPressed: (prefs.getBool("isSyncing") ?? false)
-                        ? () {
-                            final syncStart = prefs.getString("autoSyncStart");
-                            SnackBarHelper.presentErrorSnackBar(
-                                context, "Sync is currently in progress. Initiated at $syncStart.");
-                          }
-                        : () async {
-                            await refreshToken();
-                            setState(() {
-                              syncProgress = 0;
-                              isManualSyncing = true;
-                            });
-                            final prefs = await SharedPreferences.getInstance();
-                            prefs.setBool('isSyncing', false);
-                            await manualSync();
-                            setState(() {
-                              isManualSyncing = false;
-                            });
-                            if (context.mounted) {
-                              context.pop();
-                              setState(() {
-                                prefs.setBool('isSyncing', false);
-                              });
-                            }
-                          },
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      if (prefs.getBool("isSyncing") == true) {
+                        final syncStart = prefs.getString("autoSyncStart");
+                        SnackBarHelper.presentErrorSnackBar(
+                            context, "Sync is currently in progress. Initiated at $syncStart.");
+                      } else {
+                        await refreshToken();
+                        setState(() {
+                          syncProgress = 0;
+                          isManualSyncing = true;
+                        });
+                        prefs.setBool('isSyncing', true);
+                        await manualSync();
+                        setState(() {
+                          isManualSyncing = false;
+                        });
+                        if (context.mounted) {
+                          context.pop();
+                          prefs.setBool('isSyncing', false);
+                        }
+                      }
+                    },
                     style: const ButtonStyle(
                       backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
                       foregroundColor: MaterialStatePropertyAll(Colors.white),
