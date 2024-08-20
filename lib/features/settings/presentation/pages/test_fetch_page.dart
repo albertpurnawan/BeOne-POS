@@ -2867,19 +2867,22 @@ class _FetchScreenState extends State<FetchScreen> {
         ];
         // ------------------- END OF FETCHING FUNCTIONS-------------------
 
-        final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-        final strName = store?.storeName;
+        bool isComplete = true;
 
         for (final fetchFunction in fetchFunctions) {
           try {
             await fetchFunction();
           } catch (e) {
+            isComplete = false;
             handleError(e);
             rethrow;
           }
         }
 
-        final toposData = POSParameterModel(
+        final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
+        final strName = store?.storeName;
+
+        POSParameterModel toposData = POSParameterModel(
           docId: toposId,
           createDate: singleTopos.createDate,
           updateDate: singleTopos.updateDate,
@@ -2890,38 +2893,10 @@ class _FetchScreenState extends State<FetchScreen> {
           baseUrl: singleTopos.baseUrl,
           usernameAdmin: singleTopos.usernameAdmin,
           passwordAdmin: singleTopos.passwordAdmin,
-          lastSync: nextSyncDate,
+          lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
         );
 
-        await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-
-        final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-        final singleToposAfterSync = toposAfterSync[0];
-
-        // UPDATE STORE NAME
-        try {
-          final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-
-          final toposData = POSParameterModel(
-            docId: singleToposAfterSync.docId,
-            createDate: singleToposAfterSync.createDate,
-            updateDate: singleToposAfterSync.updateDate,
-            gtentId: singleToposAfterSync.gtentId,
-            tostrId: singleToposAfterSync.tostrId,
-            storeName: store?.storeName,
-            tocsrId: singleToposAfterSync.tocsrId,
-            baseUrl: singleToposAfterSync.baseUrl,
-            usernameAdmin: singleToposAfterSync.usernameAdmin,
-            passwordAdmin: singleToposAfterSync.passwordAdmin,
-            lastSync: singleToposAfterSync.lastSync,
-          );
-
-          await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-        } catch (e) {
-          handleError(e);
-          rethrow;
-        }
-        // END OF UPDATE STORE NAME
+        if (isComplete) await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
 
         // REFRESH TOPRM
         log("INSERTING PROMOS...");
@@ -3333,17 +3308,15 @@ class _FetchScreenState extends State<FetchScreen> {
               tooltip: 'Clear Preferences',
             ),
         ],
-        leading: isManualSyncing
-            ? null
-            : BackButton(
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.pop(context, true);
-                  setState(() {
-                    prefs.setBool('isSyncing', false);
-                  });
-                },
-              ),
+        leading: BackButton(
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context, true);
+            setState(() {
+              prefs.setBool('isSyncing', false);
+            });
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -3390,8 +3363,12 @@ class _FetchScreenState extends State<FetchScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
-                    onPressed: isManualSyncing || checkSync
-                        ? null
+                    onPressed: (prefs.getBool("isSyncing")!)
+                        ? () {
+                            final syncStart = prefs.getString("autoSyncStart");
+                            SnackBarHelper.presentErrorSnackBar(
+                                context, "Sync is currently in progress. Initiated at $syncStart.");
+                          }
                         : () async {
                             await refreshToken();
                             setState(() {
@@ -3544,4 +3521,123 @@ class _FetchScreenState extends State<FetchScreen> {
       ),
     );
   }
+
+  // void _showPopupSync() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) => _popupSync(),
+  //   );
+  // }
+
+  // Widget _popupSync() {
+  //   return AlertDialog(
+  //     backgroundColor: Colors.white,
+  //     surfaceTintColor: Colors.transparent,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.all(Radius.circular(5.0)),
+  //     ),
+  //     title: Container(
+  //       decoration: const BoxDecoration(
+  //         color: ProjectColors.primary,
+  //         borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+  //       ),
+  //       padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+  //       child: const Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Text(
+  //             'Input Password',
+  //             style: TextStyle(
+  //               fontSize: 22,
+  //               fontWeight: FontWeight.w500,
+  //               color: Colors.white,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //     titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+  //     contentPadding: const EdgeInsets.all(0),
+  //     content: SizedBox(
+  //       width: MediaQuery.of(context).size.width * 0.5,
+  //       height: MediaQuery.of(context).size.height * 0.3,
+  //       child: Padding(
+  //         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
+  //         child: Column(
+  //           children: [
+  //             Container(
+  //               padding: const EdgeInsets.all(8.0),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.yellow.shade100,
+  //                 border: Border.all(
+  //                   color: Colors.yellow.shade700,
+  //                   width: 2.0,
+  //                 ),
+  //                 borderRadius: BorderRadius.circular(8.0),
+  //               ),
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 children: [
+  //                   Icon(
+  //                     Icons.warning,
+  //                     color: Colors.yellow.shade700,
+  //                     size: 26.0,
+  //                   ),
+  //                   const SizedBox(width: 10.0),
+  //                   const Text(
+  //                     "The app will close itself after the database is restored!",
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       color: Colors.black,
+  //                       fontSize: 16,
+  //                       fontStyle: FontStyle.italic,
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             )
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //     actions: <Widget>[
+  //       Row(
+  //         children: [
+  //           Expanded(
+  //               child: TextButton(
+  //             style: ButtonStyle(
+  //                 shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+  //                 backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+  //                 overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Center(
+  //               child: RichText(
+  //                 text: const TextSpan(
+  //                   children: [
+  //                     TextSpan(
+  //                       text: "Back",
+  //                       style: TextStyle(fontWeight: FontWeight.w600),
+  //                     ),
+  //                     TextSpan(
+  //                       text: "  ()",
+  //                       style: TextStyle(fontWeight: FontWeight.w300),
+  //                     ),
+  //                   ],
+  //                   style: TextStyle(color: ProjectColors.primary),
+  //                 ),
+  //                 overflow: TextOverflow.clip,
+  //               ),
+  //             ),
+  //           )),
+  //         ],
+  //       ),
+  //     ],
+  //     actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+  //   );
+  // }
 }

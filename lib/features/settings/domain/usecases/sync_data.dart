@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -231,6 +232,7 @@ Future<void> syncData() async {
       final singleTopos = topos[0];
       final toposId = singleTopos.docId;
       final lastSyncDate = singleTopos.lastSync!;
+      prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
       final nextSyncDate = DateTime.now().toUtc().toIso8601String();
 
@@ -2445,19 +2447,22 @@ Future<void> syncData() async {
       ];
       // ------------------- END OF FETCHING FUNCTIONS-------------------
 
-      final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-      final strName = store?.storeName;
+      bool isComplete = true;
 
       for (final fetchFunction in fetchFunctions) {
         try {
           await fetchFunction();
         } catch (e) {
+          isComplete = false;
           handleError(e);
           rethrow;
         }
       }
 
-      final toposData = POSParameterModel(
+      final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
+      final strName = store?.storeName;
+
+      POSParameterModel toposData = POSParameterModel(
         docId: toposId,
         createDate: singleTopos.createDate,
         updateDate: singleTopos.updateDate,
@@ -2468,38 +2473,10 @@ Future<void> syncData() async {
         baseUrl: singleTopos.baseUrl,
         usernameAdmin: singleTopos.usernameAdmin,
         passwordAdmin: singleTopos.passwordAdmin,
-        lastSync: nextSyncDate,
+        lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
       );
 
-      await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-
-      final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-      final singleToposAfterSync = toposAfterSync[0];
-
-      // UPDATE STORE NAME
-      try {
-        final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-
-        final toposData = POSParameterModel(
-          docId: singleToposAfterSync.docId,
-          createDate: singleToposAfterSync.createDate,
-          updateDate: singleToposAfterSync.updateDate,
-          gtentId: singleToposAfterSync.gtentId,
-          tostrId: singleToposAfterSync.tostrId,
-          storeName: store?.storeName,
-          tocsrId: singleToposAfterSync.tocsrId,
-          baseUrl: singleToposAfterSync.baseUrl,
-          usernameAdmin: singleToposAfterSync.usernameAdmin,
-          passwordAdmin: singleToposAfterSync.passwordAdmin,
-          lastSync: singleToposAfterSync.lastSync,
-        );
-
-        await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-      } catch (e) {
-        handleError(e);
-        rethrow;
-      }
-      // END OF UPDATE STORE NAME
+      if (isComplete) await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
 
       // REFRESH TOPRM
       log("INSERTING PROMOS...");
@@ -2815,6 +2792,7 @@ Future<void> syncData() async {
       }
       // End Check Failed Invoices and Try to Send TCSR1
 
+      prefs.remove("autoSyncStart");
       log('Data synched');
     } catch (error, stack) {
       log("Error synchronizing: $error");
