@@ -3363,7 +3363,7 @@ class _FetchScreenState extends State<FetchScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
-                    onPressed: (prefs.getBool("isSyncing")!)
+                    onPressed: (prefs.getBool("isSyncing") ?? false)
                         ? () {
                             final syncStart = prefs.getString("autoSyncStart");
                             SnackBarHelper.presentErrorSnackBar(
