@@ -65,13 +65,15 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
 
       _saveCoupons(context.read<ReceiptCubit>().state.coupons + [couponHeaderAndDetail.toprn]);
       setState(() {});
+      SnackBarHelper.presentSuccessSnackBar(
+          context, "Coupon '${couponHeaderAndDetail.toprn.couponCode}' claimed", null);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
   }
 
   Future<void> _saveCoupons(List<PromoCouponHeaderEntity> couponsList) async {
-    await context.read<ReceiptCubit>().updateCoupons(couponsList);
+    await context.read<ReceiptCubit>().updateCoupons(couponsList, context);
   }
 
   @override
@@ -399,7 +401,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                   text: const TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: "Apply",
+                                        text: "Claim",
                                         style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                                       ),
                                     ],

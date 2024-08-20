@@ -142,6 +142,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ItemEntity? itemEntity;
       ReceiptItemEntity receiptItemEntity;
       final List<PromotionsEntity?> availablePromos;
+      final int includePromo = state.includePromo ?? 1;
 
       // Handle negative quantity
       final ReceiptItemEntity? currentReceiptItemEntity = state.receiptItems
@@ -232,7 +233,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Handle promos
       // dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
       bool anyPromoApplied = false;
-      if (receiptItemEntity.itemEntity.barcode != "99") {
+      if (receiptItemEntity.itemEntity.barcode != "99" && state.includePromo == 1) {
         availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
         if (availablePromos.isNotEmpty) {
           for (final availablePromo in availablePromos) {
@@ -422,18 +423,76 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  Future<void> updateCoupons(List<PromoCouponHeaderEntity> couponsEntity) async {
+  Future<void> updateCoupons(List<PromoCouponHeaderEntity> couponsEntity, BuildContext context) async {
     List<PromoCouponHeaderEntity> appliedCoupons = [];
-    int promo = 1;
+    int includePromo = 1;
     appliedCoupons = couponsEntity;
 
     for (var coupon in appliedCoupons) {
       if (coupon.includePromo == 0) {
-        promo = 0;
+        includePromo = 0;
       }
     }
 
-    return emit(state.copyWith(coupons: appliedCoupons, includePromo: promo));
+    if (state.previousReceiptEntity != null && state.includePromo != includePromo) {
+      final bool? isProceed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const ConfirmResetPromoDialog(),
+      );
+      if (isProceed == null) return;
+      if (!isProceed) return;
+
+      final List<ReceiptItemEntity> receiptItems =
+          state.previousReceiptEntity!.receiptItems.map((e) => e.copyWith()).toList();
+      await resetReceipt();
+      emit(state.copyWith(
+        customerEntity: state.customerEntity,
+        includePromo: includePromo,
+        coupons: couponsEntity,
+        salesTohemId: state.salesTohemId,
+        remarks: state.remarks,
+      ));
+      for (final receiptItem in receiptItems) {
+        await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+          barcode: receiptItem.itemEntity.barcode,
+          itemEntity: null,
+          quantity: receiptItem.quantity,
+          context: context,
+          onOpenPriceInputted: () => receiptItem.itemEntity.price,
+          remarks: receiptItem.remarks,
+          tohemId: receiptItem.tohemId,
+        ));
+      }
+      return emit(state.copyWith());
+    }
+
+    if (state.includePromo != includePromo) {
+      final List<ReceiptItemEntity> receiptItems = state.receiptItems.map((e) => e.copyWith()).toList();
+      await resetReceipt();
+      emit(state.copyWith(
+        customerEntity: state.customerEntity,
+        includePromo: includePromo,
+        coupons: couponsEntity,
+        salesTohemId: state.salesTohemId,
+        remarks: state.remarks,
+      ));
+
+      for (final receiptItem in receiptItems) {
+        await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+          barcode: receiptItem.itemEntity.barcode,
+          itemEntity: null,
+          quantity: receiptItem.quantity,
+          context: context,
+          onOpenPriceInputted: () => receiptItem.itemEntity.price,
+          remarks: receiptItem.remarks,
+          tohemId: receiptItem.tohemId,
+        ));
+      }
+      return emit(state.copyWith(previousReceiptEntity: state.previousReceiptEntity));
+    }
+
+    return emit(state.copyWith(coupons: couponsEntity, includePromo: includePromo));
   }
 
   Future<void> removeReceiptItem(ReceiptItemEntity receiptItemEntity, BuildContext context) async {

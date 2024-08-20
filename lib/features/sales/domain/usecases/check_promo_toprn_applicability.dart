@@ -2,6 +2,7 @@
 import 'dart:developer';
 
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer_group.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_customer_group.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
@@ -100,8 +101,8 @@ class CheckPromoToprnApplicabilityUseCase
         },
         () async {
           // Check min purchase
-          if (receiptEntity.grandTotal > toprn.minPurchase) {
-            failMsg = "Minimum purchase not fulfilled";
+          if (receiptEntity.grandTotal < toprn.minPurchase) {
+            failMsg = "Minimum purchase not fulfilled (${Helpers.parseMoney(toprn.minPurchase)})";
             return isApplicable = false;
           }
         }
