@@ -78,7 +78,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       discAndRound: map['discandround'] as int,
       nonPositiveTrx: map['nonpositivetrx'] as int,
       closeShift: map['closeshift'] as int,
-      resetLocalDb: map['resetlocaldb'] as int,
+      resetLocalDb: map['resetlocaldb'] != null ? map['resetlocaldb'] as int : 0,
       form: map['form'] as String,
     );
   }

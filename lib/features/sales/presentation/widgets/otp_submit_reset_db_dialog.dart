@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,30 +9,23 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/user.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 
-class OTPEndShiftDialog extends StatefulWidget {
-  final CashierBalanceTransactionModel shift;
+class OTPResetDBDialog extends StatefulWidget {
   final String requester;
-  final double? amount;
-
-  const OTPEndShiftDialog({super.key, required this.shift, required this.requester, this.amount});
+  const OTPResetDBDialog({super.key, required this.requester});
 
   @override
-  State<OTPEndShiftDialog> createState() => _OTPEndShiftDialogState();
+  State<OTPResetDBDialog> createState() => _OTPResetDBDialogState();
 }
 
-class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
+class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
   final _otpControllers = List<TextEditingController>.generate(6, (index) => TextEditingController());
   String _otpCode = '';
   late Timer _timer;
@@ -60,87 +54,6 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
     super.dispose();
   }
 
-  Future<void> resendOTP() async {
-    try {
-      double totalSales = 0;
-      double nonCash = 0;
-      double cashAmount = 0;
-      final DateTime now = DateTime.now();
-      final start = widget.shift.openDate.subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
-      final end = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        23,
-        59,
-        59,
-        999,
-      );
-
-      final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
-      for (final mop in fetched!) {
-        if ((mop['topmtDesc'] != 'TUNAI')) {
-          nonCash += mop['totalamount'];
-        } else {
-          cashAmount += mop['totalamount'];
-        }
-        totalSales = mop['totalamount'];
-      }
-
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-      if (topos == null) throw "Failed to retrieve POS Parameter";
-
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
-      if (store == null) throw "Failed to retrieve Store Master";
-
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
-      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
-
-      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      final userId = prefs.getString('tousrId') ?? "";
-      final employeeId = prefs.getString('tohemId') ?? "";
-      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
-      if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
-
-      // final Map<String, String> payload = {
-      //   "Store Name": store.storeName,
-      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-      //   "Cashier Name": employee?.empName ?? user.username,
-      //   "Shift": widget.shift.docNum,
-      //   "Open Date": Helpers.dateEEddMMMyyy(widget.shift.openDate),
-      //   "Opening Balance": Helpers.parseMoney(widget.shift.openValue),
-      //   "Total Sales": Helpers.parseMoney(totalSales),
-      // };
-
-      final String body = '''
-    Approval For: Closing Shift,
-    Store Name: ${store.storeName},
-    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
-    Cashier Name: ${employee?.empName ?? user.username},
-    Shift: ${widget.shift.docNum},
-    Open Date: ${Helpers.dateEEddMMMyyy(widget.shift.openDate)},
-    Opening Balance: ${Helpers.parseMoney(widget.shift.openValue)},
-    Total Sales: ${Helpers.parseMoney(totalSales)},
-    Total Cash: ${Helpers.parseMoney(cashAmount)},
-    Total Non-Cash: ${Helpers.parseMoney(nonCash)},
-    Expected Cash: ${Helpers.parseMoney(cashAmount + widget.shift.openValue)},
-''';
-
-      final String subject = "OTP RUBY POS Close Shift - [${store.storeCode}]";
-
-      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
-
-      setState(() {
-        _isOTPSent = true;
-      });
-      await showOTPSent();
-      _startTimer();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<String> getApprover(String email) async {
     try {
       final UserEntity? user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(email, null);
@@ -148,7 +61,7 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
 
       return user.username;
     } catch (e) {
-      log("$e when fetch close shift approver");
+      log("$e when fetch reset db approver");
     }
     return "";
   }
@@ -173,18 +86,13 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
 
       await Future.delayed(const Duration(seconds: 2));
       if (childContext.mounted) {
-        parentContext.pop(true); // Close the input otp dialog
-        parentContext.pop(true); // Close the input otp dialog
-        parentContext.pop(true); // Close the input otp dialog
-
-        Helpers.navigate(
-            childContext,
-            CloseShiftScreen(
-              shiftId: widget.shift.docId,
-              username: await getApprover(response['approver']!),
-            ));
+        // parentContext.pop(true); // Close the input otp dialog
+        // parentContext.pop(true); // Close the input otp dialog
+        // parentContext.pop(true); // Close the input otp dialog
 
         SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
+        await GetIt.instance<AppDatabase>().resetDatabase();
+        exit(0);
       }
     } else {
       const message = "Wrong Code, Please Check Again";
@@ -226,6 +134,37 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return '${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds';
+  }
+
+  Future<void> resendOTP() async {
+    try {
+      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (topos == null) throw "Failed to retrieve POS Parameter";
+
+      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+      if (store == null) throw "Failed to retrieve Store Master";
+
+      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
+
+      final String body = '''
+    Approval For: Reset Database,
+    Store Name: ${store.storeName},
+    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+''';
+
+      final String subject = "OTP RUBY POS Reset Database - [${store.storeCode}]";
+
+      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
+
+      setState(() {
+        _isOTPSent = true;
+      });
+      await showOTPSent();
+      _startTimer();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
@@ -414,6 +353,8 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                                     child: CircularProgressIndicator(),
                                   ),
                           ],
+                          const SizedBox(height: 15),
+                          _warningtext(),
                         ],
                       ),
                     ),
@@ -494,6 +435,41 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _warningtext() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.yellow.shade100,
+        border: Border.all(
+          color: Colors.yellow.shade700,
+          width: 2.0,
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.warning,
+            color: Colors.yellow.shade700,
+            size: 26.0,
+          ),
+          const SizedBox(width: 10.0),
+          const Text(
+            "The app will close itself after resetting the database!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

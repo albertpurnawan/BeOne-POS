@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -81,7 +82,7 @@ import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/reset_db_approval_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
@@ -3469,16 +3470,18 @@ class _FetchScreenState extends State<FetchScreen> {
                     ? SizedBox(
                         width: MediaQuery.of(context).size.width * 0.5,
                         child: ElevatedButton(
-                          onPressed: isManualSyncing
+                          onPressed: null,
+                          onLongPress: isManualSyncing
                               ? null
                               : () async {
                                   try {
                                     final bool? isAuthorized = await showDialog<bool>(
                                         context: context,
                                         barrierDismissible: false,
-                                        builder: (context) => const ApprovalDialog());
+                                        builder: (context) => const ResetDBApprovalDialog());
                                     if (isAuthorized != true) return;
                                     await GetIt.instance<AppDatabase>().resetDatabase();
+                                    exit(0);
                                   } catch (e) {
                                     SnackBarHelper.presentErrorSnackBar(context, e.toString());
                                   }
