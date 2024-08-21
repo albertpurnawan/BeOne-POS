@@ -3364,8 +3364,7 @@ class _FetchScreenState extends State<FetchScreen> {
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
                     onPressed: () async {
-                      final prefs = await SharedPreferences.getInstance();
-                      if (prefs.getBool("isSyncing") == true) {
+                      if (prefs.getBool("isSyncing") ?? false) {
                         final syncStart = prefs.getString("autoSyncStart");
                         SnackBarHelper.presentErrorSnackBar(
                             context, "Sync is currently in progress. Initiated at $syncStart.");
@@ -3375,14 +3374,18 @@ class _FetchScreenState extends State<FetchScreen> {
                           syncProgress = 0;
                           isManualSyncing = true;
                         });
-                        prefs.setBool('isSyncing', true);
+
                         await manualSync();
+
                         setState(() {
                           isManualSyncing = false;
                         });
+
                         if (context.mounted) {
                           context.pop();
-                          prefs.setBool('isSyncing', false);
+                          setState(() {
+                            prefs.setBool('isSyncing', false);
+                          });
                         }
                       }
                     },
