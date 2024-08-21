@@ -13,6 +13,7 @@ class AuthStoreEntity {
   final int discAndRound;
   final int nonPositiveTrx;
   final int closeShift;
+  final int resetLocalDb;
   final String form;
 
   AuthStoreEntity({
@@ -26,6 +27,7 @@ class AuthStoreEntity {
     required this.discAndRound,
     required this.nonPositiveTrx,
     required this.closeShift,
+    required this.resetLocalDb,
     required this.form,
   });
 
@@ -40,6 +42,7 @@ class AuthStoreEntity {
     int? discAndRound,
     int? nonPositiveTrx,
     int? closeShift,
+    int? resetLocalDb,
     String? form,
   }) {
     return AuthStoreEntity(
@@ -53,6 +56,7 @@ class AuthStoreEntity {
       discAndRound: discAndRound ?? this.discAndRound,
       nonPositiveTrx: nonPositiveTrx ?? this.nonPositiveTrx,
       closeShift: closeShift ?? this.closeShift,
+      resetLocalDb: resetLocalDb ?? this.resetLocalDb,
       form: form ?? this.form,
     );
   }
@@ -69,6 +73,7 @@ class AuthStoreEntity {
       'discAndRound': discAndRound,
       'nonPositiveTrx': nonPositiveTrx,
       'closeShift': closeShift,
+      'resetLocalDb': resetLocalDb,
       'form': form,
     };
   }
@@ -85,6 +90,7 @@ class AuthStoreEntity {
       discAndRound: map['discAndRound'] as int,
       nonPositiveTrx: map['nonPositiveTrx'] as int,
       closeShift: map['closeShift'] as int,
+      resetLocalDb: map['resetLocalDb'] as int,
       form: map['form'] as String,
     );
   }
@@ -96,7 +102,7 @@ class AuthStoreEntity {
 
   @override
   String toString() {
-    return 'AuthStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid, statusActive: $statusActive, dflt: $dflt, discAndRound: $discAndRound, nonPositiveTrx: $nonPositiveTrx, closeShift: $closeShift, form: $form)';
+    return 'AuthStoreEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, tostrdocid: $tostrdocid, tousrdocid: $tousrdocid, statusActive: $statusActive, dflt: $dflt, discAndRound: $discAndRound, nonPositiveTrx: $nonPositiveTrx, closeShift: $closeShift, resetLocalDb: $resetLocalDb form: $form)';
   }
 
   @override
@@ -113,6 +119,7 @@ class AuthStoreEntity {
         other.discAndRound == discAndRound &&
         other.nonPositiveTrx == nonPositiveTrx &&
         other.closeShift == closeShift &&
+        other.resetLocalDb == resetLocalDb &&
         other.form == form;
   }
 
@@ -128,6 +135,7 @@ class AuthStoreEntity {
         discAndRound.hashCode ^
         nonPositiveTrx.hashCode ^
         closeShift.hashCode ^
+        resetLocalDb.hashCode ^
         form.hashCode;
   }
 }
