@@ -451,9 +451,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 try {
                                   final StoreMasterEntity? storeMasterEntity = await getStoreMasterEntity();
                                   await GetIt.instance<SharedPreferences>()
-                                      .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 1);
+                                      .setInt("salesViewType", storeMasterEntity?.salesViewType ?? 2);
                                   await context.pushNamed(RouteConstants.sales,
-                                      extra: SalesRouterExtra(salesViewType: storeMasterEntity?.salesViewType ?? 1));
+                                      extra: SalesRouterExtra(salesViewType: storeMasterEntity?.salesViewType ?? 2));
                                 } catch (e) {
                                   ErrorHandler.presentErrorSnackBar(context, e.toString());
                                 }

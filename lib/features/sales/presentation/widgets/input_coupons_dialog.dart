@@ -18,6 +18,7 @@ import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicab
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_promo_dialog.dart';
 
 class InputCouponsDialog extends StatefulWidget {
   const InputCouponsDialog({super.key});
@@ -36,7 +37,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
   @override
   void initState() {
     super.initState();
-    _couponFocusNode.requestFocus();
+    // _couponFocusNode.requestFocus();
     if (context.read<ReceiptCubit>().state.coupons.isNotEmpty) {
       couponList = context.read<ReceiptCubit>().state.coupons;
     }
@@ -57,11 +58,25 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
       final CheckPromoToprnApplicabilityUseCaseResult checkCouponResult =
           await GetIt.instance<CheckPromoToprnApplicabilityUseCase>().call(
               params: CheckPromoToprnApplicabilityUseCaseParams(
+                  checkDuplicate: true,
                   toprnHeaderAndDetail: couponHeaderAndDetail,
                   handlePromosUseCaseParams:
                       HandlePromosUseCaseParams(receiptEntity: context.read<ReceiptCubit>().state)));
 
       if (checkCouponResult.isApplicable == false) throw checkCouponResult.failMsg;
+
+      if (context.read<ReceiptCubit>().state.previousReceiptEntity != null) {
+        final bool? isProceed = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const ConfirmResetPromoDialog(),
+        );
+        // dev.log("isProceed $isProceed");
+        if (isProceed == null) return;
+        if (!isProceed) return;
+        context.read<ReceiptCubit>().replaceState(
+            context.read<ReceiptCubit>().state.previousReceiptEntity ?? context.read<ReceiptCubit>().state);
+      }
 
       _saveCoupons(context.read<ReceiptCubit>().state.coupons + [couponHeaderAndDetail.toprn]);
       setState(() {});
@@ -90,11 +105,14 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 // apply key enter
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
+                return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.f9) {
-                context
-                    .read<ReceiptCubit>()
-                    .updateTotalAmountFromDiscount(0)
+                log("f9");
+                _saveCoupons([])
                     .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3));
+                return KeyEventResult.handled;
+              } else if (value.physicalKey == PhysicalKeyboardKey.f12) {
+                context.pop();
                 return KeyEventResult.handled;
               }
 
@@ -141,7 +159,8 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                           ),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         ),
-                        onPressed: null,
+                        onPressed: () => _saveCoupons([])
+                            .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3)),
                         child: Row(
                           children: [
                             const Icon(
@@ -177,54 +196,20 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 contentPadding: const EdgeInsets.all(0),
                 content: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 25),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 20),
-                        promoCouponWidget(childContext),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 20),
+                      Expanded(child: promoCouponWidget(childContext)),
+                      const SizedBox(height: 10),
+                    ],
                   ),
                 ),
                 actions: <Widget>[
                   Row(
                     children: [
-                      Expanded(
-                          child: TextButton(
-                        style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                side: const BorderSide(color: ProjectColors.primary))),
-                            backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                            overlayColor:
-                                MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Center(
-                          child: RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Cancel",
-                                  style: TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                TextSpan(
-                                  text: "  (Esc)",
-                                  style: TextStyle(fontWeight: FontWeight.w300),
-                                ),
-                              ],
-                              style: TextStyle(color: ProjectColors.primary),
-                            ),
-                            overflow: TextOverflow.clip,
-                          ),
-                        ),
-                      )),
-                      const SizedBox(width: 10),
                       Expanded(
                           child: TextButton(
                         style: ButtonStyle(
@@ -235,10 +220,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                             backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
-                          await _saveCoupons(couponList);
                           if (context.mounted) {
-                            final receiptCubit = context.read<ReceiptCubit>().state;
-                            log("receiptCubit - $receiptCubit");
                             context.pop();
                           }
                         },
@@ -247,11 +229,11 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                             text: const TextSpan(
                               children: [
                                 TextSpan(
-                                  text: "Enter",
+                                  text: "Done",
                                   style: TextStyle(fontWeight: FontWeight.w600),
                                 ),
                                 TextSpan(
-                                  text: "  (Enter)",
+                                  text: "  (F12)",
                                   style: TextStyle(fontWeight: FontWeight.w300),
                                 ),
                               ],
@@ -289,7 +271,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 width: 30,
                 child: Text(
                   "${index + 1}",
-                  style: const TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 14),
                 ),
               ),
               const SizedBox(
@@ -299,7 +281,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 flex: 2,
                 child: Text(
                   coupon.couponCode,
-                  style: const TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 14),
                 ),
               ),
               const SizedBox(
@@ -311,8 +293,23 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      "${Helpers.cleanDecimal(coupon.generalDisc, 1)}%",
-                      style: const TextStyle(fontSize: 18),
+                      coupon.includePromo == 1 ? "Yes" : "No",
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      "${Helpers.cleanDecimal(coupon.generalDisc, 2)}%",
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ],
                 ),
@@ -327,9 +324,94 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                   children: [
                     Text(
                       Helpers.parseMoney(coupon.maxGeneralDisc),
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      "${Helpers.cleanDecimal(coupon.memberDisc, 2)}%",
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      Helpers.parseMoney(coupon.maxMemberDisc),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+              Container(
+                width: 20,
+                alignment: Alignment.center,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () async {
+                    // Handle reset promo
+                    if (context.read<ReceiptCubit>().state.previousReceiptEntity != null) {
+                      final bool? isProceed = await showDialog<bool>(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const ConfirmResetPromoDialog(),
+                      );
+                      // dev.log("isProceed $isProceed");
+                      if (isProceed == null) return;
+                      if (!isProceed) return;
+                      context.read<ReceiptCubit>().replaceState(
+                          context.read<ReceiptCubit>().state.previousReceiptEntity ??
+                              context.read<ReceiptCubit>().state);
+                    }
+                    _saveCoupons(context
+                        .read<ReceiptCubit>()
+                        .state
+                        .coupons
+                        .where((element) => element.docId != coupon.docId)
+                        .toList());
+                  },
+                  splashColor: Colors.white38,
+                  child: Ink(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.transparent,
+                      // boxShadow: const [
+                      //   BoxShadow(
+                      //     spreadRadius: 0.5,
+                      //     blurRadius: 5,
+                      //     color: Color.fromRGBO(
+                      //         220, 220, 220, 1),
+                      //   ),
+                      // ],
+                    ),
+                    padding: const EdgeInsets.all(3),
+                    child: const Center(
+                      child: Icon(
+                        Icons.delete_forever_rounded,
+                        color: ProjectColors.swatch,
+                        size: 16,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -343,9 +425,6 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
   }
 
   Widget promoCouponWidget(BuildContext context) {
-    // final receiptCubit = context.read<ReceiptCubit>().state;
-    // log("receieptCubit - $receiptCubit");
-
     return BlocBuilder<ReceiptCubit, ReceiptEntity>(
       builder: (context, state) {
         return Center(
@@ -353,145 +432,219 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      focusNode: _couponFocusNode,
-                      textInputAction: TextInputAction.search,
-                      controller: _textEditorCouponController,
-                      onFieldSubmitted: (value) async {
-                        await _checkCoupons(context, value);
-                      },
-                      autofocus: true,
-                      keyboardType: TextInputType.text,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 24),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(5),
-                        hintText: "Enter Coupon Code",
-                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(
-                          Icons.confirmation_number_outlined,
-                          size: 24,
-                        ),
-                        suffixIcon: Container(
-                          padding: EdgeInsets.all(10),
-                          width: 80,
-                          height: 60,
-                          child: OutlinedButton(
-                            focusNode: FocusNode(skipTraversal: true),
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: ProjectColors.primary,
-                              padding: const EdgeInsets.all(10),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            ),
-                            onPressed: () async {
-                              FocusScope.of(context).unfocus();
-                              await _checkCoupons(context, _textEditorCouponController.text);
-                              _textEditorCouponController.text = "";
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                RichText(
-                                  textAlign: TextAlign.center,
-                                  text: const TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Claim",
-                                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                                      ),
-                                    ],
-                                    style: TextStyle(height: 1, fontSize: 10),
-                                  ),
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              const Text(
-                "Coupons Applied",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const Divider(),
-              if (state.coupons.isNotEmpty)
-                const SizedBox(
-                  width: double.infinity,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Row(
                       children: [
-                        SizedBox(
-                          width: 30,
-                          child: Text(
-                            "No",
-                            style:
-                                TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
                         Expanded(
-                          flex: 2,
-                          child: Text(
-                            "Coupon Code",
-                            style:
-                                TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "% Disc.",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                          child: TextFormField(
+                            focusNode: _couponFocusNode,
+                            textInputAction: TextInputAction.search,
+                            controller: _textEditorCouponController,
+                            onFieldSubmitted: (value) async {
+                              await _checkCoupons(context, _textEditorCouponController.text);
+                              _textEditorCouponController.text = "";
+                              _couponFocusNode.requestFocus();
+                            },
+                            autofocus: true,
+                            keyboardType: TextInputType.text,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 24),
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.all(5),
+                              hintText: "Enter Coupon Code",
+                              hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(
+                                Icons.confirmation_number_outlined,
+                                size: 24,
                               ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              "Max Disc.",
-                              style:
-                                  TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                              suffixIcon: Container(
+                                padding: const EdgeInsets.all(10),
+                                width: 80,
+                                height: 60,
+                                child: OutlinedButton(
+                                  focusNode: FocusNode(skipTraversal: true),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: ProjectColors.primary,
+                                    padding: const EdgeInsets.all(10),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                  ),
+                                  onPressed: () async {
+                                    await _checkCoupons(context, _textEditorCouponController.text);
+                                    _textEditorCouponController.text = "";
+                                    _couponFocusNode.requestFocus();
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      RichText(
+                                        textAlign: TextAlign.center,
+                                        text: const TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: "Claim",
+                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                                            ),
+                                          ],
+                                          style: TextStyle(height: 1, fontSize: 10),
+                                        ),
+                                        overflow: TextOverflow.clip,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 3,
+                    const SizedBox(height: 5),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          "*Coupon will be applied on checkout",
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ],
                     ),
-                  ]),
+                    const SizedBox(height: 30),
+                    const Text(
+                      "Coupons Applied",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const Divider(),
+                    if (state.coupons.isNotEmpty)
+                      const SizedBox(
+                        width: double.infinity,
+                        child: Column(mainAxisSize: MainAxisSize.min, children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 30,
+                                child: Text(
+                                  "No",
+                                  style: TextStyle(
+                                      fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  "Coupon Code",
+                                  style: TextStyle(
+                                      fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "Inc.\nPromo",
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "% G.\nDisc.",
+                                      style: TextStyle(
+                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "Max G.\nDisc.",
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "% M.\nDisc.",
+                                      style: TextStyle(
+                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    "Max M.\nDisc.",
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                        fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 35,
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 3,
+                          ),
+                        ]),
+                      ),
+                    if (state.coupons.isNotEmpty)
+                      const SizedBox(
+                        height: 7,
+                      ),
+                  ],
                 ),
-              if (state.coupons.isNotEmpty)
-                const SizedBox(
-                  height: 7,
-                ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
+              ),
+              Expanded(
+                // height: MediaQuery.of(context).size.height * 0.2,
                 child: SingleChildScrollView(
-                  child: SizedBox(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    alignment: Alignment.topCenter,
                     width: double.infinity,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

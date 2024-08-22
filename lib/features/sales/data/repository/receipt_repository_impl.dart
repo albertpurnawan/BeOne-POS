@@ -83,7 +83,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           discAmount: receiptEntity.discAmount ?? 0,
           discountCard: 0,
           coupon: "",
-          discountCoupun: 0,
+          discountCoupun: receiptEntity.couponDiscount,
           taxPrctg: 0,
           taxAmount: receiptEntity.taxAmount,
           addCost: 0,
@@ -254,6 +254,23 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
         log("invoiceAppliedPromoModels 1 - $invoiceAppliedPromoModels");
         await _appDatabase.invoiceAppliedPromoDao.bulkCreate(data: invoiceAppliedPromoModels, txn: txn);
+
+        final List<InvoiceAppliedPromoModel> appliedCoupons = receiptEntity.promos
+            .where((element) => element.promoType == 107)
+            .toList()
+            .map((promo) => InvoiceAppliedPromoModel(
+                  docId: _uuid.v4(),
+                  createDate: DateTime.now(),
+                  updateDate: null,
+                  toinvDocId: generatedInvoiceHeaderDocId,
+                  tinv1DocId: null,
+                  promotionType: promo.promoType.toString(),
+                  promotionDocId: promo.promoId,
+                  amount: promo.discAmount ?? 0.0,
+                ))
+            .toList();
+
+        await _appDatabase.invoiceAppliedPromoDao.bulkCreate(data: appliedCoupons, txn: txn);
 
         if (invoiceHeaderModel.discHeaderManual != 0) {
           final invoiceAppHeader = InvoiceAppliedPromoModel(

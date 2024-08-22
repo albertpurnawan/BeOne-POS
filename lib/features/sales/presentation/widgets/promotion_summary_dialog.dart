@@ -613,6 +613,130 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     ];
   }
 
+  List<Widget> _buildCouponDetails() {
+    final List<Widget> widgets = [
+      const Text(
+        "Coupons",
+        style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+    ];
+
+    final List<PromotionsEntity> couponPromos =
+        widget.receiptEntity.promos.where((element) => element.promoType == 107).toList();
+    if (couponPromos.isEmpty) return [];
+
+    widgets.addAll([
+      const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 345,
+            child: Text(
+              "Coupon Code",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: ProjectColors.lightBlack,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          SizedBox(
+              width: 150,
+              child: Text("Discount",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: ProjectColors.lightBlack,
+                  ))),
+        ],
+      ),
+      const SizedBox(
+        height: 5,
+      )
+    ]);
+
+    double totalDisc = 0;
+    for (final couponPromo in couponPromos) {
+      totalDisc += couponPromo.discAmount ?? 0;
+      widgets.add(Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                  width: 345,
+                  child: Text(
+                    couponPromo.promoDescription,
+                    style: const TextStyle(fontSize: 14),
+                  )),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                  width: 150,
+                  child: Text(
+                    Helpers.parseMoney((couponPromo.discAmount ?? 0).round()),
+                    style: const TextStyle(fontSize: 14),
+                  )),
+            ],
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+        ],
+      ));
+    }
+
+    widgets.add(Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 25,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+                width: 345,
+                child: Text(
+                  "Total Discount",
+                  style: TextStyle(fontSize: 14),
+                )),
+            const SizedBox(
+              width: 20,
+            ),
+            SizedBox(
+                width: 150,
+                child: Text(
+                  Helpers.parseMoney(totalDisc.round()),
+                  style: const TextStyle(fontSize: 14),
+                )),
+          ],
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+      ],
+    ));
+
+    return [
+      Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
+          )),
+      const Divider(),
+    ];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -785,6 +909,10 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const Divider(),
+                ..._buildCouponDetails(),
+                const SizedBox(
+                  height: 5,
+                ),
                 ..._buildBuyXGetYDetails(),
                 const SizedBox(
                   height: 5,

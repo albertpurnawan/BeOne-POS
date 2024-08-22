@@ -35,7 +35,8 @@ class CheckPromoTopdgApplicabilityUseCase implements UseCase<bool, CheckPromoTop
       final List<PromoDiskonGroupItemCustomerGroupEntity> tpdg5 = params.topdgHeaderAndDetail.tpdg5;
 
       final ReceiptEntity receiptEntity = params.handlePromosUseCaseParams.receiptEntity;
-      final ReceiptItemEntity receiptItemEntity = params.handlePromosUseCaseParams.receiptItemEntity!;
+      final ReceiptItemEntity? receiptItemEntity = params.handlePromosUseCaseParams.receiptItemEntity;
+      if (receiptItemEntity == null) throw "Internal error on discount item by group applicability check";
 
       bool isApplicable = true;
 
@@ -73,6 +74,10 @@ class CheckPromoTopdgApplicabilityUseCase implements UseCase<bool, CheckPromoTop
           }
 
           if (topdg.promoValue > 0 && (topdg.discount1 > 0 || topdg.discount2 > 0 || topdg.discount3 > 0)) {
+            return isApplicable = false;
+          }
+
+          if (topdg.promoValue > 0 && topdg.promoValue > receiptEntity.grandTotal - receiptEntity.taxAmount) {
             return isApplicable = false;
           }
         },

@@ -19,13 +19,10 @@ class GetPromoToprnHeaderAndDetailUseCase implements UseCase<GetPromoToprnHeader
 
       const String incompleDataErrMsg = "Coupon not found";
 
-      log(params);
       final toprn = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readByCouponCode(params, null);
-      log(toprn.toString());
       if (toprn == null) throw incompleDataErrMsg;
 
       final tprn4 = await GetIt.instance<AppDatabase>().promoCouponCustomerGroupDao.readByToprnId(toprn.docId, null);
-      log(tprn4.toString());
       if (tprn4.isEmpty) throw incompleDataErrMsg;
 
       return GetPromoToprnHeaderAndDetailUseCaseResult(
