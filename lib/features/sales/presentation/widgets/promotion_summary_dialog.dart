@@ -398,7 +398,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
 
-        return e1.itemEntity.includeTax == 1 ? discAmount * (100 + e1.itemEntity.taxRate) / 100 : discAmount;
+        return discAmount * (100 + e1.itemEntity.taxRate) / 100;
       }).reduce((value, e3) => value + e3);
 
       totalDisc += totalDiscByPromoId;
@@ -537,7 +537,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
 
-        return e1.itemEntity.includeTax == 1 ? discAmount * (100 + e1.itemEntity.taxRate) / 100 : discAmount;
+        return discAmount * (100 + e1.itemEntity.taxRate) / 100;
       }).reduce((value, e3) => value + e3);
       totalDisc += totalDiscByPromoId;
       widgets.add(Column(
