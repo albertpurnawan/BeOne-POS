@@ -23,6 +23,18 @@ class PromosDao extends BaseDao<PromotionsModel> {
     return res.isNotEmpty ? PromotionsModel.fromMap(res[0]) : null;
   }
 
+  Future<PromotionsModel?> readByPromoIdAndPromoType(String promoId, int promoType, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'promoId = ? AND promotype = ?',
+      whereArgs: [promoId, promoType],
+    );
+
+    return res.isNotEmpty ? PromotionsModel.fromMap(res[0]) : null;
+  }
+
   @override
   Future<List<PromotionsModel>> readAll({Transaction? txn}) async {
     if (txn != null) {

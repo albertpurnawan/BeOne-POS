@@ -1369,7 +1369,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                               final double cashAmount =
                                                                   Helpers.revertMoneyToDecimalFormat(value);
 
-                                                              if (cashAmount <= 0) {
+                                                              if (cashAmount < 0) {
                                                                 setState(() {
                                                                   _values = (widget.isMultiMOPs
                                                                       ? _values
@@ -1733,6 +1733,15 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                               onSelected: (bool selected) async {
                                                                 // VOUCHERS DIALOG HERE
                                                                 if (paymentType.payTypeCode == "6") {
+                                                                  if (receipt.customerEntity == null) {
+                                                                    return SnackBarHelper.presentErrorSnackBar(
+                                                                        context, "Null customer");
+                                                                  }
+                                                                  if (mop.subType == 3 &&
+                                                                      receipt.customerEntity!.custCode == "99") {
+                                                                    return SnackBarHelper.presentErrorSnackBar(
+                                                                        context, "Invalid customer");
+                                                                  }
                                                                   await showDialog(
                                                                     context: context,
                                                                     builder: (BuildContext context) {

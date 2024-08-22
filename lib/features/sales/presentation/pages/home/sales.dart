@@ -20,6 +20,7 @@ import 'package:pos_fe/core/widgets/scroll_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
@@ -2114,6 +2115,7 @@ class _SalesPageState extends State<SalesPage> {
                       return Expanded(
                         child: SizedBox.expand(
                           child: OutlinedButton(
+                            // onPressed: null,
                             onPressed: () async {
                               setState(() {
                                 isEditingNewReceiptItemCode = false;
@@ -2137,7 +2139,11 @@ class _SalesPageState extends State<SalesPage> {
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                               foregroundColor: Colors.white,
+                              // foregroundColor: Colors.grey,
+
                               backgroundColor: ProjectColors.primary,
+                              // backgroundColor: ProjectColors.lightBlack,
+
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -2159,15 +2165,23 @@ class _SalesPageState extends State<SalesPage> {
                                               alignment: Alignment.center,
                                               decoration: const BoxDecoration(
                                                 color: ProjectColors.green,
+                                                // color: Colors.black54,
+
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Text(
                                                 context.read<ReceiptCubit>().state.coupons.length.toString(),
-                                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 12,
+                                                ),
                                               )),
                                           const Text(
                                             "F5",
-                                            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w300,
+                                              fontSize: 14,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -3762,7 +3776,7 @@ class _SalesPageState extends State<SalesPage> {
 
       final ReceiptItemEntity? dpItem =
           context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
-      if (dpItem != null && dpItem.quantity > 0 && context.read<ReceiptCubit>().state.receiptItems.length > 2) {
+      if (dpItem != null && dpItem.quantity > 0 && context.read<ReceiptCubit>().state.receiptItems.length > 1) {
         return SnackBarHelper.presentErrorSnackBar(context, "Down payment has to be excluded from other transactions");
       }
 
@@ -3778,7 +3792,9 @@ class _SalesPageState extends State<SalesPage> {
 
       final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
 
-      if (receiptEntity.promos.length != receiptEntity.previousReceiptEntity?.promos.length) {
+      log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
+
+      if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
         await showDialog(
             context: context,
             barrierDismissible: false,

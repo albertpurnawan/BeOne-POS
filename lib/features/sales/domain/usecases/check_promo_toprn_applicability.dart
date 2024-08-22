@@ -1,10 +1,15 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
 
+import 'package:get_it/get_it.dart';
+
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer_group.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_customer_group.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
+import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_group_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
@@ -33,8 +38,29 @@ class CheckPromoToprnApplicabilityUseCase
 
       final List<Function> generalValidations = [
         () async {
+          final PromotionsEntity? promo =
+              await GetIt.instance<AppDatabase>().promosDao.readByPromoIdAndPromoType(toprn.docId, 107, null);
+          if (promo == null) {
+            failMsg = "Coupon inactive or inapplicable today";
+            return isApplicable = false;
+          }
+        },
+        () async {
+          if (params.checkDuplicate == false) return null;
           if (receiptEntity.coupons.where((element) => element.docId == toprn.docId).isNotEmpty) {
             failMsg = "Coupon already applied";
+            return isApplicable = false;
+          }
+        },
+        () async {
+          if (receiptEntity.coupons.isNotEmpty && toprn.includePromo == 0) {
+            failMsg = "This coupon cannot include another coupon promo";
+            return isApplicable = false;
+          }
+        },
+        () async {
+          if (receiptEntity.coupons.where((element) => element.includePromo == 0).isNotEmpty) {
+            failMsg = "An existing coupon cannot include another coupon promo";
             return isApplicable = false;
           }
         },
@@ -80,7 +106,7 @@ class CheckPromoToprnApplicabilityUseCase
             failMsg = "Null customer";
             return isApplicable = false;
           }
-          ;
+
           if (receiptEntity.customerEntity!.tocrgId == null) {
             failMsg = "Null customer group";
             return isApplicable = false;
@@ -100,8 +126,8 @@ class CheckPromoToprnApplicabilityUseCase
         },
         () async {
           // Check min purchase
-          if (receiptEntity.grandTotal > toprn.minPurchase) {
-            failMsg = "Minimum purchase not fulfilled";
+          if (receiptEntity.grandTotal < toprn.minPurchase) {
+            failMsg = "Minimum purchase not fulfilled (${Helpers.parseMoney(toprn.minPurchase)})";
             return isApplicable = false;
           }
         }
@@ -131,9 +157,13 @@ class CheckPromoToprnApplicabilityUseCase
 class CheckPromoToprnApplicabilityUseCaseParams {
   final GetPromoToprnHeaderAndDetailUseCaseResult toprnHeaderAndDetail;
   final HandlePromosUseCaseParams handlePromosUseCaseParams;
+  final bool checkDuplicate;
 
-  CheckPromoToprnApplicabilityUseCaseParams(
-      {required this.toprnHeaderAndDetail, required this.handlePromosUseCaseParams});
+  CheckPromoToprnApplicabilityUseCaseParams({
+    required this.toprnHeaderAndDetail,
+    required this.handlePromosUseCaseParams,
+    required this.checkDuplicate,
+  });
 }
 
 class CheckPromoToprnApplicabilityUseCaseResult {

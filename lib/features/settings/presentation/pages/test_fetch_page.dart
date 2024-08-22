@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -81,7 +83,7 @@ import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/reset_db_approval_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
@@ -262,11 +264,10 @@ class _FetchScreenState extends State<FetchScreen> {
     if (checkSync == false) {
       try {
         prefs.setBool('isSyncing', true);
-        // final topos =
-        //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
         final singleTopos = _posParameterEntity;
         final toposId = singleTopos!.docId;
         final lastSyncDate = _posParameterEntity!.lastSync!;
+        prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
         final nextSyncDate = DateTime.now().toUtc().toIso8601String();
 
@@ -2867,19 +2868,22 @@ class _FetchScreenState extends State<FetchScreen> {
         ];
         // ------------------- END OF FETCHING FUNCTIONS-------------------
 
-        final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-        final strName = store?.storeName;
+        bool isComplete = true;
 
         for (final fetchFunction in fetchFunctions) {
           try {
             await fetchFunction();
           } catch (e) {
+            isComplete = false;
             handleError(e);
             rethrow;
           }
         }
 
-        final toposData = POSParameterModel(
+        final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
+        final strName = store?.storeName;
+
+        POSParameterModel toposData = POSParameterModel(
           docId: toposId,
           createDate: singleTopos.createDate,
           updateDate: singleTopos.updateDate,
@@ -2890,38 +2894,10 @@ class _FetchScreenState extends State<FetchScreen> {
           baseUrl: singleTopos.baseUrl,
           usernameAdmin: singleTopos.usernameAdmin,
           passwordAdmin: singleTopos.passwordAdmin,
-          lastSync: nextSyncDate,
+          lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
         );
 
-        await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-
-        final toposAfterSync = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-        final singleToposAfterSync = toposAfterSync[0];
-
-        // UPDATE STORE NAME
-        try {
-          final store = await (GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(singleTopos.tostrId!, null));
-
-          final toposData = POSParameterModel(
-            docId: singleToposAfterSync.docId,
-            createDate: singleToposAfterSync.createDate,
-            updateDate: singleToposAfterSync.updateDate,
-            gtentId: singleToposAfterSync.gtentId,
-            tostrId: singleToposAfterSync.tostrId,
-            storeName: store?.storeName,
-            tocsrId: singleToposAfterSync.tocsrId,
-            baseUrl: singleToposAfterSync.baseUrl,
-            usernameAdmin: singleToposAfterSync.usernameAdmin,
-            passwordAdmin: singleToposAfterSync.passwordAdmin,
-            lastSync: singleToposAfterSync.lastSync,
-          );
-
-          await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
-        } catch (e) {
-          handleError(e);
-          rethrow;
-        }
-        // END OF UPDATE STORE NAME
+        if (isComplete) await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
 
         // REFRESH TOPRM
         log("INSERTING PROMOS...");
@@ -3333,17 +3309,15 @@ class _FetchScreenState extends State<FetchScreen> {
               tooltip: 'Clear Preferences',
             ),
         ],
-        leading: isManualSyncing
-            ? null
-            : BackButton(
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.pop(context, true);
-                  setState(() {
-                    prefs.setBool('isSyncing', false);
-                  });
-                },
-              ),
+        leading: BackButton(
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context, true);
+            setState(() {
+              prefs.setBool('isSyncing', false);
+            });
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -3390,27 +3364,32 @@ class _FetchScreenState extends State<FetchScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
-                    onPressed: isManualSyncing || checkSync
-                        ? null
-                        : () async {
-                            await refreshToken();
-                            setState(() {
-                              syncProgress = 0;
-                              isManualSyncing = true;
-                            });
-                            final prefs = await SharedPreferences.getInstance();
+                    onPressed: () async {
+                      if (prefs.getBool("isSyncing") ?? false) {
+                        final syncStart = prefs.getString("autoSyncStart");
+                        SnackBarHelper.presentErrorSnackBar(
+                            context, "Sync is currently in progress. Initiated at $syncStart.");
+                      } else {
+                        await refreshToken();
+                        setState(() {
+                          syncProgress = 0;
+                          isManualSyncing = true;
+                        });
+
+                        await manualSync();
+
+                        setState(() {
+                          isManualSyncing = false;
+                        });
+
+                        if (context.mounted) {
+                          context.pop();
+                          setState(() {
                             prefs.setBool('isSyncing', false);
-                            await manualSync();
-                            setState(() {
-                              isManualSyncing = false;
-                            });
-                            if (context.mounted) {
-                              context.pop();
-                              setState(() {
-                                prefs.setBool('isSyncing', false);
-                              });
-                            }
-                          },
+                          });
+                        }
+                      }
+                    },
                     style: const ButtonStyle(
                       backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
                       foregroundColor: MaterialStatePropertyAll(Colors.white),
@@ -3491,16 +3470,18 @@ class _FetchScreenState extends State<FetchScreen> {
                     ? SizedBox(
                         width: MediaQuery.of(context).size.width * 0.5,
                         child: ElevatedButton(
-                          onPressed: isManualSyncing
+                          onPressed: null,
+                          onLongPress: isManualSyncing
                               ? null
                               : () async {
                                   try {
                                     final bool? isAuthorized = await showDialog<bool>(
                                         context: context,
                                         barrierDismissible: false,
-                                        builder: (context) => const ApprovalDialog());
+                                        builder: (context) => const ResetDBApprovalDialog());
                                     if (isAuthorized != true) return;
                                     await GetIt.instance<AppDatabase>().resetDatabase();
+                                    exit(0);
                                   } catch (e) {
                                     SnackBarHelper.presentErrorSnackBar(context, e.toString());
                                   }

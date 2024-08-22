@@ -42,6 +42,11 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";

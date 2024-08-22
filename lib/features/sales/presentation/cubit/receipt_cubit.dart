@@ -27,6 +27,7 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
@@ -81,6 +82,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final GetCashRegisterUseCase _getCashRegisterUseCase;
   final ApplyRoundingUseCase _applyRoundingUseCase;
   final GetItemWithAndConditionUseCase _getItemWithAndConditionUseCase;
+  final ApplyPromoToprnUseCase _applyPromoToprnUseCase;
 
   ReceiptCubit(
     this._getItemByBarcodeUseCase,
@@ -101,12 +103,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._recalculateTaxUseCase,
     this._handlePromoTopdgUseCase,
     this._handlePromoTopdiUseCase,
-    // this._applyPromoToprnUseCase,
     this._getPosParameterUseCase,
     this._getStoreMasterUseCase,
     this._getCashRegisterUseCase,
     this._applyRoundingUseCase,
     this._getItemWithAndConditionUseCase,
+    this._applyPromoToprnUseCase,
   ) : super(ReceiptEntity(
             docNum: "-",
             receiptItems: [],
@@ -117,6 +119,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             grandTotal: 0,
             vouchers: [],
             promos: []));
+
+  void replaceState(ReceiptEntity newReceipt) {
+    emit(newReceipt);
+  }
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
@@ -134,7 +140,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Initialize some values
-      if (state.receiptItems.isEmpty && state.customerEntity?.custCode == "99") {
+      if (state.receiptItems.isEmpty && state.customerEntity?.custCode == "99" && state.includePromo == null) {
         await resetReceipt();
       }
 
@@ -142,6 +148,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ItemEntity? itemEntity;
       ReceiptItemEntity receiptItemEntity;
       final List<PromotionsEntity?> availablePromos;
+      final int includePromo = state.includePromo ?? 1;
 
       // Handle negative quantity
       final ReceiptItemEntity? currentReceiptItemEntity = state.receiptItems
@@ -232,7 +239,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Handle promos
       // dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
       bool anyPromoApplied = false;
-      if (receiptItemEntity.itemEntity.barcode != "99") {
+      dev.log("includePromo $state");
+      if (receiptItemEntity.itemEntity.barcode != "99" && includePromo == 1) {
         availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
         if (availablePromos.isNotEmpty) {
           for (final availablePromo in availablePromos) {
@@ -422,18 +430,96 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  Future<void> updateCoupons(List<PromoCouponHeaderEntity> couponsEntity) async {
+  Future<void> updateCoupons(List<PromoCouponHeaderEntity> couponsEntity, BuildContext context) async {
     List<PromoCouponHeaderEntity> appliedCoupons = [];
-    int promo = 1;
+    int includePromo = 1;
     appliedCoupons = couponsEntity;
+    final ReceiptEntity currentReceipt = state.copyWith();
 
     for (var coupon in appliedCoupons) {
       if (coupon.includePromo == 0) {
-        promo = 0;
+        includePromo = 0;
       }
     }
 
-    return emit(state.copyWith(coupons: appliedCoupons, includePromo: promo));
+    dev.log("Includepromo $includePromo state.includepromo ${state.includePromo}");
+
+    if (state.previousReceiptEntity != null && (state.includePromo ?? 1) != includePromo) {
+      dev.log("Masuk di if 1");
+      final bool? isProceed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const ConfirmResetPromoDialog(),
+      );
+      if (isProceed == null) return;
+      if (!isProceed) return;
+
+      final List<ReceiptItemEntity> receiptItems =
+          state.previousReceiptEntity!.receiptItems.map((e) => e.copyWith()).toList();
+      await resetReceipt();
+      emit(state.copyWith(
+        customerEntity: currentReceipt.customerEntity,
+        includePromo: includePromo,
+        coupons: couponsEntity,
+        salesTohemId: currentReceipt.salesTohemId,
+        remarks: currentReceipt.remarks,
+      ));
+      for (final receiptItem in receiptItems) {
+        await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+          barcode: receiptItem.itemEntity.barcode,
+          itemEntity: null,
+          quantity: receiptItem.quantity,
+          context: context,
+          onOpenPriceInputted: () => receiptItem.itemEntity.price,
+          remarks: receiptItem.remarks,
+          tohemId: receiptItem.tohemId,
+        ));
+      }
+      return emit(state.copyWith(
+        coupons: appliedCoupons,
+        includePromo: includePromo,
+        customerEntity: currentReceipt.customerEntity,
+        salesTohemId: currentReceipt.salesTohemId,
+        remarks: currentReceipt.remarks,
+      ));
+    }
+
+    if ((state.includePromo ?? 1) != includePromo) {
+      dev.log("Masuk di if 2");
+      final List<ReceiptItemEntity> receiptItems = state.receiptItems.map((e) => e.copyWith()).toList();
+      await resetReceipt();
+      emit(state.copyWith(
+        includePromo: includePromo,
+        coupons: couponsEntity,
+        customerEntity: currentReceipt.customerEntity,
+        salesTohemId: currentReceipt.salesTohemId,
+        remarks: currentReceipt.remarks,
+      ));
+
+      log("masuk 2 $state");
+
+      for (final receiptItem in receiptItems) {
+        await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+          barcode: receiptItem.itemEntity.barcode,
+          itemEntity: null,
+          quantity: receiptItem.quantity,
+          context: context,
+          onOpenPriceInputted: () => receiptItem.itemEntity.price,
+          remarks: receiptItem.remarks,
+          tohemId: receiptItem.tohemId,
+        ));
+      }
+      return emit(state.copyWith(
+          coupons: appliedCoupons,
+          includePromo: includePromo,
+          customerEntity: currentReceipt.customerEntity,
+          salesTohemId: currentReceipt.salesTohemId,
+          remarks: currentReceipt.remarks,
+          previousReceiptEntity: state.previousReceiptEntity));
+    }
+
+    dev.log("Masuk di if 3");
+    return emit(state.copyWith(coupons: couponsEntity, includePromo: includePromo));
   }
 
   Future<void> removeReceiptItem(ReceiptItemEntity receiptItemEntity, BuildContext context) async {
@@ -616,6 +702,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> processReceiptBeforeCheckout(BuildContext context) async {
     try {
+      // Excludes DP item from calculation
       ReceiptItemEntity? dpItem = state.receiptItems.where((element) => element.itemEntity.barcode == "99").firstOrNull;
       List<ReceiptItemEntity> normalItems =
           state.receiptItems.where((element) => element.itemEntity.barcode != "99").toList();
@@ -630,12 +717,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         totalVoucher: 0,
         totalNonVoucher: 0,
       )..mopSelections = [];
+
       List<String> skippedPromoIds = [];
 
-      // dev.log("First entry $newReceipt");
-
+      // Reset manual header discount
       final double discHeaderManual = state.discHeaderManual ?? 0;
-
       if (discHeaderManual > 0 || dpItem != null) {
         newReceipt = await _recalculateReceiptUseCase.call(
             params: newReceipt.copyWith(
@@ -644,116 +730,111 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         ));
       }
 
-      // dev.log("Process before checkout $newReceipt");
+      // Handle promos
+      if ((state.includePromo ?? 1) == 1) {
+        for (final receiptItem in state.copyWith().receiptItems) {
+          List<PromotionsEntity?> availablePromos = [];
+          availablePromos = await _checkPromoUseCase(params: receiptItem.itemEntity.toitmId);
 
-      // ini artinya barang dari buy x get ga discan ulang
-      for (final receiptItem in state.copyWith().receiptItems) {
-        List<PromotionsEntity?> availablePromos = [];
-        availablePromos = await _checkPromoUseCase(params: receiptItem.itemEntity.toitmId);
-        // dev.log("available promos $availablePromos");
+          if (availablePromos.isNotEmpty) {
+            for (final availablePromo in availablePromos) {
+              if (skippedPromoIds.contains(availablePromo!.promoId)) continue;
+              switch (availablePromo.promoType) {
+                // Buy X Get Y
+                case 103:
+                  dev.log("103 checked");
+                  // Check applicability
+                  final CheckBuyXGetYApplicabilityResult checkBuyXGetYApplicability =
+                      await _checkBuyXGetYApplicabilityUseCase.call(
+                          params: CheckBuyXGetYApplicabilityParams(
+                    receiptEntity: newReceipt,
+                    receiptItemEntity: receiptItem,
+                    promo: availablePromo,
+                  ));
 
-        if (availablePromos.isNotEmpty) {
-          for (final availablePromo in availablePromos) {
-            if (skippedPromoIds.contains(availablePromo!.promoId)) continue;
-            switch (availablePromo.promoType) {
-              case 103:
-                dev.log("103 checked");
-                // Check applicability
-                final CheckBuyXGetYApplicabilityResult checkBuyXGetYApplicability =
-                    await _checkBuyXGetYApplicabilityUseCase.call(
-                        params: CheckBuyXGetYApplicabilityParams(
-                  receiptEntity: newReceipt,
-                  receiptItemEntity: receiptItem,
-                  promo: availablePromo,
-                ));
+                  if (!checkBuyXGetYApplicability.isApplicable) break;
 
-                if (!checkBuyXGetYApplicability.isApplicable) break;
+                  // Show Pop Up
+                  List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYs = [];
+                  for (int i = 0; i < checkBuyXGetYApplicability.availableApplyCount; i++) {
+                    final List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYsPerDialog =
+                        (await showDialog<List<PromoBuyXGetYGetConditionAndItemEntity>>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => PromoGetYDialog(
+                                conditionAndItemYs: checkBuyXGetYApplicability.conditionAndItemYs,
+                                toprb: checkBuyXGetYApplicability.toprb!,
+                                loopTracker: LoopTracker(
+                                    currentLoop: i + 1, totalLoop: checkBuyXGetYApplicability.availableApplyCount),
+                              ),
+                            )) ??
+                            [];
+                    if (selectedConditionAndItemYsPerDialog.isEmpty) break;
 
-                // Show Pop Up
-                List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYs = [];
-                for (int i = 0; i < checkBuyXGetYApplicability.availableApplyCount; i++) {
-                  final List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYsPerDialog =
-                      (await showDialog<List<PromoBuyXGetYGetConditionAndItemEntity>>(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => PromoGetYDialog(
-                              conditionAndItemYs: checkBuyXGetYApplicability.conditionAndItemYs,
-                              toprb: checkBuyXGetYApplicability.toprb!,
-                              loopTracker: LoopTracker(
-                                  currentLoop: i + 1, totalLoop: checkBuyXGetYApplicability.availableApplyCount),
-                            ),
-                          )) ??
-                          [];
-                  if (selectedConditionAndItemYsPerDialog.isEmpty) break;
-
-                  for (final selectedConditionAndItemYPerDialog in selectedConditionAndItemYsPerDialog) {
-                    final List<PromoBuyXGetYGetConditionAndItemEntity> existElements = selectedConditionAndItemYs
-                        .where((element) =>
-                            element.itemEntity.barcode == selectedConditionAndItemYPerDialog.itemEntity.barcode)
-                        .toList();
-                    final PromoBuyXGetYGetConditionAndItemEntity? existElement =
-                        existElements.isEmpty ? null : existElements.first;
-                    if (existElement != null) {
-                      existElement.multiply += 1;
-                    } else {
-                      selectedConditionAndItemYs.add(selectedConditionAndItemYPerDialog..multiply = 1);
+                    for (final selectedConditionAndItemYPerDialog in selectedConditionAndItemYsPerDialog) {
+                      final List<PromoBuyXGetYGetConditionAndItemEntity> existElements = selectedConditionAndItemYs
+                          .where((element) =>
+                              element.itemEntity.barcode == selectedConditionAndItemYPerDialog.itemEntity.barcode)
+                          .toList();
+                      final PromoBuyXGetYGetConditionAndItemEntity? existElement =
+                          existElements.isEmpty ? null : existElements.first;
+                      if (existElement != null) {
+                        existElement.multiply += 1;
+                      } else {
+                        selectedConditionAndItemYs.add(selectedConditionAndItemYPerDialog..multiply = 1);
+                      }
                     }
                   }
-                }
 
-                if (selectedConditionAndItemYs.isEmpty) {
-                  skippedPromoIds.add(availablePromo.promoId!);
-                  continue;
-                }
+                  if (selectedConditionAndItemYs.isEmpty) {
+                    skippedPromoIds.add(availablePromo.promoId!);
+                    continue;
+                  }
 
-                // Handle X Items and Y Items
-                newReceipt = await _handlePromoBuyXGetYUseCase.call(
-                    params: HandlePromoBuyXGetYUseCaseParams(
-                        receiptItemEntity: receiptItem,
-                        promo: availablePromo,
-                        toprb: checkBuyXGetYApplicability.toprb,
-                        receiptEntity: newReceipt,
-                        conditionAndItemXs: checkBuyXGetYApplicability.conditionAndItemXs,
-                        existingReceiptItemXs: checkBuyXGetYApplicability.existingReceiptItemXs,
-                        conditionAndItemYs: selectedConditionAndItemYs));
-                newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
-                break;
-              case 203:
-                dev.log("CASE 203");
-                newReceipt = await _handlePromoTopdiUseCase.call(
-                    params: HandlePromosUseCaseParams(
-                  receiptItemEntity: receiptItem,
-                  receiptEntity: newReceipt,
-                  promo: availablePromo,
-                ));
-
-              case 204:
-                newReceipt = await _handlePromoTopdgUseCase.call(
-                    params: HandlePromosUseCaseParams(
-                  receiptItemEntity: receiptItem,
-                  receiptEntity: newReceipt,
-                  promo: availablePromo,
-                ));
-              default:
-                break;
+                  // Handle X Items and Y Items
+                  newReceipt = await _handlePromoBuyXGetYUseCase.call(
+                      params: HandlePromoBuyXGetYUseCaseParams(
+                          receiptItemEntity: receiptItem,
+                          promo: availablePromo,
+                          toprb: checkBuyXGetYApplicability.toprb,
+                          receiptEntity: newReceipt,
+                          conditionAndItemXs: checkBuyXGetYApplicability.conditionAndItemXs,
+                          existingReceiptItemXs: checkBuyXGetYApplicability.existingReceiptItemXs,
+                          conditionAndItemYs: selectedConditionAndItemYs));
+                  newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
+                  break;
+                // Discount Item (Item)
+                case 203:
+                  dev.log("CASE 203");
+                  newReceipt = await _handlePromoTopdiUseCase.call(
+                      params: HandlePromosUseCaseParams(
+                    receiptItemEntity: receiptItem,
+                    receiptEntity: newReceipt,
+                    promo: availablePromo,
+                  ));
+                // Discount Item (Group)
+                case 204:
+                  newReceipt = await _handlePromoTopdgUseCase.call(
+                      params: HandlePromosUseCaseParams(
+                    receiptItemEntity: receiptItem,
+                    receiptEntity: newReceipt,
+                    promo: availablePromo,
+                  ));
+                default:
+                  break;
+              }
             }
           }
         }
       }
 
-      // Coupons Process
-      // final couponsApplied = state.copyWith().coupons;
-      // final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      // final check = prefs.getBool('isSyncing');
-      // dev.log("check - $check");
-      // if (couponsApplied != null) {
-      //   newReceipt = await _applyPromoToprnUseCase.call(params: newReceipt);
-      // }
+      // Handle coupon
+      if (newReceipt.coupons.isNotEmpty) {
+        newReceipt = await _applyPromoToprnUseCase.call(
+            params: ApplyPromoToprnUseCaseParams(receiptEntity: newReceipt, context: context));
+      }
 
-      // dev.log("newReceiptCoupon - $newReceipt");
-
-      // dev.log("Process after checkout $newReceipt");
-
+      // Reinsert down payment
       if (dpItem != null && dpItem.quantity < 0) {
         if (dpItem.totalAmount > newReceipt.grandTotal) {
           throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(dpItem.totalAmount - newReceipt.grandTotal)})";
@@ -770,6 +851,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         ));
       }
 
+      // Reapply manual header discount
       if (discHeaderManual > 0 && newReceipt.grandTotal + (dpItem?.totalAmount ?? 0) >= discHeaderManual) {
         newReceipt = await _recalculateTaxUseCase.call(
             params: newReceipt.copyWith(
@@ -779,24 +861,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         ));
       }
 
-      // dev.log("Process reapply discount header $newReceipt");
-
+      // Apply rounding
       newReceipt = await _applyRoundingUseCase.call(params: newReceipt);
 
-      // dev.log("To emit ${newReceipt.copyWith(
-      //   previousReceiptEntity: state.copyWith(
-      //       receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
-      // )}");
-
-      // dev.log("previousreceipt before emit ${state.previousReceiptEntity}");
-      dev.log("newReceiptLast - $newReceipt");
       emit(newReceipt.copyWith(
         previousReceiptEntity: state.previousReceiptEntity ??
             state.copyWith(
                 receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
       ));
 
-      // dev.log("after emit $state");
+      dev.log("after emit $state");
       return;
     } catch (e) {
       rethrow;

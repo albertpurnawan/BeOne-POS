@@ -7,6 +7,7 @@ import 'package:pos_fe/features/sales/domain/entities/promo_diskon_item_buy_cond
 import 'package:pos_fe/features/sales/domain/entities/promo_diskon_item_customer_group.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_diskon_item_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/repository/customer_group_repository.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
@@ -28,6 +29,8 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
       final List<PromoDiskonItemCustomerGroupEntity> tpdi5 = params.topdiHeaderAndDetail.tpdi5;
 
       final ReceiptEntity receiptEntity = params.handlePromosUseCaseParams.receiptEntity;
+      final ReceiptItemEntity? receiptItemEntity = params.handlePromosUseCaseParams.receiptItemEntity;
+      if (receiptItemEntity == null) throw "Internal error on discount item by item applicability check";
 
       bool isApplicable = true;
 
@@ -71,6 +74,10 @@ class CheckPromoTopdiApplicabilityUseCase implements UseCase<bool, CheckPromoTop
           }
 
           if (topdi.promoValue > 0 && (topdi.discount1 > 0 || topdi.discount2 > 0 || topdi.discount3 > 0)) {
+            return isApplicable = false;
+          }
+
+          if (topdi.promoValue > 0 && topdi.promoValue > receiptEntity.grandTotal - receiptEntity.taxAmount) {
             return isApplicable = false;
           }
         },

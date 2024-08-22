@@ -10,35 +10,30 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
-import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/otp_submit_close_shift_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/otp_submit_reset_db_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ConfirmToEndShift extends StatefulWidget {
-  final CashierBalanceTransactionModel shift;
-
-  const ConfirmToEndShift(this.shift, {Key? key}) : super(key: key);
+class ResetDBApprovalDialog extends StatefulWidget {
+  const ResetDBApprovalDialog({super.key});
 
   @override
-  State<ConfirmToEndShift> createState() => _ConfirmToEndShiftState();
+  State<ResetDBApprovalDialog> createState() => _ResetDBApprovalDialogState();
 }
 
-class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
+class _ResetDBApprovalDialogState extends State<ResetDBApprovalDialog> {
   final _formKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
   final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
@@ -51,7 +46,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
-    String category = "closeshift";
+    String category = "resetlocaldb";
 
     final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
@@ -81,90 +76,12 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
-      Navigator.pop(childContext);
-      Helpers.navigate(
-          childContext,
-          CloseShiftScreen(
-            shiftId: widget.shift.docId,
-            username: usernameController.text,
-          ));
-
-      try {
-        await GetIt.instance<OpenCashDrawerUseCase>().call();
-      } catch (e) {
-        log(e.toString());
-      }
+      await GetIt.instance<AppDatabase>().resetDatabase();
+      exit(0);
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
       if (Platform.isWindows) _usernameFocusNode.requestFocus();
-    }
-  }
-
-  Future<String> createOTP() async {
-    try {
-      double totalSales = 0;
-      double nonCash = 0;
-      double cashAmount = 0;
-      final DateTime now = DateTime.now();
-      final start = widget.shift.openDate.subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
-      final end = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        23,
-        59,
-        59,
-        999,
-      );
-
-      final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
-      for (final mop in fetched!) {
-        if ((mop['topmtDesc'] != 'TUNAI')) {
-          nonCash += mop['totalamount'];
-        } else {
-          cashAmount += mop['totalamount'];
-        }
-        totalSales = mop['totalamount'];
-      }
-
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-      if (topos == null) throw "Failed to retrieve POS Parameter";
-
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
-      if (store == null) throw "Failed to retrieve Store Master";
-
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
-      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
-
-      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      final userId = prefs.getString('tousrId') ?? "";
-      final employeeId = prefs.getString('tohemId') ?? "";
-      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
-      if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
-
-      final String body = '''
-    Approval For: Closing Shift,
-    Store Name: ${store.storeName},
-    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
-    Cashier Name: ${employee?.empName ?? user.username},
-    Shift: ${widget.shift.docNum},
-    Open Date: ${Helpers.dateEEddMMMyyy(widget.shift.openDate)},
-    Opening Balance: ${Helpers.parseMoney(widget.shift.openValue)},
-    Total Sales: ${Helpers.parseMoney(totalSales)},
-    Total Cash: ${Helpers.parseMoney(cashAmount)},
-    Total Non-Cash: ${Helpers.parseMoney(nonCash)},
-    Expected Cash: ${Helpers.parseMoney(cashAmount + widget.shift.openValue)},
-''';
-
-      final String subject = "OTP RUBY POS Close Shift - [${store.storeCode}]";
-
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
-      log("RESPONSE OTP - $response");
-      return response['Requester'];
-    } catch (e) {
-      rethrow;
     }
   }
 
@@ -184,9 +101,8 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
         await showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => OTPEndShiftDialog(
+          builder: (context) => OTPResetDBDialog(
             requester: value,
-            shift: widget.shift,
           ),
         );
       });
@@ -199,8 +115,37 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
     }
   }
 
+  Future<String> createOTP() async {
+    try {
+      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (topos == null) throw "Failed to retrieve POS Parameter";
+
+      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+      if (store == null) throw "Failed to retrieve Store Master";
+
+      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
+
+      final String body = '''
+    Approval For: Reset Database,
+    Store Name: ${store.storeName},
+    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+''';
+
+      final String subject = "OTP RUBY POS Reset Database - [${store.storeCode}]";
+
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
+      log("RESPONSE OTP - $response");
+      return response['Requester'];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   @override
   void dispose() {
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -239,7 +184,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
                 child: const Text(
-                  'Close Shift Confirmation',
+                  'Reset Database Confirmation',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
@@ -355,6 +300,8 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                 ),
                             ],
                           ),
+                          const SizedBox(height: 15),
+                          _warningtext(),
                           const SizedBox(height: 30),
                           Row(
                             children: [
@@ -430,6 +377,41 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _warningtext() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.yellow.shade100,
+        border: Border.all(
+          color: Colors.yellow.shade700,
+          width: 2.0,
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.warning,
+            color: Colors.yellow.shade700,
+            size: 26.0,
+          ),
+          const SizedBox(width: 10.0),
+          const Text(
+            "The app will close itself after resetting the database!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
