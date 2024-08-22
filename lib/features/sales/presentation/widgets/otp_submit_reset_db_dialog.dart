@@ -1,35 +1,31 @@
 import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
-import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 
-class OTPSubmissionDialog extends StatefulWidget {
+class OTPResetDBDialog extends StatefulWidget {
   final String requester;
-  final double? amount;
-
-  const OTPSubmissionDialog({super.key, required this.requester, this.amount});
+  const OTPResetDBDialog({super.key, required this.requester});
 
   @override
-  State<OTPSubmissionDialog> createState() => _OTPSubmissionDialogState();
+  State<OTPResetDBDialog> createState() => _OTPResetDBDialogState();
 }
 
-class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
+class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
   final _otpControllers = List<TextEditingController>.generate(6, (index) => TextEditingController());
   String _otpCode = '';
   late Timer _timer;
@@ -58,48 +54,16 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
     super.dispose();
   }
 
-  Future<void> resendOTP() async {
+  Future<String> getApprover(String email) async {
     try {
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-      if (topos == null) throw "Failed to retrieve POS Parameter";
+      final UserEntity? user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(email, null);
+      if (user == null) throw "User not found";
 
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
-      if (store == null) throw "Failed to retrieve Store Master";
-
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
-      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
-
-      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      final userId = prefs.getString('tousrId') ?? "";
-      final employeeId = prefs.getString('tohemId') ?? "";
-      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
-      if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
-
-      // final Map<String, String> payload = {
-      //   "Store Name": store.storeName,
-      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-      //   "Cashier Name": employee?.empName ?? user.username,
-      // };
-
-      final String body = '''
-    Approval For: Zero or Negative Transaction,
-    Store Name: ${store.storeName},
-    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
-    Cashier Name: ${employee?.empName ?? user.username},
-''';
-
-      final String subject = "OTP RUBY POS Zero/Negative Transaction - [${store.storeCode}]";
-      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
-
-      setState(() {
-        _isOTPSent = true;
-      });
-      await showOTPSent();
-      _startTimer();
+      return user.username;
     } catch (e) {
-      rethrow;
+      log("$e when fetch reset db approver");
     }
+    return "";
   }
 
   Future<void> onSubmit(BuildContext parentContext, BuildContext childContext, String otp, String requester) async {
@@ -119,15 +83,16 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
           ),
         );
       }
-      await Future.delayed(const Duration(seconds: 2));
-      await updateReceiptApprovals(childContext, response['approver']!);
 
+      await Future.delayed(const Duration(seconds: 2));
       if (childContext.mounted) {
-        parentContext.pop(true); // Close the input otp dialog
-        parentContext.pop(true); // Close the input otp dialog
-        parentContext.pop(true); // Close the input otp dialog
+        // parentContext.pop(true); // Close the input otp dialog
+        // parentContext.pop(true); // Close the input otp dialog
+        // parentContext.pop(true); // Close the input otp dialog
 
         SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
+        await GetIt.instance<AppDatabase>().resetDatabase();
+        exit(0);
       }
     } else {
       const message = "Wrong Code, Please Check Again";
@@ -135,22 +100,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
         SnackBarHelper.presentErrorSnackBar(childContext, message);
       }
     }
-  }
-
-  Future<void> updateReceiptApprovals(BuildContext context, String approver) async {
-    final user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(approver, null);
-    final receiptCubit = context.read<ReceiptCubit>();
-
-    final approval = ApprovalInvoiceModel(
-      docId: const Uuid().v4(),
-      createDate: DateTime.now(),
-      updateDate: null,
-      toinvId: receiptCubit.state.docNum,
-      tousrId: user!.docId,
-      remarks: "Approval Transaction 0",
-      category: "002 - Transaction 0",
-    );
-    context.read<ReceiptCubit>().updateApprovals(approval);
   }
 
   Future<void> showOTPSent() async {
@@ -185,6 +134,37 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return '${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds';
+  }
+
+  Future<void> resendOTP() async {
+    try {
+      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (topos == null) throw "Failed to retrieve POS Parameter";
+
+      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+      if (store == null) throw "Failed to retrieve Store Master";
+
+      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
+
+      final String body = '''
+    Approval For: Reset Database,
+    Store Name: ${store.storeName},
+    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+''';
+
+      final String subject = "OTP RUBY POS Reset Database - [${store.storeCode}]";
+
+      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
+
+      setState(() {
+        _isOTPSent = true;
+      });
+      await showOTPSent();
+      _startTimer();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
@@ -373,6 +353,8 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                     child: CircularProgressIndicator(),
                                   ),
                           ],
+                          const SizedBox(height: 15),
+                          _warningtext(),
                         ],
                       ),
                     ),
@@ -448,11 +430,46 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                   ],
                 ),
               ],
-              actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              actionsPadding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
             ),
           ),
         );
       }),
+    );
+  }
+
+  Widget _warningtext() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.yellow.shade100,
+        border: Border.all(
+          color: Colors.yellow.shade700,
+          width: 2.0,
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.warning,
+            color: Colors.yellow.shade700,
+            size: 26.0,
+          ),
+          const SizedBox(width: 10.0),
+          const Text(
+            "The app will close itself after resetting the database!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

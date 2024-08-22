@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -81,7 +83,7 @@ import 'package:pos_fe/features/sales/data/models/zip_code.dart';
 import 'package:pos_fe/features/sales/domain/entities/item_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/reset_db_approval_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/assign_price_member_per_store_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/auth_store_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/bank_issuer_service.dart';
@@ -262,11 +264,10 @@ class _FetchScreenState extends State<FetchScreen> {
     if (checkSync == false) {
       try {
         prefs.setBool('isSyncing', true);
-        // final topos =
-        //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
         final singleTopos = _posParameterEntity;
         final toposId = singleTopos!.docId;
         final lastSyncDate = _posParameterEntity!.lastSync!;
+        prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
         final nextSyncDate = DateTime.now().toUtc().toIso8601String();
 
@@ -3363,31 +3364,32 @@ class _FetchScreenState extends State<FetchScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: ElevatedButton(
-                    onPressed: (prefs.getBool("isSyncing")!)
-                        ? () {
-                            final syncStart = prefs.getString("autoSyncStart");
-                            SnackBarHelper.presentErrorSnackBar(
-                                context, "Sync is currently in progress. Initiated at $syncStart.");
-                          }
-                        : () async {
-                            await refreshToken();
-                            setState(() {
-                              syncProgress = 0;
-                              isManualSyncing = true;
-                            });
-                            final prefs = await SharedPreferences.getInstance();
+                    onPressed: () async {
+                      if (prefs.getBool("isSyncing") ?? false) {
+                        final syncStart = prefs.getString("autoSyncStart");
+                        SnackBarHelper.presentErrorSnackBar(
+                            context, "Sync is currently in progress. Initiated at $syncStart.");
+                      } else {
+                        await refreshToken();
+                        setState(() {
+                          syncProgress = 0;
+                          isManualSyncing = true;
+                        });
+
+                        await manualSync();
+
+                        setState(() {
+                          isManualSyncing = false;
+                        });
+
+                        if (context.mounted) {
+                          context.pop();
+                          setState(() {
                             prefs.setBool('isSyncing', false);
-                            await manualSync();
-                            setState(() {
-                              isManualSyncing = false;
-                            });
-                            if (context.mounted) {
-                              context.pop();
-                              setState(() {
-                                prefs.setBool('isSyncing', false);
-                              });
-                            }
-                          },
+                          });
+                        }
+                      }
+                    },
                     style: const ButtonStyle(
                       backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
                       foregroundColor: MaterialStatePropertyAll(Colors.white),
@@ -3468,16 +3470,18 @@ class _FetchScreenState extends State<FetchScreen> {
                     ? SizedBox(
                         width: MediaQuery.of(context).size.width * 0.5,
                         child: ElevatedButton(
-                          onPressed: isManualSyncing
+                          onPressed: null,
+                          onLongPress: isManualSyncing
                               ? null
                               : () async {
                                   try {
                                     final bool? isAuthorized = await showDialog<bool>(
                                         context: context,
                                         barrierDismissible: false,
-                                        builder: (context) => const ApprovalDialog());
+                                        builder: (context) => const ResetDBApprovalDialog());
                                     if (isAuthorized != true) return;
                                     await GetIt.instance<AppDatabase>().resetDatabase();
+                                    exit(0);
                                   } catch (e) {
                                     SnackBarHelper.presentErrorSnackBar(context, e.toString());
                                   }
@@ -3521,123 +3525,4 @@ class _FetchScreenState extends State<FetchScreen> {
       ),
     );
   }
-
-  // void _showPopupSync() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) => _popupSync(),
-  //   );
-  // }
-
-  // Widget _popupSync() {
-  //   return AlertDialog(
-  //     backgroundColor: Colors.white,
-  //     surfaceTintColor: Colors.transparent,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.all(Radius.circular(5.0)),
-  //     ),
-  //     title: Container(
-  //       decoration: const BoxDecoration(
-  //         color: ProjectColors.primary,
-  //         borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-  //       ),
-  //       padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-  //       child: const Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           Text(
-  //             'Input Password',
-  //             style: TextStyle(
-  //               fontSize: 22,
-  //               fontWeight: FontWeight.w500,
-  //               color: Colors.white,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //     titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-  //     contentPadding: const EdgeInsets.all(0),
-  //     content: SizedBox(
-  //       width: MediaQuery.of(context).size.width * 0.5,
-  //       height: MediaQuery.of(context).size.height * 0.3,
-  //       child: Padding(
-  //         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
-  //         child: Column(
-  //           children: [
-  //             Container(
-  //               padding: const EdgeInsets.all(8.0),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.yellow.shade100,
-  //                 border: Border.all(
-  //                   color: Colors.yellow.shade700,
-  //                   width: 2.0,
-  //                 ),
-  //                 borderRadius: BorderRadius.circular(8.0),
-  //               ),
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.center,
-  //                 children: [
-  //                   Icon(
-  //                     Icons.warning,
-  //                     color: Colors.yellow.shade700,
-  //                     size: 26.0,
-  //                   ),
-  //                   const SizedBox(width: 10.0),
-  //                   const Text(
-  //                     "The app will close itself after the database is restored!",
-  //                     textAlign: TextAlign.center,
-  //                     style: TextStyle(
-  //                       color: Colors.black,
-  //                       fontSize: 16,
-  //                       fontStyle: FontStyle.italic,
-  //                       fontWeight: FontWeight.w500,
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             )
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //     actions: <Widget>[
-  //       Row(
-  //         children: [
-  //           Expanded(
-  //               child: TextButton(
-  //             style: ButtonStyle(
-  //                 shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-  //                     borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-  //                 backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-  //                 overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Center(
-  //               child: RichText(
-  //                 text: const TextSpan(
-  //                   children: [
-  //                     TextSpan(
-  //                       text: "Back",
-  //                       style: TextStyle(fontWeight: FontWeight.w600),
-  //                     ),
-  //                     TextSpan(
-  //                       text: "  ()",
-  //                       style: TextStyle(fontWeight: FontWeight.w300),
-  //                     ),
-  //                   ],
-  //                   style: TextStyle(color: ProjectColors.primary),
-  //                 ),
-  //                 overflow: TextOverflow.clip,
-  //               ),
-  //             ),
-  //           )),
-  //         ],
-  //       ),
-  //     ],
-  //     actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-  //   );
-  // }
 }

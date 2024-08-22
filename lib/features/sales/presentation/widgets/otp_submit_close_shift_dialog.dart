@@ -44,8 +44,6 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
 
   @override
   void initState() {
-    log("SHIFT - ${widget.shift}");
-    log("REQUEST - ${widget.requester}");
     super.initState();
     _otpFocusNode = FocusNode();
     _startTimer();
@@ -491,7 +489,7 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                   ],
                 ),
               ],
-              actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              actionsPadding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
             ),
           ),
         );

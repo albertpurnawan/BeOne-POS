@@ -205,9 +205,6 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                         await RestoreDatabaseUseCase()
                             .call(params: RestoreDatabaseParams(_passwordController.text, context: context));
                         exit(0);
-                        // context.pop(true);
-                        // context.pop(true);
-                        // context.pop(true);
                       },
                       child: Center(
                         child: RichText(

@@ -15,6 +15,7 @@ class AuthStoreFields {
     discAndRound,
     nonPositiveTrx,
     closeShift,
+    resetLocalDb,
     form,
   ];
   static const String docId = "docid";
@@ -27,6 +28,7 @@ class AuthStoreFields {
   static const String discAndRound = "discandround";
   static const String nonPositiveTrx = "nonpositivetrx";
   static const String closeShift = "closeshift";
+  static const String resetLocalDb = "resetlocaldb";
   static const String form = "form";
 }
 
@@ -42,6 +44,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
     required super.discAndRound,
     required super.nonPositiveTrx,
     required super.closeShift,
+    required super.resetLocalDb,
     required super.form,
   });
 
@@ -58,6 +61,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       'discandround': discAndRound,
       'nonpositivetrx': nonPositiveTrx,
       'closeshift': closeShift,
+      'resetlocaldb': resetLocalDb,
       'form': form,
     };
   }
@@ -74,6 +78,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       discAndRound: map['discandround'] as int,
       nonPositiveTrx: map['nonpositivetrx'] as int,
       closeShift: map['closeshift'] as int,
+      resetLocalDb: map['resetlocaldb'] != null ? map['resetlocaldb'] as int : 0,
       form: map['form'] as String,
     );
   }
@@ -97,6 +102,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       discAndRound: entity.discAndRound,
       nonPositiveTrx: entity.nonPositiveTrx,
       closeShift: entity.closeShift,
+      resetLocalDb: entity.resetLocalDb,
       form: entity.form,
     );
   }

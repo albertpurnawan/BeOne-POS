@@ -3508,6 +3508,7 @@ CREATE TABLE $tableAuthStore (
   ${AuthStoreFields.discAndRound} int DEFAULT 0,
   ${AuthStoreFields.nonPositiveTrx} int DEFAULT 0,
   ${AuthStoreFields.closeShift} int DEFAULT 0,
+  ${AuthStoreFields.resetLocalDb} int DEFAULT 0,
   ${AuthStoreFields.form} varchar(1) NOT NULL,
   $createdAtDefinition
 )
@@ -3627,6 +3628,7 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN discandround int DEFAULT 0''');
       await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN nonpositivetrx int DEFAULT 0''');
       await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN closeshift int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN resetdb int DEFAULT 0''');
 
       await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN mindiscount int DEFAULT 0''');
       await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN maxdiscount int DEFAULT 0''');
