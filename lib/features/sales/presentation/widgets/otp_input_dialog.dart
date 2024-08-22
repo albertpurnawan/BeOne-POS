@@ -143,6 +143,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
         );
       }
       await Future.delayed(const Duration(seconds: 2));
+      await updateReceiptApprovals(childContext, response['approver']!);
 
       if (childContext.mounted) {
         childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
@@ -154,7 +155,6 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
 
         SnackBarHelper.presentSuccessSnackBar(
             parentContext, "Header discount/rounding applied: ${Helpers.parseMoney(widget.discountValue)}", 3);
-        await updateReceiptApprovals(childContext, response['approver']!);
       }
     } else {
       const message = "Wrong Code, Please Check Again";

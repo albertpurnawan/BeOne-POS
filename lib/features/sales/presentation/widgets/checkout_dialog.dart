@@ -1369,7 +1369,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                               final double cashAmount =
                                                                   Helpers.revertMoneyToDecimalFormat(value);
 
-                                                              if (cashAmount <= 0) {
+                                                              if (cashAmount < 0) {
                                                                 setState(() {
                                                                   _values = (widget.isMultiMOPs
                                                                       ? _values

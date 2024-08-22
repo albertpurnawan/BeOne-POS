@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -263,11 +264,10 @@ class _FetchScreenState extends State<FetchScreen> {
     if (checkSync == false) {
       try {
         prefs.setBool('isSyncing', true);
-        // final topos =
-        //     await GetIt.instance<AppDatabase>().posParameterDao.readAll();
         final singleTopos = _posParameterEntity;
         final toposId = singleTopos!.docId;
         final lastSyncDate = _posParameterEntity!.lastSync!;
+        prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
         final nextSyncDate = DateTime.now().toUtc().toIso8601String();
 

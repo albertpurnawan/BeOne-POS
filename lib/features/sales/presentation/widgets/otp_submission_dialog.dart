@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -121,12 +120,14 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
         );
       }
       await Future.delayed(const Duration(seconds: 2));
+      await updateReceiptApprovals(childContext, response['approver']!);
+
       if (childContext.mounted) {
+        parentContext.pop(true); // Close the input otp dialog
         parentContext.pop(true); // Close the input otp dialog
         parentContext.pop(true); // Close the input otp dialog
 
         SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
-        await updateReceiptApprovals(childContext, response['approver']!);
       }
     } else {
       const message = "Wrong Code, Please Check Again";
@@ -150,7 +151,6 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
       category: "002 - Transaction 0",
     );
     context.read<ReceiptCubit>().updateApprovals(approval);
-    log("receiptCubit - ${receiptCubit.state.approvals}");
   }
 
   Future<void> showOTPSent() async {

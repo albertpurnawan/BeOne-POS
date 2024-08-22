@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
@@ -285,7 +284,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
           controller: _textEditorDiscountController,
           onFieldSubmitted: (value) async => await onSubmit(),
           autofocus: true,
-          inputFormatters: [MoneyInputFormatter()],
+          inputFormatters: [NegativeMoneyInputFormatter()],
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24),
           decoration: const InputDecoration(
