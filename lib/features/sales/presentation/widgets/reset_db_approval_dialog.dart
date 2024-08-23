@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/usecases/refresh_database_usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -76,8 +77,8 @@ class _ResetDBApprovalDialogState extends State<ResetDBApprovalDialog> {
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
-      await GetIt.instance<AppDatabase>().resetDatabase();
-      exit(0);
+      await GetIt.instance<RefreshDatabaseUseCase>().call(params: RefreshDatabaseParams(context: childContext));
+      // exit(0);
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
@@ -393,22 +394,39 @@ class _ResetDBApprovalDialogState extends State<ResetDBApprovalDialog> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
             Icons.warning,
             color: Colors.yellow.shade700,
-            size: 26.0,
+            size: 42.0,
           ),
           const SizedBox(width: 10.0),
-          const Text(
-            "The app will close itself after resetting the database!",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-              fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w500,
-            ),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                "Refreshing the database might take some time.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                "Please wait until the process is finished.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),

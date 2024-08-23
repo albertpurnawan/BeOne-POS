@@ -6,6 +6,7 @@ import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
+import 'package:pos_fe/core/usecases/refresh_database_usecase.dart';
 import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
@@ -52,9 +53,9 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
-import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdg_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdi_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
 import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
@@ -434,11 +435,12 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<CheckCredentialActiveStatusUseCase>(
       () => CheckCredentialActiveStatusUseCase(sl()),
       dependsOn: [SharedPreferences]);
-  sl.registerSingleton<EncryptPasswordUseCase>(EncryptPasswordUseCase());
-  sl.registerSingleton<DecryptPasswordUseCase>(DecryptPasswordUseCase());
+  sl.registerSingleton<EncryptUseCase>(EncryptUseCase());
+  sl.registerSingleton<DecryptUseCase>(DecryptUseCase());
   sl.registerSingleton<RefreshTokenUseCase>(RefreshTokenUseCase());
   sl.registerSingleton<GenerateDeviceNumberUseCase>(GenerateDeviceNumberUseCase(sl(), sl()));
   sl.registerSingleton<GetAppVersionUseCase>(GetAppVersionUseCase());
+  sl.registerSingleton<RefreshDatabaseUseCase>(RefreshDatabaseUseCase());
   /**
    * =================================
    * END OF USECASES

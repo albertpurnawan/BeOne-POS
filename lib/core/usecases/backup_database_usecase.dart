@@ -23,7 +23,7 @@ class BackupDatabaseParams {
 
 class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
   final _databaseName = "pos_fe.db";
-  final decryptPasswordUseCase = GetIt.instance<DecryptPasswordUseCase>();
+  final decryptPasswordUseCase = GetIt.instance<DecryptUseCase>();
 
   @override
   Future<void> call({BackupDatabaseParams? params}) async {
@@ -65,8 +65,6 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
         }
         final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
         backupFolder = Directory(backupDir);
-        log("backupDir W - $backupDir");
-        log("backupFolder W - $backupFolder");
       } else if (Platform.isAndroid) {
         const backupDir = "/storage/emulated/0";
         backupFolder = Directory('$backupDir/RubyPOS');

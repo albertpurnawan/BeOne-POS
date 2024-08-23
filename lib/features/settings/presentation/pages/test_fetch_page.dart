@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -3475,15 +3474,29 @@ class _FetchScreenState extends State<FetchScreen> {
                               ? null
                               : () async {
                                   try {
+                                    if (prefs.getBool("isSyncing") ?? false) {
+                                      final syncStart = prefs.getString("autoSyncStart");
+                                      SnackBarHelper.presentErrorSnackBar(
+                                          context, "Sync is currently in progress. Initiated at $syncStart.");
+                                      return;
+                                    }
+                                    prefs.setBool("isSyncing", true);
                                     final bool? isAuthorized = await showDialog<bool>(
                                         context: context,
                                         barrierDismissible: false,
                                         builder: (context) => const ResetDBApprovalDialog());
+
                                     if (isAuthorized != true) return;
-                                    await GetIt.instance<AppDatabase>().resetDatabase();
-                                    exit(0);
+
+                                    if (context.mounted) {
+                                      SnackBarHelper.presentSuccessSnackBar(context, "Succes refresh database", 3);
+                                    }
                                   } catch (e) {
-                                    SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                    if (context.mounted) {
+                                      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                    }
+                                  } finally {
+                                    prefs.setBool("isSyncing", false);
                                   }
                                 },
                           style: ButtonStyle(
@@ -3507,7 +3520,7 @@ class _FetchScreenState extends State<FetchScreen> {
                           child: const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Reset',
+                              'Refresh Database',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18,
