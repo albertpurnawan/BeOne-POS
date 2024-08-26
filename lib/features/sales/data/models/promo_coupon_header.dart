@@ -119,7 +119,7 @@ class PromoCouponHeaderModel extends PromoCouponHeaderEntity implements BaseMode
       memberDisc: map['memberdisc'] as double,
       maxMemberDisc: map['maxmemberdisc'] as double,
       statusActive: map['statusactive'] as int,
-      isTada: map['isTada'] as int,
+      isTada: map['isTada'] == null ? 0 : map['isTada'] as int,
       form: map['form'] as String,
     );
   }

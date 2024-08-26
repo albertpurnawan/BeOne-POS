@@ -3604,7 +3604,7 @@ CREATE TABLE $tableApprovalInvoice (
 
   FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     for (var migration = oldVersion; migration < newVersion; migration++) {
-      _onUpgrades["from_version_${migration}_to_version_${migration + 1}"]!(db);
+      await _onUpgrades["from_version_${migration}_to_version_${migration + 1}"]!(db);
     }
   }
 

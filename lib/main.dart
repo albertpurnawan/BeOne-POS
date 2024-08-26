@@ -81,9 +81,7 @@ void main() async {
   //   log(details.toString());
   //   // if (kReleaseMode) exit(1);
   // };
-  runApp(const RestartWidget(
-    child: MyApp(),
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
