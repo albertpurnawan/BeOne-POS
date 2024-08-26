@@ -145,7 +145,7 @@ class InvoiceApi {
       }
 
       List<Map<String, dynamic>> promotionsHeader = [];
-      if (invHead[0].discHeaderManual != 0) {
+      if (invHead[0].discHeaderManual != 0 || invHead[0].discountCoupun > 0) {
         final promoHeader =
             await GetIt.instance<AppDatabase>().invoiceAppliedPromoDao.readByToinvId(invHead[0].docId!, null);
         List<Map<String, dynamic>> promoMaps =
@@ -202,12 +202,13 @@ class InvoiceApi {
         "discprctg": invHead[0].subTotal == 0
             ? 0
             : 100 *
-                ((invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0)) /
+                ((invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0) + invHead[0].discountCoupun) /
                     (invHead[0].subTotal - (invHead[0].discHeaderPromo ?? 0))),
-        "discamount": invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0),
+        "discamount": invHead[0].discAmount - (invHead[0].discHeaderPromo ?? 0) + invHead[0].discountCoupun,
         "discountcard": invHead[0].discountCard,
         "coupon": invHead[0].coupon,
-        "discountcoupon": invHead[0].discountCoupun,
+        // "discountcoupon": invHead[0].discountCoupun,
+        "discountcoupon": 0,
         "taxprctg": invHead[0].taxPrctg,
         "taxamount": double.parse(invHead[0].taxAmount.toStringAsFixed(2)),
         "addcost": invHead[0].addCost,

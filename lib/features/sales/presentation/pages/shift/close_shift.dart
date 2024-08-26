@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +22,7 @@ import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/calculate_cash.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift_success_alert_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
@@ -864,6 +866,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     await prefs.setBool('isOpen', false);
                     await prefs.setString('tcsr1Id', "");
                     await GetIt.instance<LogoutUseCase>().call();
+                    await context.read<ReceiptCubit>().resetReceipt();
                     if (context.mounted) {
                       await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
                     }

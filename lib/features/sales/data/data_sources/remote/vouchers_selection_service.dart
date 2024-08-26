@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -28,7 +30,7 @@ class VouchersSelectionApi {
         "$url/tenant-check-register-voucher",
         queryParameters: {
           'serial_no': serialno,
-          'tostrId': tostrId,
+          'tostr_id': tostrId,
         },
         options: Options(
           headers: {
@@ -76,7 +78,7 @@ class VouchersSelectionApi {
         "$url/tenant-check-register-voucher",
         queryParameters: {
           'serial_no': serialno,
-          'tostrId': tostrId,
+          'tostr_id': tostrId,
         },
         options: Options(
           headers: {
@@ -85,6 +87,7 @@ class VouchersSelectionApi {
         ),
       );
 
+      log("$serialno $tostrId");
       return response.data;
     } catch (err) {
       handleError(err);

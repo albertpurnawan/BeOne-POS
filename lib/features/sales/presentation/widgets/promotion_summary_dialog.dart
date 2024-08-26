@@ -398,7 +398,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
 
-        return e1.itemEntity.includeTax == 1 ? discAmount * (100 + e1.itemEntity.taxRate) / 100 : discAmount;
+        return discAmount * (100 + e1.itemEntity.taxRate) / 100;
       }).reduce((value, e3) => value + e3);
 
       totalDisc += totalDiscByPromoId;
@@ -537,7 +537,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
 
-        return e1.itemEntity.includeTax == 1 ? discAmount * (100 + e1.itemEntity.taxRate) / 100 : discAmount;
+        return discAmount * (100 + e1.itemEntity.taxRate) / 100;
       }).reduce((value, e3) => value + e3);
       totalDisc += totalDiscByPromoId;
       widgets.add(Column(
@@ -559,6 +559,130 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                   width: 150,
                   child: Text(
                     Helpers.parseMoney(totalDiscByPromoId.round()),
+                    style: const TextStyle(fontSize: 14),
+                  )),
+            ],
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+        ],
+      ));
+    }
+
+    widgets.add(Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 25,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+                width: 345,
+                child: Text(
+                  "Total Discount",
+                  style: TextStyle(fontSize: 14),
+                )),
+            const SizedBox(
+              width: 20,
+            ),
+            SizedBox(
+                width: 150,
+                child: Text(
+                  Helpers.parseMoney(totalDisc.round()),
+                  style: const TextStyle(fontSize: 14),
+                )),
+          ],
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+      ],
+    ));
+
+    return [
+      Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
+          )),
+      const Divider(),
+    ];
+  }
+
+  List<Widget> _buildCouponDetails() {
+    final List<Widget> widgets = [
+      const Text(
+        "Coupons",
+        style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+    ];
+
+    final List<PromotionsEntity> couponPromos =
+        widget.receiptEntity.promos.where((element) => element.promoType == 107).toList();
+    if (couponPromos.isEmpty) return [];
+
+    widgets.addAll([
+      const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 345,
+            child: Text(
+              "Coupon Code",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: ProjectColors.lightBlack,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          SizedBox(
+              width: 150,
+              child: Text("Discount",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: ProjectColors.lightBlack,
+                  ))),
+        ],
+      ),
+      const SizedBox(
+        height: 5,
+      )
+    ]);
+
+    double totalDisc = 0;
+    for (final couponPromo in couponPromos) {
+      totalDisc += couponPromo.discAmount ?? 0;
+      widgets.add(Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                  width: 345,
+                  child: Text(
+                    couponPromo.promoDescription,
+                    style: const TextStyle(fontSize: 14),
+                  )),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                  width: 150,
+                  child: Text(
+                    Helpers.parseMoney((couponPromo.discAmount ?? 0).round()),
                     style: const TextStyle(fontSize: 14),
                   )),
             ],
@@ -785,6 +909,10 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const Divider(),
+                ..._buildCouponDetails(),
+                const SizedBox(
+                  height: 5,
+                ),
                 ..._buildBuyXGetYDetails(),
                 const SizedBox(
                   height: 5,

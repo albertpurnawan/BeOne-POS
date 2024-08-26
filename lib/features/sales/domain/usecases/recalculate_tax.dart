@@ -35,12 +35,15 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
     double subtotalAfterHeaderDiscount = 0;
     double taxAfterHeaderDiscount = 0;
     double discAmountAfterHeaderDiscount = 0;
+    double couponDiscPrctg = params.couponDiscount / (params.subtotal - (params.discAmount ?? 0));
 
     for (final item in params.receiptItems.map((e) => e.copyWith())) {
       if (item.itemEntity.barcode != "99") {
-        item.discHeaderAmount = (((discHprctg * item.totalAmount)) * (100 / (item.itemEntity.taxRate + 100)));
+        item.discHeaderAmount =
+            (((discHprctg * (item.totalAmount * (1 - couponDiscPrctg)))) * (100 / (item.itemEntity.taxRate + 100)));
       }
-      item.subtotalAfterDiscHeader = item.totalGross - (item.discAmount ?? 0) - (item.discHeaderAmount ?? 0);
+      item.subtotalAfterDiscHeader =
+          ((item.totalGross - (item.discAmount ?? 0)) * (1 - couponDiscPrctg)) - (item.discHeaderAmount ?? 0);
       item.taxAmount = item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
       subtotalAfterHeaderDiscount += item.subtotalAfterDiscHeader!;
       taxAfterHeaderDiscount += item.taxAmount;

@@ -49,7 +49,7 @@ class InvoiceAppliedPromoDao extends BaseDao<InvoiceAppliedPromoModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(
       tableName,
-      where: 'toinvdocid = ? AND promotiontype = \'999\'',
+      where: 'toinvdocid = ? AND (promotiontype = \'999\' OR promotiontype = \'107\')',
       whereArgs: [toinvId],
     );
     log("RESULT 2 - $result");

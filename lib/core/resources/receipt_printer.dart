@@ -696,9 +696,10 @@ class ReceiptPrinter {
                 width: 6,
                 text: Helpers.alignRightByAddingSpace(
                     Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.receiptItems
-                        .map((e) => (e.discAmount ?? 0) * ((100 + e.itemEntity.taxRate) / 100))
-                        .reduce((value, element) => value + element)
-                        .round()),
+                            .map((e) => (e.discAmount ?? 0) * ((100 + e.itemEntity.taxRate) / 100))
+                            .reduce((value, element) => value + element)
+                            .round() +
+                        currentPrintReceiptDetail!.receiptEntity.couponDiscount),
                     width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
