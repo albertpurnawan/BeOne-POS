@@ -244,7 +244,25 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
         if (availablePromos.isNotEmpty) {
           for (final availablePromo in availablePromos) {
-            switch (availablePromo!.promoType) {
+            final now = DateTime.now();
+            final startHour = availablePromo!.startTime.hour;
+            final startMinute = availablePromo.startTime.minute;
+            final startSecond = availablePromo.startTime.second;
+            DateTime startPromo = DateTime(now.year, now.month, now.day, startHour, startMinute, startSecond);
+            final endHour = availablePromo.endTime.hour;
+            final endMinute = availablePromo.endTime.minute;
+            final endSecond = availablePromo.endTime.second;
+            DateTime endPromo = DateTime(now.year, now.month, now.day, endHour, endMinute, endSecond);
+
+            final bool isCustomerEligible = newReceipt.customerEntity?.tocrgId == null
+                ? false
+                : availablePromo.tocrgId == newReceipt.customerEntity?.tocrgId;
+            final bool isApplicableNow = now.millisecondsSinceEpoch >= startPromo.millisecondsSinceEpoch &&
+                now.millisecondsSinceEpoch <= endPromo.millisecondsSinceEpoch;
+
+            if (!isCustomerEligible || !isApplicableNow) continue;
+
+            switch (availablePromo.promoType) {
               case 202:
                 // dev.log("CASE 202");
                 newReceipt = await _handlePromoSpecialPriceUseCase.call(
