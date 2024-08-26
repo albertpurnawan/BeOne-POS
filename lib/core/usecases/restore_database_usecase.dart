@@ -121,7 +121,7 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
         try {
           await restoredFile.copy(path);
           await File(renamedOriginal).delete(); // Remove backup if the copy was successful
-
+          await GetIt.instance<AppDatabase>().getDB();
           if (context.mounted) {
             Navigator.pop(context);
             log("Database restored from $restoredPath");
