@@ -230,7 +230,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 2;
+  final int databaseVersion = 3;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -3632,6 +3632,20 @@ CREATE TABLE $tableApprovalInvoice (
 
       await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN mindiscount int DEFAULT 0''');
       await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN maxdiscount int DEFAULT 0''');
+    },
+    'from_version_2_to_version_3': (Database db) async {
+      final result = await db.rawQuery(
+        '''PRAGMA table_info($tableAuthStore)''',
+      );
+
+      bool columnExists = result.any((column) => column['name'] == 'resetlocaldb');
+
+      if (!columnExists) {
+        await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN temp int NOT NULL DEFAULT 0''');
+        await db.execute('''UPDATE $tableAuthStore SET temp = resetdb''');
+        await db.execute('''ALTER TABLE $tableAuthStore DROP COLUMN resetdb''');
+        await db.execute('''ALTER TABLE $tableAuthStore RENAME temp TO resetlocaldb''');
+      }
     },
   };
 
