@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -3481,7 +3480,7 @@ class _FetchScreenState extends State<FetchScreen> {
                                         builder: (context) => const ResetDBApprovalDialog());
                                     if (isAuthorized != true) return;
                                     await GetIt.instance<AppDatabase>().resetDatabase();
-                                    exit(0);
+                                    // exit(0);
                                   } catch (e) {
                                     SnackBarHelper.presentErrorSnackBar(context, e.toString());
                                   }

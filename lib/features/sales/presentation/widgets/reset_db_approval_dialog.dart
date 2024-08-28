@@ -77,7 +77,7 @@ class _ResetDBApprovalDialogState extends State<ResetDBApprovalDialog> {
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
       await GetIt.instance<AppDatabase>().resetDatabase();
-      exit(0);
+      // exit(0);
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
