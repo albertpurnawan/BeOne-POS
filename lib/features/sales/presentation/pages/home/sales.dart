@@ -2011,23 +2011,26 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () async {
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) => const DownPaymentDialog(),
-                            );
-                            setState(() {
-                              isEditingNewReceiptItemCode = true;
-                              Future.delayed(
-                                  const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
-                            });
-                          },
+                          // onPressed: () async {
+                          //   await showDialog(
+                          //     context: context,
+                          //     builder: (BuildContext context) => const DownPaymentDialog(),
+                          //   );
+                          //   setState(() {
+                          //     isEditingNewReceiptItemCode = true;
+                          //     Future.delayed(
+                          //         const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
+                          //   });
+                          // },
+                          onPressed: null,
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                            foregroundColor: Colors.white,
-                            backgroundColor: ProjectColors.primary,
+                            // foregroundColor: Colors.white,
+                            foregroundColor: Colors.grey,
+                            // backgroundColor: ProjectColors.primary,
+                            backgroundColor: ProjectColors.lightBlack,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -2060,7 +2063,8 @@ class _SalesPageState extends State<SalesPage> {
                                         children: [
                                           TextSpan(
                                             text: "Down\nPayment",
-                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
                                           ),
                                         ],
                                       ),
