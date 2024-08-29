@@ -2032,8 +2032,10 @@ class _SalesPageState extends State<SalesPage> {
                             elevation: 5,
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                            foregroundColor: Colors.white,
-                            backgroundColor: ProjectColors.primary,
+                            // foregroundColor: Colors.white,
+                            foregroundColor: Colors.grey,
+                            // backgroundColor: ProjectColors.primary,
+                            backgroundColor: ProjectColors.lightBlack,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -2066,7 +2068,8 @@ class _SalesPageState extends State<SalesPage> {
                                         children: [
                                           TextSpan(
                                             text: "Down\nPayment",
-                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
                                           ),
                                         ],
                                       ),
