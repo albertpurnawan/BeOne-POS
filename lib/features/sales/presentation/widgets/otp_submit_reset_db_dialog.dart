@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -86,13 +85,13 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
 
       await Future.delayed(const Duration(seconds: 2));
       if (childContext.mounted) {
-        // parentContext.pop(true); // Close the input otp dialog
-        // parentContext.pop(true); // Close the input otp dialog
-        // parentContext.pop(true); // Close the input otp dialog
+        parentContext.pop(true); // Close the input otp dialog
+        parentContext.pop(true); // Close the input otp dialog
+        parentContext.pop(true); // Close the input otp dialog
 
         SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
         await GetIt.instance<AppDatabase>().resetDatabase();
-        exit(0);
+        // exit(0);
       }
     } else {
       const message = "Wrong Code, Please Check Again";

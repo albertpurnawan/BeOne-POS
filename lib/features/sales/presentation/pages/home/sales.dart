@@ -27,6 +27,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/down_payment_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
@@ -354,6 +355,10 @@ class _SalesPageState extends State<SalesPage> {
       });
     }
   }
+
+  // Future<bool> checkReceiptWithDP(ReceiptEntity receipt) async {
+  //   if (receipt.receiptItems.contains(element));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -2001,6 +2006,77 @@ class _SalesPageState extends State<SalesPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: OutlinedButton(
+                          // onPressed: () async {
+                          //   await showDialog(
+                          //     context: context,
+                          //     builder: (BuildContext context) => const DownPaymentDialog(),
+                          //   );
+                          //   setState(() {
+                          //     isEditingNewReceiptItemCode = true;
+                          //     Future.delayed(
+                          //         const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
+                          //   });
+                          // },
+                          onPressed: null,
+                          style: OutlinedButton.styleFrom(
+                            elevation: 5,
+                            shadowColor: Colors.black87,
+                            padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                            // foregroundColor: Colors.white,
+                            foregroundColor: Colors.grey,
+                            // backgroundColor: ProjectColors.primary,
+                            backgroundColor: ProjectColors.lightBlack,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            side: BorderSide.none,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
+                            child: Stack(
+                              children: [
+                                const Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "",
+                                          style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: RichText(
+                                      textAlign: TextAlign.left,
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Down\nPayment",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -2078,6 +2154,73 @@ class _SalesPageState extends State<SalesPage> {
                                           children: [
                                             TextSpan(
                                               text: "Item\nAttributes",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                                  color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
+                                            ),
+                                          ],
+                                        ),
+                                        overflow: TextOverflow.clip,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: TapRegion(
+                          groupId: 1,
+                          child: OutlinedButton(
+                            onPressed: indexIsSelect[1] == 0 ? null : null,
+                            style: OutlinedButton.styleFrom(
+                              elevation: 5,
+                              shadowColor: Colors.black87,
+                              padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                              foregroundColor: Colors.white,
+                              backgroundColor:
+                                  indexIsSelect[0] == -1 ? ProjectColors.lightBlack : ProjectColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              side: BorderSide.none,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: Align(
+                                      alignment: Alignment.topRight,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w300,
+                                                fontSize: 14,
+                                                color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned.fill(
+                                    child: Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: RichText(
+                                        textAlign: TextAlign.left,
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: "Return",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,
