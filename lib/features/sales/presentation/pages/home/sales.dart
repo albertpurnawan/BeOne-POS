@@ -356,9 +356,9 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  // Future<bool> checkReceiptWithDP(ReceiptEntity receipt) async {
-  //   if (receipt.receiptItems.contains(element));
-  // }
+  Future<bool> _checkReceiptWithMember(ReceiptEntity receipt) async {
+    return ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2012,6 +2012,12 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
+                            final check = await _checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                            if (!check) {
+                              SnackBarHelper.presentErrorSnackBar(context,
+                                  "Please select the customer first, only customer with member can use Down Payment");
+                              return;
+                            }
                             await showDialog(
                               context: context,
                               builder: (BuildContext context) => const DownPaymentDialog(),
