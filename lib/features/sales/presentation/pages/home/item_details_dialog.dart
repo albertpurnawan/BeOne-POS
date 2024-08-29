@@ -212,7 +212,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                         const SizedBox(
                                           width: 10,
                                         ),
-                                        (salesSelected != "Not Set" && salesSelected!.isNotEmpty)
+                                        (salesSelected != "Not Set" && salesSelected != null)
                                             ? IconButton(
                                                 icon: const Icon(
                                                   Icons.delete_outline,
