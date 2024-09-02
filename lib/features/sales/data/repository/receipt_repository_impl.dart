@@ -97,7 +97,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           syncCRM: 0,
           toinvTohemId: receiptEntity.employeeEntity!.docId, // get di sini
           refpos1: tcsr1IdPref, // get di sini
-          refpos2: '', //
+          refpos2: receiptEntity.refpos2 ?? "",
           tcsr1Id: tcsr1IdPref, // get di sini
           discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
           discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
@@ -144,6 +144,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             discHeaderAmount: e.discHeaderAmount,
             subtotalAfterDiscHeader: e.subtotalAfterDiscHeader,
             tohemId: e.tohemId ?? "",
+            refpos2: e.refpos2 ?? "",
           );
         }).toList();
 
@@ -403,6 +404,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             tocatId: itemMasterModel.tocatId,
             shortName: itemMasterModel.shortName,
             toplnId: "N/A",
+            refpos2: "N/A",
           ),
           sellingPrice: invoiceDetailModel.sellingPrice,
           totalAmount: invoiceDetailModel.totalAmount,

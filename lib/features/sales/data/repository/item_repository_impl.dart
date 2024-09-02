@@ -36,4 +36,9 @@ class ItemRepositoryImpl implements ItemRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<ItemEntity?> getDownPayment() {
+    return _appDatabase.itemsDao.getDownPayment();
+  }
 }

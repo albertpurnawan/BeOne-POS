@@ -22,6 +22,7 @@ class ItemFields {
     tocatId,
     shortName,
     toplnId,
+    refpos2,
   ];
 
   static const String id = "_id";
@@ -41,6 +42,7 @@ class ItemFields {
   static const String tocatId = "tocatId";
   static const String shortName = "shortname";
   static const String toplnId = "toplnId";
+  static const String refpos2 = "refpos2";
 }
 
 class ItemModel extends ItemEntity implements BaseModel {
@@ -62,6 +64,7 @@ class ItemModel extends ItemEntity implements BaseModel {
     required super.tocatId,
     required super.shortName,
     required super.toplnId,
+    required super.refpos2,
   });
 
   @override
@@ -84,6 +87,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       'tocatId': tocatId,
       'shortname': shortName,
       'toplnId': toplnId,
+      'refpos2': refpos2,
     };
   }
 
@@ -106,6 +110,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       shortName: map['shortname'] != null ? map['shortname'] as String : null,
       toplnId: map['toplnId'],
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
     );
   }
 
@@ -128,6 +133,7 @@ class ItemModel extends ItemEntity implements BaseModel {
       tocatId: entity.tocatId,
       shortName: entity.shortName,
       toplnId: entity.toplnId,
+      refpos2: entity.refpos2,
     );
   }
 }

@@ -219,6 +219,7 @@ class InvoiceApi {
         "tocsr_id": invHead[0].tocsrId,
         "toinv_tohem_id": invHead[0].toinvTohemId,
         "refpos1": invHead[0].refpos1,
+        "refpos2": invHead[0].refpos2 ?? "",
         "invoice_item": invDet.map((item) {
           List<Map<String, dynamic>> filteredPromotions = promotionsDetail.where((promo) {
             return promo['tinv1docid'] == item['docid'];
@@ -267,6 +268,7 @@ class InvoiceApi {
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": (item['tohemId'] == "") ? invHead[0].salesTohemId : item['tohemId'],
+            "refpos2": item['refpos2'] ?? "",
             "promotion": filteredPromotions
           };
         }).toList(),

@@ -261,6 +261,9 @@ class _SalesPageState extends State<SalesPage> {
   String? lastSync;
   bool changeColor = false;
 
+  // Check Customer
+  bool isMember = false;
+
   // =================================================
   //             [END] Variables
   // =================================================
@@ -290,6 +293,9 @@ class _SalesPageState extends State<SalesPage> {
     countTotalShifts();
     getLastSync();
     checkIsSyncing();
+
+    // Start Check Member
+    checkReceiptWithMember(context.read<ReceiptCubit>().state);
   }
 
   @override
@@ -356,8 +362,10 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  Future<bool> _checkReceiptWithMember(ReceiptEntity receipt) async {
-    return ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
+  Future<void> checkReceiptWithMember(ReceiptEntity receipt) async {
+    setState(() {
+      isMember = ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
+    });
   }
 
   @override
@@ -2012,8 +2020,7 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
-                            final check = await _checkReceiptWithMember(context.read<ReceiptCubit>().state);
-                            if (!check) {
+                            if (!isMember) {
                               SnackBarHelper.presentErrorSnackBar(context,
                                   "Please select the customer first, only customer with member can use Down Payment");
                               return;
@@ -2032,10 +2039,8 @@ class _SalesPageState extends State<SalesPage> {
                             elevation: 5,
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                            // foregroundColor: Colors.white,
-                            foregroundColor: Colors.grey,
-                            // backgroundColor: ProjectColors.primary,
-                            backgroundColor: ProjectColors.lightBlack,
+                            foregroundColor: Colors.white,
+                            backgroundColor: isMember ? ProjectColors.primary : ProjectColors.lightBlack,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -2064,12 +2069,14 @@ class _SalesPageState extends State<SalesPage> {
                                     alignment: Alignment.bottomLeft,
                                     child: RichText(
                                       textAlign: TextAlign.left,
-                                      text: const TextSpan(
+                                      text: TextSpan(
                                         children: [
                                           TextSpan(
                                             text: "Down\nPayment",
                                             style: TextStyle(
-                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: isMember ? Colors.white : Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -2476,8 +2483,9 @@ class _SalesPageState extends State<SalesPage> {
                 Expanded(
                   child: SizedBox.expand(
                     child: OutlinedButton(
-                      onPressed: () {
-                        context.read<ReceiptCubit>().resetReceipt();
+                      onPressed: () async {
+                        await context.read<ReceiptCubit>().resetReceipt();
+                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         setState(() {
                           isEditingNewReceiptItemQty = false;
                           isUpdatingReceiptItemQty = false;
@@ -3085,6 +3093,7 @@ class _SalesPageState extends State<SalesPage> {
                           context.read<CustomersCubit>().clearCustomers();
                           isEditingNewReceiptItemCode = true;
                           _newReceiptItemCodeFocusNode.requestFocus();
+                          checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         }));
                   },
                   style: OutlinedButton.styleFrom(

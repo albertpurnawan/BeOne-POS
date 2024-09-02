@@ -10,5 +10,7 @@ abstract class ItemRepository {
 
   Future<ItemEntity?> getItem(int id);
 
+  Future<ItemEntity?> getDownPayment();
+
   Future<ItemEntity?> getItemWithAndConditions(Map<String, dynamic> conditions, Transaction? txn);
 }

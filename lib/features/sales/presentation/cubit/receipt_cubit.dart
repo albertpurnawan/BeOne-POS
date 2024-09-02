@@ -211,7 +211,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Convert item entity to receipt item entity **qty conversion can be placed here**
       receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(itemEntity, params.quantity)
         ..tohemId = params.tohemId
-        ..remarks = params.remarks;
+        ..remarks = params.remarks
+        ..refpos2 = params.refpos2;
 
       // Handle open price
       if (receiptItemEntity.itemEntity.openPrice == 1) {
@@ -224,11 +225,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           receiptItemEntity = ReceiptHelper.updateReceiptItemAggregateFields(
               receiptItemEntity.copyWith(quantity: params.quantity, itemEntity: existingItem[0].itemEntity));
         } else {
-          final double? newPrice = await showDialog<double>(
-            context: params.context!,
-            barrierDismissible: false,
-            builder: (context) => OpenPriceDialog(receiptItemEntity: receiptItemEntity, quantity: params.quantity),
-          );
+          final double? newPrice = params.setOpenPrice ??
+              await showDialog<double>(
+                context: params.context!,
+                barrierDismissible: false,
+                builder: (context) => OpenPriceDialog(receiptItemEntity: receiptItemEntity, quantity: params.quantity),
+              );
           params.onOpenPriceInputted();
           if (newPrice == null) throw "Price is required";
           receiptItemEntity = await _handleOpenPriceUseCase(
@@ -345,7 +347,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       remarks: remarks,
       salesTohemId: tohemId,
     );
-    dev.log("newState - $newState");
+    emit(newState);
+  }
+
+  Future<void> updateRefpos2(String refpos2) async {
+    final newState = state.copyWith(
+      refpos2: refpos2,
+    );
+    dev.log("updateRefPOS2 - $newState");
     emit(newState);
   }
 
@@ -673,6 +682,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
         remarks: receiptItem.remarks,
         tohemId: receiptItem.tohemId,
+        setOpenPrice: receiptItem.itemEntity.price,
       ));
     }
 
@@ -930,7 +940,9 @@ class AddUpdateReceiptItemsParams {
   final void Function() onOpenPriceInputted;
   final String? remarks;
   final String? tohemId;
-  final bool? isReinput;
+  // final bool? isReinput;
+  final double? setOpenPrice;
+  final String? refpos2;
 
   AddUpdateReceiptItemsParams({
     required this.barcode,
@@ -940,6 +952,7 @@ class AddUpdateReceiptItemsParams {
     required this.onOpenPriceInputted,
     this.remarks,
     this.tohemId,
-    this.isReinput,
+    this.setOpenPrice,
+    this.refpos2,
   });
 }

@@ -1,11 +1,17 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -24,6 +30,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   final FocusNode _amountFocusNode = FocusNode();
 
   late final ReceiptEntity stateInvoice;
+  ReceiptItemEntity? currentReceiptItemEntity;
+  ItemEntity? dp;
+
   String customerSelected = "Not Set";
   bool isReceive = true;
 
@@ -31,6 +40,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   void initState() {
     super.initState();
     stateInvoice = context.read<ReceiptCubit>().state;
+    readInvoiceState();
     readCustomer();
     _amountFocusNode.requestFocus();
   }
@@ -45,6 +55,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     super.dispose();
   }
 
+  void readInvoiceState() async {
+    dp = await GetIt.instance<GetDownPaymentUseCase>().call();
+    currentReceiptItemEntity = stateInvoice.receiptItems.where((e) => e.itemEntity.barcode == dp!.barcode).firstOrNull;
+    _remarksController.text = stateInvoice.remarks ?? "";
+    _amountController.text = Helpers.parseMoney(currentReceiptItemEntity!.itemEntity.price);
+  }
+
   void readCustomer() async {
     String customer = stateInvoice.customerEntity!.custName;
 
@@ -53,9 +70,38 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     });
   }
 
+  Future<void> _addOrUpdateDownPayment() async {
+    final receipt = context.read<ReceiptCubit>();
+    if (stateInvoice.receiptItems.isNotEmpty) {
+      if (currentReceiptItemEntity != null) {
+        await receipt.removeReceiptItem(currentReceiptItemEntity!, context);
+      }
+    }
+
+    log("dp - $dp");
+    final amount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+    final dpRefpos2 = dp!.copyWith(refpos2: "${stateInvoice.docNum}/DP");
+    final params = AddUpdateReceiptItemsParams(
+      barcode: null,
+      itemEntity: dpRefpos2,
+      quantity: 1,
+      context: context,
+      onOpenPriceInputted: () {},
+      setOpenPrice: amount,
+      refpos2: "${stateInvoice.docNum}/DP",
+    );
+
+    log("params - ${params.itemEntity}");
+
+    await receipt.addUpdateReceiptItems(params);
+    await receipt.updateRefpos2("${stateInvoice.docNum}/DP");
+    await receipt.updateSalesTohemIdRemarksOnReceipt(stateInvoice.toinvTohemId ?? "", _remarksController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final ReceiptEntity stateInvoice = context.read<ReceiptCubit>().state;
+    log("state - $stateInvoice");
     return Focus(
       autofocus: true,
       skipTraversal: true,
@@ -94,7 +140,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   [ProjectColors.green]
                 ],
                 activeFgColor: Colors.white,
-                inactiveBgColor: Colors.grey,
+                inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
                 inactiveFgColor: ProjectColors.lightBlack,
                 initialLabelIndex: isReceive ? 0 : 1,
                 totalSwitches: 2,
@@ -181,7 +227,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     )),
                     backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                     overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                onPressed: null,
+                onPressed: () async {
+                  context.pop();
+                  _addOrUpdateDownPayment();
+                },
                 child: Center(
                   child: RichText(
                     text: const TextSpan(

@@ -183,9 +183,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
     return ItemMasterModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       itemCode: map['itemcode'] as String,
       itemName: map['itemname'] as String,
       invItem: map['invitem'] as int,
@@ -200,12 +198,8 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       activated: map['activated'] as int,
       isBatch: map['isbatch'] as int,
       sync: map['sync'] as int,
-      internalCode_1: map['internalcode_1'] != null
-          ? map['internalcode_1'] as String
-          : null,
-      internalCode_2: map['internalcode_2'] != null
-          ? map['internalcode_2'] as String
-          : null,
+      internalCode_1: map['internalcode_1'] != null ? map['internalcode_1'] as String : null,
+      internalCode_2: map['internalcode_2'] != null ? map['internalcode_2'] as String : null,
       property1: null,
       property2: null,
       property3: null,
@@ -233,10 +227,8 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       bpom: map['bpom'] != null ? map['bpom'] as String : null,
       expDate: map['expdate'] != null ? map['expdate'] as String : null,
       margin: map['margin'] != null ? map['margin'] as double : null,
-      memberDiscount:
-          map['memberdiscount'] != null ? map['memberdiscount'] as int : null,
-      multiplyOrder:
-          map['multiplyorder'] != null ? map['multiplyorder'] as int : null,
+      memberDiscount: map['memberdiscount'] != null ? map['memberdiscount'] as int : null,
+      multiplyOrder: map['multiplyorder'] != null ? map['multiplyorder'] as int : null,
       syncCRM: map['synccrm'] as int,
       mergeQuantity: map['mergequantity'] as int,
       form: map['form'] as String,
