@@ -170,6 +170,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             onOpenPriceInputted: params.onOpenPriceInputted,
             remarks: params.remarks,
             tohemId: params.tohemId,
+            setOpenPrice: params.setOpenPrice,
           ));
           return;
         }
@@ -350,13 +351,18 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  Future<void> updateRefpos2(String refpos2) async {
-    final newState = state.copyWith(
-      refpos2: refpos2,
-    );
-    dev.log("updateRefPOS2 - $newState");
-    emit(newState);
-  }
+  // Future<void> updateRefpos2(String refpos2, int index) async {
+  //   final newReceiptItem = state.receiptItems[index].copyWith(
+  //     refpos2: refpos2,
+  //   );
+  //   final newReceiptItems = List<ReceiptItemEntity>.from(state.receiptItems);
+  //   newReceiptItems[index] = newReceiptItem;
+
+  //   final newState = state.copyWith(
+  //     receiptItems: newReceiptItems,
+  //   );
+  //   emit(newState);
+  // }
 
   Future<void> updateCustomer(CustomerEntity customerEntity, BuildContext context) async {
     if (state.customerEntity?.docId == customerEntity.docId) return;
@@ -372,8 +378,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       final List<ReceiptItemEntity> receiptItems =
           state.previousReceiptEntity!.receiptItems.map((e) => e.copyWith()).toList();
+
       await resetReceipt();
       emit(state.copyWith(customerEntity: customerEntity));
+
       for (final receiptItem in receiptItems) {
         await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
           barcode: receiptItem.itemEntity.barcode,
@@ -393,6 +401,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(state.copyWith(customerEntity: customerEntity));
 
     for (final receiptItem in receiptItems) {
+      dev.log("receiptItem - $receiptItem");
       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
         barcode: receiptItem.itemEntity.barcode,
         itemEntity: null,
@@ -401,6 +410,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
         remarks: receiptItem.remarks,
         tohemId: receiptItem.tohemId,
+        setOpenPrice: receiptItem.itemEntity.price,
       ));
     }
     emit(state.copyWith(customerEntity: customerEntity, previousReceiptEntity: state.previousReceiptEntity));

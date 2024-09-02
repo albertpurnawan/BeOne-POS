@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +26,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   final TextEditingController _amountController = TextEditingController();
   final FocusNode _remarksFocusNode = FocusNode();
   final FocusNode _amountFocusNode = FocusNode();
+  List<TextEditingController> _drawAmountControllers = [];
+  List<FocusNode> _drawAmountFocusNodes = [];
+  List<bool> _isExceeding = [];
+  List<bool> _selectedItems = [];
 
   late final ReceiptEntity stateInvoice;
   ReceiptItemEntity? currentReceiptItemEntity;
@@ -35,6 +37,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   String customerSelected = "Not Set";
   bool isReceive = true;
+  double totalAmount = 0;
+
+  final List<Map<String, dynamic>> test = [
+    {"docnum": "BPP-2409021341001/001", "maxAmount": 10000000},
+    {"docnum": "BPP-2409021344001/001", "maxAmount": 20000000},
+    {"docnum": "BPP-2409021348001/001", "maxAmount": 15000000},
+  ];
 
   @override
   void initState() {
@@ -43,6 +52,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     readInvoiceState();
     readCustomer();
     _amountFocusNode.requestFocus();
+    _setupControllers();
   }
 
   @override
@@ -52,7 +62,27 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     _amountController.dispose();
     _remarksFocusNode.dispose();
     _amountFocusNode.dispose();
+    for (var controller in _drawAmountControllers) {
+      controller.dispose();
+    }
+    for (var focusNode in _drawAmountFocusNodes) {
+      focusNode.dispose();
+    }
     super.dispose();
+  }
+
+  void _setupControllers() {
+    _drawAmountControllers = List.generate(test.length, (index) {
+      TextEditingController controller = TextEditingController();
+      controller.text = Helpers.parseMoney(test[index]['maxAmount']);
+      return controller;
+    });
+
+    _drawAmountFocusNodes = List.generate(test.length, (index) => FocusNode());
+
+    _isExceeding = List.generate(test.length, (index) => false);
+
+    _selectedItems = List.generate(test.length, (_) => false);
   }
 
   void readInvoiceState() async {
@@ -70,7 +100,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     });
   }
 
-  Future<void> _addOrUpdateDownPayment() async {
+  Future<void> _addOrUpdateDownPayment(bool isDraw) async {
     final receipt = context.read<ReceiptCubit>();
     if (stateInvoice.receiptItems.isNotEmpty) {
       if (currentReceiptItemEntity != null) {
@@ -78,30 +108,26 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     }
 
-    log("dp - $dp");
     final amount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
-    final dpRefpos2 = dp!.copyWith(refpos2: "${stateInvoice.docNum}/DP");
+    final dpRefpos2 = dp!.copyWith(refpos2: "");
     final params = AddUpdateReceiptItemsParams(
       barcode: null,
-      itemEntity: dpRefpos2,
+      itemEntity: isDraw ? dpRefpos2 : dp,
       quantity: 1,
       context: context,
       onOpenPriceInputted: () {},
       setOpenPrice: amount,
-      refpos2: "${stateInvoice.docNum}/DP",
+      remarks: _remarksController.text,
+      refpos2: isDraw ? stateInvoice.docNum : null,
     );
 
-    log("params - ${params.itemEntity}");
-
     await receipt.addUpdateReceiptItems(params);
-    await receipt.updateRefpos2("${stateInvoice.docNum}/DP");
     await receipt.updateSalesTohemIdRemarksOnReceipt(stateInvoice.toinvTohemId ?? "", _remarksController.text);
   }
 
   @override
   Widget build(BuildContext context) {
-    final ReceiptEntity stateInvoice = context.read<ReceiptCubit>().state;
-    log("state - $stateInvoice");
+    // stateInvoice = context.read<ReceiptCubit>().state;
     return Focus(
       autofocus: true,
       skipTraversal: true,
@@ -134,7 +160,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                 minWidth: 70.0,
                 cornerRadius: 20.0,
                 animate: true,
-                animationDuration: 300,
+                animationDuration: 400,
+                curve: Curves.easeInOut,
                 activeBgColors: const [
                   [ProjectColors.green],
                   [ProjectColors.green]
@@ -177,11 +204,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               thickness: 4,
               radius: const Radius.circular(30),
               thumbVisibility: true,
-              child: SingleChildScrollView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  child: isReceive ? _buildReceiveDownPayment() : _buildDrawDownPayment()),
+              child: isReceive ? _buildReceiveDownPayment() : _buildDrawDownPayment(),
             ),
           ),
         ),
@@ -227,10 +250,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     )),
                     backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                     overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                onPressed: () async {
-                  context.pop();
-                  _addOrUpdateDownPayment();
-                },
+                onPressed: isReceive
+                    ? () async {
+                        context.pop();
+                        _addOrUpdateDownPayment(false);
+                      }
+                    : () async {},
                 child: Center(
                   child: RichText(
                     text: const TextSpan(
@@ -257,252 +282,508 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   Widget _buildReceiveDownPayment() {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.6,
-      child: Column(
-        children: [
-          const SizedBox(height: 5),
-          ExcludeFocus(
-            child: Container(
-              alignment: Alignment.center,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                decoration: BoxDecoration(
-                  color: ProjectColors.primary,
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: const [
-                    BoxShadow(
-                      spreadRadius: 0.5,
-                      blurRadius: 5,
-                      color: Color.fromRGBO(0, 0, 0, 0.222),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.receipt_outlined, color: Colors.white),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      ("${stateInvoice.docNum}/DP"),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Column(
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.6,
+          child: Column(
             children: [
-              const SizedBox(height: 30),
-              const Divider(height: 0),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.face_outlined,
-                          color: Color.fromARGB(255, 66, 66, 66),
-                        ),
-                        SizedBox(width: 30),
-                        Text(
-                          "Customer",
-                          style: TextStyle(fontSize: 16),
+              const SizedBox(height: 5),
+              ExcludeFocus(
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                    decoration: BoxDecoration(
+                      color: ProjectColors.primary,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: const [
+                        BoxShadow(
+                          spreadRadius: 0.5,
+                          blurRadius: 5,
+                          color: Color.fromRGBO(0, 0, 0, 0.222),
                         ),
                       ],
                     ),
-                  ),
-                  Expanded(
-                    flex: 2,
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        const Icon(Icons.receipt_outlined, color: Colors.white),
+                        const SizedBox(
+                          width: 10,
+                        ),
                         Text(
-                          customerSelected.toString(),
+                          (stateInvoice.docNum),
                           style: const TextStyle(
-                            fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Color.fromARGB(255, 66, 66, 66),
+                            color: Colors.white,
+                            fontSize: 18,
                           ),
                         ),
                       ],
                     ),
+                  ),
+                ),
+              ),
+              Column(
+                children: [
+                  const SizedBox(height: 30),
+                  const Divider(height: 0),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Expanded(
+                        flex: 1,
+                        child: Row(
+                          children: [
+                            SizedBox(width: 5),
+                            Icon(
+                              Icons.face_outlined,
+                              color: Color.fromARGB(255, 66, 66, 66),
+                            ),
+                            SizedBox(width: 30),
+                            Text(
+                              "Customer",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Row(
+                          children: [
+                            Text(
+                              customerSelected,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color.fromARGB(255, 66, 66, 66),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                    ],
                   ),
                   const SizedBox(
-                    width: 10,
+                    height: 10,
                   ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Divider(height: 0),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.payments_outlined,
-                          color: Color.fromARGB(255, 66, 66, 66),
-                        ),
-                        SizedBox(width: 30),
-                        Text(
-                          "Amount",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      maxLines: 1,
-                      maxLength: 21,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
-                      inputFormatters: [MoneyInputFormatter()],
-                      controller: _amountController,
-                      focusNode: _amountFocusNode,
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.all(10),
-                        border: OutlineInputBorder(),
-                        counterText: "",
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              const SizedBox(height: 10),
-              const Divider(height: 0),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Icon(
-                          Icons.note_alt_outlined,
-                          color: Color.fromARGB(255, 66, 66, 66),
-                        ),
-                        SizedBox(width: 30),
-                        Text(
-                          "Remarks",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
-                      child: TextField(
-                        maxLines: null,
-                        maxLength: 300,
-                        controller: _remarksController,
-                        focusNode: _remarksFocusNode,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Color.fromARGB(255, 66, 66, 66),
-                        ),
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(10),
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: ProjectColors.lightBlack,
-                              width: 1.0,
+                  const Divider(height: 0),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Expanded(
+                        flex: 1,
+                        child: Row(
+                          children: [
+                            SizedBox(width: 5),
+                            Icon(
+                              Icons.payments_outlined,
+                              color: Color.fromARGB(255, 66, 66, 66),
                             ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: ProjectColors.lightBlack,
-                              width: 1.0,
+                            SizedBox(width: 30),
+                            Text(
+                              "Amount",
+                              style: TextStyle(fontSize: 16),
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: ProjectColors.primary,
-                              width: 2.0,
-                            ),
-                          ),
-                          counterText: "",
+                          ],
                         ),
                       ),
-                    ),
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          maxLines: 1,
+                          maxLength: 21,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
+                          inputFormatters: [MoneyInputFormatter()],
+                          controller: _amountController,
+                          focusNode: _amountFocusNode,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(10),
+                            border: OutlineInputBorder(),
+                            counterText: "",
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              const SizedBox(height: 10),
-              const Divider(height: 0),
+                  const SizedBox(height: 10),
+                  const Divider(height: 0),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Expanded(
+                        flex: 1,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Icon(
+                              Icons.note_alt_outlined,
+                              color: Color.fromARGB(255, 66, 66, 66),
+                            ),
+                            SizedBox(width: 30),
+                            Text(
+                              "Remarks",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: SingleChildScrollView(
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                            child: TextField(
+                              maxLines: null,
+                              maxLength: 300,
+                              controller: _remarksController,
+                              focusNode: _remarksFocusNode,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color.fromARGB(255, 66, 66, 66),
+                              ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(10),
+                                isDense: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: ProjectColors.lightBlack,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: ProjectColors.lightBlack,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: ProjectColors.primary,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                counterText: "",
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const Divider(height: 0),
 
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(54, 10, 10, 10),
-              //   child: Container(
-              //     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
-              //     child: TextField(
-              //       maxLines: 3,
-              //       maxLength: 300,
-              //       controller: _remarksController,
-              //       focusNode: _remarksFocusNode,
-              //       decoration: const InputDecoration(
-              //         contentPadding: EdgeInsets.all(10),
-              //         border: OutlineInputBorder(
-              //           borderSide: BorderSide(
-              //             color: ProjectColors.lightBlack,
-              //             width: 1.0,
-              //           ),
-              //         ),
-              //         enabledBorder: OutlineInputBorder(
-              //           borderSide: BorderSide(
-              //             color: ProjectColors.lightBlack,
-              //             width: 1.0,
-              //           ),
-              //         ),
-              //         focusedBorder: OutlineInputBorder(
-              //           borderSide: BorderSide(
-              //             color: ProjectColors.primary,
-              //             width: 2.0,
-              //           ),
-              //         ),
-              //         counterText: "",
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // // const SizedBox(height: 30),
+                  // Padding(
+                  //   padding: const EdgeInsets.fromLTRB(54, 10, 10, 10),
+                  //   child: Container(
+                  //     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                  //     child: TextField(
+                  //       maxLines: 3,
+                  //       maxLength: 300,
+                  //       controller: _remarksController,
+                  //       focusNode: _remarksFocusNode,
+                  //       decoration: const InputDecoration(
+                  //         contentPadding: EdgeInsets.all(10),
+                  //         border: OutlineInputBorder(
+                  //           borderSide: BorderSide(
+                  //             color: ProjectColors.lightBlack,
+                  //             width: 1.0,
+                  //           ),
+                  //         ),
+                  //         enabledBorder: OutlineInputBorder(
+                  //           borderSide: BorderSide(
+                  //             color: ProjectColors.lightBlack,
+                  //             width: 1.0,
+                  //           ),
+                  //         ),
+                  //         focusedBorder: OutlineInputBorder(
+                  //           borderSide: BorderSide(
+                  //             color: ProjectColors.primary,
+                  //             width: 2.0,
+                  //           ),
+                  //         ),
+                  //         counterText: "",
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  // // const SizedBox(height: 30),
+                ],
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildDrawDownPayment() {
-    return Column();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double itemHeight = 90.0;
+          double totalHeight = itemHeight * test.length;
+          double maxHeight = constraints.maxHeight;
+          double height = totalHeight < maxHeight ? (totalHeight * 1.5) : maxHeight;
+
+          return SizedBox(
+            width: MediaQuery.of(context).size.width * 0.6,
+            height: height,
+            child: Column(
+              children: [
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ExcludeFocus(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                          decoration: BoxDecoration(
+                            color: ProjectColors.primary,
+                            borderRadius: BorderRadius.circular(5),
+                            boxShadow: const [
+                              BoxShadow(
+                                spreadRadius: 0.5,
+                                blurRadius: 5,
+                                color: Color.fromRGBO(0, 0, 0, 0.222),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Customer:",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                customerSelected,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    ExcludeFocus(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                          decoration: BoxDecoration(
+                            color: ProjectColors.green,
+                            borderRadius: BorderRadius.circular(5),
+                            boxShadow: const [
+                              BoxShadow(
+                                spreadRadius: 0.5,
+                                blurRadius: 5,
+                                color: Color.fromRGBO(0, 0, 0, 0.222),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Total Draw:",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                Helpers.parseMoney(totalAmount),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () {
+                          if (!_isExceeding[index]) {
+                            setState(() {
+                              _selectedItems[index] = !_selectedItems[index];
+
+                              double amount =
+                                  double.tryParse(_drawAmountControllers[index].text.replaceAll(',', '')) ?? 0;
+
+                              if (_selectedItems[index]) {
+                                totalAmount += amount;
+                              } else {
+                                totalAmount -= amount;
+                              }
+                            });
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _selectedItems[index] ? ProjectColors.primary : Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: ProjectColors.primary,
+                              width: 2.0,
+                            ),
+                          ),
+                          height: itemHeight,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                "${test[index]['docnum']}",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
+                                ),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Available",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: _selectedItems[index] ? Colors.white : ProjectColors.mediumBlack,
+                                    ),
+                                  ),
+                                  Text(
+                                    Helpers.parseMoney(test[index]['maxAmount']),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width * 0.15,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        TextField(
+                                          maxLines: 1,
+                                          maxLength: 21,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: _selectedItems[index] ? Colors.white : Colors.black,
+                                          ),
+                                          inputFormatters: [MoneyInputFormatter()],
+                                          controller: _drawAmountControllers[index],
+                                          focusNode: _drawAmountFocusNodes[index],
+                                          decoration: const InputDecoration(
+                                            isDense: true,
+                                            contentPadding: EdgeInsets.all(10),
+                                            border: OutlineInputBorder(),
+                                            counterText: "",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: ProjectColors.lightBlack,
+                                                width: 1.0,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: ProjectColors.primary,
+                                                width: 2.0,
+                                              ),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.transparent,
+                                                width: 1.0,
+                                              ),
+                                            ),
+                                          ),
+                                          enabled: !_selectedItems[index],
+                                          onChanged: (value) {
+                                            setState(() {
+                                              double enteredAmount = double.tryParse(value.replaceAll(',', '')) ?? 0.0;
+                                              _isExceeding[index] = enteredAmount > test[index]['maxAmount'];
+
+                                              _selectedItems[index] = false;
+                                            });
+                                          },
+                                        ),
+                                        _isExceeding[index]
+                                            ? const Text(
+                                                "Max Amount Exceeded",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: ProjectColors.swatch,
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10.0),
+                    itemCount: test.length,
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }

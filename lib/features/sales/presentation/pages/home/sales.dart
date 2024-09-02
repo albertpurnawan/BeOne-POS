@@ -2458,6 +2458,7 @@ class _SalesPageState extends State<SalesPage> {
                   child: SizedBox.expand(
                     child: OutlinedButton(
                         onPressed: () async {
+                          log("${context.read<ReceiptCubit>().state.customerEntity}");
                           // await context.read<ReceiptCubit>().resetReceipt();
                           setState(() {});
                           // Navigator.pop(context);
@@ -2485,11 +2486,11 @@ class _SalesPageState extends State<SalesPage> {
                     child: OutlinedButton(
                       onPressed: () async {
                         await context.read<ReceiptCubit>().resetReceipt();
-                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         setState(() {
                           isEditingNewReceiptItemQty = false;
                           isUpdatingReceiptItemQty = false;
                           isEditingNewReceiptItemCode = true;
+                          isMember = false;
                           _newReceiptItemCodeFocusNode.requestFocus();
                         });
                       },
