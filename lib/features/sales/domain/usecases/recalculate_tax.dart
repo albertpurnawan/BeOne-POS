@@ -1,4 +1,5 @@
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
@@ -28,9 +29,11 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
 
     // return params;
     ReceiptItemEntity? dpItem = params!.receiptItems.where((element) => element.itemEntity.barcode == "99").firstOrNull;
+    List<DownPaymentEntity> dps = params.downPayments ?? [];
+    double dpAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
 
     double discHeaderManual = params.discHeaderManual ?? 0.0;
-    double grandTotal = params.grandTotal + ((dpItem?.totalAmount ?? 0) * -1);
+    double grandTotal = params.grandTotal + dpAmount;
     double discHprctg = (discHeaderManual) / (grandTotal);
     double subtotalAfterHeaderDiscount = 0;
     double taxAfterHeaderDiscount = 0;

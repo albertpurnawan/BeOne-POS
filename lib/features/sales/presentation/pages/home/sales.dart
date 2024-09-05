@@ -365,6 +365,7 @@ class _SalesPageState extends State<SalesPage> {
   Future<void> checkReceiptWithMember(ReceiptEntity receipt) async {
     setState(() {
       isMember = ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
+      log("isMember = $isMember");
     });
   }
 
@@ -527,7 +528,7 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(38, Platform.isWindows ? 8 : 18, 38, 10),
+                      padding: EdgeInsets.fromLTRB(38, Platform.isWindows ? 8 : 10, 38, 10),
                       child: Row(
                         children: [
                           // Start - Column 1
@@ -2379,8 +2380,7 @@ class _SalesPageState extends State<SalesPage> {
                             isEditingNewReceiptItemQty = false;
                             isUpdatingReceiptItemQty = false;
                           });
-
-                          showDialog(
+                          await showDialog(
                               context: context,
                               barrierDismissible: false,
                               builder: (context) => const QueueListDialog()).then((value) {
@@ -2390,6 +2390,7 @@ class _SalesPageState extends State<SalesPage> {
                               _newReceiptItemCodeFocusNode.requestFocus();
                             });
                           });
+                          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         },
                         style: OutlinedButton.styleFrom(
                           elevation: 5,
@@ -2428,7 +2429,7 @@ class _SalesPageState extends State<SalesPage> {
                                     text: const TextSpan(
                                       children: [
                                         TextSpan(
-                                          text: "Pending\nOrders",
+                                          text: "Order\nList",
                                           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                         ),
                                       ],
@@ -2845,16 +2846,21 @@ class _SalesPageState extends State<SalesPage> {
                       ],
                     ),
                   ),
-                  (state.discHeaderManual ?? 0) != 0
-                      ? Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Text(
-                            "*${Helpers.parseMoney(state.discHeaderManual ?? 0)} header discount/rounding applied",
-                            style: const TextStyle(fontStyle: FontStyle.italic),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 2, 10, 2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // (state.discHeaderManual ?? 0) != 0 ? _noteChip((1000000), 1) : const SizedBox.shrink(),
+                        (state.downPayments != null && state.downPayments!.isNotEmpty)
+                            ? _noteChip((state.downPayments ?? []).fold(0.0, (total, dp) => total + dp.amount), 2)
+                            : const SizedBox.shrink(),
+                        (state.discHeaderManual ?? 0) != 0
+                            ? _noteChip((state.discHeaderManual ?? 0), 3)
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
+                  ),
                   const Spacer(),
                   // const SizedBox(height: 15),
                   _buttonGroup2()
@@ -3759,6 +3765,7 @@ class _SalesPageState extends State<SalesPage> {
               context.read<CustomersCubit>().clearCustomers();
               isEditingNewReceiptItemCode = true;
               _newReceiptItemCodeFocusNode.requestFocus();
+              checkReceiptWithMember(context.read<ReceiptCubit>().state);
             }));
       } else if (event.physicalKey == (PhysicalKeyboardKey.f7)) {
         final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
@@ -3820,6 +3827,7 @@ class _SalesPageState extends State<SalesPage> {
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         });
+        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
       } else if (event.physicalKey == (PhysicalKeyboardKey.f2)) {
         await showDialog(
           context: context,
@@ -4012,4 +4020,45 @@ class _SalesPageState extends State<SalesPage> {
   // =================================================
   //             [END] Other Functions
   // =================================================
+
+  Widget _noteChip(double amount, int type) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(6, 2, 6, 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: const [
+            BoxShadow(
+              spreadRadius: 0.5,
+              blurRadius: 5,
+              color: Color.fromRGBO(0, 0, 0, 0.05),
+            ),
+          ],
+          color: const Color.fromARGB(255, 223, 223, 223),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              type == 1
+                  ? "RT ${Helpers.parseMoney(amount)}"
+                  : type == 2
+                      ? "DP ${Helpers.parseMoney(amount)}"
+                      : type == 3
+                          ? "DR ${Helpers.parseMoney(amount)}"
+                          : "",
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                // color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

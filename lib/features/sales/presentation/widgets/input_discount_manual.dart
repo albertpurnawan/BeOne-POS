@@ -69,7 +69,11 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                   docnum: widget.docnum,
                 ));
       } else {
-        context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input);
+        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input);
+        if (context.read<ReceiptCubit>().state.downPayments != null &&
+            context.read<ReceiptCubit>().state.downPayments!.isNotEmpty) {
+          await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
+        }
         context.pop(input);
       }
     } catch (e) {
@@ -145,9 +149,14 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         ),
                         onPressed: () async {
+                          FocusScope.of(context).unfocus();
+
                           await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0);
                           if (context.mounted) {
                             SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3);
+                            Future.delayed(const Duration(seconds: 3), () {
+                              _discountFocusNode.requestFocus();
+                            });
                           }
                         },
                         child: Row(

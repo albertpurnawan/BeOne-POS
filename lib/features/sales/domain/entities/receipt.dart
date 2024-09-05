@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
@@ -53,6 +54,7 @@ class ReceiptEntity {
   int? includePromo;
   double couponDiscount = 0;
   String? refpos2;
+  List<DownPaymentEntity>? downPayments;
 
   ReceiptEntity({
     required this.docNum,
@@ -89,6 +91,7 @@ class ReceiptEntity {
     this.includePromo,
     this.couponDiscount = 0,
     this.refpos2,
+    this.downPayments,
   });
 
   ReceiptEntity copyWith({
@@ -126,6 +129,7 @@ class ReceiptEntity {
     int? includePromo,
     double? couponDiscount,
     String? refpos2,
+    List<DownPaymentEntity>? downPayments,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -162,6 +166,7 @@ class ReceiptEntity {
       includePromo: includePromo ?? this.includePromo,
       couponDiscount: couponDiscount ?? this.couponDiscount,
       refpos2: refpos2 ?? this.refpos2,
+      downPayments: downPayments ?? this.downPayments,
     );
   }
 
@@ -198,6 +203,7 @@ class ReceiptEntity {
       'includePromo': includePromo,
       'couponDiscount': couponDiscount,
       'refpos2': refpos2,
+      'downPayments': downPayments,
     };
   }
 
@@ -252,6 +258,8 @@ class ReceiptEntity {
       includePromo: map['includePromo'] != null ? map['includePromo'] as int : null,
       couponDiscount: map['couponDiscount'] != null ? map['couponDiscount'] as double : 0,
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      downPayments:
+          (map['downPayments'] as List).map((x) => DownPaymentEntity.fromMap(x as Map<String, dynamic>)).toList(),
     );
   }
 
@@ -293,6 +301,7 @@ class ReceiptEntity {
     rounding: $rounding,
     couponDiscount: $couponDiscount,
     refpos2: $refpos2,
+    downPayments: $downPayments,
     
     previousReceiptEntity: $previousReceiptEntity)""";
   }
@@ -331,7 +340,8 @@ class ReceiptEntity {
         other.coupons == coupons &&
         other.includePromo == includePromo &&
         other.couponDiscount == couponDiscount &&
-        other.refpos2 == refpos2;
+        other.refpos2 == refpos2 &&
+        other.downPayments == downPayments;
     // other.previousReceiptEntity == previousReceiptEntity; kalau tidak ada perubahan apa2 previous gak ke emit
   }
 
@@ -367,7 +377,8 @@ class ReceiptEntity {
         coupons.hashCode ^
         includePromo.hashCode ^
         couponDiscount.hashCode ^
-        refpos2.hashCode;
+        refpos2.hashCode ^
+        downPayments.hashCode;
     // previousReceiptEntity.hashCode;
   }
 }

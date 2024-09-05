@@ -16,6 +16,7 @@ import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
@@ -351,18 +352,18 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     emit(newState);
   }
 
-  // Future<void> updateRefpos2(String refpos2, int index) async {
-  //   final newReceiptItem = state.receiptItems[index].copyWith(
-  //     refpos2: refpos2,
-  //   );
-  //   final newReceiptItems = List<ReceiptItemEntity>.from(state.receiptItems);
-  //   newReceiptItems[index] = newReceiptItem;
+  Future<void> addOrUpdateDownPayments({
+    required List<DownPaymentEntity> downPaymentEntities,
+    required double amountDifference,
+  }) async {
+    ReceiptEntity newState = state.copyWith(
+      downPayments: downPaymentEntities,
+    );
 
-  //   final newState = state.copyWith(
-  //     receiptItems: newReceiptItems,
-  //   );
-  //   emit(newState);
-  // }
+    newState = await _recalculateReceiptUseCase.call(params: newState);
+    dev.log("newState updateDP - ${newState.subtotal}");
+    emit(newState);
+  }
 
   Future<void> updateCustomer(CustomerEntity customerEntity, BuildContext context) async {
     if (state.customerEntity?.docId == customerEntity.docId) return;
@@ -679,7 +680,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     resetReceipt();
   }
 
-  void retrieveFromQueue(ReceiptEntity receiptEntity, BuildContext context) async {
+  Future<void> retrieveFromQueue(ReceiptEntity receiptEntity, BuildContext context) async {
     dev.log("retrieveFromQueue - $receiptEntity");
     await resetReceipt();
 
@@ -713,6 +714,23 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       ReceiptEntity preparedReceipt = state;
 
+      List<DownPaymentEntity> dps = preparedReceipt.downPayments ?? [];
+      double totalDPAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
+
+      double subTotal = preparedReceipt.subtotal;
+      double dpSubTotal = subTotal - totalDPAmount;
+
+      double dpGrandTotal = dpSubTotal - (preparedReceipt.discAmount ?? 0) + preparedReceipt.taxAmount;
+      dev.log("$dpSubTotal - $dpGrandTotal");
+      preparedReceipt = preparedReceipt.copyWith(
+        subtotal: dpSubTotal,
+        discAmount: preparedReceipt.discAmount,
+        discHeaderPromo: preparedReceipt.discHeaderPromo,
+        discPrctg: dpSubTotal == 0 ? 0 : ((preparedReceipt.discAmount ?? 0) / dpSubTotal) * 100,
+        taxAmount: preparedReceipt.taxAmount,
+        grandTotal: dpGrandTotal,
+      );
+
       if ((state.discHeaderManual ?? 0) > 0) {
         preparedReceipt = await _recalculateReceiptUseCase.call(
             params: state.copyWith(
@@ -732,6 +750,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       emit(updatedReceipt.copyWith(
           previousReceiptEntity: state.previousReceiptEntity ?? state.copyWith(previousReceiptEntity: null)));
+      log("updatedReceipt afterDiscount - ${updatedReceipt.grandTotal}");
     } catch (e) {
       dev.log("Error during tax recalculation: $e");
       rethrow;
@@ -757,6 +776,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       )..mopSelections = [];
 
       List<String> skippedPromoIds = [];
+
+      List<DownPaymentEntity> dps = newReceipt.downPayments ?? [];
+      double totalDPAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
 
       // Reset manual header discount
       final double discHeaderManual = state.discHeaderManual ?? 0;
@@ -873,14 +895,27 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Reinsert down payment
-      if (dpItem != null && dpItem.quantity < 0) {
-        if (dpItem.totalAmount > newReceipt.grandTotal) {
-          throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(dpItem.totalAmount - newReceipt.grandTotal)})";
+      if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
+        if (totalDPAmount > newReceipt.grandTotal) {
+          throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(totalDPAmount - newReceipt.grandTotal)})";
         } else {
           newReceipt = await _recalculateReceiptUseCase.call(
               params: newReceipt.copyWith(
-            receiptItems: newReceipt.receiptItems.map((e) => e.copyWith()).toList() + [dpItem.copyWith()],
+            receiptItems: newReceipt.receiptItems.map((e) => e.copyWith()).toList(),
           ));
+          double subTotal = newReceipt.subtotal;
+          double dpSubTotal = subTotal - totalDPAmount;
+
+          double dpGrandTotal = dpSubTotal - (newReceipt.discAmount ?? 0) + newReceipt.taxAmount;
+
+          newReceipt = newReceipt.copyWith(
+            subtotal: dpSubTotal,
+            discAmount: newReceipt.discAmount,
+            discHeaderPromo: newReceipt.discHeaderPromo,
+            discPrctg: dpSubTotal == 0 ? 0 : ((newReceipt.discAmount ?? 0) / dpSubTotal) * 100,
+            taxAmount: newReceipt.taxAmount,
+            grandTotal: dpGrandTotal,
+          );
         }
       } else if (dpItem != null && dpItem.quantity > 0) {
         newReceipt = await _recalculateReceiptUseCase.call(

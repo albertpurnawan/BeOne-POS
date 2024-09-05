@@ -83,7 +83,11 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
-      childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
+      await childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
+      if (context.read<ReceiptCubit>().state.downPayments != null &&
+          context.read<ReceiptCubit>().state.downPayments!.isNotEmpty) {
+        await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
+      }
       Navigator.of(childContext).pop(); // Close the dialog
       Navigator.of(childContext).pop(widget.discountValue); // Close the select method if needed
     } else {

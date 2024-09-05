@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -29,15 +33,17 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   List<TextEditingController> _drawAmountControllers = [];
   List<FocusNode> _drawAmountFocusNodes = [];
   List<bool> _isExceeding = [];
+  List<bool> _isZero = [];
   List<bool> _selectedItems = [];
 
-  late final ReceiptEntity stateInvoice;
+  late ReceiptEntity stateInvoice;
   ReceiptItemEntity? currentReceiptItemEntity;
   ItemEntity? dp;
 
   String customerSelected = "Not Set";
   bool isReceive = true;
-  double totalAmount = 0;
+  bool isEdit = false;
+  late double totalAmount;
 
   final List<Map<String, dynamic>> test = [
     {"docnum": "BPP-2409021341001/001", "maxAmount": 10000000},
@@ -72,6 +78,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   void _setupControllers() {
+    totalAmount = 0.0;
+
     _drawAmountControllers = List.generate(test.length, (index) {
       TextEditingController controller = TextEditingController();
       controller.text = Helpers.parseMoney(test[index]['maxAmount']);
@@ -81,8 +89,19 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     _drawAmountFocusNodes = List.generate(test.length, (index) => FocusNode());
 
     _isExceeding = List.generate(test.length, (index) => false);
+    _isZero = List.generate(test.length, (index) => false);
 
-    _selectedItems = List.generate(test.length, (_) => false);
+    _selectedItems = List.generate(test.length, (index) {
+      int selectedIndex = stateInvoice.downPayments?.indexWhere((dp) => dp.toinvDocId == test[index]['docnum']) ?? -1;
+      if (selectedIndex != -1) {
+        double amount = stateInvoice.downPayments![selectedIndex].amount;
+        _drawAmountControllers[index].text = Helpers.parseMoney(amount);
+        totalAmount += amount;
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
 
   void readInvoiceState() async {
@@ -100,7 +119,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     });
   }
 
-  Future<void> _addOrUpdateDownPayment(bool isDraw) async {
+  Future<void> _addOrUpdateReceiveDownPayment() async {
     final receipt = context.read<ReceiptCubit>();
     if (stateInvoice.receiptItems.isNotEmpty) {
       if (currentReceiptItemEntity != null) {
@@ -109,175 +128,224 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     }
 
     final amount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
-    final dpRefpos2 = dp!.copyWith(refpos2: "");
     final params = AddUpdateReceiptItemsParams(
       barcode: null,
-      itemEntity: isDraw ? dpRefpos2 : dp,
+      itemEntity: dp,
       quantity: 1,
       context: context,
       onOpenPriceInputted: () {},
       setOpenPrice: amount,
       remarks: _remarksController.text,
-      refpos2: isDraw ? stateInvoice.docNum : null,
+      refpos2: null,
     );
 
     await receipt.addUpdateReceiptItems(params);
     await receipt.updateSalesTohemIdRemarksOnReceipt(stateInvoice.toinvTohemId ?? "", _remarksController.text);
   }
 
+  Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
+    final receipt = context.read<ReceiptCubit>();
+
+    List<DownPaymentEntity> selectedDownPayments = [];
+    double totalSelectedAmount = 0;
+    double previousSelectedAmount = stateInvoice.downPayments?.fold(0.0, (sum, dp) => sum! + dp.amount) ?? 0.0;
+
+    for (int i = 0; i < _selectedItems.length; i++) {
+      if (_selectedItems[i]) {
+        double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
+        selectedDownPayments.add(DownPaymentEntity(toinvDocId: test[i]['docnum'], amount: amount));
+        totalSelectedAmount += amount;
+      }
+    }
+    log("grandTotal - ${stateInvoice.grandTotal}");
+    if (totalSelectedAmount > stateInvoice.grandTotal) {
+      SnackBarHelper.presentErrorSnackBar(childContext, "DP can't be more than grand total");
+      return;
+    }
+
+    double grandTotalDifference = previousSelectedAmount - totalSelectedAmount;
+    receipt.addOrUpdateDownPayments(downPaymentEntities: selectedDownPayments, amountDifference: grandTotalDifference);
+    context.pop();
+  }
+
+  Future<void> _resetDownPayment() async {
+    final receipt = context.read<ReceiptCubit>();
+    setState(() {
+      _selectedItems = List.generate(test.length, (_) => false);
+      totalAmount = 0;
+      for (int index = 0; index < _drawAmountControllers.length; index++) {
+        _drawAmountControllers[index].text = Helpers.parseMoney(test[index]['maxAmount']);
+      }
+    });
+
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
+    stateInvoice = receipt.state.copyWith();
+  }
+
   @override
   Widget build(BuildContext context) {
     // stateInvoice = context.read<ReceiptCubit>().state;
-    return Focus(
-      autofocus: true,
-      skipTraversal: true,
-      onKeyEvent: (node, event) {
-        if (event.runtimeType == KeyUpEvent) {
-          return KeyEventResult.handled;
-        }
+    return ScaffoldMessenger(
+      child: Builder(builder: (childContext) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Focus(
+            autofocus: true,
+            skipTraversal: true,
+            onKeyEvent: (node, event) {
+              if (event.runtimeType == KeyUpEvent) {
+                return KeyEventResult.handled;
+              }
 
-        return KeyEventResult.ignored;
-      },
-      child: AlertDialog(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-        title: Container(
-          decoration: const BoxDecoration(
-            color: ProjectColors.primary,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-          ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: Row(
-            children: [
-              const Text(
-                'Down Payment',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              return KeyEventResult.ignored;
+            },
+            child: AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              title: Container(
+                decoration: const BoxDecoration(
+                  color: ProjectColors.primary,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                ),
+                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Down Payment',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    const Spacer(),
+                    ToggleSwitch(
+                      minHeight: 30,
+                      minWidth: 70.0,
+                      cornerRadius: 20.0,
+                      animate: true,
+                      animationDuration: 400,
+                      curve: Curves.easeInOut,
+                      activeBgColors: const [
+                        [ProjectColors.green],
+                        [ProjectColors.green]
+                      ],
+                      activeFgColor: Colors.white,
+                      inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
+                      inactiveFgColor: ProjectColors.lightBlack,
+                      initialLabelIndex: isReceive ? 0 : 1,
+                      totalSwitches: 2,
+                      labels: const ['Receive', 'Draw'],
+                      customTextStyles: const [
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
+                      ],
+                      radiusStyle: true,
+                      onToggle: (index) {
+                        if (index == 0) {
+                          setState(() {
+                            isReceive = true;
+                          });
+                        }
+                        if (index == 1) {
+                          setState(() {
+                            isReceive = false;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
-              ToggleSwitch(
-                minHeight: 30,
-                minWidth: 70.0,
-                cornerRadius: 20.0,
-                animate: true,
-                animationDuration: 400,
-                curve: Curves.easeInOut,
-                activeBgColors: const [
-                  [ProjectColors.green],
-                  [ProjectColors.green]
-                ],
-                activeFgColor: Colors.white,
-                inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
-                inactiveFgColor: ProjectColors.lightBlack,
-                initialLabelIndex: isReceive ? 0 : 1,
-                totalSwitches: 2,
-                labels: const ['Receive', 'Draw'],
-                customTextStyles: const [
-                  TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                  TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
-                ],
-                radiusStyle: true,
-                onToggle: (index) {
-                  if (index == 0) {
-                    setState(() {
-                      isReceive = true;
-                    });
-                  }
-                  if (index == 1) {
-                    setState(() {
-                      isReceive = false;
-                    });
-                  }
-                },
+              titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              contentPadding: const EdgeInsets.all(0),
+              content: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: Scrollbar(
+                    controller: _scrollController,
+                    thickness: 4,
+                    radius: const Radius.circular(30),
+                    thumbVisibility: true,
+                    child: isReceive ? _buildReceiveDownPayment() : _buildDrawDownPayment(),
+                  ),
+                ),
               ),
-            ],
-          ),
-        ),
-        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        contentPadding: const EdgeInsets.all(0),
-        content: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.6,
-            child: Scrollbar(
-              controller: _scrollController,
-              thickness: 4,
-              radius: const Radius.circular(30),
-              thumbVisibility: true,
-              child: isReceive ? _buildReceiveDownPayment() : _buildDrawDownPayment(),
+              actions: [
+                Row(
+                  children: [
+                    Expanded(
+                        child: TextButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side: const BorderSide(color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                          overlayColor:
+                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Center(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Cancel",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: "  (Esc)",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                            style: TextStyle(color: ProjectColors.primary),
+                          ),
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                    )),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: TextButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: const BorderSide(color: ProjectColors.primary),
+                          )),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                      onPressed: isReceive
+                          ? () async {
+                              context.pop();
+                              _addOrUpdateReceiveDownPayment();
+                            }
+                          : () async {
+                              await _addOrUpdateDrawDownPayment(childContext);
+                            },
+                      child: Center(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Save",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: "  (F12)",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                          ),
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                    )),
+                  ],
+                ),
+              ],
             ),
           ),
-        ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                  child: TextButton(
-                style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Center(
-                  child: RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Cancel",
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        TextSpan(
-                          text: "  (Esc)",
-                          style: TextStyle(fontWeight: FontWeight.w300),
-                        ),
-                      ],
-                      style: TextStyle(color: ProjectColors.primary),
-                    ),
-                    overflow: TextOverflow.clip,
-                  ),
-                ),
-              )),
-              const SizedBox(width: 10),
-              Expanded(
-                  child: TextButton(
-                style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                      side: const BorderSide(color: ProjectColors.primary),
-                    )),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                onPressed: isReceive
-                    ? () async {
-                        context.pop();
-                        _addOrUpdateDownPayment(false);
-                      }
-                    : () async {},
-                child: Center(
-                  child: RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Save",
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        TextSpan(
-                          text: "  (F12)",
-                          style: TextStyle(fontWeight: FontWeight.w300),
-                        ),
-                      ],
-                    ),
-                    overflow: TextOverflow.clip,
-                  ),
-                ),
-              )),
-            ],
-          ),
-        ],
-      ),
+        );
+      }),
     );
   }
 
@@ -489,42 +557,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   ),
                   const SizedBox(height: 10),
                   const Divider(height: 0),
-
-                  // Padding(
-                  //   padding: const EdgeInsets.fromLTRB(54, 10, 10, 10),
-                  //   child: Container(
-                  //     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
-                  //     child: TextField(
-                  //       maxLines: 3,
-                  //       maxLength: 300,
-                  //       controller: _remarksController,
-                  //       focusNode: _remarksFocusNode,
-                  //       decoration: const InputDecoration(
-                  //         contentPadding: EdgeInsets.all(10),
-                  //         border: OutlineInputBorder(
-                  //           borderSide: BorderSide(
-                  //             color: ProjectColors.lightBlack,
-                  //             width: 1.0,
-                  //           ),
-                  //         ),
-                  //         enabledBorder: OutlineInputBorder(
-                  //           borderSide: BorderSide(
-                  //             color: ProjectColors.lightBlack,
-                  //             width: 1.0,
-                  //           ),
-                  //         ),
-                  //         focusedBorder: OutlineInputBorder(
-                  //           borderSide: BorderSide(
-                  //             color: ProjectColors.primary,
-                  //             width: 2.0,
-                  //           ),
-                  //         ),
-                  //         counterText: "",
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // // const SizedBox(height: 30),
                 ],
               )
             ],
@@ -594,46 +626,85 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                         ),
                       ),
                     ),
-                    ExcludeFocus(
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                          decoration: BoxDecoration(
-                            color: ProjectColors.green,
-                            borderRadius: BorderRadius.circular(5),
-                            boxShadow: const [
-                              BoxShadow(
-                                spreadRadius: 0.5,
-                                blurRadius: 5,
-                                color: Color.fromRGBO(0, 0, 0, 0.222),
+                    Row(
+                      children: [
+                        ExcludeFocus(
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                              decoration: BoxDecoration(
+                                color: ProjectColors.green,
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    spreadRadius: 0.5,
+                                    blurRadius: 5,
+                                    color: Color.fromRGBO(0, 0, 0, 0.222),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                "Total Draw:",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    "Total Draw:",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    Helpers.parseMoney(totalAmount),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 10),
-                              Text(
-                                Helpers.parseMoney(totalAmount),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(width: 5),
+                        ExcludeFocus(
+                          child: GestureDetector(
+                            onTap: () async {
+                              await _resetDownPayment();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                decoration: BoxDecoration(
+                                  color: ProjectColors.primary,
+                                  borderRadius: BorderRadius.circular(5),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      spreadRadius: 0.5,
+                                      blurRadius: 5,
+                                      color: Color.fromRGBO(0, 0, 0, 0.222),
+                                    ),
+                                  ],
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.replay_rounded,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -644,7 +715,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
                         onTap: () {
-                          if (!_isExceeding[index]) {
+                          if (!_isExceeding[index] && !_isZero[index]) {
                             setState(() {
                               _selectedItems[index] = !_selectedItems[index];
 
@@ -749,6 +820,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             setState(() {
                                               double enteredAmount = double.tryParse(value.replaceAll(',', '')) ?? 0.0;
                                               _isExceeding[index] = enteredAmount > test[index]['maxAmount'];
+                                              _isZero[index] = enteredAmount == 0;
 
                                               _selectedItems[index] = false;
                                             });
@@ -757,6 +829,17 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         _isExceeding[index]
                                             ? const Text(
                                                 "Max Amount Exceeded",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: ProjectColors.swatch,
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                        _isZero[index]
+                                            ? const Text(
+                                                "Amount can't be zero",
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   fontStyle: FontStyle.italic,
