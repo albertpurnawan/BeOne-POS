@@ -528,10 +528,10 @@ class InvoiceApi {
         "discamount": invHead.discAmount - (invHead.discHeaderPromo ?? 0),
         "discountcard": invHead.discountCard,
         "coupon": invHead.coupon,
-        "discountcoupon": invHead.discountCoupun,
+        // "discountcoupon": invHead.discountCoupun,
+        "discountcoupon": 0,
         "taxprctg": invHead.taxPrctg,
         "taxamount": double.parse(invHead.taxAmount.toStringAsFixed(2)),
-        // "taxamount": 0,
         "addcost": invHead.addCost,
         "rounding": invHead.rounding,
         "grandtotal": invHead.grandTotal.round(),
@@ -541,6 +541,9 @@ class InvoiceApi {
         "toinv_tohem_id": invHead.toinvTohemId,
         "refpos1": invHead.refpos1,
         "invoice_item": invDet.map((item) {
+          List<Map<String, dynamic>> filteredPromotions = promotionsDetail.where((promo) {
+            return promo['tinv1docid'] == item.docId;
+          }).toList();
           return {
             "docnum": item.docNum,
             "idnumber": item.idNumber,
@@ -550,12 +553,13 @@ class InvoiceApi {
             "discprctg": item.discPrctg,
             "discamount": item.discAmount,
             "totalamount":
-                ((item.quantity * item.sellingPrice * (100 / (100 + item.taxPrctg))) - item.discAmount).round(),
+                ((item.discAmount * item.sellingPrice * (100 / (100 + item.taxPrctg))) - item.discAmount).round(),
             "taxprctg": item.taxPrctg,
             "promotiontype": item.promotionType,
             "promotionid": item.promotionId,
             "remarks": item.remarks ?? "",
-            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(item.editTime),
+            "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(item.editTime.toString())),
             "cogs": item.cogs,
             "tovat_id": item.tovatId,
             "promotiontingkat": item.promotionTingkat ?? "",
@@ -563,7 +567,7 @@ class InvoiceApi {
             "includetax": item.includeTax,
             "toven_id": item.tovenId,
             "tbitm_id": item.tbitmId,
-            "qtybarcode": item.quantity,
+            "qtybarcode": item.quantity, // quantity barcode scanned x times
             "sellpricebarcode": 0.0,
             "totalsellbarcode": 0.0,
             "disc1pct": 0.0,
@@ -579,11 +583,12 @@ class InvoiceApi {
             "disc3pctbarcode": 0.0,
             "disc3amtbarcode": 0.0,
             "totaldiscbarcode": 0.0,
-            "qtyconv": 0.0,
+            "qtyconv": item.quantity, // qtybarcode * qtytbitm? item['qtybarcode'] *
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
             "tohem_id": (item.tohemId == "") ? invHead.salesTohemId : item.tohemId,
-            "promotion": promotionsDetail
+            "refpos2": item.refpos2,
+            "promotion": filteredPromotions
           };
         }).toList(),
         "invoice_payment": invoicePayments,
