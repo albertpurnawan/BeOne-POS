@@ -131,7 +131,7 @@ AND ${ItemFields.toplnId} = ?""",
       whereArgs: ["99"],
     );
 
-    return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
+    return res.isNotEmpty ? ItemModel.fromMap(res.first) : null;
   }
 
   Future<ItemModel?> readItemWithAndCondition(Map<String, dynamic> conditions, Transaction? txn) async {

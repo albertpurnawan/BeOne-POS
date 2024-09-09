@@ -22,11 +22,13 @@ import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
@@ -43,6 +45,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
       final Database db = await _appDatabase.getDB();
 
       final prefs = GetIt.instance<SharedPreferences>();
+      final itemDP = await GetIt.instance<GetDownPaymentUseCase>().call();
       final tcsr1IdPref = prefs.getString('tcsr1Id');
 
       int countInv;
@@ -112,7 +115,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
         final List<InvoiceDetailModel> invoiceDetailModels = receiptEntity.receiptItems.asMap().entries.map((entry) {
           final int index = entry.key;
           final ReceiptItemEntity e = entry.value;
-          log("receiptItemEntity E - $e");
           return InvoiceDetailModel(
             docId: _uuid.v4(),
             createDate: null,
@@ -148,7 +150,57 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           );
         }).toList();
 
-        // log("INVOICE DETAIL MODEL 1 - $invoiceDetailModels");
+        log("invoiceDetailModels 1 - $invoiceDetailModels");
+
+        final List<DownPaymentEntity> dps = receiptEntity.downPayments ?? [];
+
+        if (dps.isNotEmpty) {
+          if (itemDP != null) {
+            final List<InvoiceDetailModel> dpModels = dps.asMap().entries.map((entry) {
+              final int index = entry.key;
+              final DownPaymentEntity dp = entry.value;
+              return InvoiceDetailModel(
+                docId: _uuid.v4(),
+                createDate: null,
+                updateDate: null,
+                toinvId: generatedInvoiceHeaderDocId,
+                lineNum: invoiceDetailModels.length + index + 1,
+                docNum: receiptEntity.docNum,
+                idNumber: (invoiceDetailModels.length + index + 1) * 10,
+                toitmId: itemDP.toitmId,
+                quantity: -1,
+                sellingPrice: dp.amount,
+                discPrctg: 0,
+                discAmount: 0,
+                totalAmount: dp.amount,
+                taxPrctg: 0,
+                promotionType: "",
+                promotionId: "",
+                remarks: "",
+                editTime: DateTime.now(),
+                cogs: 0,
+                tovatId: itemDP.tovatId,
+                promotionTingkat: null,
+                promoVoucherNo: null,
+                baseDocId: null,
+                baseLineDocId: null,
+                includeTax: itemDP.includeTax,
+                tovenId: itemDP.tovenId,
+                tbitmId: itemDP.tbitmId,
+                discHeaderAmount: 0,
+                subtotalAfterDiscHeader: dp.amount,
+                tohemId: "",
+                refpos2: dp.toinvDocId,
+              );
+            }).toList();
+
+            invoiceDetailModels.addAll(dpModels);
+          } else {
+            throw "No 'Item' DP found";
+          }
+        }
+
+        log("INVOICE DETAIL MODEL 11 - $invoiceDetailModels");
         await _appDatabase.invoiceDetailDao.bulkCreate(data: invoiceDetailModels, txn: txn);
 
         // log("ReceiptEntityMOP - ${receiptEntity.mopSelections}");

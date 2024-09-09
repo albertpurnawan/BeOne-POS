@@ -711,33 +711,13 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (discValue > state.grandTotal + (state.discHeaderManual ?? 0)) {
         throw "Discount amount invalid";
       }
-
       ReceiptEntity preparedReceipt = state;
 
-      List<DownPaymentEntity> dps = preparedReceipt.downPayments ?? [];
-      double totalDPAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
-
-      double subTotal = preparedReceipt.subtotal;
-      double dpSubTotal = subTotal - totalDPAmount;
-
-      double dpGrandTotal = dpSubTotal - (preparedReceipt.discAmount ?? 0) + preparedReceipt.taxAmount;
-      dev.log("$dpSubTotal - $dpGrandTotal");
-      preparedReceipt = preparedReceipt.copyWith(
-        subtotal: dpSubTotal,
-        discAmount: preparedReceipt.discAmount,
-        discHeaderPromo: preparedReceipt.discHeaderPromo,
-        discPrctg: dpSubTotal == 0 ? 0 : ((preparedReceipt.discAmount ?? 0) / dpSubTotal) * 100,
-        taxAmount: preparedReceipt.taxAmount,
-        grandTotal: dpGrandTotal,
-      );
-
-      if ((state.discHeaderManual ?? 0) > 0) {
-        preparedReceipt = await _recalculateReceiptUseCase.call(
-            params: state.copyWith(
-          discHeaderManual: 0,
-          discAmount: (state.discHeaderPromo ?? 0),
-        ));
-      }
+      preparedReceipt = await _recalculateReceiptUseCase.call(
+          params: state.copyWith(
+        discHeaderManual: 0,
+        discAmount: (state.discHeaderPromo ?? 0),
+      ));
 
       final ReceiptEntity newState = preparedReceipt.copyWith(
         discHeaderManual: discValue,
@@ -745,6 +725,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       );
 
       ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
+      dev.log("grandTotal - ${updatedReceipt.grandTotal}");
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
       // dev.log("Result updateTotalAmountFromDiscount - $updatedReceipt");
 
@@ -789,6 +770,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           discAmount: (newReceipt.discHeaderPromo ?? 0),
         ));
       }
+
+      newReceipt = await _recalculateReceiptUseCase.call(
+          params: newReceipt.copyWith(
+        receiptItems: newReceipt.receiptItems.map((e) => e.copyWith()).toList(),
+      ));
 
       // Handle promos
       if ((state.includePromo ?? 1) == 1) {
@@ -894,19 +880,19 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             params: ApplyPromoToprnUseCaseParams(receiptEntity: newReceipt, context: context));
       }
 
+      dev.log("newReceiptCoupon - $newReceipt");
+
       // Reinsert down payment
       if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
         if (totalDPAmount > newReceipt.grandTotal) {
           throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(totalDPAmount - newReceipt.grandTotal)})";
         } else {
-          newReceipt = await _recalculateReceiptUseCase.call(
-              params: newReceipt.copyWith(
-            receiptItems: newReceipt.receiptItems.map((e) => e.copyWith()).toList(),
-          ));
+          dev.log("newReceiptBeforeDownPayment - $newReceipt");
           double subTotal = newReceipt.subtotal;
           double dpSubTotal = subTotal - totalDPAmount;
 
-          double dpGrandTotal = dpSubTotal - (newReceipt.discAmount ?? 0) + newReceipt.taxAmount;
+          double dpGrandTotal =
+              dpSubTotal - (newReceipt.discAmount ?? 0) + newReceipt.taxAmount - newReceipt.couponDiscount;
 
           newReceipt = newReceipt.copyWith(
             subtotal: dpSubTotal,
@@ -923,6 +909,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           receiptItems: [dpItem.copyWith()],
         ));
       }
+
+      dev.log("newReceiptDownPayment - $newReceipt");
 
       // Reapply manual header discount
       if (discHeaderManual > 0 && newReceipt.grandTotal + (dpItem?.totalAmount ?? 0) >= discHeaderManual) {

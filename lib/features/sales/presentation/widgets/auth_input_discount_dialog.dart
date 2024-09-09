@@ -28,7 +28,11 @@ import 'package:uuid/uuid.dart';
 class AuthInputDiscountDialog extends StatefulWidget {
   final double discountValue;
   final String docnum;
-  const AuthInputDiscountDialog({Key? key, required this.discountValue, required this.docnum}) : super(key: key);
+  const AuthInputDiscountDialog({
+    Key? key,
+    required this.discountValue,
+    required this.docnum,
+  }) : super(key: key);
 
   @override
   State<AuthInputDiscountDialog> createState() => _AuthInputDiscountDialogState();
@@ -84,12 +88,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
       await childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
-      if (context.read<ReceiptCubit>().state.downPayments != null &&
-          context.read<ReceiptCubit>().state.downPayments!.isNotEmpty) {
-        await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
-      }
-      Navigator.of(childContext).pop(); // Close the dialog
-      Navigator.of(childContext).pop(widget.discountValue); // Close the select method if needed
+      Navigator.of(childContext).pop();
+      Navigator.of(childContext).pop(widget.discountValue);
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);

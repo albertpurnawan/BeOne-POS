@@ -34,8 +34,11 @@ class ApplyRoundingUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
         if (storeMasterEntity.roundingValue! >= 1) roundingSetting = storeMasterEntity.roundingValue!.round();
       }
 
-      final double beforeRounding =
-          params.subtotal - (params.discAmount ?? 0) - params.couponDiscount + params.taxAmount;
+      final double beforeRounding = params.subtotal -
+          (params.discAmount ?? 0) -
+          params.couponDiscount +
+          params.taxAmount -
+          (params.discHeaderManual ?? 0);
       final double remainder = beforeRounding % roundingSetting;
       final double rounding = remainder == 0
           ? 0

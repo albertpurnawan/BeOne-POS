@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/promotion_detail.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -22,6 +23,7 @@ class PromotionSummaryDialog extends StatefulWidget {
 class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   late final double previousGrandTotal;
+  double totalDP = 0;
 
   List<Widget> _buildBuyXGetYDetails() {
     try {
@@ -751,6 +753,11 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
       }
     });
     previousGrandTotal = widget.receiptEntity.previousReceiptEntity!.grandTotal;
+    if (widget.receiptEntity.downPayments != null && widget.receiptEntity.downPayments!.isNotEmpty) {
+      for (DownPaymentEntity dp in (widget.receiptEntity.downPayments ?? [])) {
+        totalDP += dp.amount;
+      }
+    }
   }
 
   @override
@@ -866,12 +873,39 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       child: Text(
                         widget.receiptEntity.grandTotal -
                                     previousGrandTotal +
-                                    (widget.receiptEntity.discHeaderManual ?? 0) >=
+                                    (widget.receiptEntity.discHeaderManual ?? 0) +
+                                    totalDP >=
                                 0
                             ? Helpers.parseMoney(widget.receiptEntity.grandTotal -
                                 previousGrandTotal +
-                                (widget.receiptEntity.discHeaderManual ?? 0))
-                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal + (widget.receiptEntity.discHeaderManual ?? 0))})",
+                                (widget.receiptEntity.discHeaderManual ?? 0) +
+                                totalDP)
+                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal + (widget.receiptEntity.discHeaderManual ?? 0) + totalDP)})",
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 200,
+                      child: Text(
+                        "Down Payments",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                      width: 150,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        Helpers.parseMoney(totalDP),
                         style: const TextStyle(fontSize: 14),
                       ),
                     )

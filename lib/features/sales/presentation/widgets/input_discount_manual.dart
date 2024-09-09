@@ -14,6 +14,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InputDiscountManual extends StatefulWidget {
   final String docnum;
@@ -27,10 +28,15 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
   final TextEditingController _textEditorDiscountController = TextEditingController();
   final FocusNode _discountFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
+  final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+  int count = 0;
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      count = prefs.getInt("countDiscount") ?? 0;
+    });
   }
 
   @override
@@ -70,10 +76,10 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                 ));
       } else {
         await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input);
-        if (context.read<ReceiptCubit>().state.downPayments != null &&
-            context.read<ReceiptCubit>().state.downPayments!.isNotEmpty) {
-          await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
-        }
+        // if (context.read<ReceiptCubit>().state.downPayments != null &&
+        //     context.read<ReceiptCubit>().state.downPayments!.isNotEmpty) {
+        //   await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
+        // }
         context.pop(input);
       }
     } catch (e) {
@@ -152,6 +158,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                           FocusScope.of(context).unfocus();
 
                           await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0);
+
                           if (context.mounted) {
                             SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3);
                             Future.delayed(const Duration(seconds: 3), () {

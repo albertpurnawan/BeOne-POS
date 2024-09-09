@@ -106,9 +106,21 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   void readInvoiceState() async {
     dp = await GetIt.instance<GetDownPaymentUseCase>().call();
-    currentReceiptItemEntity = stateInvoice.receiptItems.where((e) => e.itemEntity.barcode == dp!.barcode).firstOrNull;
-    _remarksController.text = stateInvoice.remarks ?? "";
-    _amountController.text = Helpers.parseMoney(currentReceiptItemEntity!.itemEntity.price);
+    if (dp != null) {
+      currentReceiptItemEntity =
+          stateInvoice.receiptItems.where((e) => e.itemEntity.barcode == dp!.barcode).firstOrNull;
+
+      _remarksController.text = stateInvoice.remarks ?? "";
+
+      if (currentReceiptItemEntity != null) {
+        _amountController.text = Helpers.parseMoney(currentReceiptItemEntity!.itemEntity.price);
+      } else {
+        _amountController.text = "";
+      }
+    } else {
+      _amountController.text = "";
+      SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
+    }
   }
 
   void readCustomer() async {
@@ -184,7 +196,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // stateInvoice = context.read<ReceiptCubit>().state;
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
         return Scaffold(
