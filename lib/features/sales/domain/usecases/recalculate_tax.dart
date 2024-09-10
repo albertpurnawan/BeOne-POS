@@ -13,7 +13,7 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
     double dpAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
 
     double discHeaderManual = params.discHeaderManual ?? 0.0;
-    double grandTotal = params.grandTotal;
+    double grandTotal = params.grandTotal + ((dpItem?.totalAmount ?? 0) * -1);
     double discHprctg = (discHeaderManual) / (grandTotal);
     double subtotalAfterHeaderDiscount = 0;
     double taxAfterHeaderDiscount = 0;
@@ -26,16 +26,18 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
         item.discHeaderAmount =
             (((discHprctg * (item.totalAmount * (1 - couponDiscPrctg)))) * (100 / (item.itemEntity.taxRate + 100)));
       }
-      item.subtotalAfterDiscHeader = ((item.totalGross - (item.discAmount ?? 0)) * (1 - couponDiscPrctg));
+      item.subtotalAfterDiscHeader =
+          ((item.totalGross - (item.discAmount ?? 0)) * (1 - couponDiscPrctg)) - (item.discHeaderAmount ?? 0);
+
       item.taxAmount = item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
       subtotalAfterHeaderDiscount += item.subtotalAfterDiscHeader!;
       taxAfterHeaderDiscount += item.taxAmount;
-      discAmountAfterHeaderDiscount += (item.discAmount ?? 0);
+      discAmountAfterHeaderDiscount += (item.discAmount ?? 0) + (item.discHeaderAmount ?? 0);
     }
 
     params.taxAmount = taxAfterHeaderDiscount;
-    // params.subtotal = subtotalAfterHeaderDiscount;
-    params.grandTotal = subtotalAfterHeaderDiscount - dpAmount - discHeaderManual + taxAfterHeaderDiscount;
+    params.subtotal -= dpAmount;
+    params.grandTotal = subtotalAfterHeaderDiscount - dpAmount + taxAfterHeaderDiscount;
     params.discAmount = discAmountAfterHeaderDiscount;
     params.discPrctg = (params.discAmount ?? 0) / (params.subtotal == 0 ? 1 : params.subtotal);
 

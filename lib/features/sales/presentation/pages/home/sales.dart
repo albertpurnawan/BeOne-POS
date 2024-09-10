@@ -2943,7 +2943,12 @@ class _SalesPageState extends State<SalesPage> {
               Expanded(
                 child: SizedBox.expand(
                   child: OutlinedButton(
-                    onPressed: () async => await checkout(),
+                    onPressed: () async {
+                      await checkout().then((value) async {
+                        log("checkRECEIPT - ${context.read<ReceiptCubit>().state}");
+                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                      });
+                    },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(15, 3, 15, 3),
                       // elevation: 5,

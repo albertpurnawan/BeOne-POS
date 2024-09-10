@@ -127,8 +127,8 @@ AND ${ItemFields.toplnId} = ?""",
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
-      where: "itemcode = ?",
-      whereArgs: ["99"],
+      where: "itemcode = ? OR itemcode = ?",
+      whereArgs: ["99", "08700000002"],
     );
 
     return res.isNotEmpty ? ItemModel.fromMap(res.first) : null;

@@ -752,7 +752,9 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         setState(() {});
       }
     });
-    previousGrandTotal = widget.receiptEntity.previousReceiptEntity!.grandTotal;
+    previousGrandTotal = widget.receiptEntity.previousReceiptEntity != null
+        ? widget.receiptEntity.previousReceiptEntity!.grandTotal
+        : widget.receiptEntity.grandTotal;
     if (widget.receiptEntity.downPayments != null && widget.receiptEntity.downPayments!.isNotEmpty) {
       for (DownPaymentEntity dp in (widget.receiptEntity.downPayments ?? [])) {
         totalDP += dp.amount;
@@ -873,14 +875,12 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       child: Text(
                         widget.receiptEntity.grandTotal -
                                     previousGrandTotal +
-                                    (widget.receiptEntity.discHeaderManual ?? 0) +
-                                    totalDP >=
+                                    (widget.receiptEntity.discHeaderManual ?? 0) >=
                                 0
                             ? Helpers.parseMoney(widget.receiptEntity.grandTotal -
                                 previousGrandTotal +
-                                (widget.receiptEntity.discHeaderManual ?? 0) +
-                                totalDP)
-                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal + (widget.receiptEntity.discHeaderManual ?? 0) + totalDP)})",
+                                (widget.receiptEntity.discHeaderManual ?? 0))
+                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal + (widget.receiptEntity.discHeaderManual ?? 0))})",
                         style: const TextStyle(fontSize: 14),
                       ),
                     )
@@ -889,31 +889,31 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                 const SizedBox(
                   height: 5,
                 ),
-                Row(
-                  children: [
-                    const SizedBox(
-                      width: 200,
-                      child: Text(
-                        "Down Payments",
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Container(
-                      width: 150,
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        Helpers.parseMoney(totalDP),
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
+                // Row(
+                //   children: [
+                //     const SizedBox(
+                //       width: 200,
+                //       child: Text(
+                //         "Down Payments",
+                //         style: TextStyle(fontSize: 14),
+                //       ),
+                //     ),
+                //     const SizedBox(
+                //       width: 20,
+                //     ),
+                //     Container(
+                //       width: 150,
+                //       alignment: Alignment.centerRight,
+                //       child: Text(
+                //         Helpers.parseMoney(totalDP),
+                //         style: const TextStyle(fontSize: 14),
+                //       ),
+                //     )
+                //   ],
+                // ),
+                // const SizedBox(
+                //   height: 5,
+                // ),
                 Row(
                   children: [
                     const SizedBox(
