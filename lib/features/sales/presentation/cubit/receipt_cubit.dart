@@ -133,8 +133,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (params.barcode == null && params.itemEntity == null) {
         throw "Item barcode or item required";
       }
-
-      // Check qty
       if (params.quantity == 0) {
         throw "Quantity cannot be 0";
       }
@@ -150,17 +148,24 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       final List<PromotionsEntity?> availablePromos;
       final int includePromo = state.includePromo ?? 1;
 
-      // Handle negative quantity
+      // Handle negative quantity && validate return item
       final ReceiptItemEntity? currentReceiptItemEntity = state.receiptItems
           .where((e) => e.itemEntity.barcode == (params.barcode ?? params.itemEntity!.barcode))
           .firstOrNull;
       if (currentReceiptItemEntity != null) {
+        if (currentReceiptItemEntity.refpos3 != null && params.refpos3 == null) {
+          throw "Please modify returned items on Return feature";
+        }
+
         if (currentReceiptItemEntity.quantity + params.quantity == 0) {
           await removeReceiptItem(currentReceiptItemEntity, params.context!);
           return;
         } else if (params.quantity < 0 && currentReceiptItemEntity.quantity > 0) {
           if ((params.barcode ?? params.itemEntity!.barcode) == "99" &&
               currentReceiptItemEntity.quantity + params.quantity < -1) throw "Down payment quantity must be -1 or 1";
+          if (params.refpos3 == null && currentReceiptItemEntity.quantity + params.quantity <= 0) {
+            throw "Resulting quantity must be positive";
+          }
           await removeReceiptItem(currentReceiptItemEntity, params.context!);
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
             barcode: params.barcode,
@@ -170,6 +175,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             onOpenPriceInputted: params.onOpenPriceInputted,
             remarks: params.remarks,
             tohemId: params.tohemId,
+            refpos3: params.refpos3,
           ));
           return;
         }
@@ -211,7 +217,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Convert item entity to receipt item entity **qty conversion can be placed here**
       receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(itemEntity, params.quantity)
         ..tohemId = params.tohemId
-        ..remarks = params.remarks;
+        ..remarks = params.remarks
+        ..refpos3 = params.refpos3;
 
       // Handle open price
       if (receiptItemEntity.itemEntity.openPrice == 1) {
@@ -237,9 +244,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Handle promos
-      // dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
       bool anyPromoApplied = false;
-      dev.log("includePromo $state");
       if (receiptItemEntity.itemEntity.barcode != "99" && includePromo == 1) {
         availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
         if (availablePromos.isNotEmpty) {
@@ -661,7 +666,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void retrieveFromQueue(ReceiptEntity receiptEntity, BuildContext context) async {
-    dev.log("retrieveFromQueue - $receiptEntity");
     await resetReceipt();
 
     for (final receiptItem in receiptEntity.receiptItems) {
@@ -673,10 +677,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
         remarks: receiptItem.remarks,
         tohemId: receiptItem.tohemId,
+        refpos3: receiptItem.refpos3,
       ));
     }
-
-    dev.log("Retrievefromqueue $state");
 
     emit(state
       ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
@@ -931,6 +934,7 @@ class AddUpdateReceiptItemsParams {
   final String? remarks;
   final String? tohemId;
   final bool? isReinput;
+  final String? refpos3;
 
   AddUpdateReceiptItemsParams({
     required this.barcode,
@@ -941,5 +945,6 @@ class AddUpdateReceiptItemsParams {
     this.remarks,
     this.tohemId,
     this.isReinput,
+    this.refpos3,
   });
 }

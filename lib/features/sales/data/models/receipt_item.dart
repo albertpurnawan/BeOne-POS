@@ -13,5 +13,6 @@ class ReceiptItemModel extends ReceiptItemEntity {
     super.discAmount,
     super.tohemId,
     super.remarks,
+    super.refpos3,
   });
 }

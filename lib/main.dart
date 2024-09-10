@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/return_base_receipt_cubit.dart';
 import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,11 +78,11 @@ void main() async {
   //   },
   //   appRunner: () => runApp(const MyApp()),
   // );
-  // FlutterError.onError = (details) {
-  //   FlutterError.presentError(details);
-  //   log(details.toString());
-  //   // if (kReleaseMode) exit(1);
-  // };
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    log(details.toString());
+    // if (kReleaseMode) exit(1);
+  };
   runApp(const MyApp());
 }
 
@@ -142,6 +144,7 @@ class MyApp extends StatelessWidget {
             BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
             BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
             BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
+            BlocProvider<ReturnBaseReceiptCubit>(create: (context) => ReturnBaseReceiptCubit()),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {

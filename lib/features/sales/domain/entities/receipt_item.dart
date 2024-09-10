@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 
@@ -21,6 +22,7 @@ class ReceiptItemEntity {
   String? tohemId;
   String? remarks;
   int? qtyBarcode;
+  String? refpos3;
 
   ReceiptItemEntity({
     required this.quantity,
@@ -38,6 +40,7 @@ class ReceiptItemEntity {
     this.tohemId,
     this.remarks,
     this.qtyBarcode,
+    this.refpos3,
   });
 
   ReceiptItemEntity copyWith({
@@ -56,6 +59,7 @@ class ReceiptItemEntity {
     String? tohemId,
     String? remarks,
     int? qtyBarcode,
+    String? refpos3,
   }) {
     return ReceiptItemEntity(
       quantity: quantity ?? this.quantity,
@@ -73,6 +77,7 @@ class ReceiptItemEntity {
       tohemId: tohemId ?? this.tohemId,
       remarks: remarks ?? this.remarks,
       qtyBarcode: qtyBarcode ?? this.qtyBarcode,
+      refpos3: refpos3 ?? this.refpos3,
     );
   }
 
@@ -93,6 +98,7 @@ class ReceiptItemEntity {
       'tohemId': tohemId,
       'remarks': remarks,
       'qtyBarcode': qtyBarcode,
+      'refpos3': refpos3,
     };
   }
 
@@ -117,6 +123,7 @@ class ReceiptItemEntity {
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       qtyBarcode: map['qtyBarcode'] != null ? map['qtyBarcode'] as int : null,
+      refpos3: map['refpos3'] != null ? map['refpos3'] as String : null,
     );
   }
 
@@ -127,7 +134,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, remarks: $remarks, qtyBarcode: $qtyBarcode)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, remarks: $remarks, qtyBarcode: $qtyBarcode, refpos3: $refpos3)';
   }
 
   @override
@@ -148,7 +155,8 @@ class ReceiptItemEntity {
         other.subtotalAfterDiscHeader == subtotalAfterDiscHeader &&
         other.tohemId == tohemId &&
         other.remarks == remarks &&
-        other.qtyBarcode == qtyBarcode;
+        other.qtyBarcode == qtyBarcode &&
+        other.refpos3 == refpos3;
   }
 
   @override
@@ -167,6 +175,7 @@ class ReceiptItemEntity {
         subtotalAfterDiscHeader.hashCode ^
         tohemId.hashCode ^
         remarks.hashCode ^
-        qtyBarcode.hashCode;
+        qtyBarcode.hashCode ^
+        refpos3.hashCode;
   }
 }

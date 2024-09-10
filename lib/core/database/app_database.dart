@@ -230,7 +230,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 3;
+  final int databaseVersion = 4;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -3080,6 +3080,7 @@ CREATE TABLE $tableQueuedInvoiceDetail (
   ${QueuedInvoiceDetailFields.tbitmId} text DEFAULT NULL,
   ${QueuedInvoiceDetailFields.discHeaderAmount} double NOT NULL,
   ${QueuedInvoiceDetailFields.tohemId} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `queuedInvoiceDetails_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `queuedInvoiceHeaders` (`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `queuedInvoiceDetails_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3646,6 +3647,9 @@ CREATE TABLE $tableApprovalInvoice (
         await db.execute('''ALTER TABLE $tableAuthStore DROP COLUMN resetdb''');
         await db.execute('''ALTER TABLE $tableAuthStore RENAME temp TO resetlocaldb''');
       }
+    },
+    'from_version_3_to_version_4': (Database db) async {
+      await db.execute('''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos3 text DEFAULT NULL''');
     },
   };
 

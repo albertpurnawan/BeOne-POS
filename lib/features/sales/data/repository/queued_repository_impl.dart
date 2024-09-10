@@ -106,6 +106,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           tbitmId: e.itemEntity.tbitmId,
           discHeaderAmount: e.discHeaderAmount ?? 0, // need to check
           tohemId: e.tohemId ?? receiptEntity.salesTohemId,
+          refpos3: e.refpos3,
           // subtotalAfterDiscHeader: 0, // need to check
         );
       }).toList();
@@ -173,6 +174,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           totalAmount: queuedInvoiceDetailModel.totalAmount,
           totalSellBarcode: queuedInvoiceDetailModel.sellingPrice * queuedInvoiceDetailModel.quantity,
           promos: [],
+          refpos3: queuedInvoiceDetailModel.refpos3,
         ));
       }
 
@@ -265,6 +267,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             promos: [],
             tohemId: queuedInvoiceDetailModel.tohemId,
             remarks: queuedInvoiceDetailModel.remarks,
+            refpos3: queuedInvoiceDetailModel.refpos3,
           ));
         }
         queuedReceiptModels.add(ReceiptModel(
