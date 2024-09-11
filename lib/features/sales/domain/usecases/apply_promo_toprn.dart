@@ -39,9 +39,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/resources/promotion_detail.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
@@ -117,6 +115,7 @@ class ApplyPromoToprnUseCase implements UseCase<ReceiptEntity, ApplyPromoToprnUs
           }
 
           couponDiscAmt = couponDiscPrctg * (subtotal - discAmount - totalCouponDiscount);
+          log("couponDiscAmt - $couponDiscAmt");
           totalCouponDiscount += couponDiscAmt;
 
           appliedCoupons.add(coupon.copyWith());

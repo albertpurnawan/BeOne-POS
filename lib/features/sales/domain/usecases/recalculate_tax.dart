@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -18,7 +20,17 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
     double subtotalAfterHeaderDiscount = 0;
     double taxAfterHeaderDiscount = 0;
     double discAmountAfterHeaderDiscount = 0;
-    double couponDiscPrctg = params.couponDiscount / (params.subtotal - (params.discAmount ?? 0));
+    double couponDiscPrctg = (params.couponDiscount) / (params.subtotal - (params.discAmount ?? 0));
+    log("params.couponDiscount - ${params.couponDiscount}");
+    log("params.subtotal - ${params.subtotal}");
+    log("params.taxAmount - ${params.taxAmount}");
+    log("params.grandTotal - ${params.grandTotal}");
+    log("params.discAmount - ${params.discAmount}");
+    log("params.discHeaderManual - ${params.discHeaderManual}");
+    log("params.discHprctg - $discHprctg");
+    log("params.discAmountAfterHeaderDiscount - $discAmountAfterHeaderDiscount");
+    log("params.couponDiscPrctg - $couponDiscPrctg");
+
     // log("params.discAmount - ${params.discAmount}");
 
     for (final item in params.receiptItems.map((e) => e.copyWith())) {
@@ -40,6 +52,9 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
     params.grandTotal = subtotalAfterHeaderDiscount - dpAmount + taxAfterHeaderDiscount;
     params.discAmount = discAmountAfterHeaderDiscount;
     params.discPrctg = (params.discAmount ?? 0) / (params.subtotal == 0 ? 1 : params.subtotal);
+
+    log("params.subtotal 2 - ${params.subtotal}");
+    log("params.taxAmount 2 - ${params.taxAmount}");
 
     return params;
   }
