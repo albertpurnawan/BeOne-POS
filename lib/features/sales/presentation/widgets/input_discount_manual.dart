@@ -75,7 +75,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                   docnum: widget.docnum,
                 ));
       } else {
-        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input);
+        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, context);
         // if (context.read<ReceiptCubit>().state.downPayments != null &&
         //     context.read<ReceiptCubit>().state.downPayments!.isNotEmpty) {
         //   await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
@@ -106,7 +106,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
               } else if (value.physicalKey == PhysicalKeyboardKey.f9) {
                 context
                     .read<ReceiptCubit>()
-                    .updateTotalAmountFromDiscount(0)
+                    .updateTotalAmountFromDiscount(0, context)
                     .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3));
                 return KeyEventResult.handled;
               }
@@ -157,7 +157,7 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
 
-                          await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0);
+                          await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0, context);
 
                           if (context.mounted) {
                             SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3);

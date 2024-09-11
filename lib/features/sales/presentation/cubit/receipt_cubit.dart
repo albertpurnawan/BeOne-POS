@@ -706,7 +706,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ..remarks = receiptEntity.remarks);
   }
 
-  Future<void> updateTotalAmountFromDiscount(double discValue) async {
+  Future<void> updateTotalAmountFromDiscount(double discValue, BuildContext context) async {
     try {
       if (discValue > state.grandTotal + (state.discHeaderManual ?? 0)) {
         throw "Discount amount invalid";
@@ -714,7 +714,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ReceiptEntity preparedReceipt = state;
 
       if ((state.discHeaderManual ?? 0) > 0) {
-        dev.log("state disc header > 0");
         preparedReceipt = await _recalculateReceiptUseCase.call(
             params: state.copyWith(
           discHeaderManual: 0,
@@ -724,7 +723,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       if (state.downPayments != null && state.downPayments!.isNotEmpty) {
-        dev.log("state DP > 0");
         preparedReceipt = await _recalculateReceiptUseCase.call(
             params: state.copyWith(
           discHeaderManual: 0,
@@ -732,10 +730,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         ));
       }
 
-      final ReceiptEntity newState = preparedReceipt.copyWith(
+      ReceiptEntity newState = preparedReceipt.copyWith(
         discHeaderManual: discValue,
         // discAmount: discValue + (state.discHeaderPromo ?? 0),
       );
+
+      if (newState.coupons.isNotEmpty) {
+        newState = await _applyPromoToprnUseCase.call(
+            params: ApplyPromoToprnUseCaseParams(receiptEntity: newState, context: context));
+      }
 
       ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);

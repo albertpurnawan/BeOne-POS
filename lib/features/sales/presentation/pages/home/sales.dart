@@ -2491,9 +2491,10 @@ class _SalesPageState extends State<SalesPage> {
                           isEditingNewReceiptItemQty = false;
                           isUpdatingReceiptItemQty = false;
                           isEditingNewReceiptItemCode = true;
-                          isMember = false;
+                          // isMember = false;
                           _newReceiptItemCodeFocusNode.requestFocus();
                         });
+                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                       },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
@@ -2944,10 +2945,7 @@ class _SalesPageState extends State<SalesPage> {
                 child: SizedBox.expand(
                   child: OutlinedButton(
                     onPressed: () async {
-                      await checkout().then((value) async {
-                        log("checkRECEIPT - ${context.read<ReceiptCubit>().state}");
-                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
-                      });
+                      await checkout();
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(15, 3, 15, 3),
@@ -3980,6 +3978,9 @@ class _SalesPageState extends State<SalesPage> {
           isEditingNewReceiptItemCode = true;
           _newReceiptItemCodeFocusNode.requestFocus();
         });
+      });
+      Future.delayed(const Duration(milliseconds: 100)).then((_) {
+        checkReceiptWithMember(context.read<ReceiptCubit>().state);
       });
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());

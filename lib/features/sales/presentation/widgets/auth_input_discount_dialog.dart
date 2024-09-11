@@ -87,7 +87,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
-      await childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
+      await childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue, context);
       Navigator.of(childContext).pop();
       Navigator.of(childContext).pop(widget.discountValue);
     } else {
