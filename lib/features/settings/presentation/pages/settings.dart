@@ -8,6 +8,7 @@ import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/settings/presentation/pages/archive_database_screen.dart';
 import 'package:pos_fe/features/settings/presentation/pages/characters_per_line_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/default_printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/paper_size_settings.dart';
@@ -417,61 +418,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Divider(
                             height: 0,
                           ),
-                          // InkWell(
-                          //   onTap: () async {
-                          //     Navigator.push(context, MaterialPageRoute(builder: (context) => const ArchiveScreen()));
-                          //   },
-                          //   child: const Column(
-                          //     children: [
-                          //       SizedBox(
-                          //         height: 20,
-                          //       ),
-                          //       Row(
-                          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //         children: [
-                          //           Row(
-                          //             children: [
-                          //               SizedBox(
-                          //                 width: 5,
-                          //               ),
-                          //               Icon(
-                          //                 Icons.archive_outlined,
-                          //                 color: Color.fromARGB(255, 66, 66, 66),
-                          //               ),
-                          //               SizedBox(
-                          //                 width: 30,
-                          //               ),
-                          //               Text(
-                          //                 "Archive",
-                          //                 style: TextStyle(fontSize: 16),
-                          //               ),
-                          //             ],
-                          //           ),
-                          //           Row(
-                          //             children: [
-                          //               SizedBox(
-                          //                 width: 15,
-                          //               ),
-                          //               Icon(
-                          //                 Icons.navigate_next,
-                          //                 color: Color.fromARGB(255, 66, 66, 66),
-                          //               ),
-                          //               SizedBox(
-                          //                 width: 5,
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ],
-                          //       ),
-                          //       SizedBox(
-                          //         height: 20,
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                          // const Divider(
-                          //   height: 0,
-                          // ),
+                          InkWell(
+                            onTap: () async {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ArchiveScreen()));
+                            },
+                            child: const Column(
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.archive_outlined,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Archive",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Icon(
+                                          Icons.navigate_next,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            height: 0,
+                          ),
                         ],
                       ),
                       const SizedBox(
