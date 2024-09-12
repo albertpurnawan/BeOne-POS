@@ -398,7 +398,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
 
-        return discAmount * (100 + e1.itemEntity.taxRate) / 100;
+        return discAmount;
       }).reduce((value, e3) => value + e3);
 
       totalDisc += totalDiscByPromoId;
@@ -537,7 +537,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         final double discAmount =
             e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
 
-        return discAmount * (100 + e1.itemEntity.taxRate) / 100;
+        return discAmount;
       }).reduce((value, e3) => value + e3);
       totalDisc += totalDiscByPromoId;
       widgets.add(Column(
@@ -839,7 +839,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       width: 150,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        "(${Helpers.parseMoney(widget.receiptEntity.discHeaderManual ?? 0)})",
+                        Helpers.parseMoney((widget.receiptEntity.discHeaderManual ?? 0) * -1),
                         style: const TextStyle(fontSize: 14),
                       ),
                     )
@@ -864,14 +864,9 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       width: 150,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        widget.receiptEntity.grandTotal -
-                                    previousGrandTotal +
-                                    (widget.receiptEntity.discHeaderManual ?? 0) >=
-                                0
-                            ? Helpers.parseMoney(widget.receiptEntity.grandTotal -
-                                previousGrandTotal +
-                                (widget.receiptEntity.discHeaderManual ?? 0))
-                            : "(${Helpers.parseMoney(widget.receiptEntity.grandTotal - previousGrandTotal + (widget.receiptEntity.discHeaderManual ?? 0))})",
+                        Helpers.parseMoney(widget.receiptEntity.grandTotal -
+                            previousGrandTotal +
+                            (widget.receiptEntity.discHeaderManual ?? 0)),
                         style: const TextStyle(fontSize: 14),
                       ),
                     )
