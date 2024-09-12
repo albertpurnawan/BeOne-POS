@@ -3487,10 +3487,8 @@ class _FetchScreenState extends State<FetchScreen> {
                                         builder: (context) => const ResetDBApprovalDialog());
 
                                     if (isAuthorized != true) return;
-
-                                    if (context.mounted) {
-                                      SnackBarHelper.presentSuccessSnackBar(context, "Succes refresh database", 3);
-                                    }
+                                    await GetIt.instance<AppDatabase>().resetDatabase();
+                                    // exit(0);
                                   } catch (e) {
                                     if (context.mounted) {
                                       SnackBarHelper.presentErrorSnackBar(context, e.toString());

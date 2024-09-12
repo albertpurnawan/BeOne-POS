@@ -442,6 +442,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
     final newState = state.copyWith(
       approvals: approvalsMap.values.toList(),
+      previousReceiptEntity: state.previousReceiptEntity,
     );
 
     dev.log("updateApp newState - ${newState.approvals}");
@@ -460,10 +461,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
     }
 
-    dev.log("Includepromo $includePromo state.includepromo ${state.includePromo}");
-
     if (state.previousReceiptEntity != null && (state.includePromo ?? 1) != includePromo) {
-      dev.log("Masuk di if 1");
       final bool? isProceed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
@@ -503,7 +501,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     if ((state.includePromo ?? 1) != includePromo) {
-      dev.log("Masuk di if 2");
       final List<ReceiptItemEntity> receiptItems = state.receiptItems.map((e) => e.copyWith()).toList();
       await resetReceipt();
       emit(state.copyWith(
@@ -513,8 +510,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         salesTohemId: currentReceipt.salesTohemId,
         remarks: currentReceipt.remarks,
       ));
-
-      log("masuk 2 $state");
 
       for (final receiptItem in receiptItems) {
         await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
@@ -691,7 +686,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         throw "Discount amount invalid";
       }
 
-      ReceiptEntity preparedReceipt = state;
+      ReceiptEntity preparedReceipt = state.copyWith();
 
       if ((state.discHeaderManual ?? 0) > 0) {
         preparedReceipt = await _recalculateReceiptUseCase.call(
@@ -699,6 +694,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           discHeaderManual: 0,
           discAmount: (state.discHeaderPromo ?? 0),
         ));
+
+        preparedReceipt = await _recalculateTaxUseCase.call(params: preparedReceipt.copyWith(discHeaderManual: 0));
       }
 
       final ReceiptEntity newState = preparedReceipt.copyWith(
@@ -710,8 +707,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
       // dev.log("Result updateTotalAmountFromDiscount - $updatedReceipt");
 
-      emit(updatedReceipt.copyWith(
-          previousReceiptEntity: state.previousReceiptEntity ?? state.copyWith(previousReceiptEntity: null)));
+      emit(updatedReceipt.copyWith(previousReceiptEntity: state.previousReceiptEntity));
     } catch (e) {
       dev.log("Error during tax recalculation: $e");
       rethrow;
@@ -719,11 +715,26 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   Future<void> processReceiptBeforeCheckout(BuildContext context) async {
+    final ReceiptEntity initialState = state.copyWith(
+      receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
+      previousReceiptEntity: state.previousReceiptEntity?.copyWith(
+        receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
+        previousReceiptEntity: null,
+      ),
+
+      // Reset MOP related fields
+      vouchers: [],
+      totalPayment: 0,
+      changed: 0,
+      totalVoucher: 0,
+      totalNonVoucher: 0,
+    )..mopSelections = [];
     try {
       // Excludes DP item from calculation
       ReceiptItemEntity? dpItem = state.receiptItems.where((element) => element.itemEntity.barcode == "99").firstOrNull;
       List<ReceiptItemEntity> normalItems =
           state.receiptItems.where((element) => element.itemEntity.barcode != "99").toList();
+
       ReceiptEntity newReceipt = state.copyWith(
         receiptItems: normalItems.map((e) => e.copyWith()).toList(),
         previousReceiptEntity: state.previousReceiptEntity,
@@ -883,14 +894,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       newReceipt = await _applyRoundingUseCase.call(params: newReceipt);
 
       emit(newReceipt.copyWith(
-        previousReceiptEntity: state.previousReceiptEntity ??
-            state.copyWith(
-                receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
+        previousReceiptEntity: initialState.previousReceiptEntity ??
+            initialState.copyWith(
+                receiptItems: initialState.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
       ));
 
       dev.log("after emit $state");
       return;
     } catch (e) {
+      emit(initialState);
       rethrow;
     }
   }

@@ -8,7 +8,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/usecases/refresh_database_usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -86,12 +85,12 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
 
       await Future.delayed(const Duration(seconds: 2));
       if (childContext.mounted) {
-        // parentContext.pop(true); // Close the input otp dialog
-        // parentContext.pop(true); // Close the input otp dialog
-        // parentContext.pop(true); // Close the input otp dialog
+        parentContext.pop(true); // Close the input otp dialog
+        parentContext.pop(true); // Close the input otp dialog
+        parentContext.pop(true); // Close the input otp dialog
 
         SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
-        await GetIt.instance<RefreshDatabaseUseCase>().call();
+        await GetIt.instance<AppDatabase>().resetDatabase();
         // exit(0);
       }
     } else {

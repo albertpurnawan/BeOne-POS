@@ -10,7 +10,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/usecases/refresh_database_usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -77,7 +76,7 @@ class _ResetDBApprovalDialogState extends State<ResetDBApprovalDialog> {
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
-      await GetIt.instance<RefreshDatabaseUseCase>().call(params: RefreshDatabaseParams(context: childContext));
+      await GetIt.instance<AppDatabase>().resetDatabase();
       // exit(0);
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
