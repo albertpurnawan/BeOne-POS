@@ -187,6 +187,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         if (!isProceed) return;
       }
       ReceiptEntity newReceipt = state.previousReceiptEntity ?? state;
+      dev.log("after reset $newReceipt");
 
       // Get item entity and validate
       if (state.customerEntity?.toplnId != null) {
@@ -718,7 +719,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     final ReceiptEntity initialState = state.copyWith(
       receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
       previousReceiptEntity: state.previousReceiptEntity?.copyWith(
-        receiptItems: state.receiptItems.map((e) => e.copyWith()).toList(),
+        receiptItems: state.previousReceiptEntity?.receiptItems.map((e) => e.copyWith()).toList(),
         previousReceiptEntity: null,
       ),
 
