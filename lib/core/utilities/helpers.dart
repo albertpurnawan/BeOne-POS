@@ -298,7 +298,7 @@ abstract class Helpers {
   }
 
   static clipStringAndAddEllipsis(String string, int n) {
-    if (string.length < n) {
+    if (string.length <= n) {
       return string;
     } else {
       return "${string.substring(0, n)}...";
