@@ -13,6 +13,7 @@ import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
@@ -276,6 +277,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PromoCouponCustomerGroupApi>(PromoCouponCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
+  sl.registerSingleton<DuitkuApi>(DuitkuApi(sl()));
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
   sl.registerSingleton<BillOfMaterialLineItemApi>(BillOfMaterialLineItemApi(sl()));
   sl.registerSingleton<EDCApi>(EDCApi(sl()));

@@ -15,6 +15,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/progress_indicator.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
@@ -997,9 +998,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     /**
      * 1 - Tunai
      * 2 - EDC
-     * 3 - Others
-     * 4 - QRIS
-     * 5 - Voucher
+     * 3 - ONLINE PAYMENT
+     * 4 - OTHERS
+     * 5 - QRIS
+     * 6 - VOUCHER
     */
 
     List<MopSelectionEntity> mops = [];
@@ -1688,6 +1690,70 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                             }
                                             // [END] UI for EDC MOP
 
+                                            // [START] UI for duitku
+                                            if (paymentType.payTypeCode.startsWith("7") &&
+                                                mopsByType.any((mop) => mop.mopAlias == "duitku")) {
+                                              dev.log("HEREEEEEE");
+                                              return Column(
+                                                children: [
+                                                  const SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          paymentType.description,
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 15,
+                                                        ),
+                                                        Wrap(
+                                                          spacing: 8,
+                                                          runSpacing: 8,
+                                                          children: List<Widget>.generate(
+                                                            mopsByType.length,
+                                                            (int index) {
+                                                              final mop = mopsByType[index];
+                                                              return ChoiceChip(
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors.primary, width: 1.5),
+                                                                padding: const EdgeInsets.all(20),
+                                                                label: Text(
+                                                                  mop.mopAlias,
+                                                                ),
+                                                                selected:
+                                                                    _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
+                                                                onSelected: (bool selected) async {
+                                                                  if (selected) {
+                                                                    final duitkuResponse =
+                                                                        await GetIt.instance<DuitkuApi>()
+                                                                            .createTransactionVA(50000000);
+                                                                    dev.log("duitkuResponse - $duitkuResponse");
+                                                                  }
+                                                                },
+                                                              );
+                                                            },
+                                                          ).toList(),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 20,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
+                                                ],
+                                              );
+                                            }
+                                            // [END] UI for duitku
                                             // [START] UI for other MOPs
                                             return Column(
                                               children: [

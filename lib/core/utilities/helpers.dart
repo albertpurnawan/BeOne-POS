@@ -210,6 +210,19 @@ abstract class Helpers {
     }
   }
 
+  static String getTimestamp() {
+    String timestamp = "";
+    DateTime now = DateTime.now();
+    String formattedDateTime = now.toIso8601String().split('.').first;
+    String timezoneOffset = now.timeZoneOffset.isNegative ? "-" : "+";
+    int hours = now.timeZoneOffset.inHours.abs();
+    int minutes = now.timeZoneOffset.inMinutes.abs() % 60;
+
+    String formattedOffset = "$timezoneOffset${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
+    timestamp = formattedDateTime + formattedOffset;
+    return timestamp;
+  }
+
   static String localDateStringToUtcString(String dtString) {
     final dt = DateTime.parse(dtString);
     debugPrint(dtString);
@@ -328,6 +341,15 @@ abstract class Helpers {
     final endMinutes = end.hour * 60 + end.minute;
 
     return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
+  }
+
+  static String generateRandomString(int length) {
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    Random random = Random();
+    return String.fromCharCodes(Iterable.generate(
+      length,
+      (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+    ));
   }
 }
 
