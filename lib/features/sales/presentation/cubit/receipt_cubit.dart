@@ -712,14 +712,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         throw "Discount amount invalid";
       }
       ReceiptEntity preparedReceipt = state;
-
+      dev.log("grandTotal before Discount 1 - ${state.grandTotal}");
       if ((state.discHeaderManual ?? 0) > 0) {
         preparedReceipt = await _recalculateReceiptUseCase.call(
             params: state.copyWith(
           discHeaderManual: 0,
           discAmount: (state.discHeaderPromo ?? 0),
         ));
-        preparedReceipt = await _recalculateTaxUseCase.call(params: preparedReceipt.copyWith(discHeaderManual: 0));
+        // preparedReceipt =
+        //     await _recalculateTaxUseCase.call(params: preparedReceipt.copyWith(discHeaderManual: 0));
       }
 
       if (state.downPayments != null && state.downPayments!.isNotEmpty) {
@@ -742,7 +743,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
-      // dev.log("Result updateTotalAmountFromDiscount - $updatedReceipt");
 
       emit(updatedReceipt.copyWith(
           previousReceiptEntity: state.previousReceiptEntity ?? state.copyWith(previousReceiptEntity: null)));

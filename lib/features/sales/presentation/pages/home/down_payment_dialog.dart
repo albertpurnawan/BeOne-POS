@@ -9,6 +9,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -45,11 +46,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   bool isEdit = false;
   late double totalAmount;
 
-  final List<Map<String, dynamic>> test = [
-    {"docnum": "BPP-2409021341001/001", "maxAmount": 10000000},
-    {"docnum": "BPP-2409021344001/001", "maxAmount": 20000000},
-    {"docnum": "BPP-2409021348001/001", "maxAmount": 15000000},
-  ];
+  List<DownPaymentEntity> membersDP = [];
 
   @override
   void initState() {
@@ -58,7 +55,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     readInvoiceState();
     readCustomer();
     _amountFocusNode.requestFocus();
-    _setupControllers();
   }
 
   @override
@@ -75,33 +71,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       focusNode.dispose();
     }
     super.dispose();
-  }
-
-  void _setupControllers() {
-    totalAmount = 0.0;
-
-    _drawAmountControllers = List.generate(test.length, (index) {
-      TextEditingController controller = TextEditingController();
-      controller.text = Helpers.parseMoney(test[index]['maxAmount']);
-      return controller;
-    });
-
-    _drawAmountFocusNodes = List.generate(test.length, (index) => FocusNode());
-
-    _isExceeding = List.generate(test.length, (index) => false);
-    _isZero = List.generate(test.length, (index) => false);
-
-    _selectedItems = List.generate(test.length, (index) {
-      int selectedIndex = stateInvoice.downPayments?.indexWhere((dp) => dp.toinvDocId == test[index]['docnum']) ?? -1;
-      if (selectedIndex != -1) {
-        double amount = stateInvoice.downPayments![selectedIndex].amount;
-        _drawAmountControllers[index].text = Helpers.parseMoney(amount);
-        totalAmount += amount;
-        return true;
-      } else {
-        return false;
-      }
-    });
   }
 
   void readInvoiceState() async {
@@ -128,6 +97,48 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
     setState(() {
       customerSelected = customer;
+    });
+    membersDP = await getMembersDownPayments();
+    if (membersDP.isNotEmpty) {
+      _setupControllers();
+    } else {
+      _setupControllers();
+    }
+  }
+
+  Future<List<DownPaymentEntity>> getMembersDownPayments() async {
+    final List<DownPaymentEntity> downPayments =
+        await GetIt.instance<DownPaymentApi>().fetchData(stateInvoice.customerEntity!.custCode);
+
+    return downPayments;
+  }
+
+  void _setupControllers() {
+    totalAmount = 0.0;
+    log("membersDP - $membersDP");
+
+    _drawAmountControllers = List.generate(membersDP.length, (index) {
+      TextEditingController controller = TextEditingController();
+      controller.text = Helpers.parseMoney(membersDP[index].amount);
+      return controller;
+    });
+
+    _drawAmountFocusNodes = List.generate(membersDP.length, (index) => FocusNode());
+
+    _isExceeding = List.generate(membersDP.length, (index) => false);
+    _isZero = List.generate(membersDP.length, (index) => false);
+
+    _selectedItems = List.generate(membersDP.length, (index) {
+      int selectedIndex =
+          stateInvoice.downPayments?.indexWhere((dp) => dp.toinvDocId == membersDP[index].refpos2) ?? -1;
+      if (selectedIndex != -1) {
+        double amount = stateInvoice.downPayments![selectedIndex].amount;
+        _drawAmountControllers[index].text = Helpers.parseMoney(amount);
+        totalAmount += amount;
+        return true;
+      } else {
+        return false;
+      }
     });
   }
 
@@ -165,7 +176,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     for (int i = 0; i < _selectedItems.length; i++) {
       if (_selectedItems[i]) {
         double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
-        selectedDownPayments.add(DownPaymentEntity(toinvDocId: test[i]['docnum'], amount: amount));
+        selectedDownPayments.add(DownPaymentEntity(toinvDocId: membersDP[i].refpos2, amount: amount));
         totalSelectedAmount += amount;
       }
     }
@@ -183,10 +194,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   Future<void> _resetDownPayment() async {
     final receipt = context.read<ReceiptCubit>();
     setState(() {
-      _selectedItems = List.generate(test.length, (_) => false);
+      _selectedItems = List.generate(membersDP.length, (_) => false);
       totalAmount = 0;
       for (int index = 0; index < _drawAmountControllers.length; index++) {
-        _drawAmountControllers[index].text = Helpers.parseMoney(test[index]['maxAmount']);
+        _drawAmountControllers[index].text = Helpers.parseMoney(membersDP[index].amount);
       }
     });
 
@@ -326,10 +337,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                       onPressed: isReceive
                           ? () async {
+                              FocusScope.of(context).unfocus();
                               context.pop();
                               _addOrUpdateReceiveDownPayment();
                             }
                           : () async {
+                              FocusScope.of(context).unfocus();
                               await _addOrUpdateDrawDownPayment(childContext);
                             },
                       child: Center(
@@ -582,10 +595,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          double itemHeight = 90.0;
-          double totalHeight = itemHeight * test.length;
+          double itemHeight = 80.0;
+          double totalHeight = (membersDP.isEmpty) ? 50 : itemHeight * membersDP.length;
           double maxHeight = constraints.maxHeight;
-          double height = totalHeight < maxHeight ? (totalHeight * 1.5) : maxHeight;
+          double height = totalHeight < maxHeight ? (totalHeight * 1.75) : maxHeight;
 
           return SizedBox(
             width: MediaQuery.of(context).size.width * 0.6,
@@ -720,6 +733,18 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   ],
                 ),
                 const SizedBox(height: 20),
+                (membersDP.isEmpty)
+                    ? const Center(
+                        child: Text("No prior down payments found for this customer",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w700,
+                            )),
+                      )
+                    : const SizedBox.shrink(),
                 Expanded(
                   child: ListView.separated(
                     controller: _scrollController,
@@ -755,7 +780,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Text(
-                                "${test[index]['docnum']}",
+                                "${membersDP[index].refpos2}",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -773,7 +798,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                     ),
                                   ),
                                   Text(
-                                    Helpers.parseMoney(test[index]['maxAmount']),
+                                    Helpers.parseMoney(membersDP[index].amount),
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -830,7 +855,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           onChanged: (value) {
                                             setState(() {
                                               double enteredAmount = double.tryParse(value.replaceAll(',', '')) ?? 0.0;
-                                              _isExceeding[index] = enteredAmount > test[index]['maxAmount'];
+                                              _isExceeding[index] = enteredAmount > membersDP[index].amount;
                                               _isZero[index] = enteredAmount == 0;
 
                                               _selectedItems[index] = false;
@@ -870,7 +895,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                       );
                     },
                     separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10.0),
-                    itemCount: test.length,
+                    itemCount: membersDP.length,
                   ),
                 )
               ],
