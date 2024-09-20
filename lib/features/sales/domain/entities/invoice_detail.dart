@@ -32,6 +32,7 @@ class InvoiceDetailEntity {
   final double? discHeaderAmount;
   final double? subtotalAfterDiscHeader;
   final String? tohemId;
+  final String? refpos2;
 
   InvoiceDetailEntity({
     required this.docId,
@@ -64,6 +65,7 @@ class InvoiceDetailEntity {
     this.discHeaderAmount,
     this.subtotalAfterDiscHeader,
     this.tohemId,
+    this.refpos2,
   });
 
   InvoiceDetailEntity copyWith({
@@ -97,6 +99,7 @@ class InvoiceDetailEntity {
     double? discHeaderAmount,
     double? subtotalAfterDiscHeader,
     String? tohemId,
+    String? refpos2,
   }) {
     return InvoiceDetailEntity(
       docId: docId ?? this.docId,
@@ -129,6 +132,7 @@ class InvoiceDetailEntity {
       discHeaderAmount: discHeaderAmount ?? this.discHeaderAmount,
       subtotalAfterDiscHeader: subtotalAfterDiscHeader ?? this.subtotalAfterDiscHeader,
       tohemId: tohemId ?? this.tohemId,
+      refpos2: refpos2 ?? this.refpos2,
     );
   }
 
@@ -164,6 +168,7 @@ class InvoiceDetailEntity {
       'discHeaderAmount': discHeaderAmount,
       'subtotalAfterDiscHeader': subtotalAfterDiscHeader,
       'tohemId': tohemId,
+      'refpos2': refpos2,
     };
   }
 
@@ -199,6 +204,7 @@ class InvoiceDetailEntity {
       discHeaderAmount: map['discHeaderAmount'] != null ? map['discHeaderAmount'] as double : null,
       subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null ? map['subtotalAfterDiscHeader'] as double : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
     );
   }
 
@@ -209,7 +215,7 @@ class InvoiceDetailEntity {
 
   @override
   String toString() {
-    return 'InvoiceDetailEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, lineNum: $lineNum, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, discPrctg: $discPrctg, discAmount: $discAmount, totalAmount: $totalAmount, taxPrctg: $taxPrctg, promotionType: $promotionType, promotionId: $promotionId, remarks: $remarks, editTime: $editTime, cogs: $cogs, tovatId: $tovatId, promotionTingkat: $promotionTingkat, promoVoucherNo: $promoVoucherNo, baseDocId: $baseDocId, baseLineDocId: $baseLineDocId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId)';
+    return 'InvoiceDetailEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, lineNum: $lineNum, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, discPrctg: $discPrctg, discAmount: $discAmount, totalAmount: $totalAmount, taxPrctg: $taxPrctg, promotionType: $promotionType, promotionId: $promotionId, remarks: $remarks, editTime: $editTime, cogs: $cogs, tovatId: $tovatId, promotionTingkat: $promotionTingkat, promoVoucherNo: $promoVoucherNo, baseDocId: $baseDocId, baseLineDocId: $baseLineDocId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, refpos2:  $refpos2)';
   }
 
   @override
@@ -245,7 +251,8 @@ class InvoiceDetailEntity {
         other.tbitmId == tbitmId &&
         other.discHeaderAmount == discHeaderAmount &&
         other.subtotalAfterDiscHeader == subtotalAfterDiscHeader &&
-        other.tohemId == tohemId;
+        other.tohemId == tohemId &&
+        other.refpos2 == refpos2;
   }
 
   @override
@@ -279,6 +286,7 @@ class InvoiceDetailEntity {
         tbitmId.hashCode ^
         discHeaderAmount.hashCode ^
         subtotalAfterDiscHeader.hashCode ^
-        tohemId.hashCode;
+        tohemId.hashCode ^
+        refpos2.hashCode;
   }
 }

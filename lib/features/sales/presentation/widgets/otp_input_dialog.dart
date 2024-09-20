@@ -146,7 +146,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
       await updateReceiptApprovals(childContext, response['approver']!);
 
       if (childContext.mounted) {
-        childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue);
+        childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue, context);
 
         Navigator.of(childContext).pop(); // Close the input otp dialog
         Navigator.of(childContext).pop(); // Close the method dialog
