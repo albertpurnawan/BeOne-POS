@@ -144,6 +144,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             discHeaderAmount: e.discHeaderAmount,
             subtotalAfterDiscHeader: e.subtotalAfterDiscHeader,
             tohemId: e.tohemId ?? "",
+            refpos3: e.refpos3,
           );
         }).toList();
 
