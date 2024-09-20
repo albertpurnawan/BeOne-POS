@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -728,29 +729,34 @@ class _SalesPageState extends State<SalesPage> {
                             Expanded(
                               flex: 1,
                               child: Container(
-                                padding: const EdgeInsets.only(right: 20),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    const Icon(Icons.stars, color: Colors.white),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Expanded(
-                                      child: FittedBox(
-                                        child: Text(
-                                          context.read<ReceiptCubit>().state.customerEntity != null
-                                              ? context.read<ReceiptCubit>().state.customerEntity!.custName
-                                              : " - ",
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.white,
-                                          ),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                width: double.infinity,
+                                alignment: Alignment.centerRight,
+                                child: FittedBox(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      const Icon(Icons.stars, color: Colors.white),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                        context.read<ReceiptCubit>().state.customerEntity != null
+                                            ? Helpers.clipStringAndAddEllipsis(
+                                                context.read<ReceiptCubit>().state.customerEntity!.custName, 25)
+                                            : " - ",
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          // height: 1,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

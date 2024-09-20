@@ -456,7 +456,6 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             tocatId: itemMasterModel.tocatId,
             shortName: itemMasterModel.shortName,
             toplnId: "N/A",
-            refpos2: "N/A",
           ),
           sellingPrice: invoiceDetailModel.sellingPrice,
           totalAmount: invoiceDetailModel.totalAmount,

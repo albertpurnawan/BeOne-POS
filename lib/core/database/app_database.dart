@@ -1655,7 +1655,6 @@ ${ItemFields.dpp} DOUBLE NOT NULL,
 ${ItemFields.tocatId} TEXT,
 ${ItemFields.shortName} STRING,
 ${ItemFields.toplnId} STRING,
-${ItemFields.refpos2} TEXT DEFAULT NULL,
 CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3654,8 +3653,6 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''ALTER TABLE $tableInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
 
       await db.execute('''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
-
-      await db.execute('''ALTER TABLE $tableItems ADD COLUMN refpos2 text DEFAULT NULL''');
     },
   };
 
