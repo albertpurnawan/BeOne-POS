@@ -33,6 +33,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
     super.remarks,
     super.coupons,
     super.includePromo,
+    super.refpos2,
+    super.downPayments,
   });
 
   factory ReceiptModel.fromEntity(ReceiptEntity entity) {
@@ -66,6 +68,8 @@ class ReceiptModel extends ReceiptEntity implements BaseModel {
       approvals: entity.approvals,
       coupons: entity.coupons,
       includePromo: entity.includePromo,
+      refpos2: entity.refpos2,
+      downPayments: entity.downPayments,
     );
   }
 }

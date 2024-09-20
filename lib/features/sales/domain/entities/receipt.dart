@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
@@ -52,6 +53,8 @@ class ReceiptEntity {
   List<PromoCouponHeaderEntity> coupons;
   int? includePromo;
   double couponDiscount = 0;
+  String? refpos2;
+  List<DownPaymentEntity>? downPayments;
 
   ReceiptEntity({
     required this.docNum,
@@ -87,6 +90,8 @@ class ReceiptEntity {
     this.coupons = const [],
     this.includePromo,
     this.couponDiscount = 0,
+    this.refpos2,
+    this.downPayments,
   });
 
   ReceiptEntity copyWith({
@@ -123,6 +128,8 @@ class ReceiptEntity {
     List<PromoCouponHeaderEntity>? coupons,
     int? includePromo,
     double? couponDiscount,
+    String? refpos2,
+    List<DownPaymentEntity>? downPayments,
   }) {
     return ReceiptEntity(
       docNum: docNum ?? this.docNum,
@@ -158,6 +165,8 @@ class ReceiptEntity {
       coupons: coupons ?? this.coupons,
       includePromo: includePromo ?? this.includePromo,
       couponDiscount: couponDiscount ?? this.couponDiscount,
+      refpos2: refpos2 ?? this.refpos2,
+      downPayments: downPayments ?? this.downPayments,
     );
   }
 
@@ -193,62 +202,65 @@ class ReceiptEntity {
       'coupons': coupons.map((x) => x.toMap()).toList(),
       'includePromo': includePromo,
       'couponDiscount': couponDiscount,
+      'refpos2': refpos2,
+      'downPayments': downPayments,
     };
   }
 
   factory ReceiptEntity.fromMap(Map<String, dynamic> map) {
     return ReceiptEntity(
-        docNum: map['docNum'] as String,
-        receiptItems: List<ReceiptItemEntity>.from(
-          (map['receiptItems'] as List<int>).map<ReceiptItemEntity>(
-            (x) => ReceiptItemEntity.fromMap(x as Map<String, dynamic>),
-          ),
+      docNum: map['docNum'] as String,
+      receiptItems: List<ReceiptItemEntity>.from(
+        (map['receiptItems'] as List<int>).map<ReceiptItemEntity>(
+          (x) => ReceiptItemEntity.fromMap(x as Map<String, dynamic>),
         ),
-        mopSelections: map['mopSelections'].isNotEmpty
-            ? map['mopSelections'].map((e) => MopSelectionEntity.fromMap(e as Map<String, dynamic>))
-            : [],
-        customerEntity: map['customerEntity'] != null
-            ? CustomerEntity.fromMap(map['customerEntity'] as Map<String, dynamic>)
-            : null,
-        employeeEntity: map['employeeEntity'] != null
-            ? EmployeeEntity.fromMap(map['employeeEntity'] as Map<String, dynamic>)
-            : null,
-        totalTax: map['totalTax'] as double,
-        transDateTime:
-            map['transDateTime'] != null ? DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int) : null,
-        transStart: DateTime.fromMillisecondsSinceEpoch(map['transStart'] as int),
-        transEnd: map['transEnd'] != null ? DateTime.fromMillisecondsSinceEpoch(map['transEnd'] as int) : null,
-        subtotal: map['subtotal'] as double,
-        taxAmount: map['taxAmount'] as double,
-        grandTotal: map['grandTotal'] as double,
-        totalPayment: map['totalPayment'] != null ? map['totalPayment'] as double : null,
-        changed: map['changed'] != null ? map['changed'] as double : null,
-        toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
-        vouchers: List<VouchersSelectionEntity>.from(
-          (map['vouchers'] as List<int>).map<VouchersSelectionEntity>(
-            (x) => VouchersSelectionEntity.fromMap(x as Map<String, dynamic>),
-          ),
+      ),
+      mopSelections: map['mopSelections'].isNotEmpty
+          ? map['mopSelections'].map((e) => MopSelectionEntity.fromMap(e as Map<String, dynamic>))
+          : [],
+      customerEntity:
+          map['customerEntity'] != null ? CustomerEntity.fromMap(map['customerEntity'] as Map<String, dynamic>) : null,
+      employeeEntity:
+          map['employeeEntity'] != null ? EmployeeEntity.fromMap(map['employeeEntity'] as Map<String, dynamic>) : null,
+      totalTax: map['totalTax'] as double,
+      transDateTime:
+          map['transDateTime'] != null ? DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int) : null,
+      transStart: DateTime.fromMillisecondsSinceEpoch(map['transStart'] as int),
+      transEnd: map['transEnd'] != null ? DateTime.fromMillisecondsSinceEpoch(map['transEnd'] as int) : null,
+      subtotal: map['subtotal'] as double,
+      taxAmount: map['taxAmount'] as double,
+      grandTotal: map['grandTotal'] as double,
+      totalPayment: map['totalPayment'] != null ? map['totalPayment'] as double : null,
+      changed: map['changed'] != null ? map['changed'] as double : null,
+      toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
+      vouchers: List<VouchersSelectionEntity>.from(
+        (map['vouchers'] as List<int>).map<VouchersSelectionEntity>(
+          (x) => VouchersSelectionEntity.fromMap(x as Map<String, dynamic>),
         ),
-        totalVoucher: map['totalVoucher'] != null ? map['totalVoucher'] as int : null,
-        totalNonVoucher: map['totalNonVoucher'] != null ? map['totalNonVoucher'] as double : null,
-        promos: List<PromotionsEntity>.from(
-          (map['promos'] as List<int>).map<PromotionsEntity>(
-            (x) => PromotionsEntity.fromMap(x as Map<String, dynamic>),
-          ),
+      ),
+      totalVoucher: map['totalVoucher'] != null ? map['totalVoucher'] as int : null,
+      totalNonVoucher: map['totalNonVoucher'] != null ? map['totalNonVoucher'] as double : null,
+      promos: List<PromotionsEntity>.from(
+        (map['promos'] as List<int>).map<PromotionsEntity>(
+          (x) => PromotionsEntity.fromMap(x as Map<String, dynamic>),
         ),
-        discAmount: map['discAmount'] != null ? map['discAmount'] as double : null,
-        discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
-        discHeaderManual: map['discHeaderManual'] != null ? map['discHeaderManual'] as double : null,
-        discHeaderPromo: map['discHeaderPromo'] != null ? map['discHeaderPromo'] as double : null,
-        remarks: map['remarks'] != null ? map['remarks'] as String : null,
-        toinvTohemId: map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
-        salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
-        approvals:
-            (map['approvals'] as List).map((x) => ApprovalInvoiceEntity.fromMap(x as Map<String, dynamic>)).toList(),
-        coupons:
-            (map['coupons'] as List).map((x) => PromoCouponHeaderEntity.fromMap(x as Map<String, dynamic>)).toList(),
-        includePromo: map['includePromo'] != null ? map['includePromo'] as int : null,
-        couponDiscount: map['couponDiscount'] != null ? map['couponDiscount'] as double : 0);
+      ),
+      discAmount: map['discAmount'] != null ? map['discAmount'] as double : null,
+      discPrctg: map['discPrctg'] != null ? map['discPrctg'] as double : null,
+      discHeaderManual: map['discHeaderManual'] != null ? map['discHeaderManual'] as double : null,
+      discHeaderPromo: map['discHeaderPromo'] != null ? map['discHeaderPromo'] as double : null,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
+      toinvTohemId: map['toinvTohemId'] != null ? map['toinvTohemId'] as String : null,
+      salesTohemId: map['salesTohemId'] != null ? map['salesTohemId'] as String : null,
+      approvals:
+          (map['approvals'] as List).map((x) => ApprovalInvoiceEntity.fromMap(x as Map<String, dynamic>)).toList(),
+      coupons: (map['coupons'] as List).map((x) => PromoCouponHeaderEntity.fromMap(x as Map<String, dynamic>)).toList(),
+      includePromo: map['includePromo'] != null ? map['includePromo'] as int : null,
+      couponDiscount: map['couponDiscount'] != null ? map['couponDiscount'] as double : 0,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      downPayments:
+          (map['downPayments'] as List).map((x) => DownPaymentEntity.fromMap(x as Map<String, dynamic>)).toList(),
+    );
   }
 
   String toJson() => json.encode(toMap());
@@ -288,6 +300,8 @@ class ReceiptEntity {
     includePromo: $includePromo,
     rounding: $rounding,
     couponDiscount: $couponDiscount,
+    refpos2: $refpos2,
+    downPayments: $downPayments,
     
     previousReceiptEntity: $previousReceiptEntity)""";
   }
@@ -325,7 +339,9 @@ class ReceiptEntity {
         other.approvals == approvals &&
         other.coupons == coupons &&
         other.includePromo == includePromo &&
-        other.couponDiscount == couponDiscount;
+        other.couponDiscount == couponDiscount &&
+        other.refpos2 == refpos2 &&
+        other.downPayments == downPayments;
     // other.previousReceiptEntity == previousReceiptEntity; kalau tidak ada perubahan apa2 previous gak ke emit
   }
 
@@ -360,7 +376,9 @@ class ReceiptEntity {
         approvals.hashCode ^
         coupons.hashCode ^
         includePromo.hashCode ^
-        couponDiscount.hashCode;
+        couponDiscount.hashCode ^
+        refpos2.hashCode ^
+        downPayments.hashCode;
     // previousReceiptEntity.hashCode;
   }
 }

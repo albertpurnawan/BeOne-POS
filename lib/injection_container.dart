@@ -13,6 +13,7 @@ import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.
 import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
@@ -67,6 +68,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_campaigns_usecase.dart
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_credit_cards.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employee.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_employees.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_item.dart';
@@ -287,6 +289,7 @@ Future<void> initializeDependencies() async {
       dependsOn: [SharedPreferences]);
   sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()), dependsOn: [SharedPreferences]);
   sl.registerSingleton<CheckStockApi>(CheckStockApi(sl()));
+  sl.registerSingleton<DownPaymentApi>(DownPaymentApi(sl()));
   /**
    * =================================
    * END OF APIs
@@ -345,6 +348,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<GetItemsByPricelistUseCase>(() => GetItemsByPricelistUseCase(sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetItemUseCase>(() => GetItemUseCase(sl()), dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetDownPaymentUseCase>(() => GetDownPaymentUseCase(sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetItemByBarcodeUseCase>(() => GetItemByBarcodeUseCase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<GetItemWithAndConditionUseCase>(() => GetItemWithAndConditionUseCase(sl()),

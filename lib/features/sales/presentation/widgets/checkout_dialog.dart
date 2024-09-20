@@ -1141,19 +1141,26 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    (receipt.discHeaderManual ?? 0) != 0
-                                        ? Container(
-                                            height: 35,
-                                            alignment: Alignment.topCenter,
-                                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                            child: Text(
-                                              "*${Helpers.parseMoney(receipt.discHeaderManual ?? 0)} header discount/rounding applied",
-                                              style: const TextStyle(fontStyle: FontStyle.italic),
-                                            ),
-                                          )
-                                        : const SizedBox(
-                                            height: 35,
-                                          ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(0, 2, 10, 2),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          // (receipt.discHeaderManual ?? 0) != 0
+                                          //     ? _noteChip((1000000), 1)
+                                          //     : const SizedBox.shrink(),
+                                          (receipt.downPayments != null && receipt.downPayments!.isNotEmpty)
+                                              ? _noteChip(
+                                                  (receipt.downPayments ?? [])
+                                                      .fold(0.0, (total, dp) => total + dp.amount),
+                                                  2)
+                                              : const SizedBox.shrink(),
+                                          (receipt.discHeaderManual ?? 0) != 0
+                                              ? _noteChip((receipt.discHeaderManual ?? 0), 3)
+                                              : const SizedBox.shrink(),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1982,6 +1989,51 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _noteChip(double amount, int type) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(6, 2, 6, 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(
+            color: const Color.fromARGB(108, 158, 158, 158),
+          ),
+          boxShadow: const [
+            BoxShadow(
+              spreadRadius: 0.5,
+              blurRadius: 5,
+              color: Color.fromRGBO(0, 0, 0, 0.05),
+            ),
+          ],
+          color: const Color.fromARGB(255, 223, 223, 223),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              // type == 1
+              //     ? "RT ${Helpers.parseMoney(amount)}"
+              //     :
+              type == 2
+                  ? "DP ${Helpers.parseMoney(amount)}"
+                  : type == 3
+                      ? "DR ${Helpers.parseMoney(amount)}"
+                      : "",
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                // color: Colors.black,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
