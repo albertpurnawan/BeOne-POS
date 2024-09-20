@@ -211,16 +211,9 @@ abstract class Helpers {
   }
 
   static String getTimestamp() {
-    String timestamp = "";
     DateTime now = DateTime.now();
-    String formattedDateTime = now.toIso8601String().split('.').first;
-    String timezoneOffset = now.timeZoneOffset.isNegative ? "-" : "+";
-    int hours = now.timeZoneOffset.inHours.abs();
-    int minutes = now.timeZoneOffset.inMinutes.abs() % 60;
-
-    String formattedOffset = "$timezoneOffset${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
-    timestamp = formattedDateTime + formattedOffset;
-    return timestamp;
+    String formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+    return formattedDateTime;
   }
 
   static String localDateStringToUtcString(String dtString) {

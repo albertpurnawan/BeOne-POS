@@ -36,6 +36,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart'
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
@@ -1693,7 +1694,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                             // [START] UI for duitku
                                             if (paymentType.payTypeCode.startsWith("7") &&
                                                 mopsByType.any((mop) => mop.mopAlias == "duitku")) {
-                                              dev.log("HEREEEEEE");
                                               return Column(
                                                 children: [
                                                   const SizedBox(
@@ -1733,11 +1733,57 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
                                                                 onSelected: (bool selected) async {
                                                                   if (selected) {
-                                                                    final duitkuResponse =
-                                                                        await GetIt.instance<DuitkuApi>()
-                                                                            .createTransactionVA(50000000);
-                                                                    dev.log("duitkuResponse - $duitkuResponse");
+                                                                    double? mopAmount = 0;
+                                                                    if (widget.isMultiMOPs) {
+                                                                      if ((receipt.totalPayment ?? 0) >=
+                                                                          receipt.grandTotal) {
+                                                                        return;
+                                                                      }
+                                                                      int maxAmount = (receipt.grandTotal -
+                                                                              (receipt.totalVoucher ?? 0))
+                                                                          .toInt();
+                                                                      final signature =
+                                                                          await GetIt.instance<DuitkuApi>()
+                                                                              .createPaymentMethodsSignature(maxAmount);
+                                                                      final List<dynamic> paymentMethods =
+                                                                          await GetIt.instance<DuitkuApi>()
+                                                                              .getPaymentMethods(signature, maxAmount);
+                                                                      mopAmount = await showDialog<double>(
+                                                                        context: context,
+                                                                        barrierDismissible: false,
+                                                                        builder: (BuildContext context) {
+                                                                          return InputDuitkuVADialog(
+                                                                              mopSelectionEntity: mop,
+                                                                              paymentMethods: paymentMethods,
+                                                                              amount: maxAmount);
+                                                                        },
+                                                                      );
+                                                                    } else {
+                                                                      mopAmount = receipt.grandTotal -
+                                                                          (receipt.totalVoucher ?? 0);
+                                                                    }
+
+                                                                    if (mopAmount == null || mopAmount == 0) {
+                                                                      return;
+                                                                    }
+
+                                                                    _values = (widget.isMultiMOPs
+                                                                            ? _values
+                                                                                .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                                .toList()
+                                                                            : <MopSelectionEntity>[]) +
+                                                                        [mop.copyWith(amount: mopAmount)];
+
+                                                                    if (!widget.isMultiMOPs) {
+                                                                      _textEditingControllerCashAmount.text = "";
+                                                                    }
+                                                                  } else {
+                                                                    _values = _values
+                                                                        .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                        .toList();
                                                                   }
+                                                                  setState(() {});
+                                                                  updateReceiptMop();
                                                                 },
                                                               );
                                                             },

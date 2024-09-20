@@ -8,10 +8,10 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 class DuitkuApi {
   final Dio _dio;
   final String _url = "https://sandbox.duitku.com/webapi/api/merchant";
-  final String _timestamp = Helpers.getTimestamp();
   final String _merchantOrderId = Helpers.generateRandomString(10);
   final String _merchantCode = "DS20286";
   final String _apiKey = "338fdbf1c8ab5ee1c2f12d9d308fc888";
+  final String timestamp = Helpers.getTimestamp();
 
   DuitkuApi(this._dio) {
     _dio.options.followRedirects = false;
@@ -20,29 +20,44 @@ class DuitkuApi {
     };
   }
 
-  Future<String> createDuitkuSignature(int amount) async {
+  Future<String> createTransactionSignature(int amount) async {
     final combined = _merchantCode + _merchantOrderId + amount.toString() + _apiKey;
     final signature = md5.convert(utf8.encode(combined)).toString();
-    log("_url duitku - $_url/v2/inquiry");
     log("combined duitku - $combined");
     log("signature duitku - $signature");
     return signature;
   }
 
-  Future<void> getPaymentMethods() async {
-    log("timestamp - $_timestamp");
-    final String url = "$_url/paymentmethod/getpaymentmethod";
-    final body = {
-      "merchantcode": _merchantCode,
-      "amount": 50000000,
-      "datetime": _timestamp,
-      "signature": "{{signature}}"
-    };
+  Future<String> createPaymentMethodsSignature(int amount) async {
+    log("timestamp - $timestamp");
+    final combined = _merchantCode + amount.toString() + timestamp + _apiKey;
+    final signature = sha256.convert(utf8.encode(combined)).toString();
+    return signature;
   }
 
-  Future<String> createTransactionVA(int amount) async {
+  Future<List<dynamic>> getPaymentMethods(String signature, int amount) async {
+    final String url = "$_url/paymentmethod/getpaymentmethod";
+    log("timestamp get - $timestamp");
+    final body = {
+      "merchantcode": _merchantCode,
+      "amount": amount,
+      "datetime": timestamp,
+      "signature": signature,
+    };
+
+    log("body - ${json.encode(body)}");
+
+    final response = await _dio.post(
+      url,
+      data: body,
+    );
+
+    log("Response duitku - ${response.data['paymentFee']}");
+    return response.data['paymentFee'];
+  }
+
+  Future<String> createTransactionVA(String signature, int amount) async {
     final String url = "$_url/v2/inquiry";
-    final signature = await createDuitkuSignature(amount);
     final body = {
       "merchantCode": _merchantCode,
       "paymentAmount": amount,
