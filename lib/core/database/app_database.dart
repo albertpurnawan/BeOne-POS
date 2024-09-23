@@ -2015,6 +2015,7 @@ CREATE TABLE $tableInvoiceDetail (
   ${InvoiceDetailFields.discHeaderAmount} double DEFAULT NULL,
   ${InvoiceDetailFields.subtotalAfterDiscHeader} double DEFAULT NULL,
   ${InvoiceDetailFields.tohemId} text DEFAULT NULL,
+  ${InvoiceDetailFields.refpos2} text DEFAULT NULL,
   ${InvoiceDetailFields.refpos3} text DEFAULT NULL
   $createdAtDefinition,
   CONSTRAINT `tinv1_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3081,6 +3082,7 @@ CREATE TABLE $tableQueuedInvoiceDetail (
   ${QueuedInvoiceDetailFields.tbitmId} text DEFAULT NULL,
   ${QueuedInvoiceDetailFields.discHeaderAmount} double NOT NULL,
   ${QueuedInvoiceDetailFields.tohemId} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.refpos2} text DEFAULT NULL,
   ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `queuedInvoiceDetails_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `queuedInvoiceHeaders` (`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -3650,6 +3652,10 @@ CREATE TABLE $tableApprovalInvoice (
       }
     },
     'from_version_3_to_version_4': (Database db) async {
+      await db.execute('''ALTER TABLE $tableInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
+
+      await db.execute('''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
+
       await db.execute(
           '''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');
       await db.execute(

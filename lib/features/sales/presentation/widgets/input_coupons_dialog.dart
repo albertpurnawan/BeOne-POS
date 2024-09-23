@@ -31,6 +31,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
   final TextEditingController _textEditorCouponController = TextEditingController();
   final FocusNode _couponFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
+  bool isClaiming = false;
 
   List<PromoCouponHeaderEntity> couponList = [];
 
@@ -53,6 +54,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
 
   Future<void> _checkCoupons(BuildContext context, String couponCode) async {
     try {
+      setState(() {
+        isClaiming = true;
+      });
       final GetPromoToprnHeaderAndDetailUseCaseResult couponHeaderAndDetail =
           await GetIt.instance<GetPromoToprnHeaderAndDetailUseCase>().call(params: couponCode);
       final CheckPromoToprnApplicabilityUseCaseResult checkCouponResult =
@@ -79,11 +83,14 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
       }
 
       _saveCoupons(context.read<ReceiptCubit>().state.coupons + [couponHeaderAndDetail.toprn]);
-      setState(() {});
       SnackBarHelper.presentSuccessSnackBar(
           context, "Coupon '${couponHeaderAndDetail.toprn.couponCode}' claimed", null);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    } finally {
+      setState(() {
+        isClaiming = false;
+      });
     }
   }
 
@@ -445,11 +452,13 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                             focusNode: _couponFocusNode,
                             textInputAction: TextInputAction.search,
                             controller: _textEditorCouponController,
-                            onFieldSubmitted: (value) async {
-                              await _checkCoupons(context, _textEditorCouponController.text);
-                              _textEditorCouponController.text = "";
-                              _couponFocusNode.requestFocus();
-                            },
+                            onFieldSubmitted: isClaiming
+                                ? null
+                                : (value) async {
+                                    await _checkCoupons(context, _textEditorCouponController.text);
+                                    _textEditorCouponController.text = "";
+                                    _couponFocusNode.requestFocus();
+                                  },
                             autofocus: true,
                             keyboardType: TextInputType.text,
                             textAlign: TextAlign.center,
@@ -475,27 +484,31 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                   ),
-                                  onPressed: () async {
-                                    await _checkCoupons(context, _textEditorCouponController.text);
-                                    _textEditorCouponController.text = "";
-                                    _couponFocusNode.requestFocus();
-                                  },
+                                  onPressed: isClaiming
+                                      ? null
+                                      : () async {
+                                          await _checkCoupons(context, _textEditorCouponController.text);
+                                          _textEditorCouponController.text = "";
+                                          _couponFocusNode.requestFocus();
+                                        },
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      RichText(
-                                        textAlign: TextAlign.center,
-                                        text: const TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: "Claim",
-                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                                      isClaiming
+                                          ? SizedBox(width: 12, height: 12, child: CircularProgressIndicator())
+                                          : RichText(
+                                              textAlign: TextAlign.center,
+                                              text: const TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                    text: "Claim",
+                                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                                                  ),
+                                                ],
+                                                style: TextStyle(height: 1, fontSize: 10),
+                                              ),
+                                              overflow: TextOverflow.clip,
                                             ),
-                                          ],
-                                          style: TextStyle(height: 1, fontSize: 10),
-                                        ),
-                                        overflow: TextOverflow.clip,
-                                      ),
                                     ],
                                   ),
                                 ),

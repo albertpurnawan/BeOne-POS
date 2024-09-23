@@ -217,9 +217,7 @@ class ItemMasterEntity {
     return ItemMasterEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       itemCode: map['itemCode'] as String,
       itemName: map['itemName'] as String,
       invItem: map['invItem'] as int,
@@ -233,12 +231,8 @@ class ItemMasterEntity {
       activated: map['activated'] as int,
       isBatch: map['isBatch'] as int,
       sync: map['sync'] as int,
-      internalCode_1: map['internalCode_1'] != null
-          ? map['internalCode_1'] as String
-          : null,
-      internalCode_2: map['internalCode_2'] != null
-          ? map['internalCode_2'] as String
-          : null,
+      internalCode_1: map['internalCode_1'] != null ? map['internalCode_1'] as String : null,
+      internalCode_2: map['internalCode_2'] != null ? map['internalCode_2'] as String : null,
       property1: map['property1'] != null ? map['property1'] as String : null,
       property2: map['property2'] != null ? map['property2'] as String : null,
       property3: map['property3'] != null ? map['property3'] as String : null,
@@ -248,17 +242,14 @@ class ItemMasterEntity {
       property7: map['property7'] != null ? map['property7'] as String : null,
       property8: map['property8'] != null ? map['property8'] as String : null,
       property9: map['property9'] != null ? map['property9'] as String : null,
-      property10:
-          map['property10'] != null ? map['property10'] as String : null,
+      property10: map['property10'] != null ? map['property10'] as String : null,
       openPrice: map['openPrice'] as int,
       popItem: map['popItem'] as int,
       bpom: map['bpom'] != null ? map['bpom'] as String : null,
       expDate: map['expDate'] != null ? map['expDate'] as String : null,
       margin: map['margin'] != null ? map['margin'] as double : null,
-      memberDiscount:
-          map['memberDiscount'] != null ? map['memberDiscount'] as int : null,
-      multiplyOrder:
-          map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
+      memberDiscount: map['memberDiscount'] != null ? map['memberDiscount'] as int : null,
+      multiplyOrder: map['multiplyOrder'] != null ? map['multiplyOrder'] as int : null,
       syncCRM: map['syncCRM'] as int,
       mergeQuantity: map['mergeQuantity'] as int,
       form: map['form'] as String,

@@ -34,6 +34,7 @@ class QueuedInvoiceDetailFields {
     tbitmId,
     discHeaderAmount,
     tohemId,
+    refpos2,
     refpos3,
     // subtotalAfterDiscHeader,
     //maybe need more to send to bos
@@ -68,6 +69,7 @@ class QueuedInvoiceDetailFields {
   static const String tbitmId = "tbitmId";
   static const String discHeaderAmount = "discheaderamount";
   static const String tohemId = "tohemId";
+  static const String refpos2 = "refpos2";
   static const String refpos3 = "refpos3";
   // static const String subtotalAfterDiscHeader = "subtotalafterdischeader";
 }
@@ -103,6 +105,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity implements BaseModel 
     required super.tbitmId,
     required super.discHeaderAmount,
     required super.tohemId,
+    required super.refpos2,
     required super.refpos3,
     // required super.subtotalAfterDiscHeader,
   });
@@ -139,6 +142,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity implements BaseModel 
       'tbitmId': tbitmId,
       'discheaderamount': discHeaderAmount,
       'tohemId': tohemId,
+      'refpos2': refpos2,
       'refpos3': refpos3,
 
       // 'subtotalafterdischeader': subtotalAfterDiscHeader,
@@ -176,6 +180,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity implements BaseModel 
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       discHeaderAmount: map['discheaderamount'] != null ? map['discheaderamount'] as double : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       refpos3: map['refpos3'] != null ? map['refpos3'] as String : null,
 
       // subtotalAfterDiscHeader: map['subtotalafterdischeader'] != null
@@ -233,6 +238,7 @@ class QueuedInvoiceDetailModel extends InvoiceDetailEntity implements BaseModel 
       tbitmId: entity.baseDocId,
       discHeaderAmount: entity.discHeaderAmount,
       tohemId: entity.tohemId,
+      refpos2: entity.refpos2,
       refpos3: entity.refpos3,
       // subtotalAfterDiscHeader: entity.subtotalAfterDiscHeader,
     );

@@ -22,6 +22,7 @@ class ReceiptItemEntity {
   String? tohemId;
   String? remarks;
   int? qtyBarcode;
+  String? refpos2;
   String? refpos3;
 
   ReceiptItemEntity({
@@ -40,6 +41,7 @@ class ReceiptItemEntity {
     this.tohemId,
     this.remarks,
     this.qtyBarcode,
+    this.refpos2,
     this.refpos3,
   });
 
@@ -59,6 +61,7 @@ class ReceiptItemEntity {
     String? tohemId,
     String? remarks,
     int? qtyBarcode,
+    String? refpos2,
     String? refpos3,
   }) {
     return ReceiptItemEntity(
@@ -77,6 +80,7 @@ class ReceiptItemEntity {
       tohemId: tohemId ?? this.tohemId,
       remarks: remarks ?? this.remarks,
       qtyBarcode: qtyBarcode ?? this.qtyBarcode,
+      refpos2: refpos2 ?? this.refpos2,
       refpos3: refpos3 ?? this.refpos3,
     );
   }
@@ -98,6 +102,7 @@ class ReceiptItemEntity {
       'tohemId': tohemId,
       'remarks': remarks,
       'qtyBarcode': qtyBarcode,
+      'refpos2': refpos2,
       'refpos3': refpos3,
     };
   }
@@ -123,6 +128,7 @@ class ReceiptItemEntity {
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       qtyBarcode: map['qtyBarcode'] != null ? map['qtyBarcode'] as int : null,
+      refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       refpos3: map['refpos3'] != null ? map['refpos3'] as String : null,
     );
   }
@@ -134,7 +140,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, remarks: $remarks, qtyBarcode: $qtyBarcode, refpos3: $refpos3)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, remarks: $remarks, qtyBarcode: $qtyBarcode, refpos2: $refpos2, refpos3: $refpos3)';
   }
 
   @override
@@ -156,6 +162,7 @@ class ReceiptItemEntity {
         other.tohemId == tohemId &&
         other.remarks == remarks &&
         other.qtyBarcode == qtyBarcode &&
+        other.refpos2 == refpos2 &&
         other.refpos3 == refpos3;
   }
 
@@ -176,6 +183,7 @@ class ReceiptItemEntity {
         tohemId.hashCode ^
         remarks.hashCode ^
         qtyBarcode.hashCode ^
+        refpos2.hashCode ^
         refpos3.hashCode;
   }
 }

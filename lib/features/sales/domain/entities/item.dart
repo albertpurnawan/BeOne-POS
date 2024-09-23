@@ -58,6 +58,7 @@ class ItemEntity {
     String? tocatId,
     String? shortName,
     String? toplnId,
+    String? refpos2,
   }) {
     return ItemEntity(
       id: id ?? this.id,

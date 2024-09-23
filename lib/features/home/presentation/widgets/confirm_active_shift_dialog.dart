@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
-import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 
 class ConfirmActiveShiftDialog extends StatefulWidget {
   final String currentShiftDocId;

@@ -131,8 +131,8 @@ class _QueueListDialogState extends State<QueueListDialog> {
                       itemBuilder: (BuildContext context, int index) {
                         final ReceiptEntity queuedReceipt = queuedReceipts[index];
                         return InkWell(
-                          onTap: () {
-                            context.read<ReceiptCubit>().retrieveFromQueue(queuedReceipt, context);
+                          onTap: () async {
+                            await context.read<ReceiptCubit>().retrieveFromQueue(queuedReceipt, context);
                             Navigator.pop(context);
                           },
                           child: Container(

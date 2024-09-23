@@ -33,6 +33,13 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
     return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
   }
 
+  // Future<ItemMasterModel> getDownPayment({Transaction? txn}) async {
+  //   DatabaseExecutor dbExecutor = txn ?? db;
+  //   final result = await dbExecutor.query(tableName, where: "itemcode = ?", whereArgs: ["99"]);
+
+  //   return ItemMasterModel.fromMap(result[0]);
+  // }
+
   Future<List<dynamic>?> readByKeyword(String keyword) async {
     try {
       if (keyword.contains("1") && keyword.contains("=")) {

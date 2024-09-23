@@ -123,6 +123,17 @@ AND ${ItemFields.toplnId} = ?""",
     return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
   }
 
+  Future<ItemModel?> getDownPayment({Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      where: "itemcode = ? OR itemcode = ?",
+      whereArgs: ["99", "08700000002"],
+    );
+
+    return res.isNotEmpty ? ItemModel.fromMap(res.first) : null;
+  }
+
   Future<ItemModel?> readItemWithAndCondition(Map<String, dynamic> conditions, Transaction? txn) async {
     try {
       DatabaseExecutor dbExecutor = txn ?? db;
