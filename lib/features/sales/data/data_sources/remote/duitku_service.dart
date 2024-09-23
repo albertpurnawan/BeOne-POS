@@ -23,13 +23,10 @@ class DuitkuApi {
   Future<String> createTransactionSignature(int amount) async {
     final combined = _merchantCode + _merchantOrderId + amount.toString() + _apiKey;
     final signature = md5.convert(utf8.encode(combined)).toString();
-    log("combined duitku - $combined");
-    log("signature duitku - $signature");
     return signature;
   }
 
   Future<String> createPaymentMethodsSignature(int amount) async {
-    log("timestamp - $timestamp");
     final combined = _merchantCode + amount.toString() + timestamp + _apiKey;
     final signature = sha256.convert(utf8.encode(combined)).toString();
     return signature;
@@ -37,7 +34,6 @@ class DuitkuApi {
 
   Future<List<dynamic>> getPaymentMethods(String signature, int amount) async {
     final String url = "$_url/paymentmethod/getpaymentmethod";
-    log("timestamp get - $timestamp");
     final body = {
       "merchantcode": _merchantCode,
       "amount": amount,
@@ -45,14 +41,12 @@ class DuitkuApi {
       "signature": signature,
     };
 
-    log("body - ${json.encode(body)}");
-
     final response = await _dio.post(
       url,
       data: body,
     );
 
-    log("Response duitku - ${response.data['paymentFee']}");
+    // log("Response duitku - ${response.data['paymentFee']}");
     return response.data['paymentFee'];
   }
 
@@ -104,7 +98,7 @@ class DuitkuApi {
       data: body,
     );
 
-    log("Response duitku - $response");
+    // log("Response duitku - $response");
     return response.statusMessage ?? "Failed";
   }
 }

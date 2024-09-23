@@ -62,6 +62,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharged = false;
   bool isPaymentSufficient = true;
   bool isLoadingQRIS = false;
+  bool isDuitku = false;
   bool isCharging = false;
   bool isMultiMOPs = true;
   List<PaymentTypeEntity> paymentType = [];
@@ -1729,6 +1730,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             mopsByType.length,
                                                             (int index) {
                                                               final mop = mopsByType[index];
+                                                              String? bankVA = "";
                                                               return ChoiceChip(
                                                                 side: const BorderSide(
                                                                     color: ProjectColors.primary, width: 1.5),
@@ -1747,7 +1749,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         return;
                                                                       }
                                                                       int maxAmount = (receipt.grandTotal -
-                                                                              (receipt.totalVoucher ?? 0))
+                                                                              (receipt.totalVoucher ?? 0) -
+                                                                              (receipt.totalNonVoucher ?? 0))
                                                                           .toInt();
                                                                       final signature =
                                                                           await GetIt.instance<DuitkuApi>()
@@ -1760,6 +1763,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                         barrierDismissible: false,
                                                                         builder: (BuildContext context) {
                                                                           return InputDuitkuVADialog(
+                                                                              onVASelected: (mopVA) {
+                                                                                setState(() {
+                                                                                  bankVA = mopVA.cardHolder;
+                                                                                });
+                                                                              },
                                                                               mopSelectionEntity: mop,
                                                                               paymentMethods: paymentMethods,
                                                                               amount: maxAmount);
@@ -1779,8 +1787,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                                 .where((e) => e.tpmt3Id != mop.tpmt3Id)
                                                                                 .toList()
                                                                             : <MopSelectionEntity>[]) +
-                                                                        [mop.copyWith(amount: mopAmount)];
-
+                                                                        [
+                                                                          mop.copyWith(
+                                                                              amount: mopAmount, cardHolder: bankVA)
+                                                                        ];
                                                                     if (!widget.isMultiMOPs) {
                                                                       _textEditingControllerCashAmount.text = "";
                                                                     }

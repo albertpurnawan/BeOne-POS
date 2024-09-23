@@ -13,8 +13,12 @@ class InputDuitkuVADialog extends StatefulWidget {
     required this.mopSelectionEntity,
     required this.paymentMethods,
     required this.amount,
+    required this.onVASelected,
   });
 
+  final Function(
+    MopSelectionEntity,
+  ) onVASelected;
   final MopSelectionEntity mopSelectionEntity;
   final List<dynamic> paymentMethods;
   final int amount;
@@ -26,10 +30,13 @@ class InputDuitkuVADialog extends StatefulWidget {
 class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
   String? selectedPaymentMethod;
   final _textEditingControllerVAAmount = TextEditingController();
+  // final _textEditingControllerRemarks = TextEditingController();
   bool isErr = false;
   String errMsg = "Invalid amount";
+  MopSelectionEntity? mopVA;
 
   late FocusNode _focusNodeVADropdown;
+  // FocusNode _focusNodeRemarks = FocusNode();
   late final _focusNodeVAAmount = FocusNode(
     onKeyEvent: (node, event) {
       if (event.runtimeType == KeyUpEvent) {
@@ -37,15 +44,31 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.f12) {
+        if (isErr) return KeyEventResult.handled;
+        if (selectedPaymentMethod == null) return KeyEventResult.handled;
+        if (mopVA == null) return KeyEventResult.handled;
+
         final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
-        if (mopAmount > widget.amount) {
+
+        if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) {
           setState(() {
             isErr = true;
             errMsg = "Invalid amount";
           });
-
           return KeyEventResult.handled;
         }
+
+        if (mopAmount > widget.amount) {
+          setState(() {
+            isErr = true;
+            errMsg = "Amount exceeds the total amount";
+          });
+          return KeyEventResult.handled;
+        }
+
+        mopVA = mopVA?.copyWith(cardHolder: selectedPaymentMethod, amount: mopAmount);
+        widget.onVASelected(mopVA!);
+
         context.pop(mopAmount);
         return KeyEventResult.handled;
       } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
@@ -60,9 +83,10 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
   @override
   initState() {
     super.initState();
+    mopVA = widget.mopSelectionEntity;
     _focusNodeVADropdown = FocusNode();
+    // _focusNodeRemarks = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Request focus after the widget has been built
       _focusNodeVADropdown.requestFocus();
     });
   }
@@ -70,6 +94,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
   @override
   void dispose() {
     _textEditingControllerVAAmount.dispose();
+    // _textEditingControllerRemarks.dispose();
     _focusNodeVAAmount.dispose();
     _focusNodeVADropdown.dispose();
     super.dispose();
@@ -203,8 +228,13 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                     }
                   },
                   onEditingComplete: () {
+                    if (isErr) return;
+                    if (selectedPaymentMethod == null) return;
+                    if (mopVA == null) return;
                     final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
-                    if (mopAmount > widget.amount) return;
+                    if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) return;
+                    mopVA = mopVA?.copyWith(cardHolder: selectedPaymentMethod, amount: mopAmount);
+                    widget.onVASelected(mopVA!);
                     context.pop(mopAmount);
                   },
                   decoration: InputDecoration(
@@ -228,6 +258,39 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                       )),
                 ),
               ),
+              const SizedBox(height: 20),
+              // SizedBox(
+              //   height: 50,
+              //   child: TextFormField(
+              //     focusNode: _focusNodeRemarks,
+              //     controller: _textEditingControllerRemarks,
+              //     autofocus: true,
+              //     keyboardType: TextInputType.text,
+              //     textAlign: TextAlign.center,
+              //     style: const TextStyle(fontSize: 18),
+              //     onChanged: (value) {},
+              //     onEditingComplete: () {},
+              //     decoration: InputDecoration(
+              //         contentPadding: const EdgeInsets.all(10),
+              //         hintText: "Remarks",
+              //         hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
+              //         border: const OutlineInputBorder(),
+              //         suffix: isErr
+              //             ? Text(
+              //                 errMsg,
+              //                 style: const TextStyle(
+              //                     fontSize: 14,
+              //                     fontStyle: FontStyle.normal,
+              //                     fontWeight: FontWeight.w700,
+              //                     color: ProjectColors.swatch),
+              //               )
+              //             : null,
+              //         prefixIcon: const Icon(
+              //           Icons.note_alt_outlined,
+              //           size: 24,
+              //         )),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -280,7 +343,11 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
               onPressed: () {
                 if (isErr) return;
                 if (selectedPaymentMethod == null) return;
+                if (mopVA == null) return;
                 final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
+                if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) return;
+                mopVA = mopVA?.copyWith(cardHolder: selectedPaymentMethod, amount: mopAmount);
+                widget.onVASelected(mopVA!);
                 context.pop(mopAmount);
               },
               child: Center(
