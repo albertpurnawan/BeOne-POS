@@ -681,7 +681,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     resetReceipt();
   }
 
-  void retrieveFromQueue(ReceiptEntity receiptEntity, BuildContext context) async {
+  Future<void> retrieveFromQueue(ReceiptEntity receiptEntity, BuildContext context) async {
     await resetReceipt();
 
     for (final receiptItem in receiptEntity.receiptItems) {
