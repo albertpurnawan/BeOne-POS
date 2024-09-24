@@ -3,12 +3,15 @@ import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/domain/entities/customer_cst.dart';
 
 class DuitkuApi {
   final Dio _dio;
   final String _url = "https://sandbox.duitku.com/webapi/api/merchant";
-  final String _merchantOrderId = Helpers.generateRandomString(10);
   final String _merchantCode = "DS20286";
   final String _apiKey = "338fdbf1c8ab5ee1c2f12d9d308fc888";
   final String timestamp = Helpers.getTimestamp();
@@ -20,8 +23,8 @@ class DuitkuApi {
     };
   }
 
-  Future<String> createTransactionSignature(int amount) async {
-    final combined = _merchantCode + _merchantOrderId + amount.toString() + _apiKey;
+  Future<String> createTransactionSignature(int amount, String merchantOrderId) async {
+    final combined = _merchantCode + merchantOrderId + amount.toString() + _apiKey;
     final signature = md5.convert(utf8.encode(combined)).toString();
     return signature;
   }
@@ -29,6 +32,12 @@ class DuitkuApi {
   Future<String> createPaymentMethodsSignature(int amount) async {
     final combined = _merchantCode + amount.toString() + timestamp + _apiKey;
     final signature = sha256.convert(utf8.encode(combined)).toString();
+    return signature;
+  }
+
+  Future<String> createCheckStatusSignature(String merchantOrderId) async {
+    final combined = _merchantCode + merchantOrderId + _apiKey;
+    final signature = md5.convert(utf8.encode(combined)).toString();
     return signature;
   }
 
@@ -46,59 +55,89 @@ class DuitkuApi {
       data: body,
     );
 
-    // log("Response duitku - ${response.data['paymentFee']}");
+    // log("Response methods duitku - ${response.data}");
     return response.data['paymentFee'];
   }
 
-  Future<String> createTransactionVA(String signature, int amount) async {
+  Future<dynamic> createTransactionVA(
+      String paymentMethod, String signature, int amount, String custId, String merchantOrderId) async {
     final String url = "$_url/v2/inquiry";
+    final CustomerCstEntity? customerEntity =
+        await GetIt.instance<AppDatabase>().customerCstDao.readByDocId(custId, null);
+
+    if (customerEntity == null) return;
+
     final body = {
       "merchantCode": _merchantCode,
       "paymentAmount": amount,
-      "paymentMethod": "BC",
-      "merchantOrderId": _merchantOrderId,
+      "paymentMethod": paymentMethod,
+      "merchantOrderId": merchantOrderId,
       "productDetails": "Pembayaran untuk Toko Contoh",
       "additionalParam": "",
       "merchantUserInfo": "",
-      "customerVaName": "John Doe",
-      "email": "pelanggan_anda@email.com",
-      "phoneNumber": "08123456789",
-      "customerDetail": {
-        "firstName": "John",
-        "lastName": "Doe",
-        "email": "pelanggan_anda@email.com",
-        "phoneNumber": "085718159655",
-        "billingAddress": {
-          "firstName": "John",
-          "lastName": "Doe",
-          "address": "Jl. Kembangan Raya",
-          "city": "Jakarta",
-          "postalCode": "11530",
-          "phone": "085718159655",
-          "countryCode": "ID"
-        },
-        "shippingAddress": {
-          "firstName": "John",
-          "lastName": "Doe",
-          "address": "Jl. Kembangan Raya",
-          "city": "Jakarta",
-          "postalCode": "11530",
-          "phone": "085718159655",
-          "countryCode": "ID"
-        }
-      },
+      "customerVaName": customerEntity.custName,
+      "email": customerEntity.email,
+      "phoneNumber": customerEntity.phone,
+      // "customerDetail": {
+      //   "firstName": "John",
+      //   "lastName": "Doe",
+      //   "email": "pelanggan_anda@email.com",
+      //   "phoneNumber": "085718159655",
+      //   "billingAddress": {
+      //     "firstName": "John",
+      //     "lastName": "Doe",
+      //     "address": "Jl. Kembangan Raya",
+      //     "city": "Jakarta",
+      //     "postalCode": "11530",
+      //     "phone": "085718159655",
+      //     "countryCode": "ID"
+      //   },
+      //   "shippingAddress": {
+      //     "firstName": "John",
+      //     "lastName": "Doe",
+      //     "address": "Jl. Kembangan Raya",
+      //     "city": "Jakarta",
+      //     "postalCode": "11530",
+      //     "phone": "085718159655",
+      //     "countryCode": "ID"
+      //   }
+      // },
       "callbackUrl": "",
       "returnUrl": "",
       "signature": signature,
-      "expiryPeriod": 60
+      "expiryPeriod": 129600
     };
     log("body duitku - ${jsonEncode(body)}");
+
     final response = await _dio.post(
       url,
       data: body,
     );
 
-    // log("Response duitku - $response");
-    return response.statusMessage ?? "Failed";
+    // log("Response duitku - ${response.data}");
+    return response.data;
+  }
+
+  Future<dynamic> checkVAPaymentStatus(String signature, String merchantOrderId) async {
+    try {
+      final String url = "$_url/transactionStatus";
+      final body = {
+        "merchantCode": _merchantCode,
+        "merchantOrderId": merchantOrderId,
+        "signature": signature,
+      };
+
+      final response = await _dio.post(
+        url,
+        data: body,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+
+      log("response - ${response.data}");
+      return response.data;
+    } catch (e) {
+      handleError(e);
+      rethrow;
+    }
   }
 }

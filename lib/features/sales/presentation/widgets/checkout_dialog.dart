@@ -18,6 +18,7 @@ import 'package:pos_fe/core/widgets/progress_indicator.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -34,6 +35,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/duitku_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialog.dart';
@@ -62,7 +64,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharged = false;
   bool isPaymentSufficient = true;
   bool isLoadingQRIS = false;
-  bool isDuitku = false;
+  bool isLoadingDuitku = false;
   bool isCharging = false;
   bool isMultiMOPs = true;
   List<PaymentTypeEntity> paymentType = [];
@@ -87,7 +89,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           data: data,
           accessToken: accessToken,
           onPaymentSuccess: (String status) async {
-            if (status == 'paid') {
+            if (status == 'SUCCESS') {
               await context.read<ReceiptCubit>().charge();
 
               await Future.delayed(const Duration(milliseconds: 200), () {
@@ -106,6 +108,33 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         );
       },
     );
+  }
+
+  void showDuitkuDialog(BuildContext context, DuitkuEntity data) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return DuitkuDialog(
+              data: data,
+              onPaymentSuccess: (String status) async {
+                if (status == 'SUCCESS') {
+                  await context.read<ReceiptCubit>().charge();
+
+                  await Future.delayed(const Duration(milliseconds: 200), () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const CheckoutDialog(
+                            isCharged: true,
+                          );
+                        });
+                  });
+                }
+              });
+        });
   }
 
   Future<void> charge() async {
@@ -137,12 +166,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         }
       }
 
-      // Edit to QRIS here
+      // Show QRIS/ DUITKU HERE
       final selectedMOPs = state.mopSelections;
-      // final grandTotal = Helpers.revertMoneyToString(state.grandTotal);
       final invoiceDocNum = state.docNum;
 
       final List<MopSelectionEntity> qrisMop = selectedMOPs.where((element) => element.payTypeCode == '5').toList();
+      final List<MopSelectionEntity> duitkuMop = selectedMOPs.where((element) => element.mopAlias == 'duitku').toList();
+      final String merchantOrderId = Helpers.generateRandomString(10);
+
       if (qrisMop.isNotEmpty) {
         setState(() {
           isLoadingQRIS = true;
@@ -217,6 +248,47 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         });
 
         showQRISDialog(context, transactionQris, accessToken);
+      } else if (duitkuMop.isNotEmpty) {
+        setState(() {
+          isLoadingDuitku = true;
+        });
+
+        final duitkuAmount = (duitkuMop.first.amount ?? 0).toInt();
+        final duitkuSignature =
+            await GetIt.instance<DuitkuApi>().createTransactionSignature(duitkuAmount, merchantOrderId);
+
+        final custId = state.customerEntity?.docId;
+        final duitkuVA = await GetIt.instance<DuitkuApi>().createTransactionVA(
+            (duitkuMop.first.cardHolder ?? ""), duitkuSignature, duitkuAmount, (custId ?? ""), merchantOrderId);
+        dev.log("duitkuVA - $duitkuVA");
+        dev.log("duitkuVA['merchantCode'] - ${duitkuVA['merchantCode']}");
+
+        setState(() {
+          isLoadingDuitku = false;
+        });
+
+        final String createdTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now());
+        final String expiredTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(Duration(minutes: 129600)));
+
+        DuitkuEntity duitku = DuitkuEntity(
+          merchantCode: duitkuVA['merchantCode'].toString(),
+          merchantOrderId: merchantOrderId,
+          paymentUrl: duitkuVA['paymentUrl'].toString(),
+          vaNumber: duitkuVA['vaNumber'].toString(),
+          reference: duitkuVA['reference'].toString(),
+          amount: duitkuAmount,
+          feeAmount: 0,
+          responseMessage: duitkuVA['statusMessage'].toString(),
+          createdTs: createdTs,
+          expiredTs: expiredTs,
+          bankVADetails: {
+            "paymentMethod": (duitkuMop.first.cardHolder ?? ""),
+            "paymentName": (duitkuMop.first.cardName ?? ""),
+            "paymentImage": (duitkuMop.first.edcDesc ?? ""),
+          },
+        );
+
+        showDuitkuDialog(context, duitku);
       } else {
         await context.read<ReceiptCubit>().charge();
         await Future.delayed(const Duration(milliseconds: 200), () {
@@ -844,7 +916,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            (mop.tpmt2Id != null) ? "${mop.mopAlias} - ${mop.cardName}" : mop.mopAlias,
+            (mop.cardName != null) ? "${mop.mopAlias} - ${mop.cardName}" : mop.mopAlias,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -1731,6 +1803,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             (int index) {
                                                               final mop = mopsByType[index];
                                                               String? bankVA = "";
+                                                              String? bankName = "";
+                                                              String? bankImage = "";
                                                               return ChoiceChip(
                                                                 side: const BorderSide(
                                                                     color: ProjectColors.primary, width: 1.5),
@@ -1765,7 +1839,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                           return InputDuitkuVADialog(
                                                                               onVASelected: (mopVA) {
                                                                                 setState(() {
+                                                                                  bankName = mopVA.cardName;
                                                                                   bankVA = mopVA.cardHolder;
+                                                                                  bankImage = mopVA.edcDesc;
                                                                                 });
                                                                               },
                                                                               mopSelectionEntity: mop,
@@ -1789,7 +1865,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                             : <MopSelectionEntity>[]) +
                                                                         [
                                                                           mop.copyWith(
-                                                                              amount: mopAmount, cardHolder: bankVA)
+                                                                              cardName: bankName,
+                                                                              cardHolder: bankVA,
+                                                                              edcDesc: bankImage,
+                                                                              amount: mopAmount)
                                                                         ];
                                                                     if (!widget.isMultiMOPs) {
                                                                       _textEditingControllerCashAmount.text = "";

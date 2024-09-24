@@ -29,6 +29,8 @@ class InputDuitkuVADialog extends StatefulWidget {
 
 class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
   String? selectedPaymentMethod;
+  String? selectedPaymentName;
+  String? selectedPaymentImage;
   final _textEditingControllerVAAmount = TextEditingController();
   // final _textEditingControllerRemarks = TextEditingController();
   bool isErr = false;
@@ -66,7 +68,12 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
           return KeyEventResult.handled;
         }
 
-        mopVA = mopVA?.copyWith(cardHolder: selectedPaymentMethod, amount: mopAmount);
+        mopVA = mopVA?.copyWith(
+          cardName: selectedPaymentName,
+          cardHolder: selectedPaymentMethod,
+          edcDesc: selectedPaymentImage,
+          amount: mopAmount,
+        );
         widget.onVASelected(mopVA!);
 
         context.pop(mopAmount);
@@ -166,6 +173,15 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                   onChanged: (String? newValue) {
                     setState(() {
                       selectedPaymentMethod = newValue;
+
+                      final selectedMethod = widget.paymentMethods.firstWhere(
+                        (method) => method['paymentMethod'] == newValue,
+                        orElse: () => null,
+                      );
+                      if (selectedMethod != null) {
+                        selectedPaymentName = selectedMethod['paymentName'];
+                        selectedPaymentImage = selectedMethod['paymentImage'];
+                      }
                     });
                   },
                   items: widget.paymentMethods.where(
@@ -175,7 +191,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                     },
                   ).map((method) {
                     return DropdownMenuItem<String>(
-                      value: method['paymentName'],
+                      value: method['paymentMethod'],
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -233,7 +249,12 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                     if (mopVA == null) return;
                     final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
                     if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) return;
-                    mopVA = mopVA?.copyWith(cardHolder: selectedPaymentMethod, amount: mopAmount);
+                    mopVA = mopVA?.copyWith(
+                      cardName: selectedPaymentName,
+                      cardHolder: selectedPaymentMethod,
+                      edcDesc: selectedPaymentImage,
+                      amount: mopAmount,
+                    );
                     widget.onVASelected(mopVA!);
                     context.pop(mopAmount);
                   },
@@ -346,7 +367,12 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                 if (mopVA == null) return;
                 final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
                 if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) return;
-                mopVA = mopVA?.copyWith(cardHolder: selectedPaymentMethod, amount: mopAmount);
+                mopVA = mopVA?.copyWith(
+                  cardName: selectedPaymentName,
+                  cardHolder: selectedPaymentMethod,
+                  edcDesc: selectedPaymentImage,
+                  amount: mopAmount,
+                );
                 widget.onVASelected(mopVA!);
                 context.pop(mopAmount);
               },
