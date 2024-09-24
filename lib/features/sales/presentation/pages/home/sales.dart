@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -1192,7 +1191,7 @@ class _SalesPageState extends State<SalesPage> {
                                         enableInteractiveSelection: false,
                                         // showCursor: false,
                                         textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.none,
+                                        keyboardType: TextInputType.text,
                                         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
                                         decoration: const InputDecoration(
                                             isCollapsed: true, contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10)),

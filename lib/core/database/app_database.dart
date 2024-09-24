@@ -113,6 +113,7 @@ import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
@@ -3557,6 +3558,17 @@ CREATE TABLE $tableApprovalInvoice (
   CONSTRAINT `tinv6_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute("""
+CREATE TABLE $tableDuitkuVADetails (
+  $uuidDefinition,
+  ${DuitkuVADetailsFields.paymentMethod} varchar(5) NOT NULL,
+  ${DuitkuVADetailsFields.paymentName} text NOT NULL,
+  ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
+  ${DuitkuVADetailsFields.totalFee} int NOT NULL,
+  $createdAtDefinition
+)
+""");
       });
     } catch (e) {
       log(e.toString());
@@ -3653,6 +3665,18 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''ALTER TABLE $tableInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
 
       await db.execute('''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
+
+      // add table duitkuVADetails
+      await db.execute("""
+    CREATE TABLE $tableDuitkuVADetails (
+      docid` TEXT PRIMARY KEY,
+      ${DuitkuVADetailsFields.paymentMethod} varchar(5) NOT NULL,
+      ${DuitkuVADetailsFields.paymentName} text NOT NULL,
+      ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
+      ${DuitkuVADetailsFields.totalFee} int NOT NULL,
+      createdat TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  """);
     },
   };
 

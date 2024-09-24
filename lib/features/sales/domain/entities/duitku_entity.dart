@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 
 class DuitkuEntity {
   final String merchantCode;
@@ -14,7 +14,7 @@ class DuitkuEntity {
   final String responseMessage;
   final String createdTs;
   final String expiredTs;
-  final Map<String, dynamic> bankVADetails;
+  final DuitkuVADetailsEntity duitkuVA;
 
   DuitkuEntity({
     required this.merchantCode,
@@ -27,7 +27,7 @@ class DuitkuEntity {
     required this.responseMessage,
     required this.createdTs,
     required this.expiredTs,
-    required this.bankVADetails,
+    required this.duitkuVA,
   });
 
   DuitkuEntity copyWith({
@@ -41,7 +41,7 @@ class DuitkuEntity {
     String? responseMessage,
     String? createdTs,
     String? expiredTs,
-    Map<String, dynamic>? bankVADetails,
+    DuitkuVADetailsEntity? duitkuVA,
   }) {
     return DuitkuEntity(
       merchantCode: merchantCode ?? this.merchantCode,
@@ -54,7 +54,7 @@ class DuitkuEntity {
       responseMessage: responseMessage ?? this.responseMessage,
       createdTs: createdTs ?? this.createdTs,
       expiredTs: expiredTs ?? this.expiredTs,
-      bankVADetails: bankVADetails ?? this.bankVADetails,
+      duitkuVA: duitkuVA ?? this.duitkuVA,
     );
   }
 
@@ -70,25 +70,24 @@ class DuitkuEntity {
       'responseMessage': responseMessage,
       'createdTs': createdTs,
       'expiredTs': expiredTs,
-      'bankVADetails': bankVADetails,
+      'duitkuVA': duitkuVA.toMap(),
     };
   }
 
   factory DuitkuEntity.fromMap(Map<String, dynamic> map) {
     return DuitkuEntity(
-        merchantCode: map['merchantCode'] as String,
-        merchantOrderId: map['merchantOrderId'] as String,
-        paymentUrl: map['paymentUrl'] as String,
-        vaNumber: map['vaNumber'] as String,
-        reference: map['reference'] as String,
-        amount: map['amount'] as int,
-        feeAmount: map['feeAmount'] as int,
-        responseMessage: map['responseMessage'] as String,
-        createdTs: map['createdTs'] as String,
-        expiredTs: map['expiredTs'] as String,
-        bankVADetails: Map<String, dynamic>.from(
-          (map['bankVADetails'] as Map<String, dynamic>),
-        ));
+      merchantCode: map['merchantCode'] as String,
+      merchantOrderId: map['merchantOrderId'] as String,
+      paymentUrl: map['paymentUrl'] as String,
+      vaNumber: map['vaNumber'] as String,
+      reference: map['reference'] as String,
+      amount: map['amount'] as int,
+      feeAmount: map['feeAmount'] as int,
+      responseMessage: map['responseMessage'] as String,
+      createdTs: map['createdTs'] as String,
+      expiredTs: map['expiredTs'] as String,
+      duitkuVA: DuitkuVADetailsEntity.fromMap(map['duitkuVA'] as Map<String, dynamic>),
+    );
   }
 
   String toJson() => json.encode(toMap());
@@ -97,7 +96,7 @@ class DuitkuEntity {
 
   @override
   String toString() {
-    return 'DuitkuEntity(merchantCode: $merchantCode, merchantOrderId: $merchantOrderId, paymentUrl: $paymentUrl, vaNumber: $vaNumber, reference: $reference, amount: $amount, feeAmount: $feeAmount, responseMessage: $responseMessage, createdTs: $createdTs, expiredTs: $expiredTs, bankVADetails: $bankVADetails)';
+    return 'DuitkuEntity(merchantCode: $merchantCode, merchantOrderId: $merchantOrderId, paymentUrl: $paymentUrl, vaNumber: $vaNumber, reference: $reference, amount: $amount, feeAmount: $feeAmount, responseMessage: $responseMessage, createdTs: $createdTs, expiredTs: $expiredTs, duitkuVA: $duitkuVA)';
   }
 
   @override
@@ -114,7 +113,7 @@ class DuitkuEntity {
         other.responseMessage == responseMessage &&
         other.createdTs == createdTs &&
         other.expiredTs == expiredTs &&
-        mapEquals(other.bankVADetails, bankVADetails);
+        other.duitkuVA == duitkuVA;
   }
 
   @override
@@ -129,6 +128,6 @@ class DuitkuEntity {
         responseMessage.hashCode ^
         createdTs.hashCode ^
         expiredTs.hashCode ^
-        bankVADetails.hashCode;
+        duitkuVA.hashCode;
   }
 }

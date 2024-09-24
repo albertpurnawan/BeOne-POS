@@ -19,6 +19,7 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.da
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -270,6 +271,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         final String createdTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now());
         final String expiredTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(Duration(minutes: 129600)));
 
+        DuitkuVADetailsEntity vaDuitku = DuitkuVADetailsEntity(
+          docId: duitkuMop.first.tpmt7Id ?? "",
+          paymentMethod: duitkuMop.first.cardHolder ?? "",
+          paymentName: duitkuMop.first.cardName ?? "",
+          paymentImage: duitkuMop.first.edcDesc ?? "",
+          totalFee: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
+        );
+
         DuitkuEntity duitku = DuitkuEntity(
           merchantCode: duitkuVA['merchantCode'].toString(),
           merchantOrderId: merchantOrderId,
@@ -281,11 +290,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           responseMessage: duitkuVA['statusMessage'].toString(),
           createdTs: createdTs,
           expiredTs: expiredTs,
-          bankVADetails: {
-            "paymentMethod": (duitkuMop.first.cardHolder ?? ""),
-            "paymentName": (duitkuMop.first.cardName ?? ""),
-            "paymentImage": (duitkuMop.first.edcDesc ?? ""),
-          },
+          duitkuVA: vaDuitku,
         );
 
         showDuitkuDialog(context, duitku);
@@ -1826,12 +1831,15 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               (receipt.totalVoucher ?? 0) -
                                                                               (receipt.totalNonVoucher ?? 0))
                                                                           .toInt();
+                                                                      String timestamp = Helpers.getTimestamp();
                                                                       final signature =
                                                                           await GetIt.instance<DuitkuApi>()
-                                                                              .createPaymentMethodsSignature(maxAmount);
+                                                                              .createPaymentMethodsSignature(
+                                                                                  maxAmount, timestamp);
                                                                       final List<dynamic> paymentMethods =
                                                                           await GetIt.instance<DuitkuApi>()
-                                                                              .getPaymentMethods(signature, maxAmount);
+                                                                              .getPaymentMethods(
+                                                                                  signature, maxAmount, timestamp);
                                                                       mopAmount = await showDialog<double>(
                                                                         context: context,
                                                                         barrierDismissible: false,

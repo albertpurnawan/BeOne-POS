@@ -19,6 +19,7 @@ class MopSelectionEntity {
   final String? cardHolder;
   final String? rrn;
   final String? tpmt6Id;
+  final String? tpmt7Id;
 
   MopSelectionEntity({
     required this.tpmt3Id,
@@ -38,6 +39,7 @@ class MopSelectionEntity {
     this.cardHolder,
     this.rrn,
     this.tpmt6Id,
+    this.tpmt7Id,
   });
 
   MopSelectionEntity copyWith({
@@ -58,6 +60,7 @@ class MopSelectionEntity {
     String? cardHolder,
     String? rrn,
     String? tpmt6Id,
+    String? tpmt7Id,
   }) {
     return MopSelectionEntity(
       tpmt3Id: tpmt3Id ?? this.tpmt3Id,
@@ -77,6 +80,7 @@ class MopSelectionEntity {
       cardHolder: cardHolder ?? this.cardHolder,
       rrn: rrn ?? this.rrn,
       tpmt6Id: tpmt6Id ?? this.tpmt6Id,
+      tpmt7Id: tpmt7Id ?? this.tpmt7Id,
     );
   }
 
@@ -99,6 +103,7 @@ class MopSelectionEntity {
       'cardHolder': cardHolder,
       'rrn': rrn,
       'tpmt6Id': tpmt6Id,
+      'tpmt7Id': tpmt7Id,
     };
   }
 
@@ -121,6 +126,7 @@ class MopSelectionEntity {
       cardHolder: map['cardHolder'] != null ? map['cardHolder'] as String : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,
       tpmt6Id: map['tpmt6Id'] != null ? map['tpmt6Id'] as String : null,
+      tpmt7Id: map['tpmt7Id'] != null ? map['tpmt7Id'] as String : null,
     );
   }
 
@@ -131,7 +137,7 @@ class MopSelectionEntity {
 
   @override
   String toString() {
-    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType, tinv2Id: $tinv2Id, tpmt4Id: $tpmt4Id, edcDesc: $edcDesc, tpmt2Id: $tpmt2Id, cardName: $cardName, cardNo: $cardNo, cardHolder: $cardHolder, rrn: $rrn, tpmt6Id: $tpmt6Id)';
+    return 'MopSelectionEntity(tpmt3Id: $tpmt3Id, tpmt1Id: $tpmt1Id, mopAlias: $mopAlias, bankCharge: $bankCharge, payTypeCode: $payTypeCode, description: $description, amount: $amount, subType: $subType, tinv2Id: $tinv2Id, tpmt4Id: $tpmt4Id, edcDesc: $edcDesc, tpmt2Id: $tpmt2Id, cardName: $cardName, cardNo: $cardNo, cardHolder: $cardHolder, rrn: $rrn, tpmt6Id: $tpmt6Id, tpmt7Id: $tpmt7Id)';
   }
 
   @override
@@ -154,7 +160,8 @@ class MopSelectionEntity {
         other.cardNo == cardNo &&
         other.cardHolder == cardHolder &&
         other.rrn == rrn &&
-        other.tpmt6Id == tpmt6Id;
+        other.tpmt6Id == tpmt6Id &&
+        other.tpmt7Id == tpmt7Id;
   }
 
   @override
@@ -175,6 +182,7 @@ class MopSelectionEntity {
         cardNo.hashCode ^
         cardHolder.hashCode ^
         rrn.hashCode ^
-        tpmt6Id.hashCode;
+        tpmt6Id.hashCode ^
+        tpmt7Id.hashCode;
   }
 }

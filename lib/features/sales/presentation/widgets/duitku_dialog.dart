@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_entity.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/duitku_expired_dialog.dart';
@@ -28,7 +27,6 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
   void initState() {
     super.initState();
     _startCheckDuitkuStatus();
-    log("bankDetails - ${widget.data.bankVADetails}");
   }
 
   @override
@@ -171,23 +169,89 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 10),
-                  Text("Amount - ${widget.data.amount}"),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: "Pay Before",
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        TextSpan(
+                          text: "  ${widget.data.expiredTs}",
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                      style: const TextStyle(
+                        color: ProjectColors.mediumBlack,
+                        fontSize: 12,
+                        height: 1,
+                      ),
+                    ),
+                    overflow: TextOverflow.clip,
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: ProjectColors.green,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: "Total Payment",
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            TextSpan(
+                              text: "  Rp ${Helpers.parseMoney(widget.data.amount)}",
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            height: 1,
+                          ),
+                        ),
+                        overflow: TextOverflow.clip,
+                      ),
+                    ),
+                  ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Payment Method"),
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Payment Method",
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                          style: TextStyle(
+                            color: ProjectColors.mediumBlack,
+                            fontSize: 12,
+                            height: 1,
+                          ),
+                        ),
+                        overflow: TextOverflow.clip,
+                      ),
+                      const SizedBox(width: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          widget.data.bankVADetails['paymentImage'].endsWith(".SVG")
+                          widget.data.duitkuVA.paymentImage.endsWith(".SVG")
                               ? SvgPicture.network(
-                                  widget.data.bankVADetails['paymentImage'],
+                                  widget.data.duitkuVA.paymentImage,
                                   width: 30,
                                   height: 30,
                                 )
                               : Image.network(
-                                  widget.data.bankVADetails['paymentImage'],
+                                  widget.data.duitkuVA.paymentImage,
                                   width: 75,
                                   height: 50,
                                 ),
@@ -195,10 +259,72 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                       )
                     ],
                   ),
-                  SelectableText("VANumber - ${widget.data.vaNumber}"),
-                  Text("Reference - ${widget.data.reference}"),
-                  Text("Created - ${widget.data.createdTs}"),
-                  Text("Expired - ${widget.data.expiredTs}"),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Virtual Account Number",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SelectableText(
+                              widget.data.vaNumber,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(text: widget.data.vaNumber));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Copied to clipboard')),
+                                );
+                              },
+                              child: const Icon(
+                                Icons.copy,
+                                size: 20,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: "Reference",
+                          ),
+                          TextSpan(
+                            text: "  ${widget.data.reference}",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                        style: const TextStyle(
+                          color: ProjectColors.mediumBlack,
+                          fontSize: 12,
+                          height: 1,
+                        ),
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
                 ],
               ),
             ),

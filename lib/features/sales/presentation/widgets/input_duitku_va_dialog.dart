@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,7 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:uuid/uuid.dart';
 
 class InputDuitkuVADialog extends StatefulWidget {
   const InputDuitkuVADialog({
@@ -29,8 +33,7 @@ class InputDuitkuVADialog extends StatefulWidget {
 
 class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
   String? selectedPaymentMethod;
-  String? selectedPaymentName;
-  String? selectedPaymentImage;
+  DuitkuVADetailsEntity? vaDuitku;
   final _textEditingControllerVAAmount = TextEditingController();
   // final _textEditingControllerRemarks = TextEditingController();
   bool isErr = false;
@@ -69,10 +72,11 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
         }
 
         mopVA = mopVA?.copyWith(
-          cardName: selectedPaymentName,
+          cardName: vaDuitku!.paymentName,
           cardHolder: selectedPaymentMethod,
-          edcDesc: selectedPaymentImage,
+          edcDesc: vaDuitku!.paymentImage,
           amount: mopAmount,
+          tpmt7Id: vaDuitku!.docId,
         );
         widget.onVASelected(mopVA!);
 
@@ -179,8 +183,13 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         orElse: () => null,
                       );
                       if (selectedMethod != null) {
-                        selectedPaymentName = selectedMethod['paymentName'];
-                        selectedPaymentImage = selectedMethod['paymentImage'];
+                        vaDuitku = DuitkuVADetailsEntity(
+                          docId: const Uuid().v4(),
+                          paymentMethod: selectedPaymentMethod ?? "",
+                          paymentName: selectedMethod['paymentName'],
+                          paymentImage: selectedMethod['paymentImage'],
+                          totalFee: int.parse(selectedMethod['totalFee'] ?? "0"),
+                        );
                       }
                     });
                   },
@@ -250,11 +259,13 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                     final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
                     if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) return;
                     mopVA = mopVA?.copyWith(
-                      cardName: selectedPaymentName,
+                      cardName: vaDuitku!.paymentName,
                       cardHolder: selectedPaymentMethod,
-                      edcDesc: selectedPaymentImage,
+                      edcDesc: vaDuitku!.paymentImage,
                       amount: mopAmount,
+                      tpmt7Id: vaDuitku!.docId,
                     );
+                    log("mopVA- $mopVA");
                     widget.onVASelected(mopVA!);
                     context.pop(mopAmount);
                   },
@@ -368,10 +379,11 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                 final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
                 if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) return;
                 mopVA = mopVA?.copyWith(
-                  cardName: selectedPaymentName,
+                  cardName: vaDuitku!.paymentName,
                   cardHolder: selectedPaymentMethod,
-                  edcDesc: selectedPaymentImage,
+                  edcDesc: vaDuitku!.paymentImage,
                   amount: mopAmount,
+                  tpmt7Id: vaDuitku!.docId,
                 );
                 widget.onVASelected(mopVA!);
                 context.pop(mopAmount);

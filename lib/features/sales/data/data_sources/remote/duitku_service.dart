@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer_cst.dart';
 
 class DuitkuApi {
@@ -14,7 +13,6 @@ class DuitkuApi {
   final String _url = "https://sandbox.duitku.com/webapi/api/merchant";
   final String _merchantCode = "DS20286";
   final String _apiKey = "338fdbf1c8ab5ee1c2f12d9d308fc888";
-  final String timestamp = Helpers.getTimestamp();
 
   DuitkuApi(this._dio) {
     _dio.options.followRedirects = false;
@@ -29,7 +27,7 @@ class DuitkuApi {
     return signature;
   }
 
-  Future<String> createPaymentMethodsSignature(int amount) async {
+  Future<String> createPaymentMethodsSignature(int amount, String timestamp) async {
     final combined = _merchantCode + amount.toString() + timestamp + _apiKey;
     final signature = sha256.convert(utf8.encode(combined)).toString();
     return signature;
@@ -41,7 +39,7 @@ class DuitkuApi {
     return signature;
   }
 
-  Future<List<dynamic>> getPaymentMethods(String signature, int amount) async {
+  Future<List<dynamic>> getPaymentMethods(String signature, int amount, String timestamp) async {
     final String url = "$_url/paymentmethod/getpaymentmethod";
     final body = {
       "merchantcode": _merchantCode,
