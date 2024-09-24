@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -207,6 +209,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                         overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
                       selectedEmployee = radioValue;
+                      log("SelectedEmployee - $selectedEmployee");
                       Navigator.of(context).pop(selectedEmployee);
                       context.read<EmployeesCubit>().clearEmployees();
                     },

@@ -6,16 +6,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class DownPaymentDialog extends StatefulWidget {
@@ -37,6 +40,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   List<bool> _isZero = [];
   List<bool> _selectedItems = [];
 
+  String? salesSelected;
+  String? tohemIdSelected;
+
   late ReceiptEntity stateInvoice;
   ReceiptItemEntity? currentReceiptItemEntity;
   ItemEntity? dp;
@@ -44,7 +50,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   String customerSelected = "Not Set";
   bool isReceive = true;
   bool isEdit = false;
-  late double totalAmount;
+  double totalAmount = 0;
 
   List<DownPaymentEntity> membersDP = [];
 
@@ -55,6 +61,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     readInvoiceState();
     readCustomer();
     _amountFocusNode.requestFocus();
+    tohemIdSelected = stateInvoice.salesTohemId;
+    getEmployee(tohemIdSelected ?? "");
   }
 
   @override
@@ -71,6 +79,26 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       focusNode.dispose();
     }
     super.dispose();
+  }
+
+  void getEmployee(String tohemId) async {
+    final result = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(tohemId, null);
+    if (result != null) {
+      setState(() {
+        salesSelected = result.empName;
+      });
+    } else {
+      setState(() {
+        salesSelected = "Not Set";
+      });
+    }
+  }
+
+  void removeSalesPerson() async {
+    setState(() {
+      salesSelected = "Not Set";
+      tohemIdSelected = "";
+    });
   }
 
   void readInvoiceState() async {
@@ -158,12 +186,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       context: context,
       onOpenPriceInputted: () {},
       setOpenPrice: amount,
-      remarks: _remarksController.text,
+      remarks: null,
       refpos2: null,
     );
 
     await receipt.addUpdateReceiptItems(params);
-    await receipt.updateSalesTohemIdRemarksOnReceipt(stateInvoice.toinvTohemId ?? "", _remarksController.text);
+    await receipt.updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _remarksController.text);
   }
 
   Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
@@ -467,6 +495,83 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   ),
                   const SizedBox(
                     height: 10,
+                  ),
+                  const Divider(height: 0),
+                  InkWell(
+                    onTap: () => showDialog<EmployeeEntity>(
+                      context: context,
+                      builder: (BuildContext context) => const SelectEmployee(),
+                    ).then((selectedEmployee) {
+                      if (selectedEmployee != null) {
+                        setState(() {
+                          salesSelected = selectedEmployee.empName;
+                          tohemIdSelected = selectedEmployee.docId;
+                        });
+                      }
+                    }),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Row(
+                              children: [
+                                SizedBox(width: 5),
+                                Icon(
+                                  Icons.handshake_outlined,
+                                  color: Color.fromARGB(255, 66, 66, 66),
+                                ),
+                                SizedBox(width: 30),
+                                Text(
+                                  "Salesperson",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  salesSelected.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color.fromARGB(255, 66, 66, 66),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                (salesSelected != "Not Set" && salesSelected != null)
+                                    ? IconButton(
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          color: ProjectColors.primary,
+                                        ),
+                                        onPressed: () {
+                                          removeSalesPerson();
+                                        },
+                                      )
+                                    : IconButton(
+                                        icon: const Icon(
+                                          Icons.navigate_next,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        onPressed: () => showDialog<EmployeeEntity>(
+                                              context: context,
+                                              builder: (BuildContext context) => const SelectEmployee(),
+                                            ).then((selectedEmployee) {
+                                              if (selectedEmployee != null) {
+                                                setState(() {
+                                                  salesSelected = selectedEmployee.empName;
+                                                  tohemIdSelected = selectedEmployee.docId;
+                                                });
+                                              }
+                                            })),
+                                const SizedBox(width: 5),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const Divider(height: 0),
                   const SizedBox(height: 10),

@@ -2029,7 +2029,7 @@ class _SalesPageState extends State<SalesPage> {
                           onPressed: () async {
                             if (!isMember) {
                               SnackBarHelper.presentErrorSnackBar(context,
-                                  "Please select the customer first, only customer with member can use Down Payment");
+                                  "Please select the customer first, only customer with membership can use Down Payment");
                               return;
                             }
                             await showDialog(

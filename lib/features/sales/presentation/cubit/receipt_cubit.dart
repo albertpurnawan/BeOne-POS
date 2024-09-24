@@ -244,7 +244,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Handle promos
       // dev.log("item entity toitmid ${receiptItemEntity.itemEntity}");
       bool anyPromoApplied = false;
-      dev.log("includePromo $state");
+      // dev.log("includePromo $state");
       if (receiptItemEntity.itemEntity.barcode != "99" && includePromo == 1) {
         availablePromos = await _checkPromoUseCase(params: receiptItemEntity.itemEntity.toitmId);
         if (availablePromos.isNotEmpty) {
