@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -2109,12 +2108,24 @@ class _SalesPageState extends State<SalesPage> {
                         child: TapRegion(
                           groupId: 1,
                           child: OutlinedButton(
-                            onPressed: indexIsSelect[1] == 0
+                            onPressed: (indexIsSelect[1] == 0 ||
+                                    context
+                                            .read<ReceiptCubit>()
+                                            .state
+                                            .receiptItems[indexIsSelect[0]]
+                                            .itemEntity
+                                            .itemCode ==
+                                        '99' ||
+                                    context
+                                            .read<ReceiptCubit>()
+                                            .state
+                                            .receiptItems[indexIsSelect[0]]
+                                            .itemEntity
+                                            .itemCode ==
+                                        '08700000002')
                                 ? null
                                 : () {
-                                    final ReceiptItemEntity receiptItemTarget =
-                                        context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                    log("receiptTarget - $receiptItemTarget");
+                                    context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) =>
@@ -2136,8 +2147,23 @@ class _SalesPageState extends State<SalesPage> {
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                               foregroundColor: Colors.white,
-                              backgroundColor:
-                                  indexIsSelect[0] == -1 ? ProjectColors.lightBlack : ProjectColors.primary,
+                              backgroundColor: (indexIsSelect[1] == 0 ||
+                                      context
+                                              .read<ReceiptCubit>()
+                                              .state
+                                              .receiptItems[indexIsSelect[0]]
+                                              .itemEntity
+                                              .itemCode ==
+                                          '99' ||
+                                      context
+                                              .read<ReceiptCubit>()
+                                              .state
+                                              .receiptItems[indexIsSelect[0]]
+                                              .itemEntity
+                                              .itemCode ==
+                                          '08700000002')
+                                  ? ProjectColors.lightBlack
+                                  : ProjectColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -2158,7 +2184,23 @@ class _SalesPageState extends State<SalesPage> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 14,
-                                                color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
+                                                color: (indexIsSelect[1] == 0 ||
+                                                        context
+                                                                .read<ReceiptCubit>()
+                                                                .state
+                                                                .receiptItems[indexIsSelect[0]]
+                                                                .itemEntity
+                                                                .itemCode ==
+                                                            '99' ||
+                                                        context
+                                                                .read<ReceiptCubit>()
+                                                                .state
+                                                                .receiptItems[indexIsSelect[0]]
+                                                                .itemEntity
+                                                                .itemCode ==
+                                                            '08700000002')
+                                                    ? Colors.grey
+                                                    : Colors.white),
                                           ),
                                         ],
                                       ),
@@ -2176,7 +2218,23 @@ class _SalesPageState extends State<SalesPage> {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,
-                                                  color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
+                                                  color: (indexIsSelect[1] == 0 ||
+                                                          context
+                                                                  .read<ReceiptCubit>()
+                                                                  .state
+                                                                  .receiptItems[indexIsSelect[0]]
+                                                                  .itemEntity
+                                                                  .itemCode ==
+                                                              '99' ||
+                                                          context
+                                                                  .read<ReceiptCubit>()
+                                                                  .state
+                                                                  .receiptItems[indexIsSelect[0]]
+                                                                  .itemEntity
+                                                                  .itemCode ==
+                                                              '08700000002')
+                                                      ? Colors.grey
+                                                      : Colors.white),
                                             ),
                                           ],
                                         ),

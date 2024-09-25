@@ -50,6 +50,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   String customerSelected = "Not Set";
   bool isReceive = true;
   bool isEdit = false;
+  bool receiveZero = false;
   double totalAmount = 0;
 
   List<DownPaymentEntity> membersDP = [];
@@ -243,7 +244,21 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             autofocus: true,
             skipTraversal: true,
             onKeyEvent: (node, event) {
-              if (event.runtimeType == KeyUpEvent) {
+              if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+              if (event.physicalKey == PhysicalKeyboardKey.f12) {
+                FocusScope.of(context).unfocus();
+                final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+                if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
+                    receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
+                  SnackBarHelper.presentErrorSnackBar(
+                      childContext, "Down payment has to be excluded from other transactions");
+                  return KeyEventResult.handled;
+                }
+                if (receiveZero) return KeyEventResult.handled;
+                context.pop();
+                _addOrUpdateReceiveDownPayment();
+              } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+                context.pop();
                 return KeyEventResult.handled;
               }
 
@@ -366,6 +381,14 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                       onPressed: isReceive
                           ? () async {
                               FocusScope.of(context).unfocus();
+                              final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+                              if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
+                                  receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
+                                SnackBarHelper.presentErrorSnackBar(
+                                    childContext, "Down payment has to be excluded from other transactions");
+                                return;
+                              }
+                              if (receiveZero) return;
                               context.pop();
                               _addOrUpdateReceiveDownPayment();
                             }
@@ -604,12 +627,25 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                           inputFormatters: [MoneyInputFormatter()],
                           controller: _amountController,
                           focusNode: _amountFocusNode,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             isDense: true,
-                            contentPadding: EdgeInsets.all(10),
-                            border: OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.all(10),
+                            border: const OutlineInputBorder(),
                             counterText: "",
+                            suffixText: receiveZero ? "Amount can't be zero" : null,
+                            suffixStyle: const TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w700,
+                              color: ProjectColors.swatch,
+                            ),
                           ),
+                          onChanged: (value) {
+                            final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
+                            setState(() {
+                              receiveZero = amount == 0;
+                            });
+                          },
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -624,9 +660,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                         flex: 1,
                         child: Row(
                           children: [
-                            SizedBox(
-                              width: 5,
-                            ),
+                            SizedBox(width: 5),
                             Icon(
                               Icons.note_alt_outlined,
                               color: Color.fromARGB(255, 66, 66, 66),
