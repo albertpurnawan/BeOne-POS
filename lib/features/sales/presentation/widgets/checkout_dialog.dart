@@ -1139,9 +1139,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(0, 2, 10, 2),
+                                      padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           // (receipt.discHeaderManual ?? 0) != 0
                                           //     ? _noteChip((1000000), 1)
