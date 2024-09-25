@@ -991,6 +991,23 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             ),
                                           ),
                                           enabled: !_selectedItems[index],
+                                          onEditingComplete: () {
+                                            setState(() {
+                                              double enteredAmount =
+                                                  double.parse(_drawAmountControllers[index].text.replaceAll(',', ''));
+
+                                              _isExceeding[index] = enteredAmount > membersDP[index].amount;
+                                              _isZero[index] = enteredAmount == 0;
+
+                                              _selectedItems[index] = !_selectedItems[index];
+
+                                              if (_selectedItems[index]) {
+                                                totalAmount += enteredAmount;
+                                              } else {
+                                                totalAmount -= enteredAmount;
+                                              }
+                                            });
+                                          },
                                           onChanged: (value) {
                                             setState(() {
                                               double enteredAmount = double.tryParse(value.replaceAll(',', '')) ?? 0.0;
