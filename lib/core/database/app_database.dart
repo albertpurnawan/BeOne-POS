@@ -113,6 +113,7 @@ import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/duitku_va_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
@@ -3562,10 +3563,23 @@ CREATE TABLE $tableApprovalInvoice (
         await txn.execute("""
 CREATE TABLE $tableDuitkuVADetails (
   $uuidDefinition,
+  ${DuitkuVADetailsFields.createDate} datetime DEFAULT NULL,
+  ${DuitkuVADetailsFields.updateDate} datetime DEFAULT NULL,
   ${DuitkuVADetailsFields.paymentMethod} varchar(5) NOT NULL,
   ${DuitkuVADetailsFields.paymentName} text NOT NULL,
   ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
   ${DuitkuVADetailsFields.totalFee} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableDuitkuVAAssignStore (
+  $uuidDefinition,
+  ${DuitkuVAAssignStoreFields.createDate} datetime DEFAULT NULL,
+  ${DuitkuVAAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${DuitkuVAAssignStoreFields.tovalId} text DEFAULT NULL,
+  ${DuitkuVAAssignStoreFields.tostrId} text DEFAULT NULL,
   $createdAtDefinition
 )
 """);
@@ -3675,8 +3689,20 @@ CREATE TABLE $tableDuitkuVADetails (
       ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
       ${DuitkuVADetailsFields.totalFee} int NOT NULL,
       createdat TEXT DEFAULT CURRENT_TIMESTAMP
-    )
-  """);
+      )
+    """);
+
+      // add table duitkuVAAssignStore
+      await db.execute("""
+    CREATE TABLE $tableDuitkuVAAssignStore (
+      docid` TEXT PRIMARY KEY,
+      ${DuitkuVAAssignStoreFields.createDate} datetime DEFAULT NULL,
+      ${DuitkuVAAssignStoreFields.updateDate} datetime DEFAULT NULL,
+      ${DuitkuVAAssignStoreFields.tovalId} text DEFAULT NULL,
+      ${DuitkuVAAssignStoreFields.tostrId} text DEFAULT NULL,
+      createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    """);
     },
   };
 
