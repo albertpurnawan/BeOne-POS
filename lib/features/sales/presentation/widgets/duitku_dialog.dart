@@ -164,7 +164,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
         contentPadding: const EdgeInsets.all(0),
         content: SizedBox(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -183,7 +183,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                       ],
                       style: const TextStyle(
                         color: ProjectColors.mediumBlack,
-                        fontSize: 12,
+                        fontSize: 14,
                         height: 1,
                       ),
                     ),
@@ -213,12 +213,56 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                           ],
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 18,
                             height: 1,
                           ),
                         ),
                         overflow: TextOverflow.clip,
                       ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Virtual Account Number",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            fontSize: 18,
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SelectableText(
+                              widget.data.vaNumber,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                                fontSize: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(text: widget.data.vaNumber));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Copied to clipboard')),
+                                );
+                              },
+                              child: const Icon(
+                                Icons.copy,
+                                size: 20,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                   Row(
@@ -234,7 +278,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                           ],
                           style: TextStyle(
                             color: ProjectColors.mediumBlack,
-                            fontSize: 12,
+                            fontSize: 14,
                             height: 1,
                           ),
                         ),
@@ -261,50 +305,6 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Virtual Account Number",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SelectableText(
-                              widget.data.vaNumber,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                                fontSize: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () {
-                                Clipboard.setData(ClipboardData(text: widget.data.vaNumber));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Copied to clipboard')),
-                                );
-                              },
-                              child: const Icon(
-                                Icons.copy,
-                                size: 20,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
                     child: RichText(
                       text: TextSpan(
                         children: [
@@ -318,7 +318,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                         ],
                         style: const TextStyle(
                           color: ProjectColors.mediumBlack,
-                          fontSize: 12,
+                          fontSize: 14,
                           height: 1,
                         ),
                       ),

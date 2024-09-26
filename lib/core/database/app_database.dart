@@ -1601,6 +1601,10 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.netzmeChannelId} text DEFAULT NULL,
   ${StoreMasterFields.minDiscount} int DEFAULT 0,
   ${StoreMasterFields.maxDiscount} int DEFAULT 0,
+  ${StoreMasterFields.duitkuUrl} text DEFAULT NULL,
+  ${StoreMasterFields.duitkuApiKey} text DEFAULT NULL,
+  ${StoreMasterFields.duitkuMerchantCode} text DEFAULT NULL,
+  ${StoreMasterFields.duitkuExpiryPeriod} int DEFAULT NULL,
   ${StoreMasterFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3703,6 +3707,14 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       createdat TEXT DEFAULT CURRENT_TIMESTAMP
       )
     """);
+
+      // alter table tostr
+      await db.execute('''ALTER TABLE $tableStoreMasters 
+        ADD COLUMN ${StoreMasterFields.duitkuUrl} text DEFAULT NULL,
+        ADD COLUMN ${StoreMasterFields.duitkuApiKey} text DEFAULT NULL,
+        ADD COLUMN ${StoreMasterFields.duitkuMerchantCode} text DEFAULT NULL
+        ADD COLUMN ${StoreMasterFields.duitkuExpiryPeriod} int DEFAULT NULL
+        ''');
     },
   };
 
