@@ -330,7 +330,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                       width: 10,
                                     ),
                                     Text(
-                                      queuedReceipt.customerEntity!.custName,
+                                      ("${queuedReceipt.customerEntity!.custName} - ${(queuedReceipt.downPayments != null) ? queuedReceipt.downPayments!.first.amount : ""}"),
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                   ],

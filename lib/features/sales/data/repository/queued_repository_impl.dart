@@ -9,6 +9,7 @@ import 'package:pos_fe/features/sales/data/models/queued_invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/queued_invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
@@ -61,7 +62,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         syncCRM: 0,
         toinvTohemId: receiptEntity.employeeEntity?.docId, // get di sini
         refpos1: tcsr1IdPref, // get di sini
-        refpos2: '', // get di sini
+        refpos2: (receiptEntity.downPayments != null) ? (receiptEntity.downPayments.toString()) : "",
         tcsr1Id: tcsr1IdPref, // get di sini
         discHeaderManual: receiptEntity.discHeaderManual ?? 0, // get di sini
         discHeaderPromo: receiptEntity.discHeaderPromo ?? 0, // get di sini
@@ -269,32 +270,47 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             remarks: queuedInvoiceDetailModel.remarks,
           ));
         }
+
+        List<DownPaymentEntity> downPayments = [];
+
+        RegExp exp = RegExp(r'DownPaymentEntity\(refpos2: (.*?), toinvDocId: (.*?), amount: (.*?)\)');
+        Iterable<Match> matches = exp.allMatches(queuedInvoiceHeaderModel.refpos2 ?? "");
+
+        for (var match in matches) {
+          String? refpos2 = match.group(1) == 'null' ? null : match.group(1);
+          String toinvDocId = match.group(2)!;
+          double amount = double.parse(match.group(3)!);
+
+          downPayments.add(DownPaymentEntity(refpos2: refpos2, toinvDocId: toinvDocId, amount: amount));
+        }
+
         queuedReceiptModels.add(ReceiptModel(
-          toinvId: queuedInvoiceHeaderModel.docId,
-          receiptItems: receiptItemModels,
-          subtotal: queuedInvoiceHeaderModel.subTotal,
-          docNum: queuedInvoiceHeaderModel.docnum,
-          totalTax: queuedInvoiceHeaderModel.taxAmount,
-          mopSelections: [],
-          customerEntity: customerModel,
-          employeeEntity: employeeModel,
-          transStart: DateTime.now(),
-          transDateTime: queuedInvoiceHeaderModel.transDateTime?.toLocal(),
-          taxAmount: queuedInvoiceHeaderModel.taxAmount,
-          grandTotal: queuedInvoiceHeaderModel.grandTotal,
-          totalPayment: queuedInvoiceHeaderModel.totalPayment,
-          changed: queuedInvoiceHeaderModel.changed,
-          vouchers: [], // diambil service vouchers
-          totalVoucher: 0, // diambil service vouchers
-          totalNonVoucher: 0, // diambil service vouchers
-          promos: [], // diambil service promos
-          queuedInvoiceHeaderDocId: queuedInvoiceHeaderModel.docId,
-          salesTohemId: queuedInvoiceHeaderModel.salesTohemId,
-          remarks: queuedInvoiceHeaderModel.remarks,
-        ));
+            toinvId: queuedInvoiceHeaderModel.docId,
+            receiptItems: receiptItemModels,
+            subtotal: queuedInvoiceHeaderModel.subTotal,
+            docNum: queuedInvoiceHeaderModel.docnum,
+            totalTax: queuedInvoiceHeaderModel.taxAmount,
+            mopSelections: [],
+            customerEntity: customerModel,
+            employeeEntity: employeeModel,
+            transStart: DateTime.now(),
+            transDateTime: queuedInvoiceHeaderModel.transDateTime?.toLocal(),
+            taxAmount: queuedInvoiceHeaderModel.taxAmount,
+            grandTotal: queuedInvoiceHeaderModel.grandTotal,
+            totalPayment: queuedInvoiceHeaderModel.totalPayment,
+            changed: queuedInvoiceHeaderModel.changed,
+            vouchers: [], // diambil service vouchers
+            totalVoucher: 0, // diambil service vouchers
+            totalNonVoucher: 0, // diambil service vouchers
+            promos: [], // diambil service promos
+            queuedInvoiceHeaderDocId: queuedInvoiceHeaderModel.docId,
+            salesTohemId: queuedInvoiceHeaderModel.salesTohemId,
+            remarks: queuedInvoiceHeaderModel.remarks,
+            downPayments: (queuedInvoiceHeaderModel.refpos2 != null && queuedInvoiceHeaderModel.refpos2 != "")
+                ? downPayments
+                : null));
       }
     });
-
     return queuedReceiptModels;
   }
 

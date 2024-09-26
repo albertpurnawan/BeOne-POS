@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer' as dev;
-import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -189,7 +188,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         if (!isProceed) return;
       }
       ReceiptEntity newReceipt = state.previousReceiptEntity ?? state;
-      dev.log("after reset $newReceipt");
 
       // Get item entity and validate
       if (state.customerEntity?.toplnId != null) {
@@ -234,6 +232,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 barrierDismissible: false,
                 builder: (context) => OpenPriceDialog(receiptItemEntity: receiptItemEntity, quantity: params.quantity),
               );
+
           params.onOpenPriceInputted();
           if (newPrice == null) throw "Price is required";
           receiptItemEntity = await _handleOpenPriceUseCase(
@@ -671,7 +670,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     if (state.queuedInvoiceHeaderDocId != null) {
       await GetIt.instance<AppDatabase>().queuedInvoiceHeaderDao.deleteByDocId(state.queuedInvoiceHeaderDocId!, null);
     }
-    log("queueReceiptCubit - $state");
     await _queueReceiptUseCase.call(params: state.previousReceiptEntity ?? state);
     resetReceipt();
   }
@@ -689,7 +687,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
         remarks: receiptItem.remarks,
         tohemId: receiptItem.tohemId,
-        setOpenPrice: receiptItem.itemEntity.price,
+        setOpenPrice: receiptItem.sellingPrice,
       ));
     }
 
@@ -699,6 +697,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
       ..customerEntity = receiptEntity.customerEntity
       ..salesTohemId = receiptEntity.salesTohemId
+      ..downPayments = receiptEntity.downPayments
       ..remarks = receiptEntity.remarks);
   }
 

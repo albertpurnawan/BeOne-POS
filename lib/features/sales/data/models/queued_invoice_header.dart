@@ -165,6 +165,8 @@ class QueuedInvoiceHeaderModel extends InvoiceHeaderEntity implements BaseModel 
       'discheaderpromo': discHeaderPromo,
       'synctobos': '',
       'salesTohemId': salesTohemId,
+      'refpos1': refpos1,
+      'refpos2': refpos2,
       // 'paymentsuccess': '0',
     };
     if (transDateTime == null) {
