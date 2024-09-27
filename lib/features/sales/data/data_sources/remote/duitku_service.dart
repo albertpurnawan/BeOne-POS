@@ -47,13 +47,15 @@ class DuitkuApi {
       "datetime": timestamp,
       "signature": signature,
     };
+    log("url - $url");
+    log("body - ${json.encode(body)}");
 
     final response = await _dio.post(
       url,
       data: body,
     );
 
-    // log("Response methods duitku - ${response.data}");
+    log("Response methods duitku - ${response.data}");
     return response.data['paymentFee'];
   }
 

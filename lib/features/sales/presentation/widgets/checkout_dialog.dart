@@ -852,6 +852,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   List<PaymentTypeEntity> paymentTypes = [];
   bool isZeroGrandTotal = false;
   List<Widget> selectedVoucherChips = [];
+  bool isQRISorVA = false;
 
   final List<VouchersSelectionEntity> _vouchers = [];
   final _textEditingControllerCashAmount = TextEditingController();
@@ -951,6 +952,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                       _values.removeAt(index);
                       if (mop.payTypeCode == "1") {
                         _textEditingControllerCashAmount.text = "";
+                      }
+                      if (mop.payTypeCode == "5" || mop.payTypeCode == "7") {
+                        isQRISorVA = false;
                       }
                     });
 
@@ -1781,9 +1785,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                 mopsByType.any((mop) => mop.mopAlias == "duitku")) {
                                               return Column(
                                                 children: [
-                                                  const SizedBox(
-                                                    height: 10,
-                                                  ),
+                                                  const SizedBox(height: 10),
                                                   Container(
                                                     padding: const EdgeInsets.symmetric(horizontal: 20),
                                                     width: double.infinity,
@@ -1797,9 +1799,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             fontWeight: FontWeight.w700,
                                                           ),
                                                         ),
-                                                        const SizedBox(
-                                                          height: 15,
-                                                        ),
+                                                        const SizedBox(height: 15),
                                                         Wrap(
                                                           spacing: 8,
                                                           runSpacing: 8,
@@ -1821,6 +1821,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
                                                                 onSelected: (bool selected) async {
                                                                   if (selected) {
+                                                                    if (isQRISorVA) {
+                                                                      SnackBarHelper.presentErrorSnackBar(context,
+                                                                          "Please choose either MOP QRIS or duitku, not both");
+                                                                      return;
+                                                                    }
                                                                     double? mopAmount = 0;
                                                                     if (widget.isMultiMOPs) {
                                                                       if ((receipt.totalPayment ?? 0) >=
@@ -1857,6 +1862,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               amount: maxAmount);
                                                                         },
                                                                       );
+                                                                      setState(() {
+                                                                        isQRISorVA = true;
+                                                                      });
+                                                                      dev.log("isQRISorVA - $isQRISorVA");
                                                                     } else {
                                                                       mopAmount = receipt.grandTotal -
                                                                           (receipt.totalVoucher ?? 0);
@@ -1885,6 +1894,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     _values = _values
                                                                         .where((e) => e.tpmt3Id != mop.tpmt3Id)
                                                                         .toList();
+                                                                    setState(() {
+                                                                      isQRISorVA = false;
+                                                                    });
+                                                                    dev.log("isQRISorVA - $isQRISorVA");
                                                                   }
                                                                   setState(() {});
                                                                   updateReceiptMop();
@@ -1893,9 +1906,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             },
                                                           ).toList(),
                                                         ),
-                                                        const SizedBox(
-                                                          height: 20,
-                                                        ),
+                                                        const SizedBox(height: 20),
                                                       ],
                                                     ),
                                                   ),
@@ -1904,6 +1915,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                               );
                                             }
                                             // [END] UI for duitku
+
                                             // [START] UI for other MOPs
                                             return Column(
                                               children: [
@@ -2011,6 +2023,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 if (voucherIsExceedPurchase) return;
 
                                                                 if (selected) {
+                                                                  if (paymentType.payTypeCode == '5' && isQRISorVA) {
+                                                                    SnackBarHelper.presentErrorSnackBar(context,
+                                                                        "Please choose either MOP QRIS or duitku, not both");
+                                                                    return;
+                                                                  }
                                                                   double? mopAmount = 0;
                                                                   if (widget.isMultiMOPs) {
                                                                     if ((receipt.totalPayment ?? 0) >=
@@ -2026,9 +2043,21 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                             (receipt.totalPayment ?? 0),
                                                                       ),
                                                                     );
+                                                                    if (paymentType.payTypeCode == '5') {
+                                                                      setState(() {
+                                                                        isQRISorVA = true;
+                                                                      });
+                                                                      dev.log("isQRISorVA - $isQRISorVA");
+                                                                    }
                                                                   } else {
                                                                     mopAmount = receipt.grandTotal -
                                                                         (receipt.totalVoucher ?? 0);
+                                                                    if (paymentType.payTypeCode == '5') {
+                                                                      setState(() {
+                                                                        isQRISorVA = true;
+                                                                      });
+                                                                      dev.log("isQRISorVA - $isQRISorVA");
+                                                                    }
                                                                   }
 
                                                                   if (mopAmount == null || mopAmount == 0) {
