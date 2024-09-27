@@ -261,8 +261,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         final custId = state.customerEntity?.docId;
         final duitkuVA = await GetIt.instance<DuitkuApi>().createTransactionVA(
             (duitkuMop.first.cardHolder ?? ""), duitkuSignature, duitkuAmount, (custId ?? ""), merchantOrderId);
-        dev.log("duitkuVA - $duitkuVA");
-        dev.log("duitkuVA['merchantCode'] - ${duitkuVA['merchantCode']}");
 
         setState(() {
           isLoadingDuitku = false;
@@ -1855,6 +1853,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                                   bankName = mopVA.cardName;
                                                                                   bankVA = mopVA.cardHolder;
                                                                                   bankImage = mopVA.edcDesc;
+                                                                                  isQRISorVA = true;
                                                                                 });
                                                                               },
                                                                               mopSelectionEntity: mop,
@@ -1862,10 +1861,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               amount: maxAmount);
                                                                         },
                                                                       );
-                                                                      setState(() {
-                                                                        isQRISorVA = true;
-                                                                      });
-                                                                      dev.log("isQRISorVA - $isQRISorVA");
                                                                     } else {
                                                                       mopAmount = receipt.grandTotal -
                                                                           (receipt.totalVoucher ?? 0);
@@ -1897,7 +1892,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     setState(() {
                                                                       isQRISorVA = false;
                                                                     });
-                                                                    dev.log("isQRISorVA - $isQRISorVA");
                                                                   }
                                                                   setState(() {});
                                                                   updateReceiptMop();
@@ -2043,21 +2037,22 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                             (receipt.totalPayment ?? 0),
                                                                       ),
                                                                     );
-                                                                    if (paymentType.payTypeCode == '5') {
-                                                                      setState(() {
-                                                                        isQRISorVA = true;
-                                                                      });
-                                                                      dev.log("isQRISorVA - $isQRISorVA");
+                                                                    if (mopAmount != null && mopAmount != 0) {
+                                                                      if (paymentType.payTypeCode == '5') {
+                                                                        setState(() {
+                                                                          isQRISorVA = true;
+                                                                        });
+                                                                      }
+                                                                    } else {
+                                                                      if (paymentType.payTypeCode == '5') {
+                                                                        setState(() {
+                                                                          isQRISorVA = false;
+                                                                        });
+                                                                      }
                                                                     }
                                                                   } else {
                                                                     mopAmount = receipt.grandTotal -
                                                                         (receipt.totalVoucher ?? 0);
-                                                                    if (paymentType.payTypeCode == '5') {
-                                                                      setState(() {
-                                                                        isQRISorVA = true;
-                                                                      });
-                                                                      dev.log("isQRISorVA - $isQRISorVA");
-                                                                    }
                                                                   }
 
                                                                   if (mopAmount == null || mopAmount == 0) {
@@ -2078,6 +2073,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                   _values = _values
                                                                       .where((e) => e.tpmt3Id != mop.tpmt3Id)
                                                                       .toList();
+                                                                  if (paymentType.payTypeCode == '5') {
+                                                                    setState(() {
+                                                                      isQRISorVA = false;
+                                                                    });
+                                                                  }
                                                                 }
 
                                                                 setState(() {});
