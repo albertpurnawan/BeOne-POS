@@ -51,6 +51,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   bool isReceive = true;
   bool isEdit = false;
   bool receiveZero = false;
+  bool isLoading = false;
   double totalAmount = 0;
 
   List<DownPaymentEntity> membersDP = [];
@@ -117,21 +118,34 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     } else {
       _amountController.text = "";
-      SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
+      if (mounted) {
+        SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
+      }
     }
   }
 
   void readCustomer() async {
-    String customer = stateInvoice.customerEntity!.custName;
-
     setState(() {
-      customerSelected = customer;
+      isLoading = true;
     });
-    membersDP = await getMembersDownPayments();
-    if (membersDP.isNotEmpty) {
-      _setupControllers();
-    } else {
-      _setupControllers();
+    try {
+      String customer = stateInvoice.customerEntity!.custName;
+
+      setState(() {
+        customerSelected = customer;
+      });
+      membersDP = await getMembersDownPayments();
+      if (membersDP.isNotEmpty) {
+        _setupControllers();
+      } else {
+        _setupControllers();
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -209,11 +223,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         totalSelectedAmount += amount;
       }
     }
-    log("grandTotal - ${stateInvoice.grandTotal}");
-    if (totalSelectedAmount > stateInvoice.grandTotal) {
-      SnackBarHelper.presentErrorSnackBar(childContext, "DP can't be more than grand total");
-      return;
-    }
+    // if (totalSelectedAmount > stateInvoice.grandTotal) {
+    //   SnackBarHelper.presentErrorSnackBar(childContext, "DP can't be more than grand total");
+    //   return;
+    // }
 
     double grandTotalDifference = previousSelectedAmount - totalSelectedAmount;
     receipt.addOrUpdateDownPayments(downPaymentEntities: selectedDownPayments, amountDifference: grandTotalDifference);
@@ -330,7 +343,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     thickness: 4,
                     radius: const Radius.circular(30),
                     thumbVisibility: true,
-                    child: isReceive ? _buildReceiveDownPayment() : _buildDrawDownPayment(),
+                    child: isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : isReceive
+                            ? _buildReceiveDownPayment()
+                            : _buildDrawDownPayment(),
                   ),
                 ),
               ),

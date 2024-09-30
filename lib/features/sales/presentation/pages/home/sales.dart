@@ -3970,7 +3970,15 @@ class _SalesPageState extends State<SalesPage> {
     try {
       if (params.barcode == "99") throw "Warning: Modifying the Down Payment quantity is not allowed";
 
-      await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+      bool checkDP = await checkItemDP();
+      if (checkDP && mounted) {
+        SnackBarHelper.presentErrorSnackBar(context, "Down payment has to be excluded from other transactions");
+        return;
+      }
+
+      if (mounted) {
+        await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+      }
 
       indexIsSelect = [-1, 0];
       _textEditingControllerNewReceiptItemCode.text = "";
@@ -3990,7 +3998,7 @@ class _SalesPageState extends State<SalesPage> {
                 isNewItemAdded = false;
               }));
 
-      if (itemScrollController.isAttached) {
+      if (itemScrollController.isAttached && mounted) {
         await scrollToReceiptItemByIndex(context.read<ReceiptCubit>().state.receiptItems.length - 1);
       }
     } catch (e) {
