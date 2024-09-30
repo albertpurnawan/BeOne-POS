@@ -423,7 +423,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               if (receiveZero) return;
                               if (await _checkDrawDownPayment()) {
                                 if (childContext.mounted) {
-                                  SnackBarHelper.presentErrorSnackBar(childContext, "Something went wrong");
+                                  SnackBarHelper.presentErrorSnackBar(childContext,
+                                      "Receiving and drawing down a payment cannot be processed in a single transaction");
                                 }
                                 return;
                               }
@@ -434,7 +435,16 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                             }
                           : () async {
                               FocusScope.of(context).unfocus();
-                              await _addOrUpdateDrawDownPayment(childContext);
+                              if (await _checkReceiveDownPayment()) {
+                                if (childContext.mounted) {
+                                  SnackBarHelper.presentErrorSnackBar(childContext,
+                                      "Receiving and drawing down payment cannot be processed in a single transaction");
+                                }
+                                return;
+                              }
+                              if (childContext.mounted) {
+                                await _addOrUpdateDrawDownPayment(childContext);
+                              }
                             },
                       child: Center(
                         child: RichText(
