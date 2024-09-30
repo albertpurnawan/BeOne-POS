@@ -7,6 +7,8 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer_cst.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 
 class DuitkuApi {
   final Dio _dio;
@@ -64,6 +66,7 @@ class DuitkuApi {
     final String url = "$_url/v2/inquiry";
     final CustomerCstEntity? customerEntity =
         await GetIt.instance<AppDatabase>().customerCstDao.readByDocId(custId, null);
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
 
     if (customerEntity == null) return;
 
@@ -72,7 +75,7 @@ class DuitkuApi {
       "paymentAmount": amount,
       "paymentMethod": paymentMethod,
       "merchantOrderId": merchantOrderId,
-      "productDetails": "Pembayaran untuk Toko Contoh",
+      "productDetails": "Pembayaran untuk Toko ${topos!.storeName ?? "Contoh"}",
       "additionalParam": "",
       "merchantUserInfo": "",
       "customerVaName": customerEntity.custName,
@@ -102,7 +105,7 @@ class DuitkuApi {
       //     "countryCode": "ID"
       //   }
       // },
-      "callbackUrl": "",
+      "callbackUrl": "http://110.239.68.248:7065/callback",
       "returnUrl": "",
       "signature": signature,
       "expiryPeriod": 129600
@@ -114,7 +117,7 @@ class DuitkuApi {
       data: body,
     );
 
-    // log("Response duitku - ${response.data}");
+    log("Response duitku - ${response.data}");
     return response.data;
   }
 
