@@ -247,6 +247,21 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     stateInvoice = receipt.state.copyWith();
   }
 
+  Future<bool> _checkDrawDownPayment() async {
+    final receiptEntity = context.read<ReceiptCubit>().state;
+    bool dpAllocated = receiptEntity.downPayments != null && receiptEntity.downPayments!.isNotEmpty;
+
+    return dpAllocated;
+  }
+
+  Future<bool> _checkReceiveDownPayment() async {
+    final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+    final bool itemDP =
+        receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
+
+    return itemDP;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
@@ -406,7 +421,15 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 return;
                               }
                               if (receiveZero) return;
-                              context.pop();
+                              if (await _checkDrawDownPayment()) {
+                                if (childContext.mounted) {
+                                  SnackBarHelper.presentErrorSnackBar(childContext, "Something went wrong");
+                                }
+                                return;
+                              }
+                              if (context.mounted) {
+                                context.pop();
+                              }
                               _addOrUpdateReceiveDownPayment();
                             }
                           : () async {
@@ -752,7 +775,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           double itemHeight = 80.0;
-          double totalHeight = (membersDP.isEmpty) ? 50 : itemHeight * membersDP.length;
+          double totalHeight = (membersDP.isEmpty) ? 60 : itemHeight * membersDP.length;
           double maxHeight = constraints.maxHeight;
           double height = totalHeight < maxHeight ? (totalHeight * 1.75) : maxHeight;
 
@@ -891,7 +914,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                 const SizedBox(height: 20),
                 (membersDP.isEmpty)
                     ? const Center(
-                        child: Text("No prior down payments found for this customer",
+                        child: Text(
+                            "No prior down payments found for this customer, or you may be offline.\nPlease check your internet connection and try again.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
