@@ -10,7 +10,8 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 
 class InvoiceDetailsDialog extends StatefulWidget {
-  const InvoiceDetailsDialog({super.key});
+  const InvoiceDetailsDialog({super.key, required this.receiveDP});
+  final bool receiveDP;
 
   @override
   State<InvoiceDetailsDialog> createState() => _InvoiceDetailsDialogState();
@@ -23,11 +24,13 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   late final ReceiptEntity stateInvoice;
   String? salesSelected;
   String? tohemIdSelected;
+  bool containDP = false;
 
   @override
   void initState() {
     super.initState();
     stateInvoice = context.read<ReceiptCubit>().state;
+    containDP = widget.receiveDP;
     _noteController.text = stateInvoice.remarks ?? "";
     tohemIdSelected = stateInvoice.salesTohemId;
     getEmployee(tohemIdSelected ?? "");
@@ -164,17 +167,21 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                           const SizedBox(height: 30),
                           const Divider(height: 0),
                           InkWell(
-                            onTap: () => showDialog<EmployeeEntity>(
-                              context: context,
-                              builder: (BuildContext context) => const SelectEmployee(),
-                            ).then((selectedEmployee) {
-                              if (selectedEmployee != null) {
-                                setState(() {
-                                  salesSelected = selectedEmployee.empName;
-                                  tohemIdSelected = selectedEmployee.docId;
-                                });
-                              }
-                            }),
+                            onTap: containDP
+                                ? null
+                                : () {
+                                    showDialog<EmployeeEntity>(
+                                      context: context,
+                                      builder: (BuildContext context) => const SelectEmployee(),
+                                    ).then((selectedEmployee) {
+                                      if (selectedEmployee != null) {
+                                        setState(() {
+                                          salesSelected = selectedEmployee.empName;
+                                          tohemIdSelected = selectedEmployee.docId;
+                                        });
+                                      }
+                                    });
+                                  },
                             child: Column(
                               children: [
                                 Row(
@@ -206,15 +213,20 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                         ),
                                         const SizedBox(width: 10),
                                         (salesSelected != "Not Set" && salesSelected != null)
-                                            ? IconButton(
-                                                icon: const Icon(
-                                                  Icons.delete_outline,
-                                                  color: ProjectColors.primary,
-                                                ),
-                                                onPressed: () {
-                                                  removeSalesPerson();
-                                                },
-                                              )
+                                            ? (containDP
+                                                ? const SizedBox(
+                                                    height: 49,
+                                                    width: 48,
+                                                  )
+                                                : IconButton(
+                                                    icon: const Icon(
+                                                      Icons.delete_outline,
+                                                      color: ProjectColors.primary,
+                                                    ),
+                                                    onPressed: () {
+                                                      removeSalesPerson();
+                                                    },
+                                                  ))
                                             : IconButton(
                                                 icon: const Icon(
                                                   Icons.navigate_next,

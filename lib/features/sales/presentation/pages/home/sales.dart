@@ -1354,10 +1354,13 @@ class _SalesPageState extends State<SalesPage> {
                         Expanded(
                           child: OutlinedButton(
                               onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) => const InvoiceDetailsDialog(),
-                                );
+                                bool receiveDP = await checkItemDP();
+                                if (mounted) {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+                                  );
+                                }
                                 setState(() {
                                   isEditingNewReceiptItemCode = true;
                                   Future.delayed(const Duration(milliseconds: 50),
@@ -1705,10 +1708,13 @@ class _SalesPageState extends State<SalesPage> {
                         Expanded(
                           child: OutlinedButton(
                               onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) => const InvoiceDetailsDialog(),
-                                );
+                                bool receiveDP = await checkItemDP();
+                                if (mounted) {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+                                  );
+                                }
                                 setState(() {
                                   isEditingNewReceiptItemCode = true;
                                   Future.delayed(const Duration(milliseconds: 50),
@@ -1959,10 +1965,13 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) => const InvoiceDetailsDialog(),
-                            );
+                            bool receiveDP = await checkItemDP();
+                            if (mounted) {
+                              await showDialog(
+                                context: context,
+                                builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+                              );
+                            }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -2031,10 +2040,13 @@ class _SalesPageState extends State<SalesPage> {
                                   "Please select the customer first, only customer with membership can use Down Payment");
                               return;
                             }
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) => const DownPaymentDialog(),
-                            );
+
+                            if (mounted) {
+                              await showDialog(
+                                context: context,
+                                builder: (BuildContext context) => const DownPaymentDialog(),
+                              );
+                            }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -3904,12 +3916,17 @@ class _SalesPageState extends State<SalesPage> {
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         });
-        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        if (context.mounted) {
+          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        }
       } else if (event.physicalKey == (PhysicalKeyboardKey.f2)) {
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) => const InvoiceDetailsDialog(),
-        );
+        bool receiveDP = await checkItemDP();
+        if (context.mounted) {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+          );
+        }
         setState(() {
           isEditingNewReceiptItemCode = true;
           Future.delayed(const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
@@ -4154,6 +4171,12 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<bool> checkItemDP() async {
     final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
-    return receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
+
+    final hasPositiveQuantity = receiptItems.any((item) => item.quantity > 0);
+
+    final hasItemDP =
+        receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
+
+    return hasPositiveQuantity && hasItemDP;
   }
 }
