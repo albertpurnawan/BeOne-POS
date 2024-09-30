@@ -2337,6 +2337,16 @@ class _SalesPageState extends State<SalesPage> {
                           child: OutlinedButton(
                             // onPressed: null,
                             onPressed: () async {
+                              bool checkDP = await checkItemDP();
+
+                              if (checkDP) {
+                                if (context.mounted) {
+                                  SnackBarHelper.presentErrorSnackBar(
+                                      context, "Coupons are not applicable to Down Payment");
+                                }
+                                return;
+                              }
+
                               setState(() {
                                 isEditingNewReceiptItemCode = false;
                                 isEditingNewReceiptItemQty = false;
@@ -4132,5 +4142,10 @@ class _SalesPageState extends State<SalesPage> {
         ),
       ),
     );
+  }
+
+  Future<bool> checkItemDP() async {
+    final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+    return receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
   }
 }
