@@ -34,6 +34,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   final TextEditingController _amountController = TextEditingController();
   final FocusNode _remarksFocusNode = FocusNode();
   final FocusNode _amountFocusNode = FocusNode();
+  late final FocusNode _itemSearchFocusNode = FocusNode();
   List<TextEditingController> _drawAmountControllers = [];
   List<FocusNode> _drawAmountFocusNodes = [];
   List<bool> _isExceeding = [];
@@ -74,6 +75,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     _amountController.dispose();
     _remarksFocusNode.dispose();
     _amountFocusNode.dispose();
+    _itemSearchFocusNode.dispose();
     for (var controller in _drawAmountControllers) {
       controller.dispose();
     }
@@ -516,6 +518,27 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                         ),
                       ],
                     ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: TextField(
+                  autofocus: true,
+                  focusNode: _itemSearchFocusNode,
+                  decoration: const InputDecoration(
+                    suffixIcon: Icon(
+                      Icons.search,
+                      size: 16,
+                    ),
+                    hintText: "Enter customer's name",
+                    hintStyle: TextStyle(
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    // isCollapsed: true,
+                    // contentPadding:
+                    //     EdgeInsets.fromLTRB(0, 0, 0, 0),
                   ),
                 ),
               ),
