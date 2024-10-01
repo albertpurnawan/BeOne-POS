@@ -386,7 +386,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       for (final receiptItem in receiptItems) {
         await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
           barcode: receiptItem.itemEntity.barcode,
-          itemEntity: null,
+          itemEntity: receiptItem.itemEntity,
           quantity: receiptItem.quantity,
           context: context,
           onOpenPriceInputted: () => receiptItem.itemEntity.price,
@@ -398,14 +398,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     final List<ReceiptItemEntity> receiptItems = state.receiptItems.map((e) => e.copyWith()).toList();
+    final salesTohemId = state.salesTohemId ?? "";
+    final remarks = state.remarks ?? "";
+
     await resetReceipt();
-    emit(state.copyWith(customerEntity: customerEntity));
+    emit(state.copyWith(customerEntity: customerEntity, salesTohemId: salesTohemId, remarks: remarks));
 
     for (final receiptItem in receiptItems) {
-      dev.log("receiptItem - $receiptItem");
       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
         barcode: receiptItem.itemEntity.barcode,
-        itemEntity: null,
+        itemEntity: receiptItem.itemEntity,
         quantity: receiptItem.quantity,
         context: context,
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
@@ -414,6 +416,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         setOpenPrice: receiptItem.itemEntity.price,
       ));
     }
+
     emit(state.copyWith(customerEntity: customerEntity, previousReceiptEntity: state.previousReceiptEntity));
   }
 
