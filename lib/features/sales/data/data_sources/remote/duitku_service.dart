@@ -9,6 +9,7 @@ import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer_cst.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:uuid/uuid.dart';
 
 class DuitkuApi {
   final Dio _dio;
@@ -67,10 +68,12 @@ class DuitkuApi {
     final CustomerCstEntity? customerEntity =
         await GetIt.instance<AppDatabase>().customerCstDao.readByDocId(custId, null);
     final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    final docnum = Uuid().v4();
 
     if (customerEntity == null) return;
 
     final body = {
+      "docnum": docnum,
       "merchantCode": _merchantCode,
       "paymentAmount": amount,
       "paymentMethod": paymentMethod,
