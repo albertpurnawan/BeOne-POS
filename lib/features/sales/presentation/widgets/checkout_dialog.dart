@@ -173,7 +173,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
       final List<MopSelectionEntity> qrisMop = selectedMOPs.where((element) => element.payTypeCode == '5').toList();
       final List<MopSelectionEntity> duitkuMop = selectedMOPs.where((element) => element.mopAlias == 'duitku').toList();
-      final String merchantOrderId = Helpers.generateRandomString(10);
+      final String duitkuTs = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+      dev.log(duitkuTs);
+      final String merchantOrderId = duitkuTs + Helpers.generateRandomString(10);
 
       if (qrisMop.isNotEmpty) {
         setState(() {
@@ -267,7 +269,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         });
 
         final String createdTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now());
-        final String expiredTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(Duration(minutes: 129600)));
+        final String expiredTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(const Duration(minutes: 129600)));
 
         DuitkuVADetailsEntity vaDuitku = DuitkuVADetailsEntity(
           docId: duitkuMop.first.tpmt7Id ?? "",
@@ -276,21 +278,23 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           paymentImage: duitkuMop.first.edcDesc ?? "",
           totalFee: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
         );
+        dev.log("vaDuitku - $vaDuitku");
 
         DuitkuEntity duitku = DuitkuEntity(
-          merchantCode: duitkuVA['merchantCode'].toString(),
+          merchantCode: duitkuVA['data']['merchantCode'].toString(),
           merchantOrderId: merchantOrderId,
-          paymentUrl: duitkuVA['paymentUrl'].toString(),
-          vaNumber: duitkuVA['vaNumber'].toString(),
-          reference: duitkuVA['reference'].toString(),
+          paymentUrl: duitkuVA['data']['paymentUrl'].toString(),
+          vaNumber: duitkuVA['data']['vaNumber'].toString(),
+          reference: duitkuVA['data']['reference'].toString(),
           amount: duitkuAmount,
           feeAmount: 0,
-          responseMessage: duitkuVA['statusMessage'].toString(),
+          responseMessage: duitkuVA['data']['statusMessage'].toString(),
           createdTs: createdTs,
           expiredTs: expiredTs,
           duitkuVA: vaDuitku,
         );
 
+        dev.log("duitku - $duitku");
         showDuitkuDialog(context, duitku);
       } else {
         await context.read<ReceiptCubit>().charge();

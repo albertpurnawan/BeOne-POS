@@ -13,7 +13,7 @@ import 'package:uuid/uuid.dart';
 
 class DuitkuApi {
   final Dio _dio;
-  final String _url = "https://sandbox.duitku.com/webapi/api/merchant";
+  final String _url = "http://110.239.68.248:7065";
   final String _merchantCode = "DS20286";
   final String _apiKey = "338fdbf1c8ab5ee1c2f12d9d308fc888";
 
@@ -43,7 +43,7 @@ class DuitkuApi {
   }
 
   Future<List<dynamic>> getPaymentMethods(String signature, int amount, String timestamp) async {
-    final String url = "$_url/paymentmethod/getpaymentmethod";
+    const String url = "https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod";
     final body = {
       "merchantcode": _merchantCode,
       "amount": amount,
@@ -64,11 +64,11 @@ class DuitkuApi {
 
   Future<dynamic> createTransactionVA(
       String paymentMethod, String signature, int amount, String custId, String merchantOrderId) async {
-    final String url = "$_url/v2/inquiry";
+    final String url = "$_url/createTransactionRequest";
     final CustomerCstEntity? customerEntity =
         await GetIt.instance<AppDatabase>().customerCstDao.readByDocId(custId, null);
     final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-    final docnum = Uuid().v4();
+    final docnum = const Uuid().v4();
 
     if (customerEntity == null) return;
 
@@ -84,32 +84,8 @@ class DuitkuApi {
       "customerVaName": customerEntity.custName,
       "email": customerEntity.email,
       "phoneNumber": customerEntity.phone,
-      // "customerDetail": {
-      //   "firstName": "John",
-      //   "lastName": "Doe",
-      //   "email": "pelanggan_anda@email.com",
-      //   "phoneNumber": "085718159655",
-      //   "billingAddress": {
-      //     "firstName": "John",
-      //     "lastName": "Doe",
-      //     "address": "Jl. Kembangan Raya",
-      //     "city": "Jakarta",
-      //     "postalCode": "11530",
-      //     "phone": "085718159655",
-      //     "countryCode": "ID"
-      //   },
-      //   "shippingAddress": {
-      //     "firstName": "John",
-      //     "lastName": "Doe",
-      //     "address": "Jl. Kembangan Raya",
-      //     "city": "Jakarta",
-      //     "postalCode": "11530",
-      //     "phone": "085718159655",
-      //     "countryCode": "ID"
-      //   }
-      // },
-      "callbackUrl": "http://110.239.68.248:7065/callback",
-      "returnUrl": "",
+      "callbackUrl": "http://callbacksvc.beonesolution.com",
+      "returnUrl": "https://mbahdukun1.github.io/duitku-website/",
       "signature": signature,
       "expiryPeriod": 129600
     };
@@ -126,7 +102,7 @@ class DuitkuApi {
 
   Future<dynamic> checkVAPaymentStatus(String signature, String merchantOrderId) async {
     try {
-      final String url = "$_url/transactionStatus";
+      const String url = "https://sandbox.duitku.com/webapi/api/merchant/transactionStatus";
       final body = {
         "merchantCode": _merchantCode,
         "merchantOrderId": merchantOrderId,
