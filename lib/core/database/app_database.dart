@@ -113,6 +113,7 @@ import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
@@ -321,6 +322,43 @@ class AppDatabase {
   late EDCDao edcDao;
   late BankIssuerDao bankIssuerDao;
   late CampaignDao campaignDao;
+
+  static String createTinv7 = """
+        CREATE TABLE $tableDownPaymentItem (
+          `docid` TEXT PRIMARY KEY,
+          ${DownPaymentItemsFields.createDate} datetime DEFAULT NULL,
+          ${DownPaymentItemsFields.updateDate} datetime DEFAULT NULL,
+          ${DownPaymentItemsFields.toinvId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.lineNum} int NOT NULL,
+          ${DownPaymentItemsFields.docNum} varchar(30) NOT NULL,
+          ${DownPaymentItemsFields.idNumber} int NOT NULL,
+          ${DownPaymentItemsFields.toitmId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.quantity} double NOT NULL,
+          ${DownPaymentItemsFields.sellingPrice} double NOT NULL,
+          ${DownPaymentItemsFields.discPrctg} double NOT NULL,
+          ${DownPaymentItemsFields.discAmount} double NOT NULL,
+          ${DownPaymentItemsFields.totalAmount} double NOT NULL,
+          ${DownPaymentItemsFields.taxPrctg} double NOT NULL,
+          ${DownPaymentItemsFields.promotionType} varchar(20) NOT NULL,
+          ${DownPaymentItemsFields.promotionId} varchar(191) NOT NULL,
+          ${DownPaymentItemsFields.remarks} text,
+          ${DownPaymentItemsFields.editTime} datetime NOT NULL,
+          ${DownPaymentItemsFields.cogs} double NOT NULL,
+          ${DownPaymentItemsFields.tovatId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.promotionTingkat} varchar(191) DEFAULT NULL,
+          ${DownPaymentItemsFields.promoVoucherNo} varchar(191) DEFAULT NULL,
+          ${DownPaymentItemsFields.baseDocId} varchar(191) DEFAULT NULL,
+          ${DownPaymentItemsFields.baseLineDocId} varchar(191) DEFAULT NULL,
+          ${DownPaymentItemsFields.includeTax} int NOT NULL,
+          ${DownPaymentItemsFields.tovenId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.tbitmId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.discHeaderAmount} double DEFAULT NULL,
+          ${DownPaymentItemsFields.subtotalAfterDiscHeader} double DEFAULT NULL,
+          ${DownPaymentItemsFields.tohemId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.refpos2} text DEFAULT NULL,
+          createdat TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """;
 
   AppDatabase._init();
 
@@ -3557,6 +3595,8 @@ CREATE TABLE $tableApprovalInvoice (
   CONSTRAINT `tinv6_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute(createTinv7);
       });
     } catch (e) {
       log(e.toString());
@@ -3653,6 +3693,8 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''ALTER TABLE $tableInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
 
       await db.execute('''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
+
+      await db.execute(createTinv7);
     },
   };
 

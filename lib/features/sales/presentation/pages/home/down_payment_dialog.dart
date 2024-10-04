@@ -10,6 +10,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
@@ -17,7 +18,10 @@ import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/quantity_draw_dp_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -34,7 +38,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   final TextEditingController _amountController = TextEditingController();
   final FocusNode _remarksFocusNode = FocusNode();
   final FocusNode _amountFocusNode = FocusNode();
-  late final FocusNode _itemSearchFocusNode = FocusNode();
   List<TextEditingController> _drawAmountControllers = [];
   List<FocusNode> _drawAmountFocusNodes = [];
   List<bool> _isExceeding = [];
@@ -47,8 +50,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   late ReceiptEntity stateInvoice;
   ReceiptItemEntity? currentReceiptItemEntity;
   ItemEntity? dp;
+  double grandTotalReceiveDP = 0;
 
-  String customerSelected = "Not Set";
+  String customerSelected = "Not Set*";
   bool isReceive = true;
   bool isEdit = false;
   bool receiveZero = false;
@@ -56,6 +60,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   double totalAmount = 0;
 
   List<DownPaymentEntity> membersDP = [];
+  List<ItemEntity> itemsDP = [];
+  List<double> qtyDP = [];
 
   @override
   void initState() {
@@ -63,7 +69,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     stateInvoice = context.read<ReceiptCubit>().state;
     readInvoiceState();
     readCustomer();
-    _amountFocusNode.requestFocus();
     tohemIdSelected = stateInvoice.salesTohemId;
     getEmployee(tohemIdSelected ?? "");
   }
@@ -75,7 +80,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     _amountController.dispose();
     _remarksFocusNode.dispose();
     _amountFocusNode.dispose();
-    _itemSearchFocusNode.dispose();
     for (var controller in _drawAmountControllers) {
       controller.dispose();
     }
@@ -93,14 +97,14 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       });
     } else {
       setState(() {
-        salesSelected = "Not Set";
+        salesSelected = "Not Set*";
       });
     }
   }
 
   void removeSalesPerson() async {
     setState(() {
-      salesSelected = "Not Set";
+      salesSelected = "Not Set*";
       tohemIdSelected = "";
     });
   }
@@ -151,6 +155,18 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     }
   }
 
+  Future<void> _resetDPItems(BuildContext childContext) async {
+    SnackBarHelper.presentSuccessSnackBar(childContext, "All items removed", 2);
+    setState(() {
+      itemsDP = [];
+      qtyDP = [];
+      grandTotalReceiveDP = 0;
+      salesSelected = "Not Set*";
+      _remarksController.text = "";
+      _amountController.text = "";
+    });
+  }
+
   Future<List<DownPaymentEntity>> getMembersDownPayments() async {
     final List<DownPaymentEntity> downPayments =
         await GetIt.instance<DownPaymentApi>().fetchData(stateInvoice.customerEntity!.custCode);
@@ -160,7 +176,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   void _setupControllers() {
     totalAmount = 0.0;
-    log("membersDP - $membersDP");
 
     _drawAmountControllers = List.generate(membersDP.length, (index) {
       TextEditingController controller = TextEditingController();
@@ -264,6 +279,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     return itemDP;
   }
 
+  Future<void> _recalculateDownPayment(double grandTotal) async {
+    final defaultDP = 0.3 * grandTotal;
+    setState(() {
+      _amountController.text = Helpers.parseMoney(defaultDP);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
@@ -352,9 +374,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               contentPadding: const EdgeInsets.all(0),
               content: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                 child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   child: Scrollbar(
                     controller: _scrollController,
                     thickness: 4,
@@ -381,7 +403,16 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                           overlayColor:
                               MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        log("itemsDP - $itemsDP - $isReceive");
+                        if (itemsDP.isNotEmpty && isReceive) {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _warningCloseDPDialog();
+                              });
+                        } else {
+                          Navigator.of(context).pop();
+                        }
                       },
                       child: Center(
                         child: RichText(
@@ -422,7 +453,19 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                     childContext, "Down payment has to be excluded from other transactions");
                                 return;
                               }
-                              if (receiveZero) return;
+                              if (salesSelected == "Not Set*") {
+                                SnackBarHelper.presentErrorSnackBar(childContext, "Please select the salesperson");
+                                return;
+                              }
+                              if (receiveZero || _amountController.text == "") {
+                                SnackBarHelper.presentErrorSnackBar(
+                                    childContext, "Please input the Down Payment amount");
+                                return;
+                              }
+                              if (_remarksController.text.isEmpty) {
+                                SnackBarHelper.presentErrorSnackBar(childContext, "Please fill in the remarks");
+                                return;
+                              }
                               if (await _checkDrawDownPayment()) {
                                 if (childContext.mounted) {
                                   SnackBarHelper.presentErrorSnackBar(childContext,
@@ -434,6 +477,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 context.pop();
                               }
                               _addOrUpdateReceiveDownPayment();
+                              log("${context.read<ReceiptCubit>().state}");
                             }
                           : () async {
                               FocusScope.of(context).unfocus();
@@ -444,6 +488,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 }
                                 return;
                               }
+
                               if (childContext.mounted) {
                                 await _addOrUpdateDrawDownPayment(childContext);
                               }
@@ -477,328 +522,773 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   Widget _buildReceiveDownPayment() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25),
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.6,
-          child: Column(
-            children: [
-              const SizedBox(height: 5),
-              ExcludeFocus(
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                    decoration: BoxDecoration(
-                      color: ProjectColors.primary,
-                      borderRadius: BorderRadius.circular(5),
-                      boxShadow: const [
-                        BoxShadow(
-                          spreadRadius: 0.5,
-                          blurRadius: 5,
-                          color: Color.fromRGBO(0, 0, 0, 0.222),
-                        ),
-                      ],
-                    ),
+    return Builder(builder: (context) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
+                  child: Tooltip(
+                    message: "Receipt Number: ${stateInvoice.docNum}",
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.receipt_outlined, color: Colors.white),
-                        const SizedBox(
-                          width: 10,
+                        const Icon(
+                          Icons.receipt_outlined,
+                          color: Color.fromARGB(255, 66, 66, 66),
                         ),
+                        const SizedBox(width: 20),
                         Text(
-                          (stateInvoice.docNum),
+                          stateInvoice.docNum,
                           style: const TextStyle(
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            fontSize: 18,
+                            color: Color.fromARGB(255, 66, 66, 66),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: TextField(
-                  autofocus: true,
-                  focusNode: _itemSearchFocusNode,
-                  decoration: const InputDecoration(
-                    suffixIcon: Icon(
-                      Icons.search,
-                      size: 16,
-                    ),
-                    hintText: "Enter customer's name",
-                    hintStyle: TextStyle(
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    // isCollapsed: true,
-                    // contentPadding:
-                    //     EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  ),
-                ),
-              ),
-              Column(
-                children: [
-                  const SizedBox(height: 30),
-                  const Divider(height: 0),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Tooltip(
+                  message: "Customer Name: $customerSelected",
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Expanded(
-                        flex: 1,
-                        child: Row(
-                          children: [
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.face_outlined,
-                              color: Color.fromARGB(255, 66, 66, 66),
-                            ),
-                            SizedBox(width: 30),
-                            Text(
-                              "Customer",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
+                      const Icon(
+                        Icons.face_outlined,
+                        color: Color.fromARGB(255, 66, 66, 66),
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: Row(
-                          children: [
-                            Text(
-                              customerSelected,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Color.fromARGB(255, 66, 66, 66),
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 20),
+                      Text(
+                        customerSelected,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color.fromARGB(255, 66, 66, 66),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const Divider(height: 0),
-                  InkWell(
-                    onTap: () => showDialog<EmployeeEntity>(
-                      context: context,
-                      builder: (BuildContext context) => const SelectEmployee(),
-                    ).then((selectedEmployee) {
-                      if (selectedEmployee != null) {
-                        setState(() {
-                          salesSelected = selectedEmployee.empName;
-                          tohemIdSelected = selectedEmployee.docId;
-                        });
-                      }
-                    }),
-                    child: Column(
-                      children: [
-                        Row(
+                ),
+                Tooltip(
+                  message: "Salesperson: $salesSelected",
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.handshake_outlined,
+                        color: Color.fromARGB(255, 66, 66, 66),
+                      ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () => showDialog<EmployeeEntity>(
+                          context: context,
+                          builder: (BuildContext context) => const SelectEmployee(),
+                        ).then((selectedEmployee) {
+                          if (selectedEmployee != null) {
+                            setState(() {
+                              salesSelected = selectedEmployee.empName;
+                              tohemIdSelected = selectedEmployee.docId;
+                            });
+                          }
+                        }),
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Row(
-                              children: [
-                                SizedBox(width: 5),
-                                Icon(
-                                  Icons.handshake_outlined,
-                                  color: Color.fromARGB(255, 66, 66, 66),
-                                ),
-                                SizedBox(width: 30),
-                                Text(
-                                  "Salesperson",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  salesSelected.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromARGB(255, 66, 66, 66),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                (salesSelected != "Not Set" && salesSelected != null)
-                                    ? IconButton(
-                                        icon: const Icon(
-                                          Icons.delete_outline,
-                                          color: ProjectColors.primary,
-                                        ),
-                                        onPressed: () {
-                                          removeSalesPerson();
-                                        },
-                                      )
-                                    : IconButton(
-                                        icon: const Icon(
-                                          Icons.navigate_next,
-                                          color: Color.fromARGB(255, 66, 66, 66),
-                                        ),
-                                        onPressed: () => showDialog<EmployeeEntity>(
-                                              context: context,
-                                              builder: (BuildContext context) => const SelectEmployee(),
-                                            ).then((selectedEmployee) {
-                                              if (selectedEmployee != null) {
-                                                setState(() {
-                                                  salesSelected = selectedEmployee.empName;
-                                                  tohemIdSelected = selectedEmployee.docId;
-                                                });
-                                              }
-                                            })),
-                                const SizedBox(width: 5),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 0),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Expanded(
-                        flex: 1,
-                        child: Row(
-                          children: [
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.payments_outlined,
-                              color: Color.fromARGB(255, 66, 66, 66),
-                            ),
-                            SizedBox(width: 30),
                             Text(
-                              "Amount",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: TextField(
-                          maxLines: 1,
-                          maxLength: 21,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
-                          inputFormatters: [MoneyInputFormatter()],
-                          controller: _amountController,
-                          focusNode: _amountFocusNode,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.all(10),
-                            border: const OutlineInputBorder(),
-                            counterText: "",
-                            suffixText: receiveZero ? "Amount can't be zero" : null,
-                            suffixStyle: const TextStyle(
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w700,
-                              color: ProjectColors.swatch,
-                            ),
-                          ),
-                          onChanged: (value) {
-                            final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
-                            setState(() {
-                              receiveZero = amount == 0;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Divider(height: 0),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Expanded(
-                        flex: 1,
-                        child: Row(
-                          children: [
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.note_alt_outlined,
-                              color: Color.fromARGB(255, 66, 66, 66),
-                            ),
-                            SizedBox(width: 30),
-                            Text(
-                              "Remarks",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: SingleChildScrollView(
-                          child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
-                            child: TextField(
-                              maxLines: null,
-                              maxLength: 300,
-                              controller: _remarksController,
-                              focusNode: _remarksFocusNode,
+                              salesSelected.toString(),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Color.fromARGB(255, 66, 66, 66),
                               ),
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.all(10),
-                                isDense: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: ProjectColors.lightBlack,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: ProjectColors.lightBlack,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: ProjectColors.primary,
-                                    width: 2.0,
-                                  ),
-                                ),
-                                counterText: "",
-                              ),
+                              textAlign: TextAlign.start,
                             ),
+                            (salesSelected != "Not Set*" && salesSelected != null)
+                                ? IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: ProjectColors.primary,
+                                    ),
+                                    onPressed: () {
+                                      removeSalesPerson();
+                                    },
+                                  )
+                                : IconButton(
+                                    icon: const Icon(
+                                      Icons.navigate_next,
+                                      color: Color.fromARGB(255, 66, 66, 66),
+                                    ),
+                                    onPressed: () => showDialog<EmployeeEntity>(
+                                      context: context,
+                                      builder: (BuildContext context) => const SelectEmployee(),
+                                    ).then(
+                                      (selectedEmployee) {
+                                        if (selectedEmployee != null) {
+                                          setState(() {
+                                            salesSelected = selectedEmployee.empName;
+                                            tohemIdSelected = selectedEmployee.docId;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 35, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onLongPress: () async {
+                          await _resetDPItems(context);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                          decoration: BoxDecoration(
+                            color: ProjectColors.primary,
+                            borderRadius: BorderRadius.circular(5),
+                            boxShadow: const [
+                              BoxShadow(
+                                spreadRadius: 0.5,
+                                blurRadius: 5,
+                                color: Color.fromRGBO(0, 0, 0, 0.222),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.remove_shopping_cart_outlined,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 5),
+                      GestureDetector(
+                        onTap: () async {
+                          if (mounted) {
+                            context.read<ItemsCubit>().clearItems();
+                            FocusScope.of(context).unfocus();
+                          }
+                          final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const ItemSearchDialog());
+
+                          if (itemEntitySearch != null) {
+                            final double quantity = double.parse(await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => const QuantityDrawDPDialog(
+                                      quantity: 0,
+                                    )));
+
+                            setState(() {
+                              itemsDP.add(itemEntitySearch);
+                              qtyDP.add(quantity);
+                              grandTotalReceiveDP += (itemEntitySearch.price * quantity);
+                            });
+                            await _recalculateDownPayment(grandTotalReceiveDP);
+                          }
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                          decoration: BoxDecoration(
+                            color: ProjectColors.primary,
+                            borderRadius: BorderRadius.circular(5),
+                            boxShadow: const [
+                              BoxShadow(
+                                spreadRadius: 0.5,
+                                blurRadius: 5,
+                                color: Color.fromRGBO(0, 0, 0, 0.222),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add_outlined,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  const Divider(height: 0),
-                ],
-              )
-            ],
-          ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                  child: SizedBox(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                height: 250,
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Colors.white,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      spreadRadius: 0.5,
+                                      blurRadius: 5,
+                                      color: Color.fromRGBO(197, 197, 197, 1),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    (itemsDP.isEmpty)
+                                        ? const Padding(
+                                            padding: EdgeInsets.symmetric(vertical: 20),
+                                            child: EmptyList(
+                                              imagePath: "assets/images/empty-item.svg",
+                                              sentence:
+                                                  "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
+                                            ),
+                                          )
+                                        : Expanded(
+                                            child: ListView.separated(
+                                                itemBuilder: (BuildContext context, int index) {
+                                                  return Material(
+                                                    type: MaterialType.transparency,
+                                                    elevation: 6,
+                                                    color: Colors.transparent,
+                                                    shadowColor: Colors.grey[50],
+                                                    child: InkWell(
+                                                      focusColor: const Color.fromRGBO(255, 220, 221, 1.0),
+                                                      onTap: () {},
+                                                      child: SizedBox(
+                                                        // decoration: BoxDecoration(
+                                                        //   borderRadius: BorderRadius.circular(5),
+                                                        //   color: Colors.white,
+                                                        //   boxShadow: const [
+                                                        //     BoxShadow(
+                                                        //       spreadRadius: 0.5,
+                                                        //       blurRadius: 5,
+                                                        //       color: Color.fromRGBO(197, 197, 197, 1),
+                                                        //     ),
+                                                        //   ],
+                                                        // ),
+                                                        height: 50,
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              SizedBox(
+                                                                width: 30,
+                                                                child: Text(
+                                                                  (index + 1).toString(),
+                                                                  textAlign: TextAlign.center,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(width: 10),
+                                                              Expanded(
+                                                                flex: 3,
+                                                                child: Text(
+                                                                  itemsDP[index].itemName,
+                                                                  style: const TextStyle(
+                                                                    fontSize: 16,
+                                                                    fontWeight: FontWeight.w500,
+                                                                    color: Color.fromARGB(255, 66, 66, 66),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Text(
+                                                                  Helpers.parseMoney(itemsDP[index].price),
+                                                                  textAlign: TextAlign.center,
+                                                                  style: const TextStyle(
+                                                                    fontSize: 16,
+                                                                    fontWeight: FontWeight.w500,
+                                                                    color: Color.fromARGB(255, 66, 66, 66),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                flex: 1,
+                                                                child: Text(
+                                                                  Helpers.cleanDecimal(qtyDP[index], 1),
+                                                                  textAlign: TextAlign.center,
+                                                                  style: const TextStyle(
+                                                                    fontSize: 16,
+                                                                    fontWeight: FontWeight.w500,
+                                                                    color: Color.fromARGB(255, 66, 66, 66),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                  flex: 1,
+                                                                  child: Text(
+                                                                    Helpers.parseMoney(
+                                                                        qtyDP[index] * itemsDP[index].price),
+                                                                    textAlign: TextAlign.end,
+                                                                    style: const TextStyle(
+                                                                      fontSize: 16,
+                                                                      fontWeight: FontWeight.w500,
+                                                                      color: Color.fromARGB(255, 66, 66, 66),
+                                                                    ),
+                                                                  )),
+                                                              Expanded(
+                                                                  flex: 1,
+                                                                  child: Row(
+                                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                                    children: [
+                                                                      IntrinsicHeight(
+                                                                        child: GestureDetector(
+                                                                          onTap: () async {
+                                                                            log("Edit button pressed");
+                                                                            final double quantity = double.parse(
+                                                                                await showDialog(
+                                                                                    context: context,
+                                                                                    barrierDismissible: false,
+                                                                                    builder: (context) =>
+                                                                                        QuantityDrawDPDialog(
+                                                                                          quantity: qtyDP[index],
+                                                                                        )));
+                                                                            setState(() {
+                                                                              grandTotalReceiveDP -=
+                                                                                  itemsDP[index].price * qtyDP[index];
+                                                                              qtyDP[index] = quantity;
+                                                                              grandTotalReceiveDP +=
+                                                                                  itemsDP[index].price * qtyDP[index];
+                                                                            });
+                                                                            await _recalculateDownPayment(
+                                                                                grandTotalReceiveDP);
+                                                                          },
+                                                                          child: Container(
+                                                                            alignment: Alignment.center,
+                                                                            padding:
+                                                                                const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                                            decoration: BoxDecoration(
+                                                                              color: ProjectColors.blue,
+                                                                              borderRadius: BorderRadius.circular(5),
+                                                                              boxShadow: const [
+                                                                                BoxShadow(
+                                                                                  spreadRadius: 0.5,
+                                                                                  blurRadius: 5,
+                                                                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            child: const Row(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: [
+                                                                                Icon(
+                                                                                  Icons.edit_outlined,
+                                                                                  size: 18,
+                                                                                  color: Colors.white,
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(width: 5),
+                                                                      IntrinsicHeight(
+                                                                        child: GestureDetector(
+                                                                          onTap: () async {
+                                                                            log("Remove button pressed - ${itemsDP[index].itemName}");
+                                                                            setState(() {
+                                                                              grandTotalReceiveDP -=
+                                                                                  (itemsDP[index].price * qtyDP[index]);
+                                                                              itemsDP.remove(itemsDP[index]);
+                                                                              qtyDP.remove(qtyDP[index]);
+                                                                            });
+                                                                            await _recalculateDownPayment(
+                                                                                grandTotalReceiveDP);
+                                                                            if (context.mounted) {
+                                                                              SnackBarHelper.presentSuccessSnackBar(
+                                                                                  context,
+                                                                                  "Item ${itemsDP[index].itemName} removed",
+                                                                                  2);
+                                                                            }
+                                                                          },
+                                                                          child: Container(
+                                                                            alignment: Alignment.center,
+                                                                            padding:
+                                                                                const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                                            decoration: BoxDecoration(
+                                                                              color: Colors.deepOrange,
+                                                                              borderRadius: BorderRadius.circular(5),
+                                                                              boxShadow: const [
+                                                                                BoxShadow(
+                                                                                  spreadRadius: 0.5,
+                                                                                  blurRadius: 5,
+                                                                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            child: const Row(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: [
+                                                                                Icon(
+                                                                                  Icons.close_outlined,
+                                                                                  size: 18,
+                                                                                  color: Colors.white,
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  )),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                separatorBuilder: (BuildContext context, int index) =>
+                                                    const SizedBox(height: 5),
+                                                itemCount: itemsDP.length),
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(50, 15, 155, 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const SizedBox(
+                                            child: Text(
+                                              "GRAND TOTAL",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color.fromARGB(255, 66, 66, 66),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 270),
+                                          Text(
+                                            Helpers.cleanDecimal(
+                                                (qtyDP.isEmpty) ? 0 : qtyDP.reduce((a, b) => a + b), 1),
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 2, 10, 0),
+                                            child: Text(
+                                              Helpers.parseMoney(grandTotalReceiveDP),
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color.fromARGB(255, 66, 66, 66),
+                                              ),
+                                              textAlign: TextAlign.end,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Expanded(
+                                            flex: 1,
+                                            child: Text(
+                                              "DP Amount",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color.fromARGB(255, 66, 66, 66),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 500),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(0, 0, 7.8, 0),
+                                              child: TextField(
+                                                maxLines: 1,
+                                                maxLength: 21,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color.fromARGB(255, 66, 66, 66),
+                                                ),
+                                                inputFormatters: [MoneyInputFormatter()],
+                                                controller: _amountController,
+                                                focusNode: _amountFocusNode,
+                                                textAlign: TextAlign.end,
+                                                decoration: InputDecoration(
+                                                  isDense: true,
+                                                  hintText: "Input Amount*",
+                                                  hintStyle: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontStyle: FontStyle.italic,
+                                                  ),
+                                                  contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                                  border: InputBorder.none,
+                                                  enabledBorder: const UnderlineInputBorder(
+                                                    borderSide: BorderSide(color: Colors.black, width: 1),
+                                                  ),
+                                                  focusedBorder: const UnderlineInputBorder(
+                                                    borderSide: BorderSide(color: ProjectColors.primary, width: 2),
+                                                  ),
+                                                  counterText: "",
+                                                  prefixText: receiveZero ? "Amount can't be zero" : null,
+                                                  prefixStyle: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: ProjectColors.swatch,
+                                                  ),
+                                                ),
+                                                onChanged: (value) {
+                                                  final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
+                                                  setState(() {
+                                                    receiveZero = amount == 0;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Expanded(
+                                            flex: 1,
+                                            child: Text(
+                                              "Remarks",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color.fromARGB(255, 66, 66, 66),
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: SingleChildScrollView(
+                                              child: Container(
+                                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                                                child: TextField(
+                                                  maxLines: null,
+                                                  maxLength: 300,
+                                                  controller: _remarksController,
+                                                  focusNode: _remarksFocusNode,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Color.fromARGB(255, 66, 66, 66),
+                                                  ),
+                                                  decoration: const InputDecoration(
+                                                    contentPadding: EdgeInsets.all(10),
+                                                    isDense: true,
+                                                    border: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: ProjectColors.lightBlack,
+                                                        width: 1.0,
+                                                      ),
+                                                    ),
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: ProjectColors.lightBlack,
+                                                        width: 1.0,
+                                                      ),
+                                                    ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: ProjectColors.primary,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                    counterText: "",
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _warningCloseDPDialog() {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      title: Container(
+        decoration: const BoxDecoration(
+          color: ProjectColors.primary,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+        ),
+        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+        child: const Text(
+          'Caution',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
+      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      contentPadding: const EdgeInsets.fromLTRB(40, 20, 30, 10),
+      content: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            "assets/images/caution.png",
+            width: 70,
+          ),
+          const SizedBox(
+            width: 30,
+          ),
+          SizedBox(
+            width: 400,
+            child: RichText(
+              text: const TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Items inputed will be removed if you close this dialog",
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+              overflow: TextOverflow.clip,
+            ),
+          )
+        ],
+      ),
+      actions: <Widget>[
+        Row(
+          children: [
+            Expanded(
+                flex: 1,
+                child: TextButton(
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                  onPressed: () {
+                    context.pop(false);
+                  },
+                  child: Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Cancel",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          TextSpan(
+                            text: "  (Esc)",
+                            style: TextStyle(fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                        style: TextStyle(color: ProjectColors.primary),
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                )),
+            const SizedBox(
+              width: 10,
+            ),
+            Expanded(
+                child: TextButton(
+              style: ButtonStyle(
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+              onPressed: () {
+                context.pop(true);
+                context.pop(true);
+              },
+              child: Center(
+                child: RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Proceed",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: "  (F12)",
+                        style: TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            )),
+          ],
+        ),
+      ],
+      actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
     );
   }
 
