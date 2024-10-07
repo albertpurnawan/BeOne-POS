@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -796,11 +797,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                         //     ),
                                                         //   ],
                                                         // ),
-                                                        height: 50,
+                                                        height: 70,
                                                         child: Padding(
                                                           padding: const EdgeInsets.symmetric(horizontal: 10),
                                                           child: Row(
                                                             mainAxisAlignment: MainAxisAlignment.center,
+                                                            crossAxisAlignment: CrossAxisAlignment.center,
                                                             children: [
                                                               SizedBox(
                                                                 width: 30,
@@ -812,13 +814,57 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                               const SizedBox(width: 10),
                                                               Expanded(
                                                                 flex: 3,
-                                                                child: Text(
-                                                                  itemsDP[index].itemName,
-                                                                  style: const TextStyle(
-                                                                    fontSize: 16,
-                                                                    fontWeight: FontWeight.w500,
-                                                                    color: Color.fromARGB(255, 66, 66, 66),
-                                                                  ),
+                                                                child: Column(
+                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                                  children: [
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                                      children: [
+                                                                        SvgPicture.asset(
+                                                                          "assets/images/inventory.svg",
+                                                                          height: 18,
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width: 5,
+                                                                        ),
+                                                                        Text(
+                                                                          itemsDP[index].itemCode,
+                                                                          style: const TextStyle(
+                                                                            fontSize: 12,
+                                                                            fontWeight: FontWeight.w500,
+                                                                            color: Color.fromARGB(255, 66, 66, 66),
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width: 20,
+                                                                        ),
+                                                                        SvgPicture.asset(
+                                                                          "assets/images/barcode.svg",
+                                                                          height: 20,
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width: 5,
+                                                                        ),
+                                                                        Text(
+                                                                          itemsDP[index].barcode,
+                                                                          style: const TextStyle(
+                                                                            fontSize: 12,
+                                                                            fontWeight: FontWeight.w500,
+                                                                            color: Color.fromARGB(255, 66, 66, 66),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    Text(
+                                                                      itemsDP[index].itemName,
+                                                                      style: const TextStyle(
+                                                                        fontSize: 16,
+                                                                        fontWeight: FontWeight.w500,
+                                                                        color: Color.fromARGB(255, 66, 66, 66),
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
                                                               ),
                                                               Expanded(
@@ -1033,7 +1079,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           const Expanded(
                                             flex: 1,
                                             child: Text(
-                                              "DP Amount",
+                                              "DP Amount*",
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
@@ -1100,7 +1146,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           const Expanded(
                                             flex: 1,
                                             child: Text(
-                                              "Remarks",
+                                              "Remarks*",
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
@@ -1206,7 +1252,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               text: const TextSpan(
                 children: [
                   TextSpan(
-                    text: "Items inputed will be removed if you close this dialog",
+                    text: "Items inputed will be removed upon canceling the process. Proceed?",
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ],
@@ -1396,36 +1442,34 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        ExcludeFocus(
-                          child: GestureDetector(
-                            onTap: () async {
-                              await _resetDownPayment();
-                            },
+                        GestureDetector(
+                          onTap: () async {
+                            await _resetDownPayment();
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
                             child: Container(
-                              alignment: Alignment.center,
-                              child: Container(
-                                padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                                decoration: BoxDecoration(
-                                  color: ProjectColors.primary,
-                                  borderRadius: BorderRadius.circular(5),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      spreadRadius: 0.5,
-                                      blurRadius: 5,
-                                      color: Color.fromRGBO(0, 0, 0, 0.222),
-                                    ),
-                                  ],
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.replay_rounded,
-                                      size: 18,
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
+                              padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                              decoration: BoxDecoration(
+                                color: ProjectColors.primary,
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    spreadRadius: 0.5,
+                                    blurRadius: 5,
+                                    color: Color.fromRGBO(0, 0, 0, 0.222),
+                                  ),
+                                ],
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.replay_rounded,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -1479,135 +1523,52 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                             ),
                           ),
                           height: itemHeight,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          child: Column(
                             children: [
-                              Text(
-                                "${membersDP[index].refpos2}",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
-                                ),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Text(
-                                    "Available",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: _selectedItems[index] ? Colors.white : ProjectColors.mediumBlack,
-                                    ),
-                                  ),
-                                  Text(
-                                    Helpers.parseMoney(membersDP[index].amount),
+                                    "${membersDP[index].refpos2}",
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
                                     ),
                                   ),
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: MediaQuery.of(context).size.width * 0.15,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        TextField(
-                                          maxLines: 1,
-                                          maxLength: 21,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                            color: _selectedItems[index] ? Colors.white : Colors.black,
-                                          ),
-                                          inputFormatters: [MoneyInputFormatter()],
-                                          controller: _drawAmountControllers[index],
-                                          focusNode: _drawAmountFocusNodes[index],
-                                          decoration: const InputDecoration(
-                                            isDense: true,
-                                            contentPadding: EdgeInsets.all(10),
-                                            border: OutlineInputBorder(),
-                                            counterText: "",
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: ProjectColors.lightBlack,
-                                                width: 1.0,
-                                              ),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: ProjectColors.primary,
-                                                width: 2.0,
-                                              ),
-                                            ),
-                                            disabledBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: Colors.transparent,
-                                                width: 1.0,
-                                              ),
-                                            ),
-                                          ),
-                                          enabled: !_selectedItems[index],
-                                          onEditingComplete: () {
-                                            setState(() {
-                                              double enteredAmount =
-                                                  double.parse(_drawAmountControllers[index].text.replaceAll(',', ''));
-
-                                              _isExceeding[index] = enteredAmount > membersDP[index].amount;
-                                              _isZero[index] = enteredAmount == 0;
-
-                                              _selectedItems[index] = !_selectedItems[index];
-
-                                              if (_selectedItems[index]) {
-                                                totalAmount += enteredAmount;
-                                              } else {
-                                                totalAmount -= enteredAmount;
-                                              }
-                                            });
-                                          },
-                                          onChanged: (value) {
-                                            setState(() {
-                                              double enteredAmount = double.tryParse(value.replaceAll(',', '')) ?? 0.0;
-                                              _isExceeding[index] = enteredAmount > membersDP[index].amount;
-                                              _isZero[index] = enteredAmount == 0;
-
-                                              _selectedItems[index] = false;
-                                            });
-                                          },
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Available",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: _selectedItems[index] ? Colors.white : ProjectColors.mediumBlack,
                                         ),
-                                        _isExceeding[index]
-                                            ? const Text(
-                                                "Max Amount Exceeded",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontStyle: FontStyle.italic,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: ProjectColors.swatch,
-                                                ),
-                                              )
-                                            : const SizedBox.shrink(),
-                                        _isZero[index]
-                                            ? const Text(
-                                                "Amount can't be zero",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontStyle: FontStyle.italic,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: ProjectColors.swatch,
-                                                ),
-                                              )
-                                            : const SizedBox.shrink(),
-                                      ],
-                                    ),
+                                      ),
+                                      Text(
+                                        Helpers.parseMoney(membersDP[index].amount),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
+                              ),
+                              Visibility(
+                                visible: _selectedItems[index],
+                                child: Column(
+                                  children: List.generate(
+                                    (membersDP[index].tinv7?.length ?? 0),
+                                    (childIndex) => Container(
+                                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                                      child: Text(membersDP[index].tinv7![childIndex].toString()), // Render each item
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

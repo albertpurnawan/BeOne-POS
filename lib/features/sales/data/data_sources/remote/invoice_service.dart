@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
@@ -180,6 +181,8 @@ class InvoiceApi {
         approvals.add(tinv6Maps);
       }
 
+      List<DownPaymentItemsModel> dpItems = [];
+
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
         "docnum": invHead[0].docnum,
@@ -274,6 +277,7 @@ class InvoiceApi {
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
         "approval": approvals,
+        "downpayment_item": dpItems,
       };
       if (invHead[0].salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;
@@ -503,6 +507,8 @@ class InvoiceApi {
         approvals.add(tinv6Maps);
       }
 
+      List<DownPaymentItemsModel> dpItems = [];
+
       final dataToSend = {
         "tostr_id": invHead.tostrId,
         "docnum": invHead.docnum,
@@ -594,6 +600,7 @@ class InvoiceApi {
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
         "approval": approvals,
+        "downpayment_item": dpItems,
       };
       if (invHead.salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead.salesTohemId;
