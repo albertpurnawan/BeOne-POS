@@ -40,7 +40,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
       isCheckingStatus = true;
     });
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 180; i++) {
       if (!mounted) break;
 
       String status = '';
