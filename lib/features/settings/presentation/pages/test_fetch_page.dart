@@ -2900,12 +2900,14 @@ class _FetchScreenState extends State<FetchScreen> {
 
         // REFRESH TOPRM
         log("INSERTING PROMOS...");
-        final promos = <PromotionsModel>[];
-        final today = DateTime.now().weekday;
+        final List<PromotionsModel> promos = <PromotionsModel>[];
+        final int today = DateTime.now().weekday;
+        final DateTime now = DateTime.now();
 
         topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
         for (final header in topsb) {
           if (header.statusActive != 1) continue;
+          if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
           final tpsb2 =
               await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readByTopsbId(header.docId, null);
@@ -2946,6 +2948,7 @@ class _FetchScreenState extends State<FetchScreen> {
         topmi = await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
         for (final header in topmi) {
           if (header.statusActive != 1) continue;
+          if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
           final tpmi1 =
               await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.readByTopmiId(header.docId, null);
@@ -2989,6 +2992,7 @@ class _FetchScreenState extends State<FetchScreen> {
         topdi = await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.readAll();
         for (final header in topdi) {
           if (header.statusActive != 1) continue;
+          if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
           final tpdi1 =
               await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.readByTopdiId(header.docId, null);
@@ -3033,6 +3037,7 @@ class _FetchScreenState extends State<FetchScreen> {
 
         for (final header in topdg) {
           if (header.statusActive != 1) continue;
+          if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
           final tpdg1 =
               await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.readByTopdgId(header.docId, null);
@@ -3081,6 +3086,7 @@ class _FetchScreenState extends State<FetchScreen> {
         toprb = await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
         for (final header in toprb) {
           if (header.statusActive != 1) continue;
+          if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
           final tprb1 =
               await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.readByToprbId(header.docId, null);
@@ -3122,6 +3128,7 @@ class _FetchScreenState extends State<FetchScreen> {
         toprn = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
         for (final header in toprn) {
           if (header.statusActive != 1) continue;
+          if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
           final tprn2 = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByToprnId(header.docId, null);
 
