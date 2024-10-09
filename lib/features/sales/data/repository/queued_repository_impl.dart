@@ -281,7 +281,8 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
           String toinvDocId = match.group(2)!;
           double amount = double.parse(match.group(3)!);
 
-          downPayments.add(DownPaymentEntity(refpos2: refpos2, toinvDocId: toinvDocId, amount: amount));
+          downPayments
+              .add(DownPaymentEntity(refpos2: refpos2, toinvDocId: toinvDocId, amount: amount, isReceive: false));
         }
 
         queuedReceiptModels.add(ReceiptModel(

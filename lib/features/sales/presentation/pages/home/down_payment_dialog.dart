@@ -13,6 +13,8 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
+import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
+import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
@@ -21,10 +23,11 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/sales/presentation/pages/home/quantity_draw_dp_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/pages/home/quantity_receive_dp_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:uuid/uuid.dart';
 
 class DownPaymentDialog extends StatefulWidget {
   const DownPaymentDialog({super.key});
@@ -57,7 +60,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   bool isReceive = true;
   bool isEdit = false;
   bool receiveZero = false;
-  bool isLoading = false;
+  bool isLoadingDraw = true;
+  bool isLoadingReceive = true;
   double totalAmount = 0;
 
   List<DownPaymentEntity> membersDP = [];
@@ -111,6 +115,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   void readInvoiceState() async {
+    setState(() {
+      isLoadingReceive = true;
+    });
     dp = await GetIt.instance<GetDownPaymentUseCase>().call();
     if (dp != null) {
       currentReceiptItemEntity =
@@ -123,17 +130,55 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       } else {
         _amountController.text = "";
       }
+      if (stateInvoice.downPayments != null && stateInvoice.downPayments!.isNotEmpty) {
+        for (DownPaymentEntity dp in stateInvoice.downPayments!) {
+          if (dp.isReceive == true) {
+            final List<DownPaymentItemsModel> dpItems = dp.tinv7 ?? [];
+            for (int itemIndex = 0; itemIndex < dpItems.length; itemIndex++) {
+              final DownPaymentItemsModel item = dpItems[itemIndex];
+              final String dpItemId = item.toitmId ?? "";
+              final ItemModel? dbItem = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItemId, null);
+              if (dbItem != null) {
+                itemsDP.add(ItemEntity(
+                    id: null,
+                    itemName: dbItem.itemName,
+                    itemCode: dbItem.itemCode,
+                    barcode: dbItem.barcode,
+                    price: item.sellingPrice,
+                    toitmId: item.toitmId ?? "",
+                    tbitmId: item.tbitmId ?? "",
+                    tpln2Id: dbItem.tpln2Id,
+                    openPrice: dbItem.openPrice,
+                    tovenId: item.tovenId,
+                    includeTax: item.includeTax,
+                    tovatId: item.tovatId ?? "",
+                    taxRate: dbItem.taxRate,
+                    dpp: dbItem.dpp,
+                    tocatId: dbItem.tocatId,
+                    shortName: dbItem.shortName,
+                    toplnId: dbItem.toplnId));
+
+                qtyDP.add(item.quantity);
+                grandTotalReceiveDP += (item.sellingPrice * item.quantity);
+              }
+            }
+          }
+        }
+      }
     } else {
       _amountController.text = "";
       if (mounted) {
         SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
       }
     }
+    setState(() {
+      isLoadingReceive = false;
+    });
   }
 
   void readCustomer() async {
     setState(() {
-      isLoading = true;
+      isLoadingDraw = true;
     });
     try {
       String customer = stateInvoice.customerEntity!.custName;
@@ -142,6 +187,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         customerSelected = customer;
       });
       membersDP = await getMembersDownPayments();
+      log("membersDP - $membersDP");
       if (membersDP.isNotEmpty) {
         _setupControllers();
       } else {
@@ -151,13 +197,14 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       rethrow;
     } finally {
       setState(() {
-        isLoading = false;
+        isLoadingDraw = false;
       });
     }
   }
 
   Future<void> _resetDPItems(BuildContext childContext) async {
     SnackBarHelper.presentSuccessSnackBar(childContext, "All items removed", 2);
+    final receipt = context.read<ReceiptCubit>();
     setState(() {
       itemsDP = [];
       qtyDP = [];
@@ -166,6 +213,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       _remarksController.text = "";
       _amountController.text = "";
     });
+
+    if (receipt.state.receiptItems.isNotEmpty) {
+      await receipt.removeReceiptItem(receipt.state.receiptItems[0], context);
+    }
+    await receipt.updateSalesTohemIdRemarksOnReceipt("", "");
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
   }
 
   Future<List<DownPaymentEntity>> getMembersDownPayments() async {
@@ -211,8 +264,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     }
 
-    final amount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
-    final params = AddUpdateReceiptItemsParams(
+    final double amount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+    if (!mounted) return;
+    final AddUpdateReceiptItemsParams params = AddUpdateReceiptItemsParams(
       barcode: null,
       itemEntity: dp,
       quantity: 1,
@@ -223,8 +277,37 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       refpos2: null,
     );
 
+    final List<DownPaymentItemsModel> dpItems = [];
+    for (int itemIndex = 0; itemIndex < itemsDP.length; itemIndex++) {
+      final ItemEntity item = itemsDP[itemIndex];
+      dpItems.add(DownPaymentItemsModel(
+          docId: const Uuid().v4(),
+          createDate: null,
+          updateDate: null,
+          toinvId: stateInvoice.toinvId,
+          docNum: stateInvoice.docNum,
+          idNumber: itemIndex * 10,
+          toitmId: item.toitmId,
+          quantity: qtyDP[itemIndex],
+          sellingPrice: item.price,
+          totalAmount: qtyDP[itemIndex] * item.price,
+          taxPrctg: item.taxRate,
+          remarks: _remarksController.text,
+          tovatId: item.tovatId,
+          includeTax: item.includeTax,
+          tovenId: item.tovenId,
+          tbitmId: item.tbitmId,
+          tohemId: tohemIdSelected ?? "",
+          refpos2: null));
+    }
+
+    final DownPaymentEntity dpEntity =
+        DownPaymentEntity(amount: amount, tempItems: itemsDP, isReceive: true, tinv7: dpItems);
+
     await receipt.addUpdateReceiptItems(params);
     await receipt.updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _remarksController.text);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [dpEntity], amountDifference: amount);
+    log("receipt 2 - ${receipt.state}");
   }
 
   Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
@@ -237,7 +320,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     for (int i = 0; i < _selectedItems.length; i++) {
       if (_selectedItems[i]) {
         double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
-        selectedDownPayments.add(DownPaymentEntity(toinvDocId: membersDP[i].refpos2, amount: amount));
+        selectedDownPayments.add(DownPaymentEntity(toinvDocId: membersDP[i].refpos2, amount: amount, isReceive: false));
         totalSelectedAmount += amount;
       }
     }
@@ -267,8 +350,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   Future<bool> _checkDrawDownPayment() async {
     final receiptEntity = context.read<ReceiptCubit>().state;
-    bool dpAllocated = receiptEntity.downPayments != null && receiptEntity.downPayments!.isNotEmpty;
-
+    bool dpAllocated = receiptEntity.downPayments != null &&
+        receiptEntity.downPayments!.isNotEmpty &&
+        receiptEntity.downPayments!.any((dp) => dp.isReceive == false);
     return dpAllocated;
   }
 
@@ -383,11 +467,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     thickness: 4,
                     radius: const Radius.circular(30),
                     thumbVisibility: true,
-                    child: isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : isReceive
-                            ? _buildReceiveDownPayment()
-                            : _buildDrawDownPayment(),
+                    child: isReceive ? _buildReceiveDownPayment() : _buildDrawDownPayment(),
                   ),
                 ),
               ),
@@ -404,16 +484,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                           overlayColor:
                               MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
-                        log("itemsDP - $itemsDP - $isReceive");
-                        if (itemsDP.isNotEmpty && isReceive) {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return _warningCloseDPDialog();
-                              });
-                        } else {
-                          Navigator.of(context).pop();
-                        }
+                        Navigator.of(context).pop();
                       },
                       child: Center(
                         child: RichText(
@@ -477,8 +548,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               if (context.mounted) {
                                 context.pop();
                               }
-                              _addOrUpdateReceiveDownPayment();
-                              log("${context.read<ReceiptCubit>().state}");
+                              await _addOrUpdateReceiveDownPayment();
+                              // log("is it here? - $stateInvoice");
                             }
                           : () async {
                               FocusScope.of(context).unfocus();
@@ -649,8 +720,15 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                        onLongPress: () async {
-                          await _resetDPItems(context);
+                        onTap: () async {
+                          final check = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _warningCloseDPDialog();
+                              });
+                          if (check) {
+                            await _resetDPItems(context);
+                          }
                         },
                         child: Container(
                           alignment: Alignment.center,
@@ -681,8 +759,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                       const SizedBox(width: 5),
                       GestureDetector(
                         onTap: () async {
+                          context.read<ItemsCubit>().clearItems();
                           if (mounted) {
-                            context.read<ItemsCubit>().clearItems();
                             FocusScope.of(context).unfocus();
                           }
                           final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
@@ -690,14 +768,15 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               barrierDismissible: false,
                               builder: (context) => const ItemSearchDialog());
 
+                          context.read<ItemsCubit>().clearItems();
+
                           if (itemEntitySearch != null) {
                             final double quantity = double.parse(await showDialog(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (context) => const QuantityDrawDPDialog(
+                                builder: (context) => const QuantityReceiveDPDialog(
                                       quantity: 0,
                                     )));
-
                             setState(() {
                               itemsDP.add(itemEntitySearch);
                               qtyDP.add(quantity);
@@ -751,7 +830,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               Container(
                                 width: double.infinity,
                                 height: 250,
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
                                   color: Colors.white,
@@ -765,260 +844,264 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 ),
                                 child: Column(
                                   children: [
-                                    (itemsDP.isEmpty)
-                                        ? const Padding(
-                                            padding: EdgeInsets.symmetric(vertical: 20),
-                                            child: EmptyList(
-                                              imagePath: "assets/images/empty-item.svg",
-                                              sentence:
-                                                  "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
-                                            ),
-                                          )
-                                        : Expanded(
-                                            child: ListView.separated(
-                                                itemBuilder: (BuildContext context, int index) {
-                                                  return Material(
-                                                    type: MaterialType.transparency,
-                                                    elevation: 6,
-                                                    color: Colors.transparent,
-                                                    shadowColor: Colors.grey[50],
-                                                    child: InkWell(
-                                                      focusColor: const Color.fromRGBO(255, 220, 221, 1.0),
-                                                      onTap: () {},
-                                                      child: SizedBox(
-                                                        // decoration: BoxDecoration(
-                                                        //   borderRadius: BorderRadius.circular(5),
-                                                        //   color: Colors.white,
-                                                        //   boxShadow: const [
-                                                        //     BoxShadow(
-                                                        //       spreadRadius: 0.5,
-                                                        //       blurRadius: 5,
-                                                        //       color: Color.fromRGBO(197, 197, 197, 1),
-                                                        //     ),
-                                                        //   ],
-                                                        // ),
-                                                        height: 70,
-                                                        child: Padding(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                          child: Row(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                                            children: [
-                                                              SizedBox(
-                                                                width: 30,
-                                                                child: Text(
-                                                                  (index + 1).toString(),
-                                                                  textAlign: TextAlign.center,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(width: 10),
-                                                              Expanded(
-                                                                flex: 3,
-                                                                child: Column(
-                                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                                  children: [
-                                                                    Row(
+                                    (isLoadingReceive)
+                                        ? const Center(child: CircularProgressIndicator())
+                                        : (itemsDP.isEmpty)
+                                            ? const Center(
+                                                child: EmptyList(
+                                                  imagePath: "assets/images/empty-item.svg",
+                                                  sentence:
+                                                      "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
+                                                ),
+                                              )
+                                            : Expanded(
+                                                child: ListView.separated(
+                                                    itemBuilder: (BuildContext context, int index) {
+                                                      return Material(
+                                                        type: MaterialType.transparency,
+                                                        elevation: 6,
+                                                        color: Colors.transparent,
+                                                        shadowColor: Colors.grey[50],
+                                                        child: InkWell(
+                                                          focusColor: const Color.fromRGBO(255, 220, 221, 1.0),
+                                                          onTap: () {},
+                                                          child: SizedBox(
+                                                            height: 50,
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                              child: Row(
+                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                children: [
+                                                                  SizedBox(
+                                                                    width: 30,
+                                                                    child: Text(
+                                                                      (index + 1).toString(),
+                                                                      textAlign: TextAlign.center,
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(width: 10),
+                                                                  Expanded(
+                                                                    flex: 3,
+                                                                    child: Column(
                                                                       mainAxisAlignment: MainAxisAlignment.center,
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
                                                                       children: [
-                                                                        SvgPicture.asset(
-                                                                          "assets/images/inventory.svg",
-                                                                          height: 18,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 5,
+                                                                        Row(
+                                                                          mainAxisAlignment: MainAxisAlignment.start,
+                                                                          children: [
+                                                                            SvgPicture.asset(
+                                                                              "assets/images/inventory.svg",
+                                                                              height: 18,
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 5,
+                                                                            ),
+                                                                            Text(
+                                                                              itemsDP[index].itemCode,
+                                                                              style: const TextStyle(
+                                                                                fontSize: 12,
+                                                                                fontWeight: FontWeight.w500,
+                                                                                color: Color.fromARGB(255, 66, 66, 66),
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 20,
+                                                                            ),
+                                                                            SvgPicture.asset(
+                                                                              "assets/images/barcode.svg",
+                                                                              height: 20,
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 5,
+                                                                            ),
+                                                                            Text(
+                                                                              itemsDP[index].barcode,
+                                                                              style: const TextStyle(
+                                                                                fontSize: 12,
+                                                                                fontWeight: FontWeight.w500,
+                                                                                color: Color.fromARGB(255, 66, 66, 66),
+                                                                              ),
+                                                                            ),
+                                                                          ],
                                                                         ),
                                                                         Text(
-                                                                          itemsDP[index].itemCode,
+                                                                          itemsDP[index].itemName,
                                                                           style: const TextStyle(
-                                                                            fontSize: 12,
+                                                                            fontSize: 16,
                                                                             fontWeight: FontWeight.w500,
                                                                             color: Color.fromARGB(255, 66, 66, 66),
                                                                           ),
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 20,
-                                                                        ),
-                                                                        SvgPicture.asset(
-                                                                          "assets/images/barcode.svg",
-                                                                          height: 20,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width: 5,
-                                                                        ),
-                                                                        Text(
-                                                                          itemsDP[index].barcode,
-                                                                          style: const TextStyle(
-                                                                            fontSize: 12,
-                                                                            fontWeight: FontWeight.w500,
-                                                                            color: Color.fromARGB(255, 66, 66, 66),
-                                                                          ),
+                                                                          textAlign: TextAlign.start,
+                                                                          overflow: TextOverflow.ellipsis,
                                                                         ),
                                                                       ],
                                                                     ),
-                                                                    Text(
-                                                                      itemsDP[index].itemName,
+                                                                  ),
+                                                                  Expanded(
+                                                                    flex: 1,
+                                                                    child: Text(
+                                                                      Helpers.parseMoney(itemsDP[index].price),
+                                                                      textAlign: TextAlign.center,
                                                                       style: const TextStyle(
                                                                         fontSize: 16,
                                                                         fontWeight: FontWeight.w500,
                                                                         color: Color.fromARGB(255, 66, 66, 66),
                                                                       ),
                                                                     ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                flex: 1,
-                                                                child: Text(
-                                                                  Helpers.parseMoney(itemsDP[index].price),
-                                                                  textAlign: TextAlign.center,
-                                                                  style: const TextStyle(
-                                                                    fontSize: 16,
-                                                                    fontWeight: FontWeight.w500,
-                                                                    color: Color.fromARGB(255, 66, 66, 66),
                                                                   ),
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                flex: 1,
-                                                                child: Text(
-                                                                  Helpers.cleanDecimal(qtyDP[index], 1),
-                                                                  textAlign: TextAlign.center,
-                                                                  style: const TextStyle(
-                                                                    fontSize: 16,
-                                                                    fontWeight: FontWeight.w500,
-                                                                    color: Color.fromARGB(255, 66, 66, 66),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                  flex: 1,
-                                                                  child: Text(
-                                                                    Helpers.parseMoney(
-                                                                        qtyDP[index] * itemsDP[index].price),
-                                                                    textAlign: TextAlign.end,
-                                                                    style: const TextStyle(
-                                                                      fontSize: 16,
-                                                                      fontWeight: FontWeight.w500,
-                                                                      color: Color.fromARGB(255, 66, 66, 66),
+                                                                  Expanded(
+                                                                    flex: 1,
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.fromLTRB(0, 0, 75, 0),
+                                                                      child: Text(
+                                                                        Helpers.cleanDecimal(qtyDP[index], 1),
+                                                                        textAlign: TextAlign.end,
+                                                                        style: const TextStyle(
+                                                                          fontSize: 16,
+                                                                          fontWeight: FontWeight.w500,
+                                                                          color: Color.fromARGB(255, 66, 66, 66),
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                  )),
-                                                              Expanded(
-                                                                  flex: 1,
-                                                                  child: Row(
-                                                                    mainAxisAlignment: MainAxisAlignment.end,
-                                                                    children: [
-                                                                      IntrinsicHeight(
-                                                                        child: GestureDetector(
-                                                                          onTap: () async {
-                                                                            log("Edit button pressed");
-                                                                            final double quantity = double.parse(
-                                                                                await showDialog(
-                                                                                    context: context,
-                                                                                    barrierDismissible: false,
-                                                                                    builder: (context) =>
-                                                                                        QuantityDrawDPDialog(
-                                                                                          quantity: qtyDP[index],
-                                                                                        )));
-                                                                            setState(() {
-                                                                              grandTotalReceiveDP -=
-                                                                                  itemsDP[index].price * qtyDP[index];
-                                                                              qtyDP[index] = quantity;
-                                                                              grandTotalReceiveDP +=
-                                                                                  itemsDP[index].price * qtyDP[index];
-                                                                            });
-                                                                            await _recalculateDownPayment(
-                                                                                grandTotalReceiveDP);
-                                                                          },
-                                                                          child: Container(
-                                                                            alignment: Alignment.center,
-                                                                            padding:
-                                                                                const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                                                                            decoration: BoxDecoration(
-                                                                              color: ProjectColors.blue,
-                                                                              borderRadius: BorderRadius.circular(5),
-                                                                              boxShadow: const [
-                                                                                BoxShadow(
-                                                                                  spreadRadius: 0.5,
-                                                                                  blurRadius: 5,
-                                                                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                                  ),
+                                                                  Expanded(
+                                                                      flex: 1,
+                                                                      child: Text(
+                                                                        Helpers.parseMoney(
+                                                                            qtyDP[index] * itemsDP[index].price),
+                                                                        textAlign: TextAlign.end,
+                                                                        style: const TextStyle(
+                                                                          fontSize: 16,
+                                                                          fontWeight: FontWeight.w500,
+                                                                          color: Color.fromARGB(255, 66, 66, 66),
+                                                                        ),
+                                                                      )),
+                                                                  Expanded(
+                                                                      flex: 1,
+                                                                      child: Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.end,
+                                                                        children: [
+                                                                          IntrinsicHeight(
+                                                                            child: GestureDetector(
+                                                                              onTap: () async {
+                                                                                log("Edit button pressed");
+                                                                                final double quantity = double.parse(
+                                                                                    await showDialog(
+                                                                                        context: context,
+                                                                                        barrierDismissible: false,
+                                                                                        builder: (context) =>
+                                                                                            QuantityReceiveDPDialog(
+                                                                                              quantity: qtyDP[index],
+                                                                                            )));
+                                                                                setState(() {
+                                                                                  grandTotalReceiveDP -=
+                                                                                      itemsDP[index].price *
+                                                                                          qtyDP[index];
+                                                                                  qtyDP[index] = quantity;
+                                                                                  grandTotalReceiveDP +=
+                                                                                      itemsDP[index].price *
+                                                                                          qtyDP[index];
+                                                                                });
+                                                                                await _recalculateDownPayment(
+                                                                                    grandTotalReceiveDP);
+                                                                              },
+                                                                              child: Container(
+                                                                                alignment: Alignment.center,
+                                                                                padding: const EdgeInsets.fromLTRB(
+                                                                                    6, 6, 6, 6),
+                                                                                decoration: BoxDecoration(
+                                                                                  color: ProjectColors.blue,
+                                                                                  borderRadius:
+                                                                                      BorderRadius.circular(5),
+                                                                                  boxShadow: const [
+                                                                                    BoxShadow(
+                                                                                      spreadRadius: 0.5,
+                                                                                      blurRadius: 5,
+                                                                                      color: Color.fromRGBO(
+                                                                                          0, 0, 0, 0.222),
+                                                                                    ),
+                                                                                  ],
                                                                                 ),
-                                                                              ],
-                                                                            ),
-                                                                            child: const Row(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              children: [
-                                                                                Icon(
-                                                                                  Icons.edit_outlined,
-                                                                                  size: 18,
-                                                                                  color: Colors.white,
+                                                                                child: const Row(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  children: [
+                                                                                    Icon(
+                                                                                      Icons.edit_outlined,
+                                                                                      size: 18,
+                                                                                      color: Colors.white,
+                                                                                    ),
+                                                                                  ],
                                                                                 ),
-                                                                              ],
+                                                                              ),
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                      ),
-                                                                      const SizedBox(width: 5),
-                                                                      IntrinsicHeight(
-                                                                        child: GestureDetector(
-                                                                          onTap: () async {
-                                                                            log("Remove button pressed - ${itemsDP[index].itemName}");
-                                                                            setState(() {
-                                                                              grandTotalReceiveDP -=
-                                                                                  (itemsDP[index].price * qtyDP[index]);
-                                                                              itemsDP.remove(itemsDP[index]);
-                                                                              qtyDP.remove(qtyDP[index]);
-                                                                            });
-                                                                            await _recalculateDownPayment(
-                                                                                grandTotalReceiveDP);
-                                                                            if (context.mounted) {
-                                                                              SnackBarHelper.presentSuccessSnackBar(
-                                                                                  context,
-                                                                                  "Item ${itemsDP[index].itemName} removed",
-                                                                                  2);
-                                                                            }
-                                                                          },
-                                                                          child: Container(
-                                                                            alignment: Alignment.center,
-                                                                            padding:
-                                                                                const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                                                                            decoration: BoxDecoration(
-                                                                              color: Colors.deepOrange,
-                                                                              borderRadius: BorderRadius.circular(5),
-                                                                              boxShadow: const [
-                                                                                BoxShadow(
-                                                                                  spreadRadius: 0.5,
-                                                                                  blurRadius: 5,
-                                                                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                                          const SizedBox(width: 5),
+                                                                          IntrinsicHeight(
+                                                                            child: GestureDetector(
+                                                                              onTap: () async {
+                                                                                setState(() {
+                                                                                  grandTotalReceiveDP -=
+                                                                                      (itemsDP[index].price *
+                                                                                          qtyDP[index]);
+                                                                                  itemsDP.remove(itemsDP[index]);
+                                                                                  qtyDP.remove(qtyDP[index]);
+                                                                                });
+                                                                                await _recalculateDownPayment(
+                                                                                    grandTotalReceiveDP);
+                                                                                if (context.mounted) {
+                                                                                  SnackBarHelper.presentSuccessSnackBar(
+                                                                                      context,
+                                                                                      "Item ${itemsDP[index].itemName} removed",
+                                                                                      2);
+                                                                                }
+                                                                              },
+                                                                              child: Container(
+                                                                                alignment: Alignment.center,
+                                                                                padding: const EdgeInsets.fromLTRB(
+                                                                                    6, 6, 6, 6),
+                                                                                decoration: BoxDecoration(
+                                                                                  color: Colors.deepOrange,
+                                                                                  borderRadius:
+                                                                                      BorderRadius.circular(5),
+                                                                                  boxShadow: const [
+                                                                                    BoxShadow(
+                                                                                      spreadRadius: 0.5,
+                                                                                      blurRadius: 5,
+                                                                                      color: Color.fromRGBO(
+                                                                                          0, 0, 0, 0.222),
+                                                                                    ),
+                                                                                  ],
                                                                                 ),
-                                                                              ],
-                                                                            ),
-                                                                            child: const Row(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              children: [
-                                                                                Icon(
-                                                                                  Icons.close_outlined,
-                                                                                  size: 18,
-                                                                                  color: Colors.white,
+                                                                                child: const Row(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  children: [
+                                                                                    Icon(
+                                                                                      Icons.close_outlined,
+                                                                                      size: 18,
+                                                                                      color: Colors.white,
+                                                                                    ),
+                                                                                  ],
                                                                                 ),
-                                                                              ],
+                                                                              ),
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  )),
-                                                            ],
+                                                                        ],
+                                                                      )),
+                                                                ],
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                separatorBuilder: (BuildContext context, int index) =>
-                                                    const SizedBox(height: 5),
-                                                itemCount: itemsDP.length),
-                                          ),
+                                                      );
+                                                    },
+                                                    separatorBuilder: (BuildContext context, int index) =>
+                                                        const Divider(
+                                                          height: 10,
+                                                          thickness: 0.5,
+                                                          color: Color.fromARGB(100, 118, 118, 117),
+                                                        ),
+                                                    itemCount: itemsDP.length),
+                                              ),
                                   ],
                                 ),
                               ),
@@ -1218,6 +1301,352 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     });
   }
 
+  Widget _buildDrawDownPayment() {
+    return isLoadingDraw
+        ? const Center(child: CircularProgressIndicator())
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                double itemHeight = 80.0;
+                double totalHeight = (membersDP.isEmpty) ? 60 : itemHeight * membersDP.length;
+                double maxHeight = constraints.maxHeight;
+                double height = totalHeight < maxHeight ? (totalHeight * 1.75) : maxHeight;
+
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  height: height,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ExcludeFocus(
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                                decoration: BoxDecoration(
+                                  color: ProjectColors.primary,
+                                  borderRadius: BorderRadius.circular(5),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      spreadRadius: 0.5,
+                                      blurRadius: 5,
+                                      color: Color.fromRGBO(0, 0, 0, 0.222),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      "Customer:",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      customerSelected,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              ExcludeFocus(
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                                    decoration: BoxDecoration(
+                                      color: ProjectColors.green,
+                                      borderRadius: BorderRadius.circular(5),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          spreadRadius: 0.5,
+                                          blurRadius: 5,
+                                          color: Color.fromRGBO(0, 0, 0, 0.222),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          "Total Draw:",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          Helpers.parseMoney(totalAmount),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              ExcludeFocus(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    await _resetDownPayment();
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                      decoration: BoxDecoration(
+                                        color: ProjectColors.primary,
+                                        borderRadius: BorderRadius.circular(5),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            spreadRadius: 0.5,
+                                            blurRadius: 5,
+                                            color: Color.fromRGBO(0, 0, 0, 0.222),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.replay_rounded,
+                                            size: 18,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      (membersDP.isEmpty)
+                          ? const Center(
+                              child: Text(
+                                  "No prior down payments found for this customer, or you may be offline.\nPlease check your internet connection and try again.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.w700,
+                                  )),
+                            )
+                          : const SizedBox.shrink(),
+                      Expanded(
+                        child: ListView.separated(
+                          controller: _scrollController,
+                          itemBuilder: (BuildContext context, int index) {
+                            return GestureDetector(
+                              onTap: () {
+                                if (!_isExceeding[index] && !_isZero[index]) {
+                                  setState(() {
+                                    _selectedItems[index] = !_selectedItems[index];
+
+                                    double amount =
+                                        double.tryParse(_drawAmountControllers[index].text.replaceAll(',', '')) ?? 0;
+
+                                    if (_selectedItems[index]) {
+                                      totalAmount += amount;
+                                    } else {
+                                      totalAmount -= amount;
+                                    }
+                                  });
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: _selectedItems[index] ? ProjectColors.primary : Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: ProjectColors.primary,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                height: itemHeight,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(
+                                      "${membersDP[index].refpos2}",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
+                                      ),
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Available",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: _selectedItems[index] ? Colors.white : ProjectColors.mediumBlack,
+                                          ),
+                                        ),
+                                        Text(
+                                          Helpers.parseMoney(membersDP[index].amount),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: MediaQuery.of(context).size.width * 0.15,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              TextField(
+                                                maxLines: 1,
+                                                maxLength: 21,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: _selectedItems[index] ? Colors.white : Colors.black,
+                                                ),
+                                                inputFormatters: [MoneyInputFormatter()],
+                                                controller: _drawAmountControllers[index],
+                                                focusNode: _drawAmountFocusNodes[index],
+                                                decoration: const InputDecoration(
+                                                  isDense: true,
+                                                  contentPadding: EdgeInsets.all(10),
+                                                  border: OutlineInputBorder(),
+                                                  counterText: "",
+                                                  enabledBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: ProjectColors.lightBlack,
+                                                      width: 1.0,
+                                                    ),
+                                                  ),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: ProjectColors.primary,
+                                                      width: 2.0,
+                                                    ),
+                                                  ),
+                                                  disabledBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: Colors.transparent,
+                                                      width: 1.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                                enabled: !_selectedItems[index],
+                                                onEditingComplete: () {
+                                                  setState(() {
+                                                    double enteredAmount = double.parse(
+                                                        _drawAmountControllers[index].text.replaceAll(',', ''));
+
+                                                    _isExceeding[index] = enteredAmount > membersDP[index].amount;
+                                                    _isZero[index] = enteredAmount == 0;
+
+                                                    _selectedItems[index] = !_selectedItems[index];
+
+                                                    if (_selectedItems[index]) {
+                                                      totalAmount += enteredAmount;
+                                                    } else {
+                                                      totalAmount -= enteredAmount;
+                                                    }
+                                                  });
+                                                },
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    double enteredAmount =
+                                                        double.tryParse(value.replaceAll(',', '')) ?? 0.0;
+                                                    _isExceeding[index] = enteredAmount > membersDP[index].amount;
+                                                    _isZero[index] = enteredAmount == 0;
+
+                                                    _selectedItems[index] = false;
+                                                  });
+                                                },
+                                              ),
+                                              _isExceeding[index]
+                                                  ? const Text(
+                                                      "Max Amount Exceeded",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontStyle: FontStyle.italic,
+                                                        fontWeight: FontWeight.w700,
+                                                        color: ProjectColors.swatch,
+                                                      ),
+                                                    )
+                                                  : const SizedBox.shrink(),
+                                              _isZero[index]
+                                                  ? const Text(
+                                                      "Amount can't be zero",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontStyle: FontStyle.italic,
+                                                        fontWeight: FontWeight.w700,
+                                                        color: ProjectColors.swatch,
+                                                      ),
+                                                    )
+                                                  : const SizedBox.shrink(),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (membersDP[index].tinv7 != null)
+                                      Text(
+                                        "${membersDP[index].amount}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10.0),
+                          itemCount: membersDP.length,
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+  }
+
   Widget _warningCloseDPDialog() {
     return AlertDialog(
       backgroundColor: Colors.white,
@@ -1252,7 +1681,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               text: const TextSpan(
                 children: [
                   TextSpan(
-                    text: "Items inputed will be removed upon canceling the process. Proceed?",
+                    text: "This will remove all items inputed and reset the down payment. Proceed?",
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ],
@@ -1309,9 +1738,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-              onPressed: () {
-                context.pop(true);
-                context.pop(true);
+              onPressed: () async {
+                if (mounted) {
+                  context.pop(true);
+                }
               },
               child: Center(
                 child: RichText(
@@ -1335,255 +1765,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         ),
       ],
       actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-    );
-  }
-
-  Widget _buildDrawDownPayment() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          double itemHeight = 80.0;
-          double totalHeight = (membersDP.isEmpty) ? 60 : itemHeight * membersDP.length;
-          double maxHeight = constraints.maxHeight;
-          double height = totalHeight < maxHeight ? (totalHeight * 1.75) : maxHeight;
-
-          return SizedBox(
-            width: MediaQuery.of(context).size.width * 0.6,
-            height: height,
-            child: Column(
-              children: [
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ExcludeFocus(
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                          decoration: BoxDecoration(
-                            color: ProjectColors.primary,
-                            borderRadius: BorderRadius.circular(5),
-                            boxShadow: const [
-                              BoxShadow(
-                                spreadRadius: 0.5,
-                                blurRadius: 5,
-                                color: Color.fromRGBO(0, 0, 0, 0.222),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                "Customer:",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                customerSelected,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        ExcludeFocus(
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-                              decoration: BoxDecoration(
-                                color: ProjectColors.green,
-                                borderRadius: BorderRadius.circular(5),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    spreadRadius: 0.5,
-                                    blurRadius: 5,
-                                    color: Color.fromRGBO(0, 0, 0, 0.222),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    "Total Draw:",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    Helpers.parseMoney(totalAmount),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        GestureDetector(
-                          onTap: () async {
-                            await _resetDownPayment();
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                              decoration: BoxDecoration(
-                                color: ProjectColors.primary,
-                                borderRadius: BorderRadius.circular(5),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    spreadRadius: 0.5,
-                                    blurRadius: 5,
-                                    color: Color.fromRGBO(0, 0, 0, 0.222),
-                                  ),
-                                ],
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.replay_rounded,
-                                    size: 18,
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                (membersDP.isEmpty)
-                    ? const Center(
-                        child: Text(
-                            "No prior down payments found for this customer, or you may be offline.\nPlease check your internet connection and try again.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w700,
-                            )),
-                      )
-                    : const SizedBox.shrink(),
-                Expanded(
-                  child: ListView.separated(
-                    controller: _scrollController,
-                    itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          if (!_isExceeding[index] && !_isZero[index]) {
-                            setState(() {
-                              _selectedItems[index] = !_selectedItems[index];
-
-                              double amount =
-                                  double.tryParse(_drawAmountControllers[index].text.replaceAll(',', '')) ?? 0;
-
-                              if (_selectedItems[index]) {
-                                totalAmount += amount;
-                              } else {
-                                totalAmount -= amount;
-                              }
-                            });
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: _selectedItems[index] ? ProjectColors.primary : Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: ProjectColors.primary,
-                              width: 2.0,
-                            ),
-                          ),
-                          height: itemHeight,
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    "${membersDP[index].refpos2}",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Available",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: _selectedItems[index] ? Colors.white : ProjectColors.mediumBlack,
-                                        ),
-                                      ),
-                                      Text(
-                                        Helpers.parseMoney(membersDP[index].amount),
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Visibility(
-                                visible: _selectedItems[index],
-                                child: Column(
-                                  children: List.generate(
-                                    (membersDP[index].tinv7?.length ?? 0),
-                                    (childIndex) => Container(
-                                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                      child: Text(membersDP[index].tinv7![childIndex].toString()), // Render each item
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10.0),
-                    itemCount: membersDP.length,
-                  ),
-                )
-              ],
-            ),
-          );
-        },
-      ),
     );
   }
 }

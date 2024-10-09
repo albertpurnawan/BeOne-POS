@@ -5,16 +5,17 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 
-class QuantityDrawDPDialog extends StatefulWidget {
-  const QuantityDrawDPDialog({super.key, required this.quantity});
+class QuantityReceiveDPDialog extends StatefulWidget {
+  const QuantityReceiveDPDialog({super.key, required this.quantity});
   final double quantity;
 
   @override
-  State<QuantityDrawDPDialog> createState() => _QuantityDrawDPDialogState();
+  State<QuantityReceiveDPDialog> createState() => _QuantityReceiveDPDialogState();
 }
 
-class _QuantityDrawDPDialogState extends State<QuantityDrawDPDialog> {
+class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
   final _textEditingControllerQuantity = TextEditingController();
+  bool isZero = false;
 
   late final _focusNodeQuantity = FocusNode(
     onKeyEvent: (node, event) {
@@ -37,6 +38,14 @@ class _QuantityDrawDPDialogState extends State<QuantityDrawDPDialog> {
   }
 
   @override
+  void dispose() {
+    _textEditingControllerQuantity.dispose();
+    super.dispose();
+  }
+
+  // void _check
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,
@@ -57,31 +66,61 @@ class _QuantityDrawDPDialogState extends State<QuantityDrawDPDialog> {
       contentPadding: const EdgeInsets.all(0),
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.5,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
-          child: TextFormField(
-            focusNode: _focusNodeQuantity,
-            controller: _textEditingControllerQuantity,
-            autofocus: true,
-            inputFormatters: [MoneyInputFormatter()],
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24),
-            onEditingComplete: () {
-              context.pop(_textEditingControllerQuantity.text);
-            },
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(10),
-              hintText: "Enter Quantity",
-              hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(
-                Icons.numbers,
-                size: 24,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(40, 30, 40, 5),
+              child: TextFormField(
+                focusNode: _focusNodeQuantity,
+                controller: _textEditingControllerQuantity,
+                autofocus: true,
+                inputFormatters: [MoneyInputFormatter()],
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 24),
+                onEditingComplete: () {
+                  if (_textEditingControllerQuantity.text == '0') {
+                    setState(() {
+                      isZero = true;
+                    });
+                    return;
+                  }
+                  setState(() {
+                    isZero = false;
+                  });
+                  context.pop(_textEditingControllerQuantity.text);
+                },
+                onChanged: (value) {
+                  setState(() {
+                    isZero = false;
+                  });
+                },
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.all(10),
+                  hintText: "Enter Quantity",
+                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(
+                    Icons.numbers,
+                    size: 24,
+                  ),
+                  suffixIcon: SizedBox(width: 24),
+                ),
               ),
-              suffixIcon: SizedBox(width: 24),
             ),
-          ),
+            (isZero)
+                ? const Text(
+                    "Quantity can't be zero",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w700,
+                      color: ProjectColors.swatch,
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ],
         ),
       ),
       actions: <Widget>[
@@ -94,6 +133,15 @@ class _QuantityDrawDPDialogState extends State<QuantityDrawDPDialog> {
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () {
+                if (_textEditingControllerQuantity.text == '0') {
+                  setState(() {
+                    isZero = true;
+                  });
+                  return;
+                }
+                setState(() {
+                  isZero = false;
+                });
                 context.pop(_textEditingControllerQuantity.text);
               },
               child: Center(

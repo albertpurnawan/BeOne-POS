@@ -1146,7 +1146,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                           // (receipt.discHeaderManual ?? 0) != 0
                                           //     ? _noteChip((1000000), 1)
                                           //     : const SizedBox.shrink(),
-                                          (receipt.downPayments != null && receipt.downPayments!.isNotEmpty)
+                                          (receipt.downPayments != null &&
+                                                  receipt.downPayments!.isNotEmpty &&
+                                                  receipt.downPayments!.any((dp) => dp.isReceive == false))
                                               ? _noteChip(
                                                   (receipt.downPayments ?? [])
                                                       .fold(0.0, (total, dp) => total + dp.amount),
@@ -2001,7 +2003,6 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getCurrencyName();
     _refreshVouchersChips(2);

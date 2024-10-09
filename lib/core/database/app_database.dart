@@ -21,6 +21,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart'
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_cst_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/down_payment_items_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/edc_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/employee_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/invoice_applied_promo_dao.dart';
@@ -322,6 +323,7 @@ class AppDatabase {
   late EDCDao edcDao;
   late BankIssuerDao bankIssuerDao;
   late CampaignDao campaignDao;
+  late DownPaymentItemsDao downPaymentItemsDao;
 
   static String createTinv7 = """
         CREATE TABLE $tableDownPaymentItem (
@@ -472,6 +474,7 @@ PRAGMA foreign_keys = ON;
     edcDao = EDCDao(_database!);
     bankIssuerDao = BankIssuerDao(_database!);
     campaignDao = CampaignDao(_database!);
+    downPaymentItemsDao = DownPaymentItemsDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(

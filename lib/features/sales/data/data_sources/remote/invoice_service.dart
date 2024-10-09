@@ -181,7 +181,56 @@ class InvoiceApi {
         approvals.add(tinv6Maps);
       }
 
-      List<DownPaymentItemsModel> dpItems = [];
+      final tinv7s = await GetIt.instance<AppDatabase>().downPaymentItemsDao.readByToinvId(invHead[0].docId!, null);
+      log("tinv7s - $tinv7s");
+      final List<Map<String, dynamic>> downPaymentItems = [];
+
+      for (final tinv7 in tinv7s) {
+        downPaymentItems.add({
+          "docnum": invHead[0].docnum,
+          "idnumber": tinv7!.idNumber,
+          "toitm_id": tinv7.toitmId,
+          "quantity": tinv7.quantity,
+          "sellingprice": tinv7.sellingPrice.round(),
+          "discprctg": 0,
+          "discamount": 0,
+          "totalamount": tinv7.totalAmount,
+          "taxprctg": tinv7.taxPrctg,
+          "promotiontype": "",
+          "promotionid": "",
+          "remarks": tinv7.remarks ?? "",
+          "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(DateTime.now()),
+          "cogs": 0,
+          "tovat_id": tinv7.tovatId,
+          "promotiontingkat": "",
+          "promovoucherno": "",
+          "includetax": tinv7.includeTax,
+          "toven_id": tinv7.tovenId,
+          "tbitm_id": tinv7.tbitmId,
+          "qtybarcode": tinv7.quantity,
+          "sellpricebarcode": 0.0,
+          "totalsellbarcode": 0.0,
+          "disc1pct": 0.0,
+          "disc1amt": 0.0,
+          "disc2pct": 0.0,
+          "disc2amt": 0.0,
+          "disc3pct": 0.0,
+          "disc3amt": 0.0,
+          "disc1pctbarcode": 0.0,
+          "disc1amtbarcode": 0.0,
+          "disc2pctbarcode": 0.0,
+          "disc2amtbarcode": 0.0,
+          "disc3pctbarcode": 0.0,
+          "disc3amtbarcode": 0.0,
+          "totaldiscbarcode": 0.0,
+          "qtyconv": tinv7.quantity,
+          "discprctgmember": 0.0,
+          "discamountmember": 0.0,
+          "tohem_id": tinv7.tohemId,
+          "refpos2": tinv7.refpos2 ?? "",
+          "promotion": []
+        });
+      }
 
       final dataToSend = {
         "tostr_id": invHead[0].tostrId,
@@ -277,10 +326,13 @@ class InvoiceApi {
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
         "approval": approvals,
-        "downpayment_item": dpItems,
+        "downpayment_docnums": []
       };
       if (invHead[0].salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;
+      }
+      if (tinv7s.isNotEmpty) {
+        dataToSend["downpayment_item"] = downPaymentItems;
       }
       // if (invHead[0].refpos2 != null) {
       //   dataToSend["refpos2"] = invHead[0].refpos2;

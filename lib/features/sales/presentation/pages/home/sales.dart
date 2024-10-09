@@ -2939,7 +2939,9 @@ class _SalesPageState extends State<SalesPage> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         // (state.discHeaderManual ?? 0) != 0 ? _noteChip((1000000), 1) : const SizedBox.shrink(),
-                        (state.downPayments != null && state.downPayments!.isNotEmpty)
+                        (state.downPayments != null &&
+                                state.downPayments!.isNotEmpty &&
+                                state.downPayments!.any((dp) => dp.isReceive == false))
                             ? _noteChip((state.downPayments ?? []).fold(0.0, (total, dp) => total + dp.amount), 2)
                             : const SizedBox.shrink(),
                         (state.discHeaderManual ?? 0) != 0
@@ -4063,6 +4065,7 @@ class _SalesPageState extends State<SalesPage> {
       final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
 
       log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
+      log("check ${receiptEntity.downPayments}");
 
       if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
         await showDialog(

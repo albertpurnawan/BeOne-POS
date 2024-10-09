@@ -1,5 +1,6 @@
 import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/item.dart';
 
 class DownPaymetModel extends DownPaymentEntity {
   DownPaymetModel({
@@ -7,6 +8,8 @@ class DownPaymetModel extends DownPaymentEntity {
     super.toinvDocId,
     required super.amount,
     super.tinv7,
+    super.tempItems,
+    required super.isReceive,
   });
 
   factory DownPaymetModel.fromMap(Map<String, dynamic> map) {
@@ -21,6 +24,14 @@ class DownPaymetModel extends DownPaymentEntity {
               ),
             )
           : null,
+      tempItems: map['tempItems'] != null
+          ? List<ItemEntity>.from(
+              (map['tempItems'] as List<dynamic>).map<ItemEntity?>(
+                (x) => ItemEntity.fromMap(x as Map<String, dynamic>),
+              ),
+            )
+          : null,
+      isReceive: map['isReceive'] != null ? map['isReceive'] as bool : false,
     );
   }
 
