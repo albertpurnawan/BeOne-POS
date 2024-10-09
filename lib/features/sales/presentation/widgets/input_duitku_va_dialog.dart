@@ -9,7 +9,6 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
-import 'package:uuid/uuid.dart';
 
 class InputDuitkuVADialog extends StatefulWidget {
   const InputDuitkuVADialog({
@@ -178,49 +177,51 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                     setState(() {
                       selectedPaymentMethod = newValue;
 
-                      final selectedMethod = widget.paymentMethods.firstWhere(
-                        (method) => method['paymentMethod'] == newValue,
-                        orElse: () => null,
-                      );
+                      final selectedMethod = widget.paymentMethods
+                          .firstWhere((method) => method.paymentMethod == newValue && method.statusActive == 1);
+
+                      log("selectedMethod = $selectedMethod");
+
                       if (selectedMethod != null) {
                         vaDuitku = DuitkuVADetailsEntity(
-                          docId: const Uuid().v4(),
+                          docId: selectedMethod.docId ?? "",
                           paymentMethod: selectedPaymentMethod ?? "",
-                          paymentName: selectedMethod['paymentName'],
-                          paymentImage: selectedMethod['paymentImage'],
-                          totalFee: int.parse(selectedMethod['totalFee'] ?? "0"),
+                          paymentName: selectedMethod.paymentName,
+                          paymentImage: selectedMethod.paymentImage,
+                          totalFee: selectedMethod.totalFee ?? 0,
+                          statusActive: selectedMethod.statusActive ?? 0,
                         );
                       }
                     });
                   },
                   items: widget.paymentMethods.where(
                     (method) {
-                      final paymentName = method['paymentName']!.trim();
+                      final paymentName = method.paymentName.trim();
                       return paymentName.contains(' VA ') || paymentName.endsWith(' VA');
                     },
                   ).map((method) {
                     return DropdownMenuItem<String>(
-                      value: method['paymentMethod'],
+                      value: method.paymentMethod,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(method['paymentName']),
+                          Text(method.paymentName),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              method['paymentImage'].endsWith(".SVG")
+                              method.paymentImage.endsWith(".SVG")
                                   ? SvgPicture.network(
-                                      method['paymentImage'],
+                                      method.paymentImage,
                                       width: 30,
                                       height: 30,
                                     )
                                   : Image.network(
-                                      method['paymentImage'],
+                                      method.paymentImage,
                                       width: 75,
                                       height: 50,
                                     ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     );

@@ -44,6 +44,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
 
 class MopType {
   final String name;
@@ -277,6 +278,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           paymentName: duitkuMop.first.cardName ?? "",
           paymentImage: duitkuMop.first.edcDesc ?? "",
           totalFee: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
+          statusActive: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
         );
         dev.log("vaDuitku - $vaDuitku");
 
@@ -1838,15 +1840,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                               (receipt.totalVoucher ?? 0) -
                                                                               (receipt.totalNonVoucher ?? 0))
                                                                           .toInt();
-                                                                      String timestamp = Helpers.getTimestamp();
-                                                                      final signature =
-                                                                          await GetIt.instance<DuitkuApi>()
-                                                                              .createPaymentMethodsSignature(
-                                                                                  maxAmount, timestamp);
+
                                                                       final List<dynamic> paymentMethods =
-                                                                          await GetIt.instance<DuitkuApi>()
-                                                                              .getPaymentMethods(
-                                                                                  signature, maxAmount, timestamp);
+                                                                          await GetIt.instance<DuitkuVAListApi>()
+                                                                              .getPaymentMethods();
+                                                                      dev.log("paymentMethods - $paymentMethods");
                                                                       mopAmount = await showDialog<double>(
                                                                         context: context,
                                                                         barrierDismissible: false,

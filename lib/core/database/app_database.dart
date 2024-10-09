@@ -3573,6 +3573,7 @@ CREATE TABLE $tableDuitkuVADetails (
   ${DuitkuVADetailsFields.paymentName} text NOT NULL,
   ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
   ${DuitkuVADetailsFields.totalFee} int NOT NULL,
+  ${DuitkuVADetailsFields.statusActive} int NOT NULL,
   $createdAtDefinition
 )
 """);
@@ -3692,6 +3693,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       ${DuitkuVADetailsFields.paymentName} text NOT NULL,
       ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
       ${DuitkuVADetailsFields.totalFee} int NOT NULL,
+      ${DuitkuVADetailsFields.statusActive} int NOT NULL,
       createdat TEXT DEFAULT CURRENT_TIMESTAMP
       )
     """);

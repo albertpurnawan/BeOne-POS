@@ -115,6 +115,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_se
 import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/edc_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/invoice_detail_service.dart';
@@ -280,6 +281,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
   sl.registerSingleton<DuitkuApi>(DuitkuApi(sl()));
+  sl.registerSingleton<DuitkuVAListApi>(DuitkuVAListApi(sl()));
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
   sl.registerSingleton<BillOfMaterialLineItemApi>(BillOfMaterialLineItemApi(sl()));
   sl.registerSingleton<EDCApi>(EDCApi(sl()));

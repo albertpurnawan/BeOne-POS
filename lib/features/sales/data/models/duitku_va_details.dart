@@ -11,7 +11,8 @@ class DuitkuVADetailsFields {
     paymentMethod,
     paymentName,
     paymentImage,
-    totalFee
+    totalFee,
+    statusActive
   ];
 
   static const String docId = "docid";
@@ -21,6 +22,7 @@ class DuitkuVADetailsFields {
   static const String paymentName = "paymentname";
   static const String paymentImage = "paymentimage";
   static const String totalFee = "totalfee";
+  static const String statusActive = "statusactive";
 }
 
 class DuitkuVADetailsModel extends DuitkuVADetailsEntity implements BaseModel {
@@ -32,6 +34,7 @@ class DuitkuVADetailsModel extends DuitkuVADetailsEntity implements BaseModel {
     required super.paymentName,
     required super.paymentImage,
     required super.totalFee,
+    required super.statusActive,
   });
 
   @override
@@ -44,6 +47,7 @@ class DuitkuVADetailsModel extends DuitkuVADetailsEntity implements BaseModel {
       'paymentname': paymentName,
       'paymentimage': paymentImage,
       'totalfee': totalFee,
+      'statusactive': statusActive,
     };
   }
 
@@ -55,8 +59,21 @@ class DuitkuVADetailsModel extends DuitkuVADetailsEntity implements BaseModel {
       paymentMethod: map['paymentmethod'] as String,
       paymentName: map['paymentname'] as String,
       paymentImage: map['paymentimage'] as String,
-      totalFee: map['totalFee'] as int,
+      totalFee: map['totalfee'] as int,
+      statusActive: map['statusactive'] as int,
     );
+  }
+
+  factory DuitkuVADetailsModel.fromMapRemote(Map<String, dynamic> map) {
+    return DuitkuVADetailsModel.fromMap({
+      ...map,
+      "docid": map['toval_id']['docid'] as String,
+      "paymentmethod": map['toval_id']?['paymentmethod'] != null ? map['toval_id']['paymentmethod'] as String : null,
+      "paymentname": map['toval_id']?['paymentname'] != null ? map['toval_id']['paymentname'] as String : null,
+      "paymentimage": map['toval_id']?['paymentimage'] != null ? map['toval_id']['paymentimage'] as String : null,
+      "totalfee": map['toval_id']?['totalfee'] != null ? map['toval_id']['totalfee'] as int : null,
+      "statusactive": map['toval_id']?['statusactive'] != null ? map['toval_id']['statusactive'] as int : null,
+    });
   }
 
   factory DuitkuVADetailsModel.fromEntity(DuitkuVADetailsEntity entity) {
@@ -68,6 +85,7 @@ class DuitkuVADetailsModel extends DuitkuVADetailsEntity implements BaseModel {
       paymentName: entity.paymentName,
       paymentImage: entity.paymentImage,
       totalFee: entity.totalFee,
+      statusActive: entity.statusActive,
     );
   }
 }

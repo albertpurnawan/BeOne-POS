@@ -9,6 +9,7 @@ class DuitkuVADetailsEntity {
   final String paymentName;
   final String paymentImage;
   final int totalFee;
+  final int statusActive;
 
   DuitkuVADetailsEntity({
     required this.docId,
@@ -18,6 +19,7 @@ class DuitkuVADetailsEntity {
     required this.paymentName,
     required this.paymentImage,
     required this.totalFee,
+    required this.statusActive,
   });
 
   DuitkuVADetailsEntity copyWith({
@@ -28,6 +30,7 @@ class DuitkuVADetailsEntity {
     String? paymentName,
     String? paymentImage,
     int? totalFee,
+    int? statusActive,
   }) {
     return DuitkuVADetailsEntity(
       docId: docId ?? this.docId,
@@ -37,6 +40,7 @@ class DuitkuVADetailsEntity {
       paymentName: paymentName ?? this.paymentName,
       paymentImage: paymentImage ?? this.paymentImage,
       totalFee: totalFee ?? this.totalFee,
+      statusActive: statusActive ?? this.statusActive,
     );
   }
 
@@ -49,6 +53,7 @@ class DuitkuVADetailsEntity {
       'paymentName': paymentName,
       'paymentImage': paymentImage,
       'totalFee': totalFee,
+      'statusActive': statusActive,
     };
   }
 
@@ -61,6 +66,7 @@ class DuitkuVADetailsEntity {
       paymentName: map['paymentName'] as String,
       paymentImage: map['paymentImage'] as String,
       totalFee: map['totalFee'] as int,
+      statusActive: map['statusActive'] as int,
     );
   }
 
@@ -71,7 +77,7 @@ class DuitkuVADetailsEntity {
 
   @override
   String toString() {
-    return 'DuitkuVADetailsEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, paymentMethod: $paymentMethod, paymentName: $paymentName, paymentImage: $paymentImage, totalFee: $totalFee)';
+    return 'DuitkuVADetailsEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, paymentMethod: $paymentMethod, paymentName: $paymentName, paymentImage: $paymentImage, totalFee: $totalFee, statusActive: $statusActive)';
   }
 
   @override
@@ -84,7 +90,8 @@ class DuitkuVADetailsEntity {
         other.paymentMethod == paymentMethod &&
         other.paymentName == paymentName &&
         other.paymentImage == paymentImage &&
-        other.totalFee == totalFee;
+        other.totalFee == totalFee &&
+        other.statusActive == statusActive;
   }
 
   @override
@@ -95,6 +102,7 @@ class DuitkuVADetailsEntity {
         paymentMethod.hashCode ^
         paymentName.hashCode ^
         paymentImage.hashCode ^
-        totalFee.hashCode;
+        totalFee.hashCode ^
+        statusActive.hashCode;
   }
 }
