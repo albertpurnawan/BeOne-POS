@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer_cst.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
@@ -13,9 +14,6 @@ import 'package:uuid/uuid.dart';
 
 class DuitkuApi {
   final Dio _dio;
-  final String _url = "http://110.239.68.248:7065";
-  final String _merchantCode = "DS20286";
-  final String _apiKey = "338fdbf1c8ab5ee1c2f12d9d308fc888";
 
   DuitkuApi(this._dio) {
     _dio.options.followRedirects = false;
@@ -24,47 +22,88 @@ class DuitkuApi {
     };
   }
 
+  Future<Map<String, dynamic>> getApiKey() async {
+    List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    final storeId = pos[0].tostrId ?? "";
+    final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(storeId, null);
+
+    if (store != null) {
+      return {
+        "url": store.duitkuUrl,
+        "merchantCode": store.duitkuMerchantCode,
+        "apiKey": store.duitkuApiKey,
+        "expiryPeriod": store.duitkuExpiryPeriod,
+      };
+    }
+    return {};
+  }
+
   Future<String> createTransactionSignature(int amount, String merchantOrderId) async {
-    final combined = _merchantCode + merchantOrderId + amount.toString() + _apiKey;
+    final params = await getApiKey();
+    if (params.isEmpty) {
+      throw Exception("Duitku parameters must be available.");
+    }
+    final combined = params['merchantCode'] + merchantOrderId + amount.toString() + params['apiKey'];
     final signature = md5.convert(utf8.encode(combined)).toString();
     return signature;
   }
 
   Future<String> createPaymentMethodsSignature(int amount, String timestamp) async {
-    final combined = _merchantCode + amount.toString() + timestamp + _apiKey;
+    final params = await getApiKey();
+    if (params.isEmpty) {
+      throw Exception("Duitku parameters must be available.");
+    }
+
+    final combined = params['merchantCode'] + amount.toString() + timestamp + params['apiKey'];
     final signature = sha256.convert(utf8.encode(combined)).toString();
     return signature;
   }
 
-  Future<String> createCheckStatusSignature(String merchantOrderId) async {
-    final combined = _merchantCode + merchantOrderId + _apiKey;
-    final signature = md5.convert(utf8.encode(combined)).toString();
-    return signature;
-  }
+  // Future<String> createCheckStatusSignature(String merchantOrderId) async {
+  //   final params = await getApiKey();
+  //   if (params.isEmpty) {
+  //     throw Exception("Duitku parameters must be available.");
+  //   }
 
-  Future<List<dynamic>> getPaymentMethods(String signature, int amount, String timestamp) async {
-    const String url = "https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod";
-    final body = {
-      "merchantcode": _merchantCode,
-      "amount": amount,
-      "datetime": timestamp,
-      "signature": signature,
-    };
-    log("url - $url");
-    log("body - ${json.encode(body)}");
+  //   final combined = params['merchantCode'] + merchantOrderId + params['apiKey'];
+  //   final signature = md5.convert(utf8.encode(combined)).toString();
+  //   return signature;
+  // }
 
-    final response = await _dio.post(
-      url,
-      data: body,
-    );
+  // Future<List<dynamic>> getPaymentMethods(String signature, int amount, String timestamp) async {
+  //   final params = await getApiKey();
+  //   if (params.isEmpty) {
+  //     throw Exception("Duitku parameters must be available.");
+  //   }
+  //   String url = params["url"];
 
-    log("Response methods duitku - ${response.data}");
-    return response.data['paymentFee'];
-  }
+  //   final body = {
+  //     "merchantcode": params["merchantCode"],
+  //     "amount": amount,
+  //     "datetime": timestamp,
+  //     "signature": signature,
+  //   };
+  //   log("url - $url");
+  //   log("body - ${json.encode(body)}");
+
+  //   final response = await _dio.post(
+  //     url,
+  //     data: body,
+  //   );
+
+  //   log("Response methods duitku - ${response.data}");
+  //   return response.data['paymentFee'];
+  // }
 
   Future<dynamic> createTransactionVA(
       String paymentMethod, String signature, int amount, String custId, String merchantOrderId) async {
-    final String url = "$_url/createTransactionRequest";
+    final params = await getApiKey();
+    if (params.isEmpty) {
+      throw Exception("Duitku parameters must be available.");
+    }
+
+    String url = "${params['url']}/createTransactionRequest";
+
     final CustomerCstEntity? customerEntity =
         await GetIt.instance<AppDatabase>().customerCstDao.readByDocId(custId, null);
     final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
@@ -74,7 +113,7 @@ class DuitkuApi {
 
     final body = {
       "docnum": docnum,
-      "merchantCode": _merchantCode,
+      "merchantCode": params["merchantCode"],
       "paymentAmount": amount,
       "paymentMethod": paymentMethod,
       "merchantOrderId": merchantOrderId,
@@ -84,10 +123,10 @@ class DuitkuApi {
       "customerVaName": customerEntity.custName,
       "email": customerEntity.email,
       "phoneNumber": customerEntity.phone,
-      "callbackUrl": "http://callbacksvc.beonesolution.com",
+      "callbackUrl": "${params['url']}/callback",
       "returnUrl": "https://mbahdukun1.github.io/duitku-website/",
       "signature": signature,
-      "expiryPeriod": 129600
+      "expiryPeriod": params["expiryPeriod"]
     };
     log("body duitku - ${jsonEncode(body)}");
 
@@ -100,19 +139,19 @@ class DuitkuApi {
     return response.data;
   }
 
-  Future<dynamic> checkVAPaymentStatus(String signature, String merchantOrderId) async {
+  Future<dynamic> checkVAPaymentStatus(String merchantOrderId) async {
     try {
-      const String url = "https://sandbox.duitku.com/webapi/api/merchant/transactionStatus";
-      final body = {
-        "merchantCode": _merchantCode,
-        "merchantOrderId": merchantOrderId,
-        "signature": signature,
-      };
+      log("CHECKING PAYEMENT STATUS");
+      final params = await getApiKey();
+      if (params.isEmpty) {
+        throw Exception("Duitku parameters must be available.");
+      }
+      String url = "${params['url']}/getCallbackOne/$merchantOrderId";
 
-      final response = await _dio.post(
+      log("url - $url");
+
+      final response = await _dio.get(
         url,
-        data: body,
-        options: Options(contentType: Headers.formUrlEncodedContentType),
       );
 
       log("response - ${response.data}");

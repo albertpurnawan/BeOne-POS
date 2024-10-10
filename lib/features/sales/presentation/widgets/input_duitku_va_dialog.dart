@@ -177,8 +177,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                     setState(() {
                       selectedPaymentMethod = newValue;
 
-                      final selectedMethod = widget.paymentMethods
-                          .firstWhere((method) => method.paymentMethod == newValue && method.statusActive == 1);
+                      final selectedMethod =
+                          widget.paymentMethods.firstWhere((method) => method.paymentMethod == newValue);
 
                       log("selectedMethod = $selectedMethod");
 
@@ -197,7 +197,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                   items: widget.paymentMethods.where(
                     (method) {
                       final paymentName = method.paymentName.trim();
-                      return paymentName.contains(' VA ') || paymentName.endsWith(' VA');
+                      return paymentName.contains(' VA ') || paymentName.endsWith(' VA') && method.statusActive == 1;
                     },
                   ).map((method) {
                     return DropdownMenuItem<String>(

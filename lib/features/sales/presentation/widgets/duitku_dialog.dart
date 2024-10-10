@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,7 +28,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
   @override
   void initState() {
     super.initState();
-    _startCheckDuitkuStatus();
+    // _startCheckDuitkuStatus();
   }
 
   @override
@@ -48,7 +50,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
         status = await _checkDuitkuStatus();
       });
 
-      if (status == 'SUCCESS') {
+      if (status == 'success') {
         widget.onPaymentSuccess(status);
         break;
       }
@@ -75,30 +77,29 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
 
   Future<String> _checkDuitkuStatus() async {
     if (!mounted) return "";
-    final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
-    final paymentStatus =
-        await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(signature, widget.data.merchantOrderId);
-    return paymentStatus['statusMessage'];
+    // final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
+    final paymentStatus = await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(widget.data.merchantOrderId);
+    log("paymentStatus - $paymentStatus");
+    return paymentStatus['status'];
   }
 
   Future<void> _manualCheckDuitkuStatus() async {
     try {
-      setState(() {
-        isCheckingStatus = true;
-      });
+      // setState(() {
+      //   isCheckingStatus = true;
+      // });
       if (!mounted) return;
 
       String status = '';
       await Future.delayed(const Duration(seconds: 3), () async {
         status = await _checkDuitkuStatus();
       });
-
-      if (status == 'SUCCESS') {
+      if (status == 'success') {
         widget.onPaymentSuccess(status);
         return;
       }
 
-      if (status == 'EXPIRED') {
+      if (status == 'expired') {
         if (mounted) {
           showDialog(
               context: context,

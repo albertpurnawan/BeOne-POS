@@ -120,8 +120,13 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           return DuitkuDialog(
               data: data,
               onPaymentSuccess: (String status) async {
-                if (status == 'SUCCESS') {
-                  await context.read<ReceiptCubit>().charge();
+                if (status == 'success') {
+                  dev.log("Before calling charge - $status");
+                  try {
+                    await context.read<ReceiptCubit>().charge();
+                  } catch (e) {
+                    dev.log("Error during charge: $e");
+                  }
 
                   await Future.delayed(const Duration(milliseconds: 200), () {
                     Navigator.of(context).pop();
@@ -280,7 +285,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           totalFee: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
           statusActive: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
         );
-        dev.log("vaDuitku - $vaDuitku");
 
         DuitkuEntity duitku = DuitkuEntity(
           merchantCode: duitkuVA['data']['merchantCode'].toString(),
