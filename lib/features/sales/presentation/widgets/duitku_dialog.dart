@@ -28,7 +28,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
   @override
   void initState() {
     super.initState();
-    // _startCheckDuitkuStatus();
+    _startCheckDuitkuStatus();
   }
 
   @override
@@ -50,7 +50,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
         status = await _checkDuitkuStatus();
       });
 
-      if (status == 'success') {
+      if (status == 'SUCCESS') {
         widget.onPaymentSuccess(status);
         break;
       }
@@ -77,29 +77,30 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
 
   Future<String> _checkDuitkuStatus() async {
     if (!mounted) return "";
-    // final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
-    final paymentStatus = await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(widget.data.merchantOrderId);
+    final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
+    final paymentStatus =
+        await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(signature, widget.data.merchantOrderId);
     log("paymentStatus - $paymentStatus");
-    return paymentStatus['status'];
+    return paymentStatus['statusMessage'];
   }
 
   Future<void> _manualCheckDuitkuStatus() async {
     try {
-      // setState(() {
-      //   isCheckingStatus = true;
-      // });
+      setState(() {
+        isCheckingStatus = true;
+      });
       if (!mounted) return;
 
       String status = '';
       await Future.delayed(const Duration(seconds: 3), () async {
         status = await _checkDuitkuStatus();
       });
-      if (status == 'success') {
+      if (status == 'SUCCESS') {
         widget.onPaymentSuccess(status);
         return;
       }
 
-      if (status == 'expired') {
+      if (status == 'EXPIRED') {
         if (mounted) {
           showDialog(
               context: context,

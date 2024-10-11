@@ -120,8 +120,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           return DuitkuDialog(
               data: data,
               onPaymentSuccess: (String status) async {
-                if (status == 'success') {
-                  dev.log("Before calling charge - $status");
+                if (status == 'SUCCESS') {
                   try {
                     await context.read<ReceiptCubit>().charge();
                   } catch (e) {
