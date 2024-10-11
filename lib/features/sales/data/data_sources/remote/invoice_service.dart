@@ -195,7 +195,7 @@ class InvoiceApi {
           "discprctg": 0,
           "discamount": 0,
           "totalamount": tinv7.totalAmount,
-          "taxprctg": tinv7.taxPrctg,
+          "taxprctg": 0,
           "promotiontype": "",
           "promotionid": "",
           "remarks": tinv7.remarks ?? "",

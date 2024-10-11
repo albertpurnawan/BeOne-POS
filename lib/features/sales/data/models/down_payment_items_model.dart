@@ -15,7 +15,7 @@ class DownPaymentItemsFields {
     quantity,
     sellingPrice,
     totalAmount,
-    taxPrctg,
+    // taxPrctg,
     remarks,
     tovatId,
     includeTax,
@@ -35,7 +35,7 @@ class DownPaymentItemsFields {
   static const String quantity = 'quantity';
   static const String sellingPrice = 'sellingprice';
   static const String totalAmount = 'totalamount';
-  static const String taxPrctg = 'taxprctg';
+  // static const String taxPrctg = 'taxprctg';
   static const String remarks = 'remarks';
   static const String tovatId = 'tovatId';
   static const String includeTax = 'includetax';
@@ -57,7 +57,7 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
     required super.quantity,
     required super.sellingPrice,
     required super.totalAmount,
-    required super.taxPrctg,
+    // required super.taxPrctg,
     required super.remarks,
     required super.tovatId,
     required super.includeTax,
@@ -80,7 +80,7 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
       'quantity': quantity,
       'sellingprice': sellingPrice,
       'totalamount': totalAmount,
-      'taxprctg': taxPrctg,
+      // 'taxprctg': taxPrctg,
       'remarks': remarks,
       'tovatId': tovatId,
       'includetax': includeTax,
@@ -96,14 +96,14 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
       docId: map['docid'] as String,
       createDate: map['createdate'] != null ? DateTime.parse(map['createdate'] as String).toLocal() : null,
       updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
-      toinvId: map['toinvId'] != null ? map['toinvId'] as String : null,
+      toinvId: map['toinv_id'] != null ? map['toinv_id'] as String : null,
       docNum: map['docnum'] as String,
       idNumber: map['idnumber'] as int,
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       quantity: map['quantity'] as double,
       sellingPrice: map['sellingprice'] as double,
       totalAmount: map['totalamount'] as double,
-      taxPrctg: map['taxprctg'] as double,
+      // taxPrctg: map['taxprctg'] as double,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
       includeTax: map['includetax'] as int,
@@ -119,10 +119,13 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
       ...map,
       "quantity": map['quantity'].toDouble() as double,
       "sellingprice": map['sellingprice'].toDouble() as double,
-      "discprctg": map['discprctg'].toDouble() as double,
-      "discamount": map['discamount'].toDouble() as double,
       "totalamount": map['totalamount'].toDouble() as double,
-      "taxprctg": map['taxprctg'].toDouble() as double,
+      "toinvId": map['toinv_id'] != null ? map['toinv_id'] as String : null,
+      "toitmId": map['toitm_id'] != null ? map['toitm_id'] as String : null,
+      "tovatId": map['tovat_id'] != null ? map['tovat_id'] as String : null,
+      "tovenId": map['toven_id'] != null ? map['toven_id'] as String : null,
+      "tbitmId": map['tbitm_id'] != null ? map['tbitm_id'] as String : null,
+      "tohemId": map['tohem_id'] != null ? map['tohem_id'] as String : null,
     });
   }
 
@@ -138,7 +141,7 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
       quantity: entity.quantity,
       sellingPrice: entity.sellingPrice,
       totalAmount: entity.totalAmount,
-      taxPrctg: entity.taxPrctg,
+      // taxPrctg: entity.taxPrctg,
       remarks: entity.remarks,
       tovatId: entity.tovatId,
       includeTax: entity.includeTax,

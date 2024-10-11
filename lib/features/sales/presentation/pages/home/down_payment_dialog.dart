@@ -47,6 +47,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   List<bool> _isExceeding = [];
   List<bool> _isZero = [];
   List<bool> _selectedItems = [];
+  List<List<bool>> isCheckedBox = [];
 
   String? salesSelected;
   String? tohemIdSelected;
@@ -76,6 +77,15 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     readCustomer();
     tohemIdSelected = stateInvoice.salesTohemId;
     getEmployee(tohemIdSelected ?? "");
+    if (membersDP.isNotEmpty) {
+      isCheckedBox = List.generate(
+        membersDP.length,
+        (index) {
+          var tinv7Length = membersDP[index].tinv7?.length ?? 0;
+          return List.generate(tinv7Length, (innerIndex) => true);
+        },
+      );
+    }
   }
 
   @override
@@ -291,7 +301,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
           quantity: qtyDP[itemIndex],
           sellingPrice: item.price,
           totalAmount: qtyDP[itemIndex] * item.price,
-          taxPrctg: item.taxRate,
+          // taxPrctg: item.taxRate,
           remarks: _remarksController.text,
           tovatId: item.tovatId,
           includeTax: item.includeTax,
@@ -369,6 +379,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     setState(() {
       _amountController.text = Helpers.parseMoney(defaultDP);
     });
+  }
+
+  Future<String> _getItemName(String toitmId) async {
+    final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByDocId(toitmId, null);
+    return item?.itemName ?? "";
   }
 
   @override
@@ -977,116 +992,113 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                         ),
                                                                       )),
                                                                   Expanded(
-                                                                      flex: 1,
-                                                                      child: Row(
-                                                                        mainAxisAlignment: MainAxisAlignment.end,
-                                                                        children: [
-                                                                          IntrinsicHeight(
-                                                                            child: GestureDetector(
-                                                                              onTap: () async {
-                                                                                log("Edit button pressed");
-                                                                                final double quantity = double.parse(
-                                                                                    await showDialog(
-                                                                                        context: context,
-                                                                                        barrierDismissible: false,
-                                                                                        builder: (context) =>
-                                                                                            QuantityReceiveDPDialog(
-                                                                                              quantity: qtyDP[index],
-                                                                                            )));
-                                                                                setState(() {
-                                                                                  grandTotalReceiveDP -=
-                                                                                      itemsDP[index].price *
-                                                                                          qtyDP[index];
-                                                                                  qtyDP[index] = quantity;
-                                                                                  grandTotalReceiveDP +=
-                                                                                      itemsDP[index].price *
-                                                                                          qtyDP[index];
-                                                                                });
-                                                                                await _recalculateDownPayment(
-                                                                                    grandTotalReceiveDP);
-                                                                              },
-                                                                              child: Container(
-                                                                                alignment: Alignment.center,
-                                                                                padding: const EdgeInsets.fromLTRB(
-                                                                                    6, 6, 6, 6),
-                                                                                decoration: BoxDecoration(
-                                                                                  color: ProjectColors.blue,
-                                                                                  borderRadius:
-                                                                                      BorderRadius.circular(5),
-                                                                                  boxShadow: const [
-                                                                                    BoxShadow(
-                                                                                      spreadRadius: 0.5,
-                                                                                      blurRadius: 5,
-                                                                                      color: Color.fromRGBO(
-                                                                                          0, 0, 0, 0.222),
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                                child: const Row(
-                                                                                  mainAxisSize: MainAxisSize.min,
-                                                                                  children: [
-                                                                                    Icon(
-                                                                                      Icons.edit_outlined,
-                                                                                      size: 18,
-                                                                                      color: Colors.white,
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
+                                                                    flex: 1,
+                                                                    child: Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                                      children: [
+                                                                        IntrinsicHeight(
+                                                                          child: GestureDetector(
+                                                                            onTap: () async {
+                                                                              log("Edit button pressed");
+                                                                              final double quantity = double.parse(
+                                                                                  await showDialog(
+                                                                                      context: context,
+                                                                                      barrierDismissible: false,
+                                                                                      builder: (context) =>
+                                                                                          QuantityReceiveDPDialog(
+                                                                                            quantity: qtyDP[index],
+                                                                                          )));
+                                                                              setState(() {
+                                                                                grandTotalReceiveDP -=
+                                                                                    itemsDP[index].price * qtyDP[index];
+                                                                                qtyDP[index] = quantity;
+                                                                                grandTotalReceiveDP +=
+                                                                                    itemsDP[index].price * qtyDP[index];
+                                                                              });
+                                                                              await _recalculateDownPayment(
+                                                                                  grandTotalReceiveDP);
+                                                                            },
+                                                                            child: Container(
+                                                                              alignment: Alignment.center,
+                                                                              padding:
+                                                                                  const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                                              decoration: BoxDecoration(
+                                                                                color: ProjectColors.blue,
+                                                                                borderRadius: BorderRadius.circular(5),
+                                                                                boxShadow: const [
+                                                                                  BoxShadow(
+                                                                                    spreadRadius: 0.5,
+                                                                                    blurRadius: 5,
+                                                                                    color:
+                                                                                        Color.fromRGBO(0, 0, 0, 0.222),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                              child: const Row(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Icon(
+                                                                                    Icons.edit_outlined,
+                                                                                    size: 18,
+                                                                                    color: Colors.white,
+                                                                                  ),
+                                                                                ],
                                                                               ),
                                                                             ),
                                                                           ),
-                                                                          const SizedBox(width: 5),
-                                                                          IntrinsicHeight(
-                                                                            child: GestureDetector(
-                                                                              onTap: () async {
-                                                                                setState(() {
-                                                                                  grandTotalReceiveDP -=
-                                                                                      (itemsDP[index].price *
-                                                                                          qtyDP[index]);
-                                                                                  itemsDP.remove(itemsDP[index]);
-                                                                                  qtyDP.remove(qtyDP[index]);
-                                                                                });
-                                                                                await _recalculateDownPayment(
-                                                                                    grandTotalReceiveDP);
-                                                                                if (context.mounted) {
-                                                                                  SnackBarHelper.presentSuccessSnackBar(
-                                                                                      context,
-                                                                                      "Item ${itemsDP[index].itemName} removed",
-                                                                                      2);
-                                                                                }
-                                                                              },
-                                                                              child: Container(
-                                                                                alignment: Alignment.center,
-                                                                                padding: const EdgeInsets.fromLTRB(
-                                                                                    6, 6, 6, 6),
-                                                                                decoration: BoxDecoration(
-                                                                                  color: Colors.deepOrange,
-                                                                                  borderRadius:
-                                                                                      BorderRadius.circular(5),
-                                                                                  boxShadow: const [
-                                                                                    BoxShadow(
-                                                                                      spreadRadius: 0.5,
-                                                                                      blurRadius: 5,
-                                                                                      color: Color.fromRGBO(
-                                                                                          0, 0, 0, 0.222),
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                                child: const Row(
-                                                                                  mainAxisSize: MainAxisSize.min,
-                                                                                  children: [
-                                                                                    Icon(
-                                                                                      Icons.close_outlined,
-                                                                                      size: 18,
-                                                                                      color: Colors.white,
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
+                                                                        ),
+                                                                        const SizedBox(width: 5),
+                                                                        IntrinsicHeight(
+                                                                          child: GestureDetector(
+                                                                            onTap: () async {
+                                                                              setState(() {
+                                                                                grandTotalReceiveDP -=
+                                                                                    (itemsDP[index].price *
+                                                                                        qtyDP[index]);
+                                                                                itemsDP.remove(itemsDP[index]);
+                                                                                qtyDP.remove(qtyDP[index]);
+                                                                              });
+                                                                              await _recalculateDownPayment(
+                                                                                  grandTotalReceiveDP);
+                                                                              if (context.mounted) {
+                                                                                SnackBarHelper.presentSuccessSnackBar(
+                                                                                    context,
+                                                                                    "Item ${itemsDP[index].itemName} removed",
+                                                                                    2);
+                                                                              }
+                                                                            },
+                                                                            child: Container(
+                                                                              alignment: Alignment.center,
+                                                                              padding:
+                                                                                  const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                                              decoration: BoxDecoration(
+                                                                                color: Colors.deepOrange,
+                                                                                borderRadius: BorderRadius.circular(5),
+                                                                                boxShadow: const [
+                                                                                  BoxShadow(
+                                                                                    spreadRadius: 0.5,
+                                                                                    blurRadius: 5,
+                                                                                    color:
+                                                                                        Color.fromRGBO(0, 0, 0, 0.222),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                              child: const Row(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  Icon(
+                                                                                    Icons.close_outlined,
+                                                                                    size: 18,
+                                                                                    color: Colors.white,
+                                                                                  ),
+                                                                                ],
                                                                               ),
                                                                             ),
                                                                           ),
-                                                                        ],
-                                                                      )),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
                                                                 ],
                                                               ),
                                                             ),
@@ -1308,7 +1320,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 25),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                double itemHeight = 80.0;
+                double itemHeight = 100.0;
                 double totalHeight = (membersDP.isEmpty) ? 60 : itemHeight * membersDP.length;
                 double maxHeight = constraints.maxHeight;
                 double height = totalHeight < maxHeight ? (totalHeight * 1.75) : maxHeight;
@@ -1464,171 +1476,319 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                           controller: _scrollController,
                           itemBuilder: (BuildContext context, int index) {
                             return GestureDetector(
-                              onTap: () {
-                                if (!_isExceeding[index] && !_isZero[index]) {
-                                  setState(() {
-                                    _selectedItems[index] = !_selectedItems[index];
-
-                                    double amount =
-                                        double.tryParse(_drawAmountControllers[index].text.replaceAll(',', '')) ?? 0;
-
-                                    if (_selectedItems[index]) {
-                                      totalAmount += amount;
-                                    } else {
-                                      totalAmount -= amount;
-                                    }
-                                  });
-                                }
-                              },
+                              onTap: () {},
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: _selectedItems[index] ? ProjectColors.primary : Colors.white,
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: ProjectColors.primary,
                                     width: 2.0,
                                   ),
                                 ),
-                                height: itemHeight,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                child: Column(
                                   children: [
-                                    Text(
-                                      "${membersDP[index].refpos2}",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              "${membersDP[index].refpos2}",
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: ProjectColors.primary,
+                                              ),
+                                              textAlign: TextAlign.start,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  "Available",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: ProjectColors.mediumBlack,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  Helpers.parseMoney(membersDP[index].amount),
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: ProjectColors.primary,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: MediaQuery.of(context).size.width * 0.2,
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          TextField(
+                                                            maxLines: 1,
+                                                            maxLength: 21,
+                                                            textAlign: TextAlign.center,
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.w700,
+                                                              color: Colors.black,
+                                                            ),
+                                                            inputFormatters: [MoneyInputFormatter()],
+                                                            controller: _drawAmountControllers[index],
+                                                            focusNode: _drawAmountFocusNodes[index],
+                                                            decoration: const InputDecoration(
+                                                              isDense: true,
+                                                              contentPadding: EdgeInsets.all(10),
+                                                              border: OutlineInputBorder(),
+                                                              counterText: "",
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                  color: ProjectColors.lightBlack,
+                                                                  width: 1.0,
+                                                                ),
+                                                              ),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                  color: ProjectColors.primary,
+                                                                  width: 2.0,
+                                                                ),
+                                                              ),
+                                                              disabledBorder: OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                  color: ProjectColors.lightBlack,
+                                                                  width: 1.0,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            enabled: !_selectedItems[index],
+                                                            onEditingComplete: () {
+                                                              setState(() {
+                                                                double enteredAmount = double.parse(
+                                                                    _drawAmountControllers[index]
+                                                                        .text
+                                                                        .replaceAll(',', ''));
+
+                                                                _isExceeding[index] =
+                                                                    enteredAmount > membersDP[index].amount;
+                                                                _isZero[index] = enteredAmount == 0;
+
+                                                                _selectedItems[index] = !_selectedItems[index];
+
+                                                                if (_selectedItems[index]) {
+                                                                  totalAmount += enteredAmount;
+                                                                } else {
+                                                                  totalAmount -= enteredAmount;
+                                                                }
+                                                              });
+                                                            },
+                                                            onChanged: (value) {
+                                                              setState(() {
+                                                                double enteredAmount =
+                                                                    double.tryParse(value.replaceAll(',', '')) ?? 0.0;
+                                                                _isExceeding[index] =
+                                                                    enteredAmount > membersDP[index].amount;
+                                                                _isZero[index] = enteredAmount == 0;
+
+                                                                _selectedItems[index] = false;
+                                                              });
+                                                            },
+                                                          ),
+                                                          _isExceeding[index]
+                                                              ? const Text(
+                                                                  "Max Amount Exceeded",
+                                                                  style: TextStyle(
+                                                                    fontSize: 12,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w700,
+                                                                    color: ProjectColors.swatch,
+                                                                  ),
+                                                                )
+                                                              : const SizedBox.shrink(),
+                                                          _isZero[index]
+                                                              ? const Text(
+                                                                  "Amount can't be zero",
+                                                                  style: TextStyle(
+                                                                    fontSize: 12,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w700,
+                                                                    color: ProjectColors.swatch,
+                                                                  ),
+                                                                )
+                                                              : const SizedBox.shrink(),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    IntrinsicHeight(
+                                                      child: GestureDetector(
+                                                        onTap: () async {
+                                                          log("Edit button pressed");
+                                                          if (!_isExceeding[index] && !_isZero[index]) {
+                                                            setState(() {
+                                                              _selectedItems[index] = !_selectedItems[index];
+
+                                                              double amount = double.tryParse(
+                                                                      _drawAmountControllers[index]
+                                                                          .text
+                                                                          .replaceAll(',', '')) ??
+                                                                  0;
+
+                                                              if (_selectedItems[index]) {
+                                                                totalAmount += amount;
+                                                              } else {
+                                                                totalAmount -= amount;
+                                                              }
+                                                            });
+                                                          }
+                                                        },
+                                                        child: Container(
+                                                          alignment: Alignment.center,
+                                                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                          decoration: BoxDecoration(
+                                                            color: ProjectColors.blue,
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            boxShadow: const [
+                                                              BoxShadow(
+                                                                spreadRadius: 0.5,
+                                                                blurRadius: 5,
+                                                                color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: const Row(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Icon(
+                                                                Icons.edit_outlined,
+                                                                size: 18,
+                                                                color: Colors.white,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    IntrinsicHeight(
+                                                      child: GestureDetector(
+                                                        onTap: () async {
+                                                          log("Edit button pressed");
+                                                        },
+                                                        child: Container(
+                                                          alignment: Alignment.center,
+                                                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                          decoration: BoxDecoration(
+                                                            color: ProjectColors.green,
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            boxShadow: const [
+                                                              BoxShadow(
+                                                                spreadRadius: 0.5,
+                                                                blurRadius: 5,
+                                                                color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: const Row(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Icon(
+                                                                Icons.done_outline_outlined,
+                                                                size: 18,
+                                                                color: Colors.white,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "Available",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: _selectedItems[index] ? Colors.white : ProjectColors.mediumBlack,
+                                    if (membersDP[index].tinv7 != null &&
+                                        membersDP[index].tinv7!.isNotEmpty &&
+                                        _selectedItems[index])
+                                      Column(
+                                        children: [
+                                          const Divider(
+                                            thickness: 0.5,
+                                            color: ProjectColors.primary,
                                           ),
-                                        ),
-                                        Text(
-                                          Helpers.parseMoney(membersDP[index].amount),
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: MediaQuery.of(context).size.width * 0.15,
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              TextField(
-                                                maxLines: 1,
-                                                maxLength: 21,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: _selectedItems[index] ? Colors.white : Colors.black,
-                                                ),
-                                                inputFormatters: [MoneyInputFormatter()],
-                                                controller: _drawAmountControllers[index],
-                                                focusNode: _drawAmountFocusNodes[index],
-                                                decoration: const InputDecoration(
-                                                  isDense: true,
-                                                  contentPadding: EdgeInsets.all(10),
-                                                  border: OutlineInputBorder(),
-                                                  counterText: "",
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: ProjectColors.lightBlack,
-                                                      width: 1.0,
+                                          ListView.separated(
+                                            shrinkWrap: true,
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            itemCount: membersDP[index].tinv7!.length,
+                                            itemBuilder: (context, innerIndex) {
+                                              var tinvItem = membersDP[index].tinv7![innerIndex];
+                                              if (membersDP.isNotEmpty) {
+                                                isCheckedBox = List.generate(
+                                                  membersDP.length,
+                                                  (index) {
+                                                    var tinv7Length = membersDP[index].tinv7?.length ?? 0;
+                                                    return List.generate(tinv7Length, (innerIndex) => true);
+                                                  },
+                                                );
+                                              }
+                                              return FutureBuilder<String>(
+                                                future: _getItemName(tinvItem.toitmId ?? ""),
+                                                builder: (context, snapshot) {
+                                                  String itemName = snapshot.data ?? "Unknown Item";
+                                                  return CheckboxListTile(
+                                                    title: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                            itemName,
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                              color: ProjectColors.mediumBlack,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Text("${tinvItem.quantity}"),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: ProjectColors.primary,
-                                                      width: 2.0,
-                                                    ),
-                                                  ),
-                                                  disabledBorder: OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Colors.transparent,
-                                                      width: 1.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                                enabled: !_selectedItems[index],
-                                                onEditingComplete: () {
-                                                  setState(() {
-                                                    double enteredAmount = double.parse(
-                                                        _drawAmountControllers[index].text.replaceAll(',', ''));
-
-                                                    _isExceeding[index] = enteredAmount > membersDP[index].amount;
-                                                    _isZero[index] = enteredAmount == 0;
-
-                                                    _selectedItems[index] = !_selectedItems[index];
-
-                                                    if (_selectedItems[index]) {
-                                                      totalAmount += enteredAmount;
-                                                    } else {
-                                                      totalAmount -= enteredAmount;
-                                                    }
-                                                  });
+                                                    value: isCheckedBox[index][innerIndex],
+                                                    onChanged: (bool? value) {
+                                                      log("HEREEEEE 1 - $value");
+                                                      setState(() {
+                                                        isCheckedBox[index][innerIndex] = value ?? false;
+                                                        log("HEREEEEE 2 - $value");
+                                                      });
+                                                    },
+                                                  );
                                                 },
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    double enteredAmount =
-                                                        double.tryParse(value.replaceAll(',', '')) ?? 0.0;
-                                                    _isExceeding[index] = enteredAmount > membersDP[index].amount;
-                                                    _isZero[index] = enteredAmount == 0;
-
-                                                    _selectedItems[index] = false;
-                                                  });
-                                                },
-                                              ),
-                                              _isExceeding[index]
-                                                  ? const Text(
-                                                      "Max Amount Exceeded",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontStyle: FontStyle.italic,
-                                                        fontWeight: FontWeight.w700,
-                                                        color: ProjectColors.swatch,
-                                                      ),
-                                                    )
-                                                  : const SizedBox.shrink(),
-                                              _isZero[index]
-                                                  ? const Text(
-                                                      "Amount can't be zero",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontStyle: FontStyle.italic,
-                                                        fontWeight: FontWeight.w700,
-                                                        color: ProjectColors.swatch,
-                                                      ),
-                                                    )
-                                                  : const SizedBox.shrink(),
-                                            ],
+                                              );
+                                            },
+                                            separatorBuilder: (BuildContext context, int index) => const Divider(
+                                              thickness: 0.5,
+                                              color: Color.fromARGB(100, 118, 118, 117),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    if (membersDP[index].tinv7 != null)
-                                      Text(
-                                        "${membersDP[index].amount}",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: _selectedItems[index] ? Colors.white : ProjectColors.primary,
-                                        ),
+                                        ],
                                       ),
                                   ],
                                 ),

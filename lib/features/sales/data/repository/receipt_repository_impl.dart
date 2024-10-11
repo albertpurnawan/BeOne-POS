@@ -379,7 +379,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                   quantity: item.quantity,
                   sellingPrice: item.sellingPrice,
                   totalAmount: item.totalAmount,
-                  taxPrctg: item.taxPrctg,
+                  // taxPrctg: item.taxPrctg,
                   remarks: item.remarks,
                   tovatId: item.tovatId,
                   includeTax: item.includeTax,

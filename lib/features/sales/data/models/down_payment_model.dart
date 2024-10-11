@@ -20,7 +20,7 @@ class DownPaymetModel extends DownPaymentEntity {
       tinv7: map['tinv7'] != null
           ? List<DownPaymentItemsModel>.from(
               (map['tinv7'] as List<dynamic>).map<DownPaymentItemsModel?>(
-                (x) => DownPaymentItemsModel.fromMap(x as Map<String, dynamic>),
+                (x) => DownPaymentItemsModel.fromMapRemote(x as Map<String, dynamic>),
               ),
             )
           : null,

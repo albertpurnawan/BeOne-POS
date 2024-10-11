@@ -337,7 +337,6 @@ class AppDatabase {
           ${DownPaymentItemsFields.quantity} double NOT NULL,
           ${DownPaymentItemsFields.sellingPrice} double NOT NULL,
           ${DownPaymentItemsFields.totalAmount} double NOT NULL,
-          ${DownPaymentItemsFields.taxPrctg} double NOT NULL,
           ${DownPaymentItemsFields.remarks} text,
           ${DownPaymentItemsFields.tovatId} text DEFAULT NULL,
           ${DownPaymentItemsFields.includeTax} int NOT NULL,

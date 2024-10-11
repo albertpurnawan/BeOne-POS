@@ -12,7 +12,7 @@ class DownPaymentItemsEntity {
   final double quantity;
   final double sellingPrice;
   final double totalAmount;
-  final double taxPrctg;
+  // final double taxPrctg;
   final String? remarks;
   final String? tovatId;
   final int includeTax;
@@ -32,7 +32,7 @@ class DownPaymentItemsEntity {
     required this.quantity,
     required this.sellingPrice,
     required this.totalAmount,
-    required this.taxPrctg,
+    // required this.taxPrctg,
     this.remarks,
     this.tovatId,
     required this.includeTax,
@@ -53,7 +53,7 @@ class DownPaymentItemsEntity {
     double? quantity,
     double? sellingPrice,
     double? totalAmount,
-    double? taxPrctg,
+    // double? taxPrctg,
     String? remarks,
     String? tovatId,
     int? includeTax,
@@ -73,7 +73,7 @@ class DownPaymentItemsEntity {
       quantity: quantity ?? this.quantity,
       sellingPrice: sellingPrice ?? this.sellingPrice,
       totalAmount: totalAmount ?? this.totalAmount,
-      taxPrctg: taxPrctg ?? this.taxPrctg,
+      // taxPrctg: taxPrctg ?? this.taxPrctg,
       remarks: remarks ?? this.remarks,
       tovatId: tovatId ?? this.tovatId,
       includeTax: includeTax ?? this.includeTax,
@@ -96,7 +96,7 @@ class DownPaymentItemsEntity {
       'quantity': quantity,
       'sellingPrice': sellingPrice,
       'totalAmount': totalAmount,
-      'taxPrctg': taxPrctg,
+      // 'taxPrctg': taxPrctg,
       'remarks': remarks,
       'tovatId': tovatId,
       'includeTax': includeTax,
@@ -119,7 +119,7 @@ class DownPaymentItemsEntity {
       quantity: map['quantity'] as double,
       sellingPrice: map['sellingPrice'] as double,
       totalAmount: map['totalAmount'] as double,
-      taxPrctg: map['taxPrctg'] as double,
+      // taxPrctg: map['taxPrctg'] as double,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
       includeTax: map['includeTax'] as int,
@@ -137,7 +137,7 @@ class DownPaymentItemsEntity {
 
   @override
   String toString() {
-    return 'DownPaymentItemsEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, totalAmount: $totalAmount, taxPrctg: $taxPrctg, remarks: $remarks, tovatId: $tovatId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId, tohemId: $tohemId, refpos2: $refpos2)';
+    return 'DownPaymentItemsEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, totalAmount: $totalAmount, remarks: $remarks, tovatId: $tovatId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId, tohemId: $tohemId, refpos2: $refpos2)';
   }
 
   @override
@@ -154,7 +154,7 @@ class DownPaymentItemsEntity {
         other.quantity == quantity &&
         other.sellingPrice == sellingPrice &&
         other.totalAmount == totalAmount &&
-        other.taxPrctg == taxPrctg &&
+        // other.taxPrctg == taxPrctg &&
         other.remarks == remarks &&
         other.tovatId == tovatId &&
         other.includeTax == includeTax &&
@@ -176,7 +176,7 @@ class DownPaymentItemsEntity {
         quantity.hashCode ^
         sellingPrice.hashCode ^
         totalAmount.hashCode ^
-        taxPrctg.hashCode ^
+        // taxPrctg.hashCode ^
         remarks.hashCode ^
         tovatId.hashCode ^
         includeTax.hashCode ^

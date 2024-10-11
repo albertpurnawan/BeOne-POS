@@ -25,8 +25,8 @@ class DownPaymentApi {
         dpItemCode = dp.itemCode;
       }
 
-      String apiName = "API-OUTSTANDINGDP";
-      Map<String, dynamic> exeData = {};
+      // String apiName = "API-OUTSTANDINGDP";
+      // Map<String, dynamic> exeData = {};
       List<DownPaymetModel> allData = [];
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
