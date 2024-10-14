@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,6 +24,8 @@ class DuitkuDialog extends StatefulWidget {
 
 class _DuitkuDialogState extends State<DuitkuDialog> {
   bool isCheckingStatus = false;
+  bool isConnected = true;
+  String errMsg = "";
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
 
   @override
@@ -37,46 +40,74 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
     super.dispose();
   }
 
-  void _startCheckDuitkuStatus() async {
-    setState(() {
-      isCheckingStatus = true;
-    });
-
-    for (int i = 0; i < 180; i++) {
-      if (!mounted) break;
-
-      String status = '';
-      await Future.delayed(const Duration(seconds: 3), () async {
-        status = await _checkDuitkuStatus();
-      });
-
-      if (status == 'SUCCESS') {
-        widget.onPaymentSuccess(status);
-        break;
-      }
-
-      if (status == 'EXPIRED') {
-        if (mounted) {
-          showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (context) {
-                return const DuitkuExpiredDialog();
-              });
-        }
-        break;
-      }
-    }
-
-    if (mounted) {
+  Future<void> _checkConnection() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       setState(() {
+        isConnected = false;
         isCheckingStatus = false;
+        errMsg = "No internet connection detected.\nPlease check your network settings and try again";
       });
+      return;
+    } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet) ||
+        connectivityResult.contains(ConnectivityResult.mobile)) {
+      setState(() {
+        isConnected = true;
+        errMsg = "";
+      });
+    }
+  }
+
+  void _startCheckDuitkuStatus() async {
+    try {
+      await _checkConnection();
+      if (!isConnected) return;
+
+      setState(() {
+        isCheckingStatus = true;
+      });
+
+      for (int i = 0; i < 5; i++) {
+        if (!mounted) break;
+        String status = '';
+        await Future.delayed(const Duration(seconds: 3), () async {
+          status = await _checkDuitkuStatus();
+        });
+
+        if (status == 'SUCCESS') {
+          widget.onPaymentSuccess(status);
+          break;
+        }
+
+        if (status == 'EXPIRED') {
+          if (mounted) {
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (context) {
+                  return const DuitkuExpiredDialog();
+                });
+          }
+          break;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          isCheckingStatus = false;
+        });
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
   Future<String> _checkDuitkuStatus() async {
     if (!mounted) return "";
+    await _checkConnection();
+    if (!isConnected) return "";
+
     final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
     final paymentStatus =
         await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(signature, widget.data.merchantOrderId);
@@ -86,6 +117,9 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
 
   Future<void> _manualCheckDuitkuStatus() async {
     try {
+      await _checkConnection();
+      if (!isConnected) return;
+
       setState(() {
         isCheckingStatus = true;
       });
@@ -327,6 +361,20 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                       overflow: TextOverflow.clip,
                     ),
                   ),
+                  (errMsg != "")
+                      ? Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                          child: Text(
+                            errMsg,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w700,
+                                color: ProjectColors.swatch),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             ),
@@ -372,7 +420,12 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                       backgroundColor: MaterialStateColor.resolveWith(
                           (states) => isCheckingStatus ? Colors.grey : ProjectColors.primary),
                       overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                  onPressed: isCheckingStatus ? null : () async => await _manualCheckDuitkuStatus(),
+                  onPressed: isCheckingStatus
+                      ? null
+                      : () async {
+                          await _checkConnection();
+                          await _manualCheckDuitkuStatus();
+                        },
                   child: Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
