@@ -2,6 +2,7 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +46,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dia
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
+import 'package:uuid/uuid.dart';
 
 class MopType {
   final String name;
@@ -69,6 +71,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isLoadingDuitku = false;
   bool isCharging = false;
   bool isMultiMOPs = true;
+  bool isConnected = true;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
@@ -80,6 +83,23 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       length,
       (_) => characters.codeUnitAt(random.nextInt(characters.length)),
     ));
+  }
+
+  Future<void> _checkConnection() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      setState(() {
+        isConnected = false;
+        SnackBarHelper.presentErrorSnackBar(
+            context, "No internet connection detected. Please check your network settings and try again");
+      });
+    } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet) ||
+        connectivityResult.contains(ConnectivityResult.mobile)) {
+      setState(() {
+        isConnected = true;
+      });
+    }
   }
 
   void showQRISDialog(BuildContext context, NetzMeEntity data, String accessToken) {
@@ -112,13 +132,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     );
   }
 
-  void showDuitkuDialog(BuildContext context, DuitkuEntity data) {
+  void showDuitkuDialog(BuildContext context, DuitkuEntity data, String docnumDuitku) {
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return DuitkuDialog(
               data: data,
+              docnumDuitku: docnumDuitku,
               onPaymentSuccess: (String status) async {
                 if (status == 'SUCCESS') {
                   try {
@@ -266,8 +287,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
             await GetIt.instance<DuitkuApi>().createTransactionSignature(duitkuAmount, merchantOrderId);
 
         final custId = state.customerEntity?.docId;
-        final duitkuVA = await GetIt.instance<DuitkuApi>().createTransactionVA(
-            (duitkuMop.first.cardHolder ?? ""), duitkuSignature, duitkuAmount, (custId ?? ""), merchantOrderId);
+        final docnumDuitku = const Uuid().v4();
+        final duitkuVA = await GetIt.instance<DuitkuApi>().createTransactionVA((duitkuMop.first.cardHolder ?? ""),
+            duitkuSignature, duitkuAmount, (custId ?? ""), merchantOrderId, docnumDuitku);
 
         setState(() {
           isLoadingDuitku = false;
@@ -300,7 +322,13 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         );
 
         dev.log("duitku - $duitku");
-        showDuitkuDialog(context, duitku);
+        await _checkConnection();
+        if (isConnected == false) {
+          SnackBarHelper.presentFailSnackBar(
+              context, "No internet connection detected. Please check your network settings and try again");
+          return;
+        }
+        showDuitkuDialog(context, duitku, docnumDuitku);
       } else {
         await context.read<ReceiptCubit>().charge();
         await Future.delayed(const Duration(milliseconds: 200), () {
@@ -860,6 +888,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   bool isZeroGrandTotal = false;
   List<Widget> selectedVoucherChips = [];
   bool isQRISorVA = false;
+  bool isConnected = true;
 
   final List<VouchersSelectionEntity> _vouchers = [];
   final _textEditingControllerCashAmount = TextEditingController();
@@ -886,6 +915,21 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     // getCurrencyName();
     checkAndHandleZeroGrandTotal();
     refreshQRISChip();
+  }
+
+  Future<void> _checkConnection() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      setState(() {
+        isConnected = false;
+      });
+    } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet) ||
+        connectivityResult.contains(ConnectivityResult.mobile)) {
+      setState(() {
+        isConnected = true;
+      });
+    }
   }
 
   void getCurrencyName() async {
@@ -1827,6 +1871,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 selected:
                                                                     _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
                                                                 onSelected: (bool selected) async {
+                                                                  await _checkConnection();
+                                                                  if (isConnected == false) {
+                                                                    SnackBarHelper.presentErrorSnackBar(context,
+                                                                        "No internet connection detected. Please check your network settings and try again");
+                                                                  }
                                                                   if (selected) {
                                                                     if (isQRISorVA) {
                                                                       SnackBarHelper.presentErrorSnackBar(context,

@@ -51,20 +51,29 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.f12) {
+        final String amountText = _textEditingControllerVAAmount.text.trim();
+        final double mopAmount = Helpers.revertMoneyToDecimalFormat(amountText);
+
         if (isErr) return KeyEventResult.handled;
-        if (selectedPaymentMethod == null) return KeyEventResult.handled;
-        if (selectedPaymentMethod == null || selectedPaymentMethod == "" || selectedPaymentMethod!.isEmpty) {
+
+        if (selectedPaymentMethod == null || selectedPaymentMethod!.isEmpty) {
           SnackBarHelper.presentErrorSnackBar(context, "Please select a payment method");
           return KeyEventResult.handled;
         }
 
-        final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
+        if (amountText.isEmpty || mopAmount == 0) {
+          SnackBarHelper.presentErrorSnackBar(context, "Please input the amount");
+          return KeyEventResult.handled;
+        }
 
-        if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) {
-          setState(() {
-            isErr = true;
-            errMsg = "Invalid amount";
-          });
+        if (mopAmount < 10000) {
+          SnackBarHelper.presentErrorSnackBar(context, "Minimal amount is 10,000, please add more items");
+          return KeyEventResult.handled;
+        }
+
+        if (mopAmount > 100000000) {
+          SnackBarHelper.presentErrorSnackBar(
+              context, "Maximal amount is 100,000,000, please add other payment methods");
           return KeyEventResult.handled;
         }
 
@@ -89,8 +98,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
           amount: mopAmount,
           tpmt7Id: vaDuitku!.docId,
         );
-        widget.onVASelected(mopVA!);
 
+        widget.onVASelected(mopVA!);
         context.pop(mopAmount);
         return KeyEventResult.handled;
       } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
@@ -414,31 +423,48 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                         overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
+                      final String amountText = _textEditingControllerVAAmount.text.trim();
+                      final double mopAmount = Helpers.revertMoneyToDecimalFormat(amountText);
+
                       if (isErr) return;
-                      if (selectedPaymentMethod == null ||
-                          selectedPaymentMethod == "" ||
-                          selectedPaymentMethod!.isEmpty) {
+
+                      if (selectedPaymentMethod == null || selectedPaymentMethod!.isEmpty) {
                         SnackBarHelper.presentErrorSnackBar(childContext, "Please select a payment method");
                         return;
                       }
+
                       if (mopVA == null) return;
-                      final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
-                      if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) {
+
+                      if (amountText.isEmpty || mopAmount == 0) {
                         SnackBarHelper.presentErrorSnackBar(childContext, "Please input the amount");
                         return;
                       }
-                      if (_textEditingControllerVAAmount.text.isNotEmpty && mopAmount < 10000) {
+
+                      // Log mopAmount to debug
+                      log('Entered amount: $mopAmount');
+
+                      if (mopAmount < 10000) {
                         SnackBarHelper.presentErrorSnackBar(
                             childContext, "Minimal amount is 10,000, please add more items");
                         return;
                       }
-                      if (_textEditingControllerVAAmount.text.isNotEmpty && mopAmount > 100000000) {
+
+                      if (mopAmount > 100000000) {
                         SnackBarHelper.presentErrorSnackBar(
                             childContext, "Maximal amount is 100,000,000, please add other payment methods");
                         return;
                       }
+
+                      if (mopAmount > widget.amount) {
+                        setState(() {
+                          isErr = true;
+                          errMsg = "Amount exceeds the total amount";
+                        });
+                        return;
+                      }
+
                       await _checkConnection();
-                      if (isConnected == false) {
+                      if (!isConnected) {
                         SnackBarHelper.presentErrorSnackBar(childContext,
                             "No internet connection detected. Please check your network settings and try again");
                         return;
@@ -451,6 +477,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         amount: mopAmount,
                         tpmt7Id: vaDuitku!.docId,
                       );
+
                       widget.onVASelected(mopVA!);
                       context.pop(mopAmount);
                     },

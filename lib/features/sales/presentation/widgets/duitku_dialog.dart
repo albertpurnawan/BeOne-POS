@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,9 +12,10 @@ import 'package:pos_fe/features/sales/presentation/widgets/duitku_expired_dialog
 
 class DuitkuDialog extends StatefulWidget {
   final DuitkuEntity data;
+  final String docnumDuitku;
 
   final void Function(String status) onPaymentSuccess;
-  const DuitkuDialog({super.key, required this.data, required this.onPaymentSuccess});
+  const DuitkuDialog({super.key, required this.data, required this.onPaymentSuccess, required this.docnumDuitku});
 
   @override
   State<DuitkuDialog> createState() => _DuitkuDialogState();
@@ -68,7 +67,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
         isCheckingStatus = true;
       });
 
-      for (int i = 0; i < 5; i++) {
+      for (int i = 0; i < 60; i++) {
         if (!mounted) break;
         String status = '';
         await Future.delayed(const Duration(seconds: 3), () async {
@@ -111,7 +110,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
     final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
     final paymentStatus =
         await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(signature, widget.data.merchantOrderId);
-    log("paymentStatus - $paymentStatus");
+    // log("paymentStatus - ${paymentStatus['data']['status']}");
     return paymentStatus['statusMessage'];
   }
 

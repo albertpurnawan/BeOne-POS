@@ -10,7 +10,6 @@ import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer_cst.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:uuid/uuid.dart';
 
 class DuitkuApi {
   final Dio _dio;
@@ -96,7 +95,7 @@ class DuitkuApi {
   // }
 
   Future<dynamic> createTransactionVA(
-      String paymentMethod, String signature, int amount, String custId, String merchantOrderId) async {
+      String paymentMethod, String signature, int amount, String custId, String merchantOrderId, String docnum) async {
     final params = await getApiKey();
     if (params.isEmpty) {
       throw Exception("Duitku parameters must be available.");
@@ -107,7 +106,6 @@ class DuitkuApi {
     final CustomerCstEntity? customerEntity =
         await GetIt.instance<AppDatabase>().customerCstDao.readByDocId(custId, null);
     final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-    final docnum = const Uuid().v4();
 
     if (customerEntity == null) return;
 
@@ -139,14 +137,14 @@ class DuitkuApi {
     return response.data;
   }
 
-  // Future<dynamic> checkVAPaymentStatus(String merchantOrderId) async {
+  // Future<dynamic> checkVAPaymentStatus(String docnum) async {
   //   try {
   //     log("CHECKING PAYEMENT STATUS");
   //     final params = await getApiKey();
   //     if (params.isEmpty) {
   //       throw Exception("Duitku parameters must be available.");
   //     }
-  //     String url = "${params['url']}/getCallbackOne/$merchantOrderId";
+  //     String url = "http://110.239.68.248:7065/invoice/$docnum";
 
   //     log("url - $url");
 
