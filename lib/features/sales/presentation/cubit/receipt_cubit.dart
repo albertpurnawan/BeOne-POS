@@ -362,7 +362,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     );
 
     newState = await _recalculateReceiptUseCase.call(params: newState);
-    dev.log("newState updateDP - ${newState.subtotal}");
+    dev.log("newState updateDP - $newState");
     emit(newState);
   }
 

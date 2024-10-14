@@ -47,6 +47,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   List<bool> _isExceeding = [];
   List<bool> _isZero = [];
   List<bool> _selectedItems = [];
+  List<bool> _selectedDrawItems = [];
   List<List<bool>> isCheckedBox = [];
 
   String? salesSelected;
@@ -77,15 +78,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     readCustomer();
     tohemIdSelected = stateInvoice.salesTohemId;
     getEmployee(tohemIdSelected ?? "");
-    if (membersDP.isNotEmpty) {
-      isCheckedBox = List.generate(
-        membersDP.length,
-        (index) {
-          var tinv7Length = membersDP[index].tinv7?.length ?? 0;
-          return List.generate(tinv7Length, (innerIndex) => true);
-        },
-      );
-    }
   }
 
   @override
@@ -197,9 +189,16 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         customerSelected = customer;
       });
       membersDP = await getMembersDownPayments();
-      log("membersDP - $membersDP");
+      // log("membersDP - $membersDP");
       if (membersDP.isNotEmpty) {
         _setupControllers();
+        isCheckedBox = List.generate(
+          membersDP.length,
+          (index) {
+            var tinv7Length = membersDP[index].tinv7?.length ?? 0;
+            return List.generate(tinv7Length, (innerIndex) => true);
+          },
+        );
       } else {
         _setupControllers();
       }
@@ -330,8 +329,28 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     for (int i = 0; i < _selectedItems.length; i++) {
       if (_selectedItems[i]) {
         double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
-        selectedDownPayments.add(DownPaymentEntity(toinvDocId: membersDP[i].refpos2, amount: amount, isReceive: false));
+        selectedDownPayments.add(DownPaymentEntity(
+          toinvDocId: membersDP[i].refpos2,
+          amount: amount,
+          isReceive: false,
+          tinv7: membersDP[i].tinv7,
+        ));
         totalSelectedAmount += amount;
+
+        if (membersDP[i].tinv7 != null && membersDP[i].tinv7!.isNotEmpty) {
+          for (var tinvItem in membersDP[i].tinv7!) {
+            final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(tinvItem.toitmId ?? "", null);
+            final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
+              barcode: itemEntity?.barcode,
+              itemEntity: itemEntity,
+              quantity: tinvItem.quantity,
+              context: context,
+              onOpenPriceInputted: () {},
+            );
+
+            receipt.addUpdateReceiptItems(param);
+          }
+        }
       }
     }
     // if (totalSelectedAmount > stateInvoice.grandTotal) {
@@ -340,7 +359,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     // }
 
     double grandTotalDifference = previousSelectedAmount - totalSelectedAmount;
+    log("hereeeeeee 1");
     receipt.addOrUpdateDownPayments(downPaymentEntities: selectedDownPayments, amountDifference: grandTotalDifference);
+    log("hereeeeeee 2");
     context.pop();
   }
 
@@ -1743,15 +1764,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             itemCount: membersDP[index].tinv7!.length,
                                             itemBuilder: (context, innerIndex) {
                                               var tinvItem = membersDP[index].tinv7![innerIndex];
-                                              if (membersDP.isNotEmpty) {
-                                                isCheckedBox = List.generate(
-                                                  membersDP.length,
-                                                  (index) {
-                                                    var tinv7Length = membersDP[index].tinv7?.length ?? 0;
-                                                    return List.generate(tinv7Length, (innerIndex) => true);
-                                                  },
-                                                );
-                                              }
                                               return FutureBuilder<String>(
                                                 future: _getItemName(tinvItem.toitmId ?? ""),
                                                 builder: (context, snapshot) {
@@ -1773,10 +1785,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                     ),
                                                     value: isCheckedBox[index][innerIndex],
                                                     onChanged: (bool? value) {
-                                                      log("HEREEEEE 1 - $value");
                                                       setState(() {
                                                         isCheckedBox[index][innerIndex] = value ?? false;
-                                                        log("HEREEEEE 2 - $value");
                                                       });
                                                     },
                                                   );

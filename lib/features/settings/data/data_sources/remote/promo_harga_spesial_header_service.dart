@@ -25,8 +25,7 @@ class PromoHargaSpesialApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
       tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
@@ -64,9 +63,8 @@ class PromoHargaSpesialApi {
         //   print('$key: ${value.runtimeType}');
         // });
 
-        List<PromoHargaSpesialHeaderModel> data = (resp.data['data'] as List)
-            .map((e) => PromoHargaSpesialHeaderModel.fromMapRemote(e))
-            .toList();
+        List<PromoHargaSpesialHeaderModel> data =
+            (resp.data['data'] as List).map((e) => PromoHargaSpesialHeaderModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 
