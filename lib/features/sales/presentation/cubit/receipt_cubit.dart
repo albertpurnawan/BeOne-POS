@@ -178,7 +178,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Handle reset promo
       if (state.previousReceiptEntity != null) {
-        dev.log("is it going here or not euuuuyyy???");
         final bool? isProceed = await showDialog<bool>(
           context: params.context!,
           barrierDismissible: false,
@@ -360,9 +359,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     ReceiptEntity newState = state.copyWith(
       downPayments: downPaymentEntities,
     );
+    dev.log("downPaymentEntities = ${newState.receiptItems}");
 
     newState = await _recalculateReceiptUseCase.call(params: newState);
-    dev.log("newState updateDP - $newState");
+    dev.log("newState updateDP - ${newState.receiptItems}");
     emit(newState);
   }
 

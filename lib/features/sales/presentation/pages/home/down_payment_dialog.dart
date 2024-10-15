@@ -321,8 +321,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
     final receipt = context.read<ReceiptCubit>();
+    log("hereeeeeee 4124 - ${receipt.state}");
 
     List<DownPaymentEntity> selectedDownPayments = [];
+    List<DownPaymentItemsModel> toitmIdList = [];
     double totalSelectedAmount = 0;
     double previousSelectedAmount = stateInvoice.downPayments?.fold(0.0, (sum, dp) => sum! + dp.amount) ?? 0.0;
 
@@ -338,30 +340,34 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         totalSelectedAmount += amount;
 
         if (membersDP[i].tinv7 != null && membersDP[i].tinv7!.isNotEmpty) {
-          for (var tinvItem in membersDP[i].tinv7!) {
-            final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(tinvItem.toitmId ?? "", null);
-            final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
-              barcode: itemEntity?.barcode,
-              itemEntity: itemEntity,
-              quantity: tinvItem.quantity,
-              context: context,
-              onOpenPriceInputted: () {},
-            );
-
-            receipt.addUpdateReceiptItems(param);
-          }
+          log("Selected Items: $_selectedItems");
+          toitmIdList.addAll(membersDP[i].tinv7!);
         }
       }
     }
+    for (int j = 0; j < toitmIdList.length; j++) {
+      final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(toitmIdList[j].toitmId ?? "", null);
+      log("toitmIdList[j] $j - ${itemEntity?.barcode}");
+      final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
+        barcode: itemEntity?.barcode,
+        itemEntity: null,
+        quantity: toitmIdList[j].quantity,
+        context: context,
+        onOpenPriceInputted: () {},
+      );
+
+      receipt.addUpdateReceiptItems(param);
+      log("hereeeeeee $j - ${receipt.state.receiptItems}");
+    }
+
     // if (totalSelectedAmount > stateInvoice.grandTotal) {
     //   SnackBarHelper.presentErrorSnackBar(childContext, "DP can't be more than grand total");
     //   return;
     // }
 
     double grandTotalDifference = previousSelectedAmount - totalSelectedAmount;
-    log("hereeeeeee 1");
+    log("hereeeeeee 21314 - ${receipt.state}");
     receipt.addOrUpdateDownPayments(downPaymentEntities: selectedDownPayments, amountDifference: grandTotalDifference);
-    log("hereeeeeee 2");
     context.pop();
   }
 

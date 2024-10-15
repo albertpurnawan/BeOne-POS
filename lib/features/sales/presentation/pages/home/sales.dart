@@ -782,6 +782,7 @@ class _SalesPageState extends State<SalesPage> {
                                   scrollOffsetListener: scrollOffsetListener,
                                   itemCount: state.receiptItems.length,
                                   itemBuilder: (context, index) {
+                                    // log("stateReceiveItems - ${state.receiptItems}");
                                     final e = state.receiptItems[index];
                                     // final hasPromos = e.promos.isNotEmpty;
                                     final test = e.promos.map(
