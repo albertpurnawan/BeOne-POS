@@ -300,13 +300,46 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                             });
                           }
                         },
-                        onEditingComplete: () {
+                        onEditingComplete: () async {
                           if (isErr) return;
-                          if (selectedPaymentMethod == null) return;
+                          if (selectedPaymentMethod == null || selectedPaymentMethod!.isEmpty) {
+                            SnackBarHelper.presentErrorSnackBar(childContext, "Please select a payment method");
+                            return;
+                          }
                           if (mopVA == null) return;
                           final double mopAmount =
                               Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
-                          if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) return;
+                          if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) {
+                            SnackBarHelper.presentErrorSnackBar(childContext, "Please input the amount");
+                            return;
+                          }
+                          if (mopAmount < 10000) {
+                            SnackBarHelper.presentErrorSnackBar(
+                                childContext, "Minimal amount is 10,000, please add more items");
+                            return;
+                          }
+
+                          if (mopAmount > 100000000) {
+                            SnackBarHelper.presentErrorSnackBar(
+                                childContext, "Maximal amount is 100,000,000, please add other payment methods");
+                            return;
+                          }
+
+                          if (mopAmount > widget.amount) {
+                            setState(() {
+                              isErr = true;
+                              errMsg = "Amount exceeds the total amount";
+                            });
+                            return;
+                          }
+
+                          await _checkConnection();
+                          if (!isConnected) {
+                            SnackBarHelper.presentErrorSnackBar(childContext,
+                                "No internet connection detected. Please check your network settings and try again");
+                            return;
+                          }
+
                           mopVA = mopVA?.copyWith(
                             cardName: vaDuitku!.paymentName,
                             cardHolder: selectedPaymentMethod,
@@ -423,8 +456,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                         overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
-                      final String amountText = _textEditingControllerVAAmount.text.trim();
-                      final double mopAmount = Helpers.revertMoneyToDecimalFormat(amountText);
+                      final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
 
                       if (isErr) return;
 
@@ -435,7 +467,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
 
                       if (mopVA == null) return;
 
-                      if (amountText.isEmpty || mopAmount == 0) {
+                      if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) {
                         SnackBarHelper.presentErrorSnackBar(childContext, "Please input the amount");
                         return;
                       }
