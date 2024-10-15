@@ -137,54 +137,51 @@ class DuitkuApi {
     return response.data;
   }
 
-  // Future<dynamic> checkVAPaymentStatus(String docnum) async {
-  //   try {
-  //     log("CHECKING PAYEMENT STATUS");
-  //     final params = await getApiKey();
-  //     if (params.isEmpty) {
-  //       throw Exception("Duitku parameters must be available.");
-  //     }
-  //     String url = "http://110.239.68.248:7065/invoice/$docnum";
-
-  //     log("url - $url");
-
-  //     final response = await _dio.get(
-  //       url,
-  //     );
-
-  //     log("response - ${response.data}");
-  //     return response.data;
-  //   } catch (e) {
-  //     handleError(e);
-  //     rethrow;
-  //   }
-  // }
-
-  Future<dynamic> checkVAPaymentStatus(String signature, String merchantOrderId) async {
+  Future<dynamic> checkVAPaymentStatusMicroS(String docnum) async {
     try {
       final params = await getApiKey();
       if (params.isEmpty) {
         throw Exception("Duitku parameters must be available.");
       }
-      const String url = "https://sandbox.duitku.com/webapi/api/merchant/transactionStatus";
-      final body = {
-        "merchantCode": params['merchantCode'],
-        "merchantOrderId": merchantOrderId,
-        "signature": signature,
-      };
-      log("body - $body");
+      String url = "http://110.239.68.248:7065/invoice/$docnum";
 
-      final response = await _dio.post(
+      final response = await _dio.get(
         url,
-        data: body,
-        options: Options(contentType: Headers.formUrlEncodedContentType),
       );
 
-      log("response - ${response.data}");
+      // log("response - ${response.data}");
       return response.data;
     } catch (e) {
       handleError(e);
       rethrow;
     }
   }
+
+  // Future<dynamic> checkVAPaymentStatus(String signature, String merchantOrderId) async {
+  //   try {
+  //     final params = await getApiKey();
+  //     if (params.isEmpty) {
+  //       throw Exception("Duitku parameters must be available.");
+  //     }
+  //     const String url = "https://sandbox.duitku.com/webapi/api/merchant/transactionStatus";
+  //     final body = {
+  //       "merchantCode": params['merchantCode'],
+  //       "merchantOrderId": merchantOrderId,
+  //       "signature": signature,
+  //     };
+  //     // log("body - $body");
+
+  //     final response = await _dio.post(
+  //       url,
+  //       data: body,
+  //       options: Options(contentType: Headers.formUrlEncodedContentType),
+  //     );
+
+  //     // log("response - ${response.data}");
+  //     return response.data;
+  //   } catch (e) {
+  //     handleError(e);
+  //     rethrow;
+  //   }
+  // }
 }

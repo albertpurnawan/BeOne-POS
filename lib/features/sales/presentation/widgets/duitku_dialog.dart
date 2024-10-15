@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -73,8 +75,8 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
         await Future.delayed(const Duration(seconds: 3), () async {
           status = await _checkDuitkuStatus();
         });
-
-        if (status == 'SUCCESS') {
+        log("status 1 - $status");
+        if (status == 'PAID') {
           widget.onPaymentSuccess(status);
           break;
         }
@@ -107,11 +109,11 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
     await _checkConnection();
     if (!isConnected) return "";
 
-    final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
-    final paymentStatus =
-        await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(signature, widget.data.merchantOrderId);
+    // final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
+    final paymentStatus = await GetIt.instance<DuitkuApi>().checkVAPaymentStatusMicroS(widget.docnumDuitku);
+    // await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(signature, widget.data.merchantOrderId);
     // log("paymentStatus - ${paymentStatus['data']['status']}");
-    return paymentStatus['statusMessage'];
+    return paymentStatus['data']['status'];
   }
 
   Future<void> _manualCheckDuitkuStatus() async {
@@ -128,7 +130,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
       await Future.delayed(const Duration(seconds: 3), () async {
         status = await _checkDuitkuStatus();
       });
-      if (status == 'SUCCESS') {
+      if (status == 'PAID') {
         widget.onPaymentSuccess(status);
         return;
       }

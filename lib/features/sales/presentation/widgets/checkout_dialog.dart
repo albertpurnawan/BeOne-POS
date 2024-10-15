@@ -141,7 +141,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               data: data,
               docnumDuitku: docnumDuitku,
               onPaymentSuccess: (String status) async {
-                if (status == 'SUCCESS') {
+                if (status == 'PAID') {
                   try {
                     await context.read<ReceiptCubit>().charge();
                   } catch (e) {

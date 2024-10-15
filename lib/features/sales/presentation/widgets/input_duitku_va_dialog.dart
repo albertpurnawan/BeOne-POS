@@ -67,7 +67,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
         }
 
         if (mopAmount < 10000) {
-          SnackBarHelper.presentErrorSnackBar(context, "Minimal amount is 10,000, please add more items");
+          SnackBarHelper.presentErrorSnackBar(context, "Minimal amount for Virtual Account is 10,000");
           return KeyEventResult.handled;
         }
 
@@ -315,7 +315,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                           }
                           if (mopAmount < 10000) {
                             SnackBarHelper.presentErrorSnackBar(
-                                childContext, "Minimal amount is 10,000, please add more items");
+                                childContext, "Minimal amount for Virtual Account is 10,000");
                             return;
                           }
 
@@ -477,7 +477,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
 
                       if (mopAmount < 10000) {
                         SnackBarHelper.presentErrorSnackBar(
-                            childContext, "Minimal amount is 10,000, please add more items");
+                            childContext, "Minimal amount for Virtual Account is 10,000");
                         return;
                       }
 
