@@ -232,7 +232,7 @@ Future<void> syncData() async {
       final singleTopos = topos[0];
       final toposId = singleTopos.docId;
       final lastSyncDate = singleTopos.lastSync!;
-      log("lastSyncDate ${lastSyncDate}");
+      log("lastSyncDate $lastSyncDate");
       prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
       final nextSyncDate = DateTime.now().toUtc().toIso8601String();

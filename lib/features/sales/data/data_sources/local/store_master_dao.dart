@@ -26,7 +26,6 @@ class StoreMasterDao extends BaseDao<StoreMasterModel> {
     return result.map((itemData) => StoreMasterModel.fromMap(itemData)).toList();
   }
 
-  @override
   Future<StoreMasterModel?> readByStoreCode(String storeCode, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(

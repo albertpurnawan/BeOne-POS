@@ -6,8 +6,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
-import 'package:pos_fe/features/sales/data/models/receipt.dart';
-import 'package:pos_fe/features/sales/data/models/return_receipt.dart';
 import 'package:pos_fe/features/sales/data/models/return_receipt_remote.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,9 +1,5 @@
-import 'dart:developer';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -586,7 +582,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                         e.itemEntity.barcode,
                                         style: const TextStyle(fontSize: 12, height: 1),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         height: 5,
                                       ),
                                       Text(
@@ -628,13 +624,13 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                       height: 17,
                                     ),
                                     if (_getRemainingQty(e) > 0)
-                                      Icon(
+                                      const Icon(
                                         Icons.arrow_forward_rounded,
                                         size: 20,
                                         color: ProjectColors.green,
                                       ),
                                     if (_getRemainingQty(e) <= 0)
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 20,
                                       )
                                   ],
@@ -1044,7 +1040,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
         contentPadding: const EdgeInsets.all(0),
         content: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Container(
+          child: SizedBox(
             width: 400,
             // constraints: BoxConstraints(
             //   maxHeight: MediaQuery.of(context).size.height * 0.6,

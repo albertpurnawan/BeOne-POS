@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -3887,7 +3886,7 @@ class _SalesPageState extends State<SalesPage> {
         });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
         if (indexIsSelect[1] != 0) {
-          final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
+          // final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
           await showDialog(
             context: context,
             builder: (BuildContext context) => ItemDetailsDialog(indexSelected: indexIsSelect[0]),
