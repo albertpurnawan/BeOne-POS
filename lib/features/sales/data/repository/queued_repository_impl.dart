@@ -249,7 +249,9 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
               itemName: itemMasterModel.itemName,
               itemCode: itemMasterModel.itemCode,
               barcode: itemBarcodeModel.barcode,
-              price: 0,
+              price: queuedInvoiceDetailModel.refpos3 != null
+                  ? queuedInvoiceDetailModel.totalAmount / queuedInvoiceDetailModel.quantity
+                  : 0,
               toitmId: itemMasterModel.docId,
               tbitmId: queuedInvoiceDetailModel.tbitmId!,
               tpln2Id: "N/A",

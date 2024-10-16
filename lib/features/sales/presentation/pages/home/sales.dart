@@ -3984,9 +3984,9 @@ class _SalesPageState extends State<SalesPage> {
         return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
       }
 
-      if (context.read<ReceiptCubit>().state.grandTotal < 0) {
-        return SnackBarHelper.presentErrorSnackBar(context, "Grand total cannot be negative");
-      }
+      // if (context.read<ReceiptCubit>().state.grandTotal < 0) {
+      //   return SnackBarHelper.presentErrorSnackBar(context, "Grand total cannot be negative");
+      // }
 
       final ReceiptItemEntity? dpItem =
           context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;

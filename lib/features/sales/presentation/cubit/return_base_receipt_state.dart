@@ -1,4 +1,4 @@
-part of 'return_base_receipt_cubit.dart';
+part of 'return_receipt_cubit.dart';
 
 sealed class ReturnBaseReceiptState extends Equatable {
   const ReturnBaseReceiptState();

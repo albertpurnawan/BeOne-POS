@@ -5,28 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
-import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/field_label.dart';
-import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
-import 'package:pos_fe/features/sales/domain/entities/customer.dart';
-import 'package:pos_fe/features/sales/domain/entities/invoice_header.dart';
-import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/return_receipt.dart';
-import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
-import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_customers.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_return_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:pos_fe/features/sales/presentation/cubit/return_base_receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/return_receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
 
 class ReturnDialog extends StatefulWidget {
@@ -48,7 +38,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
   final FocusNode _searchReturnedItemsInputFocusNode = FocusNode();
   final TextEditingController _searchReturnedItemsInputTextController = TextEditingController();
 
-  ReturnBaseReceiptEntity? returnBaseReceiptEntity;
+  ReturnReceiptEntity? returnReceiptEntity;
   List<ReceiptItemEntity> availableReceiptItems = [];
   List<ReceiptItemEntity> returnedReceiptItems = [];
 
@@ -72,7 +62,6 @@ class _ReturnDialogState extends State<ReturnDialog> {
 
   @override
   Widget build(BuildContext context) {
-    log(returnBaseReceiptEntity.toString());
     return Focus(
       focusNode: FocusNode(
         canRequestFocus: false,
@@ -85,6 +74,10 @@ class _ReturnDialogState extends State<ReturnDialog> {
           if (event.physicalKey == PhysicalKeyboardKey.escape) {
             Navigator.of(context).pop();
             return KeyEventResult.handled;
+          } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
+            _saveReturnedReceiptItems().then((value) {
+              if (value == true) context.pop(true);
+            });
           }
 
           return KeyEventResult.ignored;
@@ -212,9 +205,9 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   width: 8,
                                 ),
                                 Text(
-                                  returnBaseReceiptEntity == null
+                                  returnReceiptEntity == null
                                       ? "-"
-                                      : Helpers.dateddMMMyyyyHHmmss(returnBaseReceiptEntity!.transDateTime),
+                                      : Helpers.dateddMMMyyyyHHmmss(returnReceiptEntity!.transDateTime),
                                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
@@ -229,7 +222,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   width: 8,
                                 ),
                                 Text(
-                                  returnBaseReceiptEntity?.storeMasterEntity.storeCode ?? "-",
+                                  returnReceiptEntity?.storeMasterEntity.storeCode ?? "-",
                                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
@@ -244,7 +237,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   width: 8,
                                 ),
                                 Text(
-                                  returnBaseReceiptEntity?.customerEntity.custName ?? "-",
+                                  returnReceiptEntity?.customerEntity.custName ?? "-",
                                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
@@ -259,9 +252,9 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   width: 8,
                                 ),
                                 Text(
-                                  returnBaseReceiptEntity == null
+                                  returnReceiptEntity == null
                                       ? "-"
-                                      : Helpers.parseMoney(returnBaseReceiptEntity!.grandTotal),
+                                      : Helpers.parseMoney(returnReceiptEntity!.receiptEntity.grandTotal),
                                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
@@ -271,12 +264,12 @@ class _ReturnDialogState extends State<ReturnDialog> {
                   ],
                 ),
               ),
-              if (returnBaseReceiptEntity != null)
+              if (returnReceiptEntity != null)
                 const Divider(
                   height: 30,
                   color: Colors.grey,
                 ),
-              if (returnBaseReceiptEntity != null)
+              if (returnReceiptEntity != null)
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
@@ -384,16 +377,16 @@ class _ReturnDialogState extends State<ReturnDialog> {
           .map((e) => e.copyWith(quantity: e.quantity * -1))
           .toList();
       if (existingReturns.isEmpty) return;
-      if (context.read<ReturnBaseReceiptCubit>().state == null ||
+      if (context.read<ReturnReceiptCubit>().state == null ||
           (existingReturns.isNotEmpty &&
-              existingReturns.firstOrNull?.refpos3 != context.read<ReturnBaseReceiptCubit>().state?.docNum)) {
+              existingReturns.firstOrNull?.refpos3 != context.read<ReturnReceiptCubit>().state?.receiptEntity.docNum)) {
         await _fetchInvoiceByDocNum(docNum: existingReturns.first.refpos3);
       } else {
-        returnBaseReceiptEntity = context.read<ReturnBaseReceiptCubit>().state;
+        returnReceiptEntity = context.read<ReturnReceiptCubit>().state;
       }
       setState(() {
-        _invoiceNumberController.text = returnBaseReceiptEntity!.docNum;
-        availableReceiptItems = returnBaseReceiptEntity!.availableItems;
+        _invoiceNumberController.text = returnReceiptEntity!.receiptEntity.docNum;
+        availableReceiptItems = returnReceiptEntity!.receiptEntity.receiptItems;
         returnedReceiptItems = existingReturns;
       });
     } catch (e) {
@@ -425,9 +418,16 @@ class _ReturnDialogState extends State<ReturnDialog> {
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () async {
-                for (final availableReceiptItem in availableReceiptItems) {
-                  await _saveDraftReturnedReceiptItems(
-                      availableReceiptItem.copyWith(quantity: _getRemainingQty(availableReceiptItem)));
+                try {
+                  for (final availableReceiptItem in availableReceiptItems) {
+                    if (availableReceiptItem.quantity < 0) continue;
+                    await _saveDraftReturnedReceiptItems(
+                        availableReceiptItem.copyWith(quantity: _getRemainingQty(availableReceiptItem)),
+                        isSnackbarActive: false);
+                  }
+                  SnackBarHelper.presentSuccessSnackBar(context, "Add return items success", null);
+                } catch (e) {
+                  SnackBarHelper.presentSuccessSnackBar(context, "One or more items failed to add", null);
                 }
               },
               child: Center(
@@ -547,7 +547,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                       child: InkWell(
                         focusColor: const Color.fromARGB(255, 237, 200, 200),
                         onTap: _getRemainingQty(e) <= 0
-                            ? null
+                            ? () {}
                             : () async {
                                 final double? returnedQuantity = await showDialog<double>(
                                   context: context,
@@ -557,8 +557,8 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                       return Scaffold(
                                         backgroundColor: Colors.transparent,
                                         body: InputReturnQuantityDialog(
-                                          receiptItemEntity: e.copyWith(quantity: _getRemainingQty(e)),
-                                        ),
+                                            receiptItemEntity: e.copyWith(quantity: _getRemainingQty(e)),
+                                            min: (e.quantity - _getRemainingQty(e)) * -1),
                                       );
                                     }),
                                   ),
@@ -854,7 +854,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
     try {
       docNum = docNum ?? _invoiceNumberController.text;
 
-      if (returnBaseReceiptEntity != null && returnBaseReceiptEntity?.docNum != docNum) {
+      if (returnReceiptEntity != null && returnReceiptEntity?.receiptEntity.docNum != docNum) {
         final bool? isProceed = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
@@ -870,36 +870,19 @@ class _ReturnDialogState extends State<ReturnDialog> {
       setState(() {
         isFetching = true;
       });
-      final InvoiceHeaderEntity? targetInvoice =
-          await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByDocNum(docNum, null);
-      if (targetInvoice?.docId == null) throw "Invoice not found";
-      final ReceiptEntity? targetReceipt =
-          await GetIt.instance<ReceiptRepository>().getReceiptByInvoiceHeaderDocId(targetInvoice!.docId!, null);
-      if (targetReceipt == null) throw "Issue found in invoice";
 
-      final StoreMasterEntity? storeMasterEntity =
-          await GetIt.instance<GetStoreMasterUseCase>().call(params: targetInvoice.tostrId);
-      if (storeMasterEntity == null) throw "Store not found";
+      final ReturnReceiptEntity targetReceipt = await GetIt.instance<GetReturnReceiptUseCase>().call(params: docNum);
 
-      await Future.delayed(Durations.extralong1);
       setState(() {
-        final ReturnBaseReceiptEntity newState = ReturnBaseReceiptEntity(
-            docNum: targetInvoice.docnum,
-            transDateTime: targetReceipt.transDateTime ?? DateTime.now(),
-            timezone: targetInvoice.timezone,
-            storeMasterEntity: storeMasterEntity,
-            grandTotal: targetInvoice.grandTotal,
-            customerEntity: targetReceipt.customerEntity!,
-            availableItems: targetReceipt.receiptItems);
-        context.read<ReturnBaseReceiptCubit>().replace(newState);
-        returnBaseReceiptEntity = newState;
-        availableReceiptItems = newState.availableItems;
+        context.read<ReturnReceiptCubit>().replace(targetReceipt);
+        returnReceiptEntity = targetReceipt;
+        availableReceiptItems = targetReceipt.receiptEntity.receiptItems;
       });
       SnackBarHelper.presentSuccessSnackBar(context, "Fetch invoice success", null);
     } catch (e) {
       setState(() {
-        context.read<ReturnBaseReceiptCubit>().replace(null);
-        returnBaseReceiptEntity = null;
+        context.read<ReturnReceiptCubit>().replace(null);
+        returnReceiptEntity = null;
         availableReceiptItems = [];
       });
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
@@ -910,7 +893,8 @@ class _ReturnDialogState extends State<ReturnDialog> {
     }
   }
 
-  Future<void> _saveDraftReturnedReceiptItems(ReceiptItemEntity receiptItemEntity) async {
+  Future<void> _saveDraftReturnedReceiptItems(ReceiptItemEntity receiptItemEntity,
+      {bool isSnackbarActive = true}) async {
     try {
       final ReceiptItemEntity? existing = returnedReceiptItems
           .where((element) => element.itemEntity.barcode == receiptItemEntity.itemEntity.barcode)
@@ -918,12 +902,19 @@ class _ReturnDialogState extends State<ReturnDialog> {
       returnedReceiptItems = returnedReceiptItems
           .where((element) => element.itemEntity.barcode != receiptItemEntity.itemEntity.barcode)
           .toList();
-      returnedReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(
-          receiptItemEntity.copyWith(quantity: (existing?.quantity ?? 0) + receiptItemEntity.quantity)));
-      returnedReceiptItems = returnedReceiptItems.reversed.toList();
+      if (((existing?.quantity ?? 0) + receiptItemEntity.quantity) == 0) {
+        _removeDraftReturnedReceiptItem(receiptItemEntity);
+      } else {
+        returnedReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(
+            receiptItemEntity.copyWith(quantity: (existing?.quantity ?? 0) + receiptItemEntity.quantity)));
+        returnedReceiptItems = returnedReceiptItems.reversed.toList();
+      }
       setState(() {});
-      SnackBarHelper.presentSuccessSnackBar(context, "Add return items success", null);
+      if (!isSnackbarActive) return;
+      SnackBarHelper.presentSuccessSnackBar(
+          context, "${existing != null ? "Modify" : "Add"} return items success", null);
     } catch (e) {
+      if (!isSnackbarActive) return;
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
   }
@@ -937,12 +928,12 @@ class _ReturnDialogState extends State<ReturnDialog> {
       }
       for (final returnedReceiptItem in returnedReceiptItems) {
         await context.read<ReceiptCubit>().addUpdateReceiptItems(AddUpdateReceiptItemsParams(
-            barcode: returnedReceiptItem.itemEntity.barcode,
-            itemEntity: null,
+            barcode: null,
+            itemEntity: returnedReceiptItem.itemEntity,
             quantity: returnedReceiptItem.quantity * -1,
             context: context,
             onOpenPriceInputted: () {},
-            refpos3: returnBaseReceiptEntity?.docNum));
+            refpos3: returnReceiptEntity?.receiptEntity.docNum));
       }
       return true;
     } catch (e) {
@@ -1006,10 +997,11 @@ class _ReturnDialogState extends State<ReturnDialog> {
 
 class InputReturnQuantityDialog extends StatelessWidget {
   final ReceiptItemEntity receiptItemEntity;
+  final double min;
   final FocusNode _inputReturnedQtyFocusNode = FocusNode();
   final TextEditingController _inputReturnedQtyEditingController = TextEditingController();
 
-  InputReturnQuantityDialog({super.key, required this.receiptItemEntity});
+  InputReturnQuantityDialog({super.key, required this.receiptItemEntity, required this.min});
 
   @override
   Widget build(BuildContext context) {
@@ -1303,7 +1295,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                         TextSpan(
-                          text: "  (F12)",
+                          text: "  (Enter)",
                           style: TextStyle(fontWeight: FontWeight.w300),
                         ),
                       ],
@@ -1322,7 +1314,8 @@ class InputReturnQuantityDialog extends StatelessWidget {
   void _saveQty(BuildContext context) {
     try {
       final double parsed = double.parse(_inputReturnedQtyEditingController.text);
-      if (parsed <= 0) throw "Quantity must be positive";
+      // if (parsed <= 0) throw "Quantity must be positive";
+      if (parsed < min) throw "Resulting quantity must be positive";
       if (parsed > receiptItemEntity.quantity) throw "Quantity exceeds available quantity";
       context.pop(double.parse(_inputReturnedQtyEditingController.text));
     } catch (e) {

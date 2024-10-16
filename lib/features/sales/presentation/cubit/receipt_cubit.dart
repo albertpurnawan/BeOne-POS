@@ -137,6 +137,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (params.quantity == 0) {
         throw "Quantity cannot be 0";
       }
+      if (params.refpos3 != null && params.itemEntity == null) {
+        throw "An internal error has occured (Return Item requires Item Entity)";
+      }
 
       // Initialize some values
       if (state.receiptItems.isEmpty && state.customerEntity?.custCode == "99" && state.includePromo == null) {
@@ -147,7 +150,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ItemEntity? itemEntity;
       ReceiptItemEntity receiptItemEntity;
       final List<PromotionsEntity?> availablePromos;
-      final int includePromo = state.includePromo ?? 1;
+      final int includePromo = params.refpos3 != null ? 0 : state.includePromo ?? 1;
 
       // Handle negative quantity && validate return item
       final ReceiptItemEntity? currentReceiptItemEntity = state.receiptItems
@@ -156,6 +159,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       if (currentReceiptItemEntity != null) {
         if (currentReceiptItemEntity.refpos3 != null && params.refpos3 == null) {
           throw "Please modify returned items on Return feature";
+        } else if (currentReceiptItemEntity.refpos3 == null && params.refpos3 != null) {
+          throw "Purchase and Return cannot be combined on the same item";
         }
 
         if (currentReceiptItemEntity.quantity + params.quantity == 0) {
@@ -195,9 +200,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         if (!isProceed) return;
       }
       ReceiptEntity newReceipt = state.previousReceiptEntity ?? state;
-      dev.log("after reset $newReceipt");
 
       // Get item entity and validate
+      if (params.refpos3 != null) itemEntity = params.itemEntity;
       if (state.customerEntity?.toplnId != null) {
         itemEntity = await _getItemWithAndConditionUseCase.call(params: {
           ItemFields.barcode: params.barcode ?? params.itemEntity?.barcode,
@@ -225,7 +230,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         ..refpos3 = params.refpos3;
 
       // Handle open price
-      if (receiptItemEntity.itemEntity.openPrice == 1) {
+      if (receiptItemEntity.itemEntity.openPrice == 1 && receiptItemEntity.refpos3 == null) {
         final List<ReceiptItemEntity> existingItem = newReceipt.receiptItems
             .where((element) => element.itemEntity.barcode == receiptItemEntity.itemEntity.barcode)
             .toList();
@@ -247,6 +252,18 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
               params: HandleOpenPriceUseCaseParams(receiptItemEntity: receiptItemEntity, newPrice: newPrice));
         }
       }
+
+      // // Handle overriding price (return)
+      // if (params.refpos3 != null) {
+      //   receiptItemEntity = ReceiptHelper.updateReceiptItemAggregateFields(receiptItemEntity.copyWith(
+      //   itemEntity: receiptItemEntity.itemEntity.copyWith(
+      //       price: params.overridingPrice,
+      //       dpp: receiptItemEntity.itemEntity.includeTax == 1
+      //           ? newPrice * (100 / (100 + receiptItemEntity.itemEntity.taxRate))
+      //           : newPrice),
+      //   sellingPrice: newPrice,
+      // ))
+      // }
 
       // Handle promos
       bool anyPromoApplied = false;
@@ -298,8 +315,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Recalculate receipt
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
 
-      // dev.log("Result addUpdate ${newReceipt.copyWith(previousReceiptEntity: null)}");
-
+      dev.log(newReceipt.copyWith(previousReceiptEntity: null).toString());
       emit(newReceipt.copyWith(previousReceiptEntity: null));
     } catch (e, s) {
       dev.log(s.toString());
@@ -595,7 +611,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   Future<void> charge() async {
     try {
       ReceiptEntity? newState;
-      if (state.totalVoucher! >= state.grandTotal && state.grandTotal != 0) {
+      if (state.totalVoucher! >= state.grandTotal && state.grandTotal > 0) {
         newState = state.copyWith(
           mopSelections: [],
           changed: 0,
@@ -605,7 +621,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         newState = state.copyWith(changed: state.totalPayment! - state.grandTotal);
       }
 
-      // dev.log("ON CHARGE - $newState");
+      dev.log("ON CHARGE - $newState");
       final ReceiptEntity? createdReceipt = await _saveReceiptUseCase.call(params: newState);
 
       if (createdReceipt != null) {
@@ -687,7 +703,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     for (final receiptItem in receiptEntity.receiptItems) {
       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
         barcode: receiptItem.itemEntity.barcode,
-        itemEntity: null,
+        itemEntity: receiptItem.refpos3 != null ? receiptItem.itemEntity : null,
         quantity: receiptItem.quantity,
         context: context,
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
@@ -707,28 +723,45 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> updateTotalAmountFromDiscount(double discValue, BuildContext context) async {
     try {
-      if (discValue > state.grandTotal + (state.discHeaderManual ?? 0)) {
-        throw "Discount amount invalid";
-      }
+      // if (discValue > state.grandTotal + (state.discHeaderManual ?? 0)) {
+      //   throw "Discount amount invalid";
+      // }
 
-      ReceiptEntity preparedReceipt = state.copyWith();
+      ReceiptEntity preparedReceipt =
+          state.copyWith(receiptItems: state.receiptItems.map((e) => e.copyWith()).toList());
 
       if ((state.discHeaderManual ?? 0) > 0) {
-        preparedReceipt = await _recalculateReceiptUseCase.call(
-            params: state.copyWith(
-          discHeaderManual: 0,
-          discAmount: (state.discHeaderPromo ?? 0),
-        ));
-        // preparedReceipt =
-        //     await _recalculateTaxUseCase.call(params: preparedReceipt.copyWith(discHeaderManual: 0));
+        preparedReceipt.grandTotal += state.discHeaderManual!;
+        preparedReceipt.discAmount = preparedReceipt.discHeaderPromo ?? 0;
+        // preparedReceipt = await _recalculateReceiptUseCase.call(
+        //     params: preparedReceipt.copyWith(
+        //   discHeaderManual: 0,
+        //   discAmount: (preparedReceipt.discHeaderPromo ?? 0),
+        // ));
+
+        // preparedReceipt = await _recalculateTaxUseCase.call(
+        //   params: preparedReceipt.copyWith(
+        //       discHeaderManual: 0, receiptItems: preparedReceipt.receiptItems.map((e) => e.copyWith()).toList()),
+        // );
       }
 
-      if (state.downPayments != null && state.downPayments!.isNotEmpty) {
-        preparedReceipt = await _recalculateReceiptUseCase.call(
-            params: state.copyWith(
-          discHeaderManual: 0,
-          discAmount: (state.discAmount ?? 0),
-        ));
+      if ((state.downPayments != null && state.downPayments!.isNotEmpty)) {
+        // preparedReceipt = await _recalculateReceiptUseCase.call(
+        //     params: state.copyWith(
+        //   receiptItems: preparedReceipt.receiptItems.map((e) => e.copyWith()).toList(),
+        //   discHeaderManual: 0,
+        //   discAmount: (preparedReceipt.discHeaderPromo ?? 0),
+        // ));
+
+        // preparedReceipt = await _recalculateTaxUseCase.call(
+        //   params: preparedReceipt.copyWith(
+        //       discHeaderManual: 0, receiptItems: preparedReceipt.receiptItems.map((e) => e.copyWith()).toList()),
+        // );
+
+        // if (preparedReceipt.coupons.isNotEmpty) {
+        //   preparedReceipt = await _applyPromoToprnUseCase.call(
+        //       params: ApplyPromoToprnUseCaseParams(receiptEntity: preparedReceipt, context: context));
+        // }
       }
 
       ReceiptEntity newState = preparedReceipt.copyWith(
@@ -736,10 +769,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         // discAmount: discValue + (state.discHeaderPromo ?? 0),
       );
 
-      if (newState.coupons.isNotEmpty) {
-        newState = await _applyPromoToprnUseCase.call(
-            params: ApplyPromoToprnUseCaseParams(receiptEntity: newState, context: context));
-      }
+      // if (newState.coupons.isNotEmpty) {
+      //   newState = await _applyPromoToprnUseCase.call(
+      //       params: ApplyPromoToprnUseCaseParams(receiptEntity: newState, context: context));
+      // }
 
       ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
@@ -768,9 +801,11 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     )..mopSelections = [];
     try {
       // Excludes DP item from calculation
-      ReceiptItemEntity? dpItem = state.receiptItems.where((element) => element.itemEntity.barcode == "99").firstOrNull;
+      ReceiptItemEntity? dpItem =
+          state.receiptItems.where((element) => element.itemEntity.barcode == "99" && element.quantity > 0).firstOrNull;
+      List<ReceiptItemEntity> returnItems = state.receiptItems.where((element) => element.refpos3 != null).toList();
       List<ReceiptItemEntity> normalItems =
-          state.receiptItems.where((element) => element.itemEntity.barcode != "99").toList();
+          state.receiptItems.where((element) => element.refpos3 == null && element.itemEntity.barcode != "99").toList();
 
       ReceiptEntity newReceipt = state.copyWith(
         receiptItems: normalItems.map((e) => e.copyWith()).toList(),
@@ -789,12 +824,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Reset down payment
       List<DownPaymentEntity> dps = newReceipt.downPayments ?? [];
       double totalDPAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
-      if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
-        double reset = newReceipt.subtotal + totalDPAmount;
-        newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt.copyWith(subtotal: reset));
-      }
+      // if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
+      //   double reset = newReceipt.subtotal + totalDPAmount;
+      //   newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt.copyWith(subtotal: reset));
+      // }
+      // dev.log("resetReceipt - ${newReceipt.subtotal}");
 
-      dev.log("resetReceipt - ${newReceipt.subtotal}");
       // Reset manual header discount
       final double discHeaderManual = state.discHeaderManual ?? 0;
       if (discHeaderManual > 0 || dpItem != null) {
@@ -812,7 +847,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Handle promos
       if ((state.includePromo ?? 1) == 1) {
-        for (final receiptItem in state.copyWith().receiptItems) {
+        for (final receiptItem in newReceipt.copyWith().receiptItems.map((e) => e.copyWith())) {
           List<PromotionsEntity?> availablePromos = [];
           availablePromos = await _checkPromoUseCase(params: receiptItem.itemEntity.toitmId);
 
@@ -830,6 +865,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                     receiptEntity: newReceipt,
                     receiptItemEntity: receiptItem,
                     promo: availablePromo,
+                    returnItems: returnItems,
                   ));
 
                   if (!checkBuyXGetYApplicability.isApplicable) break;
@@ -914,26 +950,43 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             params: ApplyPromoToprnUseCaseParams(receiptEntity: newReceipt, context: context));
       }
 
+      // Reinsert return items
+      if (returnItems.isNotEmpty) {
+        final double subtotalAfterReturn = newReceipt.subtotal +
+            returnItems.map((e) => e.totalGross).fold(0, (previousValue, element) => previousValue + element);
+        final double taxAfterReturn = newReceipt.taxAmount +
+            returnItems.map((e) => e.taxAmount).fold(0, (previousValue, element) => previousValue + element);
+        final double grandTotalAfterReturn =
+            subtotalAfterReturn - (newReceipt.discAmount ?? 0) - newReceipt.couponDiscount + taxAfterReturn;
+
+        newReceipt = newReceipt.copyWith(
+          subtotal: subtotalAfterReturn,
+          discPrctg: (newReceipt.discAmount ?? 0) / subtotalAfterReturn,
+          taxAmount: taxAfterReturn,
+          receiptItems: newReceipt.receiptItems + returnItems,
+          grandTotal: grandTotalAfterReturn,
+        );
+      }
+
       // Reinsert down payment
       if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
         if (totalDPAmount > newReceipt.grandTotal) {
           throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(totalDPAmount - newReceipt.grandTotal)})";
-        } else {
-          double subTotal = newReceipt.subtotal;
-          double dpSubTotal = subTotal - totalDPAmount;
-
-          double dpGrandTotal =
-              dpSubTotal - (newReceipt.discAmount ?? 0) + newReceipt.taxAmount - newReceipt.couponDiscount;
-
-          newReceipt = newReceipt.copyWith(
-            subtotal: dpSubTotal,
-            discAmount: newReceipt.discAmount,
-            discHeaderPromo: newReceipt.discHeaderPromo,
-            discPrctg: dpSubTotal == 0 ? 0 : ((newReceipt.discAmount ?? 0) / dpSubTotal) * 100,
-            taxAmount: newReceipt.taxAmount,
-            grandTotal: dpGrandTotal,
-          );
         }
+        double subTotal = newReceipt.subtotal;
+        double dpSubTotal = subTotal - totalDPAmount;
+
+        double dpGrandTotal =
+            dpSubTotal - (newReceipt.discAmount ?? 0) + newReceipt.taxAmount - newReceipt.couponDiscount;
+
+        newReceipt = newReceipt.copyWith(
+          subtotal: dpSubTotal,
+          discAmount: newReceipt.discAmount,
+          discHeaderPromo: newReceipt.discHeaderPromo,
+          discPrctg: dpSubTotal == 0 ? 0 : ((newReceipt.discAmount ?? 0) / dpSubTotal) * 100,
+          taxAmount: newReceipt.taxAmount,
+          grandTotal: dpGrandTotal,
+        );
       } else if (dpItem != null && dpItem.quantity > 0) {
         newReceipt = await _recalculateReceiptUseCase.call(
             params: newReceipt.copyWith(
@@ -946,8 +999,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         newReceipt = await _recalculateTaxUseCase.call(
             params: newReceipt.copyWith(
           discHeaderManual: discHeaderManual,
-          subtotal: (newReceipt.subtotal + totalDPAmount),
-          grandTotal: (newReceipt.grandTotal + totalDPAmount),
+          // subtotal: (newReceipt.subtotal + totalDPAmount),
+          // grandTotal: (newReceipt.grandTotal + totalDPAmount),
           // discAmount: discHeaderManual + (newReceipt.discHeaderPromo ?? 0),
           // discPrctg: (100 * (discHeaderManual + (newReceipt.discHeaderPromo ?? 0))) / newReceipt.subtotal,
         ));
@@ -1009,6 +1062,7 @@ class AddUpdateReceiptItemsParams {
   final double? setOpenPrice;
   final String? refpos2;
   final String? refpos3;
+  final double? overridingPrice;
 
   AddUpdateReceiptItemsParams({
     required this.barcode,
@@ -1021,5 +1075,6 @@ class AddUpdateReceiptItemsParams {
     this.setOpenPrice,
     this.refpos2,
     this.refpos3,
+    this.overridingPrice,
   });
 }

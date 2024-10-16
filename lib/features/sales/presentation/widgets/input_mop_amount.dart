@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -22,9 +23,9 @@ class InputMopAmountDialog extends StatefulWidget {
 }
 
 class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
-  final _textEditingControllerOpenPrice = TextEditingController();
+  TextEditingController _textEditingControllerOpenPrice = TextEditingController();
   bool isErr = false;
-  String errMsg = "Invalid amount";
+  String errMsg = "Invalid";
 
   late final _focusNodeOpenPrice = FocusNode(
     onKeyEvent: (node, event) {
@@ -37,7 +38,6 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
         if (mopAmount > widget.max) {
           setState(() {
             isErr = true;
-            errMsg = "Invalid amount";
           });
 
           return KeyEventResult.handled;
@@ -56,6 +56,11 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
   @override
   initState() {
     super.initState();
+    if (widget.max != double.infinity) {
+      final String initialAmount = Helpers.parseMoney(widget.max);
+      _textEditingControllerOpenPrice = TextEditingController.fromValue(TextEditingValue(
+          text: initialAmount, selection: TextSelection(baseOffset: 0, extentOffset: initialAmount.length)));
+    }
   }
 
   @override
@@ -98,7 +103,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
 
                 decoration: BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius: BorderRadius.circular(60),
+                  borderRadius: BorderRadius.circular(5),
                   boxShadow: const [
                     BoxShadow(
                       spreadRadius: 0.5,
@@ -134,26 +139,26 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   focusNode: _focusNodeOpenPrice,
                   controller: _textEditingControllerOpenPrice,
                   autofocus: true,
-                  inputFormatters: [MoneyInputFormatter()],
+                  inputFormatters: [NegativeMoneyInputFormatter()],
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 18),
                   onChanged: (value) {
                     final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
+                    if (mopAmount == double.infinity) return;
                     if (mopAmount > widget.max) {
                       setState(() {
                         isErr = true;
-                        errMsg = "Invalid amount";
                       });
                     } else if (isErr) {
                       setState(() {
                         isErr = false;
-                        errMsg = "Invalid amount";
                       });
                     }
                   },
                   onEditingComplete: () {
                     final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
+                    if (mopAmount == double.infinity) return;
                     if (mopAmount > widget.max) return;
                     context.pop(mopAmount);
                   },
@@ -162,19 +167,27 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                       hintText: "Enter Amount",
                       hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
                       border: const OutlineInputBorder(),
-                      suffix: isErr
-                          ? Text(
-                              errMsg,
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  fontStyle: FontStyle.normal,
-                                  fontWeight: FontWeight.w700,
-                                  color: ProjectColors.swatch),
-                            )
-                          : null,
-                      prefixIcon: const Icon(
-                        Icons.payments_outlined,
-                        size: 24,
+                      suffix: Container(
+                        alignment: Alignment.centerRight,
+                        width: 100,
+                        child: Text(
+                          isErr ? errMsg : "",
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontStyle: FontStyle.normal,
+                              fontWeight: FontWeight.w700,
+                              height: 1,
+                              color: ProjectColors.swatch),
+                        ),
+                      ),
+                      prefixIcon: Container(
+                        width: 100,
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.only(left: 10),
+                        child: const Icon(
+                          Icons.payments_outlined,
+                          size: 24,
+                        ),
                       )),
                 ),
               ),
