@@ -2943,7 +2943,10 @@ class _SalesPageState extends State<SalesPage> {
                         (state.downPayments != null &&
                                 state.downPayments!.isNotEmpty &&
                                 state.downPayments!.any((dp) => dp.isReceive == false))
-                            ? _noteChip((state.downPayments ?? []).fold(0.0, (total, dp) => total + dp.amount), 2)
+                            ? _noteChip(
+                                (state.downPayments ?? [])
+                                    .fold(0.0, (total, dp) => dp.isSelected == true ? total + dp.amount : total),
+                                2)
                             : const SizedBox.shrink(),
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)

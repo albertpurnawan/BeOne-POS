@@ -16,7 +16,6 @@ import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
-import 'package:pos_fe/features/sales/domain/entities/down_payment_items_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/invoice_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
@@ -355,7 +354,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> addOrUpdateDownPayments({
     required List<DownPaymentEntity> downPaymentEntities,
-    required List<List<DownPaymentItemsEntity>> selectedItems,
     required double amountDifference,
   }) async {
     ReceiptEntity newState = state.copyWith(
@@ -363,7 +361,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     );
 
     newState = await _recalculateReceiptUseCase.call(params: newState);
-    dev.log("newState updateDP - ${newState.downPayments}");
+    dev.log("newState afterAddUpp - ${newState.downPayments}");
     emit(newState);
   }
 

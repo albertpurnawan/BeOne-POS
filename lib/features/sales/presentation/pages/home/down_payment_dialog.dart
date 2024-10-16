@@ -189,7 +189,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         customerSelected = customer;
       });
       membersDP = await getMembersDownPayments();
-      log("membersDP - ${membersDP.length} - $membersDP");
       if (membersDP.isNotEmpty) {
         _setupControllers();
         if (stateInvoice.downPayments != null &&
@@ -242,21 +241,17 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       await receipt.removeReceiptItem(receipt.state.receiptItems[0], context);
     }
     await receipt.updateSalesTohemIdRemarksOnReceipt("", "");
-    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], selectedItems: [], amountDifference: 0);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
   }
 
   Future<List<DownPaymentEntity>> getMembersDownPayments() async {
-    List<DownPaymentEntity> downPayments =
-        await GetIt.instance<DownPaymentApi>().fetchData(stateInvoice.customerEntity!.custCode);
-    // log("downPayments - $downPayments");
-    // log("stateInvoice - ${stateInvoice.downPayments}");
-    // if (stateInvoice.downPayments != null &&
-    //     stateInvoice.downPayments!.isNotEmpty &&
-    //     stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
-    //   downPayments = stateInvoice.downPayments!;
-    // }
-
-    return downPayments;
+    log("stateInvoice - ${stateInvoice.downPayments}");
+    if (stateInvoice.downPayments != null &&
+        stateInvoice.downPayments!.isNotEmpty &&
+        stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
+      return stateInvoice.downPayments!;
+    }
+    return await GetIt.instance<DownPaymentApi>().fetchData(stateInvoice.customerEntity!.custCode);
   }
 
   void _setupControllers() {
@@ -274,8 +269,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     _isZero = List.generate(membersDP.length, (index) => false);
 
     _selectedItems = List.generate(membersDP.length, (index) {
-      int selectedIndex =
-          stateInvoice.downPayments?.indexWhere((dp) => dp.toinvDocId == membersDP[index].refpos2) ?? -1;
+      int selectedIndex = stateInvoice.downPayments
+              ?.indexWhere((dp) => dp.refpos2 == membersDP[index].refpos2 && dp.isSelected == true) ??
+          -1;
+
       if (selectedIndex != -1) {
         double amount = stateInvoice.downPayments![selectedIndex].amount;
         _drawAmountControllers[index].text = Helpers.parseMoney(amount);
@@ -340,107 +337,73 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
     await receipt.addUpdateReceiptItems(params);
     await receipt.updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _remarksController.text);
-    await receipt.addOrUpdateDownPayments(downPaymentEntities: [dpEntity], selectedItems: [], amountDifference: amount);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [dpEntity], amountDifference: amount);
     log("receipt 2 - ${receipt.state}");
   }
 
   Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
     final receipt = context.read<ReceiptCubit>();
-
-    List<DownPaymentEntity> selectedDownPayments = [];
     double totalSelectedAmount = 0;
     double previousSelectedAmount = stateInvoice.downPayments?.fold(0.0, (sum, dp) => sum! + dp.amount) ?? 0.0;
 
-    for (int i = 0; i < _selectedItems.length; i++) {
-      if (_selectedItems[i]) {
+    List<DownPaymentEntity> selectedDownPayments = [];
+    DownPaymentEntity? selectedDP;
+
+    if (_selectedItems.isNotEmpty) {
+      for (int i = 0; i < _selectedItems.length; i++) {
+        selectedDP = membersDP[i].copyWith(isSelected: _selectedItems[i]);
         double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
-        List<DownPaymentItemsEntity>? tinv7List = membersDP[i].tinv7;
-        if (tinv7List != null) {
-          for (int j = 0; j < tinv7List.length; j++) {
-            tinv7List[j] = DownPaymentItemsEntity(
-                docId: tinv7List[j].docId,
-                createDate: tinv7List[j].createDate,
-                updateDate: tinv7List[j].updateDate,
-                toinvId: tinv7List[j].toinvId,
-                docNum: tinv7List[j].docNum,
-                idNumber: tinv7List[j].idNumber,
-                toitmId: tinv7List[j].toitmId,
-                quantity: tinv7List[j].quantity,
-                sellingPrice: tinv7List[j].sellingPrice,
-                totalAmount: tinv7List[j].totalAmount,
-                remarks: tinv7List[j].remarks,
-                tovatId: tinv7List[j].tovatId,
-                includeTax: tinv7List[j].includeTax,
-                tovenId: tinv7List[j].tovenId,
-                tbitmId: tinv7List[j].tbitmId,
-                tohemId: tinv7List[j].tohemId,
-                refpos2: tinv7List[j].refpos2,
-                qtySelected: tinv7List[j].qtySelected,
-                isSelected: isCheckedBox[i][j] ? 1 : 0);
-          }
+        if (_selectedItems[i]) {
+          List<DownPaymentItemsEntity>? tinv7List = selectedDP.tinv7;
+          // if (tinv7List != null) {
+          List<DownPaymentItemsEntity> updatedTinv7List = tinv7List!.map((tinv7Item) {
+            int index = tinv7List.indexOf(tinv7Item);
+            return tinv7Item.copyWith(isSelected: isCheckedBox[i][index] ? 1 : 0);
+          }).toList();
+
+          selectedDP = selectedDP.copyWith(tinv7: updatedTinv7List, amount: amount);
+          // } else
         }
-        selectedDownPayments.add(DownPaymentEntity(
-          toinvDocId: membersDP[i].refpos2,
-          amount: amount,
-          isReceive: false,
-          tinv7: tinv7List,
-          isSelected: true,
-        ));
+        selectedDownPayments.add(selectedDP);
         totalSelectedAmount += amount;
       }
     }
 
-    for (int j = 0; j < _selectedTinv7Items.length; j++) {
-      if (_selectedTinv7Items[j].isNotEmpty) {
-        for (var tinvItem in _selectedTinv7Items[j]) {
-          final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(tinvItem.toitmId ?? "", null);
-
-          if (itemEntity != null) {
-            // var matchingReceiptItems = receipt.state.receiptItems.where((element) {
-            //   return element.itemEntity.toitmId == itemEntity.toitmId && element.refpos2 == tinvItem.docNum;
-            // }).toList();
-
-            // if (matchingReceiptItems.isNotEmpty) {
-            //   for (var matchingItem in matchingReceiptItems) {
-            //     await receipt.removeReceiptItemByToitmIdAndQuantity(matchingItem, tinvItem.quantity, context);
-            //   }
-            // }
-
+    if (selectedDownPayments.isNotEmpty) {
+      for (DownPaymentEntity dp in selectedDownPayments) {
+        if (dp.isSelected != null && dp.isSelected == true && dp.tinv7 != null && dp.tinv7!.isNotEmpty) {
+          for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
+            final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItem.toitmId ?? "", null);
             if (stateInvoice.downPayments != null &&
                 stateInvoice.downPayments!.isNotEmpty &&
                 stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
               final AddUpdateReceiptItemsParams paramReset = AddUpdateReceiptItemsParams(
-                barcode: itemEntity.barcode,
+                barcode: itemEntity?.barcode ?? "",
                 itemEntity: itemEntity,
-                quantity: tinvItem.quantity * -1,
+                quantity: dpItem.quantity * -1,
                 context: context,
                 onOpenPriceInputted: () {},
-                refpos2: tinvItem.docNum,
+                refpos2: dpItem.docNum,
               );
-
               await receipt.addUpdateReceiptItems(paramReset);
             }
-
-            final AddUpdateReceiptItemsParams paramAdd = AddUpdateReceiptItemsParams(
-              barcode: itemEntity.barcode,
-              itemEntity: itemEntity,
-              quantity: tinvItem.quantity,
-              context: context,
-              onOpenPriceInputted: () {},
-              refpos2: tinvItem.docNum,
-            );
-
-            await receipt.addUpdateReceiptItems(paramAdd);
+            if (dpItem.isSelected == 1) {
+              final AddUpdateReceiptItemsParams paramAdd = AddUpdateReceiptItemsParams(
+                barcode: itemEntity?.barcode ?? "",
+                itemEntity: itemEntity,
+                quantity: dpItem.quantity,
+                context: context,
+                onOpenPriceInputted: () {},
+                refpos2: dpItem.docNum,
+              );
+              await receipt.addUpdateReceiptItems(paramAdd);
+            }
           }
         }
       }
     }
-
     double grandTotalDifference = previousSelectedAmount - totalSelectedAmount;
-    receipt.addOrUpdateDownPayments(
-        downPaymentEntities: selectedDownPayments,
-        selectedItems: _selectedTinv7Items,
-        amountDifference: grandTotalDifference);
+    receipt.addOrUpdateDownPayments(downPaymentEntities: selectedDownPayments, amountDifference: grandTotalDifference);
     context.pop();
   }
 
@@ -467,7 +430,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       receipt.addUpdateReceiptItems(params);
     }
 
-    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], selectedItems: [], amountDifference: 0);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
     stateInvoice = receipt.state.copyWith();
   }
 
@@ -1777,7 +1740,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                   return (innerIndex < isCheckedBox[index].length) &&
                                                                       isCheckedBox[index][innerIndex];
                                                                 }).toList();
-                                                                log("_selectedTinv7Items - $_selectedTinv7Items");
                                                               } else {
                                                                 totalAmount -= amount;
                                                                 _selectedTinv7Items[index].clear();
@@ -2010,7 +1972,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                       } else {
                                                         _selectedTinv7Items[index].remove(tinvItem);
                                                       }
-                                                      log("_selectedTinv7Items 12315151 - $_selectedTinv7Items");
                                                     },
                                                   );
                                                 },
