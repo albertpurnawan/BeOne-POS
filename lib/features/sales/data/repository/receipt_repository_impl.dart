@@ -387,6 +387,8 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                   tbitmId: item.tbitmId,
                   tohemId: item.tohemId,
                   refpos2: item.refpos2,
+                  qtySelected: item.qtySelected,
+                  isSelected: 0,
                 ));
               }
             }

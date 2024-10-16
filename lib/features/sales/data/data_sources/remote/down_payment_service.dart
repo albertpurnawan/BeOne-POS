@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -48,7 +46,7 @@ class DownPaymentApi {
         ),
       );
 
-      log("response - ${resp.data['result']}");
+      // log("response - ${resp.data['result']}");
       // final response = await _dio.get(
       //   "$url/tenant-custom-query/list",
       //   options: Options(
@@ -74,8 +72,8 @@ class DownPaymentApi {
       //     }));
 
       if (resp.data['result'].isNotEmpty) {
-        log("--- Down Payment ---");
-        log(resp.data['result'][0].toString());
+        // log("--- Down Payment ---");
+        // log(resp.data['result'].toString());
 
         List<DownPaymetModel> data =
             (resp.data['result'] as List).map((e) => DownPaymetModel.fromMapRemote(e)).toList();

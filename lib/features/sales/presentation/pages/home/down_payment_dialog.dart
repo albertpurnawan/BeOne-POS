@@ -13,9 +13,10 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
-import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_items_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -47,8 +48,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   List<bool> _isExceeding = [];
   List<bool> _isZero = [];
   List<bool> _selectedItems = [];
-  List<bool> _selectedDrawItems = [];
   List<List<bool>> isCheckedBox = [];
+  List<DownPaymentEntity> membersDP = [];
+  List<ItemEntity> itemsDP = [];
+  List<double> qtyDP = [];
+  List<List<DownPaymentItemsEntity>> _selectedTinv7Items = [];
 
   String? salesSelected;
   String? tohemIdSelected;
@@ -65,10 +69,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   bool isLoadingDraw = true;
   bool isLoadingReceive = true;
   double totalAmount = 0;
-
-  List<DownPaymentEntity> membersDP = [];
-  List<ItemEntity> itemsDP = [];
-  List<double> qtyDP = [];
 
   @override
   void initState() {
@@ -135,9 +135,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       if (stateInvoice.downPayments != null && stateInvoice.downPayments!.isNotEmpty) {
         for (DownPaymentEntity dp in stateInvoice.downPayments!) {
           if (dp.isReceive == true) {
-            final List<DownPaymentItemsModel> dpItems = dp.tinv7 ?? [];
+            final List<DownPaymentItemsEntity> dpItems = dp.tinv7 ?? [];
             for (int itemIndex = 0; itemIndex < dpItems.length; itemIndex++) {
-              final DownPaymentItemsModel item = dpItems[itemIndex];
+              final DownPaymentItemsEntity item = dpItems[itemIndex];
               final String dpItemId = item.toitmId ?? "";
               final ItemModel? dbItem = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItemId, null);
               if (dbItem != null) {
@@ -189,16 +189,31 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         customerSelected = customer;
       });
       membersDP = await getMembersDownPayments();
-      // log("membersDP - $membersDP");
+      log("membersDP - ${membersDP.length} - $membersDP");
       if (membersDP.isNotEmpty) {
         _setupControllers();
-        isCheckedBox = List.generate(
-          membersDP.length,
-          (index) {
-            var tinv7Length = membersDP[index].tinv7?.length ?? 0;
-            return List.generate(tinv7Length, (innerIndex) => true);
-          },
-        );
+        if (stateInvoice.downPayments != null &&
+            stateInvoice.downPayments!.isNotEmpty &&
+            stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
+          isCheckedBox = List.generate(
+            membersDP.length,
+            (index) {
+              var tinv7List = membersDP[index].tinv7 ?? [];
+              return List.generate(
+                tinv7List.length,
+                (innerIndex) => tinv7List[innerIndex].isSelected == 1 ? true : false,
+              );
+            },
+          );
+        } else {
+          isCheckedBox = List.generate(
+            membersDP.length,
+            (index) {
+              var tinv7Length = membersDP[index].tinv7?.length ?? 0;
+              return List.generate(tinv7Length, (innerIndex) => true);
+            },
+          );
+        }
       } else {
         _setupControllers();
       }
@@ -227,12 +242,19 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       await receipt.removeReceiptItem(receipt.state.receiptItems[0], context);
     }
     await receipt.updateSalesTohemIdRemarksOnReceipt("", "");
-    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], selectedItems: [], amountDifference: 0);
   }
 
   Future<List<DownPaymentEntity>> getMembersDownPayments() async {
-    final List<DownPaymentEntity> downPayments =
+    List<DownPaymentEntity> downPayments =
         await GetIt.instance<DownPaymentApi>().fetchData(stateInvoice.customerEntity!.custCode);
+    // log("downPayments - $downPayments");
+    // log("stateInvoice - ${stateInvoice.downPayments}");
+    // if (stateInvoice.downPayments != null &&
+    //     stateInvoice.downPayments!.isNotEmpty &&
+    //     stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
+    //   downPayments = stateInvoice.downPayments!;
+    // }
 
     return downPayments;
   }
@@ -286,28 +308,31 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       refpos2: null,
     );
 
-    final List<DownPaymentItemsModel> dpItems = [];
+    final List<DownPaymentItemsEntity> dpItems = [];
     for (int itemIndex = 0; itemIndex < itemsDP.length; itemIndex++) {
       final ItemEntity item = itemsDP[itemIndex];
-      dpItems.add(DownPaymentItemsModel(
-          docId: const Uuid().v4(),
-          createDate: null,
-          updateDate: null,
-          toinvId: stateInvoice.toinvId,
-          docNum: stateInvoice.docNum,
-          idNumber: itemIndex * 10,
-          toitmId: item.toitmId,
-          quantity: qtyDP[itemIndex],
-          sellingPrice: item.price,
-          totalAmount: qtyDP[itemIndex] * item.price,
-          // taxPrctg: item.taxRate,
-          remarks: _remarksController.text,
-          tovatId: item.tovatId,
-          includeTax: item.includeTax,
-          tovenId: item.tovenId,
-          tbitmId: item.tbitmId,
-          tohemId: tohemIdSelected ?? "",
-          refpos2: null));
+      dpItems.add(DownPaymentItemsEntity(
+        docId: const Uuid().v4(),
+        createDate: null,
+        updateDate: null,
+        toinvId: stateInvoice.toinvId,
+        docNum: stateInvoice.docNum,
+        idNumber: itemIndex * 10,
+        toitmId: item.toitmId,
+        quantity: qtyDP[itemIndex],
+        sellingPrice: item.price,
+        totalAmount: qtyDP[itemIndex] * item.price,
+        // taxPrctg: item.taxRate,
+        remarks: _remarksController.text,
+        tovatId: item.tovatId,
+        includeTax: item.includeTax,
+        tovenId: item.tovenId,
+        tbitmId: item.tbitmId,
+        tohemId: tohemIdSelected ?? "",
+        refpos2: null,
+        qtySelected: qtyDP[itemIndex],
+        isSelected: null,
+      ));
     }
 
     final DownPaymentEntity dpEntity =
@@ -315,59 +340,107 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
     await receipt.addUpdateReceiptItems(params);
     await receipt.updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _remarksController.text);
-    await receipt.addOrUpdateDownPayments(downPaymentEntities: [dpEntity], amountDifference: amount);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [dpEntity], selectedItems: [], amountDifference: amount);
     log("receipt 2 - ${receipt.state}");
   }
 
   Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
     final receipt = context.read<ReceiptCubit>();
-    log("hereeeeeee 4124 - ${receipt.state}");
 
     List<DownPaymentEntity> selectedDownPayments = [];
-    List<DownPaymentItemsModel> toitmIdList = [];
     double totalSelectedAmount = 0;
     double previousSelectedAmount = stateInvoice.downPayments?.fold(0.0, (sum, dp) => sum! + dp.amount) ?? 0.0;
 
     for (int i = 0; i < _selectedItems.length; i++) {
       if (_selectedItems[i]) {
         double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
+        List<DownPaymentItemsEntity>? tinv7List = membersDP[i].tinv7;
+        if (tinv7List != null) {
+          for (int j = 0; j < tinv7List.length; j++) {
+            tinv7List[j] = DownPaymentItemsEntity(
+                docId: tinv7List[j].docId,
+                createDate: tinv7List[j].createDate,
+                updateDate: tinv7List[j].updateDate,
+                toinvId: tinv7List[j].toinvId,
+                docNum: tinv7List[j].docNum,
+                idNumber: tinv7List[j].idNumber,
+                toitmId: tinv7List[j].toitmId,
+                quantity: tinv7List[j].quantity,
+                sellingPrice: tinv7List[j].sellingPrice,
+                totalAmount: tinv7List[j].totalAmount,
+                remarks: tinv7List[j].remarks,
+                tovatId: tinv7List[j].tovatId,
+                includeTax: tinv7List[j].includeTax,
+                tovenId: tinv7List[j].tovenId,
+                tbitmId: tinv7List[j].tbitmId,
+                tohemId: tinv7List[j].tohemId,
+                refpos2: tinv7List[j].refpos2,
+                qtySelected: tinv7List[j].qtySelected,
+                isSelected: isCheckedBox[i][j] ? 1 : 0);
+          }
+        }
         selectedDownPayments.add(DownPaymentEntity(
           toinvDocId: membersDP[i].refpos2,
           amount: amount,
           isReceive: false,
-          tinv7: membersDP[i].tinv7,
+          tinv7: tinv7List,
+          isSelected: true,
         ));
         totalSelectedAmount += amount;
+      }
+    }
 
-        if (membersDP[i].tinv7 != null && membersDP[i].tinv7!.isNotEmpty) {
-          log("Selected Items: $_selectedItems");
-          toitmIdList.addAll(membersDP[i].tinv7!);
+    for (int j = 0; j < _selectedTinv7Items.length; j++) {
+      if (_selectedTinv7Items[j].isNotEmpty) {
+        for (var tinvItem in _selectedTinv7Items[j]) {
+          final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(tinvItem.toitmId ?? "", null);
+
+          if (itemEntity != null) {
+            // var matchingReceiptItems = receipt.state.receiptItems.where((element) {
+            //   return element.itemEntity.toitmId == itemEntity.toitmId && element.refpos2 == tinvItem.docNum;
+            // }).toList();
+
+            // if (matchingReceiptItems.isNotEmpty) {
+            //   for (var matchingItem in matchingReceiptItems) {
+            //     await receipt.removeReceiptItemByToitmIdAndQuantity(matchingItem, tinvItem.quantity, context);
+            //   }
+            // }
+
+            if (stateInvoice.downPayments != null &&
+                stateInvoice.downPayments!.isNotEmpty &&
+                stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
+              final AddUpdateReceiptItemsParams paramReset = AddUpdateReceiptItemsParams(
+                barcode: itemEntity.barcode,
+                itemEntity: itemEntity,
+                quantity: tinvItem.quantity * -1,
+                context: context,
+                onOpenPriceInputted: () {},
+                refpos2: tinvItem.docNum,
+              );
+
+              await receipt.addUpdateReceiptItems(paramReset);
+            }
+
+            final AddUpdateReceiptItemsParams paramAdd = AddUpdateReceiptItemsParams(
+              barcode: itemEntity.barcode,
+              itemEntity: itemEntity,
+              quantity: tinvItem.quantity,
+              context: context,
+              onOpenPriceInputted: () {},
+              refpos2: tinvItem.docNum,
+            );
+
+            await receipt.addUpdateReceiptItems(paramAdd);
+          }
         }
       }
     }
-    for (int j = 0; j < toitmIdList.length; j++) {
-      final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(toitmIdList[j].toitmId ?? "", null);
-      log("toitmIdList[j] $j - ${itemEntity?.barcode}");
-      final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
-        barcode: itemEntity?.barcode,
-        itemEntity: null,
-        quantity: toitmIdList[j].quantity,
-        context: context,
-        onOpenPriceInputted: () {},
-      );
-
-      receipt.addUpdateReceiptItems(param);
-      log("hereeeeeee $j - ${receipt.state.receiptItems}");
-    }
-
-    // if (totalSelectedAmount > stateInvoice.grandTotal) {
-    //   SnackBarHelper.presentErrorSnackBar(childContext, "DP can't be more than grand total");
-    //   return;
-    // }
 
     double grandTotalDifference = previousSelectedAmount - totalSelectedAmount;
-    log("hereeeeeee 21314 - ${receipt.state}");
-    receipt.addOrUpdateDownPayments(downPaymentEntities: selectedDownPayments, amountDifference: grandTotalDifference);
+    receipt.addOrUpdateDownPayments(
+        downPaymentEntities: selectedDownPayments,
+        selectedItems: _selectedTinv7Items,
+        amountDifference: grandTotalDifference);
     context.pop();
   }
 
@@ -381,7 +454,20 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     });
 
-    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
+    for (var item in receipt.state.receiptItems) {
+      final AddUpdateReceiptItemsParams params = AddUpdateReceiptItemsParams(
+        barcode: null,
+        itemEntity: item.itemEntity,
+        quantity: item.quantity * -1,
+        context: context,
+        onOpenPriceInputted: () {},
+        remarks: null,
+        refpos2: null,
+      );
+      receipt.addUpdateReceiptItems(params);
+    }
+
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], selectedItems: [], amountDifference: 0);
     stateInvoice = receipt.state.copyWith();
   }
 
@@ -408,9 +494,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     });
   }
 
-  Future<String> _getItemName(String toitmId) async {
+  Future<ItemMasterModel> _getItem(String toitmId) async {
     final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByDocId(toitmId, null);
-    return item?.itemName ?? "";
+    return item!;
   }
 
   @override
@@ -1681,8 +1767,20 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
                                                               if (_selectedItems[index]) {
                                                                 totalAmount += amount;
+
+                                                                _selectedTinv7Items =
+                                                                    List.generate(membersDP.length, (i) => []);
+
+                                                                final tinv7List = membersDP[index].tinv7 ?? [];
+                                                                _selectedTinv7Items[index] = tinv7List.where((item) {
+                                                                  int innerIndex = tinv7List.indexOf(item);
+                                                                  return (innerIndex < isCheckedBox[index].length) &&
+                                                                      isCheckedBox[index][innerIndex];
+                                                                }).toList();
+                                                                log("_selectedTinv7Items - $_selectedTinv7Items");
                                                               } else {
                                                                 totalAmount -= amount;
+                                                                _selectedTinv7Items[index].clear();
                                                               }
                                                             });
                                                           }
@@ -1718,7 +1816,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                     IntrinsicHeight(
                                                       child: GestureDetector(
                                                         onTap: () async {
-                                                          log("Edit button pressed");
+                                                          log("OK button pressed");
                                                         },
                                                         child: Container(
                                                           alignment: Alignment.center,
@@ -1770,14 +1868,37 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             itemCount: membersDP[index].tinv7!.length,
                                             itemBuilder: (context, innerIndex) {
                                               var tinvItem = membersDP[index].tinv7![innerIndex];
-                                              return FutureBuilder<String>(
-                                                future: _getItemName(tinvItem.toitmId ?? ""),
+                                              return FutureBuilder<ItemMasterModel>(
+                                                future: _getItem(tinvItem.toitmId ?? ""),
                                                 builder: (context, snapshot) {
-                                                  String itemName = snapshot.data ?? "Unknown Item";
+                                                  String itemName = "";
+                                                  String itemBarcode = "";
+                                                  String itemDocid = "";
+                                                  double qtyAdditional = 0;
+                                                  ItemMasterModel? item = snapshot.data;
+                                                  if (item != null) {
+                                                    itemName = item.itemName;
+                                                    itemBarcode = item.itemCode;
+                                                    itemDocid = item.docId;
+                                                  }
+
+                                                  List<ReceiptItemEntity> matchingReceiptItems =
+                                                      stateInvoice.receiptItems.where((receiptItem) {
+                                                    return receiptItem.itemEntity.itemName == itemName &&
+                                                        receiptItem.itemEntity.itemCode == itemBarcode &&
+                                                        receiptItem.itemEntity.toitmId == itemDocid;
+                                                  }).toList();
+
+                                                  if (matchingReceiptItems.isNotEmpty) {
+                                                    qtyAdditional =
+                                                        matchingReceiptItems[0].quantity - tinvItem.quantity;
+                                                  }
+
                                                   return CheckboxListTile(
                                                     title: Row(
                                                       children: [
                                                         Expanded(
+                                                          flex: 2,
                                                           child: Text(
                                                             itemName,
                                                             style: const TextStyle(
@@ -1786,7 +1907,97 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                             ),
                                                           ),
                                                         ),
-                                                        Text("${tinvItem.quantity}"),
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              SvgPicture.asset(
+                                                                "assets/images/barcode.svg",
+                                                                height: 20,
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 5,
+                                                              ),
+                                                              Text(
+                                                                itemBarcode,
+                                                                style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: ProjectColors.mediumBlack,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                            children: [
+                                                              Column(
+                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                children: [
+                                                                  const Text(
+                                                                    "Available",
+                                                                    style: TextStyle(
+                                                                      fontSize: 14,
+                                                                      color: ProjectColors.mediumBlack,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    Helpers.cleanDecimal(tinvItem.quantity, 1),
+                                                                    style: const TextStyle(
+                                                                      fontSize: 18,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: ProjectColors.primary,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Column(
+                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                children: [
+                                                                  const Text(
+                                                                    "Selected",
+                                                                    style: TextStyle(
+                                                                      fontSize: 14,
+                                                                      color: ProjectColors.mediumBlack,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    Helpers.cleanDecimal(
+                                                                        tinvItem.qtySelected ?? tinvItem.quantity, 1),
+                                                                    style: const TextStyle(
+                                                                      fontSize: 18,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: ProjectColors.primary,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Column(
+                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                children: [
+                                                                  const Text(
+                                                                    "Additional",
+                                                                    style: TextStyle(
+                                                                      fontSize: 14,
+                                                                      color: ProjectColors.mediumBlack,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    Helpers.cleanDecimal(qtyAdditional, 1),
+                                                                    style: const TextStyle(
+                                                                      fontSize: 18,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: ProjectColors.primary,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
                                                       ],
                                                     ),
                                                     value: isCheckedBox[index][innerIndex],
@@ -1794,6 +2005,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                       setState(() {
                                                         isCheckedBox[index][innerIndex] = value ?? false;
                                                       });
+                                                      if (isCheckedBox[index][innerIndex]) {
+                                                        _selectedTinv7Items[index].add(tinvItem);
+                                                      } else {
+                                                        _selectedTinv7Items[index].remove(tinvItem);
+                                                      }
+                                                      log("_selectedTinv7Items 12315151 - $_selectedTinv7Items");
                                                     },
                                                   );
                                                 },

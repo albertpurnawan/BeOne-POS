@@ -344,6 +344,8 @@ class AppDatabase {
           ${DownPaymentItemsFields.tbitmId} text DEFAULT NULL,
           ${DownPaymentItemsFields.tohemId} text DEFAULT NULL,
           ${DownPaymentItemsFields.refpos2} text DEFAULT NULL,
+          ${DownPaymentItemsFields.qtySelected} double DEFAULT NULL,
+          ${DownPaymentItemsFields.isSelected} int DEFAULT NULL,
           createdat TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """;

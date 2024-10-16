@@ -20,6 +20,8 @@ class DownPaymentItemsEntity {
   final String? tbitmId;
   final String? tohemId;
   final String? refpos2;
+  final double? qtySelected;
+  final int? isSelected;
 
   DownPaymentItemsEntity({
     required this.docId,
@@ -40,6 +42,8 @@ class DownPaymentItemsEntity {
     this.tbitmId,
     this.tohemId,
     this.refpos2,
+    this.qtySelected,
+    this.isSelected,
   });
 
   DownPaymentItemsEntity copyWith({
@@ -61,6 +65,8 @@ class DownPaymentItemsEntity {
     String? tbitmId,
     String? tohemId,
     String? refpos2,
+    double? qtySelected,
+    int? isSelected,
   }) {
     return DownPaymentItemsEntity(
       docId: docId ?? this.docId,
@@ -81,6 +87,8 @@ class DownPaymentItemsEntity {
       tbitmId: tbitmId ?? this.tbitmId,
       tohemId: tohemId ?? this.tohemId,
       refpos2: refpos2 ?? this.refpos2,
+      qtySelected: qtySelected ?? this.qtySelected,
+      isSelected: isSelected ?? this.isSelected,
     );
   }
 
@@ -104,6 +112,8 @@ class DownPaymentItemsEntity {
       'tbitmId': tbitmId,
       'tohemId': tohemId,
       'refpos2': refpos2,
+      'qtySelected': qtySelected,
+      'isSelected': isSelected,
     };
   }
 
@@ -127,6 +137,8 @@ class DownPaymentItemsEntity {
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      qtySelected: map['qtySelected'] != null ? map['qtySelected'] as double : null,
+      isSelected: map['isSelected'] != null ? map['isSelected'] as int : null,
     );
   }
 
@@ -137,7 +149,7 @@ class DownPaymentItemsEntity {
 
   @override
   String toString() {
-    return 'DownPaymentItemsEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, totalAmount: $totalAmount, remarks: $remarks, tovatId: $tovatId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId, tohemId: $tohemId, refpos2: $refpos2)';
+    return 'DownPaymentItemsEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, toinvId: $toinvId, docNum: $docNum, idNumber: $idNumber, toitmId: $toitmId, quantity: $quantity, sellingPrice: $sellingPrice, totalAmount: $totalAmount, remarks: $remarks, tovatId: $tovatId, includeTax: $includeTax, tovenId: $tovenId, tbitmId: $tbitmId, tohemId: $tohemId, refpos2: $refpos2, qtySelected: $qtySelected, isSelected: $isSelected)';
   }
 
   @override
@@ -161,7 +173,9 @@ class DownPaymentItemsEntity {
         other.tovenId == tovenId &&
         other.tbitmId == tbitmId &&
         other.tohemId == tohemId &&
-        other.refpos2 == refpos2;
+        other.refpos2 == refpos2 &&
+        other.qtySelected == qtySelected &&
+        other.isSelected == isSelected;
   }
 
   @override
@@ -183,6 +197,8 @@ class DownPaymentItemsEntity {
         tovenId.hashCode ^
         tbitmId.hashCode ^
         tohemId.hashCode ^
-        refpos2.hashCode;
+        refpos2.hashCode ^
+        qtySelected.hashCode ^
+        isSelected.hashCode;
   }
 }

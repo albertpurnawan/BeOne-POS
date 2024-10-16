@@ -2,16 +2,17 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_items_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 
 class DownPaymentEntity {
   final String? refpos2;
   final String? toinvDocId;
   final double amount;
-  final List<DownPaymentItemsModel>? tinv7;
+  final List<DownPaymentItemsEntity>? tinv7;
   final List<ItemEntity>? tempItems;
   final bool? isReceive;
+  final bool? isSelected;
 
   DownPaymentEntity({
     this.refpos2,
@@ -20,15 +21,17 @@ class DownPaymentEntity {
     this.tinv7,
     this.tempItems,
     this.isReceive,
+    this.isSelected,
   });
 
   DownPaymentEntity copyWith({
     String? refpos2,
     String? toinvDocId,
     double? amount,
-    List<DownPaymentItemsModel>? tinv7,
+    List<DownPaymentItemsEntity>? tinv7,
     List<ItemEntity>? tempItems,
     bool? isReceive,
+    bool? isSelected,
   }) {
     return DownPaymentEntity(
       refpos2: refpos2 ?? this.refpos2,
@@ -37,6 +40,7 @@ class DownPaymentEntity {
       tinv7: tinv7 ?? this.tinv7,
       tempItems: tempItems ?? this.tempItems,
       isReceive: isReceive ?? this.isReceive,
+      isSelected: isSelected ?? this.isSelected,
     );
   }
 
@@ -48,6 +52,7 @@ class DownPaymentEntity {
       'tinv7': tinv7?.map((x) => x.toMap()).toList(),
       'tempItems': tempItems?.map((x) => x.toMap()).toList(),
       'isReceive': isReceive,
+      'isSelected': isSelected,
     };
   }
 
@@ -57,9 +62,9 @@ class DownPaymentEntity {
       toinvDocId: map['toinvDocId'] != null ? map['toinvDocId'] as String : null,
       amount: map['amount'] as double,
       tinv7: map['tinv7'] != null
-          ? List<DownPaymentItemsModel>.from(
-              (map['tinv7'] as List<dynamic>).map<DownPaymentItemsModel?>(
-                (x) => DownPaymentItemsModel.fromMap(x as Map<String, dynamic>),
+          ? List<DownPaymentItemsEntity>.from(
+              (map['tinv7'] as List<dynamic>).map<DownPaymentItemsEntity?>(
+                (x) => DownPaymentItemsEntity.fromMap(x as Map<String, dynamic>),
               ),
             )
           : null,
@@ -71,6 +76,7 @@ class DownPaymentEntity {
             )
           : null,
       isReceive: map['isReceive'] != null ? map['isReceive'] as bool : false,
+      isSelected: map['isSelected'] != null ? map['isSelected'] as bool : false,
     );
   }
 
@@ -81,7 +87,7 @@ class DownPaymentEntity {
 
   @override
   String toString() {
-    return 'DownPaymentEntity(refpos2: $refpos2, toinvDocId: $toinvDocId, amount: $amount, tinv7: $tinv7, tempItems: $tempItems, isReceive: $isReceive)';
+    return 'DownPaymentEntity(refpos2: $refpos2, toinvDocId: $toinvDocId, amount: $amount, tinv7: $tinv7, tempItems: $tempItems, isReceive: $isReceive, isSelected: $isSelected)';
   }
 
   @override
@@ -93,7 +99,8 @@ class DownPaymentEntity {
         other.amount == amount &&
         listEquals(other.tinv7, tinv7) &&
         listEquals(other.tempItems, tempItems) &&
-        other.isReceive == isReceive;
+        other.isReceive == isReceive &&
+        other.isSelected == isSelected;
   }
 
   @override
@@ -103,6 +110,7 @@ class DownPaymentEntity {
         amount.hashCode ^
         tinv7.hashCode ^
         tempItems.hashCode ^
-        isReceive.hashCode;
+        isReceive.hashCode ^
+        isSelected.hashCode;
   }
 }

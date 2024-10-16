@@ -10,6 +10,7 @@ class DownPaymetModel extends DownPaymentEntity {
     super.tinv7,
     super.tempItems,
     required super.isReceive,
+    required super.isSelected,
   });
 
   factory DownPaymetModel.fromMap(Map<String, dynamic> map) {
@@ -32,6 +33,7 @@ class DownPaymetModel extends DownPaymentEntity {
             )
           : null,
       isReceive: map['isReceive'] != null ? map['isReceive'] as bool : false,
+      isSelected: map['isSelected'] != null ? map['isSelected'] as bool : false,
     );
   }
 

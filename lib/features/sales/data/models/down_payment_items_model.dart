@@ -23,6 +23,8 @@ class DownPaymentItemsFields {
     tbitmId,
     tohemId,
     refpos2,
+    qtySelected,
+    isSelected,
   ];
 
   static const String docId = 'docid';
@@ -43,6 +45,8 @@ class DownPaymentItemsFields {
   static const String tbitmId = 'tbitmId';
   static const String tohemId = 'tohemId';
   static const String refpos2 = 'refpos2';
+  static const String qtySelected = 'qtySelected';
+  static const String isSelected = 'isSelected';
 }
 
 class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel {
@@ -65,6 +69,8 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
     required super.tbitmId,
     required super.tohemId,
     required super.refpos2,
+    required super.qtySelected,
+    required super.isSelected,
   });
 
   @override
@@ -88,6 +94,8 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
       'tbitmId': tbitmId,
       'tohemId': tohemId,
       'refpos2': refpos2,
+      'qtySelected': qtySelected,
+      'isSelected': isSelected,
     };
   }
 
@@ -111,6 +119,8 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
       tbitmId: map['tbitmId'] != null ? map['tbitmId'] as String : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      qtySelected: map['qtySelected'] != null ? map['qtySelected'] as double : null,
+      isSelected: map['isSelected'] != null ? map['isSelected'] as int : null,
     );
   }
 
@@ -149,6 +159,8 @@ class DownPaymentItemsModel extends DownPaymentItemsEntity implements BaseModel 
       tbitmId: entity.tbitmId,
       tohemId: entity.tohemId,
       refpos2: entity.refpos2,
+      qtySelected: entity.qtySelected,
+      isSelected: entity.isSelected,
     );
   }
 }
