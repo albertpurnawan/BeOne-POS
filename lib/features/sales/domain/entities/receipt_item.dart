@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 
@@ -20,8 +21,10 @@ class ReceiptItemEntity {
   double? subtotalAfterDiscHeader;
   String? tohemId;
   String? remarks;
-  int? qtyBarcode;
+  double? qtyBarcode;
   String? refpos2;
+  String? refpos3;
+  double? qtyConv;
 
   ReceiptItemEntity({
     required this.quantity,
@@ -40,6 +43,8 @@ class ReceiptItemEntity {
     this.remarks,
     this.qtyBarcode,
     this.refpos2,
+    this.refpos3,
+    this.qtyConv,
   });
 
   ReceiptItemEntity copyWith({
@@ -57,8 +62,10 @@ class ReceiptItemEntity {
     double? subtotalAfterDiscHeader,
     String? tohemId,
     String? remarks,
-    int? qtyBarcode,
+    double? qtyBarcode,
     String? refpos2,
+    String? refpos3,
+    double? qtyConv,
   }) {
     return ReceiptItemEntity(
       quantity: quantity ?? this.quantity,
@@ -77,6 +84,8 @@ class ReceiptItemEntity {
       remarks: remarks ?? this.remarks,
       qtyBarcode: qtyBarcode ?? this.qtyBarcode,
       refpos2: refpos2 ?? this.refpos2,
+      refpos3: refpos3 ?? this.refpos3,
+      qtyConv: qtyConv ?? this.qtyConv,
     );
   }
 
@@ -98,6 +107,8 @@ class ReceiptItemEntity {
       'remarks': remarks,
       'qtyBarcode': qtyBarcode,
       'refpos2': refpos2,
+      'refpos3': refpos3,
+      'qtyConv': qtyConv,
     };
   }
 
@@ -121,8 +132,10 @@ class ReceiptItemEntity {
       subtotalAfterDiscHeader: map['subtotalAfterDiscHeader'] != null ? map['subtotalAfterDiscHeader'] as double : null,
       tohemId: map['tohemId'] != null ? map['tohemId'] as String : null,
       remarks: map['remarks'] != null ? map['remarks'] as String : null,
-      qtyBarcode: map['qtyBarcode'] != null ? map['qtyBarcode'] as int : null,
+      qtyBarcode: map['qtyBarcode'] != null ? map['qtyBarcode'] as double : null,
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
+      refpos3: map['refpos3'] != null ? map['refpos3'] as String : null,
+      qtyConv: map['qtyConv'] != null ? map['qtyConv'] as double : null,
     );
   }
 
@@ -133,7 +146,7 @@ class ReceiptItemEntity {
 
   @override
   String toString() {
-    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, remarks: $remarks, qtyBarcode: $qtyBarcode, refpos2: $refpos2)';
+    return 'ReceiptItemEntity(quantity: $quantity, totalGross: $totalGross, itemEntity: $itemEntity, taxAmount: $taxAmount, sellingPrice: $sellingPrice, totalAmount: $totalAmount, totalSellBarcode: $totalSellBarcode, promos: $promos, discAmount: $discAmount, discPrctg: $discPrctg, discHeaderAmount: $discHeaderAmount, subtotalAfterDiscHeader: $subtotalAfterDiscHeader, tohemId: $tohemId, remarks: $remarks, qtyBarcode: $qtyBarcode, refpos2: $refpos2, refpos3: $refpos3, qtyConv: $qtyConv)';
   }
 
   @override
@@ -155,7 +168,9 @@ class ReceiptItemEntity {
         other.tohemId == tohemId &&
         other.remarks == remarks &&
         other.qtyBarcode == qtyBarcode &&
-        other.refpos2 == refpos2;
+        other.refpos2 == refpos2 &&
+        other.refpos3 == refpos3 &&
+        other.qtyConv == qtyConv;
   }
 
   @override
@@ -175,6 +190,8 @@ class ReceiptItemEntity {
         tohemId.hashCode ^
         remarks.hashCode ^
         qtyBarcode.hashCode ^
-        refpos2.hashCode;
+        refpos2.hashCode ^
+        refpos3.hashCode ^
+        qtyConv.hashCode;
   }
 }

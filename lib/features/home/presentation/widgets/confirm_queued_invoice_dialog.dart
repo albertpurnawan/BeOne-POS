@@ -7,14 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
-import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
-import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

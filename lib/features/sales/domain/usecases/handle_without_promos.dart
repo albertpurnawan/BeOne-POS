@@ -22,12 +22,19 @@ class HandleWithoutPromosUseCase implements UseCase<ReceiptEntity, HandlePromosU
                 params.receiptItemEntity!.quantity + existingItem[0].quantity > 1)) {
           throw "Down payment quantity must be -1 or 1";
         }
+        if (params.receiptItemEntity!.refpos3 == null &&
+            (params.receiptItemEntity!.quantity + existingItem[0].quantity <= 0)) {
+          throw "Invalid quantity";
+        }
         existingItem[0] = ReceiptHelper.updateReceiptItemAggregateFields(
             existingItem[0]..quantity += params.receiptItemEntity!.quantity);
       } else {
         if (params.receiptItemEntity!.itemEntity.barcode == "99" &&
             (params.receiptItemEntity!.quantity < -1 || params.receiptItemEntity!.quantity > 1)) {
           throw "Down payment quantity must be -1 or 1";
+        }
+        if (params.receiptItemEntity!.refpos3 == null && (params.receiptItemEntity!.quantity <= 0)) {
+          throw "Invalid quantity";
         }
         existingItem.add(ReceiptHelper.updateReceiptItemAggregateFields(params.receiptItemEntity!));
       }
