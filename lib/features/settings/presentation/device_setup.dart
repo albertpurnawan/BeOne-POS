@@ -198,7 +198,7 @@ class _SettingsFormState extends State<SettingsForm> {
   }
 
   Future<String> encryptPassword(String rawPassword) async {
-    final encryptPasswordUseCase = GetIt.instance<EncryptUseCase>();
+    final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
     try {
       final encryptedPassword = await encryptPasswordUseCase.call(params: rawPassword);
       return encryptedPassword;
@@ -366,16 +366,12 @@ class _SettingsFormState extends State<SettingsForm> {
 
                         await GetIt.instance<AppDatabase>().posParameterDao.create(data: topos);
 
-                        try {
-                          final token = await GetIt.instance<TokenApi>()
-                              .getToken(urlController.text, emailController.text, passwordController.text);
-                          final encryptPasswordUseCase = GetIt.instance<EncryptUseCase>();
-                          final encryptToken = await encryptPasswordUseCase.call(params: token);
-                          prefs.setString('adminToken', encryptToken);
-                          Navigator.pop(context, true);
-                        } catch (e) {
-                          SnackBarHelper.presentErrorSnackBar(context, "Something's went wrong. Check the input again");
-                        }
+                        final token = await GetIt.instance<TokenApi>()
+                            .getToken(urlController.text, emailController.text, passwordController.text);
+                        final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
+                        final encryptToken = await encryptPasswordUseCase.call(params: token);
+                        prefs.setString('adminToken', encryptToken);
+                        Navigator.pop(context, true);
                       } catch (e, s) {
                         ErrorHandler.presentErrorSnackBar(context, "$e $s");
                       }

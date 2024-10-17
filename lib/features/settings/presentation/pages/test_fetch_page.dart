@@ -3481,27 +3481,15 @@ class _FetchScreenState extends State<FetchScreen> {
                               ? null
                               : () async {
                                   try {
-                                    if (prefs.getBool("isSyncing") ?? false) {
-                                      final syncStart = prefs.getString("autoSyncStart");
-                                      SnackBarHelper.presentErrorSnackBar(
-                                          context, "Sync is currently in progress. Initiated at $syncStart.");
-                                      return;
-                                    }
-                                    prefs.setBool("isSyncing", true);
                                     final bool? isAuthorized = await showDialog<bool>(
                                         context: context,
                                         barrierDismissible: false,
                                         builder: (context) => const ResetDBApprovalDialog());
-
                                     if (isAuthorized != true) return;
                                     await GetIt.instance<AppDatabase>().resetDatabase();
                                     // exit(0);
                                   } catch (e) {
-                                    if (context.mounted) {
-                                      SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                                    }
-                                  } finally {
-                                    prefs.setBool("isSyncing", false);
+                                    SnackBarHelper.presentErrorSnackBar(context, e.toString());
                                   }
                                 },
                           style: ButtonStyle(

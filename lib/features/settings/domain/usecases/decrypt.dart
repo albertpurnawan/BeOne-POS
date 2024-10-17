@@ -2,7 +2,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 
-class DecryptUseCase implements UseCase<String, String> {
+class DecryptPasswordUseCase implements UseCase<String, String> {
   final String _key = Constant.secretkey;
 
   @override

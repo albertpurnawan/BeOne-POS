@@ -1191,7 +1191,7 @@ class _SalesPageState extends State<SalesPage> {
                                         enableInteractiveSelection: false,
                                         // showCursor: false,
                                         textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.text,
+                                        keyboardType: TextInputType.none,
                                         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
                                         decoration: const InputDecoration(
                                             isCollapsed: true, contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10)),

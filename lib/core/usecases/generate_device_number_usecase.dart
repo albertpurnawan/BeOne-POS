@@ -7,7 +7,7 @@ import 'package:pos_fe/features/settings/domain/usecases/encrypt.dart';
 
 class GenerateDeviceNumberUseCase implements UseCase<void, void> {
   final DeviceInfoPlugin deviceInfo;
-  final EncryptUseCase _encryptPasswordUseCase;
+  final EncryptPasswordUseCase _encryptPasswordUseCase;
 
   GenerateDeviceNumberUseCase(this.deviceInfo, this._encryptPasswordUseCase);
 

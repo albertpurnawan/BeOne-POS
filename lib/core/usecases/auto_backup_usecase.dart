@@ -13,7 +13,7 @@ import 'package:sqflite/sqflite.dart';
 
 class AutoBackupUseCase implements UseCase<void, void> {
   final _databaseName = "pos_fe.db";
-  final decryptPasswordUseCase = GetIt.instance<DecryptUseCase>();
+  final decryptPasswordUseCase = GetIt.instance<DecryptPasswordUseCase>();
 
   @override
   Future<void> call({void params}) async {

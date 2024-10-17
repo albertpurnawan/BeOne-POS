@@ -14,14 +14,14 @@ class RefreshTokenUseCase implements UseCase<void, String> {
 
   Future<void> _refreshToken() async {
     final prefs = await SharedPreferences.getInstance();
-    final decryptPasswordUseCase = GetIt.instance<DecryptUseCase>();
+    final decryptPasswordUseCase = GetIt.instance<DecryptPasswordUseCase>();
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
 
     final decryptPass = await decryptPasswordUseCase.call(params: topos[0].passwordAdmin);
 
     final token = await GetIt.instance<TokenApi>().getToken(topos[0].baseUrl!, topos[0].usernameAdmin!, decryptPass);
 
-    final encryptPasswordUseCase = GetIt.instance<EncryptUseCase>();
+    final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
     await encryptPasswordUseCase.call(params: token);
     prefs.setString('adminToken', token!);
   }

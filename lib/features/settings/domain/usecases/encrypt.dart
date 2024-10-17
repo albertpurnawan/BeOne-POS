@@ -2,7 +2,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:pos_fe/core/constants/constants.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 
-class EncryptUseCase implements UseCase<String, String> {
+class EncryptPasswordUseCase implements UseCase<String, String> {
   final String _key = Constant.secretkey;
 
   @override
@@ -10,10 +10,10 @@ class EncryptUseCase implements UseCase<String, String> {
     if (params == null) {
       throw ArgumentError('Password cannot be null');
     }
-    return _encryptString(params);
+    return _encryptPassword(params);
   }
 
-  Future<String> _encryptString(String password) async {
+  Future<String> _encryptPassword(String password) async {
     final key = encrypt.Key.fromUtf8(_key);
     final iv = encrypt.IV.fromLength(16);
     final encrypter = encrypt.Encrypter(encrypt.AES(key));

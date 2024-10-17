@@ -23,7 +23,7 @@ class BackupDatabaseParams {
 
 class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
   final _databaseName = "pos_fe.db";
-  final decryptPasswordUseCase = GetIt.instance<DecryptUseCase>();
+  final decryptPasswordUseCase = GetIt.instance<DecryptPasswordUseCase>();
 
   @override
   Future<void> call({BackupDatabaseParams? params}) async {

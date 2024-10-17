@@ -24,7 +24,7 @@ class ArchiveDatabaseParams {
 }
 
 class ArchiveDatabaseUseCase implements UseCase<void, ArchiveDatabaseParams> {
-  final decryptPasswordUseCase = GetIt.instance<DecryptUseCase>();
+  final decryptPasswordUseCase = GetIt.instance<DecryptPasswordUseCase>();
 
   @override
   Future<void> call({ArchiveDatabaseParams? params}) async {
