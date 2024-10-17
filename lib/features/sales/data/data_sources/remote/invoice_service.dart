@@ -342,6 +342,7 @@ class InvoiceApi {
               data: invHeaderSuccess,
             );
       }
+      // handle duplicate send invoice
     } catch (err) {
       handleError(err);
       rethrow;

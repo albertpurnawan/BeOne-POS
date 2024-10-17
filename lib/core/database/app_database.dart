@@ -113,6 +113,8 @@ import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/duitku_va_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
@@ -1599,6 +1601,10 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.netzmeChannelId} text DEFAULT NULL,
   ${StoreMasterFields.minDiscount} int DEFAULT 0,
   ${StoreMasterFields.maxDiscount} int DEFAULT 0,
+  ${StoreMasterFields.duitkuUrl} text DEFAULT NULL,
+  ${StoreMasterFields.duitkuApiKey} text DEFAULT NULL,
+  ${StoreMasterFields.duitkuMerchantCode} text DEFAULT NULL,
+  ${StoreMasterFields.duitkuExpiryPeriod} int DEFAULT NULL,
   ${StoreMasterFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3557,6 +3563,31 @@ CREATE TABLE $tableApprovalInvoice (
   CONSTRAINT `tinv6_tousrId_fkey` FOREIGN KEY (`tousrId`) REFERENCES `tousr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
 """);
+
+        await txn.execute("""
+CREATE TABLE $tableDuitkuVADetails (
+  $uuidDefinition,
+  ${DuitkuVADetailsFields.createDate} datetime DEFAULT NULL,
+  ${DuitkuVADetailsFields.updateDate} datetime DEFAULT NULL,
+  ${DuitkuVADetailsFields.paymentMethod} varchar(5) NOT NULL,
+  ${DuitkuVADetailsFields.paymentName} text NOT NULL,
+  ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
+  ${DuitkuVADetailsFields.totalFee} int NOT NULL,
+  ${DuitkuVADetailsFields.statusActive} int NOT NULL,
+  $createdAtDefinition
+)
+""");
+
+        await txn.execute("""
+CREATE TABLE $tableDuitkuVAAssignStore (
+  $uuidDefinition,
+  ${DuitkuVAAssignStoreFields.createDate} datetime DEFAULT NULL,
+  ${DuitkuVAAssignStoreFields.updateDate} datetime DEFAULT NULL,
+  ${DuitkuVAAssignStoreFields.tovalId} text DEFAULT NULL,
+  ${DuitkuVAAssignStoreFields.tostrId} text DEFAULT NULL,
+  $createdAtDefinition
+)
+""");
       });
     } catch (e) {
       log(e.toString());
@@ -3653,6 +3684,39 @@ CREATE TABLE $tableApprovalInvoice (
       await db.execute('''ALTER TABLE $tableInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
 
       await db.execute('''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
+
+      // add table duitkuVADetails
+      await db.execute("""
+    CREATE TABLE $tableDuitkuVADetails (
+      docid` TEXT PRIMARY KEY,
+      ${DuitkuVADetailsFields.paymentMethod} varchar(5) NOT NULL,
+      ${DuitkuVADetailsFields.paymentName} text NOT NULL,
+      ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
+      ${DuitkuVADetailsFields.totalFee} int NOT NULL,
+      ${DuitkuVADetailsFields.statusActive} int NOT NULL,
+      createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    """);
+
+      // add table duitkuVAAssignStore
+      await db.execute("""
+    CREATE TABLE $tableDuitkuVAAssignStore (
+      docid` TEXT PRIMARY KEY,
+      ${DuitkuVAAssignStoreFields.createDate} datetime DEFAULT NULL,
+      ${DuitkuVAAssignStoreFields.updateDate} datetime DEFAULT NULL,
+      ${DuitkuVAAssignStoreFields.tovalId} text DEFAULT NULL,
+      ${DuitkuVAAssignStoreFields.tostrId} text DEFAULT NULL,
+      createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    """);
+
+      // alter table tostr
+      await db.execute('''ALTER TABLE $tableStoreMasters 
+        ADD COLUMN ${StoreMasterFields.duitkuUrl} text DEFAULT NULL,
+        ADD COLUMN ${StoreMasterFields.duitkuApiKey} text DEFAULT NULL,
+        ADD COLUMN ${StoreMasterFields.duitkuMerchantCode} text DEFAULT NULL
+        ADD COLUMN ${StoreMasterFields.duitkuExpiryPeriod} int DEFAULT NULL
+        ''');
     },
   };
 
