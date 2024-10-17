@@ -2022,6 +2022,7 @@ CREATE TABLE $tableInvoiceDetail (
   ${InvoiceDetailFields.subtotalAfterDiscHeader} double DEFAULT NULL,
   ${InvoiceDetailFields.tohemId} text DEFAULT NULL,
   ${InvoiceDetailFields.refpos2} text DEFAULT NULL,
+  ${InvoiceDetailFields.refpos3} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `tinv1_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `toinv` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tinv1_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3088,6 +3089,7 @@ CREATE TABLE $tableQueuedInvoiceDetail (
   ${QueuedInvoiceDetailFields.discHeaderAmount} double NOT NULL,
   ${QueuedInvoiceDetailFields.tohemId} text DEFAULT NULL,
   ${QueuedInvoiceDetailFields.refpos2} text DEFAULT NULL,
+  ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL,
   $createdAtDefinition,
   CONSTRAINT `queuedInvoiceDetails_toinvId_fkey` FOREIGN KEY (`toinvId`) REFERENCES `queuedInvoiceHeaders` (`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `queuedInvoiceDetails_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3717,6 +3719,11 @@ CREATE TABLE $tableDuitkuVAAssignStore (
         ADD COLUMN ${StoreMasterFields.duitkuMerchantCode} text DEFAULT NULL
         ADD COLUMN ${StoreMasterFields.duitkuExpiryPeriod} int DEFAULT NULL
         ''');
+
+      await db.execute(
+          '''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');
+      await db.execute(
+          '''ALTER TABLE $tableInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');
     },
   };
 

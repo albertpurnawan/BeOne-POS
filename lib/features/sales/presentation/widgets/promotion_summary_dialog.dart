@@ -12,7 +12,7 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 
 class PromotionSummaryDialog extends StatefulWidget {
-  PromotionSummaryDialog({super.key, required this.receiptEntity});
+  const PromotionSummaryDialog({super.key, required this.receiptEntity});
 
   final ReceiptEntity receiptEntity;
 
@@ -335,7 +335,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     } catch (e) {
       log(e.toString());
       return [
-        SizedBox.shrink(),
+        const SizedBox.shrink(),
         const Divider(),
       ];
     }

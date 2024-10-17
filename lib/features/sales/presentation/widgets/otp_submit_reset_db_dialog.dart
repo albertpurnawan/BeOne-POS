@@ -137,8 +137,8 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
 
   Future<void> resendOTP() async {
     try {
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-      if (topos == null) throw "Failed to retrieve POS Parameter";
+      final POSParameterEntity topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      // if (topos == null) throw "Failed to retrieve POS Parameter";
 
       final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
       if (store == null) throw "Failed to retrieve Store Master";

@@ -36,6 +36,7 @@ import 'package:uuid/uuid.dart';
 class ReceiptRepositoryImpl implements ReceiptRepository {
   final AppDatabase _appDatabase;
   final Uuid _uuid;
+
   ReceiptRepositoryImpl(this._appDatabase, this._uuid);
 
   @override
@@ -147,6 +148,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             subtotalAfterDiscHeader: e.subtotalAfterDiscHeader,
             tohemId: e.tohemId ?? "",
             refpos2: e.refpos2 ?? "",
+            refpos3: e.refpos3 ?? "",
           );
         }).toList();
 
@@ -191,6 +193,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                 subtotalAfterDiscHeader: dp.amount,
                 tohemId: "",
                 refpos2: dp.toinvDocId,
+                refpos3: dp.refpos3 ?? "",
               );
             }).toList();
 
@@ -479,6 +482,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                 ],
           tohemId: invoiceDetailModel.tohemId,
           discAmount: invoiceDetailModel.discAmount,
+          refpos3: invoiceDetailModel.refpos3,
         ));
       }
 
@@ -528,41 +532,5 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     });
     log("Receipt getReceipt - $receiptModel");
     return receiptModel;
-  }
-
-  @override
-  Future<List<ReceiptEntity>> getReceipts() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<ReceiptEntity> recalculateTax(ReceiptEntity receiptEntity) async {
-    log("Recalculate Tax Promo_Impl");
-    double? discHeaderManual = receiptEntity.discHeaderManual ?? 0.0;
-    double? discHeaderPromo = receiptEntity.discHeaderPromo ?? 0.0;
-    double subtotal = receiptEntity.subtotal;
-    double discHprctg = (discHeaderManual) / (subtotal - discHeaderPromo);
-    double subtotalAfterDiscount = 0;
-    double taxAfterDiscount = 0;
-
-    // log("RE - $receiptEntity");
-    // log("RE - Subtotal - ${receiptEntity.subtotal}");
-    // log("discHprctg - $discHprctg");
-
-    for (final item in receiptEntity.receiptItems) {
-      item.discHeaderAmount = discHprctg * (item.totalGross - (item.discAmount ?? 0));
-      item.subtotalAfterDiscHeader = item.totalGross - (item.discAmount ?? 0) - (item.discHeaderAmount ?? 0);
-      item.taxAmount = item.subtotalAfterDiscHeader! * (item.itemEntity.taxRate / 100);
-      subtotalAfterDiscount += item.subtotalAfterDiscHeader!;
-      taxAfterDiscount += item.taxAmount;
-      // log("Item - $item");
-    }
-    // receiptEntity.subtotal = subtotalAfterDiscount;
-    receiptEntity.taxAmount = taxAfterDiscount;
-    receiptEntity.grandTotal = subtotalAfterDiscount + taxAfterDiscount;
-    // log("REDM - ${receiptEntity.subtotal}");
-
-    // receiptEntity = receiptEntity.copyWith(totalTax: totalTax);
-    return receiptEntity;
   }
 }
