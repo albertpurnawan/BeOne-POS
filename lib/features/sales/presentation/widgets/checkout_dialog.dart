@@ -115,6 +115,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         isCharging = true;
       });
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
+      dev.log("state - --- ${state.receiptItems}");
 
       // Validate total payment must be greater than grand total
       if ((state.totalPayment ?? 0) < state.grandTotal) {

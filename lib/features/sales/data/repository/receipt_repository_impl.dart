@@ -156,11 +156,13 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
         final List<DownPaymentEntity> dps = receiptEntity.downPayments ?? [];
 
-        if (dps.isNotEmpty && receiptEntity.downPayments!.any((dp) => dp.isReceive == false)) {
+        if (dps.isNotEmpty && dps.any((dp) => dp.isReceive == false && dp.isSelected == true)) {
           if (itemDP != null) {
-            final List<InvoiceDetailModel> dpModels = dps.asMap().entries.map((entry) {
+            final List<InvoiceDetailModel> dpModels =
+                dps.where((dp) => dp.isReceive == false && dp.isSelected == true).toList().asMap().entries.map((entry) {
               final int index = entry.key;
               final DownPaymentEntity dp = entry.value;
+
               return InvoiceDetailModel(
                 docId: _uuid.v4(),
                 createDate: null,
@@ -192,7 +194,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                 discHeaderAmount: 0,
                 subtotalAfterDiscHeader: dp.amount,
                 tohemId: "",
-                refpos2: dp.toinvDocId,
+                refpos2: dp.refpos2,
               );
             }).toList();
 
@@ -386,7 +388,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                   tovenId: item.tovenId,
                   tbitmId: item.tbitmId,
                   tohemId: item.tohemId,
-                  refpos2: item.refpos2,
+                  refpos2: dpEntity.refpos2,
                   qtySelected: item.qtySelected,
                   isSelected: 0,
                 ));

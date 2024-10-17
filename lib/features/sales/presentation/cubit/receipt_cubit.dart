@@ -361,7 +361,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     );
 
     newState = await _recalculateReceiptUseCase.call(params: newState);
-    dev.log("newState afterAddUpp - ${newState.downPayments}");
+    dev.log("newState afterAddUpp - $newState");
     emit(newState);
   }
 
@@ -602,7 +602,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         newState = state.copyWith(changed: state.totalPayment! - state.grandTotal);
       }
 
-      // dev.log("ON CHARGE - $newState");
+      dev.log("ON CHARGE - $newState");
       final ReceiptEntity? createdReceipt = await _saveReceiptUseCase.call(params: newState);
 
       if (createdReceipt != null) {
@@ -624,7 +624,17 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           dev.log(e.toString());
         }
         try {
-          GetIt.instance<InvoiceApi>().sendInvoice();
+          final List<DownPaymentEntity> dpList = state.downPayments ?? [];
+          dev.log("createdReceipt - $createdReceipt");
+          dev.log("dpList - $dpList");
+          List<String> dpDocnums = [];
+          for (DownPaymentEntity dp in dpList) {
+            if (dp.isReceive == false && dp.isSelected == true) {
+              dpDocnums.add(dp.refpos2 ?? "");
+            }
+          }
+          dev.log("dpDocnums - $dpDocnums");
+          GetIt.instance<InvoiceApi>().sendInvoice(dpDocnums);
         } catch (e) {
           return;
         }
@@ -919,7 +929,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Reinsert down payment
       if (newReceipt.downPayments != null &&
           (newReceipt.downPayments ?? []).isNotEmpty &&
-          newReceipt.downPayments!.any((dp) => dp.isReceive == false)) {
+          newReceipt.downPayments!.any((dp) => dp.isReceive == false) &&
+          newReceipt.downPayments!.any((dp) => dp.isSelected == true)) {
         if (totalDPAmount > newReceipt.grandTotal) {
           throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(totalDPAmount - newReceipt.grandTotal)})";
         } else {

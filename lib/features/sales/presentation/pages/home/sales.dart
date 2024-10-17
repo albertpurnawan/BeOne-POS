@@ -4101,7 +4101,6 @@ class _SalesPageState extends State<SalesPage> {
       final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
 
       log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
-      log("check ${receiptEntity.downPayments}");
 
       if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
         await showDialog(

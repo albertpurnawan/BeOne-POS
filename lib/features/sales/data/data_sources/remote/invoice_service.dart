@@ -22,7 +22,7 @@ class InvoiceApi {
 
   InvoiceApi(this._dio, this.prefs);
 
-  Future<void> sendInvoice() async {
+  Future<void> sendInvoice(List<String> docnums) async {
     try {
       log("SEND INVOICE SERVICE");
       token = prefs.getString('adminToken');
@@ -328,7 +328,7 @@ class InvoiceApi {
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
         "approval": approvals,
-        "downpayment_docnums": []
+        "downpayment_docnums": docnums,
       };
       if (invHead[0].salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;

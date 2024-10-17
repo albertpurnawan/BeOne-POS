@@ -376,7 +376,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
           for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
             if (dpItem.isSelected == 1) {
               final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItem.toitmId ?? "", null);
-
+              log("dpItem.docNum  -${dpItem.docNum}");
               final AddUpdateReceiptItemsParams paramAdd = AddUpdateReceiptItemsParams(
                 barcode: itemEntity?.barcode ?? "",
                 itemEntity: itemEntity,
