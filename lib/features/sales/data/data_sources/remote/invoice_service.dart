@@ -10,6 +10,8 @@ import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart'
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InvoiceApi {
@@ -721,6 +723,72 @@ class InvoiceApi {
     } catch (err) {
       handleError(err);
       rethrow;
+    }
+  }
+
+  Future<String> lockInvoice(String lockBy, List<String> docnums) async {
+    try {
+      token = prefs.getString('adminToken');
+      POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      url = posParameterEntity.baseUrl;
+      final String lockedByTocsr = posParameterEntity.tocsrId ?? "";
+
+      String lockDateTime = DateTime.now().toIso8601String();
+
+      final dataToSend = {
+        "lockby": lockBy,
+        "lockdatetime": "${lockDateTime}Z",
+        "lockedbytocsr": lockedByTocsr,
+        "docnums": docnums,
+      };
+
+      Response response = await _dio.put(
+        "$url/tenant-lock-dp",
+        data: dataToSend,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      return response.data['message'];
+    } catch (e) {
+      return "Error during lock invoice process: ${e.toString()}";
+    }
+  }
+
+  Future<String> unlockInvoice(String unlockBy, List<String> docnums) async {
+    try {
+      token = prefs.getString('adminToken');
+      POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      url = posParameterEntity.baseUrl;
+      final String unlockedByTocsr = posParameterEntity.tocsrId ?? "";
+
+      String unlockDateTime = DateTime.now().toIso8601String();
+
+      final dataToSend = {
+        "unlockby": unlockBy,
+        "unlockdatetime": "${unlockDateTime}Z",
+        "unlockedbytocsr": unlockedByTocsr,
+        "docnums": docnums,
+      };
+      log("dataToSend - $dataToSend");
+
+      Response response = await _dio.put(
+        "$url/tenant-unlock-dp",
+        data: dataToSend,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      log("response - ${response.data['message']}");
+      return response.data['message'];
+    } catch (e) {
+      return "Error during lock invoice process: ${e.toString()}";
     }
   }
 }

@@ -15,8 +15,11 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/progress_indicator.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
+import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -39,6 +42,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MopType {
   final String name;
@@ -672,6 +676,36 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                     if (isProceed == null) return;
                                     if (!isProceed) return;
                                   }
+
+                                  try {
+                                    final String cashierName =
+                                        GetIt.instance<SharedPreferences>().getString("username") ?? "";
+                                    final UserModel? user =
+                                        await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+                                    List<DownPaymentEntity> dpList =
+                                        context.read<ReceiptCubit>().state.downPayments ?? [];
+                                    List<String> docnumList = [];
+                                    if (dpList.isNotEmpty) {
+                                      for (DownPaymentEntity dp in dpList) {
+                                        if (dp.isSelected == true && dp.isReceive == false) {
+                                          docnumList.add(dp.refpos2 ?? "");
+                                        }
+                                      }
+
+                                      if (user != null) {
+                                        String checkLock =
+                                            await GetIt.instance<InvoiceApi>().unlockInvoice(user.docId, docnumList);
+                                        if (checkLock != 'Unlock Down Payment success') {
+                                          SnackBarHelper.presentErrorSnackBar(context,
+                                              "Process DP Transaction can't be canceled. Please check your connection and try again");
+                                          return;
+                                        }
+                                      }
+                                    }
+                                  } catch (e) {
+                                    return;
+                                  }
+
                                   context.pop(false);
                                 },
                           child: Center(

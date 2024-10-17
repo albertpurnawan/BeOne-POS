@@ -17,6 +17,9 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -4064,6 +4067,32 @@ class _SalesPageState extends State<SalesPage> {
         isEditingNewReceiptItemQty = false;
         isUpdatingReceiptItemQty = false;
       });
+
+      try {
+        final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
+        final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+        List<DownPaymentEntity> dpList = context.read<ReceiptCubit>().state.downPayments ?? [];
+        List<String> docnumList = [];
+        if (dpList.isNotEmpty) {
+          for (DownPaymentEntity dp in dpList) {
+            if (dp.isSelected == true && dp.isReceive == false) {
+              docnumList.add(dp.refpos2 ?? "");
+            }
+          }
+
+          if (user != null) {
+            String checkLock = await GetIt.instance<InvoiceApi>().lockInvoice(user.docId, docnumList);
+
+            if (checkLock != 'Lock Down Payment success') {
+              SnackBarHelper.presentErrorSnackBar(
+                  context, "Failed to process DP Transaction. Please check your connection and try again");
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        return;
+      }
 
       await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
 
