@@ -1820,7 +1820,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                         mainAxisSize: MainAxisSize.min,
                                                         children: [
                                                           Text(
-                                                            (!_selectedItems[index]) ? "Edit & Select" : "Unselect",
+                                                            (!_selectedItems[index]) ? "Select" : "Unselect",
                                                             style: const TextStyle(
                                                               color: Colors.white,
                                                               fontSize: 14,

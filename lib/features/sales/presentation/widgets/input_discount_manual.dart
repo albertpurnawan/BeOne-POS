@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -156,8 +158,9 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
                         ),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-
+                          log("grandTotal before - ${context.read<ReceiptCubit>().state.grandTotal}");
                           await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(0, context);
+                          log("grandTotal after - ${context.read<ReceiptCubit>().state.grandTotal}");
 
                           if (context.mounted) {
                             SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3);

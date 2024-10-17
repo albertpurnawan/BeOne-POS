@@ -10,7 +10,7 @@ class RecalculateTaxUseCase implements UseCase<void, ReceiptEntity> {
   Future<ReceiptEntity> call({ReceiptEntity? params}) async {
     ReceiptItemEntity? dpItem = params!.receiptItems.where((element) => element.itemEntity.barcode == "99").firstOrNull;
     List<DownPaymentEntity> dps = params.downPayments ?? [];
-    double dpAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
+    double dpAmount = dps.where((dp) => dp.isSelected == true).fold(0.0, (value, dp) => value + dp.amount);
 
     double discHeaderManual = params.discHeaderManual ?? 0.0;
     double grandTotal = params.grandTotal;

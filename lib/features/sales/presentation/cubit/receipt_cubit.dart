@@ -722,7 +722,9 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         //     await _recalculateTaxUseCase.call(params: preparedReceipt.copyWith(discHeaderManual: 0));
       }
 
-      if (state.downPayments != null && state.downPayments!.isNotEmpty) {
+      if (state.downPayments != null &&
+          state.downPayments!.isNotEmpty &&
+          state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true)) {
         preparedReceipt = await _recalculateReceiptUseCase.call(
             params: state.copyWith(
           discHeaderManual: 0,
