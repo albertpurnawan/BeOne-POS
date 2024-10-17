@@ -619,7 +619,7 @@ class InvoiceApi {
             "promotionid": item.promotionId,
             "remarks": item.remarks ?? "",
             "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                .format(DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(item.editTime.toString())),
+                .format(DateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(item.editTime.toString())),
             "cogs": item.cogs,
             "tovat_id": item.tovatId,
             "promotiontingkat": item.promotionTingkat ?? "",

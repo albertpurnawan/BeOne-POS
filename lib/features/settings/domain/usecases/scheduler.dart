@@ -13,7 +13,7 @@ Future<void> configureBackgroundTasks() async {
   cron.schedule(Schedule.parse(syncSchedule), () async {
     try {
       await syncData();
-      log("Sync Via CRON Success");
+      log("Sync Via CRON Finished");
     } catch (e) {
       handleError(e);
     }
