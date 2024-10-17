@@ -2942,12 +2942,15 @@ class _SalesPageState extends State<SalesPage> {
                         // (state.discHeaderManual ?? 0) != 0 ? _noteChip((1000000), 1) : const SizedBox.shrink(),
                         (state.downPayments != null &&
                                 state.downPayments!.isNotEmpty &&
-                                state.downPayments!.any((dp) => dp.isReceive == false))
+                                state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
                             ? _noteChip(
-                                (state.downPayments ?? [])
-                                    .fold(0.0, (total, dp) => dp.isSelected == true ? total + dp.amount : total),
+                                (state.downPayments ?? []).fold(
+                                  0.0,
+                                  (total, dp) => (dp.isSelected == true && dp.amount != 0) ? total + dp.amount : total,
+                                ),
                                 2)
                             : const SizedBox.shrink(),
+
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)
                             : const SizedBox.shrink(),

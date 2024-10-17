@@ -1148,10 +1148,14 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                           //     : const SizedBox.shrink(),
                                           (receipt.downPayments != null &&
                                                   receipt.downPayments!.isNotEmpty &&
-                                                  receipt.downPayments!.any((dp) => dp.isReceive == false))
+                                                  receipt.downPayments!
+                                                      .any((dp) => dp.isReceive == false && dp.isSelected == true))
                                               ? _noteChip(
-                                                  (receipt.downPayments ?? [])
-                                                      .fold(0.0, (total, dp) => total + dp.amount),
+                                                  (receipt.downPayments ?? []).fold(
+                                                      0.0,
+                                                      (total, dp) => (dp.isSelected == true && dp.amount != 0)
+                                                          ? total + dp.amount
+                                                          : total),
                                                   2)
                                               : const SizedBox.shrink(),
                                           (receipt.discHeaderManual ?? 0) != 0

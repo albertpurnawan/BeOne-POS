@@ -788,7 +788,8 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Reset down payment
       List<DownPaymentEntity> dps = newReceipt.downPayments ?? [];
-      double totalDPAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
+      double totalDPAmount = dps.fold(0.0, (value, dp) => dp.isSelected == true ? value + dp.amount : value);
+
       // if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
       //   double reset = newReceipt.subtotal + totalDPAmount;
       //   newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt.copyWith(subtotal: reset));

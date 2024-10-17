@@ -68,6 +68,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   bool receiveZero = false;
   bool isLoadingDraw = true;
   bool isLoadingReceive = true;
+
   double totalAmount = 0;
 
   @override
@@ -349,20 +350,20 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     List<DownPaymentEntity> selectedDownPayments = [];
     DownPaymentEntity? selectedDP;
 
+    log("stateInvoiceReceipt - ${stateInvoice.receiptItems}");
+
     if (_selectedItems.isNotEmpty) {
       for (int i = 0; i < _selectedItems.length; i++) {
         selectedDP = membersDP[i].copyWith(isSelected: _selectedItems[i]);
         double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
         if (_selectedItems[i]) {
           List<DownPaymentItemsEntity>? tinv7List = selectedDP.tinv7;
-          // if (tinv7List != null) {
           List<DownPaymentItemsEntity> updatedTinv7List = tinv7List!.map((tinv7Item) {
             int index = tinv7List.indexOf(tinv7Item);
             return tinv7Item.copyWith(isSelected: isCheckedBox[i][index] ? 1 : 0);
           }).toList();
 
           selectedDP = selectedDP.copyWith(tinv7: updatedTinv7List, amount: amount);
-          // } else
         }
         selectedDownPayments.add(selectedDP);
         totalSelectedAmount += amount;
@@ -373,21 +374,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       for (DownPaymentEntity dp in selectedDownPayments) {
         if (dp.isSelected != null && dp.isSelected == true && dp.tinv7 != null && dp.tinv7!.isNotEmpty) {
           for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
-            final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItem.toitmId ?? "", null);
-            if (stateInvoice.downPayments != null &&
-                stateInvoice.downPayments!.isNotEmpty &&
-                stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
-              final AddUpdateReceiptItemsParams paramReset = AddUpdateReceiptItemsParams(
-                barcode: itemEntity?.barcode ?? "",
-                itemEntity: itemEntity,
-                quantity: dpItem.quantity * -1,
-                context: context,
-                onOpenPriceInputted: () {},
-                refpos2: dpItem.docNum,
-              );
-              await receipt.addUpdateReceiptItems(paramReset);
-            }
             if (dpItem.isSelected == 1) {
+              final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItem.toitmId ?? "", null);
+
               final AddUpdateReceiptItemsParams paramAdd = AddUpdateReceiptItemsParams(
                 barcode: itemEntity?.barcode ?? "",
                 itemEntity: itemEntity,
@@ -407,8 +396,39 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     context.pop();
   }
 
+  Future<void> _resetDrawDownPayment() async {
+    final receipt = context.read<ReceiptCubit>();
+    List<DownPaymentEntity> downPaymentList = stateInvoice.downPayments ?? [];
+    List<ReceiptItemEntity> receiptItemList = stateInvoice.receiptItems;
+
+    if (downPaymentList.isNotEmpty && receiptItemList.isNotEmpty) {
+      for (DownPaymentEntity dp in downPaymentList) {
+        for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
+          for (ReceiptItemEntity itemReceipt in receiptItemList) {
+            if (dpItem.toitmId == itemReceipt.itemEntity.toitmId && dpItem.tbitmId == itemReceipt.itemEntity.tbitmId) {
+              final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
+                barcode: itemReceipt.itemEntity.barcode,
+                itemEntity: itemReceipt.itemEntity,
+                quantity: dpItem.quantity * -1,
+                context: context,
+                onOpenPriceInputted: () {},
+                refpos2: dpItem.docNum,
+              );
+              await receipt.addUpdateReceiptItems(param);
+            }
+          }
+        }
+      }
+    }
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
+    stateInvoice = receipt.state.copyWith();
+  }
+
   Future<void> _resetDownPayment() async {
     final receipt = context.read<ReceiptCubit>();
+    List<DownPaymentEntity> downPaymentList = stateInvoice.downPayments ?? [];
+    List<ReceiptItemEntity> receiptItemList = stateInvoice.receiptItems;
+
     setState(() {
       _selectedItems = List.generate(membersDP.length, (_) => false);
       totalAmount = 0;
@@ -416,18 +436,24 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         _drawAmountControllers[index].text = Helpers.parseMoney(membersDP[index].amount);
       }
     });
-
-    for (var item in receipt.state.receiptItems) {
-      final AddUpdateReceiptItemsParams params = AddUpdateReceiptItemsParams(
-        barcode: null,
-        itemEntity: item.itemEntity,
-        quantity: item.quantity * -1,
-        context: context,
-        onOpenPriceInputted: () {},
-        remarks: null,
-        refpos2: null,
-      );
-      receipt.addUpdateReceiptItems(params);
+    if (downPaymentList.isNotEmpty && receiptItemList.isNotEmpty) {
+      for (DownPaymentEntity dp in downPaymentList) {
+        for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
+          for (ReceiptItemEntity itemReceipt in receiptItemList) {
+            if (dpItem.toitmId == itemReceipt.itemEntity.toitmId && dpItem.tbitmId == itemReceipt.itemEntity.tbitmId) {
+              final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
+                barcode: itemReceipt.itemEntity.barcode,
+                itemEntity: itemReceipt.itemEntity,
+                quantity: dpItem.quantity * -1,
+                context: context,
+                onOpenPriceInputted: () {},
+                refpos2: dpItem.docNum,
+              );
+              await receipt.addUpdateReceiptItems(param);
+            }
+          }
+        }
+      }
     }
 
     await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
@@ -651,6 +677,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 }
                                 return;
                               }
+
+                              await _resetDrawDownPayment();
 
                               if (childContext.mounted) {
                                 await _addOrUpdateDrawDownPayment(childContext);
@@ -1075,7 +1103,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                         IntrinsicHeight(
                                                                           child: GestureDetector(
                                                                             onTap: () async {
-                                                                              log("Edit button pressed");
+                                                                              log("Edit button pressed ");
                                                                               final double quantity = double.parse(
                                                                                   await showDialog(
                                                                                       context: context,
@@ -1555,7 +1583,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               onTap: () {},
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: (_selectedItems[index]) ? Color.fromARGB(96, 201, 236, 209) : Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: ProjectColors.primary,
@@ -1571,14 +1599,26 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         children: [
                                           Expanded(
                                             flex: 2,
-                                            child: Text(
-                                              "${membersDP[index].refpos2}",
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: ProjectColors.primary,
-                                              ),
-                                              textAlign: TextAlign.start,
+                                            child: Row(
+                                              children: [
+                                                (_selectedItems[index])
+                                                    ? const Icon(
+                                                        Icons.done_all_outlined,
+                                                        size: 24,
+                                                        color: Colors.green,
+                                                      )
+                                                    : const SizedBox(width: 24),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  "${membersDP[index].refpos2}",
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: ProjectColors.primary,
+                                                  ),
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           Expanded(
@@ -1647,7 +1687,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                               ),
                                                               disabledBorder: OutlineInputBorder(
                                                                 borderSide: BorderSide(
-                                                                  color: ProjectColors.lightBlack,
+                                                                  color: Colors.transparent,
                                                                   width: 1.0,
                                                                 ),
                                                               ),
@@ -1712,103 +1752,151 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                     ),
                                                   ],
                                                 ),
-                                                Row(
-                                                  children: [
-                                                    IntrinsicHeight(
-                                                      child: GestureDetector(
-                                                        onTap: () async {
-                                                          log("Edit button pressed");
-                                                          if (!_isExceeding[index] && !_isZero[index]) {
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                IntrinsicWidth(
+                                                  child: GestureDetector(
+                                                    onTap: () async {
+                                                      log("Edit button pressed");
+                                                      if (!_isExceeding[index] && !_isZero[index]) {
+                                                        setState(() {
+                                                          _selectedItems[index] = !_selectedItems[index];
+
+                                                          double amount = double.tryParse(_drawAmountControllers[index]
+                                                                  .text
+                                                                  .replaceAll(',', '')) ??
+                                                              0;
+
+                                                          if (_selectedItems[index]) {
+                                                            totalAmount += amount;
+
+                                                            _selectedTinv7Items =
+                                                                List.generate(membersDP.length, (i) => []);
+
+                                                            final tinv7List = membersDP[index].tinv7 ?? [];
+
+                                                            if (index < isCheckedBox.length &&
+                                                                isCheckedBox[index].isNotEmpty) {
+                                                              _selectedTinv7Items[index] = tinv7List.where((item) {
+                                                                int innerIndex = tinv7List.indexOf(item);
+                                                                return innerIndex < isCheckedBox[index].length &&
+                                                                    isCheckedBox[index][innerIndex];
+                                                              }).toList();
+                                                            } else {
+                                                              log("isCheckedBox[$index] is not initialized or empty");
+                                                            }
+                                                          } else {
+                                                            totalAmount -= amount;
+                                                            if (_selectedTinv7Items.length > index) {
+                                                              _selectedTinv7Items[index].clear();
+                                                            }
+                                                          }
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      alignment: Alignment.center,
+                                                      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                      decoration: BoxDecoration(
+                                                        color: (!_selectedItems[index])
+                                                            ? ProjectColors.blue
+                                                            : Colors.deepOrange,
+                                                        borderRadius: BorderRadius.circular(5),
+                                                        boxShadow: const [
+                                                          BoxShadow(
+                                                            spreadRadius: 0.5,
+                                                            blurRadius: 5,
+                                                            color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            (!_selectedItems[index]) ? "Edit & Select" : "Unselect",
+                                                            style: const TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 14,
+                                                              fontWeight: FontWeight.w700,
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                (membersDP[index].tinv7 != null &&
+                                                        membersDP[index].tinv7!.isNotEmpty &&
+                                                        _selectedItems[index])
+                                                    ? IntrinsicHeight(
+                                                        child: GestureDetector(
+                                                          onTap: () async {
+                                                            bool allSelected = await areAllItemsSelected();
+                                                            log("Select All button pressed - $allSelected");
                                                             setState(() {
-                                                              _selectedItems[index] = !_selectedItems[index];
+                                                              for (int i = 0; i < isCheckedBox.length; i++) {
+                                                                for (int innerIndex = 0;
+                                                                    innerIndex < isCheckedBox[i].length;
+                                                                    innerIndex++) {
+                                                                  isCheckedBox[i][innerIndex] = !allSelected;
+                                                                }
 
-                                                              double amount = double.tryParse(
-                                                                      _drawAmountControllers[index]
-                                                                          .text
-                                                                          .replaceAll(',', '')) ??
-                                                                  0;
-
-                                                              if (_selectedItems[index]) {
-                                                                totalAmount += amount;
-
-                                                                _selectedTinv7Items =
-                                                                    List.generate(membersDP.length, (i) => []);
-
-                                                                final tinv7List = membersDP[index].tinv7 ?? [];
-                                                                _selectedTinv7Items[index] = tinv7List.where((item) {
-                                                                  int innerIndex = tinv7List.indexOf(item);
-                                                                  return (innerIndex < isCheckedBox[index].length) &&
-                                                                      isCheckedBox[index][innerIndex];
-                                                                }).toList();
-                                                              } else {
-                                                                totalAmount -= amount;
-                                                                _selectedTinv7Items[index].clear();
+                                                                List<DownPaymentEntity> dpList =
+                                                                    stateInvoice.downPayments ?? [];
+                                                                for (DownPaymentEntity dp in dpList) {
+                                                                  if (dp.isSelected == true &&
+                                                                      dp.tinv7 != null &&
+                                                                      dp.tinv7!.isNotEmpty) {
+                                                                    for (int innerIndex = 0;
+                                                                        innerIndex < dp.tinv7!.length;
+                                                                        innerIndex++) {
+                                                                      DownPaymentItemsEntity dpItem =
+                                                                          dp.tinv7![innerIndex];
+                                                                      dpItem = dpItem.copyWith(
+                                                                          isSelected: !allSelected ? 1 : 0);
+                                                                      dp.tinv7![innerIndex] = dpItem;
+                                                                    }
+                                                                  }
+                                                                }
                                                               }
                                                             });
-                                                          }
-                                                        },
-                                                        child: Container(
-                                                          alignment: Alignment.center,
-                                                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                                                          decoration: BoxDecoration(
-                                                            color: ProjectColors.blue,
-                                                            borderRadius: BorderRadius.circular(5),
-                                                            boxShadow: const [
-                                                              BoxShadow(
-                                                                spreadRadius: 0.5,
-                                                                blurRadius: 5,
-                                                                color: Color.fromRGBO(0, 0, 0, 0.222),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          child: const Row(
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.edit_outlined,
-                                                                size: 18,
-                                                                color: Colors.white,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    IntrinsicHeight(
-                                                      child: GestureDetector(
-                                                        onTap: () async {
-                                                          log("OK button pressed");
-                                                        },
-                                                        child: Container(
-                                                          alignment: Alignment.center,
-                                                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                                                          decoration: BoxDecoration(
-                                                            color: ProjectColors.green,
-                                                            borderRadius: BorderRadius.circular(5),
-                                                            boxShadow: const [
-                                                              BoxShadow(
-                                                                spreadRadius: 0.5,
-                                                                blurRadius: 5,
-                                                                color: Color.fromRGBO(0, 0, 0, 0.222),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          child: const Row(
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.done_outline_outlined,
-                                                                size: 18,
-                                                                color: Colors.white,
-                                                              ),
-                                                            ],
+                                                          },
+                                                          child: Container(
+                                                            alignment: Alignment.center,
+                                                            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                            decoration: BoxDecoration(
+                                                              color: ProjectColors.primary,
+                                                              borderRadius: BorderRadius.circular(5),
+                                                              boxShadow: const [
+                                                                BoxShadow(
+                                                                  spreadRadius: 0.5,
+                                                                  blurRadius: 5,
+                                                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: const Row(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.check_box_outlined,
+                                                                  size: 18,
+                                                                  color: Colors.white,
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                                      )
+                                                    : const SizedBox(width: 30),
                                               ],
                                             ),
                                           ),
@@ -1967,10 +2055,19 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                       setState(() {
                                                         isCheckedBox[index][innerIndex] = value ?? false;
                                                       });
-                                                      if (isCheckedBox[index][innerIndex]) {
-                                                        _selectedTinv7Items[index].add(tinvItem);
-                                                      } else {
-                                                        _selectedTinv7Items[index].remove(tinvItem);
+                                                      List<DownPaymentEntity> dpList = stateInvoice.downPayments ?? [];
+                                                      for (DownPaymentEntity dp in dpList) {
+                                                        if (dp.isSelected == true &&
+                                                            dp.tinv7 != null &&
+                                                            dp.tinv7!.isNotEmpty) {
+                                                          if (innerIndex < dp.tinv7!.length) {
+                                                            DownPaymentItemsEntity dpItem = dp.tinv7![innerIndex];
+
+                                                            dpItem = dpItem.copyWith(isSelected: value! ? 1 : 0);
+
+                                                            dp.tinv7![innerIndex] = dpItem;
+                                                          }
+                                                        }
                                                       }
                                                     },
                                                   );
@@ -1999,6 +2096,17 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               },
             ),
           );
+  }
+
+  Future<bool> areAllItemsSelected() async {
+    for (int i = 0; i < isCheckedBox.length; i++) {
+      for (int innerIndex = 0; innerIndex < isCheckedBox[i].length; innerIndex++) {
+        if (!isCheckedBox[i][innerIndex]) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   Widget _warningCloseDPDialog() {
