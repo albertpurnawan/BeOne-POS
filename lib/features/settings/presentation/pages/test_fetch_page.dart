@@ -3513,7 +3513,7 @@ class _FetchScreenState extends State<FetchScreen> {
                           child: const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Refresh Database',
+                              'Reset Database',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18,
