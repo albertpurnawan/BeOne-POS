@@ -7,13 +7,13 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/database/permission_handler.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/clickable_text.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/settings/presentation/device_setup.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -91,9 +91,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<void> checkTopos() async {
-    final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    final topos = await GetIt.instance<GetPosParameterUseCase>().call();
     setState(() {
-      (topos.isNotEmpty) ? haveTopos = true : haveTopos = false;
+      (topos != null) ? haveTopos = true : haveTopos = false;
     });
     log("TOPOS CHECKED - $haveTopos");
   }
@@ -145,14 +145,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
                       child: const Text("Login"),
-                      onTap: () async {
-                        isLoggedIn = prefs.getBool('logStatus') ?? false;
-                        if (isLoggedIn) {
-                          context.pushNamed(RouteConstants.home);
-                        } else {
-                          context.pushNamed(RouteConstants.login);
-                        }
-                      },
+                      onTap: haveTopos
+                          ? () async {
+                              isLoggedIn = prefs.getBool('logStatus') ?? false;
+                              if (isLoggedIn) {
+                                context.pushNamed(RouteConstants.home);
+                              } else {
+                                context.pushNamed(RouteConstants.login);
+                              }
+                            }
+                          : () {
+                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
+                            },
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -175,21 +179,25 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
                       child: const Text("Sync Data"),
-                      onTap: () async {
-                        await checkTopos();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const FetchScreen(
-                                    outside: true,
-                                  )),
-                        ).then((value) => Future.delayed(
-                            const Duration(milliseconds: 200),
-                            () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-                                statusBarColor: ProjectColors.primary,
-                                statusBarBrightness: Brightness.light,
-                                statusBarIconBrightness: Brightness.light))));
-                      },
+                      onTap: haveTopos
+                          ? () async {
+                              await checkTopos();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const FetchScreen(
+                                          outside: true,
+                                        )),
+                              ).then((value) => Future.delayed(
+                                  const Duration(milliseconds: 200),
+                                  () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                      statusBarColor: ProjectColors.primary,
+                                      statusBarBrightness: Brightness.light,
+                                      statusBarIconBrightness: Brightness.light))));
+                            }
+                          : () {
+                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
+                            },
                     ),
                   ),
                   const SizedBox(height: 10),

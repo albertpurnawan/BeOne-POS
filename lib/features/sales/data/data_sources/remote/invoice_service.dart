@@ -343,6 +343,7 @@ class InvoiceApi {
               data: invHeaderSuccess,
             );
       }
+      // handle duplicate send invoice
     } catch (err) {
       if (err is DioException) {
         log("error response data ${err.response?.data}");

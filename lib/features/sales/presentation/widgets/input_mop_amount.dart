@@ -244,6 +244,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () {
+                if (isErr) return;
                 final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
                 context.pop(mopAmount);
               },

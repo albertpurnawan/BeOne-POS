@@ -2,6 +2,7 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,8 +16,11 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/progress_indicator.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -33,12 +37,16 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/duitku_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
+import 'package:uuid/uuid.dart';
 
 class MopType {
   final String name;
@@ -59,8 +67,10 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isPrinting = false;
   bool isCharged = false;
   bool isLoadingQRIS = false;
+  bool isLoadingDuitku = false;
   bool isCharging = false;
   bool isMultiMOPs = true;
+  bool isConnected = true;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
@@ -74,6 +84,23 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     ));
   }
 
+  Future<void> _checkConnection() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      setState(() {
+        isConnected = false;
+        SnackBarHelper.presentErrorSnackBar(
+            context, "No internet connection detected. Please check your network settings and try again");
+      });
+    } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet) ||
+        connectivityResult.contains(ConnectivityResult.mobile)) {
+      setState(() {
+        isConnected = true;
+      });
+    }
+  }
+
   void showQRISDialog(BuildContext context, NetzMeEntity data, String accessToken) {
     showDialog(
       context: context,
@@ -83,7 +110,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           data: data,
           accessToken: accessToken,
           onPaymentSuccess: (String status) async {
-            if (status == 'paid') {
+            if (status == 'SUCCESS') {
               await context.read<ReceiptCubit>().charge();
 
               await Future.delayed(const Duration(milliseconds: 200), () {
@@ -102,6 +129,38 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         );
       },
     );
+  }
+
+  void showDuitkuDialog(BuildContext context, DuitkuEntity data, String docnumDuitku) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return DuitkuDialog(
+              data: data,
+              docnumDuitku: docnumDuitku,
+              onPaymentSuccess: (String status) async {
+                if (status == 'PAID') {
+                  try {
+                    await context.read<ReceiptCubit>().charge();
+                  } catch (e) {
+                    dev.log("Error during charge: $e");
+                  }
+
+                  await Future.delayed(const Duration(milliseconds: 200), () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const CheckoutDialog(
+                            isCharged: true,
+                          );
+                        });
+                  });
+                }
+              });
+        });
   }
 
   Future<void> charge() async {
@@ -133,12 +192,16 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         }
       }
 
-      // Edit to QRIS here
+      // Show QRIS/ DUITKU HERE
       final selectedMOPs = state.mopSelections;
-      // final grandTotal = Helpers.revertMoneyToString(state.grandTotal);
       final invoiceDocNum = state.docNum;
 
       final List<MopSelectionEntity> qrisMop = selectedMOPs.where((element) => element.payTypeCode == '5').toList();
+      final List<MopSelectionEntity> duitkuMop = selectedMOPs.where((element) => element.mopAlias == 'duitku').toList();
+      final String duitkuTs = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+      dev.log(duitkuTs);
+      final String merchantOrderId = duitkuTs + Helpers.generateRandomString(10);
+
       if (qrisMop.isNotEmpty) {
         setState(() {
           isLoadingQRIS = true;
@@ -213,6 +276,58 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         });
 
         showQRISDialog(context, transactionQris, accessToken);
+      } else if (duitkuMop.isNotEmpty) {
+        setState(() {
+          isLoadingDuitku = true;
+        });
+
+        final duitkuAmount = (duitkuMop.first.amount ?? 0).toInt();
+        final duitkuSignature =
+            await GetIt.instance<DuitkuApi>().createTransactionSignature(duitkuAmount, merchantOrderId);
+
+        final custId = state.customerEntity?.docId;
+        final docnumDuitku = const Uuid().v4();
+        final duitkuVA = await GetIt.instance<DuitkuApi>().createTransactionVA((duitkuMop.first.cardHolder ?? ""),
+            duitkuSignature, duitkuAmount, (custId ?? ""), merchantOrderId, docnumDuitku);
+
+        setState(() {
+          isLoadingDuitku = false;
+        });
+
+        final String createdTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now());
+        final String expiredTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(const Duration(minutes: 129600)));
+
+        DuitkuVADetailsEntity vaDuitku = DuitkuVADetailsEntity(
+          docId: duitkuMop.first.tpmt7Id ?? "",
+          paymentMethod: duitkuMop.first.cardHolder ?? "",
+          paymentName: duitkuMop.first.cardName ?? "",
+          paymentImage: duitkuMop.first.edcDesc ?? "",
+          totalFee: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
+          statusActive: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
+        );
+
+        DuitkuEntity duitku = DuitkuEntity(
+          merchantCode: duitkuVA['data']['merchantCode'].toString(),
+          merchantOrderId: merchantOrderId,
+          paymentUrl: duitkuVA['data']['paymentUrl'].toString(),
+          vaNumber: duitkuVA['data']['vaNumber'].toString(),
+          reference: duitkuVA['data']['reference'].toString(),
+          amount: duitkuAmount,
+          feeAmount: 0,
+          responseMessage: duitkuVA['data']['statusMessage'].toString(),
+          createdTs: createdTs,
+          expiredTs: expiredTs,
+          duitkuVA: vaDuitku,
+        );
+
+        dev.log("duitku - $duitku");
+        await _checkConnection();
+        if (isConnected == false) {
+          SnackBarHelper.presentFailSnackBar(
+              context, "No internet connection detected. Please check your network settings and try again");
+          return;
+        }
+        showDuitkuDialog(context, duitku, docnumDuitku);
       } else {
         await context.read<ReceiptCubit>().charge();
         await Future.delayed(const Duration(milliseconds: 200), () {
@@ -765,6 +880,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   List<PaymentTypeEntity> paymentTypes = [];
   bool isZeroGrandTotal = false;
   List<Widget> selectedVoucherChips = [];
+  bool isQRISorVA = false;
+  bool isConnected = true;
 
   final List<VouchersSelectionEntity> _vouchers = [];
   final _textEditingControllerCashAmount = TextEditingController();
@@ -798,6 +915,21 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     super.dispose();
     _textEditingControllerCashAmount.dispose();
     _focusNodeCashAmount.dispose();
+  }
+
+  Future<void> _checkConnection() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      setState(() {
+        isConnected = false;
+      });
+    } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet) ||
+        connectivityResult.contains(ConnectivityResult.mobile)) {
+      setState(() {
+        isConnected = true;
+      });
+    }
   }
 
   void getCurrencyName() async {
@@ -841,7 +973,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            (mop.tpmt2Id != null) ? "${mop.mopAlias} - ${mop.cardName}" : mop.mopAlias,
+            (mop.cardName != null) ? "${mop.mopAlias} - ${mop.cardName}" : mop.mopAlias,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -871,6 +1003,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                       _values.removeAt(index);
                       if (mop.payTypeCode == "1") {
                         _textEditingControllerCashAmount.text = "";
+                      }
+                      if (mop.payTypeCode == "5" || mop.payTypeCode == "7") {
+                        isQRISorVA = false;
                       }
                     });
 
@@ -1227,6 +1362,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     if (voucherIsExceedPurchase) return;
 
     if (selected) {
+      if (paymentType.payTypeCode == '5' && isQRISorVA) {
+        SnackBarHelper.presentErrorSnackBar(context, "Please choose either MOP QRIS or duitku, not both");
+        return;
+      }
       double? mopAmount = 0;
       if (widget.isMultiMOPs) {
         if ((receipt.totalPayment ?? 0).abs() >= receipt.grandTotal.abs()) {
@@ -1240,6 +1379,20 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
             max: receipt.grandTotal - (receipt.totalPayment ?? 0),
           ),
         );
+
+        if (mopAmount != null && mopAmount != 0) {
+          if (paymentType.payTypeCode == '5') {
+            setState(() {
+              isQRISorVA = true;
+            });
+          }
+        } else {
+          if (paymentType.payTypeCode == '5') {
+            setState(() {
+              isQRISorVA = false;
+            });
+          }
+        }
       } else {
         mopAmount = receipt.grandTotal - (receipt.totalVoucher ?? 0);
       }
@@ -1257,6 +1410,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       }
     } else {
       _values = _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList();
+      if (paymentType.payTypeCode == '5') {
+        setState(() {
+          isQRISorVA = false;
+        });
+      }
     }
 
     setState(() {});
@@ -1287,9 +1445,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     /**
      * 1 - Tunai
      * 2 - EDC
-     * 3 - Others
-     * 4 - QRIS
-     * 5 - Voucher
+     * 3 - ONLINE PAYMENT
+     * 4 - OTHERS
+     * 5 - QRIS
+     * 6 - VOUCHER
     */
 
     List<MopSelectionEntity> mops = [];
@@ -1799,6 +1958,272 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                               );
                                             }
                                             // [END] UI for EDC MOP
+
+                                            // [START] UI for duitku
+                                            if (paymentType.payTypeCode.startsWith("7") &&
+                                                mopsByType.any((mop) => mop.mopAlias == "duitku")) {
+                                              return Column(
+                                                children: [
+                                                  const SizedBox(height: 10),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          paymentType.description,
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 15),
+                                                        Wrap(
+                                                          spacing: 8,
+                                                          runSpacing: 8,
+                                                          children: List<Widget>.generate(
+                                                            mopsByType.length,
+                                                            (int index) {
+                                                              final mop = mopsByType[index];
+                                                              String? bankVA = "";
+                                                              String? bankName = "";
+                                                              String? bankImage = "";
+                                                              return ChoiceChip(
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors.primary, width: 1.5),
+                                                                padding: const EdgeInsets.all(20),
+                                                                label: Text(
+                                                                  mop.mopAlias,
+                                                                ),
+                                                                selected:
+                                                                    _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
+                                                                onSelected: (bool selected) async {
+                                                                  await _checkConnection();
+                                                                  if (isConnected == false) {
+                                                                    SnackBarHelper.presentErrorSnackBar(context,
+                                                                        "No internet connection detected. Please check your network settings and try again");
+                                                                  }
+                                                                  if (selected) {
+                                                                    if (isQRISorVA) {
+                                                                      SnackBarHelper.presentErrorSnackBar(context,
+                                                                          "Please choose either MOP QRIS or duitku, not both");
+                                                                      return;
+                                                                    }
+                                                                    double? mopAmount = 0;
+                                                                    if (widget.isMultiMOPs) {
+                                                                      if ((receipt.totalPayment ?? 0) >=
+                                                                          receipt.grandTotal) {
+                                                                        return;
+                                                                      }
+                                                                      int maxAmount = (receipt.grandTotal -
+                                                                              (receipt.totalVoucher ?? 0) -
+                                                                              (receipt.totalNonVoucher ?? 0))
+                                                                          .toInt();
+
+                                                                      final List<dynamic> paymentMethods =
+                                                                          await GetIt.instance<DuitkuVAListApi>()
+                                                                              .getPaymentMethods();
+                                                                      dev.log("paymentMethods - $paymentMethods");
+                                                                      mopAmount = await showDialog<double>(
+                                                                        context: context,
+                                                                        barrierDismissible: false,
+                                                                        builder: (BuildContext context) {
+                                                                          return InputDuitkuVADialog(
+                                                                              onVASelected: (mopVA) {
+                                                                                setState(() {
+                                                                                  bankName = mopVA.cardName;
+                                                                                  bankVA = mopVA.cardHolder;
+                                                                                  bankImage = mopVA.edcDesc;
+                                                                                  isQRISorVA = true;
+                                                                                });
+                                                                              },
+                                                                              mopSelectionEntity: mop,
+                                                                              paymentMethods: paymentMethods,
+                                                                              amount: maxAmount);
+                                                                        },
+                                                                      );
+                                                                    } else {
+                                                                      mopAmount = receipt.grandTotal -
+                                                                          (receipt.totalVoucher ?? 0);
+                                                                    }
+
+                                                                    if (mopAmount == null || mopAmount == 0) {
+                                                                      return;
+                                                                    }
+
+                                                                    _values = (widget.isMultiMOPs
+                                                                            ? _values
+                                                                                .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                                .toList()
+                                                                            : <MopSelectionEntity>[]) +
+                                                                        [
+                                                                          mop.copyWith(
+                                                                              cardName: bankName,
+                                                                              cardHolder: bankVA,
+                                                                              edcDesc: bankImage,
+                                                                              amount: mopAmount)
+                                                                        ];
+                                                                    if (!widget.isMultiMOPs) {
+                                                                      _textEditingControllerCashAmount.text = "";
+                                                                    }
+                                                                  } else {
+                                                                    _values = _values
+                                                                        .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                        .toList();
+                                                                    setState(() {
+                                                                      isQRISorVA = false;
+                                                                    });
+                                                                  }
+                                                                  setState(() {});
+                                                                  updateReceiptMop();
+                                                                },
+                                                              );
+                                                            },
+                                                          ).toList(),
+                                                        ),
+                                                        const SizedBox(height: 20),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
+                                                ],
+                                              );
+                                            }
+                                            // [END] UI for duitku
+
+                                            // [START] UI for duitku
+                                            if (paymentType.payTypeCode.startsWith("7") &&
+                                                mopsByType.any((mop) => mop.mopAlias == "duitku")) {
+                                              return Column(
+                                                children: [
+                                                  const SizedBox(height: 10),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          paymentType.description,
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 15),
+                                                        Wrap(
+                                                          spacing: 8,
+                                                          runSpacing: 8,
+                                                          children: List<Widget>.generate(
+                                                            mopsByType.length,
+                                                            (int index) {
+                                                              final mop = mopsByType[index];
+                                                              String? bankVA = "";
+                                                              String? bankName = "";
+                                                              String? bankImage = "";
+                                                              return ChoiceChip(
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors.primary, width: 1.5),
+                                                                padding: const EdgeInsets.all(20),
+                                                                label: Text(
+                                                                  mop.mopAlias,
+                                                                ),
+                                                                selected:
+                                                                    _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
+                                                                onSelected: (bool selected) async {
+                                                                  await _checkConnection();
+                                                                  if (isConnected == false) {
+                                                                    SnackBarHelper.presentErrorSnackBar(context,
+                                                                        "No internet connection detected. Please check your network settings and try again");
+                                                                  }
+                                                                  if (selected) {
+                                                                    if (isQRISorVA) {
+                                                                      SnackBarHelper.presentErrorSnackBar(context,
+                                                                          "Please choose either MOP QRIS or duitku, not both");
+                                                                      return;
+                                                                    }
+                                                                    double? mopAmount = 0;
+                                                                    if (widget.isMultiMOPs) {
+                                                                      if ((receipt.totalPayment ?? 0) >=
+                                                                          receipt.grandTotal) {
+                                                                        return;
+                                                                      }
+                                                                      int maxAmount = (receipt.grandTotal -
+                                                                              (receipt.totalVoucher ?? 0) -
+                                                                              (receipt.totalNonVoucher ?? 0))
+                                                                          .toInt();
+
+                                                                      final List<dynamic> paymentMethods =
+                                                                          await GetIt.instance<DuitkuVAListApi>()
+                                                                              .getPaymentMethods();
+                                                                      dev.log("paymentMethods - $paymentMethods");
+                                                                      mopAmount = await showDialog<double>(
+                                                                        context: context,
+                                                                        barrierDismissible: false,
+                                                                        builder: (BuildContext context) {
+                                                                          return InputDuitkuVADialog(
+                                                                              onVASelected: (mopVA) {
+                                                                                setState(() {
+                                                                                  bankName = mopVA.cardName;
+                                                                                  bankVA = mopVA.cardHolder;
+                                                                                  bankImage = mopVA.edcDesc;
+                                                                                  isQRISorVA = true;
+                                                                                });
+                                                                              },
+                                                                              mopSelectionEntity: mop,
+                                                                              paymentMethods: paymentMethods,
+                                                                              amount: maxAmount);
+                                                                        },
+                                                                      );
+                                                                    } else {
+                                                                      mopAmount = receipt.grandTotal -
+                                                                          (receipt.totalVoucher ?? 0);
+                                                                    }
+
+                                                                    if (mopAmount == null || mopAmount == 0) {
+                                                                      return;
+                                                                    }
+
+                                                                    _values = (widget.isMultiMOPs
+                                                                            ? _values
+                                                                                .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                                .toList()
+                                                                            : <MopSelectionEntity>[]) +
+                                                                        [
+                                                                          mop.copyWith(
+                                                                              cardName: bankName,
+                                                                              cardHolder: bankVA,
+                                                                              edcDesc: bankImage,
+                                                                              amount: mopAmount)
+                                                                        ];
+                                                                    if (!widget.isMultiMOPs) {
+                                                                      _textEditingControllerCashAmount.text = "";
+                                                                    }
+                                                                  } else {
+                                                                    _values = _values
+                                                                        .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                        .toList();
+                                                                    setState(() {
+                                                                      isQRISorVA = false;
+                                                                    });
+                                                                  }
+                                                                  setState(() {});
+                                                                  updateReceiptMop();
+                                                                },
+                                                              );
+                                                            },
+                                                          ).toList(),
+                                                        ),
+                                                        const SizedBox(height: 20),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
+                                                ],
+                                              );
+                                            }
+                                            // [END] UI for duitku
 
                                             // [START] UI for other MOPs
                                             return Column(

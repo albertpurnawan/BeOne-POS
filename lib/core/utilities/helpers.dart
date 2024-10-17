@@ -210,6 +210,12 @@ abstract class Helpers {
     }
   }
 
+  static String getTimestamp() {
+    DateTime now = DateTime.now();
+    String formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+    return formattedDateTime;
+  }
+
   static String localDateStringToUtcString(String dtString) {
     final dt = DateTime.parse(dtString);
     debugPrint(dtString);
@@ -328,6 +334,15 @@ abstract class Helpers {
     final endMinutes = end.hour * 60 + end.minute;
 
     return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
+  }
+
+  static String generateRandomString(int length) {
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    Random random = Random();
+    return String.fromCharCodes(Iterable.generate(
+      length,
+      (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+    ));
   }
 }
 

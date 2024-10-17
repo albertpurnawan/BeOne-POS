@@ -19,6 +19,7 @@ class MopSelectionModel extends MopSelectionEntity {
     required super.cardHolder,
     required super.rrn,
     required super.tpmt6Id,
+    required super.tpmt7Id,
   });
 
   factory MopSelectionModel.fromMap(Map<String, dynamic> map) {
@@ -40,6 +41,7 @@ class MopSelectionModel extends MopSelectionEntity {
       cardHolder: map['cardholder'] != null ? map['cardholder'] as String : null,
       rrn: map['rrn'] != null ? map['rrn'] as String : null,
       tpmt6Id: map['tpmt6Id'] != null ? map['tpmt6Id'] as String : null,
+      tpmt7Id: map['tpmt7Id'] != null ? map['tpmt7Id'] as String : null,
     );
   }
 }

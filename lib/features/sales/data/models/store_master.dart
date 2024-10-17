@@ -76,6 +76,10 @@ class StoreMasterFields {
     netzmeChannelId,
     minDiscount,
     maxDiscount,
+    duitkuUrl,
+    duitkuApiKey,
+    duitkuMerchantCode,
+    duitkuExpiryPeriod,
     form,
     // defaultTocusId,
   ];
@@ -151,6 +155,10 @@ class StoreMasterFields {
   static const String netzmeChannelId = 'netzmechannelid';
   static const String minDiscount = 'mindiscount';
   static const String maxDiscount = 'maxdiscount';
+  static const String duitkuUrl = 'duitkuurl';
+  static const String duitkuApiKey = 'duitkuapikey';
+  static const String duitkuMerchantCode = 'duitkumerchantcode';
+  static const String duitkuExpiryPeriod = 'duitkuexpiryperiod';
   static const String form = 'form';
   // static const String defaultTocusId = 'defaulttocusid';
 }
@@ -228,6 +236,10 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     required super.netzmeChannelId,
     required super.minDiscount,
     required super.maxDiscount,
+    required super.duitkuUrl,
+    required super.duitkuApiKey,
+    required super.duitkuMerchantCode,
+    required super.duitkuExpiryPeriod,
     required super.form,
     // required super.defaultTocusId,
   });
@@ -306,6 +318,10 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'netzmechannelid': netzmeChannelId,
       'mindiscount': minDiscount,
       'maxdiscount': maxDiscount,
+      'duitkuurl': duitkuUrl,
+      'duitkuapikey': duitkuApiKey,
+      'duitkumerchantcode': duitkuMerchantCode,
+      'duitkuexpiryperiod': duitkuExpiryPeriod,
       'form': form,
       // 'defaulttocusid': defaultTocusId,
     };
@@ -384,6 +400,10 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       netzmeChannelId: map['netzmechannelid'] != null ? map['netzmechannelid'] as String : null,
       minDiscount: map['mindiscount'] != null ? map['mindiscount'] as int : null,
       maxDiscount: map['maxdiscount'] != null ? map['maxdiscount'] as int : null,
+      duitkuUrl: map['duitkuurl'] != null ? map['duitkuurl'] as String : null,
+      duitkuApiKey: map['duitkuapikey'] != null ? map['duitkuapikey'] as String : null,
+      duitkuMerchantCode: map['duitkumerchantcode'] != null ? map['duitkumerchantcode'] as String : null,
+      duitkuExpiryPeriod: map['duitkuexpiryperiod'] != null ? map['duitkuexpiryperiod'] as int : null,
       form: map['form'] as String,
       // defaultTocusId: map['defaulttocusId'] as String,
     );
@@ -407,6 +427,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "minconst": map['minconst'].toDouble() as double,
       "maxconst": map['maxconst'].toDouble() as double,
       "tpmt1Id": map['tpmt1docid'] != null ? map['tpmt1docid'] as String : null,
+      "duitkuexpiryperiod": map['duitkuexpiryperiod'] != null ? int.parse(map['duitkuexpiryperiod']) : null,
     });
   }
 
@@ -483,6 +504,10 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       netzmeChannelId: entity.netzmeChannelId,
       minDiscount: entity.minDiscount,
       maxDiscount: entity.maxDiscount,
+      duitkuUrl: entity.duitkuUrl,
+      duitkuApiKey: entity.duitkuApiKey,
+      duitkuMerchantCode: entity.duitkuMerchantCode,
+      duitkuExpiryPeriod: entity.duitkuExpiryPeriod,
       form: entity.form,
       // defaultTocusId: entity.defaultTocusId,
     );
