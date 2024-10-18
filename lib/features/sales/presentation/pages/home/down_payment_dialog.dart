@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -246,7 +244,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   Future<List<DownPaymentEntity>> getMembersDownPayments() async {
-    log("stateInvoice - ${stateInvoice.downPayments}");
+    // log("stateInvoice - ${stateInvoice.downPayments}");
     if (stateInvoice.downPayments != null &&
         stateInvoice.downPayments!.isNotEmpty &&
         stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
@@ -339,7 +337,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     await receipt.addUpdateReceiptItems(params);
     await receipt.updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _remarksController.text);
     await receipt.addOrUpdateDownPayments(downPaymentEntities: [dpEntity], amountDifference: amount);
-    log("receipt 2 - ${receipt.state}");
+    // log("receipt 2 - ${receipt.state}");
   }
 
   Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
@@ -350,7 +348,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     List<DownPaymentEntity> selectedDownPayments = [];
     DownPaymentEntity? selectedDP;
 
-    log("stateInvoiceReceipt - ${stateInvoice.receiptItems}");
+    // log("stateInvoiceReceipt - ${stateInvoice.receiptItems}");
 
     if (_selectedItems.isNotEmpty) {
       for (int i = 0; i < _selectedItems.length; i++) {
@@ -376,7 +374,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
           for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
             if (dpItem.isSelected == 1) {
               final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItem.toitmId ?? "", null);
-              log("dpItem.docNum  -${dpItem.docNum}");
+              // log("dpItem.docNum  -${dpItem.docNum}");
               final AddUpdateReceiptItemsParams paramAdd = AddUpdateReceiptItemsParams(
                 barcode: itemEntity?.barcode ?? "",
                 itemEntity: itemEntity,
@@ -1103,7 +1101,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                         IntrinsicHeight(
                                                                           child: GestureDetector(
                                                                             onTap: () async {
-                                                                              log("Edit button pressed ");
+                                                                              // log("Edit button pressed ");
                                                                               final double quantity = double.parse(
                                                                                   await showDialog(
                                                                                       context: context,
@@ -1763,7 +1761,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                 IntrinsicWidth(
                                                   child: GestureDetector(
                                                     onTap: () async {
-                                                      log("Edit button pressed");
+                                                      // log("Edit button pressed");
                                                       if (!_isExceeding[index] && !_isZero[index]) {
                                                         setState(() {
                                                           _selectedItems[index] = !_selectedItems[index];
@@ -1789,7 +1787,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                     isCheckedBox[index][innerIndex];
                                                               }).toList();
                                                             } else {
-                                                              log("isCheckedBox[$index] is not initialized or empty");
+                                                              // log("isCheckedBox[$index] is not initialized or empty");
                                                             }
                                                           } else {
                                                             totalAmount -= amount;
@@ -1841,7 +1839,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                           onTap: () async {
                                                             bool allSelected =
                                                                 isCheckedBox[index].every((isChecked) => isChecked);
-                                                            log("Select All button pressed for index $index - allSelected: $allSelected");
+                                                            // log("Select All button pressed for index $index - allSelected: $allSelected");
 
                                                             setState(() {
                                                               for (int innerIndex = 0;

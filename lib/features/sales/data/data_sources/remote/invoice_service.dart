@@ -658,7 +658,6 @@ class InvoiceApi {
           if (itemDP != null && itemDP.toitmId == item['toitmId'] && item['quantity'] == -1) {
             docnums.add(item['refpos2']);
           }
-          log("docnums - $docnums");
 
           List<Map<String, dynamic>> filteredPromotions = promotionsDetail.where((promo) {
             return promo['tinv1docid'] == item['docId'];

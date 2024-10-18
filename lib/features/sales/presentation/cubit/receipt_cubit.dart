@@ -361,7 +361,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     );
 
     newState = await _recalculateReceiptUseCase.call(params: newState);
-    dev.log("newState afterAddUpp - $newState");
+    // dev.log("newState afterAddUpp - $newState");
     emit(newState);
   }
 
