@@ -1839,32 +1839,29 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                     ? IntrinsicHeight(
                                                         child: GestureDetector(
                                                           onTap: () async {
-                                                            bool allSelected = await areAllItemsSelected();
-                                                            log("Select All button pressed - $allSelected");
-                                                            setState(() {
-                                                              for (int i = 0; i < isCheckedBox.length; i++) {
-                                                                for (int innerIndex = 0;
-                                                                    innerIndex < isCheckedBox[i].length;
-                                                                    innerIndex++) {
-                                                                  isCheckedBox[i][innerIndex] = !allSelected;
-                                                                }
+                                                            bool allSelected =
+                                                                isCheckedBox[index].every((isChecked) => isChecked);
+                                                            log("Select All button pressed for index $index - allSelected: $allSelected");
 
-                                                                List<DownPaymentEntity> dpList =
-                                                                    stateInvoice.downPayments ?? [];
-                                                                for (DownPaymentEntity dp in dpList) {
-                                                                  if (dp.isSelected == true &&
-                                                                      dp.tinv7 != null &&
-                                                                      dp.tinv7!.isNotEmpty) {
-                                                                    for (int innerIndex = 0;
-                                                                        innerIndex < dp.tinv7!.length;
-                                                                        innerIndex++) {
-                                                                      DownPaymentItemsEntity dpItem =
-                                                                          dp.tinv7![innerIndex];
-                                                                      dpItem = dpItem.copyWith(
-                                                                          isSelected: !allSelected ? 1 : 0);
-                                                                      dp.tinv7![innerIndex] = dpItem;
-                                                                    }
-                                                                  }
+                                                            setState(() {
+                                                              for (int innerIndex = 0;
+                                                                  innerIndex < isCheckedBox[index].length;
+                                                                  innerIndex++) {
+                                                                isCheckedBox[index][innerIndex] = !allSelected;
+                                                              }
+
+                                                              List<DownPaymentEntity> dpList =
+                                                                  stateInvoice.downPayments ?? [];
+                                                              if (dpList.length > index &&
+                                                                  dpList[index].tinv7 != null) {
+                                                                for (int innerIndex = 0;
+                                                                    innerIndex < dpList[index].tinv7!.length;
+                                                                    innerIndex++) {
+                                                                  DownPaymentItemsEntity dpItem =
+                                                                      dpList[index].tinv7![innerIndex];
+                                                                  dpItem =
+                                                                      dpItem.copyWith(isSelected: !allSelected ? 1 : 0);
+                                                                  dpList[index].tinv7![innerIndex] = dpItem;
                                                                 }
                                                               }
                                                             });
