@@ -4121,10 +4121,13 @@ class _SalesPageState extends State<SalesPage> {
 
           if (user != null) {
             String checkLock = await GetIt.instance<InvoiceApi>().lockInvoice(user.docId, docnumList);
-
-            if (checkLock != 'Lock Down Payment success') {
+            if (checkLock.contains("Connection failed")) {
               SnackBarHelper.presentErrorSnackBar(
                   context, "Failed to process DP Transaction. Please check your connection and try again");
+              return;
+            } else if (checkLock.contains("Can't init lock")) {
+              SnackBarHelper.presentErrorSnackBar(
+                  context, "Can't process transaction because one of the down payments is locked");
               return;
             }
           }

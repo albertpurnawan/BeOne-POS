@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -30,11 +32,13 @@ class UnlockInvoice extends StatefulWidget {
 
 class _UnlockInvoiceState extends State<UnlockInvoice> {
   final _formKey = GlobalKey<FormState>();
-  final _invvoiceDocNumTextController = TextEditingController();
+  final _invoiceDocNumTextController = TextEditingController();
+  final _fullDocNumTextController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
-  final _invvoiceDocNumFocusNode = FocusNode();
+  final _invoiceDocNumFocusNode = FocusNode();
+  final _fullDocNumFocusNode = FocusNode();
   final _usernameFocusNode = FocusNode();
 
   List<InvoiceDetailModel>? invoiceFound;
@@ -43,16 +47,23 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
+  String fullDocnum = "";
 
   @override
   void initState() {
     super.initState();
-    _invvoiceDocNumFocusNode.requestFocus();
+    _invoiceDocNumFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    _invvoiceDocNumTextController.dispose();
+    _invoiceDocNumTextController.dispose();
+    _fullDocNumTextController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _invoiceDocNumFocusNode.dispose();
+    _fullDocNumFocusNode.dispose();
+    _usernameFocusNode.dispose();
     super.dispose();
   }
 
@@ -81,20 +92,23 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     return resultMap;
   }
 
-  void _handleInvoiceSelected(InvoiceDetailModel? shift) async {
-    if (shift != null) {
+  void _handleInvoiceSelected(InvoiceDetailModel? invoice) async {
+    if (invoice != null) {
       setState(() {
-        _invvoiceDocNumTextController.text = "";
+        _invoiceDocNumTextController.text = "";
         invoiceFound = null;
-        selectedInvoice = shift;
+        selectedInvoice = invoice;
         showInvoice = true;
       });
     }
   }
 
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
+    log("HREEEEEEEE");
     FocusScope.of(context).unfocus();
+    if (_formKey.currentState == null) return;
     if (!_formKey.currentState!.validate()) return;
+
     String passwordCorrect = await checkPassword(_usernameController.text, _passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
@@ -102,7 +116,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
       // unlock DP HERE
       final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
       final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
-      List<String> docnumList = [selectedInvoice?.refpos2 ?? ""];
+      List<String> docnumList = [selectedInvoice?.refpos2 ?? fullDocnum];
       if (user != null) {
         String checkLock = await GetIt.instance<InvoiceApi>().unlockInvoice(user.docId, docnumList);
         log("checkLock - $checkLock");
@@ -112,8 +126,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
           return;
         }
       }
-      SnackBarHelper.presentSuccessSnackBar(childContext, "Invoice unlocked successfully", 3);
-      // Navigator.pop(childContext);
+      SnackBarHelper.presentSuccessSnackBar(context, "Invoice unlocked successfully", 3);
+      Navigator.pop(childContext);
     } else {
       final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
@@ -166,7 +180,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
           barrierDismissible: false,
           builder: (context) => OTPUnlockDialog(
             requester: value,
-            docnum: selectedInvoice?.refpos2 ?? "",
+            docnum: selectedInvoice?.refpos2 ?? fullDocnum,
           ),
         );
       });
@@ -224,23 +238,27 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
       return Scaffold(
         backgroundColor: Colors.transparent,
         body: Focus(
-          // onKeyEvent: (node, value) {
-          //       if (value.runtimeType == KeyUpEvent) {
-          //         return KeyEventResult.handled;
-          //       }
+          onKeyEvent: (node, value) {
+            if (value.runtimeType == KeyUpEvent) {
+              return KeyEventResult.handled;
+            }
 
-          //       if (value.physicalKey == PhysicalKeyboardKey.enter) {
-          //         onSubmit(childContext, parentContext);
-          //         return KeyEventResult.handled;
-          //       } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
-          //         parentContext.pop();
-          //       } else if (value.physicalKey == PhysicalKeyboardKey.f11) {
-          //         handleOTP(childContext);
-          //         return KeyEventResult.handled;
-          //       }
+            if (value.physicalKey == PhysicalKeyboardKey.enter) {
+              if (node.hasFocus) {
+                return KeyEventResult.ignored;
+              } else {
+                onSubmit(childContext, context);
+                return KeyEventResult.handled;
+              }
+            } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
+              context.pop();
+            } else if (value.physicalKey == PhysicalKeyboardKey.f11) {
+              handleOTP(childContext);
+              return KeyEventResult.handled;
+            }
 
-          //       return KeyEventResult.ignored;
-          //     },
+            return KeyEventResult.ignored;
+          },
           child: AlertDialog(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
@@ -267,27 +285,18 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 80,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _inputInvoiceNumber(),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      _inputInvoiceNumber(),
+                      const SizedBox(height: 10),
                       const Divider(),
-                      if (invoiceFound != null && invoiceFound!.isNotEmpty)
+                      if (!showInvoice)
                         Expanded(
-                          child: _searchResult(onShiftSelected: _handleInvoiceSelected),
+                          child: _searchResult(onInvoiceSelected: _handleInvoiceSelected),
                         ),
                       if (showInvoice)
                         SizedBox(
                           child: _unlockInvoice(childContext),
                         ),
+                      const SizedBox(height: 10),
                       _actionButtons(childContext, context),
                     ],
                   ),
@@ -301,118 +310,211 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   }
 
   Widget _inputInvoiceNumber() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
-          height: 80,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Text(
-                  "Search Invoice",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
+    return Center(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.5,
+        child: Row(
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      focusNode: _invvoiceDocNumFocusNode,
-                      textAlign: TextAlign.center,
-                      controller: _invvoiceDocNumTextController,
-                      style: const TextStyle(fontSize: 18),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(8),
-                        hintText: "Type Invoice Document Number",
-                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      onChanged: (value) async {
-                        final invoiceSearched = await _searchInvoiceDetail(value);
-                        setState(() {
-                          invoiceFound = invoiceSearched;
-                          showInvoice = false;
-                        });
-                      },
-                      onEditingComplete: () async {
-                        final shiftsSearched = await _searchInvoiceDetail(_invvoiceDocNumTextController.text);
-                        setState(() {
-                          invoiceFound = shiftsSearched;
-                          showInvoice = false;
-                        });
-                        FocusManager.instance.primaryFocus?.unfocus();
-                      },
-                      onTapOutside: (event) {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                      },
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Text(
+                      "Search Invoice",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(width: 15),
-                  SizedBox(
-                    width: 60,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          side: const BorderSide(color: ProjectColors.primary, width: 2),
-                          borderRadius: BorderRadius.circular(5),
-                        )),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => ProjectColors.primary,
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          focusNode: _invoiceDocNumFocusNode,
+                          textAlign: TextAlign.start,
+                          controller: _invoiceDocNumTextController,
+                          style: const TextStyle(fontSize: 18),
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(10),
+                            hintText: "Type Invoice Document Number",
+                            hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          onTap: () {
+                            FocusScope.of(context).requestFocus(_invoiceDocNumFocusNode);
+                          },
+                          onEditingComplete: () async {
+                            _invoiceDocNumFocusNode.unfocus();
+                            final invoiceSearched = await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                            setState(() {
+                              invoiceFound = invoiceSearched;
+                              showInvoice = false;
+                            });
+                          },
                         ),
-                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
                       ),
-                      onPressed: () async {
-                        final shiftsSearched = await _searchInvoiceDetail(_invvoiceDocNumTextController.text);
-                        setState(() {
-                          invoiceFound = shiftsSearched;
-                          showInvoice = false;
-                        });
-                      },
-                      child: const Icon(
-                        Icons.search_outlined,
-                        color: Colors.white,
-                        size: 26.0,
+                      const SizedBox(width: 15),
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            side: const BorderSide(color: ProjectColors.primary, width: 2),
+                            borderRadius: BorderRadius.circular(5),
+                          )),
+                          backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => ProjectColors.primary,
+                          ),
+                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
+                        ),
+                        onPressed: () async {
+                          _invoiceDocNumFocusNode.unfocus();
+                          final invoiceSearched = await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                          setState(() {
+                            invoiceFound = invoiceSearched;
+                            showInvoice = false;
+                          });
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        child: const Icon(
+                          Icons.search_outlined,
+                          color: Colors.white,
+                          size: 25,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _searchResult({required Function(InvoiceDetailModel?) onShiftSelected}) {
+  Widget _searchResult({required Function(InvoiceDetailModel?) onInvoiceSelected}) {
+    final query = _invoiceDocNumTextController.text.trim();
+
+    if (query.isEmpty) return const SizedBox.shrink();
+
     return FutureBuilder<Map<InvoiceDetailModel, Map<String, dynamic>>>(
       future: _fetchSearchResultsWithDetails(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
+        // if (snapshot.connectionState == ConnectionState.waiting) {
+        //   return const Center(child: CircularProgressIndicator());
+        // } else
+        if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.data == null || snapshot.data!.isEmpty && showInvoice == false) {
+          return Center(
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    "No results found.\nInput invoice number below to unlock the invoice.\nPlease make sure it's the correct invoice number!",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          focusNode: _fullDocNumFocusNode,
+                          textAlign: TextAlign.start,
+                          controller: _fullDocNumTextController,
+                          style: const TextStyle(fontSize: 18),
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(10),
+                            hintText: "Type Invoice Document Number",
+                            hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          onEditingComplete: () {
+                            if (_fullDocNumTextController.text == "" || _fullDocNumTextController.text.length != 24) {
+                              log(_fullDocNumTextController.text);
+                              SnackBarHelper.presentErrorSnackBar(context, "Please input the correct invoice number");
+                              Future.delayed(const Duration(milliseconds: 200), () {
+                                _fullDocNumFocusNode.unfocus();
+                              });
+                              return;
+                            }
+                            setState(() {
+                              showInvoice = true;
+                              fullDocnum = _fullDocNumTextController.text;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            side: const BorderSide(color: ProjectColors.primary, width: 2),
+                            borderRadius: BorderRadius.circular(5),
+                          )),
+                          backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => ProjectColors.primary,
+                          ),
+                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
+                        ),
+                        onPressed: () {
+                          if (_fullDocNumTextController.text == "" || _fullDocNumTextController.text.length != 24) {
+                            log(_fullDocNumTextController.text);
+                            SnackBarHelper.presentErrorSnackBar(context, "Please input the correct invoice number");
+                            Future.delayed(const Duration(milliseconds: 200), () {
+                              _fullDocNumFocusNode.unfocus();
+                            });
+                            return;
+                          }
+                          setState(() {
+                            showInvoice = true;
+                            fullDocnum = _fullDocNumTextController.text;
+                          });
+                        },
+                        child: const Icon(
+                          Icons.lock_open_outlined,
+                          color: Colors.white,
+                          size: 25,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
         } else {
           final searchResultsWithDetails = snapshot.data!;
           return ListView.builder(
             itemCount: searchResultsWithDetails.length,
             itemBuilder: (context, index) {
               final invoice = searchResultsWithDetails.keys.elementAt(index);
-              log("invoice - $invoice");
 
               return SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
@@ -422,8 +524,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                   surfaceTintColor: Colors.transparent,
                   child: ListTile(
                     onTap: () {
-                      onShiftSelected(invoice);
-                      FocusManager.instance.primaryFocus?.unfocus();
+                      onInvoiceSelected(invoice);
                     },
                     textColor: Colors.black,
                     title: Text(
@@ -446,7 +547,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
 
   Widget _unlockInvoice(BuildContext childContext) {
     log("selectedInvoice - $selectedInvoice");
-    final invoiceDocnum = selectedInvoice?.refpos2 ?? "";
+    final invoiceDocnum = selectedInvoice?.refpos2 ?? fullDocnum;
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.5,
       child: Column(
@@ -487,7 +588,6 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                     child: TextFormField(
                       focusNode: _usernameFocusNode,
                       controller: _usernameController,
-                      autofocus: true,
                       keyboardType: TextInputType.text,
                       onFieldSubmitted: (value) async => await onSubmit(childContext, context),
                       validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
@@ -510,7 +610,6 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                     child: TextFormField(
                       controller: _passwordController,
                       obscureText: _obscureText,
-                      autofocus: true,
                       keyboardType: TextInputType.text,
                       onFieldSubmitted: (value) async {
                         await onSubmit(childContext, context);
@@ -572,7 +671,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                         ),
                       ),
                       const SizedBox(
-                        width: 20,
+                        width: 10,
                       ),
                       if (_isSendingOTP)
                         const SizedBox(
@@ -582,7 +681,6 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 30),
                 ],
               ),
             ),
@@ -647,10 +745,10 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                                 text: "Confirm",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
-                              TextSpan(
-                                text: "  (Enter)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
+                              // TextSpan(
+                              //   text: "  (Enter)",
+                              //   style: TextStyle(fontWeight: FontWeight.w300),
+                              // ),
                             ],
                           ),
                           overflow: TextOverflow.clip,
