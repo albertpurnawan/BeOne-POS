@@ -574,7 +574,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               contentPadding: const EdgeInsets.all(0),
               content: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 20),
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: Scrollbar(
@@ -703,6 +703,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   ],
                 ),
               ],
+              actionsPadding: const EdgeInsets.all(10),
             ),
           ),
         );
@@ -964,11 +965,14 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                     (isLoadingReceive)
                                         ? const Center(child: CircularProgressIndicator())
                                         : (itemsDP.isEmpty)
-                                            ? const Center(
-                                                child: EmptyList(
-                                                  imagePath: "assets/images/empty-item.svg",
-                                                  sentence:
-                                                      "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
+                                            ? const Expanded(
+                                                child: Center(
+                                                  child: EmptyList(
+                                                    imagePath: "assets/images/empty-item.svg",
+                                                    sentence:
+                                                        "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
+                                                    height: 100,
+                                                  ),
                                                 ),
                                               )
                                             : Expanded(
@@ -1284,11 +1288,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 500),
+                                          const Spacer(),
                                           Expanded(
-                                            flex: 1,
+                                            flex: 2,
                                             child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0, 0, 7.8, 0),
+                                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                               child: TextField(
                                                 maxLines: 1,
                                                 maxLength: 21,
@@ -1308,14 +1312,14 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                     fontSize: 16,
                                                     fontStyle: FontStyle.italic,
                                                   ),
-                                                  contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                                  border: InputBorder.none,
-                                                  enabledBorder: const UnderlineInputBorder(
-                                                    borderSide: BorderSide(color: Colors.black, width: 1),
-                                                  ),
-                                                  focusedBorder: const UnderlineInputBorder(
-                                                    borderSide: BorderSide(color: ProjectColors.primary, width: 2),
-                                                  ),
+                                                  contentPadding: const EdgeInsets.all(10),
+                                                  border: const OutlineInputBorder(),
+                                                  // enabledBorder: const UnderlineInputBorder(
+                                                  //   borderSide: BorderSide(color: Colors.black, width: 1),
+                                                  // ),
+                                                  // focusedBorder: const UnderlineInputBorder(
+                                                  //   borderSide: BorderSide(color: ProjectColors.primary, width: 2),
+                                                  // ),
                                                   counterText: "",
                                                   prefixText: receiveZero ? "Amount can't be zero" : null,
                                                   prefixStyle: const TextStyle(
@@ -1351,6 +1355,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                               ),
                                             ),
                                           ),
+                                          const Spacer(),
                                           Expanded(
                                             flex: 2,
                                             child: SingleChildScrollView(

@@ -63,7 +63,6 @@ class ApplyPromoToprnUseCase implements UseCase<ReceiptEntity, ApplyPromoToprnUs
       final customer = receiptEntity.customerEntity;
 
       final double subtotal = receiptEntity.subtotal;
-      double grandTotal = receiptEntity.grandTotal;
       double taxAmount = 0;
       double discAmount = receiptEntity.discAmount ?? 0;
       List<PromotionsEntity> promos =
@@ -145,7 +144,7 @@ class ApplyPromoToprnUseCase implements UseCase<ReceiptEntity, ApplyPromoToprnUs
         final String secondaryMsg =
             unappliedCoupons.map((e) => "${e.unappliedCoupon.couponCode} (${e.failMsg})").join("\n");
         await showDialog<bool>(
-          context: params.context!,
+          context: params.context,
           barrierDismissible: false,
           builder: (context) => ConfirmationDialog(
             primaryMsg: "Some coupons are omitted from transaction",

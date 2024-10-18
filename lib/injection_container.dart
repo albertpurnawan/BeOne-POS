@@ -6,6 +6,7 @@ import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
+
 import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
@@ -13,9 +14,11 @@ import 'package:pos_fe/features/login/domain/repository/user_auth_repository.dar
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/return_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/repository/campaign_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/cash_register_repository_impl.dart';
@@ -30,6 +33,7 @@ import 'package:pos_fe/features/sales/data/repository/promos_repository_impl.dar
 import 'package:pos_fe/features/sales/data/repository/queued_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_content_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/receipt_repository_impl.dart';
+import 'package:pos_fe/features/sales/data/repository/return_receipt_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/store_master_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/user_repository_impl.dart';
 import 'package:pos_fe/features/sales/data/repository/vouchers_selection_repository_impl.dart';
@@ -46,6 +50,7 @@ import 'package:pos_fe/features/sales/domain/repository/promos_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_content_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/receipt_repository.dart';
+import 'package:pos_fe/features/sales/domain/repository/return_receipt_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
@@ -80,6 +85,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_return_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_open_price.dart';
@@ -113,6 +119,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/credit_card_se
 import 'package:pos_fe/features/settings/data/data_sources/remote/currency_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_group_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/customer_masters_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/edc_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/employee_services.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/invoice_detail_service.dart';
@@ -277,6 +284,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PromoCouponCustomerGroupApi>(PromoCouponCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
+  sl.registerSingleton<DuitkuApi>(DuitkuApi(sl()));
+  sl.registerSingleton<DuitkuVAListApi>(DuitkuVAListApi(sl()));
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
   sl.registerSingleton<BillOfMaterialLineItemApi>(BillOfMaterialLineItemApi(sl()));
   sl.registerSingleton<EDCApi>(EDCApi(sl()));
@@ -287,6 +296,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()), dependsOn: [SharedPreferences]);
   sl.registerSingleton<CheckStockApi>(CheckStockApi(sl()));
   sl.registerSingleton<DownPaymentApi>(DownPaymentApi(sl()));
+  sl.registerSingleton<ReturnApi>(ReturnApi(sl()));
+
   /**
    * =================================
    * END OF APIs
@@ -329,6 +340,8 @@ Future<void> initializeDependencies() async {
       dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<UserRepository>(() => UserRepositoryImpl(sl()), dependsOn: [AppDatabase]);
   sl.registerSingletonWithDependencies<CustomerGroupRepository>(() => CustomerGroupRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<ReturnReceiptRepository>(() => ReturnReceiptRepositoryImpl(sl(), sl()),
       dependsOn: [AppDatabase]);
   /**
    * =================================
@@ -445,6 +458,9 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<RefreshTokenUseCase>(RefreshTokenUseCase());
   sl.registerSingleton<GenerateDeviceNumberUseCase>(GenerateDeviceNumberUseCase(sl(), sl()));
   sl.registerSingleton<GetAppVersionUseCase>(GetAppVersionUseCase());
+
+  sl.registerSingletonWithDependencies<GetReturnReceiptUseCase>(() => GetReturnReceiptUseCase(sl()),
+      dependsOn: [ReceiptRepository]);
   /**
    * =================================
    * END OF USECASES

@@ -393,11 +393,12 @@ class _ResetDBApprovalDialogState extends State<ResetDBApprovalDialog> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        // crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
             Icons.warning,
             color: Colors.yellow.shade700,
-            size: 26.0,
+            size: 42.0,
           ),
           const SizedBox(width: 10.0),
           const Text(

@@ -168,6 +168,9 @@ class CheckBuyXGetYApplicabilityUseCase
             if (storeMasterEntity == null) throw "Store master not found";
 
             for (final e in tprb4) {
+              if (params.returnItems.where((e1) => e1.itemEntity.toitmId == e.toitmId).isNotEmpty) {
+                return isApplicable = false;
+              }
               if (e.quantity < 1) return isApplicable = false;
               ItemEntity? itemY;
 
@@ -315,11 +318,13 @@ class CheckBuyXGetYApplicabilityParams {
   ReceiptEntity receiptEntity;
   ReceiptItemEntity receiptItemEntity;
   PromotionsEntity promo;
+  List<ReceiptItemEntity> returnItems;
 
   CheckBuyXGetYApplicabilityParams({
     required this.receiptEntity,
     required this.receiptItemEntity,
     required this.promo,
+    required this.returnItems,
   });
 }
 

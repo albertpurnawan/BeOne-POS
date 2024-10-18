@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
-import 'package:thermal_printer/esc_pos_utils_platform/src/enums.dart';
 
 class CharactersPerLineSettings extends StatefulWidget {
   const CharactersPerLineSettings({super.key});

@@ -3,11 +3,7 @@ import 'package:pos_fe/features/sales/data/models/store_master.dart';
 import 'package:sqflite/sqflite.dart';
 
 class StoreMasterDao extends BaseDao<StoreMasterModel> {
-  StoreMasterDao(Database db)
-      : super(
-            db: db,
-            tableName: tableStoreMasters,
-            modelFields: StoreMasterFields.values);
+  StoreMasterDao(Database db) : super(db: db, tableName: tableStoreMasters, modelFields: StoreMasterFields.values);
 
   @override
   Future<StoreMasterModel?> readByDocId(String docId, Transaction? txn) async {
@@ -27,8 +23,18 @@ class StoreMasterDao extends BaseDao<StoreMasterModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => StoreMasterModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => StoreMasterModel.fromMap(itemData)).toList();
+  }
+
+  Future<StoreMasterModel?> readByStoreCode(String storeCode, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: '${StoreMasterFields.storeCode} = ?',
+      whereArgs: [storeCode],
+    );
+
+    return res.isNotEmpty ? StoreMasterModel.fromMap(res[0]) : null;
   }
 }

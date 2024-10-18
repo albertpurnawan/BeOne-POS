@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,10 +17,13 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/progress_indicator.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
@@ -36,12 +41,16 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/duitku_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
+import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MopType {
@@ -62,10 +71,11 @@ class CheckoutDialog extends StatefulWidget {
 class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isPrinting = false;
   bool isCharged = false;
-  bool isPaymentSufficient = true;
   bool isLoadingQRIS = false;
+  bool isLoadingDuitku = false;
   bool isCharging = false;
   bool isMultiMOPs = true;
+  bool isConnected = true;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
@@ -79,6 +89,23 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     ));
   }
 
+  Future<void> _checkConnection() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      setState(() {
+        isConnected = false;
+        SnackBarHelper.presentErrorSnackBar(
+            context, "No internet connection detected. Please check your network settings and try again");
+      });
+    } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet) ||
+        connectivityResult.contains(ConnectivityResult.mobile)) {
+      setState(() {
+        isConnected = true;
+      });
+    }
+  }
+
   void showQRISDialog(BuildContext context, NetzMeEntity data, String accessToken) {
     showDialog(
       context: context,
@@ -88,7 +115,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           data: data,
           accessToken: accessToken,
           onPaymentSuccess: (String status) async {
-            if (status == 'paid') {
+            if (status == 'SUCCESS') {
               await context.read<ReceiptCubit>().charge();
 
               await Future.delayed(const Duration(milliseconds: 200), () {
@@ -109,6 +136,38 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     );
   }
 
+  void showDuitkuDialog(BuildContext context, DuitkuEntity data, String docnumDuitku) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return DuitkuDialog(
+              data: data,
+              docnumDuitku: docnumDuitku,
+              onPaymentSuccess: (String status) async {
+                if (status == 'PAID') {
+                  try {
+                    await context.read<ReceiptCubit>().charge();
+                  } catch (e) {
+                    dev.log("Error during charge: $e");
+                  }
+
+                  await Future.delayed(const Duration(milliseconds: 200), () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const CheckoutDialog(
+                            isCharged: true,
+                          );
+                        });
+                  });
+                }
+              });
+        });
+  }
+
   Future<void> charge() async {
     try {
       setState(() {
@@ -118,13 +177,20 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       dev.log("state - --- ${state.receiptItems}");
 
       // Validate total payment must be greater than grand total
-      if ((state.totalPayment ?? 0) < state.grandTotal) {
+      if (state.grandTotal >= 0
+          ? (state.totalPayment ?? 0) < state.grandTotal
+          : (state.totalPayment ?? 0) > state.grandTotal) {
         setState(() {
-          isPaymentSufficient = false;
           isCharging = false;
         });
-        Future.delayed(const Duration(milliseconds: 2000), () => setState(() => isPaymentSufficient = true));
-        return;
+        throw "Insufficient payment";
+      }
+
+      if (state.grandTotal < 0 && ((state.totalPayment ?? 0) - state.grandTotal).abs() > 1) {
+        setState(() {
+          isCharging = false;
+        });
+        throw "Refund must match grand total";
       }
 
       // Trigger approval when grand total is 0
@@ -139,12 +205,16 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         }
       }
 
-      // Edit to QRIS here
+      // Show QRIS/ DUITKU HERE
       final selectedMOPs = state.mopSelections;
-      // final grandTotal = Helpers.revertMoneyToString(state.grandTotal);
       final invoiceDocNum = state.docNum;
 
       final List<MopSelectionEntity> qrisMop = selectedMOPs.where((element) => element.payTypeCode == '5').toList();
+      final List<MopSelectionEntity> duitkuMop = selectedMOPs.where((element) => element.mopAlias == 'duitku').toList();
+      final String duitkuTs = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+      dev.log(duitkuTs);
+      final String merchantOrderId = duitkuTs + Helpers.generateRandomString(10);
+
       if (qrisMop.isNotEmpty) {
         setState(() {
           isLoadingQRIS = true;
@@ -219,6 +289,58 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         });
 
         showQRISDialog(context, transactionQris, accessToken);
+      } else if (duitkuMop.isNotEmpty) {
+        setState(() {
+          isLoadingDuitku = true;
+        });
+
+        final duitkuAmount = (duitkuMop.first.amount ?? 0).toInt();
+        final duitkuSignature =
+            await GetIt.instance<DuitkuApi>().createTransactionSignature(duitkuAmount, merchantOrderId);
+
+        final custId = state.customerEntity?.docId;
+        final docnumDuitku = const Uuid().v4();
+        final duitkuVA = await GetIt.instance<DuitkuApi>().createTransactionVA((duitkuMop.first.cardHolder ?? ""),
+            duitkuSignature, duitkuAmount, (custId ?? ""), merchantOrderId, docnumDuitku);
+
+        setState(() {
+          isLoadingDuitku = false;
+        });
+
+        final String createdTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now());
+        final String expiredTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(const Duration(minutes: 129600)));
+
+        DuitkuVADetailsEntity vaDuitku = DuitkuVADetailsEntity(
+          docId: duitkuMop.first.tpmt7Id ?? "",
+          paymentMethod: duitkuMop.first.cardHolder ?? "",
+          paymentName: duitkuMop.first.cardName ?? "",
+          paymentImage: duitkuMop.first.edcDesc ?? "",
+          totalFee: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
+          statusActive: int.parse(duitkuMop.first.tpmt7Id ?? "0"),
+        );
+
+        DuitkuEntity duitku = DuitkuEntity(
+          merchantCode: duitkuVA['data']['merchantCode'].toString(),
+          merchantOrderId: merchantOrderId,
+          paymentUrl: duitkuVA['data']['paymentUrl'].toString(),
+          vaNumber: duitkuVA['data']['vaNumber'].toString(),
+          reference: duitkuVA['data']['reference'].toString(),
+          amount: duitkuAmount,
+          feeAmount: 0,
+          responseMessage: duitkuVA['data']['statusMessage'].toString(),
+          createdTs: createdTs,
+          expiredTs: expiredTs,
+          duitkuVA: vaDuitku,
+        );
+
+        dev.log("duitku - $duitku");
+        await _checkConnection();
+        if (isConnected == false) {
+          SnackBarHelper.presentFailSnackBar(
+              context, "No internet connection detected. Please check your network settings and try again");
+          return;
+        }
+        showDuitkuDialog(context, duitku, docnumDuitku);
       } else {
         await context.read<ReceiptCubit>().charge();
         await Future.delayed(const Duration(milliseconds: 200), () {
@@ -298,6 +420,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   void initState() {
     super.initState();
     isCharged = widget.isCharged ?? false;
+    if (context.read<ReceiptCubit>().state.grandTotal <= 0) isMultiMOPs = false;
   }
 
   @override
@@ -733,12 +856,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                         ),
                         Expanded(
                             child: Column(mainAxisSize: MainAxisSize.min, children: [
-                          isPaymentSufficient
-                              ? const SizedBox.shrink()
-                              : const Text(
-                                  "Insufficient total payment",
-                                  style: TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700),
-                                ),
                           TextButton(
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
@@ -807,6 +924,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   List<PaymentTypeEntity> paymentTypes = [];
   bool isZeroGrandTotal = false;
   List<Widget> selectedVoucherChips = [];
+  bool isQRISorVA = false;
+  bool isConnected = true;
 
   final List<VouchersSelectionEntity> _vouchers = [];
   final _textEditingControllerCashAmount = TextEditingController();
@@ -824,6 +943,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   );
 
   String currencyName = "";
+  late final StreamSubscription<ReceiptEntity> _grandTotalSubs;
 
   @override
   void initState() {
@@ -833,6 +953,32 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     // getCurrencyName();
     checkAndHandleZeroGrandTotal();
     refreshQRISChip();
+    _grandTotalSubs = context.read<ReceiptCubit>().stream.listen((event) {
+      checkAndHandleZeroGrandTotal();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _textEditingControllerCashAmount.dispose();
+    _focusNodeCashAmount.dispose();
+    _grandTotalSubs.cancel();
+  }
+
+  Future<void> _checkConnection() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      setState(() {
+        isConnected = false;
+      });
+    } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
+        connectivityResult.contains(ConnectivityResult.ethernet) ||
+        connectivityResult.contains(ConnectivityResult.mobile)) {
+      setState(() {
+        isConnected = true;
+      });
+    }
   }
 
   void getCurrencyName() async {
@@ -876,7 +1022,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            (mop.tpmt2Id != null) ? "${mop.mopAlias} - ${mop.cardName}" : mop.mopAlias,
+            (mop.cardName != null) ? "${mop.mopAlias} - ${mop.cardName}" : mop.mopAlias,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -906,6 +1052,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                       _values.removeAt(index);
                       if (mop.payTypeCode == "1") {
                         _textEditingControllerCashAmount.text = "";
+                      }
+                      if (mop.payTypeCode == "5" || mop.payTypeCode == "7") {
+                        isQRISorVA = false;
                       }
                     });
 
@@ -1005,24 +1154,337 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _textEditingControllerCashAmount.dispose();
-    _focusNodeCashAmount.dispose();
+  void _onChangedCashAmountTextField({required String value, required List<MopSelectionEntity> mopsByType}) {
+    final double cashAmount = Helpers.revertMoneyToDecimalFormat(value);
+
+    if (cashAmount == double.negativeInfinity) return;
+
+    if (cashAmount == 0) {
+      setState(() {
+        _values = (widget.isMultiMOPs
+            ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList()
+            : <MopSelectionEntity>[]);
+      });
+      updateReceiptMop();
+      return;
+    }
+
+    setState(() {
+      _values = (widget.isMultiMOPs
+              ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList()
+              : <MopSelectionEntity>[]) +
+          [mopsByType[0].copyWith(amount: cashAmount)];
+    });
+    updateReceiptMop();
+  }
+
+  void _onTapCashAmountTextFieldSuffix({required List<MopSelectionEntity> mopsByType}) {
+    setState(() {
+      _values = (widget.isMultiMOPs
+          ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList()
+          : <MopSelectionEntity>[]);
+    });
+    _textEditingControllerCashAmount.text = "";
+    updateReceiptMop();
+  }
+
+  bool _isSelectedCashAmountSuggestion(
+      {required List<MopSelectionEntity> mopsByType, required int index, required List<int> cashAmountSuggestions}) {
+    return _values
+        .where((e) => e.tpmt3Id == mopsByType[0].tpmt3Id && e.amount == cashAmountSuggestions[index])
+        .isNotEmpty;
+  }
+
+  void _onSelectedCashAmountSuggestion(
+      {required bool selected,
+      required List<MopSelectionEntity> mopsByType,
+      required int index,
+      required List<int> cashAmountSuggestions}) {
+    if (voucherIsExceedPurchase) return;
+    setState(() {
+      if (selected) {
+        _values = widget.isMultiMOPs
+            ? _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList() +
+                [mopsByType[0].copyWith(amount: cashAmountSuggestions[index].toDouble())]
+            : <MopSelectionEntity>[] + [mopsByType[0].copyWith(amount: cashAmountSuggestions[index].toDouble())];
+        _textEditingControllerCashAmount.text = Helpers.parseMoney(cashAmountSuggestions[index]);
+      } else {
+        _values = _values.where((e) => e.tpmt3Id != mopsByType[0].tpmt3Id).toList();
+        _textEditingControllerCashAmount.text = "";
+      }
+      updateReceiptMop();
+    });
+  }
+
+  bool _isSelectedEDCMOP({
+    required MopSelectionEntity mop,
+  }) {
+    return _values.map((e) => e.tpmt4Id).contains(mop.tpmt4Id);
+  }
+
+  Future<void> _onSelectedEDCMOP({
+    required bool selected,
+    required ReceiptEntity receipt,
+    required MopSelectionEntity mop,
+    required List<MopSelectionEntity> filteredMops,
+  }) async {
+    if (voucherIsExceedPurchase) return;
+
+    double? mopAmount = 0;
+    if (selected) {
+      if (widget.isMultiMOPs) {
+        if ((receipt.totalPayment ?? 0).abs() >= receipt.grandTotal.abs()) {
+          return;
+        }
+        mopAmount = await showDialog<double>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => EDCDialog(
+            onEDCSelected: (mopEDC) {
+              setState(() {
+                _values = _values + [mopEDC];
+              });
+            },
+            onEDCRemoved: (mopEDC) {
+              setState(() {
+                _values.removeWhere((item) => item == mopEDC);
+              });
+            },
+            mopSelectionEntity: mop,
+            values: filteredMops,
+            max: receipt.grandTotal - (receipt.totalPayment ?? 0),
+            isMultiMOPs: true,
+          ),
+        );
+      } else {
+        mopAmount = await showDialog<double>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => EDCDialog(
+            onEDCSelected: (mopEDC) {
+              setState(() {
+                _values = [mopEDC];
+                // _values = _values.toList() + [mopEDC];
+              });
+              // dev.log("values2 - $_values");
+              // dev.log("mopEDC not Multi - $mopEDC");
+            },
+            onEDCRemoved: (mopEDC) {
+              setState(() {
+                _values.removeWhere((item) => item == mopEDC);
+              });
+            },
+            mopSelectionEntity: mop,
+            values: filteredMops,
+            max: receipt.grandTotal - (receipt.totalVoucher ?? 0),
+            isMultiMOPs: false,
+          ),
+        );
+      }
+
+      if (!widget.isMultiMOPs) {
+        _textEditingControllerCashAmount.text = "";
+      }
+    } else {
+      if (widget.isMultiMOPs) {
+        if ((receipt.totalPayment ?? 0).abs() >= receipt.grandTotal.abs()) {
+          return;
+        }
+        // dev.log("filteredMops - $filteredMops");
+        mopAmount = await showDialog<double>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => EDCDialog(
+            onEDCSelected: (mopEDC) {
+              setState(() {
+                _values = _values.toList() + [mopEDC];
+                // dev.log("mopEDC Multi - $mopEDC");
+                // dev.log("values - $_values");
+              });
+            },
+            onEDCRemoved: (mopEDC) {
+              setState(() {
+                _values.removeWhere((item) => item == mopEDC);
+              });
+            },
+            mopSelectionEntity: mop,
+            values: filteredMops,
+            max: receipt.grandTotal - (receipt.totalPayment ?? 0),
+            isMultiMOPs: true,
+          ),
+        );
+      } else {
+        mopAmount = await showDialog<double>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => EDCDialog(
+            onEDCSelected: (mopEDC) {
+              setState(() {
+                _values = [mopEDC];
+                // _values = _values.toList() + [mopEDC];
+              });
+              // dev.log("values2 - $_values");
+              // dev.log("mopEDC not Multi - $mopEDC");
+            },
+            onEDCRemoved: (mopEDC) {
+              setState(() {
+                _values.removeWhere((item) => item == mopEDC);
+              });
+            },
+            mopSelectionEntity: mop,
+            values: filteredMops,
+            max: receipt.grandTotal - (receipt.totalVoucher ?? 0),
+            isMultiMOPs: false,
+          ),
+        );
+      }
+    }
+
+    setState(() {});
+    updateReceiptMop();
+  }
+
+  bool _isSelectedOtherMOP({
+    required PaymentTypeEntity paymentType,
+    required ReceiptEntity receipt,
+    required MopSelectionEntity mop,
+  }) {
+    return paymentType.payTypeCode == "6"
+        ? receipt.vouchers.map((e) => e.tpmt3Id).contains(mop.tpmt3Id)
+        : _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id);
+  }
+
+  Future<void> _onSelectedOtherMOP({
+    required bool selected,
+    required PaymentTypeEntity paymentType,
+    required ReceiptEntity receipt,
+    required MopSelectionEntity mop,
+  }) async {
+    // VOUCHERS DIALOG HERE
+    if (paymentType.payTypeCode == "6") {
+      if (receipt.customerEntity == null) {
+        return SnackBarHelper.presentErrorSnackBar(context, "Null customer");
+      }
+      if (mop.subType == 3 && receipt.customerEntity!.custCode == "99") {
+        return SnackBarHelper.presentErrorSnackBar(context, "Invalid customer");
+      }
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            title: Container(
+              decoration: const BoxDecoration(
+                color: ProjectColors.primary,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+              ),
+              padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+              child: const Text(
+                'Redeem Voucher',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              ),
+            ),
+            titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            contentPadding: const EdgeInsets.all(0),
+            content: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: VoucherCheckout(
+                onVouchersRedeemed: handleVouchersRedeemed,
+                tpmt3Id: mop.tpmt3Id,
+                voucherType: mop.subType,
+              ),
+            ),
+          );
+        },
+      );
+      setState(() {
+        _textEditingControllerCashAmount.text = "";
+        context.read<ReceiptCubit>().resetMop();
+        _values = [];
+      });
+      return;
+    }
+
+    if (voucherIsExceedPurchase) return;
+
+    if (selected) {
+      if (paymentType.payTypeCode == '5' && isQRISorVA) {
+        SnackBarHelper.presentErrorSnackBar(context, "Please choose either MOP QRIS or duitku, not both");
+        return;
+      }
+      double? mopAmount = 0;
+      if (widget.isMultiMOPs) {
+        if ((receipt.totalPayment ?? 0).abs() >= receipt.grandTotal.abs()) {
+          return;
+        }
+        mopAmount = await showDialog<double>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => InputMopAmountDialog(
+            mopSelectionEntity: mop,
+            max: receipt.grandTotal - (receipt.totalPayment ?? 0),
+          ),
+        );
+
+        if (mopAmount != null && mopAmount != 0) {
+          if (paymentType.payTypeCode == '5') {
+            setState(() {
+              isQRISorVA = true;
+            });
+          }
+        } else {
+          if (paymentType.payTypeCode == '5') {
+            setState(() {
+              isQRISorVA = false;
+            });
+          }
+        }
+      } else {
+        mopAmount = receipt.grandTotal - (receipt.totalVoucher ?? 0);
+      }
+
+      if (mopAmount == null || mopAmount == 0) {
+        return;
+      }
+
+      _values =
+          (widget.isMultiMOPs ? _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList() : <MopSelectionEntity>[]) +
+              [mop.copyWith(amount: mopAmount)];
+
+      if (!widget.isMultiMOPs) {
+        _textEditingControllerCashAmount.text = "";
+      }
+    } else {
+      _values = _values.where((e) => e.tpmt3Id != mop.tpmt3Id).toList();
+      if (paymentType.payTypeCode == '5') {
+        setState(() {
+          isQRISorVA = false;
+        });
+      }
+    }
+
+    setState(() {});
+    updateReceiptMop();
   }
 
   List<int> generateCashAmountSuggestions(int targetAmount) {
     List<int> cashAmountSuggestions = [targetAmount];
+    dev.log("cashAmountSuggestion - $cashAmountSuggestions");
     if (voucherIsExceedPurchase) {
+      dev.log("cashAmountSuggestion - voucherIsExceedPurchase");
+
       cashAmountSuggestions = [0];
-    } else {
+    } else if (context.read<ReceiptCubit>().state.grandTotal > 0) {
       final List<int> multipliers = [5000, 10000, 50000, 100000];
 
       for (final multiplier in multipliers) {
         if (cashAmountSuggestions.last % multiplier != 0) {
           cashAmountSuggestions.add(targetAmount + multiplier - (targetAmount % multiplier));
         }
+        dev.log("cashAmountSuggestion - voucherIsExceedPurchase");
       }
     }
     return cashAmountSuggestions;
@@ -1032,9 +1494,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     /**
      * 1 - Tunai
      * 2 - EDC
-     * 3 - Others
-     * 4 - QRIS
-     * 5 - Voucher
+     * 3 - ONLINE PAYMENT
+     * 4 - OTHERS
+     * 5 - QRIS
+     * 6 - VOUCHER
     */
 
     List<MopSelectionEntity> mops = [];
@@ -1089,6 +1552,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   void checkAndHandleZeroGrandTotal() async {
     try {
       if (context.read<ReceiptCubit>().state.grandTotal != 0) {
+        setState(() {
+          isZeroGrandTotal = false;
+        });
         return;
       }
 
@@ -1106,6 +1572,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     } catch (e) {
       // dev.log(e.toString());
       context.pop();
+      setState(() {
+        isZeroGrandTotal = false;
+      });
       SnackBarHelper.presentFailSnackBar(context, e.toString());
     }
   }
@@ -1234,10 +1703,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                     Container(
                                       height: 35,
                                       alignment: Alignment.topCenter,
-                                      child: receipt.grandTotal -
-                                                  (receipt.totalVoucher ?? 0) -
-                                                  (receipt.totalNonVoucher ?? 0) >
-                                              0
+                                      child: receipt.grandTotal >= 0 &&
+                                              receipt.grandTotal >
+                                                  (receipt.totalVoucher ?? 0) + (receipt.totalNonVoucher ?? 0)
                                           ? Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -1251,7 +1719,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                   width: 7,
                                                 ),
                                                 Text(
-                                                  "Due  $currencyName${Helpers.parseMoney((context.read<ReceiptCubit>().state.grandTotal.toInt()) - (receipt.totalVoucher ?? 0) - (receipt.totalNonVoucher ?? 0))}",
+                                                  "Due  $currencyName${Helpers.parseMoney((receipt.grandTotal.toInt()) - (receipt.totalVoucher ?? 0) - (receipt.totalNonVoucher ?? 0))}",
                                                   style: const TextStyle(
                                                       // color: Color.fromARGB(255, 253, 185, 148),
                                                       color: ProjectColors.swatch,
@@ -1261,10 +1729,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                 ),
                                               ],
                                             )
-                                          : receipt.grandTotal -
-                                                      (receipt.totalVoucher ?? 0) -
-                                                      (receipt.totalNonVoucher ?? 0) <
-                                                  0
+                                          : receipt.grandTotal >= 0 &&
+                                                  receipt.grandTotal -
+                                                          (receipt.totalVoucher ?? 0) -
+                                                          (receipt.totalNonVoucher ?? 0) <
+                                                      0
                                               ? Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
@@ -1413,35 +1882,13 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             focusNode: _focusNodeCashAmount,
                                                             onTapOutside: (event) => _focusNodeCashAmount.unfocus(),
                                                             controller: _textEditingControllerCashAmount,
-                                                            onChanged: (value) {
-                                                              final double cashAmount =
-                                                                  Helpers.revertMoneyToDecimalFormat(value);
-
-                                                              if (cashAmount < 0) {
-                                                                setState(() {
-                                                                  _values = (widget.isMultiMOPs
-                                                                      ? _values
-                                                                          .where(
-                                                                              (e) => e.tpmt3Id != mopsByType[0].tpmt3Id)
-                                                                          .toList()
-                                                                      : <MopSelectionEntity>[]);
-                                                                });
-                                                                updateReceiptMop();
-                                                                return;
-                                                              }
-
-                                                              setState(() {
-                                                                _values = (widget.isMultiMOPs
-                                                                        ? _values
-                                                                            .where((e) =>
-                                                                                e.tpmt3Id != mopsByType[0].tpmt3Id)
-                                                                            .toList()
-                                                                        : <MopSelectionEntity>[]) +
-                                                                    [mopsByType[0].copyWith(amount: cashAmount)];
-                                                              });
-                                                              updateReceiptMop();
-                                                            },
-                                                            inputFormatters: [MoneyInputFormatter()],
+                                                            onChanged: (value) => _onChangedCashAmountTextField(
+                                                                value: value, mopsByType: mopsByType),
+                                                            inputFormatters: [
+                                                              receipt.grandTotal >= 0
+                                                                  ? MoneyInputFormatter()
+                                                                  : NegativeMoneyInputFormatter()
+                                                            ],
                                                             keyboardType: TextInputType.number,
                                                             textAlign: TextAlign.center,
                                                             style: const TextStyle(fontSize: 24, height: 1),
@@ -1460,19 +1907,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                 suffixIcon: _textEditingControllerCashAmount.text == ""
                                                                     ? null
                                                                     : InkWell(
-                                                                        onTap: () {
-                                                                          setState(() {
-                                                                            _values = (widget.isMultiMOPs
-                                                                                ? _values
-                                                                                    .where((e) =>
-                                                                                        e.tpmt3Id !=
-                                                                                        mopsByType[0].tpmt3Id)
-                                                                                    .toList()
-                                                                                : <MopSelectionEntity>[]);
-                                                                          });
-                                                                          _textEditingControllerCashAmount.text = "";
-                                                                          updateReceiptMop();
-                                                                        },
+                                                                        onTap: () => _onTapCashAmountTextFieldSuffix(
+                                                                            mopsByType: mopsByType),
                                                                         child: const Icon(
                                                                           Icons.close,
                                                                           size: 24,
@@ -1489,55 +1925,26 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                           children: List<Widget>.generate(
                                                             cashAmountSuggestions.length,
                                                             (int index) {
-                                                              if (cashAmountSuggestions[index] <= 0) {
+                                                              if (cashAmountSuggestions[index] == 0) {
                                                                 return const SizedBox.shrink();
                                                               }
                                                               return ChoiceChip(
-                                                                side: const BorderSide(
-                                                                    color: ProjectColors.primary, width: 1.5),
-                                                                padding: const EdgeInsets.all(20),
-                                                                label: Text(
-                                                                    Helpers.parseMoney(cashAmountSuggestions[index])),
-                                                                selected: _values
-                                                                    .where((e) =>
-                                                                        e.tpmt3Id == mopsByType[0].tpmt3Id &&
-                                                                        e.amount == cashAmountSuggestions[index])
-                                                                    .isNotEmpty,
-                                                                onSelected: (bool selected) {
-                                                                  if (voucherIsExceedPurchase) return;
-                                                                  setState(() {
-                                                                    if (selected) {
-                                                                      _values = widget.isMultiMOPs
-                                                                          ? _values
-                                                                                  .where((e) =>
-                                                                                      e.tpmt3Id !=
-                                                                                      mopsByType[0].tpmt3Id)
-                                                                                  .toList() +
-                                                                              [
-                                                                                mopsByType[0].copyWith(
-                                                                                    amount: cashAmountSuggestions[index]
-                                                                                        .toDouble())
-                                                                              ]
-                                                                          : <MopSelectionEntity>[] +
-                                                                              [
-                                                                                mopsByType[0].copyWith(
-                                                                                    amount: cashAmountSuggestions[index]
-                                                                                        .toDouble())
-                                                                              ];
-                                                                      _textEditingControllerCashAmount.text =
-                                                                          Helpers.parseMoney(
-                                                                              cashAmountSuggestions[index]);
-                                                                    } else {
-                                                                      _values = _values
-                                                                          .where(
-                                                                              (e) => e.tpmt3Id != mopsByType[0].tpmt3Id)
-                                                                          .toList();
-                                                                      _textEditingControllerCashAmount.text = "";
-                                                                    }
-                                                                    updateReceiptMop();
-                                                                  });
-                                                                },
-                                                              );
+                                                                  side: const BorderSide(
+                                                                      color: ProjectColors.primary, width: 1.5),
+                                                                  padding: const EdgeInsets.all(20),
+                                                                  label: Text(
+                                                                      Helpers.parseMoney(cashAmountSuggestions[index])),
+                                                                  selected: _isSelectedCashAmountSuggestion(
+                                                                      mopsByType: mopsByType,
+                                                                      index: index,
+                                                                      cashAmountSuggestions: cashAmountSuggestions),
+                                                                  onSelected: (bool selected) =>
+                                                                      _onSelectedCashAmountSuggestion(
+                                                                        selected: selected,
+                                                                        mopsByType: mopsByType,
+                                                                        index: index,
+                                                                        cashAmountSuggestions: cashAmountSuggestions,
+                                                                      ));
                                                             },
                                                           ).toList(),
                                                         ),
@@ -1591,134 +1998,144 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                     color: ProjectColors.primary, width: 1.5),
                                                                 padding: const EdgeInsets.all(20),
                                                                 label: Text(mop.edcDesc ?? mop.mopAlias),
-                                                                selected:
-                                                                    _values.map((e) => e.tpmt4Id).contains(mop.tpmt4Id),
-                                                                onSelected: (bool selected) async {
-                                                                  if (voucherIsExceedPurchase) return;
+                                                                selected: _isSelectedEDCMOP(mop: mop),
+                                                                onSelected: (bool selected) async =>
+                                                                    await _onSelectedEDCMOP(
+                                                                  selected: selected,
+                                                                  receipt: receipt,
+                                                                  mop: mop,
+                                                                  filteredMops: filteredMops,
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).toList(),
+                                                        ),
+                                                        const SizedBox(height: 20),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
+                                                ],
+                                              );
+                                            }
+                                            // [END] UI for EDC MOP
 
-                                                                  double? mopAmount = 0;
+                                            // [START] UI for duitku
+                                            if (paymentType.payTypeCode.startsWith("7") &&
+                                                mopsByType.any((mop) => mop.mopAlias == "duitku")) {
+                                              return Column(
+                                                children: [
+                                                  const SizedBox(height: 10),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          paymentType.description,
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 15),
+                                                        Wrap(
+                                                          spacing: 8,
+                                                          runSpacing: 8,
+                                                          children: List<Widget>.generate(
+                                                            mopsByType.length,
+                                                            (int index) {
+                                                              final mop = mopsByType[index];
+                                                              String? bankVA = "";
+                                                              String? bankName = "";
+                                                              String? bankImage = "";
+                                                              return ChoiceChip(
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors.primary, width: 1.5),
+                                                                padding: const EdgeInsets.all(20),
+                                                                label: Text(
+                                                                  mop.mopAlias,
+                                                                ),
+                                                                selected:
+                                                                    _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
+                                                                onSelected: (bool selected) async {
+                                                                  await _checkConnection();
+                                                                  if (isConnected == false) {
+                                                                    SnackBarHelper.presentErrorSnackBar(context,
+                                                                        "No internet connection detected. Please check your network settings and try again");
+                                                                  }
                                                                   if (selected) {
+                                                                    if (isQRISorVA) {
+                                                                      SnackBarHelper.presentErrorSnackBar(context,
+                                                                          "Please choose either MOP QRIS or duitku, not both");
+                                                                      return;
+                                                                    }
+                                                                    double? mopAmount = 0;
                                                                     if (widget.isMultiMOPs) {
                                                                       if ((receipt.totalPayment ?? 0) >=
                                                                           receipt.grandTotal) {
                                                                         return;
                                                                       }
+                                                                      int maxAmount = (receipt.grandTotal -
+                                                                              (receipt.totalVoucher ?? 0) -
+                                                                              (receipt.totalNonVoucher ?? 0))
+                                                                          .toInt();
+
+                                                                      final List<dynamic> paymentMethods =
+                                                                          await GetIt.instance<DuitkuVAListApi>()
+                                                                              .getPaymentMethods();
+                                                                      dev.log("paymentMethods - $paymentMethods");
                                                                       mopAmount = await showDialog<double>(
                                                                         context: context,
                                                                         barrierDismissible: false,
-                                                                        builder: (context) => EDCDialog(
-                                                                          onEDCSelected: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values = _values.toList() + [mopEDC];
-                                                                              // dev.log("mopEDC Multi - $mopEDC");
-                                                                              // dev.log("values - $_values");
-                                                                            });
-                                                                          },
-                                                                          onEDCRemoved: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values.removeWhere(
-                                                                                  (item) => item == mopEDC);
-                                                                            });
-                                                                          },
-                                                                          mopSelectionEntity: mop,
-                                                                          values: filteredMops,
-                                                                          max: receipt.grandTotal -
-                                                                              (receipt.totalPayment ?? 0),
-                                                                          isMultiMOPs: true,
-                                                                        ),
+                                                                        builder: (BuildContext context) {
+                                                                          return InputDuitkuVADialog(
+                                                                              onVASelected: (mopVA) {
+                                                                                setState(() {
+                                                                                  bankName = mopVA.cardName;
+                                                                                  bankVA = mopVA.cardHolder;
+                                                                                  bankImage = mopVA.edcDesc;
+                                                                                  isQRISorVA = true;
+                                                                                });
+                                                                              },
+                                                                              mopSelectionEntity: mop,
+                                                                              paymentMethods: paymentMethods,
+                                                                              amount: maxAmount);
+                                                                        },
                                                                       );
                                                                     } else {
-                                                                      // dev.log("values1 - $_values");
-                                                                      mopAmount = await showDialog<double>(
-                                                                        context: context,
-                                                                        barrierDismissible: false,
-                                                                        builder: (context) => EDCDialog(
-                                                                          onEDCSelected: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values = [mopEDC];
-                                                                              // _values = _values.toList() + [mopEDC];
-                                                                            });
-                                                                            // dev.log("values2 - $_values");
-                                                                            // dev.log("mopEDC not Multi - $mopEDC");
-                                                                          },
-                                                                          onEDCRemoved: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values.removeWhere(
-                                                                                  (item) => item == mopEDC);
-                                                                            });
-                                                                          },
-                                                                          mopSelectionEntity: mop,
-                                                                          values: filteredMops,
-                                                                          max: receipt.grandTotal -
-                                                                              (receipt.totalVoucher ?? 0),
-                                                                          isMultiMOPs: false,
-                                                                        ),
-                                                                      );
+                                                                      mopAmount = receipt.grandTotal -
+                                                                          (receipt.totalVoucher ?? 0);
                                                                     }
 
+                                                                    if (mopAmount == null || mopAmount == 0) {
+                                                                      return;
+                                                                    }
+
+                                                                    _values = (widget.isMultiMOPs
+                                                                            ? _values
+                                                                                .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                                .toList()
+                                                                            : <MopSelectionEntity>[]) +
+                                                                        [
+                                                                          mop.copyWith(
+                                                                              cardName: bankName,
+                                                                              cardHolder: bankVA,
+                                                                              edcDesc: bankImage,
+                                                                              amount: mopAmount)
+                                                                        ];
                                                                     if (!widget.isMultiMOPs) {
                                                                       _textEditingControllerCashAmount.text = "";
                                                                     }
                                                                   } else {
-                                                                    if (widget.isMultiMOPs) {
-                                                                      if ((receipt.totalPayment ?? 0) >=
-                                                                          receipt.grandTotal) {
-                                                                        return;
-                                                                      }
-                                                                      // dev.log("filteredMops - $filteredMops");
-                                                                      mopAmount = await showDialog<double>(
-                                                                        context: context,
-                                                                        barrierDismissible: false,
-                                                                        builder: (context) => EDCDialog(
-                                                                          onEDCSelected: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values = _values.toList() + [mopEDC];
-                                                                              // dev.log("mopEDC Multi - $mopEDC");
-                                                                              // dev.log("values - $_values");
-                                                                            });
-                                                                          },
-                                                                          onEDCRemoved: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values.removeWhere(
-                                                                                  (item) => item == mopEDC);
-                                                                            });
-                                                                          },
-                                                                          mopSelectionEntity: mop,
-                                                                          values: filteredMops,
-                                                                          max: receipt.grandTotal -
-                                                                              (receipt.totalPayment ?? 0),
-                                                                          isMultiMOPs: true,
-                                                                        ),
-                                                                      );
-                                                                    } else {
-                                                                      mopAmount = await showDialog<double>(
-                                                                        context: context,
-                                                                        barrierDismissible: false,
-                                                                        builder: (context) => EDCDialog(
-                                                                          onEDCSelected: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values = [mopEDC];
-                                                                              // _values = _values.toList() + [mopEDC];
-                                                                            });
-                                                                            // dev.log("values2 - $_values");
-                                                                            // dev.log("mopEDC not Multi - $mopEDC");
-                                                                          },
-                                                                          onEDCRemoved: (mopEDC) {
-                                                                            setState(() {
-                                                                              _values.removeWhere(
-                                                                                  (item) => item == mopEDC);
-                                                                            });
-                                                                          },
-                                                                          mopSelectionEntity: mop,
-                                                                          values: filteredMops,
-                                                                          max: receipt.grandTotal -
-                                                                              (receipt.totalVoucher ?? 0),
-                                                                          isMultiMOPs: false,
-                                                                        ),
-                                                                      );
-                                                                    }
+                                                                    _values = _values
+                                                                        .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                        .toList();
+                                                                    setState(() {
+                                                                      isQRISorVA = false;
+                                                                    });
                                                                   }
-
                                                                   setState(() {});
                                                                   updateReceiptMop();
                                                                 },
@@ -1734,7 +2151,140 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                 ],
                                               );
                                             }
-                                            // [END] UI for EDC MOP
+                                            // [END] UI for duitku
+
+                                            // [START] UI for duitku
+                                            if (paymentType.payTypeCode.startsWith("7") &&
+                                                mopsByType.any((mop) => mop.mopAlias == "duitku")) {
+                                              return Column(
+                                                children: [
+                                                  const SizedBox(height: 10),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                    width: double.infinity,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          paymentType.description,
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(height: 15),
+                                                        Wrap(
+                                                          spacing: 8,
+                                                          runSpacing: 8,
+                                                          children: List<Widget>.generate(
+                                                            mopsByType.length,
+                                                            (int index) {
+                                                              final mop = mopsByType[index];
+                                                              String? bankVA = "";
+                                                              String? bankName = "";
+                                                              String? bankImage = "";
+                                                              return ChoiceChip(
+                                                                side: const BorderSide(
+                                                                    color: ProjectColors.primary, width: 1.5),
+                                                                padding: const EdgeInsets.all(20),
+                                                                label: Text(
+                                                                  mop.mopAlias,
+                                                                ),
+                                                                selected:
+                                                                    _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
+                                                                onSelected: (bool selected) async {
+                                                                  await _checkConnection();
+                                                                  if (isConnected == false) {
+                                                                    SnackBarHelper.presentErrorSnackBar(context,
+                                                                        "No internet connection detected. Please check your network settings and try again");
+                                                                  }
+                                                                  if (selected) {
+                                                                    if (isQRISorVA) {
+                                                                      SnackBarHelper.presentErrorSnackBar(context,
+                                                                          "Please choose either MOP QRIS or duitku, not both");
+                                                                      return;
+                                                                    }
+                                                                    double? mopAmount = 0;
+                                                                    if (widget.isMultiMOPs) {
+                                                                      if ((receipt.totalPayment ?? 0) >=
+                                                                          receipt.grandTotal) {
+                                                                        return;
+                                                                      }
+                                                                      int maxAmount = (receipt.grandTotal -
+                                                                              (receipt.totalVoucher ?? 0) -
+                                                                              (receipt.totalNonVoucher ?? 0))
+                                                                          .toInt();
+
+                                                                      final List<dynamic> paymentMethods =
+                                                                          await GetIt.instance<DuitkuVAListApi>()
+                                                                              .getPaymentMethods();
+                                                                      dev.log("paymentMethods - $paymentMethods");
+                                                                      mopAmount = await showDialog<double>(
+                                                                        context: context,
+                                                                        barrierDismissible: false,
+                                                                        builder: (BuildContext context) {
+                                                                          return InputDuitkuVADialog(
+                                                                              onVASelected: (mopVA) {
+                                                                                setState(() {
+                                                                                  bankName = mopVA.cardName;
+                                                                                  bankVA = mopVA.cardHolder;
+                                                                                  bankImage = mopVA.edcDesc;
+                                                                                  isQRISorVA = true;
+                                                                                });
+                                                                              },
+                                                                              mopSelectionEntity: mop,
+                                                                              paymentMethods: paymentMethods,
+                                                                              amount: maxAmount);
+                                                                        },
+                                                                      );
+                                                                    } else {
+                                                                      mopAmount = receipt.grandTotal -
+                                                                          (receipt.totalVoucher ?? 0);
+                                                                    }
+
+                                                                    if (mopAmount == null || mopAmount == 0) {
+                                                                      return;
+                                                                    }
+
+                                                                    _values = (widget.isMultiMOPs
+                                                                            ? _values
+                                                                                .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                                .toList()
+                                                                            : <MopSelectionEntity>[]) +
+                                                                        [
+                                                                          mop.copyWith(
+                                                                              cardName: bankName,
+                                                                              cardHolder: bankVA,
+                                                                              edcDesc: bankImage,
+                                                                              amount: mopAmount)
+                                                                        ];
+                                                                    if (!widget.isMultiMOPs) {
+                                                                      _textEditingControllerCashAmount.text = "";
+                                                                    }
+                                                                  } else {
+                                                                    _values = _values
+                                                                        .where((e) => e.tpmt3Id != mop.tpmt3Id)
+                                                                        .toList();
+                                                                    setState(() {
+                                                                      isQRISorVA = false;
+                                                                    });
+                                                                  }
+                                                                  setState(() {});
+                                                                  updateReceiptMop();
+                                                                },
+                                                              );
+                                                            },
+                                                          ).toList(),
+                                                        ),
+                                                        const SizedBox(height: 20),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Divider(),
+                                                ],
+                                              );
+                                            }
+                                            // [END] UI for duitku
 
                                             // [START] UI for other MOPs
                                             return Column(
@@ -1772,120 +2322,18 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                               label: Text(
                                                                 mop.mopAlias,
                                                               ),
-                                                              // CONDITIONAL FOR SET SELECTED
-                                                              selected: paymentType.payTypeCode == "6"
-                                                                  ? receipt.vouchers
-                                                                      .map((e) => e.tpmt3Id)
-                                                                      .contains(mop.tpmt3Id)
-                                                                  : _values.map((e) => e.tpmt3Id).contains(mop.tpmt3Id),
-                                                              onSelected: (bool selected) async {
-                                                                // VOUCHERS DIALOG HERE
-                                                                if (paymentType.payTypeCode == "6") {
-                                                                  if (receipt.customerEntity == null) {
-                                                                    return SnackBarHelper.presentErrorSnackBar(
-                                                                        context, "Null customer");
-                                                                  }
-                                                                  if (mop.subType == 3 &&
-                                                                      receipt.customerEntity!.custCode == "99") {
-                                                                    return SnackBarHelper.presentErrorSnackBar(
-                                                                        context, "Invalid customer");
-                                                                  }
-                                                                  await showDialog(
-                                                                    context: context,
-                                                                    builder: (BuildContext context) {
-                                                                      return AlertDialog(
-                                                                        backgroundColor: Colors.white,
-                                                                        surfaceTintColor: Colors.transparent,
-                                                                        shape: const RoundedRectangleBorder(
-                                                                            borderRadius:
-                                                                                BorderRadius.all(Radius.circular(5.0))),
-                                                                        title: Container(
-                                                                          decoration: const BoxDecoration(
-                                                                            color: ProjectColors.primary,
-                                                                            borderRadius: BorderRadius.vertical(
-                                                                                top: Radius.circular(5.0)),
-                                                                          ),
-                                                                          padding:
-                                                                              const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                                                                          child: const Text(
-                                                                            'Redeem Voucher',
-                                                                            style: TextStyle(
-                                                                                fontSize: 22,
-                                                                                fontWeight: FontWeight.w500,
-                                                                                color: Colors.white),
-                                                                          ),
-                                                                        ),
-                                                                        titlePadding:
-                                                                            const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                                                        contentPadding: const EdgeInsets.all(0),
-                                                                        content: SizedBox(
-                                                                          height:
-                                                                              MediaQuery.of(context).size.height * 0.5,
-                                                                          width:
-                                                                              MediaQuery.of(context).size.width * 0.6,
-                                                                          child: VoucherCheckout(
-                                                                            onVouchersRedeemed: handleVouchersRedeemed,
-                                                                            tpmt3Id: mop.tpmt3Id,
-                                                                            voucherType: mop.subType,
-                                                                          ),
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                  setState(() {
-                                                                    _textEditingControllerCashAmount.text = "";
-                                                                    context.read<ReceiptCubit>().resetMop();
-                                                                    _values = [];
-                                                                  });
-                                                                  return;
-                                                                }
-
-                                                                if (voucherIsExceedPurchase) return;
-
-                                                                if (selected) {
-                                                                  double? mopAmount = 0;
-                                                                  if (widget.isMultiMOPs) {
-                                                                    if ((receipt.totalPayment ?? 0) >=
-                                                                        receipt.grandTotal) {
-                                                                      return;
-                                                                    }
-                                                                    mopAmount = await showDialog<double>(
-                                                                      context: context,
-                                                                      barrierDismissible: false,
-                                                                      builder: (context) => InputMopAmountDialog(
-                                                                        mopSelectionEntity: mop,
-                                                                        max: receipt.grandTotal -
-                                                                            (receipt.totalPayment ?? 0),
-                                                                      ),
-                                                                    );
-                                                                  } else {
-                                                                    mopAmount = receipt.grandTotal -
-                                                                        (receipt.totalVoucher ?? 0);
-                                                                  }
-
-                                                                  if (mopAmount == null || mopAmount == 0) {
-                                                                    return;
-                                                                  }
-
-                                                                  _values = (widget.isMultiMOPs
-                                                                          ? _values
-                                                                              .where((e) => e.tpmt3Id != mop.tpmt3Id)
-                                                                              .toList()
-                                                                          : <MopSelectionEntity>[]) +
-                                                                      [mop.copyWith(amount: mopAmount)];
-
-                                                                  if (!widget.isMultiMOPs) {
-                                                                    _textEditingControllerCashAmount.text = "";
-                                                                  }
-                                                                } else {
-                                                                  _values = _values
-                                                                      .where((e) => e.tpmt3Id != mop.tpmt3Id)
-                                                                      .toList();
-                                                                }
-
-                                                                setState(() {});
-                                                                updateReceiptMop();
-                                                              },
+                                                              selected: _isSelectedOtherMOP(
+                                                                paymentType: paymentType,
+                                                                receipt: receipt,
+                                                                mop: mop,
+                                                              ),
+                                                              onSelected: (bool selected) async =>
+                                                                  await _onSelectedOtherMOP(
+                                                                selected: selected,
+                                                                paymentType: paymentType,
+                                                                receipt: receipt,
+                                                                mop: mop,
+                                                              ),
                                                             );
                                                           },
                                                         ).toList(),

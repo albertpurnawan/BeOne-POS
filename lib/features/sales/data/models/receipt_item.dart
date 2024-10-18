@@ -14,5 +14,6 @@ class ReceiptItemModel extends ReceiptItemEntity {
     super.tohemId,
     super.remarks,
     super.refpos2,
+    super.refpos3,
   });
 }

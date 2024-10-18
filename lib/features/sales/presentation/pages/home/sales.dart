@@ -38,6 +38,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_coupons_dialog.
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/queue_list_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/return_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_customer_dialog.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -820,6 +821,9 @@ class _SalesPageState extends State<SalesPage> {
                                                       ),
                                                       textAlign: TextAlign.right,
                                                     )),
+                                          const SizedBox(
+                                            width: 20,
+                                          )
                                         ],
                                       ),
                                     );
@@ -874,7 +878,7 @@ class _SalesPageState extends State<SalesPage> {
                                                       ? const Color.fromARGB(95, 100, 202, 122)
                                                       : Colors.white,
                                               child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                                padding: EdgeInsets.fromLTRB(20, 10, 0, e.quantity < 0 ? 0 : 10),
                                                 child: Row(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -1018,10 +1022,55 @@ class _SalesPageState extends State<SalesPage> {
                                                                   ],
                                                                 ),
                                                               ),
+                                                              const SizedBox(
+                                                                width: 20,
+                                                              )
                                                             ],
                                                           ),
                                                           // SHOW PROMO HERE
                                                           ...test,
+                                                          if (e.quantity < 0 &&
+                                                              (test.isNotEmpty || e.tohemId != null || e.tohemId != ""))
+                                                            const SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                          if (e.quantity < 0 && e.refpos3 != null)
+                                                            Row(
+                                                              mainAxisAlignment: MainAxisAlignment.end,
+                                                              children: [
+                                                                Container(
+                                                                  alignment: Alignment.centerRight,
+                                                                  padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                                                                  decoration: const BoxDecoration(
+                                                                    // border: Border.all(
+                                                                    //     color: Color.fromRGBO(195, 53, 53, 1),
+                                                                    //     width: 4.0),
+                                                                    borderRadius:
+                                                                        BorderRadius.only(topLeft: Radius.circular(5)),
+
+                                                                    color: Colors.orange,
+                                                                    // boxShadow: [
+                                                                    //   BoxShadow(
+                                                                    //     spreadRadius: 0.5,
+                                                                    //     blurRadius: 5,
+                                                                    //     color: Color.fromRGBO(0, 0, 0, 0.111),
+                                                                    //   ),
+                                                                    // ],
+                                                                  ),
+                                                                  child: const Row(
+                                                                    mainAxisSize: MainAxisSize.min,
+                                                                    children: [
+                                                                      Text("Return",
+                                                                          style: TextStyle(
+                                                                            color: Colors.white,
+                                                                            fontSize: 12,
+                                                                            fontWeight: FontWeight.w700,
+                                                                          )),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
                                                         ],
                                                       ),
                                                     ),
@@ -2268,65 +2317,82 @@ class _SalesPageState extends State<SalesPage> {
                         width: 5,
                       ),
                       Expanded(
-                        child: TapRegion(
-                          groupId: 1,
-                          child: OutlinedButton(
-                            onPressed: indexIsSelect[1] == 0 ? null : null,
-                            style: OutlinedButton.styleFrom(
-                              elevation: 5,
-                              shadowColor: Colors.black87,
-                              padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
-                              foregroundColor: Colors.white,
-                              backgroundColor:
-                                  indexIsSelect[0] == -1 ? ProjectColors.lightBlack : ProjectColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            setState(() {
+                              isEditingNewReceiptItemCode = false;
+                              isEditingNewReceiptItemQty = false;
+                              isUpdatingReceiptItemQty = false;
+                            });
+
+                            final bool? isSaved = await showDialog<bool>(
+                              context: context,
+                              builder: (BuildContext context) => ScaffoldMessenger(
+                                child: Builder(builder: (context) {
+                                  return const Scaffold(backgroundColor: Colors.transparent, body: ReturnDialog());
+                                }),
                               ),
-                              side: BorderSide.none,
+                            );
+
+                            if (isSaved != null && isSaved) {
+                              SnackBarHelper.presentSuccessSnackBar(context, "Save return items success", null);
+                            }
+
+                            setState(() {
+                              isEditingNewReceiptItemCode = true;
+                              Future.delayed(
+                                  const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            elevation: 5,
+                            shadowColor: Colors.black87,
+                            padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                            foregroundColor: Colors.white,
+                            backgroundColor: ProjectColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
-                              child: Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: Align(
-                                      alignment: Alignment.topRight,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                            side: BorderSide.none,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
+                            child: Stack(
+                              children: [
+                                const Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "",
+                                          style:
+                                              TextStyle(fontWeight: FontWeight.w300, fontSize: 14, color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: RichText(
+                                      textAlign: TextAlign.left,
+                                      text: const TextSpan(
                                         children: [
-                                          Text(
-                                            "",
+                                          TextSpan(
+                                            text: "Return",
                                             style: TextStyle(
-                                                fontWeight: FontWeight.w300,
-                                                fontSize: 14,
-                                                color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
+                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.white),
                                           ),
                                         ],
                                       ),
+                                      overflow: TextOverflow.clip,
                                     ),
                                   ),
-                                  Positioned.fill(
-                                    child: Align(
-                                      alignment: Alignment.bottomLeft,
-                                      child: RichText(
-                                        textAlign: TextAlign.left,
-                                        text: TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: "Return",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14,
-                                                  color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                        overflow: TextOverflow.clip,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -3264,22 +3330,7 @@ class _SalesPageState extends State<SalesPage> {
                 child: TapRegion(
                   groupId: 1,
                   child: OutlinedButton(
-                    onPressed: () {
-                      final ReceiptItemEntity receiptItemTarget =
-                          context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-
-                      setState(() {
-                        indexIsSelect = [-1, 0];
-                        _textEditingControllerNewReceiptItemQuantity.text = "1";
-                        _textEditingControllerNewReceiptItemCode.text = "";
-                        _newReceiptItemQuantityFocusNode.unfocus();
-                        isUpdatingReceiptItemQty = false;
-                        isEditingNewReceiptItemCode = true;
-                        _newReceiptItemCodeFocusNode.requestFocus();
-                      });
-
-                      context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
-                    },
+                    onPressed: () async => await removeItem(),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.all(0),
                       elevation: 5,
@@ -3869,19 +3920,7 @@ class _SalesPageState extends State<SalesPage> {
               checkReceiptWithMember(context.read<ReceiptCubit>().state);
             }));
       } else if (event.physicalKey == (PhysicalKeyboardKey.f7)) {
-        final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-
-        setState(() {
-          indexIsSelect = [-1, 0];
-          _textEditingControllerNewReceiptItemQuantity.text = "1";
-          _textEditingControllerNewReceiptItemCode.text = "";
-          _newReceiptItemQuantityFocusNode.unfocus();
-          isUpdatingReceiptItemQty = false;
-          isEditingNewReceiptItemCode = true;
-          _newReceiptItemCodeFocusNode.requestFocus();
-        });
-
-        context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
+        await removeItem();
       } else if (event.physicalKey == (PhysicalKeyboardKey.f6)) {
         if (isEditingNewReceiptItemQty == false) {
           isEditingNewReceiptItemQty = true;
@@ -3945,7 +3984,7 @@ class _SalesPageState extends State<SalesPage> {
         });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
         if (indexIsSelect[1] != 0) {
-          final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
+          // final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
           await showDialog(
             context: context,
             builder: (BuildContext context) => ItemDetailsDialog(indexSelected: indexIsSelect[0]),
@@ -4052,9 +4091,9 @@ class _SalesPageState extends State<SalesPage> {
         return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
       }
 
-      if (context.read<ReceiptCubit>().state.grandTotal < 0) {
-        return SnackBarHelper.presentErrorSnackBar(context, "Grand total cannot be negative");
-      }
+      // if (context.read<ReceiptCubit>().state.grandTotal < 0) {
+      //   return SnackBarHelper.presentErrorSnackBar(context, "Grand total cannot be negative");
+      // }
 
       final ReceiptItemEntity? dpItem =
           context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
@@ -4138,6 +4177,27 @@ class _SalesPageState extends State<SalesPage> {
       return employeeEntity;
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<void> removeItem() async {
+    try {
+      final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
+      if (receiptItemTarget.refpos3 != null) throw "Please modify returned items on Return feature";
+
+      setState(() {
+        indexIsSelect = [-1, 0];
+        _textEditingControllerNewReceiptItemQuantity.text = "1";
+        _textEditingControllerNewReceiptItemCode.text = "";
+        _newReceiptItemQuantityFocusNode.unfocus();
+        isUpdatingReceiptItemQty = false;
+        isEditingNewReceiptItemCode = true;
+        _newReceiptItemCodeFocusNode.requestFocus();
+      });
+
+      context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
   }
 

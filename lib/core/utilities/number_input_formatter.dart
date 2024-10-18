@@ -19,7 +19,13 @@ class NumberInputFormatter extends TextInputFormatter {
 class MoneyInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    final value = Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(newValue.text));
+    final String value;
+
+    if (newValue.text == "-") {
+      value = "";
+    } else {
+      value = Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(newValue.text));
+    }
 
     return TextEditingValue(text: value, selection: TextSelection.collapsed(offset: value.length));
   }

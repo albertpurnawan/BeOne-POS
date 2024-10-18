@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
 import 'package:pos_fe/features/settings/domain/usecases/encrypt.dart';
 

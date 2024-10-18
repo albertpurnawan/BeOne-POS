@@ -1,14 +1,11 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
@@ -495,7 +492,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       isClaiming
-                                          ? SizedBox(width: 12, height: 12, child: CircularProgressIndicator())
+                                          ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator())
                                           : RichText(
                                               textAlign: TextAlign.center,
                                               text: const TextSpan(
@@ -656,7 +653,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 // height: MediaQuery.of(context).size.height * 0.2,
                 child: SingleChildScrollView(
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
                     alignment: Alignment.topCenter,
                     width: double.infinity,
                     child: Column(
