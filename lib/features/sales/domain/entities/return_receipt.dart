@@ -10,12 +10,14 @@ class ReturnReceiptEntity {
   final StoreMasterEntity storeMasterEntity;
   final CustomerEntity customerEntity;
   final DateTime transDateTime;
+  final String timezone;
 
   ReturnReceiptEntity({
     required this.receiptEntity,
     required this.storeMasterEntity,
     required this.customerEntity,
     required this.transDateTime,
+    required this.timezone,
   });
 
   ReturnReceiptEntity copyWith({
@@ -23,12 +25,14 @@ class ReturnReceiptEntity {
     StoreMasterEntity? storeMasterEntity,
     CustomerEntity? customerEntity,
     DateTime? transDateTime,
+    String? timezone,
   }) {
     return ReturnReceiptEntity(
       receiptEntity: receiptEntity ?? this.receiptEntity,
       storeMasterEntity: storeMasterEntity ?? this.storeMasterEntity,
       customerEntity: customerEntity ?? this.customerEntity,
       transDateTime: transDateTime ?? this.transDateTime,
+      timezone: timezone ?? this.timezone,
     );
   }
 
@@ -38,6 +42,7 @@ class ReturnReceiptEntity {
       'storeMasterEntity': storeMasterEntity.toMap(),
       'customerEntity': customerEntity.toMap(),
       'transDateTime': transDateTime.millisecondsSinceEpoch,
+      'timezone': timezone,
     };
   }
 
@@ -47,6 +52,7 @@ class ReturnReceiptEntity {
       storeMasterEntity: StoreMasterEntity.fromMap(map['storeMasterEntity'] as Map<String, dynamic>),
       customerEntity: CustomerEntity.fromMap(map['customerEntity'] as Map<String, dynamic>),
       transDateTime: DateTime.fromMillisecondsSinceEpoch(map['transDateTime'] as int),
+      timezone: map['timezone'] as String,
     );
   }
 
@@ -57,7 +63,7 @@ class ReturnReceiptEntity {
 
   @override
   String toString() {
-    return 'ReturnReceiptEntity(receiptEntity: $receiptEntity, storeMasterEntity: $storeMasterEntity, customerEntity: $customerEntity, transDateTime: $transDateTime)';
+    return 'ReturnReceiptEntity(receiptEntity: $receiptEntity, storeMasterEntity: $storeMasterEntity, customerEntity: $customerEntity, transDateTime: $transDateTime, timezone: $timezone)';
   }
 
   @override
@@ -67,11 +73,16 @@ class ReturnReceiptEntity {
     return other.receiptEntity == receiptEntity &&
         other.storeMasterEntity == storeMasterEntity &&
         other.customerEntity == customerEntity &&
-        other.transDateTime == transDateTime;
+        other.transDateTime == transDateTime &&
+        other.timezone == timezone;
   }
 
   @override
   int get hashCode {
-    return receiptEntity.hashCode ^ storeMasterEntity.hashCode ^ customerEntity.hashCode ^ transDateTime.hashCode;
+    return receiptEntity.hashCode ^
+        storeMasterEntity.hashCode ^
+        customerEntity.hashCode ^
+        transDateTime.hashCode ^
+        timezone.hashCode;
   }
 }

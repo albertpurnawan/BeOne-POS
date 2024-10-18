@@ -7,5 +7,6 @@ class ReturnReceiptModel extends ReturnReceiptEntity implements BaseModel {
     required super.storeMasterEntity,
     required super.receiptEntity,
     required super.transDateTime,
+    required super.timezone,
   });
 }

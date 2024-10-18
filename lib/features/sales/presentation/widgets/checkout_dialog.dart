@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
 
@@ -178,6 +179,13 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           isCharging = false;
         });
         throw "Insufficient payment";
+      }
+
+      if (state.grandTotal < 0 && ((state.totalPayment ?? 0) - state.grandTotal).abs() > 1) {
+        setState(() {
+          isCharging = false;
+        });
+        throw "Refund must match grand total";
       }
 
       // Trigger approval when grand total is 0
@@ -407,6 +415,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   void initState() {
     super.initState();
     isCharged = widget.isCharged ?? false;
+    if (context.read<ReceiptCubit>().state.grandTotal <= 0) isMultiMOPs = false;
   }
 
   @override
@@ -899,6 +908,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   );
 
   String currencyName = "";
+  late final StreamSubscription<ReceiptEntity> _grandTotalSubs;
 
   @override
   void initState() {
@@ -908,6 +918,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     // getCurrencyName();
     checkAndHandleZeroGrandTotal();
     refreshQRISChip();
+    _grandTotalSubs = context.read<ReceiptCubit>().stream.listen((event) {
+      checkAndHandleZeroGrandTotal();
+    });
   }
 
   @override
@@ -915,6 +928,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     super.dispose();
     _textEditingControllerCashAmount.dispose();
     _focusNodeCashAmount.dispose();
+    _grandTotalSubs.cancel();
   }
 
   Future<void> _checkConnection() async {
@@ -1503,6 +1517,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
   void checkAndHandleZeroGrandTotal() async {
     try {
       if (context.read<ReceiptCubit>().state.grandTotal != 0) {
+        setState(() {
+          isZeroGrandTotal = false;
+        });
         return;
       }
 
@@ -1520,6 +1537,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     } catch (e) {
       // dev.log(e.toString());
       context.pop();
+      setState(() {
+        isZeroGrandTotal = false;
+      });
       SnackBarHelper.presentFailSnackBar(context, e.toString());
     }
   }
