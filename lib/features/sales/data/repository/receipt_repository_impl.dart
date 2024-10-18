@@ -7,6 +7,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
+import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_applied_promo.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
@@ -23,6 +24,7 @@ import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_items_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -156,11 +158,13 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
         final List<DownPaymentEntity> dps = receiptEntity.downPayments ?? [];
 
-        if (dps.isNotEmpty) {
+        if (dps.isNotEmpty && dps.any((dp) => dp.isReceive == false && dp.isSelected == true)) {
           if (itemDP != null) {
-            final List<InvoiceDetailModel> dpModels = dps.asMap().entries.map((entry) {
+            final List<InvoiceDetailModel> dpModels =
+                dps.where((dp) => dp.isReceive == false && dp.isSelected == true).toList().asMap().entries.map((entry) {
               final int index = entry.key;
               final DownPaymentEntity dp = entry.value;
+
               return InvoiceDetailModel(
                 docId: _uuid.v4(),
                 createDate: null,
@@ -192,7 +196,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
                 discHeaderAmount: 0,
                 subtotalAfterDiscHeader: dp.amount,
                 tohemId: "",
-                refpos2: dp.toinvDocId,
+                refpos2: dp.refpos2,
                 refpos3: dp.refpos3 ?? "",
               );
             }).toList();
@@ -358,6 +362,43 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           }
           await _appDatabase.approvalInvoiceDao.bulkCreate(data: approvalsModel, txn: txn);
           // log("approvalsModel - $approvalsModel");
+        }
+
+        // save DownPaymentItems Here
+        if (receiptEntity.downPayments != null &&
+            receiptEntity.downPayments!.isNotEmpty &&
+            receiptEntity.downPayments!.any((dp) => dp.isReceive == true)) {
+          final List<DownPaymentItemsModel> dpItems = [];
+
+          for (final DownPaymentEntity dpEntity in receiptEntity.downPayments!) {
+            if (dpEntity.tinv7 != null && dpEntity.tinv7!.isNotEmpty) {
+              for (final DownPaymentItemsEntity item in dpEntity.tinv7!) {
+                dpItems.add(DownPaymentItemsModel(
+                  docId: item.docId,
+                  createDate: item.createDate,
+                  updateDate: item.updateDate,
+                  toinvId: generatedInvoiceHeaderDocId,
+                  docNum: item.docNum,
+                  idNumber: item.idNumber,
+                  toitmId: item.toitmId,
+                  quantity: item.quantity,
+                  sellingPrice: item.sellingPrice,
+                  totalAmount: item.totalAmount,
+                  // taxPrctg: item.taxPrctg,
+                  remarks: item.remarks,
+                  tovatId: item.tovatId,
+                  includeTax: item.includeTax,
+                  tovenId: item.tovenId,
+                  tbitmId: item.tbitmId,
+                  tohemId: item.tohemId,
+                  refpos2: dpEntity.refpos2,
+                  qtySelected: item.qtySelected,
+                  isSelected: 0,
+                ));
+              }
+            }
+          }
+          await _appDatabase.downPaymentItemsDao.bulkCreate(data: dpItems, txn: txn);
         }
       });
 

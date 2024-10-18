@@ -18,10 +18,13 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/progress_indicator.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/duitku_service.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
+import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -48,6 +51,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MopType {
   final String name;
@@ -170,6 +174,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         isCharging = true;
       });
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
+      dev.log("state - --- ${state.receiptItems}");
 
       // Validate total payment must be greater than grand total
       if (state.grandTotal >= 0
@@ -795,6 +800,36 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                     if (isProceed == null) return;
                                     if (!isProceed) return;
                                   }
+
+                                  try {
+                                    final String cashierName =
+                                        GetIt.instance<SharedPreferences>().getString("username") ?? "";
+                                    final UserModel? user =
+                                        await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+                                    List<DownPaymentEntity> dpList =
+                                        context.read<ReceiptCubit>().state.downPayments ?? [];
+                                    List<String> docnumList = [];
+                                    if (dpList.isNotEmpty) {
+                                      for (DownPaymentEntity dp in dpList) {
+                                        if (dp.isSelected == true && dp.isReceive == false) {
+                                          docnumList.add(dp.refpos2 ?? "");
+                                        }
+                                      }
+
+                                      if (user != null) {
+                                        String checkLock =
+                                            await GetIt.instance<InvoiceApi>().unlockInvoice(user.docId, docnumList);
+                                        if (checkLock != 'Unlock Down Payment success') {
+                                          SnackBarHelper.presentErrorSnackBar(context,
+                                              "Process DP Transaction can't be canceled. Please check your connection and try again");
+                                          return;
+                                        }
+                                      }
+                                    }
+                                  } catch (e) {
+                                    return;
+                                  }
+
                                   context.pop(false);
                                 },
                           child: Center(
@@ -1608,17 +1643,23 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(0, 2, 10, 2),
+                                      padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           // (receipt.discHeaderManual ?? 0) != 0
                                           //     ? _noteChip((1000000), 1)
                                           //     : const SizedBox.shrink(),
-                                          (receipt.downPayments != null && receipt.downPayments!.isNotEmpty)
+                                          (receipt.downPayments != null &&
+                                                  receipt.downPayments!.isNotEmpty &&
+                                                  receipt.downPayments!
+                                                      .any((dp) => dp.isReceive == false && dp.isSelected == true))
                                               ? _noteChip(
-                                                  (receipt.downPayments ?? [])
-                                                      .fold(0.0, (total, dp) => total + dp.amount),
+                                                  (receipt.downPayments ?? []).fold(
+                                                      0.0,
+                                                      (total, dp) => (dp.isSelected == true && dp.amount != 0)
+                                                          ? total + dp.amount
+                                                          : total),
                                                   2)
                                               : const SizedBox.shrink(),
                                           (receipt.discHeaderManual ?? 0) != 0
@@ -2449,7 +2490,6 @@ class __CheckoutSuccessDialogContentState extends State<_CheckoutSuccessDialogCo
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getCurrencyName();
     _refreshVouchersChips(2);

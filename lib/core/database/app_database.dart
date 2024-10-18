@@ -21,6 +21,7 @@ import 'package:pos_fe/features/sales/data/data_sources/local/currency_dao.dart'
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_cst_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/down_payment_items_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/edc_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/employee_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/invoice_applied_promo_dao.dart';
@@ -115,6 +116,7 @@ import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/duitku_va_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/duitku_va_details.dart';
+import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
@@ -323,6 +325,32 @@ class AppDatabase {
   late EDCDao edcDao;
   late BankIssuerDao bankIssuerDao;
   late CampaignDao campaignDao;
+  late DownPaymentItemsDao downPaymentItemsDao;
+
+  static String createTinv7 = """
+        CREATE TABLE $tableDownPaymentItem (
+          `docid` TEXT PRIMARY KEY,
+          ${DownPaymentItemsFields.createDate} datetime DEFAULT NULL,
+          ${DownPaymentItemsFields.updateDate} datetime DEFAULT NULL,
+          ${DownPaymentItemsFields.toinvId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.docNum} varchar(30) NOT NULL,
+          ${DownPaymentItemsFields.idNumber} int NOT NULL,
+          ${DownPaymentItemsFields.toitmId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.quantity} double NOT NULL,
+          ${DownPaymentItemsFields.sellingPrice} double NOT NULL,
+          ${DownPaymentItemsFields.totalAmount} double NOT NULL,
+          ${DownPaymentItemsFields.remarks} text,
+          ${DownPaymentItemsFields.tovatId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.includeTax} int NOT NULL,
+          ${DownPaymentItemsFields.tovenId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.tbitmId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.tohemId} text DEFAULT NULL,
+          ${DownPaymentItemsFields.refpos2} text DEFAULT NULL,
+          ${DownPaymentItemsFields.qtySelected} double DEFAULT NULL,
+          ${DownPaymentItemsFields.isSelected} int DEFAULT NULL,
+          createdat TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """;
 
   AppDatabase._init();
 
@@ -449,6 +477,7 @@ PRAGMA foreign_keys = ON;
     edcDao = EDCDao(_database!);
     bankIssuerDao = BankIssuerDao(_database!);
     campaignDao = CampaignDao(_database!);
+    downPaymentItemsDao = DownPaymentItemsDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -3590,6 +3619,8 @@ CREATE TABLE $tableDuitkuVAAssignStore (
   $createdAtDefinition
 )
 """);
+
+        await txn.execute(createTinv7);
       });
     } catch (e) {
       log(e.toString());
@@ -3724,6 +3755,8 @@ CREATE TABLE $tableDuitkuVAAssignStore (
           '''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');
       await db.execute(
           '''ALTER TABLE $tableInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');
+
+      await db.execute(createTinv7);
     },
   };
 

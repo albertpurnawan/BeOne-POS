@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer' as dev;
-import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -195,7 +194,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           barrierDismissible: false,
           builder: (context) => const ConfirmResetPromoDialog(),
         );
-        // dev.log("isProceed $isProceed");
+        dev.log("isProceed $isProceed");
         if (isProceed == null) return;
         if (!isProceed) return;
       }
@@ -246,6 +245,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 barrierDismissible: false,
                 builder: (context) => OpenPriceDialog(receiptItemEntity: receiptItemEntity, quantity: params.quantity),
               );
+
           params.onOpenPriceInputted();
           if (newPrice == null) throw "Price is required";
           receiptItemEntity = await _handleOpenPriceUseCase(
@@ -383,7 +383,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     );
 
     newState = await _recalculateReceiptUseCase.call(params: newState);
-    dev.log("newState updateDP - ${newState.subtotal}");
+    // dev.log("newState afterAddUpp - $newState");
     emit(newState);
   }
 
@@ -408,7 +408,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       for (final receiptItem in receiptItems) {
         await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
           barcode: receiptItem.itemEntity.barcode,
-          itemEntity: null,
+          itemEntity: receiptItem.itemEntity,
           quantity: receiptItem.quantity,
           context: context,
           onOpenPriceInputted: () => receiptItem.itemEntity.price,
@@ -420,14 +420,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     }
 
     final List<ReceiptItemEntity> receiptItems = state.receiptItems.map((e) => e.copyWith()).toList();
+    final salesTohemId = state.salesTohemId ?? "";
+    final remarks = state.remarks ?? "";
+
     await resetReceipt();
-    emit(state.copyWith(customerEntity: customerEntity));
+    emit(state.copyWith(customerEntity: customerEntity, salesTohemId: salesTohemId, remarks: remarks));
 
     for (final receiptItem in receiptItems) {
-      dev.log("receiptItem - $receiptItem");
       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
         barcode: receiptItem.itemEntity.barcode,
-        itemEntity: null,
+        itemEntity: receiptItem.itemEntity,
         quantity: receiptItem.quantity,
         context: context,
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
@@ -436,6 +438,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         setOpenPrice: receiptItem.itemEntity.price,
       ));
     }
+
     emit(state.copyWith(customerEntity: customerEntity, previousReceiptEntity: state.previousReceiptEntity));
   }
 
@@ -643,7 +646,15 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           dev.log(e.toString());
         }
         try {
-          GetIt.instance<InvoiceApi>().sendInvoice();
+          final List<DownPaymentEntity> dpList = newState.downPayments ?? [];
+          dev.log("dpList - $dpList");
+          List<String> dpDocnums = [];
+          for (DownPaymentEntity dp in dpList) {
+            if (dp.isReceive == false && dp.isSelected == true) {
+              dpDocnums.add(dp.refpos2 ?? "");
+            }
+          }
+          GetIt.instance<InvoiceApi>().sendInvoice(dpDocnums);
         } catch (e) {
           return;
         }
@@ -692,7 +703,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     if (state.queuedInvoiceHeaderDocId != null) {
       await GetIt.instance<AppDatabase>().queuedInvoiceHeaderDao.deleteByDocId(state.queuedInvoiceHeaderDocId!, null);
     }
-    log("queueReceiptCubit - $state");
     await _queueReceiptUseCase.call(params: state.previousReceiptEntity ?? state);
     resetReceipt();
   }
@@ -709,7 +719,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         onOpenPriceInputted: () => receiptItem.itemEntity.price,
         remarks: receiptItem.remarks,
         tohemId: receiptItem.tohemId,
-        setOpenPrice: receiptItem.itemEntity.price,
+        setOpenPrice: receiptItem.sellingPrice,
         refpos3: receiptItem.refpos3,
       ));
     }
@@ -718,6 +728,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ..queuedInvoiceHeaderDocId = receiptEntity.queuedInvoiceHeaderDocId
       ..customerEntity = receiptEntity.customerEntity
       ..salesTohemId = receiptEntity.salesTohemId
+      ..downPayments = receiptEntity.downPayments
       ..remarks = receiptEntity.remarks);
   }
 
@@ -823,7 +834,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
       // Reset down payment
       List<DownPaymentEntity> dps = newReceipt.downPayments ?? [];
-      double totalDPAmount = dps.fold(0.0, (value, dp) => value + dp.amount);
+      double totalDPAmount = dps.fold(0.0, (value, dp) => dp.isSelected == true ? value + dp.amount : value);
       // if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
       //   double reset = newReceipt.subtotal + totalDPAmount;
       //   newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt.copyWith(subtotal: reset));
@@ -969,7 +980,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       }
 
       // Reinsert down payment
-      if (newReceipt.downPayments != null && (newReceipt.downPayments ?? []).isNotEmpty) {
+      if (newReceipt.downPayments != null &&
+          (newReceipt.downPayments ?? []).isNotEmpty &&
+          newReceipt.downPayments!.any((dp) => dp.isReceive == false) &&
+          newReceipt.downPayments!.any((dp) => dp.isSelected == true)) {
         if (totalDPAmount > newReceipt.grandTotal) {
           throw "Down payment exceeds grand total (overpayment: ${Helpers.parseMoney(totalDPAmount - newReceipt.grandTotal)})";
         }
@@ -1009,13 +1023,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Apply rounding
       newReceipt = await _applyRoundingUseCase.call(params: newReceipt);
 
+      // dev.log("check last - ${newReceipt.grandTotal} - ${newReceipt.receiptItems}");
       emit(newReceipt.copyWith(
         previousReceiptEntity: initialState.previousReceiptEntity ??
             initialState.copyWith(
                 receiptItems: initialState.receiptItems.map((e) => e.copyWith()).toList(), previousReceiptEntity: null),
       ));
 
-      // dev.log("after emit $state");
+      // dev.log("after emit ${state.receiptItems}");
       return;
     } catch (e) {
       emit(initialState);

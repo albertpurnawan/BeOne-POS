@@ -12,6 +12,7 @@ import 'package:pos_fe/features/settings/presentation/pages/characters_per_line_
 import 'package:pos_fe/features/settings/presentation/pages/default_printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/paper_size_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
+import 'package:pos_fe/features/settings/presentation/pages/unlock_invoice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -290,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Row(
                             children: [
                               Text(
-                                "Database",
+                                "Tools",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66), fontSize: 16),
                               ),
@@ -388,6 +389,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ),
                                         Text(
                                           "Backup Data",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Icon(
+                                          Icons.navigate_next,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(
+                            height: 0,
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => const UnlockInvoice(),
+                              );
+                            },
+                            child: const Column(
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.lock_open_outlined,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Unlock Invoice",
                                           style: TextStyle(fontSize: 16),
                                         ),
                                       ],

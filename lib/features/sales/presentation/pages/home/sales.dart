@@ -17,6 +17,9 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
+import 'package:pos_fe/features/sales/data/models/user.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -783,6 +786,7 @@ class _SalesPageState extends State<SalesPage> {
                                   scrollOffsetListener: scrollOffsetListener,
                                   itemCount: state.receiptItems.length,
                                   itemBuilder: (context, index) {
+                                    // log("stateReceiveItems - ${state.receiptItems}");
                                     final e = state.receiptItems[index];
                                     // final hasPromos = e.promos.isNotEmpty;
                                     final test = e.promos.map(
@@ -1403,10 +1407,13 @@ class _SalesPageState extends State<SalesPage> {
                         Expanded(
                           child: OutlinedButton(
                               onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) => const InvoiceDetailsDialog(),
-                                );
+                                bool receiveDP = await checkItemDP();
+                                if (mounted) {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+                                  );
+                                }
                                 setState(() {
                                   isEditingNewReceiptItemCode = true;
                                   Future.delayed(const Duration(milliseconds: 50),
@@ -1754,10 +1761,13 @@ class _SalesPageState extends State<SalesPage> {
                         Expanded(
                           child: OutlinedButton(
                               onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) => const InvoiceDetailsDialog(),
-                                );
+                                bool receiveDP = await checkItemDP();
+                                if (mounted) {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+                                  );
+                                }
                                 setState(() {
                                   isEditingNewReceiptItemCode = true;
                                   Future.delayed(const Duration(milliseconds: 50),
@@ -2008,10 +2018,13 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) => const InvoiceDetailsDialog(),
-                            );
+                            bool receiveDP = await checkItemDP();
+                            if (mounted) {
+                              await showDialog(
+                                context: context,
+                                builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+                              );
+                            }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -2077,13 +2090,16 @@ class _SalesPageState extends State<SalesPage> {
                           onPressed: () async {
                             if (!isMember) {
                               SnackBarHelper.presentErrorSnackBar(context,
-                                  "Please select the customer first, only customer with member can use Down Payment");
+                                  "Please select the customer first, only customer with membership can use Down Payment");
                               return;
                             }
-                            await showDialog(
-                              context: context,
-                              builder: (BuildContext context) => const DownPaymentDialog(),
-                            );
+
+                            if (mounted) {
+                              await showDialog(
+                                context: context,
+                                builder: (BuildContext context) => const DownPaymentDialog(),
+                              );
+                            }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
@@ -2157,12 +2173,24 @@ class _SalesPageState extends State<SalesPage> {
                         child: TapRegion(
                           groupId: 1,
                           child: OutlinedButton(
-                            onPressed: indexIsSelect[1] == 0
+                            onPressed: (indexIsSelect[1] == 0 ||
+                                    context
+                                            .read<ReceiptCubit>()
+                                            .state
+                                            .receiptItems[indexIsSelect[0]]
+                                            .itemEntity
+                                            .itemCode ==
+                                        '99' ||
+                                    context
+                                            .read<ReceiptCubit>()
+                                            .state
+                                            .receiptItems[indexIsSelect[0]]
+                                            .itemEntity
+                                            .itemCode ==
+                                        '08700000002')
                                 ? null
                                 : () {
-                                    final ReceiptItemEntity receiptItemTarget =
-                                        context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-                                    log("receiptTarget - $receiptItemTarget");
+                                    context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) =>
@@ -2184,8 +2212,23 @@ class _SalesPageState extends State<SalesPage> {
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                               foregroundColor: Colors.white,
-                              backgroundColor:
-                                  indexIsSelect[0] == -1 ? ProjectColors.lightBlack : ProjectColors.primary,
+                              backgroundColor: (indexIsSelect[1] == 0 ||
+                                      context
+                                              .read<ReceiptCubit>()
+                                              .state
+                                              .receiptItems[indexIsSelect[0]]
+                                              .itemEntity
+                                              .itemCode ==
+                                          '99' ||
+                                      context
+                                              .read<ReceiptCubit>()
+                                              .state
+                                              .receiptItems[indexIsSelect[0]]
+                                              .itemEntity
+                                              .itemCode ==
+                                          '08700000002')
+                                  ? ProjectColors.lightBlack
+                                  : ProjectColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -2206,7 +2249,23 @@ class _SalesPageState extends State<SalesPage> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 14,
-                                                color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
+                                                color: (indexIsSelect[1] == 0 ||
+                                                        context
+                                                                .read<ReceiptCubit>()
+                                                                .state
+                                                                .receiptItems[indexIsSelect[0]]
+                                                                .itemEntity
+                                                                .itemCode ==
+                                                            '99' ||
+                                                        context
+                                                                .read<ReceiptCubit>()
+                                                                .state
+                                                                .receiptItems[indexIsSelect[0]]
+                                                                .itemEntity
+                                                                .itemCode ==
+                                                            '08700000002')
+                                                    ? Colors.grey
+                                                    : Colors.white),
                                           ),
                                         ],
                                       ),
@@ -2224,7 +2283,23 @@ class _SalesPageState extends State<SalesPage> {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,
-                                                  color: indexIsSelect[0] == -1 ? Colors.grey : Colors.white),
+                                                  color: (indexIsSelect[1] == 0 ||
+                                                          context
+                                                                  .read<ReceiptCubit>()
+                                                                  .state
+                                                                  .receiptItems[indexIsSelect[0]]
+                                                                  .itemEntity
+                                                                  .itemCode ==
+                                                              '99' ||
+                                                          context
+                                                                  .read<ReceiptCubit>()
+                                                                  .state
+                                                                  .receiptItems[indexIsSelect[0]]
+                                                                  .itemEntity
+                                                                  .itemCode ==
+                                                              '08700000002')
+                                                      ? Colors.grey
+                                                      : Colors.white),
                                             ),
                                           ],
                                         ),
@@ -2344,6 +2419,16 @@ class _SalesPageState extends State<SalesPage> {
                           child: OutlinedButton(
                             // onPressed: null,
                             onPressed: () async {
+                              bool checkDP = await checkItemDP();
+
+                              if (checkDP) {
+                                if (context.mounted) {
+                                  SnackBarHelper.presentErrorSnackBar(
+                                      context, "Coupons are not applicable to Down Payment");
+                                }
+                                return;
+                              }
+
                               setState(() {
                                 isEditingNewReceiptItemCode = false;
                                 isEditingNewReceiptItemQty = false;
@@ -2924,9 +3009,17 @@ class _SalesPageState extends State<SalesPage> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         // (state.discHeaderManual ?? 0) != 0 ? _noteChip((1000000), 1) : const SizedBox.shrink(),
-                        (state.downPayments != null && state.downPayments!.isNotEmpty)
-                            ? _noteChip((state.downPayments ?? []).fold(0.0, (total, dp) => total + dp.amount), 2)
+                        (state.downPayments != null &&
+                                state.downPayments!.isNotEmpty &&
+                                state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
+                            ? _noteChip(
+                                (state.downPayments ?? []).fold(
+                                  0.0,
+                                  (total, dp) => (dp.isSelected == true && dp.amount != 0) ? total + dp.amount : total,
+                                ),
+                                2)
                             : const SizedBox.shrink(),
+
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)
                             : const SizedBox.shrink(),
@@ -3874,12 +3967,17 @@ class _SalesPageState extends State<SalesPage> {
             _newReceiptItemCodeFocusNode.requestFocus();
           });
         });
-        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        if (context.mounted) {
+          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        }
       } else if (event.physicalKey == (PhysicalKeyboardKey.f2)) {
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) => const InvoiceDetailsDialog(),
-        );
+        bool receiveDP = await checkItemDP();
+        if (context.mounted) {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
+          );
+        }
         setState(() {
           isEditingNewReceiptItemCode = true;
           Future.delayed(const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
@@ -3938,7 +4036,17 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
-      await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+      if (params.barcode == "99") throw "Warning: Modifying the Down Payment quantity is not allowed";
+
+      bool checkDP = await checkItemDP();
+      if (checkDP && mounted) {
+        SnackBarHelper.presentErrorSnackBar(context, "Down payment has to be excluded from other transactions");
+        return;
+      }
+
+      if (mounted) {
+        await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+      }
 
       indexIsSelect = [-1, 0];
       _textEditingControllerNewReceiptItemCode.text = "";
@@ -3958,7 +4066,7 @@ class _SalesPageState extends State<SalesPage> {
                 isNewItemAdded = false;
               }));
 
-      if (itemScrollController.isAttached) {
+      if (itemScrollController.isAttached && mounted) {
         await scrollToReceiptItemByIndex(context.read<ReceiptCubit>().state.receiptItems.length - 1);
       }
     } catch (e) {
@@ -3998,6 +4106,32 @@ class _SalesPageState extends State<SalesPage> {
         isEditingNewReceiptItemQty = false;
         isUpdatingReceiptItemQty = false;
       });
+
+      try {
+        final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
+        final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+        List<DownPaymentEntity> dpList = context.read<ReceiptCubit>().state.downPayments ?? [];
+        List<String> docnumList = [];
+        if (dpList.isNotEmpty) {
+          for (DownPaymentEntity dp in dpList) {
+            if (dp.isSelected == true && dp.isReceive == false) {
+              docnumList.add(dp.refpos2 ?? "");
+            }
+          }
+
+          if (user != null) {
+            String checkLock = await GetIt.instance<InvoiceApi>().lockInvoice(user.docId, docnumList);
+
+            if (checkLock != 'Lock Down Payment success') {
+              SnackBarHelper.presentErrorSnackBar(
+                  context, "Failed to process DP Transaction. Please check your connection and try again");
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        return;
+      }
 
       await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
 
@@ -4131,5 +4265,16 @@ class _SalesPageState extends State<SalesPage> {
         ),
       ),
     );
+  }
+
+  Future<bool> checkItemDP() async {
+    final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+
+    final hasPositiveQuantity = receiptItems.any((item) => item.quantity > 0);
+
+    final hasItemDP =
+        receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
+
+    return hasPositiveQuantity && hasItemDP;
   }
 }
