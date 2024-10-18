@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
@@ -314,7 +314,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
               const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
-                  "Search Shift",
+                  "Search Invoice",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -329,7 +329,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                       style: const TextStyle(fontSize: 18),
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(8),
-                        hintText: "Type Shift Document Number",
+                        hintText: "Type Invoice Document Number",
                         hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
                         border: OutlineInputBorder(
                           borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
@@ -348,12 +348,16 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                         });
                       },
                       onEditingComplete: () async {
-                        final shiftsSearched = await _searchInvoiceDetail(_invvoiceDocNumTextController.text);
-                        setState(() {
-                          invoiceFound = shiftsSearched;
-                          showInvoice = false;
-                        });
-                        FocusManager.instance.primaryFocus?.unfocus();
+                        try {
+                          final shiftsSearched = await _searchInvoiceDetail(_invvoiceDocNumTextController.text);
+                          setState(() {
+                            invoiceFound = shiftsSearched;
+                            showInvoice = false;
+                          });
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        } catch (e) {
+                          SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                        }
                       },
                       onTapOutside: (event) {
                         FocusManager.instance.primaryFocus?.unfocus();
@@ -376,11 +380,16 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                         overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
                       ),
                       onPressed: () async {
-                        final shiftsSearched = await _searchInvoiceDetail(_invvoiceDocNumTextController.text);
-                        setState(() {
-                          invoiceFound = shiftsSearched;
-                          showInvoice = false;
-                        });
+                        try {
+                          final shiftsSearched = await _searchInvoiceDetail(_invvoiceDocNumTextController.text);
+
+                          setState(() {
+                            invoiceFound = shiftsSearched;
+                            showInvoice = false;
+                          });
+                        } catch (e) {
+                          SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                        }
                       },
                       child: const Icon(
                         Icons.search_outlined,
