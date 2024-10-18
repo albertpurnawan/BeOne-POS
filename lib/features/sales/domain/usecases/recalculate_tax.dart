@@ -25,8 +25,8 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
         .fold<double>(0, (previousValue, element) => previousValue + element);
     final double returnTax = returnAmountNet - returnAmountGross;
 
-    log("returnAmountNet: $returnAmountNet");
-    log("returnAmountGross: $returnAmountGross");
+    // log("returnAmountNet: $returnAmountNet");
+    // log("returnAmountGross: $returnAmountGross");
 
     double subtotal = params.subtotal + dpAmount;
     double discHeaderManual = params.discHeaderManual ?? 0.0;
@@ -37,13 +37,13 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
     double discAmountAfterHeaderDiscount = 0;
     double couponDiscPrctg = (params.couponDiscount) / (subtotal - (params.discAmount ?? 0) - returnAmountGross);
 
-    log("params.subtotal ${params.subtotal}");
-    log("discHeaderManual: $discHeaderManual");
-    log("grandTotal: $grandTotal");
-    log("discHprctg: $discHprctg");
-    log("taxAfterHeaderDiscount: $taxAfterHeaderDiscount");
-    log("discAmountAfterHeaderDiscount: $discAmountAfterHeaderDiscount");
-    log("couponDiscPrctg: $couponDiscPrctg");
+    // log("params.subtotal ${params.subtotal}");
+    // log("discHeaderManual: $discHeaderManual");
+    // log("grandTotal: $grandTotal");
+    // log("discHprctg: $discHprctg");
+    // log("taxAfterHeaderDiscount: $taxAfterHeaderDiscount");
+    // log("discAmountAfterHeaderDiscount: $discAmountAfterHeaderDiscount");
+    // log("couponDiscPrctg: $couponDiscPrctg");
 
     for (final item in params.receiptItems.map((e) => e.copyWith())) {
       if (item.itemEntity.barcode != "99" && item.refpos3 == null) {
@@ -58,11 +58,11 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
         discAmountAfterHeaderDiscount += (item.discAmount ?? 0) + (item.discHeaderAmount ?? 0);
       }
 
-      log("item.discHeaderAmount ${item.discHeaderAmount}");
-      log("item.subtotalAfterDiscHeader ${item.subtotalAfterDiscHeader}");
-      log("item.taxAmount ${item.taxAmount}");
-      log("taxAfterHeaderDiscount ${taxAfterHeaderDiscount}");
-      log("item.discHeaderAmount ${item.discHeaderAmount}");
+      // log("item.discHeaderAmount ${item.discHeaderAmount}");
+      // log("item.subtotalAfterDiscHeader ${item.subtotalAfterDiscHeader}");
+      // log("item.taxAmount ${item.taxAmount}");
+      // log("taxAfterHeaderDiscount ${taxAfterHeaderDiscount}");
+      // log("item.discHeaderAmount ${item.discHeaderAmount}");
     }
 
     params.taxAmount = returnTax + taxAfterHeaderDiscount;
@@ -71,12 +71,12 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
     params.discPrctg = (params.discAmount ?? 0) / (params.subtotal == 0 ? 1 : params.subtotal);
     params.grandTotal = params.subtotal - (params.discAmount ?? 0) - params.couponDiscount + params.taxAmount;
 
-    log("{params.taxAmount}: ${params.taxAmount}");
-    log("{params.subtotal}: ${params.subtotal}");
-    log("{params.grandTotal}: ${params.grandTotal}");
-    log("{params.discAmount}: ${params.discAmount}");
-    log("{params.couponDiscount}: ${params.couponDiscount}");
-    log("{params.discPrctg}: ${params.discPrctg}");
+    // log("{params.taxAmount}: ${params.taxAmount}");
+    // log("{params.subtotal}: ${params.subtotal}");
+    // log("{params.grandTotal}: ${params.grandTotal}");
+    // log("{params.discAmount}: ${params.discAmount}");
+    // log("{params.couponDiscount}: ${params.couponDiscount}");
+    // log("{params.discPrctg}: ${params.discPrctg}");
 
     return params;
   }

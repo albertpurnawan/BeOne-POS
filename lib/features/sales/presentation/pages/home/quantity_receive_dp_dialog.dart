@@ -24,7 +24,16 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.f12) {
-        context.pop(Helpers.revertMoneyToDecimalFormat(_textEditingControllerQuantity.text));
+        if (_textEditingControllerQuantity.text == '0') {
+          setState(() {
+            isZero = true;
+          });
+          return KeyEventResult.handled;
+        }
+        setState(() {
+          isZero = false;
+        });
+        context.pop(_textEditingControllerQuantity.text);
         return KeyEventResult.handled;
       }
       return KeyEventResult.ignored;

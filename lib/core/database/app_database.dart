@@ -3619,30 +3619,6 @@ CREATE TABLE $tableDuitkuVAAssignStore (
   $createdAtDefinition
 )
 """);
-        await txn.execute("""
-CREATE TABLE $tableDuitkuVADetails (
-  $uuidDefinition,
-  ${DuitkuVADetailsFields.createDate} datetime DEFAULT NULL,
-  ${DuitkuVADetailsFields.updateDate} datetime DEFAULT NULL,
-  ${DuitkuVADetailsFields.paymentMethod} varchar(5) NOT NULL,
-  ${DuitkuVADetailsFields.paymentName} text NOT NULL,
-  ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
-  ${DuitkuVADetailsFields.totalFee} int NOT NULL,
-  ${DuitkuVADetailsFields.statusActive} int NOT NULL,
-  $createdAtDefinition
-)
-""");
-
-        await txn.execute("""
-CREATE TABLE $tableDuitkuVAAssignStore (
-  $uuidDefinition,
-  ${DuitkuVAAssignStoreFields.createDate} datetime DEFAULT NULL,
-  ${DuitkuVAAssignStoreFields.updateDate} datetime DEFAULT NULL,
-  ${DuitkuVAAssignStoreFields.tovalId} text DEFAULT NULL,
-  ${DuitkuVAAssignStoreFields.tostrId} text DEFAULT NULL,
-  $createdAtDefinition
-)
-""");
 
         await txn.execute(createTinv7);
       });
