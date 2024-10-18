@@ -55,6 +55,7 @@ class ReturnReceiptRepositoryImpl implements ReturnReceiptRepository {
         storeMasterEntity: storeMasterEntity,
         receiptEntity: returnReceiptRemoteModel,
         transDateTime: returnReceiptRemoteModel.transDateTime!,
+        timezone: returnReceiptRemoteModel.timezone,
       );
 
       return returnReceiptModel;

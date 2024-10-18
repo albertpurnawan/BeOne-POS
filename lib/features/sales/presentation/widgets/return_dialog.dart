@@ -34,6 +34,8 @@ class _ReturnDialogState extends State<ReturnDialog> {
   final FocusNode _searchReturnedItemsInputFocusNode = FocusNode();
   final TextEditingController _searchReturnedItemsInputTextController = TextEditingController();
 
+  final FocusScopeNode _focusScopeNode = FocusScopeNode();
+
   ReturnReceiptEntity? returnReceiptEntity;
   List<ReceiptItemEntity> availableReceiptItems = [];
   List<ReceiptItemEntity> returnedReceiptItems = [];
@@ -58,27 +60,27 @@ class _ReturnDialogState extends State<ReturnDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: FocusNode(
-        canRequestFocus: false,
-        skipTraversal: true,
-        onKeyEvent: (node, event) {
-          if (event.runtimeType == KeyUpEvent) {
-            return KeyEventResult.handled;
-          }
+    return FocusScope(
+      autofocus: true,
+      skipTraversal: true,
+      node: _focusScopeNode,
+      onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyUpEvent) {
+          return KeyEventResult.handled;
+        }
 
-          if (event.physicalKey == PhysicalKeyboardKey.escape) {
-            Navigator.of(context).pop();
-            return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
-            _saveReturnedReceiptItems().then((value) {
-              if (value == true) context.pop(true);
-            });
-          }
+        if (event.physicalKey == PhysicalKeyboardKey.escape) {
+          Navigator.of(context).pop();
+          return KeyEventResult.handled;
+        } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
+          _saveReturnedReceiptItems().then((value) {
+            if (value == true) context.pop(true);
+          });
+          return KeyEventResult.handled;
+        }
 
-          return KeyEventResult.ignored;
-        },
-      ),
+        return KeyEventResult.ignored;
+      },
       child: AlertDialog(
         backgroundColor: const Color.fromARGB(255, 244, 244, 244),
         surfaceTintColor: Colors.transparent,
@@ -203,7 +205,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                 Text(
                                   returnReceiptEntity == null
                                       ? "-"
-                                      : Helpers.dateddMMMyyyyHHmmss(returnReceiptEntity!.transDateTime),
+                                      : "${Helpers.dateddMMMyyyyHHmmss(returnReceiptEntity!.transDateTime)} (${returnReceiptEntity!.timezone})",
                                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
@@ -415,13 +417,16 @@ class _ReturnDialogState extends State<ReturnDialog> {
                   overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () async {
                 try {
+                  int count = 0;
                   for (final availableReceiptItem in availableReceiptItems) {
-                    if (availableReceiptItem.quantity < 0) continue;
+                    if (availableReceiptItem.quantity < 0 || availableReceiptItem.itemEntity.barcode == "99") continue;
                     await _saveDraftReturnedReceiptItems(
                         availableReceiptItem.copyWith(quantity: _getRemainingQty(availableReceiptItem)),
                         isSnackbarActive: false);
+                    count++;
                   }
-                  SnackBarHelper.presentSuccessSnackBar(context, "Add return items success", null);
+                  SnackBarHelper.presentSuccessSnackBar(
+                      context, "${count}/${availableReceiptItems.length} items added to Return Items", null);
                 } catch (e) {
                   SnackBarHelper.presentSuccessSnackBar(context, "One or more items failed to add", null);
                 }
@@ -542,7 +547,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                       shadowColor: Colors.grey[50],
                       child: InkWell(
                         focusColor: const Color.fromARGB(255, 237, 200, 200),
-                        onTap: _getRemainingQty(e) <= 0
+                        onTap: _getRemainingQty(e) <= 0 || e.itemEntity.barcode == "99"
                             ? () {}
                             : () async {
                                 final double? returnedQuantity = await showDialog<double>(
@@ -623,13 +628,13 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                     const SizedBox(
                                       height: 17,
                                     ),
-                                    if (_getRemainingQty(e) > 0)
+                                    if (_getRemainingQty(e) > 0 && e.itemEntity.barcode != "99")
                                       const Icon(
                                         Icons.arrow_forward_rounded,
                                         size: 20,
                                         color: ProjectColors.green,
                                       ),
-                                    if (_getRemainingQty(e) <= 0)
+                                    if (_getRemainingQty(e) <= 0 || e.itemEntity.barcode == "99")
                                       const SizedBox(
                                         width: 20,
                                       )

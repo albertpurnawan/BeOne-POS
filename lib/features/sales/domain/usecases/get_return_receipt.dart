@@ -19,6 +19,7 @@ class GetReturnReceiptUseCase implements UseCase<ReturnReceiptEntity, String> {
         customerEntity: returnReceiptModel.customerEntity,
         storeMasterEntity: returnReceiptModel.storeMasterEntity,
         transDateTime: returnReceiptModel.transDateTime,
+        timezone: returnReceiptModel.timezone,
       );
     } catch (e) {
       rethrow;

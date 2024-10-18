@@ -6,6 +6,7 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 class ReturnReceiptRemoteModel extends ReceiptEntity implements BaseModel {
   final String custCode;
   final String storeCode;
+  final String timezone;
 
   ReturnReceiptRemoteModel({
     required super.docNum,
@@ -20,9 +21,15 @@ class ReturnReceiptRemoteModel extends ReceiptEntity implements BaseModel {
     super.promos = const [],
     required this.custCode,
     required this.storeCode,
+    required this.timezone,
   });
 
   factory ReturnReceiptRemoteModel.fromMapRemote(Map<String, dynamic> map) {
+    final DateTime transDate = DateTime.parse(map['data'][0]['transdate'] as String);
+    final DateTime transTime = DateTime.parse(map['data'][0]['transtime'] as String);
+    final DateTime transDateTime =
+        DateTime(transDate.year, transDate.month, transDate.day, transTime.hour, transTime.minute, transTime.second);
+
     return ReturnReceiptRemoteModel(
       docNum: map['data'][0]['docnum'] as String,
       receiptItems: (map['data'] as List).map((e) {
@@ -62,7 +69,7 @@ class ReturnReceiptRemoteModel extends ReceiptEntity implements BaseModel {
         );
       }).toList(),
       transStart: DateTime.now(),
-      transDateTime: DateTime.parse(map['data'][0]['transdate'] as String).toLocal(),
+      transDateTime: transDateTime,
       grandTotal: map['data'][0]['grandtotal'].toDouble(),
       vouchers: const [],
       promos: const [],
@@ -71,6 +78,7 @@ class ReturnReceiptRemoteModel extends ReceiptEntity implements BaseModel {
       totalTax: 0,
       custCode: map['data'][0]['custcode'] as String,
       storeCode: map['data'][0]['storecode'] as String,
+      timezone: map['data'][0]['timezone'] as String,
     );
   }
 }

@@ -26,6 +26,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
   ItemEntity? selectedItem;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textEditingController = TextEditingController();
+  final FocusScopeNode _focusScopeNode = FocusScopeNode();
 
   @override
   void dispose() {
@@ -37,42 +38,40 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: FocusNode(
-        canRequestFocus: false,
-        onKeyEvent: (node, event) {
-          if (event.runtimeType == KeyUpEvent) {
+    return FocusScope(
+      node: _focusScopeNode,
+      onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyUpEvent) {
+          return KeyEventResult.handled;
+        }
+
+        if (event.character != null &&
+            RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(event.character!) &&
+            !_searchInputFocusNode.hasPrimaryFocus) {
+          _searchInputFocusNode.unfocus();
+          _textEditingController.text += event.character!;
+          _searchInputFocusNode.requestFocus();
+          return KeyEventResult.handled;
+        } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _searchInputFocusNode.hasPrimaryFocus) {
+          _searchInputFocusNode.nextFocus();
+          return KeyEventResult.handled;
+        } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
+          _searchInputFocusNode.unfocus();
+          FocusManager.instance.primaryFocus?.unfocus();
+
+          if (radioValue == null) {
+            context.pop(null);
             return KeyEventResult.handled;
           }
+          context.pop(radioValue);
+          return KeyEventResult.handled;
+        } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+          Navigator.of(context).pop();
+          return KeyEventResult.handled;
+        }
 
-          if (event.character != null &&
-              RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(event.character!) &&
-              !_searchInputFocusNode.hasPrimaryFocus) {
-            _searchInputFocusNode.unfocus();
-            _textEditingController.text += event.character!;
-            _searchInputFocusNode.requestFocus();
-            return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _searchInputFocusNode.hasPrimaryFocus) {
-            _searchInputFocusNode.nextFocus();
-            return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
-            _searchInputFocusNode.unfocus();
-            FocusManager.instance.primaryFocus?.unfocus();
-
-            if (radioValue == null) {
-              context.pop(null);
-              return KeyEventResult.handled;
-            }
-            context.pop(radioValue);
-            return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
-            Navigator.of(context).pop();
-            return KeyEventResult.handled;
-          }
-
-          return KeyEventResult.ignored;
-        },
-      ),
+        return KeyEventResult.ignored;
+      },
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
