@@ -314,7 +314,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
               const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
-                  "Search Shift",
+                  "Search Invoice",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -329,7 +329,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                       style: const TextStyle(fontSize: 18),
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(8),
-                        hintText: "Type Shift Document Number",
+                        hintText: "Type Invoice Document Number",
                         hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
                         border: OutlineInputBorder(
                           borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),

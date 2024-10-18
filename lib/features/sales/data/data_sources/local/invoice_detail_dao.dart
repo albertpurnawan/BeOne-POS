@@ -94,7 +94,7 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
   Future<List<InvoiceDetailModel>?> readByRefpos2(String docNum, Transaction? txn) async {
     final res = await db.rawQuery('''
       SELECT x0.* FROM tinv1 AS x0 INNER JOIN toinv AS x1 ON x0.toinvId = x1.docid
-        WHERE x1.synctobos = "" AND x0.quantity = -1
+        WHERE x1.synctobos = "" AND x0.quantity = -1 AND x1.docnum LIKE '%$docNum%'
     ''');
 
     List<InvoiceDetailModel> transactions = [];

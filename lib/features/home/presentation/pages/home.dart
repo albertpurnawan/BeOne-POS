@@ -110,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> countTotalInvoice() async {
     final invoices = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
-    final toinvSyncedCount = invoices.where((invoice) => invoice.syncToBos != null).length;
+    final toinvSyncedCount = invoices.where((invoice) => (invoice.syncToBos != null && invoice.syncToBos != "")).length;
     setState(() {
       totalToinvSynced = toinvSyncedCount;
       totalToinvs = invoices.length;
