@@ -6,11 +6,11 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
-import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -415,6 +415,8 @@ class InvoiceApi {
 
       // log("$invHead");
       // log("$invDet");
+      final invDetWithQtyBarcode =
+          await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvIdAddQtyBarcode(invHead.docId.toString());
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead.docId.toString());
       log("paymean - $payMean");
@@ -561,7 +563,59 @@ class InvoiceApi {
         approvals.add(tinv6Maps);
       }
 
-      List<DownPaymentItemsModel> dpItems = [];
+      final tinv7s = await GetIt.instance<AppDatabase>().downPaymentItemsDao.readByToinvId(invHead.docId!, null);
+      log("tinv7s - $tinv7s");
+      final List<Map<String, dynamic>> downPaymentItems = [];
+
+      for (final tinv7 in tinv7s) {
+        downPaymentItems.add({
+          "docnum": invHead.docnum,
+          "idnumber": tinv7!.idNumber,
+          "toitm_id": tinv7.toitmId,
+          "quantity": tinv7.quantity,
+          "sellingprice": tinv7.sellingPrice.round(),
+          "discprctg": 0,
+          "discamount": 0,
+          "totalamount": tinv7.totalAmount,
+          "taxprctg": 0,
+          "promotiontype": "",
+          "promotionid": "",
+          "remarks": tinv7.remarks ?? "",
+          "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(DateTime.now()),
+          "cogs": 0,
+          "tovat_id": tinv7.tovatId,
+          "promotiontingkat": "",
+          "promovoucherno": "",
+          "includetax": tinv7.includeTax,
+          "toven_id": tinv7.tovenId,
+          "tbitm_id": tinv7.tbitmId,
+          "qtybarcode": tinv7.quantity,
+          "sellpricebarcode": 0.0,
+          "totalsellbarcode": 0.0,
+          "disc1pct": 0.0,
+          "disc1amt": 0.0,
+          "disc2pct": 0.0,
+          "disc2amt": 0.0,
+          "disc3pct": 0.0,
+          "disc3amt": 0.0,
+          "disc1pctbarcode": 0.0,
+          "disc1amtbarcode": 0.0,
+          "disc2pctbarcode": 0.0,
+          "disc2amtbarcode": 0.0,
+          "disc3pctbarcode": 0.0,
+          "disc3amtbarcode": 0.0,
+          "totaldiscbarcode": 0.0,
+          "qtyconv": tinv7.quantity,
+          "discprctgmember": 0.0,
+          "discamountmember": 0.0,
+          "tohem_id": tinv7.tohemId,
+          "refpos2": tinv7.refpos2 ?? "",
+          "promotion": []
+        });
+      }
+
+      final List<String> docnums = [];
+      final itemDP = await GetIt.instance<GetDownPaymentUseCase>().call();
 
       final dataToSend = {
         "tostr_id": invHead.tostrId,
@@ -600,34 +654,40 @@ class InvoiceApi {
         "tocsr_id": invHead.tocsrId,
         "toinv_tohem_id": invHead.toinvTohemId,
         "refpos1": invHead.refpos1,
-        "invoice_item": invDet.map((item) {
+        "invoice_item": invDetWithQtyBarcode.map((item) {
+          if (itemDP != null && itemDP.toitmId == item['toitmId'] && item['quantity'] == -1) {
+            docnums.add(item['refpos2']);
+          }
+          log("docnums - $docnums");
+
           List<Map<String, dynamic>> filteredPromotions = promotionsDetail.where((promo) {
-            return promo['tinv1docid'] == item.docId;
+            return promo['tinv1docid'] == item['docId'];
           }).toList();
           return {
-            "docnum": item.docNum,
-            "idnumber": item.idNumber,
-            "toitm_id": item.toitmId,
-            "quantity": item.quantity,
-            "sellingprice": item.sellingPrice.round(),
-            "discprctg": item.discPrctg,
-            "discamount": item.discAmount,
+            "docnum": item['docnum'],
+            "idnumber": item['idnumber'],
+            "toitm_id": item['toitmId'],
+            "quantity": item['quantity'],
+            "sellingprice": item['sellingprice'].round(),
+            "discprctg": item['discprctg'],
+            "discamount": item['discamount'],
             "totalamount":
-                ((item.discAmount * item.sellingPrice * (100 / (100 + item.taxPrctg))) - item.discAmount).round(),
-            "taxprctg": item.taxPrctg,
-            "promotiontype": item.promotionType,
-            "promotionid": item.promotionId,
-            "remarks": item.remarks ?? "",
+                ((item['quantity'] * item['sellingprice'] * (100 / (100 + item['taxprctg']))) - item['discamount'])
+                    .round(),
+            "taxprctg": item['taxprctg'],
+            "promotiontype": item['promotiontype'],
+            "promotionid": item['promotionid'],
+            "remarks": item['remarks'] ?? "",
             "edittime": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                .format(DateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(item.editTime.toString())),
-            "cogs": item.cogs,
-            "tovat_id": item.tovatId,
-            "promotiontingkat": item.promotionTingkat ?? "",
-            "promovoucherno": item.promoVoucherNo ?? "",
-            "includetax": item.includeTax,
-            "toven_id": item.tovenId,
-            "tbitm_id": item.tbitmId,
-            "qtybarcode": item.quantity, // quantity barcode scanned x times
+                .format(DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(item['edittime'])),
+            "cogs": item['cogs'],
+            "tovat_id": item['tovatId'],
+            "promotiontingkat": item['promotiontingkat'] ?? "",
+            "promovoucherno": item['promovoucherno'] ?? "",
+            "includetax": item['includetax'],
+            "toven_id": item['tovenId'],
+            "tbitm_id": item['tbitmId'],
+            "qtybarcode": item['quantity'], // quantity barcode scanned x times
             "sellpricebarcode": 0.0,
             "totalsellbarcode": 0.0,
             "disc1pct": 0.0,
@@ -643,21 +703,24 @@ class InvoiceApi {
             "disc3pctbarcode": 0.0,
             "disc3amtbarcode": 0.0,
             "totaldiscbarcode": 0.0,
-            "qtyconv": item.quantity, // qtybarcode * qtytbitm? item['qtybarcode'] *
+            "qtyconv": item['qtybarcode'] * item['quantity'], // qtybarcode * qtytbitm?
             "discprctgmember": 0.0,
             "discamountmember": 0.0,
-            "tohem_id": (item.tohemId == "") ? invHead.salesTohemId : item.tohemId,
-            "refpos2": item.refpos2,
+            "tohem_id": (item['tohemId'] == "") ? invHead.salesTohemId : item['tohemId'],
+            "refpos2": item['refpos2'],
             "promotion": filteredPromotions
           };
         }).toList(),
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
         "approval": approvals,
-        "downpayment_item": dpItems,
+        "downpayment_docnums": docnums,
       };
       if (invHead.salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead.salesTohemId;
+      }
+      if (tinv7s.isNotEmpty) {
+        dataToSend["downpayment_item"] = downPaymentItems;
       }
 
       log("Data2Send: ${jsonEncode(dataToSend)}");

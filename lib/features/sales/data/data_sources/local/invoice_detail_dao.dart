@@ -90,4 +90,17 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
         AND toinvId = ?
     ''', [start.toString(), end.toString(), toinvId]);
   }
+
+  Future<List<InvoiceDetailModel>?> readByRefpos2(String docNum, Transaction? txn) async {
+    final res = await db.rawQuery('''
+      SELECT x0.* FROM tinv1 AS x0 INNER JOIN toinv AS x1 ON x0.toinvId = x1.docid
+        WHERE x1.synctobos = "" AND x0.quantity = -1
+    ''');
+
+    List<InvoiceDetailModel> transactions = [];
+    if (res.isNotEmpty) {
+      transactions = res.map((map) => InvoiceDetailModel.fromMap(map)).toList();
+    }
+    return transactions;
+  }
 }
