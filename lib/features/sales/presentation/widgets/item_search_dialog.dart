@@ -38,87 +38,92 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return FocusScope(
-      node: _focusScopeNode,
-      onKeyEvent: (node, event) {
-        if (event.runtimeType == KeyUpEvent) {
-          return KeyEventResult.handled;
-        }
+    return ScaffoldMessenger(
+      child: Builder(builder: (childContext) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: FocusScope(
+            node: _focusScopeNode,
+            onKeyEvent: (node, event) {
+              if (event.runtimeType == KeyUpEvent) {
+                return KeyEventResult.handled;
+              }
 
-        if (event.character != null &&
-            RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(event.character!) &&
-            !_searchInputFocusNode.hasPrimaryFocus) {
-          _searchInputFocusNode.unfocus();
-          _textEditingController.text += event.character!;
-          _searchInputFocusNode.requestFocus();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _searchInputFocusNode.hasPrimaryFocus) {
-          _searchInputFocusNode.nextFocus();
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
-          _searchInputFocusNode.unfocus();
-          FocusManager.instance.primaryFocus?.unfocus();
+              if (event.character != null &&
+                  RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(event.character!) &&
+                  !_searchInputFocusNode.hasPrimaryFocus) {
+                _searchInputFocusNode.unfocus();
+                _textEditingController.text += event.character!;
+                _searchInputFocusNode.requestFocus();
+                return KeyEventResult.handled;
+              } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _searchInputFocusNode.hasPrimaryFocus) {
+                _searchInputFocusNode.nextFocus();
+                return KeyEventResult.handled;
+              } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
+                _searchInputFocusNode.unfocus();
+                FocusManager.instance.primaryFocus?.unfocus();
 
-          if (radioValue == null) {
-            context.pop(null);
-            return KeyEventResult.handled;
-          }
-          context.pop(radioValue);
-          return KeyEventResult.handled;
-        } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
-          Navigator.of(context).pop();
-          return KeyEventResult.handled;
-        }
+                if (radioValue == null) {
+                  context.pop(null);
+                  return KeyEventResult.handled;
+                }
+                context.pop(radioValue);
+                return KeyEventResult.handled;
+              } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+                Navigator.of(context).pop();
+                return KeyEventResult.handled;
+              }
 
-        return KeyEventResult.ignored;
-      },
-      child: AlertDialog(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-        title: Container(
-          decoration: const BoxDecoration(
-            color: ProjectColors.primary,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-          ),
-          padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-          child: const Text(
-            'Item Search',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-          ),
-        ),
-        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        contentPadding: const EdgeInsets.all(0),
-        content: Theme(
-          data: ThemeData(
-            splashColor: const Color.fromARGB(40, 169, 0, 0),
-            highlightColor: const Color.fromARGB(40, 169, 0, 0),
-            colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
-            fontFamily: 'Roboto',
-            useMaterial3: true,
-          ),
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.65,
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  color: Colors.white,
-                  height: 15,
+              return KeyEventResult.ignored;
+            },
+            child: AlertDialog(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              title: Container(
+                decoration: const BoxDecoration(
+                  color: ProjectColors.primary,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextField(
-                    textInputAction: TextInputAction.search,
-                    controller: _textEditingController,
-                    onSubmitted: (value) {
-                      // log("value - $value");
-                      try {
-                        if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
-                        context.read<ItemsCubit>().getItems(
-                            searchKeyword: value, customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
-                        _searchInputFocusNode.requestFocus();
+                padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                child: const Text(
+                  'Item Search',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                ),
+              ),
+              titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              contentPadding: const EdgeInsets.all(0),
+              content: Theme(
+                data: ThemeData(
+                  splashColor: const Color.fromARGB(40, 169, 0, 0),
+                  highlightColor: const Color.fromARGB(40, 169, 0, 0),
+                  colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
+                  fontFamily: 'Roboto',
+                  useMaterial3: true,
+                ),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.65,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        color: Colors.white,
+                        height: 15,
+                      ),
+                      Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: TextField(
+                          textInputAction: TextInputAction.search,
+                          controller: _textEditingController,
+                          onSubmitted: (value) {
+                            // log("value - $value");
+                            try {
+                              if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
+                              context.read<ItemsCubit>().getItems(
+                                  searchKeyword: value,
+                                  customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
+                              _searchInputFocusNode.requestFocus();
 
                               if (_scrollController.hasClients) {
                                 Future.delayed(const Duration(milliseconds: 300)).then((value) {
