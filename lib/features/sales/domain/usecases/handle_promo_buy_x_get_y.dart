@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:developer';
 
 import 'package:pos_fe/core/resources/promotion_detail.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';

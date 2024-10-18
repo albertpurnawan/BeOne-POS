@@ -368,11 +368,9 @@ class _SettingsFormState extends State<SettingsForm> {
 
                         final token = await GetIt.instance<TokenApi>()
                             .getToken(urlController.text, emailController.text, passwordController.text);
-
                         final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
                         final encryptToken = await encryptPasswordUseCase.call(params: token);
                         prefs.setString('adminToken', encryptToken);
-
                         Navigator.pop(context, true);
                       } catch (e, s) {
                         ErrorHandler.presentErrorSnackBar(context, "$e $s");

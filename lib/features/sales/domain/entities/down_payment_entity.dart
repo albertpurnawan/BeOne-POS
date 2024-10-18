@@ -9,6 +9,7 @@ class DownPaymentEntity {
   final String? refpos2;
   final String? toinvDocId;
   final double amount;
+  final String? refpos3;
   final List<DownPaymentItemsEntity>? tinv7;
   final List<ItemEntity>? tempItems;
   final bool? isReceive;
@@ -18,6 +19,7 @@ class DownPaymentEntity {
     this.refpos2,
     this.toinvDocId,
     required this.amount,
+    this.refpos3,
     this.tinv7,
     this.tempItems,
     this.isReceive,
@@ -28,6 +30,7 @@ class DownPaymentEntity {
     String? refpos2,
     String? toinvDocId,
     double? amount,
+    String? refpos3,
     List<DownPaymentItemsEntity>? tinv7,
     List<ItemEntity>? tempItems,
     bool? isReceive,
@@ -37,6 +40,7 @@ class DownPaymentEntity {
       refpos2: refpos2 ?? this.refpos2,
       toinvDocId: toinvDocId ?? this.toinvDocId,
       amount: amount ?? this.amount,
+      refpos3: refpos3 ?? this.refpos3,
       tinv7: tinv7 ?? this.tinv7,
       tempItems: tempItems ?? this.tempItems,
       isReceive: isReceive ?? this.isReceive,
@@ -49,6 +53,7 @@ class DownPaymentEntity {
       'refpos2': refpos2,
       'toinvDocId': toinvDocId,
       'amount': amount,
+      'refpos3': refpos3,
       'tinv7': tinv7?.map((x) => x.toMap()).toList(),
       'tempItems': tempItems?.map((x) => x.toMap()).toList(),
       'isReceive': isReceive,
@@ -61,6 +66,7 @@ class DownPaymentEntity {
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       toinvDocId: map['toinvDocId'] != null ? map['toinvDocId'] as String : null,
       amount: map['amount'] as double,
+      refpos3: map['refpos3'] != null ? map['refpos3'] as String : null,
       tinv7: map['tinv7'] != null
           ? List<DownPaymentItemsEntity>.from(
               (map['tinv7'] as List<dynamic>).map<DownPaymentItemsEntity?>(
@@ -87,7 +93,7 @@ class DownPaymentEntity {
 
   @override
   String toString() {
-    return 'DownPaymentEntity(refpos2: $refpos2, toinvDocId: $toinvDocId, amount: $amount, tinv7: $tinv7, tempItems: $tempItems, isReceive: $isReceive, isSelected: $isSelected)';
+    return 'DownPaymentEntity(refpos2: $refpos2, toinvDocId: $toinvDocId, amount: $amount, tinv7: $tinv7, tempItems: $tempItems, isReceive: $isReceive, isSelected: $isSelected), refpos3: $refpos3';
   }
 
   @override
@@ -97,6 +103,7 @@ class DownPaymentEntity {
     return other.refpos2 == refpos2 &&
         other.toinvDocId == toinvDocId &&
         other.amount == amount &&
+        other.refpos3 == refpos3 &&
         listEquals(other.tinv7, tinv7) &&
         listEquals(other.tempItems, tempItems) &&
         other.isReceive == isReceive &&
@@ -108,6 +115,7 @@ class DownPaymentEntity {
     return refpos2.hashCode ^
         toinvDocId.hashCode ^
         amount.hashCode ^
+        refpos3.hashCode ^
         tinv7.hashCode ^
         tempItems.hashCode ^
         isReceive.hashCode ^

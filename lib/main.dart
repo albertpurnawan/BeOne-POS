@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:pos_fe/core/widgets/restart_widget.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
@@ -44,6 +44,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/cubit/return_receipt_cubit.dart';
 import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,11 +77,11 @@ void main() async {
   //   },
   //   appRunner: () => runApp(const MyApp()),
   // );
-  // FlutterError.onError = (details) {
-  //   FlutterError.presentError(details);
-  //   log(details.toString());
-  //   // if (kReleaseMode) exit(1);
-  // };
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    log(details.toString());
+    // if (kReleaseMode) exit(1);
+  };
   runApp(const MyApp());
 }
 
@@ -142,6 +143,7 @@ class MyApp extends StatelessWidget {
             BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
             BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
             BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
+            BlocProvider<ReturnReceiptCubit>(create: (context) => ReturnReceiptCubit()),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {

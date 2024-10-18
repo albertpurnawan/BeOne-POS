@@ -200,7 +200,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                       child: InkWell(
                                         customBorder: const CircleBorder(),
                                         onTap: () async {
-                                          GetIt.instance<DeleteQueuedReceiptUseCase>()
+                                          await GetIt.instance<DeleteQueuedReceiptUseCase>()
                                               .call(params: queuedReceipt.toinvId);
                                           await getQueuedReceipts();
                                         },

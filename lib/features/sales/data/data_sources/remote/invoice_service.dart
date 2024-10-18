@@ -45,7 +45,7 @@ class InvoiceApi {
         for (var entry in payMean) {
           switch (entry['paytypecode']) {
             case "1": // TUNAI
-              if (entry['amount'] < 0) break;
+              // if (entry['amount'] < 0) break;
               if (entry['amount'] == 0 && invHead[0].grandTotal != 0) {
                 invoicePayments.add({
                   "tpmt3_id": entry['tpmt3Id'],
@@ -322,6 +322,7 @@ class InvoiceApi {
             "discamountmember": 0.0,
             "tohem_id": (item['tohemId'] == "") ? invHead[0].salesTohemId : item['tohemId'],
             "refpos2": item['refpos2'],
+            "refpos3": item['refpos3'],
             "promotion": filteredPromotions
           };
         }).toList(),
@@ -400,7 +401,11 @@ class InvoiceApi {
               data: invHeaderSuccess,
             );
       }
+      // handle duplicate send invoice
     } catch (err) {
+      if (err is DioException) {
+        log("error response data ${err.response?.data}");
+      }
       handleError(err);
       rethrow;
     }
@@ -707,6 +712,7 @@ class InvoiceApi {
             "discamountmember": 0.0,
             "tohem_id": (item['tohemId'] == "") ? invHead.salesTohemId : item['tohemId'],
             "refpos2": item['refpos2'],
+            "refpos3": item['refpos3'],
             "promotion": filteredPromotions
           };
         }).toList(),

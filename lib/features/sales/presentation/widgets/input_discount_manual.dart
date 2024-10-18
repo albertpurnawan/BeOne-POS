@@ -57,6 +57,10 @@ class _InputDiscountManualState extends State<InputDiscountManual> with SingleTi
       }
       double input = Helpers.revertMoneyToDecimalFormat(_textEditorDiscountController.text);
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
+      if (state.grandTotal < 0) {
+        context.pop();
+        throw "Discount & Rounding is inapplicable on negative grand total";
+      }
       if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
         context.pop();
         throw "Invalid discount amount";
