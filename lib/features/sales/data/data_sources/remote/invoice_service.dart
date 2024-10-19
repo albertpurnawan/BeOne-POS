@@ -811,16 +811,34 @@ class InvoiceApi {
         "docnums": docnums,
       };
 
-      Response response = await _dio.put(
-        "$url/tenant-lock-dp",
-        data: dataToSend,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      return response.data['message'];
+      try {
+        Response response = await _dio.put(
+          "$url/tenant-lock-dp",
+          data: dataToSend,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          ),
+        );
+        log("Response - ${response.data}");
+        return response.data['message'];
+      } catch (e) {
+        if (e is DioException) {
+          // DioException contains the response even for errors
+          if (e.response != null) {
+            log("Error response status: ${e.response?.statusCode}");
+            log("Error response data: ${e.response?.data}");
+            return "${e.response?.data['errors'] ?? 'Unknown error'}";
+          } else {
+            log("Error without response: ${e.message}");
+            return "${e.message}";
+          }
+        } else {
+          log("Unexpected error: $e");
+          return "Unexpected error: $e";
+        }
+      }
     } catch (e) {
       return "Error during lock invoice process: ${e.toString()}";
     }
