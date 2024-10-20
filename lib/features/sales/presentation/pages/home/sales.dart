@@ -4121,7 +4121,7 @@ class _SalesPageState extends State<SalesPage> {
 
           if (user != null) {
             String checkLock = await GetIt.instance<InvoiceApi>().lockInvoice(user.docId, docnumList);
-            if (checkLock.contains("Connection failed")) {
+            if (checkLock.contains("Connection failed") || checkLock.contains("The connection errored")) {
               SnackBarHelper.presentErrorSnackBar(
                   context, "Failed to process DP Transaction. Please check your connection and try again");
               return;
