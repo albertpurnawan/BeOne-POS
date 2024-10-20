@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -34,12 +33,10 @@ class UnlockInvoice extends StatefulWidget {
 class _UnlockInvoiceState extends State<UnlockInvoice> {
   final _formKey = GlobalKey<FormState>();
   final _invoiceDocNumTextController = TextEditingController();
-  final _fullDocNumTextController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
   final _invoiceDocNumFocusNode = FocusNode();
-  final _fullDocNumFocusNode = FocusNode();
   final _usernameFocusNode = FocusNode();
 
   List<InvoiceDetailModel>? invoiceFound;
@@ -59,11 +56,9 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   @override
   void dispose() {
     _invoiceDocNumTextController.dispose();
-    _fullDocNumTextController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
     _invoiceDocNumFocusNode.dispose();
-    _fullDocNumFocusNode.dispose();
     _usernameFocusNode.dispose();
     super.dispose();
   }
@@ -105,7 +100,6 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   }
 
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
-    log("HREEEEEEEE");
     FocusScope.of(context).unfocus();
     if (_formKey.currentState == null) return;
     if (!_formKey.currentState!.validate()) return;
@@ -220,7 +214,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
     Cashier Name: ${employee?.empName ?? user.username},
     Request Date: ${Helpers.dateEEddMMMyyy(now)},
-    Invoice Document Number: ${selectedInvoice?.refpos2 ?? ""}
+    Invoice Document Number: ${selectedInvoice?.refpos2 ?? fullDocnum}
 ''';
 
       final String subject = "OTP RUBY POS Unlock Invoice - [${store.storeCode}]";
@@ -361,6 +355,9 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                               showInvoice = false;
                             });
                           },
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(30),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 15),
@@ -405,7 +402,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   Widget _searchResult({required Function(InvoiceDetailModel?) onInvoiceSelected}) {
     final query = _invoiceDocNumTextController.text.trim();
 
-    if (query.isEmpty) return const SizedBox.shrink();
+    // if (query.isEmpty) return const SizedBox.shrink();
 
     return FutureBuilder<Map<InvoiceDetailModel, Map<String, dynamic>>>(
       future: _fetchSearchResultsWithDetails(),
@@ -415,14 +412,14 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
         // } else
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (snapshot.data == null || snapshot.data!.isEmpty && showInvoice == false) {
+        } else if (snapshot.data == null || snapshot.data!.isEmpty && showInvoice == false && query.isNotEmpty) {
           return Center(
             child: Column(
               children: [
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    "No results found.\nInput invoice number below to unlock the invoice.\nPlease make sure it's the correct invoice number!",
+                    "No results found.\nInput full invoice number to unlock the invoice.\nPlease make sure it's the correct invoice number!",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -437,71 +434,40 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: TextField(
-                          focusNode: _fullDocNumFocusNode,
-                          textAlign: TextAlign.start,
-                          controller: _fullDocNumTextController,
-                          style: const TextStyle(fontSize: 18),
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.all(10),
-                            hintText: "Type Invoice Document Number",
-                            hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                            border: OutlineInputBorder(
-                              borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                            padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
+                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                              side: const BorderSide(color: ProjectColors.primary, width: 2),
                               borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateColor.resolveWith(
+                              (states) => ProjectColors.primary,
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
+                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
                           ),
-                          onEditingComplete: () {
-                            if (_fullDocNumTextController.text == "" || _fullDocNumTextController.text.length != 24) {
-                              log(_fullDocNumTextController.text);
+                          onPressed: () {
+                            if (_invoiceDocNumTextController.text == "" ||
+                                _invoiceDocNumTextController.text.length != 24) {
+                              log(_invoiceDocNumTextController.text);
+                              _invoiceDocNumFocusNode.unfocus();
                               SnackBarHelper.presentErrorSnackBar(context, "Please input the correct invoice number");
-                              Future.delayed(const Duration(milliseconds: 200), () {
-                                _fullDocNumFocusNode.unfocus();
-                              });
                               return;
                             }
                             setState(() {
                               showInvoice = true;
-                              fullDocnum = _fullDocNumTextController.text;
+                              fullDocnum = _invoiceDocNumTextController.text;
+                              selectedInvoice = null;
                             });
                           },
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      ElevatedButton(
-                        style: ButtonStyle(
-                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            side: const BorderSide(color: ProjectColors.primary, width: 2),
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => ProjectColors.primary,
+                          child: Text(
+                            "Unlock: ${_invoiceDocNumTextController.text}",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
-                        ),
-                        onPressed: () {
-                          if (_fullDocNumTextController.text == "" || _fullDocNumTextController.text.length != 24) {
-                            log(_fullDocNumTextController.text);
-                            SnackBarHelper.presentErrorSnackBar(context, "Please input the correct invoice number");
-                            Future.delayed(const Duration(milliseconds: 200), () {
-                              _fullDocNumFocusNode.unfocus();
-                            });
-                            return;
-                          }
-                          setState(() {
-                            showInvoice = true;
-                            fullDocnum = _fullDocNumTextController.text;
-                          });
-                        },
-                        child: const Icon(
-                          Icons.lock_open_outlined,
-                          color: Colors.white,
-                          size: 25,
                         ),
                       ),
                     ],
@@ -547,7 +513,6 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   }
 
   Widget _unlockInvoice(BuildContext childContext) {
-    log("selectedInvoice - $selectedInvoice");
     final invoiceDocnum = selectedInvoice?.refpos2 ?? fullDocnum;
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.5,
