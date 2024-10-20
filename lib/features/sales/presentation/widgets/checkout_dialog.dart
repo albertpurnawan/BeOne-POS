@@ -41,6 +41,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/mop_selections_cubit.da
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_vouchers_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/duitku_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
@@ -388,7 +389,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     _keyboardListenerFocusNode.requestFocus();
   }
 
-  Future<void> applyHeaderDiscount(BuildContext childContext) async {
+  Future<void> showDiscountAndRoundingDialog(BuildContext childContext) async {
     try {
       final ReceiptItemEntity? dpItem =
           context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
@@ -397,9 +398,10 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       }
 
       await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => InputDiscountManual(docnum: context.read<ReceiptCubit>().state.docNum)).then((value) {
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => DiscountAndRoundingDialog(docnum: context.read<ReceiptCubit>().state.docNum))
+          .then((value) {
         if (value != null) {
           SnackBarHelper.presentSuccessSnackBar(
               childContext, "Header discount/rounding applied: ${Helpers.parseMoney(value)}", 3);
@@ -454,7 +456,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               node.nextFocus();
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged) {
-              applyHeaderDiscount(childContext);
+              showDiscountAndRoundingDialog(childContext);
             } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
               showAppliedPromotions().then((value) => _focusScopeNode.requestFocus());
               return KeyEventResult.handled;
@@ -507,7 +509,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   ),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
-                                onPressed: () async => await applyHeaderDiscount(childContext),
+                                onPressed: () async => await showDiscountAndRoundingDialog(childContext),
                                 child: Row(
                                   children: [
                                     const Icon(
