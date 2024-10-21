@@ -1892,7 +1892,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                           onTap: () async {
                                                             bool allSelected =
                                                                 isCheckedBox[index].every((isChecked) => isChecked);
-                                                            // log("Select All button pressed for index $index - allSelected: $allSelected");
 
                                                             setState(() {
                                                               for (int innerIndex = 0;
@@ -1903,8 +1902,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
                                                               List<DownPaymentEntity> dpList =
                                                                   stateInvoice.downPayments ?? [];
-                                                              if (dpList.length > index &&
-                                                                  dpList[index].tinv7 != null) {
+                                                              if (dpList.length > index) {
                                                                 for (int innerIndex = 0;
                                                                     innerIndex < dpList[index].tinv7!.length;
                                                                     innerIndex++) {
@@ -2064,13 +2062,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                   ),
                                                                   Text(
                                                                     Helpers.cleanDecimal(
-                                                                        tinvItem.qtySelected ??
-                                                                            (tinvItem.quantity + qtyAdditional),
-                                                                        1),
-                                                                    style: const TextStyle(
-                                                                      fontSize: 18,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      color: ProjectColors.primary,
+                                                                      (isCheckedBox[index][innerIndex])
+                                                                          ? (tinvItem.quantity + qtyAdditional)
+                                                                          : (tinvItem.qtySelected ?? 0 + qtyAdditional),
+                                                                      1,
                                                                     ),
                                                                   ),
                                                                 ],
