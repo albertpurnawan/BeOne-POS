@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -371,6 +373,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     if (selectedDownPayments.isNotEmpty) {
       for (DownPaymentEntity dp in selectedDownPayments) {
         if (dp.isSelected != null && dp.isSelected == true && dp.tinv7 != null && dp.tinv7!.isNotEmpty) {
+          log("dp.salesTohemId - ${dp.salesTohemId}");
           for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
             if (dpItem.isSelected == 1) {
               final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItem.toitmId ?? "", null);
@@ -382,6 +385,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                 context: context,
                 onOpenPriceInputted: () {},
                 refpos2: dpItem.docNum,
+                tohemId: dp.salesTohemId,
+                remarks: dp.remarks,
               );
               await receipt.addUpdateReceiptItems(paramAdd);
             }
@@ -484,6 +489,47 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   Future<ItemMasterModel> _getItem(String toitmId) async {
     final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByDocId(toitmId, null);
     return item!;
+  }
+
+  Future<void> updateSalesAndRemarks() async {
+    List<DownPaymentEntity> selectedDownPayments = [];
+
+    if (_selectedItems.isNotEmpty) {
+      for (int i = 0; i < _selectedItems.length; i++) {
+        DownPaymentEntity dp = membersDP[i].copyWith(isSelected: _selectedItems[i]);
+        double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
+
+        if (_selectedItems[i]) {
+          List<DownPaymentItemsEntity>? tinv7List = dp.tinv7;
+          List<DownPaymentItemsEntity> updatedTinv7List = tinv7List!.map((tinv7Item) {
+            int index = tinv7List.indexOf(tinv7Item);
+            return tinv7Item.copyWith(isSelected: isCheckedBox[i][index] ? 1 : 0);
+          }).toList();
+
+          dp = dp.copyWith(tinv7: updatedTinv7List, amount: amount);
+        }
+        selectedDownPayments.add(dp);
+      }
+    }
+
+    final receiptCubit = context.read<ReceiptCubit>();
+    List<ReceiptItemEntity> receiptItems = receiptCubit.state.receiptItems;
+
+    for (DownPaymentEntity dp in selectedDownPayments) {
+      for (int tinv7Index = 0; tinv7Index < (dp.tinv7?.length ?? 0); tinv7Index++) {
+        DownPaymentItemsEntity tinv7Item = dp.tinv7![tinv7Index];
+
+        for (int receiptIndex = 0; receiptIndex < receiptItems.length; receiptIndex++) {
+          ReceiptItemEntity receiptItem = receiptItems[receiptIndex];
+
+          if (tinv7Item.docNum == receiptItem.refpos2) {
+            String tohemId = dp.salesTohemId ?? "";
+            String remarks = tinv7Item.remarks ?? "";
+            await receiptCubit.updateTohemIdRemarksOnReceiptItem(tohemId, remarks, receiptIndex);
+          }
+        }
+      }
+    }
   }
 
   @override
@@ -681,6 +727,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               if (childContext.mounted) {
                                 await _addOrUpdateDrawDownPayment(childContext);
                               }
+
+                              await updateSalesAndRemarks();
                             },
                       child: Center(
                         child: RichText(

@@ -7,6 +7,8 @@ class DownPaymetModel extends DownPaymentEntity {
     super.refpos2,
     super.toinvDocId,
     required super.amount,
+    super.salesTohemId,
+    super.remarks,
     super.tinv7,
     super.tempItems,
     required super.isReceive,
@@ -18,6 +20,8 @@ class DownPaymetModel extends DownPaymentEntity {
       refpos2: map['refpos2'] != null ? map['refpos2'] as String : null,
       toinvDocId: map['toinvDocId'] != null ? map['toinvDocId'] as String : null,
       amount: map['amount'] as double,
+      salesTohemId: map['salestohemid'] != null ? map['salestohemid'] as String : null,
+      remarks: map['remarks'] != null ? map['remarks'] as String : null,
       tinv7: map['tinv7'] != null
           ? List<DownPaymentItemsModel>.from(
               (map['tinv7'] as List<dynamic>).map<DownPaymentItemsModel?>(
