@@ -1988,7 +1988,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                                 children: [
                                                                   const Text(
-                                                                    "Available",
+                                                                    "Booked",
                                                                     style: TextStyle(
                                                                       fontSize: 14,
                                                                       color: ProjectColors.mediumBlack,
@@ -2016,27 +2016,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                   ),
                                                                   Text(
                                                                     Helpers.cleanDecimal(
-                                                                        tinvItem.qtySelected ?? tinvItem.quantity, 1),
-                                                                    style: const TextStyle(
-                                                                      fontSize: 18,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      color: ProjectColors.primary,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              Column(
-                                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                                children: [
-                                                                  const Text(
-                                                                    "Additional",
-                                                                    style: TextStyle(
-                                                                      fontSize: 14,
-                                                                      color: ProjectColors.mediumBlack,
-                                                                    ),
-                                                                  ),
-                                                                  Text(
-                                                                    Helpers.cleanDecimal(qtyAdditional, 1),
+                                                                        tinvItem.qtySelected ??
+                                                                            (tinvItem.quantity + qtyAdditional),
+                                                                        1),
                                                                     style: const TextStyle(
                                                                       fontSize: 18,
                                                                       fontWeight: FontWeight.bold,

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/features/sales/data/models/customer.dart';
@@ -10,6 +12,8 @@ import 'package:pos_fe/features/sales/data/models/queued_invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/receipt.dart';
 import 'package:pos_fe/features/sales/data/models/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_items_entity.dart';
+import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/repository/queued_receipt_repository.dart';
@@ -278,16 +282,38 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
 
         List<DownPaymentEntity> downPayments = [];
 
-        RegExp exp = RegExp(r'DownPaymentEntity\(refpos2: (.*?), toinvDocId: (.*?), amount: (.*?)\)');
+        RegExp exp = RegExp(
+            r'DownPaymentEntity\(refpos2: (.*?), toinvDocId: (.*?), amount: (.*?), tinv7: (\[.*?\]), tempItems: (.*?), isReceive: (.*?), isSelected: (.*?)\)');
+
         Iterable<Match> matches = exp.allMatches(queuedInvoiceHeaderModel.refpos2 ?? "");
 
         for (var match in matches) {
           String? refpos2 = match.group(1) == 'null' ? null : match.group(1);
           String toinvDocId = match.group(2)!;
-          double amount = double.parse(match.group(3)!);
 
-          downPayments
-              .add(DownPaymentEntity(refpos2: refpos2, toinvDocId: toinvDocId, amount: amount, isReceive: false));
+          double amount;
+          try {
+            amount = double.parse(match.group(3)!.trim());
+          } catch (e) {
+            log("Error parsing amount: ${match.group(3)}");
+            continue;
+          }
+
+          String tinv7String = match.group(4)!;
+          List<DownPaymentItemsEntity> tinv7Items = parseTinv7(tinv7String);
+          String tempItemsString = match.group(5) ?? "[]";
+          List<ItemEntity>? tempItems = parseTempItems(tempItemsString);
+          bool isReceive = match.group(6) == 'true';
+          bool isSelected = match.group(7) == 'true';
+
+          downPayments.add(DownPaymentEntity(
+              refpos2: refpos2,
+              toinvDocId: toinvDocId,
+              amount: amount,
+              tinv7: tinv7Items,
+              tempItems: tempItems,
+              isReceive: isReceive,
+              isSelected: isSelected));
         }
 
         queuedReceiptModels.add(ReceiptModel(
@@ -328,5 +354,97 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
   @override
   Future<void> deleteAll() async {
     await _appDatabase.queuedInvoiceHeaderDao.deleteAllData();
+  }
+
+  List<DownPaymentItemsEntity> parseTinv7(String tinv7String) {
+    List<DownPaymentItemsEntity> tinv7Items = [];
+
+    RegExp tinv7Exp = RegExp(
+        r'DownPaymentItemsEntity\(docId: (.*?), createDate: (.*?), updateDate: (.*?), toinvId: (.*?), docNum: (.*?), idNumber: (.*?), toitmId: (.*?), quantity: (.*?), sellingPrice: (.*?), totalAmount: (.*?), remarks: (.*?), tovatId: (.*?), includeTax: (.*?), tovenId: (.*?), tbitmId: (.*?), tohemId: (.*?), refpos2: (.*?), qtySelected: (.*?), isSelected: (.*?)\)');
+
+    Iterable<Match> matches = tinv7Exp.allMatches(tinv7String);
+
+    for (var match in matches) {
+      String docId = match.group(1)!;
+      DateTime? createDate = match.group(2) != 'null' ? DateTime.parse(match.group(2)!) : null;
+      DateTime? updateDate = match.group(3) != 'null' ? DateTime.parse(match.group(3)!) : null;
+      String? toinvId = match.group(4) == 'null' ? null : match.group(4);
+      String docNum = match.group(5)!;
+      int idNumber = int.parse(match.group(6)!);
+      String? toitmId = match.group(7) == 'null' ? null : match.group(7);
+      double quantity = double.parse(match.group(8)!);
+      double sellingPrice = double.parse(match.group(9)!);
+      double totalAmount = double.parse(match.group(10)!);
+      String? remarks = match.group(11) == 'null' ? null : match.group(11);
+      String? tovatId = match.group(12) == 'null' ? null : match.group(12);
+      int includeTax = int.parse(match.group(13)!);
+      String? tovenId = match.group(14) == 'null' ? null : match.group(14);
+      String? tbitmId = match.group(15) == 'null' ? null : match.group(15);
+      String? tohemId = match.group(16) == 'null' ? null : match.group(16);
+      String? refpos2 = match.group(17) == 'null' ? null : match.group(17);
+      double? qtySelected = match.group(18) == 'null' ? null : double.parse(match.group(18)!);
+      int? isSelected = match.group(19) == 'null' ? null : int.parse(match.group(19)!);
+
+      tinv7Items.add(DownPaymentItemsEntity(
+        docId: docId,
+        createDate: createDate,
+        updateDate: updateDate,
+        toinvId: toinvId,
+        docNum: docNum,
+        idNumber: idNumber,
+        toitmId: toitmId,
+        quantity: quantity,
+        sellingPrice: sellingPrice,
+        totalAmount: totalAmount,
+        remarks: remarks,
+        tovatId: tovatId,
+        includeTax: includeTax,
+        tovenId: tovenId,
+        tbitmId: tbitmId,
+        tohemId: tohemId,
+        refpos2: refpos2,
+        qtySelected: qtySelected,
+        isSelected: isSelected,
+      ));
+    }
+
+    return tinv7Items;
+  }
+
+  List<ItemEntity> parseTempItems(String tempItemsString) {
+    List<ItemEntity> items = [];
+
+    // If tempItemsString is 'null', return an empty list
+    if (tempItemsString == 'null' || tempItemsString.isEmpty) return items;
+
+    // Assuming tempItems are formatted like ItemEntity(...) instances
+    RegExp itemExp = RegExp(
+        r'ItemEntity\(id: (.*?), itemName: (.*?), itemCode: (.*?), barcode: (.*?), price: (.*?), toitmId: (.*?), tbitmId: (.*?), tpln2Id: (.*?), openPrice: (.*?), tovenId: (.*?), includeTax: (.*?), tovatId: (.*?), taxRate: (.*?), dpp: (.*?), tocatId: (.*?), shortName: (.*?), toplnId: (.*?)\)');
+
+    Iterable<Match> itemMatches = itemExp.allMatches(tempItemsString);
+
+    for (var itemMatch in itemMatches) {
+      items.add(ItemEntity(
+        id: itemMatch.group(1) == 'null' ? null : int.parse(itemMatch.group(1)!),
+        itemName: itemMatch.group(2)!.replaceAll("'", ""),
+        itemCode: itemMatch.group(3)!.replaceAll("'", ""),
+        barcode: itemMatch.group(4)!.replaceAll("'", ""),
+        price: double.parse(itemMatch.group(5)!),
+        toitmId: itemMatch.group(6)!,
+        tbitmId: itemMatch.group(7)!,
+        tpln2Id: itemMatch.group(8)!,
+        openPrice: int.parse(itemMatch.group(9)!),
+        tovenId: itemMatch.group(10) == 'null' ? null : itemMatch.group(10),
+        includeTax: int.parse(itemMatch.group(11)!),
+        tovatId: itemMatch.group(12)!,
+        taxRate: double.parse(itemMatch.group(13)!),
+        dpp: double.parse(itemMatch.group(14)!),
+        tocatId: itemMatch.group(15) == 'null' ? null : itemMatch.group(15),
+        shortName: itemMatch.group(16) == 'null' ? null : itemMatch.group(16),
+        toplnId: itemMatch.group(17)!,
+      ));
+    }
+
+    return items;
   }
 }
