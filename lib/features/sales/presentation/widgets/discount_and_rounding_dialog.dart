@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -126,7 +127,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 child: Row(
                   children: [
                     const Text(
-                      'Down Payment',
+                      'Discount & Rounding',
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
@@ -165,25 +166,19 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         }
                       },
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
                   ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              contentPadding: const EdgeInsets.all(0),
+              contentPadding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
               content: Container(
-                width: MediaQuery.of(context).size.width * 0.6,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 20),
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    thickness: 4,
-                    radius: const Radius.circular(30),
-                    thumbVisibility: true,
-                    child: isHeaderDiscount ? Row() : Row(),
-                  ),
+                width: MediaQuery.of(context).size.width * 0.4,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: isHeaderDiscount ? discountHeaderWidget(context) : [Row()],
                 ),
               ),
               actions: [
@@ -309,5 +304,127 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         );
       }),
     );
+  }
+
+  List<Widget> discountHeaderWidget(BuildContext context) {
+    return [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: TextFormField(
+          focusNode: _discountFocusNode,
+          controller: _textEditorDiscountController,
+          onFieldSubmitted: (value) async => await onSubmit(),
+          onChanged: (value) => setState(() {}),
+          autofocus: true,
+          inputFormatters: [NegativeMoneyInputFormatter()],
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 24),
+          decoration: const InputDecoration(
+              contentPadding: EdgeInsets.all(10),
+              hintText: "Enter Discount",
+              hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(
+                Icons.discount_outlined,
+                size: 24,
+              ),
+              suffix: SizedBox(
+                width: 24,
+              )),
+        ),
+      ),
+      const SizedBox(
+        height: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
+          child: Table(
+            // defaultColumnWidth: IntrinsicColumnWidth(),
+            // columnWidths: const {0: FixedColumnWidth(100), 1: FlexColumnWidth()},
+            children: [
+              TableRow(
+                children: [
+                  const TableCell(
+                    child: Text(
+                      "Initial Grand Total",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal),
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  const TableCell(
+                    child: Text(
+                      "Header Discount",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      _textEditorDiscountController.text == "" ? "0" : _textEditorDiscountController.text,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              const TableRow(
+                children: [
+                  TableCell(
+                    child: Text(
+                      "Line Discounts",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      "9,000,000",
+                      textAlign: TextAlign.right,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              const TableRow(children: [
+                SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+              ]),
+              const TableRow(
+                children: [
+                  TableCell(
+                    child: Text(
+                      "Grand Total",
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                    ),
+                  ),
+                  TableCell(
+                    child: Text(
+                      "20,000,000",
+                      textAlign: TextAlign.right,
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
   }
 }
