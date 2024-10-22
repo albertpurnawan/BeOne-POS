@@ -577,17 +577,58 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             onKeyEvent: (node, event) {
               if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
-                FocusScope.of(context).unfocus();
-                final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
-                if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
-                    receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
-                  SnackBarHelper.presentErrorSnackBar(
-                      childContext, "Down payment has to be excluded from other transactions");
-                  return KeyEventResult.handled;
-                }
-                if (receiveZero) return KeyEventResult.handled;
-                context.pop();
-                _addOrUpdateReceiveDownPayment();
+                isReceive
+                    ? () async {
+                        FocusScope.of(context).unfocus();
+                        final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+                        if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
+                            receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
+                          SnackBarHelper.presentErrorSnackBar(
+                              childContext, "Down payment has to be excluded from other transactions");
+                          return;
+                        }
+                        if (salesSelected == "Not Set*") {
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please select the salesperson");
+                          return;
+                        }
+                        if (receiveZero || _amountController.text == "") {
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please input the Down Payment amount");
+                          return;
+                        }
+                        if (_remarksController.text.isEmpty) {
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please fill in the remarks");
+                          return;
+                        }
+                        if (await _checkDrawDownPayment()) {
+                          if (childContext.mounted) {
+                            SnackBarHelper.presentErrorSnackBar(childContext,
+                                "Receiving and drawing down a payment cannot be processed in a single transaction");
+                          }
+                          return;
+                        }
+                        if (context.mounted) {
+                          context.pop();
+                        }
+                        await _addOrUpdateReceiveDownPayment();
+                      }
+                    : () async {
+                        FocusScope.of(context).unfocus();
+                        if (await _checkReceiveDownPayment()) {
+                          if (childContext.mounted) {
+                            SnackBarHelper.presentErrorSnackBar(childContext,
+                                "Receiving and drawing down payment cannot be processed in a single transaction");
+                          }
+                          return;
+                        }
+
+                        await _resetDrawDownPayment();
+
+                        if (childContext.mounted) {
+                          await _addOrUpdateDrawDownPayment(childContext);
+                        }
+
+                        await updateSalesAndRemarks();
+                      };
               } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
                 return KeyEventResult.handled;
@@ -743,7 +784,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 context.pop();
                               }
                               await _addOrUpdateReceiveDownPayment();
-                              // log("is it here? - $stateInvoice");
                             }
                           : () async {
                               FocusScope.of(context).unfocus();
