@@ -602,7 +602,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                         if (await _checkDrawDownPayment()) {
                           if (childContext.mounted) {
                             SnackBarHelper.presentErrorSnackBar(childContext,
-                                "Receiving and drawing down a payment cannot be processed in a single transaction");
+                                "Receiving and drawing down payment cannot be processed in a single transaction");
                           }
                           return;
                         }
