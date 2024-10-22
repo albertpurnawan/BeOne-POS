@@ -2402,7 +2402,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
               type == 2
                   ? "DP ${Helpers.parseMoney(amount)}"
                   : type == 3
-                      ? "DR ${Helpers.parseMoney(amount)}"
+                      ? "HD ${Helpers.parseMoney(amount)}"
                       : "",
               style: const TextStyle(
                 fontSize: 12,

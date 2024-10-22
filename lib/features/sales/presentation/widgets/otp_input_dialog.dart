@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
@@ -6,6 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -17,16 +21,21 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 
 class OTPInputDialog extends StatefulWidget {
   final double discountValue;
   final String requester;
   final String docnum;
+  final List<LineDiscountParameter> lineDiscountParameters;
 
-  const OTPInputDialog({Key? key, required this.discountValue, required this.requester, required this.docnum})
-      : super(key: key);
+  const OTPInputDialog({
+    Key? key,
+    required this.discountValue,
+    required this.requester,
+    required this.docnum,
+    required this.lineDiscountParameters,
+  }) : super(key: key);
 
   @override
   State<OTPInputDialog> createState() => _OTPInputDialogState();
@@ -146,7 +155,9 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
       await updateReceiptApprovals(childContext, response['approver']!);
 
       if (childContext.mounted) {
-        childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue, context);
+        childContext
+            .read<ReceiptCubit>()
+            .updateTotalAmountFromDiscount(widget.discountValue, widget.lineDiscountParameters);
 
         Navigator.of(childContext).pop(); // Close the input otp dialog
         Navigator.of(childContext).pop(); // Close the method dialog

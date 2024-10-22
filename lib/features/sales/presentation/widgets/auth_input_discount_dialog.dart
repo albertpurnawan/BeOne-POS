@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -9,6 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -21,17 +25,19 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
   final double discountValue;
   final String docnum;
+  final List<LineDiscountParameter> lineDiscountParameters;
+
   const AuthInputDiscountDialog({
     Key? key,
     required this.discountValue,
     required this.docnum,
+    required this.lineDiscountParameters,
   }) : super(key: key);
 
   @override
@@ -87,7 +93,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
-      await childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue, context);
+      await childContext
+          .read<ReceiptCubit>()
+          .updateTotalAmountFromDiscount(widget.discountValue, widget.lineDiscountParameters);
       Navigator.of(childContext).pop();
       Navigator.of(childContext).pop(widget.discountValue);
     } else {
@@ -179,6 +187,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
             discountValue: widget.discountValue,
             requester: value,
             docnum: widget.docnum,
+            lineDiscountParameters: widget.lineDiscountParameters,
           ),
         );
       });

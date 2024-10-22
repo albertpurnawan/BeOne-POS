@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -44,6 +45,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   int count = 0;
 
   bool isHeaderDiscount = true;
+  double initialGrandTotal = 0;
   List<LineDiscountParameter> lineDiscountInputs = [];
   List<LineDiscountParameter> searchedLineDiscountInputs = [];
   final FocusNode _searchLineDiscountFocusNode = FocusNode();
@@ -52,11 +54,28 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   void initState() {
     super.initState();
     final ReceiptEntity state = context.read<ReceiptCubit>().state;
+    initialGrandTotal = state.grandTotal +
+        (state.discHeaderManual ?? 0) +
+        state.receiptItems.fold(
+            0.0,
+            (previousValue, e1) =>
+                previousValue +
+                (((100 + e1.itemEntity.taxRate) / 100) *
+                    e1.promos
+                        .where((e2) => e2.promoType == 998)
+                        .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0))));
     lineDiscountInputs = context
         .read<ReceiptCubit>()
         .state
         .receiptItems
-        .map((e) => LineDiscountParameter(receiptItemEntity: e.copyWith(), lineDiscountAmount: 0))
+        .map((e) => LineDiscountParameter(
+            receiptItemEntity: ReceiptHelper.updateReceiptItemAggregateFields(e.copyWith(
+                promos: e.promos.where((element) => element.promoType != 998).map((e) => e.copyWith()).toList(),
+                discAmount: e.promos
+                    .where((element) => element.promoType != 998)
+                    .fold(0.0, (previousValue, element) => (previousValue ?? 0) + (element.discAmount ?? 0)))),
+            lineDiscountAmount: (e.promos.where((element) => element.promoType == 998).firstOrNull?.discAmount ?? 0) *
+                ((100 + e.itemEntity.taxRate) / 100)))
         .toList();
     searchedLineDiscountInputs = lineDiscountInputs;
     _textEditorHeaderDiscountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
@@ -86,8 +105,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   String getSimulatedGrandTotal() {
     try {
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
-      final double simulatedGrandTotal = context.read<ReceiptCubit>().state.grandTotal +
-          (state.discHeaderManual ?? 0) -
+      final double simulatedGrandTotal = initialGrandTotal -
           Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountController.text) -
           lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
 
@@ -129,13 +147,10 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             builder: (context) => AuthInputDiscountDialog(
                   discountValue: input,
                   docnum: widget.docnum,
+                  lineDiscountParameters: lineDiscountInputs,
                 ));
       } else {
-        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, context);
-        // if (context.read<ReceiptCubit>().state.downPayments != null &&
-        //     context.read<ReceiptCubit>().state.downPayments!.isNotEmpty) {
-        //   await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
-        // }
+        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
         context.pop(input);
       }
     } catch (e) {
@@ -277,8 +292,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 ),
                                 TableCell(
                                   child: Text(
-                                    Helpers.parseMoney(context.read<ReceiptCubit>().state.grandTotal +
-                                        (context.read<ReceiptCubit>().state.discHeaderManual ?? 0)),
+                                    Helpers.parseMoney(initialGrandTotal),
                                     textAlign: TextAlign.right,
                                     style: const TextStyle(fontSize: 14),
                                   ),

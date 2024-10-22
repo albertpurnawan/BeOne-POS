@@ -52,6 +52,7 @@ import 'package:pos_fe/features/sales/domain/usecases/recalculate_receipt_by_new
 import 'package:pos_fe/features/sales/domain/usecases/recalculate_tax.dart';
 import 'package:pos_fe/features/sales/domain/usecases/save_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_promo_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/open_price_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promo_get_y_dialog.dart';
 
@@ -732,59 +733,68 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       ..remarks = receiptEntity.remarks);
   }
 
-  Future<void> updateTotalAmountFromDiscount(double discValue, BuildContext context) async {
+  Future<void> updateTotalAmountFromDiscount(
+      double discValue, List<LineDiscountParameter> lineDiscountParameters) async {
     try {
-      // if (discValue > state.grandTotal + (state.discHeaderManual ?? 0)) {
-      //   throw "Discount amount invalid";
-      // }
+      // Apply line discount
+      final List<ReceiptItemEntity> appliedLineDiscReceiptItems = [];
+      double totalLineDiscount = 0;
+      double totalExistingLineDiscount = 0;
+      double newDiscHeaderPromo = 0;
 
-      ReceiptEntity preparedReceipt =
-          state.copyWith(receiptItems: state.receiptItems.map((e) => e.copyWith()).toList());
+      for (final e in lineDiscountParameters) {
+        final double existingLineDiscount =
+            (e.receiptItemEntity.promos.where((element) => element.promoType == 998).firstOrNull?.discAmount ?? 0) *
+                ((100 + e.receiptItemEntity.itemEntity.taxRate) / 100);
+        final double beforeTaxLineDiscount =
+            e.lineDiscountAmount * (100 / (100 + e.receiptItemEntity.itemEntity.taxRate));
+        final double newDiscAmount = e.receiptItemEntity.promos
+                .where((element) => element.promoType != 998)
+                .fold(0.0, (previousValue, element) => previousValue + (element.discAmount ?? 0)) +
+            beforeTaxLineDiscount;
+        final List<PromotionsEntity> newPromos =
+            e.receiptItemEntity.promos.where((element) => element.promoType != 998).toList() +
+                (beforeTaxLineDiscount != 0
+                    ? [
+                        PromotionsEntity(
+                          docId: "",
+                          promoType: 998,
+                          date: DateTime.now(),
+                          startTime: DateTime.now(),
+                          endTime: DateTime.now(),
+                          discAmount: beforeTaxLineDiscount,
+                          promoDescription: "Line Discount",
+                          promoId: "",
+                        )
+                      ]
+                    : []);
 
+        appliedLineDiscReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(e.receiptItemEntity
+          ..promos = newPromos
+          ..discAmount = newDiscAmount));
+        newDiscHeaderPromo += newDiscAmount;
+        totalLineDiscount += e.lineDiscountAmount;
+        totalExistingLineDiscount += existingLineDiscount;
+      }
+
+      // Copy receipt object
+      ReceiptEntity preparedReceipt = state.copyWith(
+          grandTotal: state.grandTotal + totalExistingLineDiscount - totalLineDiscount,
+          discHeaderPromo: newDiscHeaderPromo,
+          receiptItems: appliedLineDiscReceiptItems.map((e) => e.copyWith()).toList());
+
+      // Adjust when header discount already applied
       if ((state.discHeaderManual ?? 0) > 0) {
         preparedReceipt.grandTotal += state.discHeaderManual!;
         preparedReceipt.discAmount = preparedReceipt.discHeaderPromo ?? 0;
-        // preparedReceipt = await _recalculateReceiptUseCase.call(
-        //     params: preparedReceipt.copyWith(
-        //   discHeaderManual: 0,
-        //   discAmount: (preparedReceipt.discHeaderPromo ?? 0),
-        // ));
-
-        // preparedReceipt = await _recalculateTaxUseCase.call(
-        //   params: preparedReceipt.copyWith(
-        //       discHeaderManual: 0, receiptItems: preparedReceipt.receiptItems.map((e) => e.copyWith()).toList()),
-        // );
       }
 
-      if ((state.downPayments != null && state.downPayments!.isNotEmpty)) {
-        // preparedReceipt = await _recalculateReceiptUseCase.call(
-        //     params: state.copyWith(
-        //   receiptItems: preparedReceipt.receiptItems.map((e) => e.copyWith()).toList(),
-        //   discHeaderManual: 0,
-        //   discAmount: (preparedReceipt.discHeaderPromo ?? 0),
-        // ));
-
-        // preparedReceipt = await _recalculateTaxUseCase.call(
-        //   params: preparedReceipt.copyWith(
-        //       discHeaderManual: 0, receiptItems: preparedReceipt.receiptItems.map((e) => e.copyWith()).toList()),
-        // );
-
-        // if (preparedReceipt.coupons.isNotEmpty) {
-        //   preparedReceipt = await _applyPromoToprnUseCase.call(
-        //       params: ApplyPromoToprnUseCaseParams(receiptEntity: preparedReceipt, context: context));
-        // }
-      }
-
+      // Might be unnecessary
       ReceiptEntity newState = preparedReceipt.copyWith(
         discHeaderManual: discValue,
-        // discAmount: discValue + (state.discHeaderPromo ?? 0),
       );
 
-      // if (newState.coupons.isNotEmpty) {
-      //   newState = await _applyPromoToprnUseCase.call(
-      //       params: ApplyPromoToprnUseCaseParams(receiptEntity: newState, context: context));
-      // }
-
+      // Apply header discount
       ReceiptEntity updatedReceipt = await _recalculateTaxUseCase.call(params: newState);
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
 
