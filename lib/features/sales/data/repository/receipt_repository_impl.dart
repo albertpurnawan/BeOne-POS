@@ -26,6 +26,7 @@ import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_items_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
@@ -476,6 +477,9 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
             await _appDatabase.itemBarcodeDao.readByDocId(invoiceDetailModel.tbitmId!, finaltxn);
         if (itemBarcodeModel == null) throw "Barcode not found";
 
+        final List<InvoiceAppliedPromoModel> invoiceAppliedPromoModels = await _appDatabase.invoiceAppliedPromoDao
+            .readByToinvIdAndTinv1Id(invoiceHeaderModel.docId ?? "", invoiceDetailModel.docId, finaltxn);
+
         receiptItemModels.add(ReceiptItemModel(
           quantity: invoiceDetailModel.quantity,
           totalGross: ((invoiceDetailModel.totalAmount * 100 / (100 + invoiceDetailModel.taxPrctg)) +
@@ -504,23 +508,18 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
           sellingPrice: invoiceDetailModel.sellingPrice,
           totalAmount: invoiceDetailModel.totalAmount,
           totalSellBarcode: invoiceDetailModel.sellingPrice * invoiceDetailModel.quantity,
-          promos: invoiceDetailModel.promotionId == ""
-              ? []
-              : [
-                  PromotionsModel(
-                    docId: docId,
-                    toitmId: "",
-                    promoType: 0,
-                    promoId: "",
-                    date: DateTime.now(),
-                    startTime: DateTime.now(),
-                    endTime: DateTime.now(),
-                    tocrgId: "",
-                    promoDescription: "",
-                    tocatId: "",
-                    remarks: "",
-                  )
-                ],
+          promos: invoiceAppliedPromoModels
+              .map((e) => PromotionsEntity(
+                  docId: "",
+                  toitmId: invoiceDetailModel.toitmId,
+                  promoType: int.parse(e.promotionType),
+                  promoId: e.promotionDocId,
+                  date: DateTime.now(),
+                  startTime: DateTime.now(),
+                  endTime: DateTime.now(),
+                  promoDescription: "Line Discount",
+                  discAmount: e.amount))
+              .toList(),
           tohemId: invoiceDetailModel.tohemId,
           discAmount: invoiceDetailModel.discAmount,
           refpos3: invoiceDetailModel.refpos3,

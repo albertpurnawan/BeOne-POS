@@ -3023,6 +3023,18 @@ class _SalesPageState extends State<SalesPage> {
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)
                             : const SizedBox.shrink(),
+
+                        state.receiptItems.any((e1) => e1.promos.any((e2) => e2.promoType == 998))
+                            ? _noteChip(
+                                state.receiptItems.fold(
+                                    0.0,
+                                    (previousValue, e1) =>
+                                        previousValue +
+                                        (((100 + e1.itemEntity.taxRate) / 100) *
+                                            e1.promos.where((e2) => e2.promoType == 998).fold(
+                                                0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0)))),
+                                4)
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ),
@@ -4136,7 +4148,9 @@ class _SalesPageState extends State<SalesPage> {
         return;
       }
 
-      await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
+      if (context.read<ReceiptCubit>().state.previousReceiptEntity == null) {
+        await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
+      }
 
       await Future.delayed(const Duration(milliseconds: 300), null);
 
@@ -4255,8 +4269,10 @@ class _SalesPageState extends State<SalesPage> {
                   : type == 2
                       ? "DP ${Helpers.parseMoney(amount)}"
                       : type == 3
-                          ? "DR ${Helpers.parseMoney(amount)}"
-                          : "",
+                          ? "HD ${Helpers.parseMoney(amount)}"
+                          : type == 4
+                              ? "TLD ${Helpers.parseMoney(amount)}"
+                              : "",
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

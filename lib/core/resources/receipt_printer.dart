@@ -580,6 +580,32 @@ class ReceiptPrinter {
 
             count += 1;
 
+            final double? lineDiscount =
+                item.promos.where((element) => element.promoType == 998).firstOrNull?.discAmount;
+            if (lineDiscount != null) {
+              bytes += generator.row([
+                PosColumn(
+                    width: 1,
+                    text: Helpers.alignLeftByAddingSpace("", width1Length),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                    )),
+                PosColumn(
+                    width: 11,
+                    text: Helpers.alignLeftByAddingSpace(
+                            ">> Discount: ${Helpers.parseMoney(lineDiscount * ((100 + item.itemEntity.taxRate) / 100))}",
+                            width11Length)
+                        .substring(0, width11Length),
+                    styles: PosStyles(
+                      align: PosAlign.left,
+                      height: printReceiptContent.fontSize,
+                      width: printReceiptContent.fontSize,
+                    )),
+              ]);
+            }
+
             if (salesEmployeeEntity?.empName == null) continue;
             bytes += generator.row([
               PosColumn(
@@ -685,6 +711,15 @@ class ReceiptPrinter {
           //       )),
           // ]);
 
+          final double totalLineDiscount = currentPrintReceiptDetail!.receiptEntity.receiptItems.fold(
+              0.0,
+              (previousValue, e1) =>
+                  previousValue +
+                  (((100 + e1.itemEntity.taxRate) / 100) *
+                      e1.promos
+                          .where((e2) => e2.promoType == 998)
+                          .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0))));
+
           bytes += generator.row([
             PosColumn(
                 width: 6,
@@ -698,8 +733,8 @@ class ReceiptPrinter {
                     Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.receiptItems
                             .map((e) => (e.discAmount ?? 0) * ((100 + e.itemEntity.taxRate) / 100))
                             .reduce((value, element) => value + element)
-                            .round() +
-                        currentPrintReceiptDetail!.receiptEntity.couponDiscount),
+                            .round() -
+                        totalLineDiscount),
                     width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
@@ -734,6 +769,42 @@ class ReceiptPrinter {
           //       )),
           // ]);
 
+          if (currentPrintReceiptDetail!.receiptEntity.couponDiscount > 0) {
+            bytes += generator.row([
+              PosColumn(
+                  width: 6,
+                  text: Helpers.alignLeftByAddingSpace("Coupon Discount", width6Length),
+                  styles: const PosStyles(
+                    align: PosAlign.left,
+                  )),
+              PosColumn(
+                  width: 6,
+                  text: Helpers.alignRightByAddingSpace(
+                      Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.couponDiscount), width6Length),
+                  styles: const PosStyles(
+                    align: PosAlign.left,
+                  )),
+            ]);
+          }
+
+          if (currentPrintReceiptDetail!.receiptEntity.receiptItems
+              .any((e1) => e1.promos.any((e2) => e2.promoType == 998))) {
+            bytes += generator.row([
+              PosColumn(
+                  width: 6,
+                  text: Helpers.alignLeftByAddingSpace("Total Line Discount", width6Length),
+                  styles: const PosStyles(
+                    align: PosAlign.left,
+                  )),
+              PosColumn(
+                  width: 6,
+                  text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(totalLineDiscount), width6Length),
+                  styles: const PosStyles(
+                    align: PosAlign.left,
+                  )),
+            ]);
+          }
+
           // bytes += generator.emptyLines(1);
           bytes += generator.row([
             PosColumn(
@@ -753,6 +824,7 @@ class ReceiptPrinter {
                   align: PosAlign.left,
                 )),
           ]);
+
           // bytes += generator.row([
           //   PosColumn(
           //       width: 8,

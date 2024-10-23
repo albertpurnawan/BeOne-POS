@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -9,6 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -21,17 +25,19 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
   final double discountValue;
   final String docnum;
+  final List<LineDiscountParameter> lineDiscountParameters;
+
   const AuthInputDiscountDialog({
     Key? key,
     required this.discountValue,
     required this.docnum,
+    required this.lineDiscountParameters,
   }) : super(key: key);
 
   @override
@@ -87,7 +93,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
-      await childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(widget.discountValue, context);
+      await childContext
+          .read<ReceiptCubit>()
+          .updateTotalAmountFromDiscount(widget.discountValue, widget.lineDiscountParameters);
       Navigator.of(childContext).pop();
       Navigator.of(childContext).pop(widget.discountValue);
     } else {
@@ -101,14 +109,20 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
     final receiptCubit = context.read<ReceiptCubit>();
 
+    final double lineDiscountsTotal =
+        widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+    final int appliedLineDiscountsCount =
+        widget.lineDiscountParameters.where((element) => element.lineDiscountAmount != 0).length;
+
     final approval = ApprovalInvoiceModel(
       docId: const Uuid().v4(),
       createDate: DateTime.now(),
       updateDate: null,
       toinvId: receiptCubit.state.docNum,
       tousrId: user!.docId,
-      remarks: "Discount Amount: ${Helpers.parseMoney(widget.discountValue)}",
-      category: "001 - Discount Manual",
+      remarks:
+          "Header Discount: ${Helpers.parseMoney(widget.discountValue)}; Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)} ($appliedLineDiscountsCount item(s))",
+      category: "001 - Discount & Rounding",
     );
     context.read<ReceiptCubit>().updateApprovals(approval);
   }
@@ -143,13 +157,26 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       // };
 
       final String subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
+      final String lineDiscountsString = widget.lineDiscountParameters
+          .where((element) => element.lineDiscountAmount != 0)
+          .map((e) =>
+              "${e.receiptItemEntity.itemEntity.barcode} - ${e.receiptItemEntity.itemEntity.itemName}\n      Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}\n      Total Amount:${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}\n      Discount: ${Helpers.parseMoney(e.lineDiscountAmount)}\n      Final Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount - e.lineDiscountAmount)}")
+          .join(",\n\n      ");
+      final double lineDiscountsTotal =
+          widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+
       final String body = '''
+
     Approval For: Discount or Rounding,
     Store Name: ${store.storeName},
     Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
     Cashier Name: ${employee?.empName ?? user.username},
-    Discount Amount: ${Helpers.parseMoney(widget.discountValue)},
-    Total After Discount: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue)},
+    Header Discount: ${Helpers.parseMoney(widget.discountValue)},
+    Line Discounts:
+      $lineDiscountsString
+    ,
+    Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
+    Final Grand Total: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue - -lineDiscountsTotal)},
 ''';
       final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
       log("RESPONSE OTP - $response");
@@ -179,6 +206,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
             discountValue: widget.discountValue,
             requester: value,
             docnum: widget.docnum,
+            lineDiscountParameters: widget.lineDiscountParameters,
           ),
         );
       });
