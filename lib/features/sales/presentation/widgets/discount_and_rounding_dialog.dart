@@ -148,6 +148,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             context: context,
             barrierDismissible: false,
             builder: (context) => AuthInputDiscountDialog(
+                  initialGrandTotal: initialGrandTotal,
+                  finalGrandTotal: getSimulatedGrandTotal(),
                   discountValue: input,
                   docnum: widget.docnum,
                   lineDiscountParameters: lineDiscountInputs,

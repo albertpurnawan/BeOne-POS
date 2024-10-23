@@ -29,12 +29,16 @@ import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding
 import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
+  final double initialGrandTotal;
+  final double finalGrandTotal;
   final double discountValue;
   final String docnum;
   final List<LineDiscountParameter> lineDiscountParameters;
 
   const AuthInputDiscountDialog({
     Key? key,
+    required this.initialGrandTotal,
+    required this.finalGrandTotal,
     required this.discountValue,
     required this.docnum,
     required this.lineDiscountParameters,
@@ -160,7 +164,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       final String lineDiscountsString = widget.lineDiscountParameters
           .where((element) => element.lineDiscountAmount != 0)
           .map((e) =>
-              "${e.receiptItemEntity.itemEntity.barcode} - ${e.receiptItemEntity.itemEntity.itemName}\n      Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}\n      Total Amount:${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}\n      Discount: ${Helpers.parseMoney(e.lineDiscountAmount)}\n      Final Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount - e.lineDiscountAmount)}")
+              "${e.receiptItemEntity.itemEntity.barcode} - ${e.receiptItemEntity.itemEntity.itemName}\n      Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}\n      Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}\n      Discount: ${Helpers.parseMoney(e.lineDiscountAmount)}\n      Final Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount - e.lineDiscountAmount)}")
           .join(",\n\n      ");
       final double lineDiscountsTotal =
           widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
@@ -176,7 +180,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       $lineDiscountsString
     ,
     Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
-    Final Grand Total: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue - -lineDiscountsTotal)},
+    Final Grand Total: ${Helpers.parseMoney(widget.finalGrandTotal)},
 ''';
       final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
       log("RESPONSE OTP - $response");
@@ -203,6 +207,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
           context: context,
           barrierDismissible: false,
           builder: (context) => OTPInputDialog(
+            initialGrandTotal: widget.initialGrandTotal,
+            finalGrandTotal: widget.finalGrandTotal,
             discountValue: widget.discountValue,
             requester: value,
             docnum: widget.docnum,
