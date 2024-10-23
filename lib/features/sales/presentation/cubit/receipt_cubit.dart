@@ -183,6 +183,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             tohemId: params.tohemId,
             setOpenPrice: params.setOpenPrice,
             refpos3: params.refpos3,
+            salesTohemId: params.salesTohemId,
           ));
           return;
         }
@@ -226,6 +227,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       receiptItemEntity = ReceiptHelper.convertItemEntityToReceiptItemEntity(itemEntity, params.quantity)
         ..tohemId = params.tohemId
         ..remarks = params.remarks
+        ..tohemId = params.salesTohemId
         ..refpos2 = params.refpos2
         ..refpos3 = params.refpos3;
 
@@ -316,7 +318,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Recalculate receipt
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
 
-      dev.log(newReceipt.copyWith(previousReceiptEntity: null).toString());
       emit(newReceipt.copyWith(previousReceiptEntity: null));
     } catch (e, s) {
       dev.log(s.toString());
@@ -1095,6 +1096,7 @@ class AddUpdateReceiptItemsParams {
   final String? refpos2;
   final String? refpos3;
   final double? overridingPrice;
+  final String? salesTohemId;
 
   AddUpdateReceiptItemsParams({
     required this.barcode,
@@ -1108,5 +1110,6 @@ class AddUpdateReceiptItemsParams {
     this.refpos2,
     this.refpos3,
     this.overridingPrice,
+    this.salesTohemId,
   });
 }

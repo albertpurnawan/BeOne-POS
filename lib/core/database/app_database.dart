@@ -114,9 +114,9 @@ import 'package:pos_fe/features/sales/data/models/customer_address.dart';
 import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/duitku_va_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/duitku_va_details.dart';
-import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
 import 'package:pos_fe/features/sales/data/models/edc.dart';
 import 'package:pos_fe/features/sales/data/models/employee.dart';
 import 'package:pos_fe/features/sales/data/models/gender.dart';
@@ -3721,7 +3721,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // add table duitkuVADetails
       await db.execute("""
     CREATE TABLE $tableDuitkuVADetails (
-      docid` TEXT PRIMARY KEY,
+      docid TEXT PRIMARY KEY,
       ${DuitkuVADetailsFields.paymentMethod} varchar(5) NOT NULL,
       ${DuitkuVADetailsFields.paymentName} text NOT NULL,
       ${DuitkuVADetailsFields.paymentImage} text NOT NULL,
@@ -3734,7 +3734,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // add table duitkuVAAssignStore
       await db.execute("""
     CREATE TABLE $tableDuitkuVAAssignStore (
-      docid` TEXT PRIMARY KEY,
+      docid TEXT PRIMARY KEY,
       ${DuitkuVAAssignStoreFields.createDate} datetime DEFAULT NULL,
       ${DuitkuVAAssignStoreFields.updateDate} datetime DEFAULT NULL,
       ${DuitkuVAAssignStoreFields.tovalId} text DEFAULT NULL,
@@ -3745,11 +3745,13 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 
       // alter table tostr
       await db.execute('''ALTER TABLE $tableStoreMasters 
-        ADD COLUMN ${StoreMasterFields.duitkuUrl} text DEFAULT NULL,
-        ADD COLUMN ${StoreMasterFields.duitkuApiKey} text DEFAULT NULL,
-        ADD COLUMN ${StoreMasterFields.duitkuMerchantCode} text DEFAULT NULL
-        ADD COLUMN ${StoreMasterFields.duitkuExpiryPeriod} int DEFAULT NULL
-        ''');
+        ADD COLUMN ${StoreMasterFields.duitkuUrl} TEXT DEFAULT NULL''');
+      await db.execute('''ALTER TABLE $tableStoreMasters 
+        ADD COLUMN ${StoreMasterFields.duitkuApiKey} TEXT DEFAULT NULL''');
+      await db.execute('''ALTER TABLE $tableStoreMasters 
+        ADD COLUMN ${StoreMasterFields.duitkuMerchantCode} TEXT DEFAULT NULL''');
+      await db.execute('''ALTER TABLE $tableStoreMasters 
+        ADD COLUMN ${StoreMasterFields.duitkuExpiryPeriod} INTEGER DEFAULT NULL''');
 
       await db.execute(
           '''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');

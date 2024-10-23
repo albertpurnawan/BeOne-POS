@@ -22,9 +22,9 @@ import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.d
 import 'package:pos_fe/features/sales/data/data_sources/remote/netzme_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/currency.dart';
+import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
-import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/netzme_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/payment_type.dart';
@@ -51,8 +51,8 @@ import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dia
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
-import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class MopType {
   final String name;
@@ -77,6 +77,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharging = false;
   bool isMultiMOPs = true;
   bool isConnected = true;
+  int cancelCount = 0;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
@@ -822,8 +823,22 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                         String checkLock =
                                             await GetIt.instance<InvoiceApi>().unlockInvoice(user.docId, docnumList);
                                         if (checkLock != 'Unlock Down Payment success') {
-                                          SnackBarHelper.presentErrorSnackBar(context,
-                                              "Process DP Transaction can't be canceled. Please check your connection and try again");
+                                          setState(() {
+                                            cancelCount++;
+                                          });
+                                          SnackBarHelper.presentErrorSnackBar(
+                                              context, "Please check your connection and try again ($cancelCount/3)");
+
+                                          if (cancelCount >= 3) {
+                                            setState(() {
+                                              cancelCount = 0;
+                                            });
+                                            Future.delayed(Durations.extralong4, () {
+                                              SnackBarHelper.presentErrorSnackBar(
+                                                  context, "Down Payment disabled $docnumList");
+                                              context.pop(false);
+                                            });
+                                          }
                                           return;
                                         }
                                       }
@@ -831,7 +846,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   } catch (e) {
                                     return;
                                   }
-
+                                  setState(() {
+                                    cancelCount = 0;
+                                  });
                                   context.pop(false);
                                 },
                           child: Center(
