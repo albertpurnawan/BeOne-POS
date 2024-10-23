@@ -160,8 +160,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       final String lineDiscountsString = widget.lineDiscountParameters
           .where((element) => element.lineDiscountAmount != 0)
           .map((e) =>
-              "${e.receiptItemEntity.itemEntity.barcode}/${e.receiptItemEntity.itemEntity.itemName}/Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}/TA ${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}: ${Helpers.parseMoney(e.lineDiscountAmount)}")
-          .join(",\n      ");
+              "${e.receiptItemEntity.itemEntity.barcode} - ${e.receiptItemEntity.itemEntity.itemName}\n      Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}\n      Total Amount:${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}\n      Discount: ${Helpers.parseMoney(e.lineDiscountAmount)}\n      Final Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount - e.lineDiscountAmount)}")
+          .join(",\n\n      ");
       final double lineDiscountsTotal =
           widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
 
@@ -172,11 +172,11 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
     Cashier Name: ${employee?.empName ?? user.username},
     Header Discount: ${Helpers.parseMoney(widget.discountValue)},
-    Line Discounts: {
+    Line Discounts:
       $lineDiscountsString
-    },
+    ,
     Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
-    Final Grand Total: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue)},
+    Final Grand Total: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue - -lineDiscountsTotal)},
 ''';
       final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
       log("RESPONSE OTP - $response");

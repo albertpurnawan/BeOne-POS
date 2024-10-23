@@ -595,7 +595,7 @@ class ReceiptPrinter {
                 PosColumn(
                     width: 11,
                     text: Helpers.alignLeftByAddingSpace(
-                            ">> Line Discount: ${Helpers.parseMoney(lineDiscount * ((100 + item.itemEntity.taxRate) / 100))}",
+                            ">> Discount: ${Helpers.parseMoney(lineDiscount * ((100 + item.itemEntity.taxRate) / 100))}",
                             width11Length)
                         .substring(0, width11Length),
                     styles: PosStyles(
