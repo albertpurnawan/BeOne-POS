@@ -100,13 +100,25 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
 
     final String subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
 
+    final String lineDiscountsString = widget.lineDiscountParameters
+        .where((element) => element.lineDiscountAmount != 0)
+        .map((e) =>
+            "${e.receiptItemEntity.itemEntity.barcode}/${e.receiptItemEntity.itemEntity.itemName}/Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}/TA ${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}: ${Helpers.parseMoney(e.lineDiscountAmount)}")
+        .join(",\n      ");
+    final double lineDiscountsTotal =
+        widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+
     final String body = '''
     Approval For: Discount or Rounding,
     Store Name: ${store.storeName},
     Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
     Cashier Name: ${employee?.empName ?? user.username},
-    Discount Amount: ${Helpers.parseMoney(widget.discountValue)},
-    Total After Discount: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue)},
+    Header Discount: ${Helpers.parseMoney(widget.discountValue)},
+    Line Discounts: {
+      $lineDiscountsString
+    },
+    Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
+    Final Grand Total: ${Helpers.parseMoney(receipt.grandTotal - widget.discountValue)},
 ''';
 
     await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
@@ -122,14 +134,20 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
     final user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(approver, null);
     final receiptCubit = context.read<ReceiptCubit>();
 
+    final double lineDiscountsTotal =
+        widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+    final int appliedLineDiscountsCount =
+        widget.lineDiscountParameters.where((element) => element.lineDiscountAmount != 0).length;
+
     final approval = ApprovalInvoiceModel(
       docId: const Uuid().v4(),
       createDate: DateTime.now(),
       updateDate: null,
       toinvId: receiptCubit.state.docNum,
       tousrId: user!.docId,
-      remarks: "Discount Amount: ${Helpers.parseMoney(widget.discountValue)}",
-      category: "001 - Discount Manual",
+      remarks:
+          "Header Discount: ${Helpers.parseMoney(widget.discountValue)}; Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)} ($appliedLineDiscountsCount item(s))",
+      category: "001 - Discount & Rounding",
     );
     context.read<ReceiptCubit>().updateApprovals(approval);
   }

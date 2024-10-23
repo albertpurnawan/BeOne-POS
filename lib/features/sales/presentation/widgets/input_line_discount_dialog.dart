@@ -11,10 +11,15 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 class InputLineDiscountDialog extends StatefulWidget {
   final ReceiptItemEntity receiptItemEntity;
   final double min;
+  final double max;
   final double lineDiscount;
 
   const InputLineDiscountDialog(
-      {super.key, required this.receiptItemEntity, this.min = double.negativeInfinity, required this.lineDiscount});
+      {super.key,
+      required this.receiptItemEntity,
+      this.min = double.negativeInfinity,
+      this.max = double.infinity,
+      required this.lineDiscount});
 
   @override
   State<InputLineDiscountDialog> createState() => _InputLineDiscountDialogState();
@@ -353,6 +358,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
     try {
       final double lineDiscountAmount =
           Helpers.revertMoneyToDecimalFormatDouble(_inputReturnedQtyEditingController.text);
+      if (lineDiscountAmount < widget.min || lineDiscountAmount > widget.max) throw "Invalid amount";
       context.pop(lineDiscountAmount);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());

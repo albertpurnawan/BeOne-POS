@@ -736,16 +736,22 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   Future<void> updateTotalAmountFromDiscount(
       double discValue, List<LineDiscountParameter> lineDiscountParameters) async {
     try {
+      dev.log("Before emit discount: $state");
+
       // Apply line discount
       final List<ReceiptItemEntity> appliedLineDiscReceiptItems = [];
       double totalLineDiscount = 0;
-      double totalExistingLineDiscount = 0;
+      double totalExistingLineDiscount = state.receiptItems.fold(
+          0.0,
+          (previousValue, e1) =>
+              previousValue +
+              (((100 + e1.itemEntity.taxRate) / 100) *
+                  e1.promos
+                      .where((e2) => e2.promoType == 998)
+                      .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0))));
       double newDiscHeaderPromo = 0;
 
       for (final e in lineDiscountParameters) {
-        final double existingLineDiscount =
-            (e.receiptItemEntity.promos.where((element) => element.promoType == 998).firstOrNull?.discAmount ?? 0) *
-                ((100 + e.receiptItemEntity.itemEntity.taxRate) / 100);
         final double beforeTaxLineDiscount =
             e.lineDiscountAmount * (100 / (100 + e.receiptItemEntity.itemEntity.taxRate));
         final double newDiscAmount = e.receiptItemEntity.promos
@@ -774,19 +780,19 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           ..discAmount = newDiscAmount));
         newDiscHeaderPromo += newDiscAmount;
         totalLineDiscount += e.lineDiscountAmount;
-        totalExistingLineDiscount += existingLineDiscount;
       }
 
       // Copy receipt object
       ReceiptEntity preparedReceipt = state.copyWith(
           grandTotal: state.grandTotal + totalExistingLineDiscount - totalLineDiscount,
           discHeaderPromo: newDiscHeaderPromo,
+          discAmount: newDiscHeaderPromo,
           receiptItems: appliedLineDiscReceiptItems.map((e) => e.copyWith()).toList());
 
       // Adjust when header discount already applied
       if ((state.discHeaderManual ?? 0) > 0) {
         preparedReceipt.grandTotal += state.discHeaderManual!;
-        preparedReceipt.discAmount = preparedReceipt.discHeaderPromo ?? 0;
+        // preparedReceipt.discAmount = preparedReceipt.discHeaderPromo ?? 0;
       }
 
       // Might be unnecessary
@@ -799,6 +805,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
 
       emit(updatedReceipt.copyWith(previousReceiptEntity: state.previousReceiptEntity));
+      dev.log("After emit discount: $state");
     } catch (e) {
       dev.log("Error during tax recalculation: $e");
       rethrow;

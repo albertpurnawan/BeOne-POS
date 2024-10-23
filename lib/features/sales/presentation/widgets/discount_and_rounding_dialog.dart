@@ -89,31 +89,31 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     super.dispose();
   }
 
-  String getLineDiscountsTotal() {
+  double getLineDiscountsTotal() {
     try {
       final double lineDiscountsTotal =
           lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
 
-      return Helpers.parseMoney(lineDiscountsTotal);
+      return lineDiscountsTotal;
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
       context.pop();
-      return "-";
+      return 0;
     }
   }
 
-  String getSimulatedGrandTotal() {
+  double getSimulatedGrandTotal() {
     try {
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
       final double simulatedGrandTotal = initialGrandTotal -
           Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountController.text) -
           lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
 
-      return Helpers.parseMoney(simulatedGrandTotal);
+      return simulatedGrandTotal;
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
       context.pop();
-      return "-";
+      return 0;
     }
   }
 
@@ -125,9 +125,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       }
       double input = Helpers.revertMoneyToDecimalFormat(_textEditorHeaderDiscountController.text);
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
-      if (state.grandTotal < 0) {
+      if (state.grandTotal < 0 && input != 0) {
         context.pop();
-        throw "Discount & Rounding is inapplicable on negative grand total";
+        throw "Header discount is inapplicable on negative grand total";
       }
       if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
         context.pop();
@@ -140,7 +140,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
 
-      if (input < (storeMasterEntity.minDiscount ?? 0) || input > (storeMasterEntity.maxDiscount ?? 0)) {
+      if (input < (storeMasterEntity.minDiscount ?? 0) ||
+          input > (storeMasterEntity.maxDiscount ?? 0) ||
+          lineDiscountInputs.any((element) => element.lineDiscountAmount != 0)) {
         await showDialog(
             context: context,
             barrierDismissible: false,
@@ -195,6 +197,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             onKeyEvent: (node, event) {
               if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
+                onSubmit();
+                return KeyEventResult.handled;
               } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
                 return KeyEventResult.handled;
@@ -328,7 +332,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 ),
                                 TableCell(
                                   child: Text(
-                                    getLineDiscountsTotal(),
+                                    Helpers.parseMoney(getLineDiscountsTotal()),
                                     textAlign: TextAlign.right,
                                     style: const TextStyle(fontSize: 14),
                                   ),
@@ -353,9 +357,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 ),
                                 TableCell(
                                   child: Text(
-                                    getSimulatedGrandTotal(),
+                                    Helpers.parseMoney(getSimulatedGrandTotal()),
                                     textAlign: TextAlign.right,
-                                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                                   ),
                                 ),
                               ],
@@ -553,10 +557,15 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                             return Scaffold(
                               backgroundColor: Colors.transparent,
                               body: InputLineDiscountDialog(
-                                receiptItemEntity: e.receiptItemEntity
-                                    .copyWith(promos: e.receiptItemEntity.promos.map((e) => e.copyWith()).toList()),
-                                lineDiscount: e.lineDiscountAmount,
-                              ),
+                                  receiptItemEntity: e.receiptItemEntity
+                                      .copyWith(promos: e.receiptItemEntity.promos.map((e) => e.copyWith()).toList()),
+                                  lineDiscount: e.lineDiscountAmount,
+                                  max: e.receiptItemEntity.quantity >= 0
+                                      ? e.receiptItemEntity.totalAmount + 0.49
+                                      : double.infinity,
+                                  min: e.receiptItemEntity.quantity >= 0
+                                      ? double.negativeInfinity
+                                      : e.receiptItemEntity.totalAmount - 0.49),
                             );
                           }),
                         ),
@@ -783,7 +792,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                               //     width: 4.0),
                                               borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
 
-                                              color: ProjectColors.primary,
+                                              color: Color.fromARGB(255, 11, 57, 84),
                                               // boxShadow: [
                                               //   BoxShadow(
                                               //     spreadRadius: 0.5,
