@@ -70,7 +70,9 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
     // params.subtotal -= dpAmount;
     params.discAmount = discAmountAfterHeaderDiscount;
     params.discPrctg = (params.discAmount ?? 0) / (params.subtotal == 0 ? 1 : params.subtotal);
-    params.grandTotal = params.subtotal - (params.discAmount ?? 0) - params.couponDiscount + params.taxAmount;
+    params.rounding *= (1 - discHprctg);
+    params.grandTotal =
+        params.subtotal - (params.discAmount ?? 0) - params.couponDiscount + params.taxAmount + params.rounding;
 
     log("{params.taxAmount}: ${params.taxAmount}");
     log("{params.subtotal}: ${params.subtotal}");

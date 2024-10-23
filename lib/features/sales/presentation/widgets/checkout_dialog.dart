@@ -395,7 +395,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       final ReceiptItemEntity? dpItem =
           context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
       if (dpItem != null && dpItem.quantity > 0) {
-        throw "Header discount cannot be applied on down payment deposit";
+        throw "Discount or Rounding cannot be applied on Receive DP";
       }
 
       await showDialog(
@@ -404,8 +404,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               builder: (context) => DiscountAndRoundingDialog(docnum: context.read<ReceiptCubit>().state.docNum))
           .then((value) {
         if (value != null) {
-          SnackBarHelper.presentSuccessSnackBar(
-              childContext, "Header discount/rounding applied: ${Helpers.parseMoney(value)}", 3);
+          SnackBarHelper.presentSuccessSnackBar(childContext, "Discount or Rounding Applied", 3);
         }
       });
     } catch (e) {
@@ -1684,6 +1683,19 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                           (receipt.discHeaderManual ?? 0) != 0
                                               ? _noteChip((receipt.discHeaderManual ?? 0), 3)
                                               : const SizedBox.shrink(),
+                                          receipt.receiptItems.any((e1) => e1.promos.any((e2) => e2.promoType == 998))
+                                              ? _noteChip(
+                                                  receipt.receiptItems.fold(
+                                                      0.0,
+                                                      (previousValue, e1) =>
+                                                          previousValue +
+                                                          (((100 + e1.itemEntity.taxRate) / 100) *
+                                                              e1.promos.where((e2) => e2.promoType == 998).fold(
+                                                                  0.0,
+                                                                  (previousValue, e3) =>
+                                                                      previousValue + (e3.discAmount ?? 0)))),
+                                                  4)
+                                              : const SizedBox.shrink(),
                                         ],
                                       ),
                                     ),
@@ -2420,7 +2432,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                   ? "DP ${Helpers.parseMoney(amount)}"
                   : type == 3
                       ? "HD ${Helpers.parseMoney(amount)}"
-                      : "",
+                      : type == 4
+                          ? "TLD ${Helpers.parseMoney(amount)}"
+                          : "",
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

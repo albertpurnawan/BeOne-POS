@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -65,13 +66,21 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
           padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-          child: const Row(
+          child: Row(
             children: [
-              Text(
+              const Text(
                 'Line Discount',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
-              Spacer(),
+              const Spacer(),
+              ExcludeFocus(
+                  child: InkWell(
+                onTap: () => _saveLineDiscount(amount: 0),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.white,
+                ),
+              ))
             ],
           ),
         ),
@@ -354,10 +363,10 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
     );
   }
 
-  void _saveLineDiscount() {
+  void _saveLineDiscount({double? amount}) {
     try {
       final double lineDiscountAmount =
-          Helpers.revertMoneyToDecimalFormatDouble(_inputReturnedQtyEditingController.text);
+          amount ?? Helpers.revertMoneyToDecimalFormatDouble(_inputReturnedQtyEditingController.text);
       if (lineDiscountAmount < widget.min || lineDiscountAmount > widget.max) throw "Invalid amount";
       context.pop(lineDiscountAmount);
     } catch (e) {

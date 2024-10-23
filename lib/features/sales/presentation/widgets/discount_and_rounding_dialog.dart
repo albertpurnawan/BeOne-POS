@@ -41,6 +41,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   final FocusNode _discountFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
+  final FocusScopeNode _focusScopeNode = FocusScopeNode();
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   int count = 0;
 
@@ -119,7 +120,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   Future<void> onSubmit() async {
     try {
-      if (_textEditorHeaderDiscountController.text == "-" || _textEditorHeaderDiscountController.text == "") {
+      if (_textEditorHeaderDiscountController.text == "-") {
         context.pop();
         throw "Invalid discount amount";
       }
@@ -129,7 +130,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         context.pop();
         throw "Header discount is inapplicable on negative grand total";
       }
-      if ((input > state.grandTotal + (state.discHeaderManual ?? 0))) {
+      if (state.grandTotal > 0 && (input > state.grandTotal + (state.discHeaderManual ?? 0))) {
         context.pop();
         throw "Invalid discount amount";
       }
@@ -185,15 +186,39 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     });
   }
 
+  void _resetLineDiscounts() {
+    try {
+      setState(() {
+        lineDiscountInputs = lineDiscountInputs.map((e) => e..lineDiscountAmount = 0).toList();
+      });
+      SnackBarHelper.presentSuccessSnackBar(context, "Reset line discounts success", null);
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
+  void _resetHeaderDiscount() {
+    try {
+      setState(() {
+        _textEditorHeaderDiscountController.text = "0";
+        _discountFocusNode.requestFocus();
+      });
+      SnackBarHelper.presentSuccessSnackBar(context, "Reset header discount success", null);
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: Focus(
-            // autofocus: true,
+          body: FocusScope(
+            autofocus: true,
             skipTraversal: true,
+            node: _focusScopeNode,
             onKeyEvent: (node, event) {
               if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
@@ -312,12 +337,34 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                   ),
                                 ),
                                 TableCell(
-                                  child: Text(
-                                    _textEditorHeaderDiscountController.text == ""
-                                        ? "0"
-                                        : _textEditorHeaderDiscountController.text,
-                                    textAlign: TextAlign.right,
-                                    style: const TextStyle(fontSize: 14),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          _textEditorHeaderDiscountController.text == "" ||
+                                                  _textEditorHeaderDiscountController.text == "0" ||
+                                                  _textEditorHeaderDiscountController.text == "-"
+                                              ? "0"
+                                              : _textEditorHeaderDiscountController.text,
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        ExcludeFocus(
+                                          child: InkWell(
+                                              onTap: () => _resetHeaderDiscount(),
+                                              child: const Icon(
+                                                Icons.delete_outline_rounded,
+                                                color: ProjectColors.swatch,
+                                                size: 16,
+                                              )),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -331,10 +378,30 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                   ),
                                 ),
                                 TableCell(
-                                  child: Text(
-                                    Helpers.parseMoney(getLineDiscountsTotal()),
-                                    textAlign: TextAlign.right,
-                                    style: const TextStyle(fontSize: 14),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          Helpers.parseMoney(getLineDiscountsTotal()),
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        ExcludeFocus(
+                                          child: InkWell(
+                                              onTap: () => _resetLineDiscounts(),
+                                              child: const Icon(
+                                                Icons.delete_outline_rounded,
+                                                color: ProjectColors.swatch,
+                                                size: 16,
+                                              )),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
